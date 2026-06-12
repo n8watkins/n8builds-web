@@ -1,0 +1,124 @@
+# HANDOFF — Nate Builds (n8builds-web)
+
+_Last updated: 2026-06-11 (session: rebrand, repo separation, TechStackCycle)_
+
+## Project summary
+
+**Nate Builds** is Nathan Watkins' public builder-lab site — the top-of-funnel
+personality brand in a three-brand ecosystem:
+
+| Brand | Job | Where |
+|---|---|---|
+| **Nate Builds** (this repo) | audience + attention ("building software in public") | n8builds.dev · github.com/n8watkins/n8builds-web |
+| Portfolio 2.0 | developer credibility | nathansportfolio.vercel.app · `/home/natkins/portfolio/portfolio2.0` |
+| Appturnity | client work / consulting funnel | appturnity.web.app |
+
+Nate Builds should *feed* the other two (bridge links), never replace them.
+Stack: Next.js 16 (Turbopack dev), TypeScript, Tailwind, framer-motion,
+Playwright, Resend contact form. Cloned from Portfolio 2.0, then rebranded.
+Dev runs at **http://localhost:1337** (`npm run dev`). Not yet deployed —
+Vercel project + n8builds.dev domain hookup is pending (Nate owns the domain).
+
+## State (this session's commits, all pushed to origin/main)
+
+- `60c8a4b` — **TechStackCycle** (`components/Projects/TechStackCycle.tsx`):
+  dock-hover tech icon component ported from Portfolio 2.0's IconCycle,
+  restructured into Frontend/Backend/Cloud tabs + synced description bullets +
+  auto-cycling icon dock. Used in `components/sections/FeaturedProjects.tsx`
+  (data comes from `data/projects.tsx` by title lookup). Site-wide purple→blue
+  re-theme (Twitch hover stays purple deliberately). Scrollbar 8px / lighter.
+- `f3d9fc3` — N8 neon brand icon (from `/mnt/c/Users/natha/Downloads/n8 brand.png`,
+  resized via sharp) as favicon set; `/portfolio` and `/appturnity` redirects in
+  `next.config.mjs`; AI-flavored hero/marquee copy ("agent-assisted builds,
+  prompt-native workflows, local inference"; chain `idea → prompt → build →
+  stream → ship → repeat`).
+- `1802ae3` — **Repo separation**: origin moved from Portfolio2.0.git to
+  n8builds-web.git; sitemap/robots/siteUrl/contact-CORS fallbacks →
+  https://n8builds.dev; `.env.local` cleaned (GA + reCAPTCHA blanked with
+  TODOs); GA script renders only when `NEXT_PUBLIC_GA_ID` set; new OG
+  `public/tab/preview.png` from the real hero; README rebranded.
+- Portfolio repo got one commit `a40a727` (N8 icon as its favicon too) —
+  **local only, not pushed** (user hasn't asked to push portfolio).
+
+**Verified working:** type-check + eslint clean; dev server 200; `/portfolio`
+→ 307 nathansportfolio.vercel.app; `/appturnity` → 307 appturnity.web.app;
+sitemap emits n8builds.dev; gtag script absent while GA ID blank; `.env.local`
+confirmed NOT tracked/in history (only placeholder `.env*.example` files are).
+
+## Next steps (ordered)
+
+Code-side (from the brand-architecture analysis, see "Decisions" below):
+
+1. **Build detail pages** — `/builds/[slug]` with screenshots,
+   problem/solution, stack, process notes; make ProjectsMarquee cards
+   (`components/sections/ProjectsMarquee.tsx`) link into them. This is the #1
+   gap: Nate wants "more from an individual build" while keeping the marquee.
+2. **N8 Notes** (blog) — name is decided ("N8 Notes", beat out "Nate's
+   Notions"). Homepage preview section (3–5 latest cards) + posts. There is a
+   separate blog project at `/home/natkins/n8builds/blog` — check whether to
+   integrate or link before building from scratch.
+3. **Hero upgrades** — "LIVE on VibeLog" badge (corner, conditional) and an
+   LA callout ("Base of operations: Los Angeles, CA"). Headshot already there.
+4. **AI Loadout section** — tight curated "stack I actually use" card with
+   icons (NOT a wall of every tech). `data/techStack.tsx` has icon data.
+5. **Work With Me bridge section** — two cards: "Need a developer?" →
+   portfolio, "Need a website/business system?" → Appturnity (footer partially
+   covers this today).
+
+Account-side (needs Nate, not code):
+
+- Vercel project + n8builds.dev domain
+- New GA4 property (do NOT reuse portfolio's `G-JZQGKY9Q37`) → `.env.local`
+- New reCAPTCHA v3 keys bound to n8builds.dev (portfolio's are domain-bound;
+  form skips verification while blank — that's by design, see
+  `lib/security/recaptcha.ts`)
+- Resend: verify n8builds.dev, switch `CONTACT_EMAIL_FROM`
+- Optional Sentry: `instrumentation.ts` / `instrumentation-client.ts` are
+  empty placeholders ready for `npx @sentry/wizard -i nextjs`
+
+## Decisions already made (do not re-ask)
+
+- Blue/cyan accents, **no purple** (except Twitch brand hover in Navbar).
+- Blog name: **N8 Notes**.
+- Marquee stays as browse-entry; drill-in via detail pages.
+- Footer/Navbar/redirect links to nathansportfolio.vercel.app and
+  appturnity.web.app are intentional bridges, not leftovers.
+- Keep the three brands on separate sites; no mega-site.
+- The N8 neon icon (blue→purple gradient square) is the brand mark for
+  favicons on BOTH n8builds and the portfolio.
+
+## Conventions & gotchas
+
+- Commit after each logical change; trailer
+  `Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>`. lint-staged runs
+  eslint --fix on commit. Push n8builds-web freely; portfolio only when asked.
+- `npm run dev` = port 1337 (`next dev -p 1337`). If `EADDRINUSE`, a stale
+  dev server is holding the port: `ss -ltnp | grep 1337` then kill it.
+  Portfolio dev runs on 4829 — both can run simultaneously.
+- Env or `next.config.mjs` changes need a dev-server restart.
+- Node scripts importing project deps (sharp, playwright) fail from /tmp —
+  copy the script into the repo first; import playwright as
+  `@playwright/test` (plain `playwright` isn't installed).
+- Screenshot trick: Playwright headless against :1337; strip dev overlays
+  with `document.querySelectorAll('[class*="z-\\[9999\\]"], nextjs-portal')
+  .forEach(el => el.remove())` before capturing (used for OG image).
+- `git check-ignore <path>` echoes the path on success — don't mistake it for
+  ls-files output when auditing tracked files.
+- Project memory for Claude sessions lives at
+  `~/.claude/projects/-home-natkins-n8builds/memory/` — update it for brand
+  decisions.
+
+## File map
+
+- `components/Projects/TechStackCycle.tsx` — dock-hover tech stack (tabs/bullets/icons)
+- `components/sections/FeaturedProjects.tsx` — sideways featured rows; consumes TechStackCycle
+- `components/sections/ProjectsMarquee.tsx` — "Builds from the lab" marquee (next: link to detail pages)
+- `components/sections/Hero.tsx` — hero; next: LIVE badge + LA callout
+- `data/projects.tsx` — project data incl. Frontend/Backend/Cloud descriptionParts + techNameMapping
+- `data/techStack.tsx` — react-icons tech list (for AI Loadout)
+- `app/layout.tsx` — metadata, siteUrl, gated GA scripts, favicon set
+- `next.config.mjs` — /portfolio + /appturnity redirects, headers
+- `app/sitemap.ts`, `public/robots.txt` — n8builds.dev SEO
+- `.env.local` — TODOs for GA/reCAPTCHA/Resend (untracked; examples are tracked)
+- `public/tab/` — n8-icon*.png, apple-icon.png, preview.png (OG), n8-logo.png (navbar)
+- `docs/` — this handoff + older bundle/code-quality notes; `FOLLOW_UP.md`, `PIN_IT.md` at root predate this session
