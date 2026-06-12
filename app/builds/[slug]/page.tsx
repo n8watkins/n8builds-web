@@ -41,7 +41,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
       <div className="max-w-4xl mx-auto px-5 sm:px-8 py-10 md:py-16">
         {/* Top nav */}
         <Link
-          href="/#builds"
+          href="/#lab"
           className="inline-flex items-center gap-2 text-sm font-semibold text-slate-400 hover:text-cyan-300 transition-colors"
         >
           <FiArrowLeft className="w-4 h-4" />
@@ -192,7 +192,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
         {/* Footer nav */}
         <footer className="mt-16 pt-8 border-t border-white/8 flex flex-wrap items-center justify-between gap-4">
           <Link
-            href="/#builds"
+            href="/#lab"
             className="inline-flex items-center gap-2 text-sm font-semibold text-slate-400 hover:text-cyan-300 transition-colors"
           >
             <FiArrowLeft className="w-4 h-4" />
