@@ -1,5 +1,6 @@
 import { getTransporter, EMAIL_CONFIG } from '@/lib/email/smtp'
 import { createContactEmailHtml, createAutoReplyHtml, getSubjectSpecificLine } from '@/lib/email/templates'
+import { EMAIL_ICONS } from '@/lib/email/icons'
 import { subjectOptions, type ContactFormData } from '@/lib/validations/contact'
 import { logger } from '@/lib/logger'
 
@@ -49,7 +50,7 @@ export async function sendContactEmails(data: ContactFormData): Promise<EmailRes
       from: EMAIL_CONFIG.from,
       to: EMAIL_CONFIG.to,
       replyTo: data.email,
-      subject: `🚀 New opportunity — ${data.name}`,
+      subject: `${subjectLabel} — ${data.name}`,
       html: contactEmailHtml,
       text: `
 New contact form submission:
@@ -83,6 +84,15 @@ Sent from your portfolio contact form at ${new Date().toLocaleString()}
       replyTo: EMAIL_CONFIG.contactEmail,
       subject: '👋 Got your message',
       html: autoReplyHtml,
+      // Signature icons ride along as inline images so they render without
+      // depending on the deployed site or on remote-image loading.
+      attachments: (['linkedin', 'github', 'x'] as const).map(name => ({
+        filename: `${name}.png`,
+        content: Buffer.from(EMAIL_ICONS[name], 'base64'),
+        contentType: 'image/png',
+        cid: `icon-${name}`,
+        contentDisposition: 'inline' as const,
+      })),
       text: `
 Hey ${data.name},
 

@@ -236,6 +236,7 @@ export function createAutoReplyHtml(data: ContactFormData): string {
   const sanitizedName = sanitizeHtml(data.name)
   const firstName = sanitizedName.split(' ')[0] || 'there'
   const subjectLine = getSubjectSpecificLine(data.subject)
+  const subjectLabel = subjectOptions.find(opt => opt.value === data.subject)?.label || data.subject
 
   return `
 <!DOCTYPE html>
@@ -260,6 +261,7 @@ export function createAutoReplyHtml(data: ContactFormData): string {
           <tr>
             <td style="padding:20px 24px;background:linear-gradient(135deg,#06b6d4,#2563eb);color:#fff;">
               <h1 style="margin:0;font-size:22px;font-weight:600;">👋 Got your message</h1>
+              <p style="margin:6px 0 0;font-size:14px;color:#ecf3ff;">${sanitizeHtml(subjectLabel)}</p>
             </td>
           </tr>
 
@@ -288,17 +290,17 @@ export function createAutoReplyHtml(data: ContactFormData): string {
                 <tr>
                   <td style="padding-right:14px;">
                     <a href="${EMAIL_CONFIG.linkedinUrl}">
-                      <img src="${EMAIL_CONFIG.siteUrl}/email/linkedin.png" width="22" height="22" alt="LinkedIn" style="display:block;border:0;">
+                      <img src="cid:icon-linkedin" width="22" height="22" alt="LinkedIn" style="display:block;border:0;">
                     </a>
                   </td>
                   <td style="padding-right:14px;">
                     <a href="${EMAIL_CONFIG.githubUrl}">
-                      <img src="${EMAIL_CONFIG.siteUrl}/email/github.png" width="22" height="22" alt="GitHub" style="display:block;border:0;">
+                      <img src="cid:icon-github" width="22" height="22" alt="GitHub" style="display:block;border:0;">
                     </a>
                   </td>
                   <td>
                     <a href="${EMAIL_CONFIG.xUrl}">
-                      <img src="${EMAIL_CONFIG.siteUrl}/email/x.png" width="22" height="22" alt="X" style="display:block;border:0;">
+                      <img src="cid:icon-x" width="22" height="22" alt="X" style="display:block;border:0;">
                     </a>
                   </td>
                 </tr>
