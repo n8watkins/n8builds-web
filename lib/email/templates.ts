@@ -75,9 +75,9 @@ export function createContactEmailHtml(data: ContactFormData): string {
             padding: 0;
             background: #f6f7fb;
           }
-          .container { max-width: 700px; margin: 0 auto; padding: 20px; }
+          .container { max-width: 600px; margin: 0 auto; padding: 16px; }
           .header {
-            background: linear-gradient(135deg, #6d5efc 0%, #3ab0ff 100%);
+            background: linear-gradient(135deg, #06b6d4 0%, #2563eb 100%);
             color: white;
             padding: 24px;
             border-radius: 12px 12px 0 0;
@@ -175,7 +175,7 @@ export function createContactEmailHtml(data: ContactFormData): string {
       <body>
         <div class="container">
           <div class="header">
-            <h1>🚀 New Contact Received!</h1>
+            <h1>🚀 New opportunity</h1>
             <p>${insights.context}</p>
           </div>
 
@@ -211,59 +211,30 @@ export function createContactEmailHtml(data: ContactFormData): string {
 export function createAutoReplyHtml(data: ContactFormData): string {
   const sanitizedName = sanitizeHtml(data.name)
   const firstName = sanitizedName.split(' ')[0] || 'there'
-  const subjectLabel = subjectOptions.find(opt => opt.value === data.subject)?.label || data.subject
-
-  // Helper function to get subject-specific content
-  function getSubjectSpecificContent(subject: string): string {
-    switch (subject) {
-      case 'networking':
-        return `
-              <p style="margin:0 0 12px;font-size:15px;color:#374151;">
-                Always happy to connect. Here's my
-                <a href="${EMAIL_CONFIG.linkedinUrl}" style="color:#3b82f6;">LinkedIn</a> and
-                <a href="${EMAIL_CONFIG.xUrl}" style="color:#3b82f6;">X</a> if you'd like to stay in touch.
-              </p>`
-      case 'project_opportunity':
-        return `
-              <p style="margin:0 0 12px;font-size:15px;color:#374151;">
-                Excited to hear about your project. If you've got a brief or Loom, replying with that helps me prep before we talk.
-              </p>`
-      case 'consulting':
-        return `
-              <p style="margin:0 0 12px;font-size:15px;color:#374151;">
-                For consulting work, a quick scope of goals and timeline will help me frame recommendations — reply with any details you can.
-              </p>`
-      default:
-        return ''
-    }
-  }
 
   return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Thanks for reaching out</title>
+  <title>Got your message</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
 </head>
 <body style="margin:0;padding:0;background:#f6f7fb;font-family:Segoe UI,Arial,sans-serif;">
   <!-- Preheader (hidden) -->
   <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
-    I'll get back within 24h. In the meantime, here's a quick next step.
+    Appreciate you reaching out — I normally reply within 24 hours.
   </div>
 
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f6f7fb;">
     <tr>
-      <td align="center" style="padding:20px;">
-        <table role="presentation" width="700" style="max-width:700px;background:#ffffff;border-radius:14px;border:1px solid #e5e7eb;overflow:hidden;">
+      <td align="center" style="padding:16px;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;background:#ffffff;border-radius:14px;border:1px solid #e5e7eb;overflow:hidden;">
 
           <!-- Header -->
           <tr>
-            <td style="padding:24px;background:linear-gradient(135deg,#6d5efc,#3ab0ff);color:#fff;">
-              <h1 style="margin:0;font-size:22px;font-weight:600;">👋 Got your message!</h1>
-              <p style="margin:6px 0 0;font-size:14px;color:#ecf3ff;">
-                About: <strong>${sanitizeHtml(subjectLabel)}</strong>
-              </p>
+            <td style="padding:20px 24px;background:linear-gradient(135deg,#06b6d4,#2563eb);color:#fff;">
+              <h1 style="margin:0;font-size:22px;font-weight:600;">👋 Got your message</h1>
             </td>
           </tr>
 
@@ -273,35 +244,50 @@ export function createAutoReplyHtml(data: ContactFormData): string {
               <p style="margin:0 0 12px;font-size:16px;color:#111827;">Hey ${sanitizeHtml(firstName)},</p>
 
               <p style="margin:0 0 12px;font-size:15px;color:#374151;">
-                Appreciate you reaching out — I'll reply within <strong>24 hours</strong> (often sooner).
+                Appreciate you reaching out — I normally reply within <strong>24 hours</strong>. Excited to hear more.
               </p>
 
-              ${getSubjectSpecificContent(data.subject)}
+              <p style="margin:0 0 12px;font-size:15px;color:#374151;">
+                If you've got a brief or a Loom, replying with that helps.
+              </p>
 
-              <!-- Credibility / Social Proof -->
-              <p style="margin:16px 0 0;font-size:14px;color:#6b7280;">
-                Recent interests &amp; work: Claude-driven coding workflows, YouTube auto-summary newsletters, and exploring every angle of bringing generative AI into SaaS.
+              <p style="margin:0 0 12px;font-size:15px;color:#374151;">
+                Looking forward to connecting.
               </p>
 
               <!-- Signature -->
               <p style="margin:20px 0 0;font-size:15px;color:#111827;font-weight:600;">– Nathan "n8" Watkins</p>
-              <p style="margin:4px 0 0;font-size:13px;color:#374151;">Front-end / Full-stack Developer</p>
-              <p style="margin:4px 0 0;font-size:13px;color:#374151;">
-                <a href="mailto:${EMAIL_CONFIG.contactEmail}" style="color:#3b82f6;">${EMAIL_CONFIG.contactEmail}</a>
+              <p style="margin:4px 0 0;font-size:13px;color:#374151;">Full Stack AI Developer</p>
+              <p style="margin:4px 0 0;font-size:13px;">
+                <a href="mailto:${EMAIL_CONFIG.contactEmail}" style="color:#2563eb;">${EMAIL_CONFIG.contactEmail}</a>
               </p>
-              <p style="margin:4px 0 0;font-size:13px;color:#374151;">
-                <a href="${EMAIL_CONFIG.linkedinUrl}" style="color:#3b82f6;">LinkedIn</a> ·
-                <a href="${EMAIL_CONFIG.githubUrl}" style="color:#3b82f6;">GitHub</a> ·
-                <a href="${EMAIL_CONFIG.xUrl}" style="color:#3b82f6;">X</a>
-              </p>
+              <table role="presentation" cellspacing="0" cellpadding="0" style="margin-top:12px;">
+                <tr>
+                  <td style="padding-right:14px;">
+                    <a href="${EMAIL_CONFIG.linkedinUrl}">
+                      <img src="${EMAIL_CONFIG.siteUrl}/email/linkedin.png" width="22" height="22" alt="LinkedIn" style="display:block;border:0;">
+                    </a>
+                  </td>
+                  <td style="padding-right:14px;">
+                    <a href="${EMAIL_CONFIG.githubUrl}">
+                      <img src="${EMAIL_CONFIG.siteUrl}/email/github.png" width="22" height="22" alt="GitHub" style="display:block;border:0;">
+                    </a>
+                  </td>
+                  <td>
+                    <a href="${EMAIL_CONFIG.xUrl}">
+                      <img src="${EMAIL_CONFIG.siteUrl}/email/x.png" width="22" height="22" alt="X" style="display:block;border:0;">
+                    </a>
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
 
           <!-- Footer -->
           <tr>
-            <td style="padding:14px 24px 20px;">
-              <p style="margin:0;font-size:12px;color:#9aa3af;">
-                You're receiving this one-time email because you submitted the contact form on ${EMAIL_CONFIG.siteDomain}. This is not a subscription.
+            <td style="padding:0 24px 16px;">
+              <p style="margin:0;font-size:11px;color:#9aa3af;">
+                One-time email — you submitted the contact form on <a href="${EMAIL_CONFIG.siteUrl}" style="color:#9aa3af;">${EMAIL_CONFIG.siteDomain}</a>. Not a subscription.
               </p>
             </td>
           </tr>

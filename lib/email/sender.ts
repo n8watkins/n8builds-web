@@ -49,7 +49,7 @@ export async function sendContactEmails(data: ContactFormData): Promise<EmailRes
       from: EMAIL_CONFIG.from,
       to: EMAIL_CONFIG.to,
       replyTo: data.email,
-      subject: `💼 New Contact Form Submission from ${data.name}`,
+      subject: `🚀 New opportunity — ${data.name}`,
       html: contactEmailHtml,
       text: `
 New contact form submission:
@@ -80,23 +80,24 @@ Sent from your portfolio contact form at ${new Date().toLocaleString()}
     const autoReplyResult = await transporter.sendMail({
       from: EMAIL_CONFIG.from,
       to: data.email,
-      subject: '🎉 Thanks for reaching out!',
+      replyTo: EMAIL_CONFIG.contactEmail,
+      subject: '👋 Got your message',
       html: autoReplyHtml,
       text: `
-Hi ${data.name},
+Hey ${data.name},
 
-Thanks for getting in touch! I've received your message and I'm excited to learn more about your project.
+Appreciate you reaching out — I normally reply within 24 hours. Excited to hear more.
 
-I'll review your message and get back to you within 24 hours. In the meantime, feel free to:
-• Check out my latest projects on the portfolio
-• Connect with me on LinkedIn: https://www.linkedin.com/in/n8watkins/
-• Follow my work on GitHub: https://github.com/n8watkins
+If you've got a brief or a Loom, replying with that helps.
 
-Looking forward to our conversation! 🚀
+Looking forward to connecting.
 
-Best regards,
-Nathan Watkins
-Full-Stack Developer
+– Nathan "n8" Watkins
+Full Stack AI Developer
+${EMAIL_CONFIG.contactEmail}
+LinkedIn: ${EMAIL_CONFIG.linkedinUrl}
+GitHub: ${EMAIL_CONFIG.githubUrl}
+X: ${EMAIL_CONFIG.xUrl}
       `.trim(),
     })
 
