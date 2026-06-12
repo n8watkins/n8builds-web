@@ -83,9 +83,9 @@ export default defineConfig({
       Object.entries({
         NODE_ENV: 'test',
         // Pass all environment variables from .env.local to the test server
-        RESEND_API_KEY: process.env.RESEND_API_KEY,
+        GMAIL_USER: process.env.GMAIL_USER,
+        GMAIL_APP_PASSWORD: process.env.GMAIL_APP_PASSWORD,
         CONTACT_EMAIL_TO: process.env.CONTACT_EMAIL_TO,
-        CONTACT_EMAIL_FROM: process.env.CONTACT_EMAIL_FROM,
         NEXT_PUBLIC_RECAPTCHA_SITE_KEY: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
         RECAPTCHA_SECRET_KEY: process.env.RECAPTCHA_SECRET_KEY,
         NEXT_PUBLIC_GA_ID: process.env.NEXT_PUBLIC_GA_ID,

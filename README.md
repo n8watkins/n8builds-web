@@ -5,7 +5,7 @@ The public builder lab of Nathan Watkins — a Next.js site for building softwar
 ## ✨ Key Features
 
 - **Modern Stack**: Next.js 14 with App Router, TypeScript, and Tailwind CSS
-- **Enterprise Contact Form**: 7-layer security with Resend, reCAPTCHA v3, rate limiting, and XSS protection
+- **Enterprise Contact Form**: 7-layer security with Gmail SMTP, reCAPTCHA v3, rate limiting, and XSS protection
 - **Advanced Animations**: Framer Motion with scroll-triggered fade-ins and interactive elements
 - **Performance Optimized**: 340 kB bundle size, optimized images, and comprehensive monitoring
 - **Security First**: Multi-layer protection with rate limiting (5/hour), honeypot, and sanitization
@@ -30,7 +30,7 @@ The public builder lab of Nathan Watkins — a Next.js site for building softwar
 
 **Backend:**
 - Next.js API Routes
-- Resend for email delivery
+- Nodemailer + Gmail SMTP for email delivery
 - Google reCAPTCHA v3
 - Comprehensive security middleware
 
@@ -170,10 +170,10 @@ NEXT_PUBLIC_VERSION=2.0
 NEXT_PUBLIC_RECAPTCHA_SITE_KEY=your_site_key
 RECAPTCHA_SECRET_KEY=your_secret_key
 
-# Resend Email Service
-RESEND_API_KEY=your_resend_api_key
+# Contact Form Email (Nodemailer + Gmail SMTP)
+GMAIL_USER=your@gmail.com
+GMAIL_APP_PASSWORD=your_gmail_app_password
 CONTACT_EMAIL_TO=your-email@domain.com
-CONTACT_EMAIL_FROM=contact@your-domain.com
 
 # Sentry (Optional - Error Tracking)
 SENTRY_AUTH_TOKEN=your_sentry_token
@@ -186,7 +186,7 @@ NEXT_PUBLIC_SENTRY_DSN=your_sentry_dsn
 |---------|-----|-----------|-------|
 | Google Analytics | [analytics.google.com](https://analytics.google.com) | ✅ Yes | Create a GA4 property |
 | reCAPTCHA v3 | [google.com/recaptcha](https://www.google.com/recaptcha/admin) | ✅ Yes | Select "reCAPTCHA v3" (NOT v2) |
-| Resend | [resend.com](https://resend.com/api-keys) | ✅ 100 emails/day | Modern email API |
+| Gmail app password | [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords) | ✅ ~500 emails/day | Requires 2-step verification |
 | Sentry | [sentry.io](https://sentry.io) | ✅ 5K errors/month | Error tracking (optional) |
 
 ## 📧 Contact Form Deep Dive
@@ -224,7 +224,7 @@ The contact form is a production-ready enterprise solution with multiple layers 
 4. reCAPTCHA token verification (0.5+ score)
 5. Data sanitization with DOMPurify
 6. Zod schema validation
-7. Email sending via Resend API
+7. Email sending via Nodemailer (Gmail SMTP)
 8. Auto-reply confirmation email
 
 ### Security Measures (7 Layers)

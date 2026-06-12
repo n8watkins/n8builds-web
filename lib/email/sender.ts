@@ -1,4 +1,4 @@
-import { resend, EMAIL_CONFIG } from '@/lib/email/resend'
+import { getTransporter, EMAIL_CONFIG } from '@/lib/email/smtp'
 import { createContactEmailHtml, createAutoReplyHtml } from '@/lib/email/templates'
 import { subjectOptions, type ContactFormData } from '@/lib/validations/contact'
 import { logger } from '@/lib/logger'
@@ -30,6 +30,8 @@ export interface EmailResult {
  */
 export async function sendContactEmails(data: ContactFormData): Promise<EmailResult> {
   try {
+    const transporter = getTransporter()
+
     // Get subject label for display
     const subjectLabel =
       subjectOptions.find((opt) => opt.value === data.subject)?.label || data.subject
@@ -43,9 +45,10 @@ export async function sendContactEmails(data: ContactFormData): Promise<EmailRes
 
     const contactEmailHtml = createContactEmailHtml(data)
 
-    const notificationResult = await resend.emails.send({
+    const notificationResult = await transporter.sendMail({
       from: EMAIL_CONFIG.from,
       to: EMAIL_CONFIG.to,
+      replyTo: data.email,
       subject: `💼 New Contact Form Submission from ${data.name}`,
       html: contactEmailHtml,
       text: `
@@ -62,13 +65,8 @@ Sent from your portfolio contact form at ${new Date().toLocaleString()}
       `.trim(),
     })
 
-    if (notificationResult.error) {
-      logger.error('❌ Notification email failed:', notificationResult.error)
-      throw new Error(`Resend error: ${notificationResult.error.message}`)
-    }
-
     logger.info('✅ Notification email sent successfully')
-    logger.info('   Email ID:', notificationResult.data?.id)
+    logger.info('   Message ID:', notificationResult.messageId)
 
     // ========================================
     // STEP 2: Send auto-reply email to submitter
@@ -79,7 +77,7 @@ Sent from your portfolio contact form at ${new Date().toLocaleString()}
 
     const autoReplyHtml = createAutoReplyHtml(data)
 
-    const autoReplyResult = await resend.emails.send({
+    const autoReplyResult = await transporter.sendMail({
       from: EMAIL_CONFIG.from,
       to: data.email,
       subject: '🎉 Thanks for reaching out!',
@@ -102,18 +100,13 @@ Full-Stack Developer
       `.trim(),
     })
 
-    if (autoReplyResult.error) {
-      logger.error('❌ Auto-reply email failed:', autoReplyResult.error)
-      throw new Error(`Resend error: ${autoReplyResult.error.message}`)
-    }
-
     logger.info('✅ Auto-reply email sent successfully')
-    logger.info('   Email ID:', autoReplyResult.data?.id)
+    logger.info('   Message ID:', autoReplyResult.messageId)
 
     return {
       success: true,
-      notificationId: notificationResult.data?.id,
-      autoReplyId: autoReplyResult.data?.id,
+      notificationId: notificationResult.messageId,
+      autoReplyId: autoReplyResult.messageId,
     }
   } catch (error) {
     logger.error('❌ Email sending error:', error)

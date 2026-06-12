@@ -1,6 +1,6 @@
 import { ContactFormData } from '@/lib/validations/contact'
 import { subjectOptions } from '@/lib/validations/contact'
-import { EMAIL_CONFIG } from '@/lib/email/resend'
+import { EMAIL_CONFIG } from '@/lib/email/smtp'
 import DOMPurify from 'isomorphic-dompurify'
 
 // Security: Sanitization function
@@ -194,7 +194,7 @@ export function createContactEmailHtml(data: ContactFormData): string {
 
 
             <div class="footer">
-              <p>📧 Received via n8sportfolio.vercel.app contact form</p>
+              <p>📧 Received via ${EMAIL_CONFIG.siteDomain} contact form</p>
               <p>🕐 ${timestamp}</p>
             </div>
           </div>
