@@ -1,6 +1,6 @@
 # HANDOFF — Nate Builds (n8builds-web)
 
-_Last updated: 2026-06-12 (session: /builds/[slug] detail pages)_
+_Last updated: 2026-06-12 (session: deploy + email architecture planning)_
 
 ## Project summary
 
@@ -71,9 +71,56 @@ confirmed NOT tracked/in history (only placeholder `.env*.example` files are).
 - `scripts/shot-builds.mjs` — Playwright screenshot script used for visual
   verification (run with `node scripts/shot-builds.mjs`, dev server up).
 
+## Done 2026-06-12 (planning session): deploy + email architecture
+
+No code changes in this repo. Outcome: the full deploy/email plan is decided
+and written up in Nathan's personal docs repo — **`/home/natkins/docs`**
+(private, github.com/n8watkins/docs): `faq/email-and-domains.md` and
+`faq/deploying-to-vercel.md`. Read those before touching email or deploy work;
+the summary below is the short version.
+
+**The Resend situation (why it's being dropped from this repo):**
+
+- Resend free tier = 1 verified domain, **on the first team only**; creating a
+  second team requires a paid plan from $20/mo (verified June 2026 against
+  resend.com/blog/multiple-teams + pricing). Nathan's one free slot is taken
+  by **Appturnity**, so n8builds.dev can't be verified for free.
+- The `onboarding@resend.dev` fallback sender only delivers to the account
+  owner's email — the contact form's auto-reply to submitters
+  (`lib/email/sender.ts` sends TWO emails) would fail in production.
+- Decision: **replace Resend with Nodemailer + Gmail SMTP** in this repo.
+  Nathan's Resend account stays untouched, serving Appturnity only (including
+  Gmail "Send mail as" via smtp.resend.com, which he set up this session).
+
+**Facts established (don't re-research):** n8builds.dev DNS is already on
+Cloudflare nameservers (khloe/albert.ns.cloudflare.com), no A/MX records yet.
+Vercel CLI installed + logged in (`natkins23`); gh CLI logged in
+(`n8watkins`). Google Workspace, if ever bought, is ONE account for ALL his
+domains (secondary domains are free; $7/mo Business Starter user) — deferred
+until he wants authenticated reply-as for n8builds.dev.
+
 ## Next steps (ordered)
 
-Code-side (from the brand-architecture analysis, see "Decisions" below):
+1. **Nodemailer swap** (code, agreed but not implemented): replace the Resend
+   SDK in `lib/email/resend.ts` + `lib/email/sender.ts` with `nodemailer`
+   against `smtp.gmail.com` (app password). New env vars (e.g. `GMAIL_USER`,
+   `GMAIL_APP_PASSWORD`) replacing `RESEND_API_KEY`/`CONTACT_EMAIL_FROM`;
+   update `.env*.example`. **Gotcha:** the notification must go straight to
+   nathancwatkins23@gmail.com, NOT to contact@n8builds.dev — that address
+   forwards back to the same Gmail and Gmail dedupes self-sent mail, so
+   submissions would never surface in the inbox. Acceptance: form submit
+   delivers notification + auto-reply via Gmail SMTP; type-check/lint clean.
+2. **Vercel deploy** (Nathan in browser, agent can drive CLI): import
+   n8watkins/n8builds-web at vercel.com/new, env vars before first deploy,
+   then add n8builds.dev (A 76.76.21.21 apex / CNAME cname.vercel-dns.com www
+   in Cloudflare DNS, **grey cloud / DNS only**). Details:
+   `~/docs/faq/deploying-to-vercel.md`.
+3. **Cloudflare Email Routing** (Nathan, ~5 min): Email → Email Routing on
+   n8builds.dev, contact@ → nathancwatkins23@gmail.com. Receive-only;
+   coexists with Vercel records (MX vs A/CNAME).
+
+Code-side feature work after that (from the brand-architecture analysis, see
+"Decisions" below):
 
 1. **N8 Notes** (blog) — name is decided ("N8 Notes", beat out "Nate's
    Notions"). Homepage preview section (3–5 latest cards) + posts. There is a
@@ -87,14 +134,13 @@ Code-side (from the brand-architecture analysis, see "Decisions" below):
    portfolio, "Need a website/business system?" → Appturnity (footer partially
    covers this today).
 
-Account-side (needs Nate, not code):
+Account-side, post-launch (needs Nate, not code):
 
-- Vercel project + n8builds.dev domain
 - New GA4 property (do NOT reuse portfolio's `G-JZQGKY9Q37`) → `.env.local`
 - New reCAPTCHA v3 keys bound to n8builds.dev (portfolio's are domain-bound;
   form skips verification while blank — that's by design, see
   `lib/security/recaptcha.ts`)
-- Resend: verify n8builds.dev, switch `CONTACT_EMAIL_FROM`
+- ~~Resend: verify n8builds.dev~~ — obsolete, see the Resend section above
 - Optional Sentry: `instrumentation.ts` / `instrumentation-client.ts` are
   empty placeholders ready for `npx @sentry/wizard -i nextjs`
 
@@ -108,6 +154,13 @@ Account-side (needs Nate, not code):
 - Keep the three brands on separate sites; no mega-site.
 - The N8 neon icon (blue→purple gradient square) is the brand mark for
   favicons on BOTH n8builds and the portfolio.
+- **No Resend in this repo** — contact form sends via Nodemailer + Gmail SMTP
+  (free tier limits make Resend paid-only for a second domain; rationale in
+  `~/docs/faq/email-and-domains.md`).
+- contact@n8builds.dev is the public-facing address (Cloudflare forwards to
+  Gmail); the form's notification email targets the Gmail address directly.
+- Google Workspace: deferred; when bought it's ONE account covering all
+  domains — never one account per domain.
 
 ## Conventions & gotchas
 
@@ -143,6 +196,8 @@ Account-side (needs Nate, not code):
 - `app/layout.tsx` — metadata, siteUrl, gated GA scripts, favicon set
 - `next.config.mjs` — /portfolio + /appturnity redirects, headers
 - `app/sitemap.ts`, `public/robots.txt` — n8builds.dev SEO
-- `.env.local` — TODOs for GA/reCAPTCHA/Resend (untracked; examples are tracked)
+- `lib/email/resend.ts`, `lib/email/sender.ts`, `lib/email/templates.ts` — contact-form email; target of the Nodemailer swap (next step 1)
+- `.env.local` — TODOs for GA/reCAPTCHA (untracked; examples are tracked); email vars change with the Nodemailer swap
+- `/home/natkins/docs` — Nathan's personal FAQ repo (private, github.com/n8watkins/docs): email + Vercel deploy rationale
 - `public/tab/` — n8-icon*.png, apple-icon.png, preview.png (OG), n8-logo.png (navbar)
 - `docs/` — this handoff + older bundle/code-quality notes; `FOLLOW_UP.md`, `PIN_IT.md` at root predate this session
