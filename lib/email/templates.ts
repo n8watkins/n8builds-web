@@ -1,14 +1,18 @@
 import { ContactFormData } from '@/lib/validations/contact'
 import { subjectOptions } from '@/lib/validations/contact'
 import { EMAIL_CONFIG } from '@/lib/email/smtp'
-import DOMPurify from 'isomorphic-dompurify'
-
-// Security: Sanitization function
+// Security: escape ALL markup in user input. Stricter than the previous
+// DOMPurify allowlist (which permitted bare <br>), and avoids jsdom —
+// whose dependency chain breaks Vercel's serverless runtime
+// (ERR_REQUIRE_ESM in html-encoding-sniffer). Newlines in the message
+// still render via `white-space: pre-wrap` on the message box.
 function sanitizeHtml(input: string): string {
-  return DOMPurify.sanitize(input, {
-    ALLOWED_TAGS: ['br'],
-    ALLOWED_ATTR: []
-  })
+  return input
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
 }
 
 export function createContactEmailHtml(data: ContactFormData): string {
