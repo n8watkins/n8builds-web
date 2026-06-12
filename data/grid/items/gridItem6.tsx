@@ -2,46 +2,37 @@ import Image from 'next/image'
 import ScrollButton from '@/components/ui/BentoComponents/ScrollButton'
 import type { GridItemConfig } from '@/lib/types/gridItem'
 
-/**
- * Grid Item 6: "The Inside Scoop" - Current project showcase
- *
- * VISUAL STRATEGY:
- * - Code/development icon as background
- * - Gradient overlay at bottom for text readability
- * - CTA button to scroll to projects section
- * - Highlights current work (AI lead generation tool)
- */
 export const gridItem6: GridItemConfig = {
   id: 6,
-  title: "Currently building an AI-driven lead generation tool powered by OpenAI's Realtime API",
-  description: 'The Inside Scoop ',
+  title: 'Asset Arsenal — brand asset generator for cohesive icon packs, visual systems, and style-matched output.',
+  description: 'Currently Building',
   gridItemContainer: 'col-span-2 row-span-3 md:col-span-4 md:row-span-2 xl:row-span-4',
 
-  imgContainerClass: 'absolute top-10  w-full h-full ',
-  imgClassName: 'absolute pl-40 ',
+  imgContainerClass: 'absolute top-10 w-full h-full',
+  imgClassName: 'absolute pl-40',
   img: '/bento/code.svg',
 
   textContainerClassName:
-    'absolute  bottom-0 pb-5 lg:pb-8 h-52 w-full bg-gradient-to-t rounded-t-3xl from-blue-500 via-blue-500 to-blue-500/0 dark:from-[#020621] dark:via-[#020621]/90 dark:to-[#020621]/0 z-30 text-slate-200 dark:text-white select-none flex items-end',
+    'absolute bottom-0 pb-5 lg:pb-8 h-52 w-full bg-gradient-to-t rounded-t-3xl from-blue-500 via-blue-500 to-blue-500/0 dark:from-[#020621] dark:via-[#020621]/90 dark:to-[#020621]/0 z-30 text-slate-200 dark:text-white select-none flex items-end',
 
   textOrder: 'flex flex-col-reverse xs:pl-10 1sm:pl-5 group-hover:translate-x-2 duration-200',
 
-  titleClassName: ' font-sans font-bold text-2xl lg:text-4xl items-center   ',
+  titleClassName: 'font-sans font-bold text-xl lg:text-3xl items-center max-w-lg leading-tight',
 
   descriptionClass:
-    'relative text-sm w-[50%]  font-semibold dark:font-normal nowrap whitespace-nowrap select-none',
+    'relative text-sm w-[50%] font-semibold dark:font-normal nowrap whitespace-nowrap select-none text-cyan-400',
 
   buttonContainer: '',
   buttonClass: '',
 
   renderBackground: () => (
-    <div className="relative w-full h-full absolute top-10  w-full h-full ">
+    <div className="relative w-full h-full absolute top-10 w-full h-full">
       <Image
         src="/bento/code.svg"
         fill
         sizes="100%"
-        className="absolute pl-40 "
-        alt="/bento/code.svg"
+        className="absolute pl-40"
+        alt="Code editor background"
         loading="lazy"
       />
     </div>
@@ -51,9 +42,9 @@ export const gridItem6: GridItemConfig = {
     <div className="flex absolute items-end justify-start w-full h-full pl-5 md:pl-6 lg:pl-8 pb-24 md:pb-28 lg:pb-32">
       <div className="flex items-center justify-center">
         <ScrollButton
-          link="projects"
+          link="builds"
           className="lg:h-14 w-fit whitespace-nowrap 1md:w-40"
-          text="Check it out!"
+          text="Explore Builds"
         />
       </div>
     </div>

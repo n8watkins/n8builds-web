@@ -9,18 +9,13 @@ import { useScrollTracking } from '@/hooks/useScrollTracking'
 import SectionErrorBoundary from '@/components/SectionErrorBoundary'
 import dynamic from 'next/dynamic'
 
-// Only lazy load truly below-the-fold components
 const Projects = dynamic(() => import('@/components/Projects'))
-const Experience = dynamic(() => import('@/components/sections/Experience'))
-const Clients = dynamic(() => import('@/components/sections/Clients'))
+const ProjectsMarquee = dynamic(() => import('@/components/sections/ProjectsMarquee'))
 const Footer = dynamic(() => import('@/components/layout/Footer'))
 const ScrollToTop = dynamic(() => import('@/components/ui/ScrollToTop'), { ssr: false })
 
 export default function Home() {
-  // Track section views as user scrolls
   useSectionTracking()
-
-  // Track scroll depth milestones
   useScrollTracking()
 
   return (
@@ -33,30 +28,25 @@ export default function Home() {
         <FloatingNav navItems={navItems} />
 
         <div className="m-auto max-w-md sm:max-w-xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl">
-          <section id="about" aria-label="About me">
+          <section id="about" aria-label="Tech stack">
             <SectionErrorBoundary sectionName="About Section">
               <Grid />
             </SectionErrorBoundary>
           </section>
 
-          <section id="projects" aria-label="Projects">
+          <section id="builds" aria-label="Featured builds">
             <SectionErrorBoundary sectionName="Projects Section">
               <Projects />
             </SectionErrorBoundary>
           </section>
+        </div>
 
-          <section id="experience" aria-label="Work experience">
-            <SectionErrorBoundary sectionName="Experience Section">
-              <Experience />
-            </SectionErrorBoundary>
-          </section>
+        {/* Full-width projects marquee */}
+        <SectionErrorBoundary sectionName="Projects Marquee">
+          <ProjectsMarquee />
+        </SectionErrorBoundary>
 
-          <section id="testimonials" aria-label="Client testimonials">
-            <SectionErrorBoundary sectionName="Testimonials Section">
-              <Clients />
-            </SectionErrorBoundary>
-          </section>
-
+        <div className="m-auto max-w-md sm:max-w-xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl">
           <section id="contact">
             <SectionErrorBoundary sectionName="Contact Section">
               <Footer />

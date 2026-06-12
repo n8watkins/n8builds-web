@@ -16,17 +16,17 @@ const inter = Inter({
   fallback: ['system-ui', 'arial']
 })
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://nathansportfolio.vercel.app'
-const siteName = process.env.NEXT_PUBLIC_SITE_NAME || 'Nathan Watkins Portfolio'
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://natebuilds.vercel.app'
+const siteName = 'Nate Builds'
 
 export const metadata: Metadata = {
-  title: siteName,
-  description: 'Modern web design and full-stack development by Nathan Watkins.',
-  keywords: ['Web Developer', 'Portfolio', 'Next.js', 'React', 'Nathan Watkins'],
+  title: `${siteName} — Public Builder Lab`,
+  description: 'Apps, AI tools, Chrome extensions, local utilities, and build logs — all in public.',
+  keywords: ['Nathan Watkins', 'Nate Builds', 'Public Builder', 'Next.js', 'AI Tools', 'Chrome Extensions'],
   robots: 'index, follow',
   openGraph: {
-    title: siteName,
-    description: 'Modern web design and full-stack development by Nathan Watkins.',
+    title: `${siteName} — Public Builder Lab`,
+    description: 'Apps, AI tools, Chrome extensions, local utilities, and build logs — all in public.',
     url: siteUrl,
     siteName: siteName,
     images: [
@@ -34,15 +34,15 @@ export const metadata: Metadata = {
         url: `${siteUrl}/tab/preview.png`,
         width: 1200,
         height: 630,
-        alt: 'Nathan Watkins Portfolio Preview',
+        alt: 'Nate Builds Preview',
       },
     ],
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: siteName,
-    description: 'Nathan Watkins Next.js Portfolio Page.',
+    title: `${siteName} — Public Builder Lab`,
+    description: 'Building software in public. Apps, tools, experiments, and build logs.',
     images: [`${siteUrl}/tab/preview.png`],
     creator: '@n8watkins',
   },
@@ -68,9 +68,8 @@ export default function RootLayout({
 
         {/* Project external links */}
         <link rel="dns-prefetch" href="//github.com" />
-        <link rel="dns-prefetch" href="//web.app" />
+        <link rel="dns-prefetch" href="//appturnity.com" />
         <link rel="dns-prefetch" href="//vercel.app" />
-        <link rel="dns-prefetch" href="//firebase.google.com" />
 
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
