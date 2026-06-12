@@ -38,7 +38,7 @@ const config = {
       },
       colors: {
         darkBlue: {
-          DEFAULT: '#000319',
+          DEFAULT: '#050812',
         },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',

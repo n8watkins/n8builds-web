@@ -14,27 +14,9 @@
     overflow-y: scroll;
   }
 
-  /* Move Sentry feedback button to bottom-left (original position) */
-  #sentry-feedback {
-    --inset: auto auto 0 0;
-    --page-margin: 24px;
-  }
-
-  /* Hide Sentry button text until 1030px */
-  #sentry-feedback button::after {
-    content: '🐛';
-    font-size: 16px;
-  }
-
-  @media (min-width: theme('screens.xl')) {
-    #sentry-feedback button::after {
-      content: '🐛 Report a bug';
-    }
-  }
-
   :root {
-    --scrollbar-track: theme('colors.blue.400');
-    --scrollbar-thumb: theme('colors.blue.600');
+    --scrollbar-track: #0a0f1e;
+    --scrollbar-thumb: #2a3a6a;
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
 
@@ -67,8 +49,8 @@
   }
 
   .dark {
-    --scrollbar-thumb: theme('colors.blue.600');
-    --scrollbar-track: theme('colors.darkBlue.DEFAULT');
+    --scrollbar-thumb: #2a3a6a;
+    --scrollbar-track: #050812;
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
 
@@ -117,7 +99,7 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar {
-    width: 10px;
+    width: 4px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
