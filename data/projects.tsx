@@ -233,9 +233,48 @@ export const projects = [
     },
     github: 'https://github.com/n8watkins/Quizmatic',
     liveSite: 'https://quizmatic.vercel.app/',
-  }
-
-
+  },
+  {
+    id: 5,
+    title: 'Sprite Bench',
+    subTitle: 'Free Browser Tool',
+    des: 'Slice a sprite sheet, preview the animation live, and export an animated GIF or frames as a zip. Zero server, $0.',
+    images: [
+      'https://sprite-bench.vercel.app/opengraph-image',
+    ],
+    technologies: {
+      Frontend: {
+        descriptionParts: [
+          {
+            text: 'Fully client-side — no server, no API calls, nothing leaves the browser',
+            icons: [{ icon: 're.svg' }, { icon: 'next.svg' }, { icon: 'tail.svg' }],
+          },
+          {
+            text: 'Custom GIF encoder and ZIP writer, hand-rolled with no runtime dependencies',
+            icons: [{ icon: 'ts.svg' }],
+          },
+        ],
+      },
+      Backend: {
+        descriptionParts: [
+          {
+            text: 'No backend — all encoding, slicing, and export logic runs in the browser',
+            icons: [{ icon: 'ts.svg' }],
+          },
+        ],
+      },
+      Cloud: {
+        descriptionParts: [
+          {
+            text: 'Deployed on Vercel with auto-deploy on push',
+            icons: [{ icon: 'vercel.png' }, { icon: 'github.png' }],
+          },
+        ],
+      },
+    },
+    github: 'https://github.com/n8watkins/sprite-bench',
+    liveSite: 'https://sprite-bench.vercel.app',
+  },
 ]
 
 export const techNameMapping = {

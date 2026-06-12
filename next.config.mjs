@@ -14,6 +14,12 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'sprite-bench.vercel.app',
+        port: '',
+        pathname: '/**',
+      },
     ],
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 86400,
@@ -43,6 +49,11 @@ const nextConfig = {
       {
         source: '/appturnity',
         destination: 'https://appturnity.web.app',
+        permanent: false,
+      },
+      {
+        source: '/sprite-bench',
+        destination: 'https://sprite-bench.vercel.app',
         permanent: false,
       },
     ]
