@@ -236,7 +236,7 @@ export const projects = [
   },
   {
     id: 5,
-    title: 'Sprite Bench',
+    title: 'Sprite Arsenal',
     subTitle: 'Free Browser Tool',
     des: 'Slice a sprite sheet, preview the animation live, and export an animated GIF or frames as a zip. Zero server, $0.',
     images: [
