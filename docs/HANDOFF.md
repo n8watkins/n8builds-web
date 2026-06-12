@@ -1,6 +1,6 @@
 # HANDOFF — Nate Builds (n8builds-web)
 
-_Last updated: 2026-06-11 (session: rebrand, repo separation, TechStackCycle)_
+_Last updated: 2026-06-12 (session: /builds/[slug] detail pages)_
 
 ## Project summary
 
@@ -45,23 +45,45 @@ Vercel project + n8builds.dev domain hookup is pending (Nate owns the domain).
 sitemap emits n8builds.dev; gtag script absent while GA ID blank; `.env.local`
 confirmed NOT tracked/in history (only placeholder `.env*.example` files are).
 
+## Done 2026-06-12: build detail pages (`d0f9c70`..`2a41780`, pushed)
+
+- **`data/builds.tsx`** — single source of truth for all 12 lab builds: slug,
+  problem/solution, stack-with-reasons, process notes, images, github/liveSite.
+  Content grounded in each repo's README (fetched via `gh api`). Appturnity
+  derives images/stack from `data/projects.tsx`. Fixed old marquee
+  inaccuracies: Solara is a **UV/sun-window** dashboard (not solar energy),
+  TL;DW targets **Gemini** (not OpenAI), JobSignal uses **Prisma** (not
+  Supabase), "ViBlog" → **VibeLog**.
+- **`app/builds/[slug]/page.tsx`** — statically generated detail pages:
+  conditional screenshot gallery, problem/solution cards, stack grid, numbered
+  process notes, per-page metadata/OG; unknown slugs 404. Blue/cyan only.
+- Real screenshots in `public/builds/` for piper-tts + tubevault (pulled from
+  their repos) and solara (OG image); Appturnity reuses `/projects/*.webp`.
+  Other builds have no screenshot assets yet — gallery is skipped gracefully;
+  add images to `data/builds.tsx` when they exist.
+- ProjectsMarquee now renders from `data/builds.tsx` and links each card to
+  its detail page. **Gotcha:** `id="builds"` was already taken by
+  FeaturedProjects, so the marquee section is `id="lab"` and detail pages link
+  back to `/#lab`.
+- Private repos (asset-arsenal, vibelog, chrome-extension-launch-kit) and
+  suggestion-box (no repo found) intentionally have no GitHub link.
+- Sitemap includes all `/builds/*`; 404 page re-themed blue/cyan.
+- `scripts/shot-builds.mjs` — Playwright screenshot script used for visual
+  verification (run with `node scripts/shot-builds.mjs`, dev server up).
+
 ## Next steps (ordered)
 
 Code-side (from the brand-architecture analysis, see "Decisions" below):
 
-1. **Build detail pages** — `/builds/[slug]` with screenshots,
-   problem/solution, stack, process notes; make ProjectsMarquee cards
-   (`components/sections/ProjectsMarquee.tsx`) link into them. This is the #1
-   gap: Nate wants "more from an individual build" while keeping the marquee.
-2. **N8 Notes** (blog) — name is decided ("N8 Notes", beat out "Nate's
+1. **N8 Notes** (blog) — name is decided ("N8 Notes", beat out "Nate's
    Notions"). Homepage preview section (3–5 latest cards) + posts. There is a
    separate blog project at `/home/natkins/n8builds/blog` — check whether to
    integrate or link before building from scratch.
-3. **Hero upgrades** — "LIVE on VibeLog" badge (corner, conditional) and an
+2. **Hero upgrades** — "LIVE on VibeLog" badge (corner, conditional) and an
    LA callout ("Base of operations: Los Angeles, CA"). Headshot already there.
-4. **AI Loadout section** — tight curated "stack I actually use" card with
+3. **AI Loadout section** — tight curated "stack I actually use" card with
    icons (NOT a wall of every tech). `data/techStack.tsx` has icon data.
-5. **Work With Me bridge section** — two cards: "Need a developer?" →
+4. **Work With Me bridge section** — two cards: "Need a developer?" →
    portfolio, "Need a website/business system?" → Appturnity (footer partially
    covers this today).
 
@@ -112,7 +134,9 @@ Account-side (needs Nate, not code):
 
 - `components/Projects/TechStackCycle.tsx` — dock-hover tech stack (tabs/bullets/icons)
 - `components/sections/FeaturedProjects.tsx` — sideways featured rows; consumes TechStackCycle
-- `components/sections/ProjectsMarquee.tsx` — "Builds from the lab" marquee (next: link to detail pages)
+- `components/sections/ProjectsMarquee.tsx` — "Builds from the lab" marquee (`id="lab"`, cards link to `/builds/[slug]`)
+- `data/builds.tsx` — all 12 lab builds: problem/solution, stack, process notes, images
+- `app/builds/[slug]/page.tsx` — statically generated build detail pages
 - `components/sections/Hero.tsx` — hero; next: LIVE badge + LA callout
 - `data/projects.tsx` — project data incl. Frontend/Backend/Cloud descriptionParts + techNameMapping
 - `data/techStack.tsx` — react-icons tech list (for AI Loadout)
