@@ -1,6 +1,6 @@
-# Nathan's Portfolio 2.0 🚀
+# Nate Builds 🔧 — n8builds.dev
 
-A modern, production-ready developer portfolio built with Next.js 14, featuring enterprise-grade contact functionality, advanced animations, and comprehensive security measures.
+The public builder lab of Nathan Watkins — a Next.js site for building software in public: apps, AI tools, agents, experiments, and build logs. Cloned from Portfolio 2.0 and rebranded.
 
 ## ✨ Key Features
 
@@ -15,7 +15,6 @@ A modern, production-ready developer portfolio built with Next.js 14, featuring 
 - **Error Boundaries**: Granular section-level error handling with graceful degradation
 - **Web Vitals HUD**: Real-time performance monitoring (Alt+Shift+V toggle in dev mode)
 - **Testing & CI**: Playwright E2E tests, Lighthouse CI, and automated accessibility testing
-- **Error Monitoring**: Comprehensive error tracking and performance monitoring with Sentry
 
 ## 🏗️ Architecture
 
@@ -47,7 +46,7 @@ A modern, production-ready developer portfolio built with Next.js 14, featuring 
 ### Project Structure
 
 ```
-Portfolio2.0/
+n8builds-web/
 ├── app/                          # Next.js 14 App Router
 │   ├── api/
 │   │   ├── contact/
@@ -136,8 +135,8 @@ Portfolio2.0/
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/n8watkins/Portfolio2.0.git
-   cd Portfolio2.0
+   git clone https://github.com/n8watkins/n8builds-web.git
+   cd n8builds-web
    ```
 
 2. **Install dependencies**
@@ -162,9 +161,9 @@ Portfolio2.0/
 # Google Analytics
 NEXT_PUBLIC_GA_ID=your_ga_id
 
-# Portfolio Info
+# Site Info
 NEXT_PUBLIC_SITE_URL=https://your-domain.com
-NEXT_PUBLIC_SITE_NAME=Your Portfolio Name
+NEXT_PUBLIC_SITE_NAME=Nate Builds
 NEXT_PUBLIC_VERSION=2.0
 
 # Google reCAPTCHA v3

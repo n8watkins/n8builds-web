@@ -162,7 +162,7 @@ export async function POST(request: NextRequest) {
 export async function OPTIONS(request: NextRequest) {
   const allowedOrigin = process.env.NODE_ENV === 'development'
     ? '*'
-    : process.env.NEXT_PUBLIC_SITE_URL || 'https://nathansportfolio.vercel.app'
+    : process.env.NEXT_PUBLIC_SITE_URL || 'https://n8builds.dev'
 
   return new NextResponse(null, {
     status: 200,

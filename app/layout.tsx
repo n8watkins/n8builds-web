@@ -16,7 +16,7 @@ const inter = Inter({
   fallback: ['system-ui', 'arial']
 })
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://natebuilds.vercel.app'
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://n8builds.dev'
 const siteName = 'Nate Builds'
 
 export const metadata: Metadata = {
@@ -75,18 +75,22 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//appturnity.com" />
         <link rel="dns-prefetch" href="//vercel.app" />
 
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
-          strategy="lazyOnload"
-        />
-        <Script id="google-analytics" strategy="lazyOnload">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}');
-          `}
-        </Script>
+        {process.env.NEXT_PUBLIC_GA_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
+              strategy="lazyOnload"
+            />
+            <Script id="google-analytics" strategy="lazyOnload">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}');
+              `}
+            </Script>
+          </>
+        )}
       </head>
       <body className={inter.className}>
         <a
