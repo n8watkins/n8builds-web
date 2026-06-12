@@ -129,7 +129,8 @@ const Hero = () => {
               transition={{ duration: 0.5, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
               className="text-[#9cadc5] text-base md:text-lg leading-relaxed max-w-[480px]"
             >
-              I build apps, tools, experiments, and creator systems live and in public.
+              I build apps, AI tools, agents, and creator systems live and in public —
+              agent-assisted builds, prompt-native workflows, local inference experiments.
               Follow the journey, watch the process, and ship with me.
             </motion.p>
 
@@ -140,10 +141,10 @@ const Hero = () => {
               transition={{ duration: 0.5, delay: 0.45 }}
               className="flex items-center gap-3 font-mono text-[0.75rem] text-slate-600 select-none"
             >
-              {['idea', 'build', 'stream', 'ship', 'repeat'].map((w, i) => (
+              {['idea', 'prompt', 'build', 'stream', 'ship', 'repeat'].map((w, i, arr) => (
                 <React.Fragment key={w}>
                   <span className="text-slate-500">{w}</span>
-                  {i < 4 && <span className="text-white/15">→</span>}
+                  {i < arr.length - 1 && <span className="text-white/15">→</span>}
                 </React.Fragment>
               ))}
             </motion.div>

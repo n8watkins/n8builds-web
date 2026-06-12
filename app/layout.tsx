@@ -47,7 +47,11 @@ export const metadata: Metadata = {
     creator: '@n8watkins',
   },
   icons: {
-    icon: '/tab/n8-logo.png',
+    icon: [
+      { url: '/tab/n8-icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/tab/n8-icon.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: '/tab/apple-icon.png',
   },
   metadataBase: new URL(siteUrl),
 };

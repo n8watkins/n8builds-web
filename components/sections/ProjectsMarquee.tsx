@@ -57,7 +57,7 @@ const ProjectsMarquee = () => {
               <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">lab</span>
             </h2>
             <p className="mt-2 text-slate-500 text-sm md:text-base">
-              Apps, tools, extensions, and experiments — all public on GitHub.
+              Apps, agents, extensions, and local-AI experiments — built in the open, all on GitHub.
             </p>
           </div>
           <a

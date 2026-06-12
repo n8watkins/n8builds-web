@@ -33,6 +33,20 @@ const nextConfig = {
       '@radix-ui/react-icons',
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/portfolio',
+        destination: 'https://nathansportfolio.vercel.app',
+        permanent: false,
+      },
+      {
+        source: '/appturnity',
+        destination: 'https://appturnity.web.app',
+        permanent: false,
+      },
+    ]
+  },
   async headers() {
     return [
       {
