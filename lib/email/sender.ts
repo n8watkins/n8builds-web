@@ -1,5 +1,5 @@
 import { getTransporter, EMAIL_CONFIG } from '@/lib/email/smtp'
-import { createContactEmailHtml, createAutoReplyHtml } from '@/lib/email/templates'
+import { createContactEmailHtml, createAutoReplyHtml, getSubjectSpecificLine } from '@/lib/email/templates'
 import { subjectOptions, type ContactFormData } from '@/lib/validations/contact'
 import { logger } from '@/lib/logger'
 
@@ -88,9 +88,9 @@ Hey ${data.name},
 
 Appreciate you reaching out — I normally reply within 24 hours. Excited to hear more.
 
-If you've got a brief or a Loom, replying with that helps.
+${getSubjectSpecificLine(data.subject).text}
 
-Looking forward to connecting.
+Looking forward to connecting!
 
 – Nathan "n8" Watkins
 Full Stack AI Developer

@@ -208,9 +208,34 @@ export function createContactEmailHtml(data: ContactFormData): string {
   `
 }
 
+// Per-subject middle line of the auto-reply. First and last lines are the
+// same for everyone; only this second line changes with the inquiry type.
+export function getSubjectSpecificLine(subject: string): { html: string; text: string } {
+  switch (subject) {
+    case 'project_opportunity':
+      return {
+        html: `If you've got a brief or a Loom, replying with that helps.`,
+        text: `If you've got a brief or a Loom, replying with that helps.`,
+      }
+    case 'consulting':
+      return {
+        html: `For consulting work, a quick scope of goals and timeline will help me frame recommendations — reply with any details you can.`,
+        text: `For consulting work, a quick scope of goals and timeline will help me frame recommendations — reply with any details you can.`,
+      }
+    case 'networking':
+      return {
+        html: `Always happy to connect. Here's my <a href="${EMAIL_CONFIG.linkedinUrl}" style="color:#2563eb;">LinkedIn</a> and <a href="${EMAIL_CONFIG.xUrl}" style="color:#2563eb;">X</a> if you'd like to stay in touch.`,
+        text: `Always happy to connect. Here's my LinkedIn (${EMAIL_CONFIG.linkedinUrl}) and X (${EMAIL_CONFIG.xUrl}) if you'd like to stay in touch.`,
+      }
+    default:
+      return { html: '', text: '' }
+  }
+}
+
 export function createAutoReplyHtml(data: ContactFormData): string {
   const sanitizedName = sanitizeHtml(data.name)
   const firstName = sanitizedName.split(' ')[0] || 'there'
+  const subjectLine = getSubjectSpecificLine(data.subject)
 
   return `
 <!DOCTYPE html>
@@ -247,12 +272,10 @@ export function createAutoReplyHtml(data: ContactFormData): string {
                 Appreciate you reaching out — I normally reply within <strong>24 hours</strong>. Excited to hear more.
               </p>
 
-              <p style="margin:0 0 12px;font-size:15px;color:#374151;">
-                If you've got a brief or a Loom, replying with that helps.
-              </p>
+              ${subjectLine.html ? `<p style="margin:0 0 12px;font-size:15px;color:#374151;">${subjectLine.html}</p>` : ''}
 
               <p style="margin:0 0 12px;font-size:15px;color:#374151;">
-                Looking forward to connecting.
+                Looking forward to connecting!
               </p>
 
               <!-- Signature -->
