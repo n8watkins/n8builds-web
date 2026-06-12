@@ -39,7 +39,7 @@ const Navbar = () => {
               <Image src="/tab/n8-logo.png" alt="Nate Builds" width={36} height={36} className="w-full h-full object-cover" />
             </div>
             <span className="font-bold text-slate-100 tracking-tight text-[0.95rem] hidden sm:block">
-              natebuilds.dev
+              n8builds.dev
             </span>
           </a>
 
