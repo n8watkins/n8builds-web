@@ -4,6 +4,8 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { FiGithub, FiExternalLink } from 'react-icons/fi'
 import { defaultAnimationConfig } from '@/lib/animations'
+import TechStackCycle from '@/components/Projects/TechStackCycle'
+import { projects } from '@/data/projects'
 
 interface FeaturedProject {
   title: string
@@ -41,7 +43,9 @@ const featured: FeaturedProject[] = [
   },
 ]
 
-const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: boolean }) => (
+const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: boolean }) => {
+  const technologies = projects.find((p) => p.title === project.title)?.technologies
+  return (
   <motion.div
     {...defaultAnimationConfig}
     className={`flex flex-col ${flipped ? 'md:flex-row-reverse' : 'md:flex-row'} gap-10 md:gap-14 items-center`}
@@ -64,26 +68,30 @@ const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: b
     {/* Content */}
     <div className="w-full md:w-1/2 flex flex-col gap-4">
       <div>
-        <p className="text-[0.7rem] font-bold tracking-[0.16em] uppercase text-purple-400 mb-2">{project.subtitle}</p>
+        <p className="text-[0.7rem] font-bold tracking-[0.16em] uppercase text-blue-400 mb-2">{project.subtitle}</p>
         <h3 className="text-2xl sm:text-3xl font-bold text-slate-50 tracking-tight mb-3">{project.title}</h3>
         <p className="text-[#9cadc5] text-sm sm:text-base leading-relaxed">{project.description}</p>
       </div>
 
-      {/* Tags */}
-      <div className="flex flex-wrap gap-2">
-        {project.tags.map(tag => (
-          <span key={tag}
-            className="text-xs font-semibold px-2.5 py-1 rounded-full bg-white/[0.05] border border-white/10 text-slate-400">
-            {tag}
-          </span>
-        ))}
-      </div>
+      {/* Tech stack — interactive icon dock, falls back to flat tags */}
+      {technologies ? (
+        <TechStackCycle technologies={technologies} />
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          {project.tags.map(tag => (
+            <span key={tag}
+              className="text-xs font-semibold px-2.5 py-1 rounded-full bg-white/[0.05] border border-white/10 text-slate-400">
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* Links */}
       <div className="flex items-center gap-3 pt-1">
         {project.liveSite && (
           <a href={project.liveSite} target="_blank" rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm transition-all duration-200 hover:scale-[1.02]">
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold text-sm transition-all duration-200 hover:scale-[1.02]">
             <FiExternalLink className="w-3.5 h-3.5" />
             Live Site
           </a>
@@ -98,12 +106,13 @@ const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: b
       </div>
     </div>
   </motion.div>
-)
+  )
+}
 
 const FeaturedProjects = () => (
   <section id="builds" aria-label="Featured builds" className="py-16">
     <div className="mb-10">
-      <p className="text-[0.7rem] font-bold tracking-[0.16em] uppercase text-purple-400 mb-2">Featured</p>
+      <p className="text-[0.7rem] font-bold tracking-[0.16em] uppercase text-blue-400 mb-2">Featured</p>
       <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-50">
         Recent builds
       </h2>

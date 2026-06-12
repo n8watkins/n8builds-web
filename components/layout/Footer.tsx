@@ -44,7 +44,7 @@ const Footer = () => {
           id="contact"
           className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl font-bold py-14 text-slate-800 dark:text-slate-200 select-none lg:max-w-[45vw] mb-4">
-            Want to work together or <span className="text-purple-500">follow the build?</span>
+            Want to work together or <span className="text-blue-400">follow the build?</span>
           </h2>
           <p className="text-slate-600 dark:text-slate-400 max-w-xl mx-auto px-5 leading-relaxed text-base md:text-lg">
             Reach out through the form, connect on socials, or head to Appturnity for consulting and project work.
@@ -89,7 +89,7 @@ const Footer = () => {
               <div>
                 <div className="flex items-center gap-2 mb-0.5">
                   <p className="font-bold text-slate-100 text-base">Appturnity</p>
-                  <span className="text-[0.62rem] font-bold px-2 py-0.5 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-300">
+                  <span className="text-[0.62rem] font-bold px-2 py-0.5 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-300">
                     The Consulting Studio
                   </span>
                 </div>
@@ -104,7 +104,7 @@ const Footer = () => {
                 href="https://appturnity.web.app"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between gap-3 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold text-sm transition-all duration-200 hover:scale-[1.02] shadow-lg shadow-purple-900/30"
+                className="flex items-center justify-between gap-3 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-sm transition-all duration-200 hover:scale-[1.02] shadow-lg shadow-blue-900/30"
               >
                 <span>Visit Appturnity</span>
                 <span>↗</span>
@@ -129,7 +129,7 @@ const Footer = () => {
         {...defaultAnimationConfig}
         className="flex mt-4 lg:flex-row flex-col-reverse justify-center xl:justify-between items-center gap-6 lg:mx-10 pt-6 border-t border-white/8">
         <motion.div variants={staggerItemVariants} className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-cyan-400 to-purple-600 flex items-center justify-center">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center">
             <span className="text-white font-black text-xs">N8</span>
           </div>
           <span className="font-bold text-slate-200 text-sm">Nate Builds</span>

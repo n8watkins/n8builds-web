@@ -12,16 +12,16 @@ interface ProjectCard {
 
 const projects: ProjectCard[] = [
   { name: 'Asset Arsenal', description: 'Brand asset generator', tags: ['Next.js', 'AI', 'TypeScript'], color: 'from-cyan-500/20 to-blue-600/20' },
-  { name: 'ViBlog', description: 'Builder journal & stream tracker', tags: ['Next.js', 'Drizzle', 'Postgres'], color: 'from-purple-500/20 to-pink-600/20' },
+  { name: 'ViBlog', description: 'Builder journal & stream tracker', tags: ['Next.js', 'Drizzle', 'Postgres'], color: 'from-blue-500/20 to-cyan-600/20' },
   { name: 'Chrome Extension Kit', description: 'Manifest V3 starter template', tags: ['Chrome API', 'TypeScript', 'MV3'], color: 'from-blue-500/20 to-cyan-600/20' },
   { name: 'Piper TTS', description: 'Local text-to-speech extension', tags: ['Python', 'Chrome', 'TTS'], color: 'from-green-500/20 to-teal-600/20' },
   { name: 'TLDW', description: 'YouTube summarizer extension', tags: ['Chrome', 'OpenAI', 'TypeScript'], color: 'from-orange-500/20 to-yellow-600/20' },
   { name: 'TubeVault', description: 'YouTube playlist manager', tags: ['Chrome', 'YouTube API', 'React'], color: 'from-red-500/20 to-rose-600/20' },
-  { name: 'Appturnity', description: 'Software consulting platform', tags: ['Vite', 'Express', 'TypeScript'], color: 'from-purple-500/20 to-indigo-600/20' },
+  { name: 'Appturnity', description: 'Software consulting platform', tags: ['Vite', 'Express', 'TypeScript'], color: 'from-sky-500/20 to-indigo-600/20' },
   { name: 'JobSignal', description: 'Job matching with AI embeddings', tags: ['Next.js', 'OpenAI', 'Supabase'], color: 'from-emerald-500/20 to-cyan-600/20' },
   { name: 'LocalDictate', description: 'Privacy-first local speech-to-text', tags: ['Tauri', 'Rust', 'Whisper'], color: 'from-slate-500/20 to-blue-600/20' },
   { name: 'Solara', description: 'Solar energy monitoring dashboard', tags: ['React', 'Charts', 'Node'], color: 'from-yellow-500/20 to-orange-600/20' },
-  { name: 'Suggestion Box', description: 'Community feedback tool', tags: ['Next.js', 'Postgres', 'TypeScript'], color: 'from-pink-500/20 to-purple-600/20' },
+  { name: 'Suggestion Box', description: 'Community feedback tool', tags: ['Next.js', 'Postgres', 'TypeScript'], color: 'from-cyan-500/20 to-blue-600/20' },
   { name: 'Repo Steward', description: 'GitHub repo health bot', tags: ['Node.js', 'GitHub API', 'Bot'], color: 'from-blue-500/20 to-indigo-600/20' },
 ]
 
@@ -54,7 +54,7 @@ const ProjectsMarquee = () => {
           <div>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-100">
               Builds from the{' '}
-              <span className="bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">lab</span>
+              <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">lab</span>
             </h2>
             <p className="mt-2 text-slate-500 text-sm md:text-base">
               Apps, tools, extensions, and experiments — all public on GitHub.

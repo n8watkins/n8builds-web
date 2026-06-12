@@ -118,7 +118,7 @@ const Hero = () => {
             >
               Building software{' '}
               <br className="hidden sm:block" />
-              <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-blue-600 bg-clip-text text-transparent">
                 in public.
               </span>
             </motion.h1>
@@ -159,7 +159,7 @@ const Hero = () => {
                 href="https://twitch.tv/n8watkins"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold text-sm transition-all duration-200 hover:scale-[1.02] shadow-lg shadow-purple-900/40"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-sm transition-all duration-200 hover:scale-[1.02] shadow-lg shadow-blue-900/40"
               >
                 <MdRadioButtonChecked className="w-4 h-4" />
                 Watch Live
@@ -199,7 +199,7 @@ const Hero = () => {
             transition={{ duration: 0.6, delay: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
             className="w-[14rem] h-[14rem] sm:w-[17rem] sm:h-[17rem] md:w-[19rem] md:h-[19rem] relative flex-shrink-0"
           >
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-500/20 to-purple-600/20 blur-xl scale-110" />
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-500/20 to-blue-600/20 blur-xl scale-110" />
             <div className="relative w-full h-full">
               <div className="absolute inset-0 dark:bg-black/10 rounded-full z-10" />
               <Image
