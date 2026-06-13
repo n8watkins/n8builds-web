@@ -46,9 +46,9 @@ export default function Home() {
           <FeaturedProjects />
         </SectionErrorBoundary>
 
-        {/* Shelf content lives on the page, each linking to its full shelf */}
-        <SectionErrorBoundary sectionName="Projects">
-          <ShelfSection shelf="project" />
+        {/* The Lab — everything I'm building (merged projects + lab) */}
+        <SectionErrorBoundary sectionName="The Lab">
+          <ShelfSection shelf="lab" />
         </SectionErrorBoundary>
 
         <SectionErrorBoundary sectionName="Extensions">
@@ -57,10 +57,6 @@ export default function Home() {
 
         <SectionErrorBoundary sectionName="Tools">
           <ShelfSection shelf="tool" />
-        </SectionErrorBoundary>
-
-        <SectionErrorBoundary sectionName="Lab">
-          <ShelfSection shelf="lab" />
         </SectionErrorBoundary>
 
         {/* Tech loadout teaser → /loadout */}

@@ -41,16 +41,6 @@ const featured: FeaturedProject[] = [
     github: 'https://github.com/n8watkins/Quizmatic',
     liveSite: 'https://quizmatic.vercel.app/',
   },
-  {
-    title: 'Solara',
-    subtitle: 'Web App · UV & Sun Windows',
-    description:
-      'A personalized UV and sun-exposure dashboard — enter your location, skin type, and activities, and Solara computes your safe sun windows for today and tomorrow.',
-    image: '/builds/solara/og-image.png',
-    imageAlt: 'Solara sun-window dashboard',
-    tags: ['Next.js', 'Firebase', 'Open-Meteo'],
-    github: 'https://github.com/n8watkins/solara',
-  },
 ]
 
 const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: boolean }) => {

@@ -347,6 +347,31 @@ export const builds: Build[] = [
     images: [],
     github: 'https://github.com/n8watkins/repo-steward',
   },
+  {
+    slug: 'portfolio-rank',
+    name: 'Portfolio Rank',
+    tagline: 'The best developer portfolios, ranked',
+    category: 'Web app',
+    tags: ['Next.js', 'TypeScript', 'Open source'],
+    color: 'from-cyan-500/20 to-blue-600/20',
+    problem:
+      'Developer portfolios live in scattered lists and Twitter threads, sorted alphabetically at best. There is no good way to browse the genuinely great ones or learn what makes them work.',
+    solution:
+      '1,700+ community-curated developer portfolios — browsable, searchable, and (soon) ranked by head-to-head human votes plus AI scoring instead of alphabetical order. Built on Emma Bostian\'s open developer-portfolios list.',
+    stack: [
+      { name: 'Next.js · TypeScript', detail: 'App Router site rendering the full searchable catalog' },
+      { name: 'Tailwind CSS', detail: 'Browse/search UI and portfolio cards' },
+      { name: 'Vercel', detail: 'Hosting and deploys' },
+    ],
+    process: [
+      'Open source and community-built — the catalog grows from the same public list it started from.',
+      'Ranking is the next chapter: head-to-head human votes plus AI scoring, replacing alphabetical order.',
+      'Free, with a Ko-fi support link — stars and contributions welcome.',
+    ],
+    images: [],
+    github: 'https://github.com/n8watkins/portfolio-rank',
+    liveSite: 'https://portfoliorank.vercel.app',
+  },
 ]
 
 export function getBuild(slug: string): Build | undefined {

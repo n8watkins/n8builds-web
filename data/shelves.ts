@@ -4,7 +4,7 @@ import { builds, type Build } from './builds'
 // source of truth (data/builds.tsx) so adding a build = it shows up on the right shelf.
 // No parallel dataset, no duplicated links.
 
-export type Shelf = 'project' | 'extension' | 'tool' | 'lab'
+export type Shelf = 'extension' | 'tool' | 'lab'
 
 export interface ShelfMeta {
   id: Shelf
@@ -15,15 +15,10 @@ export interface ShelfMeta {
   blurb: string
 }
 
+// Slugs featured prominently elsewhere on the page (so they don't double-list in the Lab).
+const featuredElsewhere = ['appturnity']
+
 export const shelfMeta: Record<Shelf, ShelfMeta> = {
-  project: {
-    id: 'project',
-    slug: 'projects',
-    label: 'Projects',
-    eyebrow: 'The work',
-    heading: 'Projects',
-    blurb: 'Full apps I\'ve built and shipped. The proof-of-work spine — pick one to read how it was made.',
-  },
   extension: {
     id: 'extension',
     slug: 'extensions',
@@ -46,13 +41,13 @@ export const shelfMeta: Record<Shelf, ShelfMeta> = {
     label: 'Lab',
     eyebrow: 'In the lab',
     heading: 'The Lab',
-    blurb: 'Half-built experiments and things still cooking. Rougher edges, on purpose — this is the bleeding edge of the bench.',
+    blurb: 'Everything I\'m building — shipped apps, ongoing projects, and half-built experiments. This is the whole bench.',
   },
 }
 
-// Classify a build onto a shelf. "in the lab" status always wins → /lab.
+// Classify a build onto a shelf. Extensions and tools get their own shelves;
+// everything else (web apps, experiments, "in the lab") lands in the Lab.
 export function getShelf(build: Build): Shelf {
-  if (build.status === 'in the lab') return 'lab'
   switch (build.category) {
     case 'Chrome extension':
     case 'Starter template':
@@ -62,13 +57,14 @@ export function getShelf(build: Build): Shelf {
     case 'GitHub Actions bot':
       return 'tool'
     default:
-      // Web app, Web app + extension, anything else
-      return 'project'
+      return 'lab'
   }
 }
 
 export function buildsForShelf(shelf: Shelf): Build[] {
-  return builds.filter((b) => getShelf(b) === shelf)
+  return builds.filter(
+    (b) => getShelf(b) === shelf && !(shelf === 'lab' && featuredElsewhere.includes(b.slug))
+  )
 }
 
 // All distinct tags present on a shelf, for the filter row.

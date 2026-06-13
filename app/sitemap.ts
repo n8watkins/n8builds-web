@@ -4,7 +4,7 @@ import { builds } from '@/data/builds'
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://n8builds.dev'
 
-  const shelfRoutes = ['projects', 'extensions', 'tools', 'lab', 'loadout']
+  const shelfRoutes = ['lab', 'extensions', 'tools', 'loadout']
 
   return [
     {

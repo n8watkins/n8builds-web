@@ -16,11 +16,10 @@ const Navbar = () => {
   }, [])
 
   const navLinks = [
-    { label: 'Projects', href: '/projects' },
+    { label: 'Lab', href: '/lab' },
     { label: 'Extensions', href: '/extensions' },
     { label: 'Tools', href: '/tools' },
     { label: 'Loadout', href: '/loadout' },
-    { label: 'Lab', href: '/lab' },
   ]
   const socialLinks = [
     { label: 'Twitch', href: 'https://twitch.tv/n8watkins', icon: <SiTwitch className="w-3.5 h-3.5" />, hoverColor: 'hover:text-purple-400' },
