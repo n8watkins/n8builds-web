@@ -42,26 +42,6 @@ const featured: FeaturedProject[] = [
     liveSite: 'https://quizmatic.vercel.app/',
   },
   {
-    title: 'Piper TTS',
-    subtitle: 'Chrome Extension · Local AI',
-    description:
-      'Highlight text on any page, right-click, and it is read aloud by a Piper TTS model running entirely on your machine. No cloud, no API keys, no data leaves your computer.',
-    image: '/builds/piper-tts/popup.png',
-    imageAlt: 'Piper TTS extension popup',
-    tags: ['Chrome MV3', 'Piper', 'React', 'Local AI'],
-    github: 'https://github.com/n8watkins/piper-tts',
-  },
-  {
-    title: 'TubeVault',
-    subtitle: 'Chrome Extension · Local-first',
-    description:
-      'Archive YouTube videos and playlists locally with a native yt-dlp helper. Pick quality, expand playlists into a visible queue — no third-party downloader site involved.',
-    image: '/builds/tubevault/tubevault-popup.png',
-    imageAlt: 'TubeVault extension popup with download queue',
-    tags: ['Chrome MV3', 'yt-dlp', 'React', 'Node.js'],
-    github: 'https://github.com/n8watkins/tube-vault',
-  },
-  {
     title: 'Solara',
     subtitle: 'Web App · UV & Sun Windows',
     description:
