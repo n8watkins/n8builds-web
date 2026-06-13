@@ -207,9 +207,13 @@ natkins23s-projects, created 2026-06-12); agent verified/finished the rest:
 
 ## Post-launch review findings (2026-06-12, agent code review)
 
+**Actionable checklist version: `docs/TODO.md`** (keep the two in sync).
+
 Site is fully launched and working; these are **pre-existing** issues
 inherited from the Portfolio 2.0 clone (not introduced this session),
-ordered by what actually matters. None block the launch.
+ordered by what actually matters. None block the launch. All re-verified
+against live prod 2026-06-12 (reCAPTCHA/GA still absent from Vercel,
+`/api/health` still public, GA tag absent — only a dead preconnect hint).
 
 1. **Contact form has weak spam protection — do before promoting widely.**
    Two compounding gaps: (a) reCAPTCHA keys aren't registered, so captcha
