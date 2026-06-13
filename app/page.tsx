@@ -7,7 +7,9 @@ import { useScrollTracking } from '@/hooks/useScrollTracking'
 import SectionErrorBoundary from '@/components/SectionErrorBoundary'
 import dynamic from 'next/dynamic'
 
+const NowBuilding = dynamic(() => import('@/components/sections/NowBuilding'))
 const FeaturedProjects = dynamic(() => import('@/components/sections/FeaturedProjects'))
+const LoadoutTeaser = dynamic(() => import('@/components/sections/LoadoutTeaser'))
 const ProjectsMarquee = dynamic(() => import('@/components/sections/ProjectsMarquee'))
 const Footer = dynamic(() => import('@/components/layout/Footer'))
 const ScrollToTop = dynamic(() => import('@/components/ui/ScrollToTop'), { ssr: false })
@@ -25,12 +27,22 @@ export default function Home() {
       </SectionErrorBoundary>
 
       <div className="max-w-6xl mx-auto px-5 sm:px-8">
+        {/* The in-public hook — what I'm building right now */}
+        <SectionErrorBoundary sectionName="Currently Building">
+          <NowBuilding />
+        </SectionErrorBoundary>
+
         <SectionErrorBoundary sectionName="Projects Section">
           <FeaturedProjects />
         </SectionErrorBoundary>
+
+        {/* Tech loadout teaser → /loadout */}
+        <SectionErrorBoundary sectionName="Loadout Teaser">
+          <LoadoutTeaser />
+        </SectionErrorBoundary>
       </div>
 
-      {/* Full-width builds marquee */}
+      {/* Full-width builds marquee — demoted to a breadth flex near the bottom */}
       <SectionErrorBoundary sectionName="Projects Marquee">
         <ProjectsMarquee />
       </SectionErrorBoundary>
