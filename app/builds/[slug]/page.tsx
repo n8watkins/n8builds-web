@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { FiArrowLeft, FiArrowUpRight, FiGithub } from 'react-icons/fi'
 import { builds, getBuild } from '@/data/builds'
+import { shelfMeta, getShelf } from '@/data/shelves'
 
 interface BuildPageProps {
   params: Promise<{ slug: string }>
@@ -36,16 +37,18 @@ export default async function BuildPage({ params }: BuildPageProps) {
   const build = getBuild(slug)
   if (!build) notFound()
 
+  const shelf = shelfMeta[getShelf(build)]
+
   return (
     <main className="relative min-h-screen bg-[#050812] text-slate-100">
       <div className="max-w-4xl mx-auto px-5 sm:px-8 py-10 md:py-16">
         {/* Top nav */}
         <Link
-          href="/#lab"
+          href={`/${shelf.slug}`}
           className="inline-flex items-center gap-2 text-sm font-semibold text-slate-400 hover:text-cyan-300 transition-colors"
         >
           <FiArrowLeft className="w-4 h-4" />
-          Back to the lab
+          Back to {shelf.label}
         </Link>
 
         {/* Header */}

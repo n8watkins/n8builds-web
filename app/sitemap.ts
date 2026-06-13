@@ -4,6 +4,8 @@ import { builds } from '@/data/builds'
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://n8builds.dev'
 
+  const shelfRoutes = ['projects', 'extensions', 'tools', 'lab', 'loadout']
+
   return [
     {
       url: baseUrl,
@@ -11,6 +13,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 1,
     },
+    ...shelfRoutes.map(route => ({
+      url: `${baseUrl}/${route}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    })),
     ...builds.map(build => ({
       url: `${baseUrl}/builds/${build.slug}`,
       lastModified: new Date(),
