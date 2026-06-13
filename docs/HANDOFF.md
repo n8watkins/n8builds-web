@@ -205,15 +205,42 @@ natkins23s-projects, created 2026-06-12); agent verified/finished the rest:
 - Contact form: real POST on the live domain → 200, both emails delivered.
 - Inbound: mail to contact@n8builds.dev forwards into Gmail.
 
+## Post-launch review findings (2026-06-12, agent code review)
+
+Site is fully launched and working; these are **pre-existing** issues
+inherited from the Portfolio 2.0 clone (not introduced this session),
+ordered by what actually matters. None block the launch.
+
+1. **Contact form has weak spam protection — do before promoting widely.**
+   Two compounding gaps: (a) reCAPTCHA keys aren't registered, so captcha
+   verification is skipped (by design for launch, see finding in
+   `lib/security/recaptcha.ts`); (b) the rate limiter
+   (`lib/security/rateLimiter.ts`) is an **in-memory `Map`** — on Vercel
+   serverless that's per-instance and wiped on cold start, so the documented
+   "5/hour/IP" limit barely applies. Net: the honeypot is the only reliable
+   defense. Real risk isn't just inbox spam — each submit sends 2 emails via
+   Gmail SMTP, which **caps at ~500/day**; a bot could exhaust that and
+   silently break the form for real visitors. Fix: register reCAPTCHA v3 keys
+   for n8builds.dev + add to Vercel (closes it on its own). Optionally make
+   the rate limiter fail-safe, but don't rely on it as-is. Don't bother
+   re-architecting to Redis/KV for a personal site.
+2. **`/api/health` is public in production.** `HEALTH_CHECK_SECRET` isn't set
+   in Vercel, so the auth guard in `app/api/health/route.ts` is skipped and
+   the endpoint returns env/uptime/memory/dependency flags to anyone. Low
+   severity (no secrets), but trivial to close: set `HEALTH_CHECK_SECRET` in
+   Vercel, or delete the route if you're not monitoring it.
+3. **No analytics.** `NEXT_PUBLIC_GA_ID` blank everywhere → zero traffic data
+   on an audience-focused brand site. See account-side list below.
+4. **Cosmetic:** `NEXT_PUBLIC_VERSION` not in Vercel, so `/api/health` reports
+   a hardcoded "2.0.0" while local `.env.local` says "1.0.0". Harmless.
+
 ## Next steps (ordered)
 
-Account-side polish only — site is fully launched. See "Account-side,
-post-launch" below (GA4 property, reCAPTCHA keys). No deploy/DNS work left.
-2. ~~appturnity.web.app → appturnity.com sweep~~ — **done 2026-06-12**: all
-   code references (redirect, Navbar, Footer, gridItem4, projects/builds data)
-   now use appturnity.com.
+Account-side polish only — site is fully launched, no deploy/DNS work left.
+Address review findings 1–2 above before wide promotion; finding 3 (GA4) when
+you want traffic data. Then the feature work below.
 
-Code-side feature work after that (from the brand-architecture analysis, see
+Code-side feature work (from the brand-architecture analysis, see
 "Decisions" below):
 
 1. **N8 Notes** (blog) — name is decided ("N8 Notes", beat out "Nate's
