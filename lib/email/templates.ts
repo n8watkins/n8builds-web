@@ -25,9 +25,6 @@ export function createContactEmailHtml(data: ContactFormData): string {
     timeZoneName: 'short'
   })
   const headline = data.subject === 'consulting' ? 'New consulting' : 'New opportunity'
-  // Deep-link to the auto-reply this submission triggered (it lands in the
-  // Gmail Sent folder because we send through Gmail SMTP).
-  const sentSearchUrl = `https://mail.google.com/mail/u/0/#search/${encodeURIComponent(`in:sent to:${data.email}`)}`
 
   return `
     <!DOCTYPE html>
@@ -69,7 +66,7 @@ export function createContactEmailHtml(data: ContactFormData): string {
             border-left: 4px solid #3b82f6;
           }
           .contact-name { font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 2px; }
-          .contact-email { color: #3b82f6; font-size: 13px; text-decoration: none; }
+          .contact-email { color: #3b82f6; font-size: 12px; text-decoration: none; }
           .field { margin: 20px 0; }
           .label { font-weight: 700; color: #374151; font-size: 14px; margin-bottom: 8px; }
           .message-box {
@@ -111,7 +108,7 @@ export function createContactEmailHtml(data: ContactFormData): string {
             </div>
 
             <div class="footer">
-              <p>Auto-reply sent — <a href="${sentSearchUrl}" style="color:#3b82f6;">view it in Gmail</a></p>
+              <p>Auto-reply sent (copy in your Sent folder)</p>
               <p>From the ${EMAIL_CONFIG.siteDomain} contact form</p>
               <p class="timestamp">${timestamp}</p>
             </div>
