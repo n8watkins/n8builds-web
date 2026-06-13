@@ -12,7 +12,7 @@ const FeaturedProjects = dynamic(() => import('@/components/sections/FeaturedPro
 const ShelfSection = dynamic(() => import('@/components/sections/ShelfSection'))
 const ExtensionsShowcase = dynamic(() => import('@/components/sections/ExtensionsShowcase'))
 const ToolsSection = dynamic(() => import('@/components/sections/ToolsSection'))
-const LoadoutTeaser = dynamic(() => import('@/components/sections/LoadoutTeaser'))
+const TechStackBento = dynamic(() => import('@/components/sections/TechStackBento'))
 const Footer = dynamic(() => import('@/components/layout/Footer'))
 const ScrollToTop = dynamic(() => import('@/components/ui/ScrollToTop'), { ssr: false })
 
@@ -60,9 +60,9 @@ export default function Home() {
           <ToolsSection />
         </SectionErrorBoundary>
 
-        {/* Tech loadout teaser → /loadout */}
-        <SectionErrorBoundary sectionName="Loadout Teaser">
-          <LoadoutTeaser />
+        {/* Tech stack bento marquee → /loadout */}
+        <SectionErrorBoundary sectionName="Tech Stack">
+          <TechStackBento />
         </SectionErrorBoundary>
 
         <section id="contact">
