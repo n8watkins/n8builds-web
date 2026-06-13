@@ -372,6 +372,30 @@ export const builds: Build[] = [
     github: 'https://github.com/n8watkins/portfolio-rank',
     liveSite: 'https://portfoliorank.vercel.app',
   },
+  {
+    slug: 'sprite-arsenal',
+    name: 'Sprite Arsenal',
+    tagline: 'Sprite sheet → animated GIF, in your browser',
+    category: 'Web tool',
+    tags: ['Next.js', 'Canvas', 'Open source'],
+    color: 'from-teal-500/20 to-cyan-600/20',
+    problem:
+      'Turning a sprite sheet into a usable animated GIF means firing up heavy software or sketchy online converters that upload your art to someone else\'s server.',
+    solution:
+      'Drop in a sprite sheet, slice it, preview the animation live, and export a GIF or individual frames — entirely in your browser. Free, no sign-up, nothing uploaded.',
+    stack: [
+      { name: 'Next.js · TypeScript', detail: 'App Router with all processing client-side' },
+      { name: 'Canvas + GIF encoding', detail: 'Slicing, live preview, and GIF export in the browser' },
+      { name: 'Vercel', detail: 'Hosting' },
+    ],
+    process: [
+      'Runs 100% in the browser — no backend, no uploads, your art never leaves your machine.',
+      'Free forever with a Ko-fi link; part of the Asset Arsenal line of tools.',
+    ],
+    images: [{ src: '/builds/sprite-arsenal/og-image.png', alt: 'Sprite Arsenal — sprite sheet to GIF' }],
+    github: 'https://github.com/n8watkins/sprite-bench',
+    liveSite: 'https://sprite-bench.vercel.app',
+  },
 ]
 
 export function getBuild(slug: string): Build | undefined {

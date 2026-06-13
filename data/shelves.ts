@@ -55,6 +55,7 @@ export function getShelf(build: Build): Shelf {
     case 'Desktop app':
     case 'Streaming tool':
     case 'GitHub Actions bot':
+    case 'Web tool':
       return 'tool'
     default:
       return 'lab'

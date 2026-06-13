@@ -11,6 +11,7 @@ const NowBuilding = dynamic(() => import('@/components/sections/NowBuilding'))
 const FeaturedProjects = dynamic(() => import('@/components/sections/FeaturedProjects'))
 const ShelfSection = dynamic(() => import('@/components/sections/ShelfSection'))
 const ExtensionsShowcase = dynamic(() => import('@/components/sections/ExtensionsShowcase'))
+const ToolsSection = dynamic(() => import('@/components/sections/ToolsSection'))
 const LoadoutTeaser = dynamic(() => import('@/components/sections/LoadoutTeaser'))
 const Footer = dynamic(() => import('@/components/layout/Footer'))
 const ScrollToTop = dynamic(() => import('@/components/ui/ScrollToTop'), { ssr: false })
@@ -56,7 +57,7 @@ export default function Home() {
         </SectionErrorBoundary>
 
         <SectionErrorBoundary sectionName="Tools">
-          <ShelfSection shelf="tool" />
+          <ToolsSection />
         </SectionErrorBoundary>
 
         {/* Tech loadout teaser → /loadout */}
