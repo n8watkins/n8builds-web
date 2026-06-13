@@ -105,6 +105,7 @@ Looking forward to connecting!
 – Nathan "n8" Watkins
 Full Stack AI Developer
 ${EMAIL_CONFIG.contactEmail}
+${EMAIL_CONFIG.appturnityUrl} · ${EMAIL_CONFIG.siteUrl}
 LinkedIn: ${EMAIL_CONFIG.linkedinUrl}
 GitHub: ${EMAIL_CONFIG.githubUrl}
 X: ${EMAIL_CONFIG.xUrl}

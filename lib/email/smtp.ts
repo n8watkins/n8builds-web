@@ -18,6 +18,7 @@ export const EMAIL_CONFIG = {
   linkedinUrl: process.env.LINKEDIN_URL || 'https://www.linkedin.com/in/n8watkins/',
   githubUrl: process.env.GITHUB_URL || 'https://github.com/n8watkins',
   xUrl: process.env.X_URL || 'https://x.com/n8watkins',
+  appturnityUrl: process.env.APPTURNITY_URL || 'https://appturnity.com',
   calUrl: process.env.CAL_URL || 'https://cal.com/n8watkins/intro',
   contactEmail: publicEmail,
 } as const
