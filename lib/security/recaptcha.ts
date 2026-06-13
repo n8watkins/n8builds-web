@@ -42,9 +42,10 @@ export async function verifyRecaptcha(token: string): Promise<boolean> {
     return true
   }
 
+  // No keys configured yet (pre-launch state): honeypot + rate limiting still apply
   if (!process.env.RECAPTCHA_SECRET_KEY) {
     logger.warn('⚠️ RECAPTCHA_SECRET_KEY not set, skipping verification')
-    return false
+    return true
   }
 
   try {
