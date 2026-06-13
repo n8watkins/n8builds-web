@@ -42,7 +42,7 @@ Vercel project + n8builds.dev domain hookup is pending (Nate owns the domain).
   **local only, not pushed** (user hasn't asked to push portfolio).
 
 **Verified working:** type-check + eslint clean; dev server 200; `/portfolio`
-→ 307 nathansportfolio.vercel.app; `/appturnity` → 307 appturnity.web.app;
+→ 307 nathansportfolio.vercel.app; `/appturnity` → 307 appturnity.com;
 sitemap emits n8builds.dev; gtag script absent while GA ID blank; `.env.local`
 confirmed NOT tracked/in history (only placeholder `.env*.example` files are).
 
@@ -151,10 +151,9 @@ Template state (all of this is deliberate; don't "improve" it back):
    but do NOT touch the MX/TXT records Email Routing added). Details:
    `~/docs/faq/deploying-to-vercel.md`. Acceptance: n8builds.dev serves the
    site over HTTPS and a real contact-form submit delivers both emails.
-2. **appturnity.web.app → appturnity.com sweep**: `next.config.mjs` redirect,
-   Footer/Navbar links, `data/projects.tsx` + `data/builds.tsx` liveSite
-   fields, and this doc's older sections. The old URL still works (same
-   Firebase site) so this is cleanup, not breakage.
+2. ~~appturnity.web.app → appturnity.com sweep~~ — **done 2026-06-12**: all
+   code references (redirect, Navbar, Footer, gridItem4, projects/builds data)
+   now use appturnity.com.
 
 Code-side feature work after that (from the brand-architecture analysis, see
 "Decisions" below):
@@ -190,7 +189,7 @@ Account-side, post-launch (needs Nate, not code):
 - Blog name: **N8 Notes**.
 - Marquee stays as browse-entry; drill-in via detail pages.
 - Footer/Navbar/redirect links to nathansportfolio.vercel.app and
-  appturnity.web.app are intentional bridges, not leftovers.
+  appturnity.com are intentional bridges, not leftovers.
 - Keep the three brands on separate sites; no mega-site.
 - The N8 neon icon (blue→purple gradient square) is the brand mark for
   favicons on BOTH n8builds and the portfolio.

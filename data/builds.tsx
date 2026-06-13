@@ -218,7 +218,7 @@ export const builds: Build[] = [
     process: [
       'Built and deployed on Replit for the fastest possible idea-to-live loop, then iterated against real client conversations.',
       'The intake flow is the product: the site\'s job is to turn "I have an app idea" into a scoped, honest conversation.',
-      'Lives at appturnity.web.app and is one of the two bridge destinations this site funnels into (the other being the developer portfolio).',
+      'Lives at appturnity.com and is one of the two bridge destinations this site funnels into (the other being the developer portfolio).',
     ],
     images: appturnityImages,
     github: appturnityProject?.github,

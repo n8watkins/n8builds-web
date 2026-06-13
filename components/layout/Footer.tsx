@@ -101,7 +101,7 @@ const Footer = () => {
             {/* Right */}
             <div className="flex flex-col gap-2 flex-shrink-0">
               <a
-                href="https://appturnity.web.app"
+                href="https://appturnity.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-between gap-3 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-sm transition-all duration-200 hover:scale-[1.02] shadow-lg shadow-blue-900/30"

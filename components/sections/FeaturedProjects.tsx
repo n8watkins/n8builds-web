@@ -28,7 +28,7 @@ const featured: FeaturedProject[] = [
     imageAlt: 'Appturnity consulting platform screenshot',
     tags: ['React', 'TypeScript', 'Tailwind', 'Express'],
     github: 'https://github.com/n8watkins/appturnity',
-    liveSite: 'https://appturnity.web.app/',
+    liveSite: 'https://appturnity.com/',
   },
   {
     title: 'Quizmatic',

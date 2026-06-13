@@ -30,7 +30,7 @@ export const gridItem4: GridItemConfig = {
   renderContent: () => (
     <div className={buttonContainer}>
       <a
-        href="https://appturnity.web.app"
+        href="https://appturnity.com"
         target="_blank"
         rel="noopener noreferrer"
         className={buttonClass + ' bg-[linear-gradient(45deg,#3956a8,45%,#5b93f5,55%,#3956a8)] dark:bg-[linear-gradient(45deg,#002aa3,45%,#0341ad,55%,#012485,80%,#002aa3)]'}

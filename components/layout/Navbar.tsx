@@ -69,7 +69,7 @@ const Navbar = () => {
               className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-sm text-slate-400 hover:text-slate-200 border border-white/10 rounded-lg hover:border-white/20 hover:bg-white/5 transition-all duration-150">
               Portfolio
             </a>
-            <a href="https://appturnity.web.app" target="_blank" rel="noopener noreferrer"
+            <a href="https://appturnity.com" target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold text-sm transition-all duration-200 hover:scale-[1.02] shadow-lg shadow-blue-900/30">
               Appturnity
               <FiExternalLink className="w-3 h-3" />

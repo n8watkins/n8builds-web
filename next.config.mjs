@@ -48,7 +48,7 @@ const nextConfig = {
       },
       {
         source: '/appturnity',
-        destination: 'https://appturnity.web.app',
+        destination: 'https://appturnity.com',
         permanent: false,
       },
       {
