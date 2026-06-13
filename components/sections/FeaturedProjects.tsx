@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { FiGithub, FiExternalLink } from 'react-icons/fi'
@@ -12,6 +12,7 @@ interface FeaturedProject {
   subtitle: string
   description: string
   image: string
+  images?: string[]
   tags: string[]
   github?: string
   liveSite?: string
@@ -25,6 +26,12 @@ const featured: FeaturedProject[] = [
     description:
       'App consulting platform that helps clients validate and scope software ideas. Clean interface for scoping, pricing, and connecting with dev resources.',
     image: '/projects/Appturnity.webp',
+    images: [
+      '/projects/Appturnity.webp',
+      '/projects/Appturnity1.webp',
+      '/projects/Appturnity2.webp',
+      '/projects/Appturnity3.webp',
+    ],
     imageAlt: 'Appturnity consulting platform screenshot',
     tags: ['React', 'TypeScript', 'Tailwind', 'Express'],
     github: 'https://github.com/n8watkins/appturnity',
@@ -36,6 +43,12 @@ const featured: FeaturedProject[] = [
     description:
       'AI-powered quiz generator built on OpenAI. Users get personalized quizzes on any topic with adaptive difficulty. Postgres-backed, Vercel-deployed.',
     image: '/projects/quizmatic.webp',
+    images: [
+      '/projects/quizmatic.webp',
+      '/projects/quizmatic1.webp',
+      '/projects/quizmatic2.webp',
+      '/projects/quizmatic3.webp',
+    ],
     imageAlt: 'Quizmatic AI quiz generator screenshot',
     tags: ['Next.js', 'OpenAI', 'Prisma', 'Postgres'],
     github: 'https://github.com/n8watkins/Quizmatic',
@@ -45,24 +58,48 @@ const featured: FeaturedProject[] = [
 
 const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: boolean }) => {
   const technologies = projects.find((p) => p.title === project.title)?.technologies
+  const gallery = project.images && project.images.length > 1 ? project.images : [project.image]
+  const [active, setActive] = useState(0)
+  const current = gallery[Math.min(active, gallery.length - 1)]
   return (
   <motion.div
     {...defaultAnimationConfig}
     className={`flex flex-col ${flipped ? 'md:flex-row-reverse' : 'md:flex-row'} gap-10 md:gap-14 items-center`}
   >
-    {/* Image */}
+    {/* Image + gallery */}
     <div className="w-full md:w-1/2 flex-shrink-0">
       <div className="relative rounded-2xl overflow-hidden border border-white/8 bg-[#07101d] aspect-[16/10] group">
         <Image
-          src={project.image}
+          key={current}
+          src={current}
           alt={project.imageAlt}
           fill
-          className="object-cover object-top group-hover:scale-[1.02] transition-transform duration-500"
+          className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.02]"
           sizes="(max-width: 768px) 100vw, 50vw"
         />
         {/* Subtle overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#050812]/40 to-transparent pointer-events-none" />
       </div>
+
+      {/* Thumbnail strip */}
+      {gallery.length > 1 && (
+        <div className="mt-3 flex gap-2">
+          {gallery.map((src, i) => (
+            <button
+              key={src}
+              onClick={() => setActive(i)}
+              aria-label={`${project.title} image ${i + 1}`}
+              className={`relative aspect-[16/10] w-full overflow-hidden rounded-lg border transition-all duration-200 ${
+                i === active
+                  ? 'border-cyan-400/60 ring-1 ring-cyan-400/40'
+                  : 'border-white/10 opacity-60 hover:opacity-100'
+              }`}
+            >
+              <Image src={src} alt="" fill className="object-cover object-top" sizes="120px" />
+            </button>
+          ))}
+        </div>
+      )}
     </div>
 
     {/* Content */}
