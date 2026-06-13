@@ -1,6 +1,6 @@
 # HANDOFF — Nate Builds (n8builds-web)
 
-_Last updated: 2026-06-12 (session: Vercel deploy live, appturnity.com sweep; DNS records pending in Cloudflare)_
+_Last updated: 2026-06-12 (session: FULLY LAUNCHED — Vercel deploy, DNS, HTTPS, Email Routing, appturnity.com sweep all live & verified)_
 
 ## Project summary
 
@@ -176,22 +176,39 @@ natkins23s-projects, created 2026-06-12); agent verified/finished the rest:
   /appturnity → 307 appturnity.com; /portfolio → 307 portfolio; real POST
   to /api/contact on the live domain → 200, both emails delivered.
 
+## Done 2026-06-12 (evening): Email Routing live + portfolio subdomain live
+
+- **Email Routing fixed.** The new Cloudflare "Email Service" UI never
+  exposed a working enable button — the `Connect` button is for Email
+  Workers (code), and the Status/DNS "↗" links only deep-link to the
+  Settings tab (records table, no enable action). Fix that worked:
+  created the routing rule (`contact@n8builds.dev` → Gmail) in Routing
+  rules, then **added the four DNS records by hand** in DNS → Records,
+  copying the exact values from the Settings → DNS records table:
+  `MX @ route1.mx.cloudflare.net` (pri 42), `route2` (37), `route3` (59),
+  and `TXT @ "v=spf1 include:_spf.mx.cloudflare.net ~all"`. (Skipped the
+  DKIM TXT — not needed for receiving.) Verified live via DoH; a Nodemailer
+  test send to contact@n8builds.dev forwarded into Gmail. **Gotcha for next
+  time:** the destination address needs its Cloudflare verification email
+  clicked, and Gmail hides self-sent forwards (check All Mail / Activity
+  Log, not just inbox).
+- **portfolio.n8builds.dev is live** (HTTP 200) — CNAME + attached to the
+  portfolio Vercel project; cert provisioned on its own.
+
+## Launch acceptance — ALL GREEN (verified 2026-06-12 evening)
+
+- DNS: A apex → 76.76.21.21; www + portfolio CNAME → cname.vercel-dns.com;
+  MX route1/2/3.mx.cloudflare.net; SPF TXT present.
+- https://n8builds.dev and https://www.n8builds.dev → 200 over HTTPS.
+- /appturnity → 307 appturnity.com; /portfolio → 307 nathansportfolio.
+- portfolio.n8builds.dev → 200.
+- Contact form: real POST on the live domain → 200, both emails delivered.
+- Inbound: mail to contact@n8builds.dev forwards into Gmail.
+
 ## Next steps (ordered)
 
-1. **Email Routing re-enable — Nathan, browser only, still pending.** The
-   Cloudflare Email Routing page shows status disabled/not configured (its
-   earlier setup got reset; that's why the MX/TXT records vanished). Inbound
-   mail to contact@n8builds.dev BOUNCES until done (outbound From: works —
-   that's Gmail Send-mail-as, independent of MX). Wizard: Email → Email
-   Routing → Get started → custom address `contact` → destination
-   nathancwatkins23@gmail.com → "Add records and enable". Verify MX
-   (route1/2/3.mx.cloudflare.net) + SPF TXT publish, then send a real mail
-   to contact@n8builds.dev and confirm it lands in Gmail.
-   The wrangler OAuth token on this machine is zone-read-only — an agent
-   cannot create/read DNS records via API; verify via public DoH instead.
-2. **portfolio.n8builds.dev**: CNAME exists and the domain is attached to
-   the portfolio Vercel project — check it serves; if cert lags, use the
-   `vercel certs issue` nudge (switch project context first).
+Account-side polish only — site is fully launched. See "Account-side,
+post-launch" below (GA4 property, reCAPTCHA keys). No deploy/DNS work left.
 2. ~~appturnity.web.app → appturnity.com sweep~~ — **done 2026-06-12**: all
    code references (redirect, Navbar, Footer, gridItem4, projects/builds data)
    now use appturnity.com.
