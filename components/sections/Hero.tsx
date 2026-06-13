@@ -166,7 +166,7 @@ const Hero = () => {
                 Watch Live
               </a>
               <ScrollButton
-                link="builds"
+                link="projects"
                 text="Explore Builds"
                 className="px-5 py-2.5 rounded-xl border border-white/12 bg-white/[0.04] hover:bg-white/[0.07] text-slate-300 font-bold text-sm transition-all duration-200 hover:scale-[1.02]"
               />

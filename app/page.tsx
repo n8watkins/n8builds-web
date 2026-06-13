@@ -8,9 +8,8 @@ import SectionErrorBoundary from '@/components/SectionErrorBoundary'
 import dynamic from 'next/dynamic'
 
 const NowBuilding = dynamic(() => import('@/components/sections/NowBuilding'))
-const FeaturedProjects = dynamic(() => import('@/components/sections/FeaturedProjects'))
+const ShelfSection = dynamic(() => import('@/components/sections/ShelfSection'))
 const LoadoutTeaser = dynamic(() => import('@/components/sections/LoadoutTeaser'))
-const ProjectsMarquee = dynamic(() => import('@/components/sections/ProjectsMarquee'))
 const Footer = dynamic(() => import('@/components/layout/Footer'))
 const ScrollToTop = dynamic(() => import('@/components/ui/ScrollToTop'), { ssr: false })
 
@@ -32,22 +31,28 @@ export default function Home() {
           <NowBuilding />
         </SectionErrorBoundary>
 
-        <SectionErrorBoundary sectionName="Projects Section">
-          <FeaturedProjects />
+        {/* Shelf content lives on the page, each linking to its full shelf */}
+        <SectionErrorBoundary sectionName="Projects">
+          <ShelfSection shelf="project" />
+        </SectionErrorBoundary>
+
+        <SectionErrorBoundary sectionName="Extensions">
+          <ShelfSection shelf="extension" />
+        </SectionErrorBoundary>
+
+        <SectionErrorBoundary sectionName="Tools">
+          <ShelfSection shelf="tool" />
+        </SectionErrorBoundary>
+
+        <SectionErrorBoundary sectionName="Lab">
+          <ShelfSection shelf="lab" />
         </SectionErrorBoundary>
 
         {/* Tech loadout teaser → /loadout */}
         <SectionErrorBoundary sectionName="Loadout Teaser">
           <LoadoutTeaser />
         </SectionErrorBoundary>
-      </div>
 
-      {/* Full-width builds marquee — demoted to a breadth flex near the bottom */}
-      <SectionErrorBoundary sectionName="Projects Marquee">
-        <ProjectsMarquee />
-      </SectionErrorBoundary>
-
-      <div className="max-w-6xl mx-auto px-5 sm:px-8">
         <section id="contact">
           <SectionErrorBoundary sectionName="Contact Section">
             <Footer />
