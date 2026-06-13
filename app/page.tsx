@@ -8,6 +8,7 @@ import SectionErrorBoundary from '@/components/SectionErrorBoundary'
 import dynamic from 'next/dynamic'
 
 const NowBuilding = dynamic(() => import('@/components/sections/NowBuilding'))
+const FeaturedProjects = dynamic(() => import('@/components/sections/FeaturedProjects'))
 const ShelfSection = dynamic(() => import('@/components/sections/ShelfSection'))
 const LoadoutTeaser = dynamic(() => import('@/components/sections/LoadoutTeaser'))
 const Footer = dynamic(() => import('@/components/layout/Footer'))
@@ -29,6 +30,11 @@ export default function Home() {
         {/* The in-public hook — what I'm building right now */}
         <SectionErrorBoundary sectionName="Currently Building">
           <NowBuilding />
+        </SectionErrorBoundary>
+
+        {/* Featured showcase — alternating image rows */}
+        <SectionErrorBoundary sectionName="Featured Projects">
+          <FeaturedProjects />
         </SectionErrorBoundary>
 
         {/* Shelf content lives on the page, each linking to its full shelf */}

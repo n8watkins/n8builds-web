@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { FiArrowLeft, FiTerminal } from 'react-icons/fi'
 import { loadout, whoami, type LoadoutGroup, type LoadoutItem } from '@/data/loadout'
+import AITechStack from '@/components/features/AITechStack'
+import BuildStacks from '@/components/sections/BuildStacks'
 
 // Static class maps so Tailwind keeps these in the build.
 const accentMap: Record<LoadoutGroup['accent'], { text: string; dot: string; ring: string; glow: string }> = {
@@ -126,11 +128,39 @@ const Loadout = () => {
           </div>
         </motion.div>
 
-        {/* Groups */}
-        <div className="mt-14 space-y-16">
-          {loadout.map((group, i) => (
-            <Group key={group.id} group={group} index={i} />
-          ))}
+        {/* AI tech stack — hover-reveal marquee (ported from the portfolio bento) */}
+        <section id="ai" className="mt-14 scroll-mt-24">
+          <div className="mb-5 flex flex-col gap-1.5">
+            <span className="font-mono text-xs text-slate-600">~/loadout/ai</span>
+            <div className="flex items-center gap-2.5">
+              <span className="h-2 w-2 rounded-full bg-cyan-400" />
+              <h2 className="text-2xl font-extrabold tracking-tight text-slate-50">AI & Agents</h2>
+            </div>
+            <p className="text-sm text-[#9cadc5]">The part of the kit that does the heavy lifting now — hover a tile for what I use it for.</p>
+          </div>
+          <AITechStack />
+        </section>
+
+        {/* Stacks I build with — named combos */}
+        <section id="stacks" className="mt-16 scroll-mt-24">
+          <div className="mb-5 flex flex-col gap-1.5">
+            <span className="font-mono text-xs text-slate-600">~/loadout/stacks</span>
+            <div className="flex items-center gap-2.5">
+              <span className="h-2 w-2 rounded-full bg-blue-400" />
+              <h2 className="text-2xl font-extrabold tracking-tight text-slate-50">Stacks I build with</h2>
+            </div>
+            <p className="text-sm text-[#9cadc5]">Not a flat tool list — the combos that go together for each kind of project.</p>
+          </div>
+          <BuildStacks />
+        </section>
+
+        {/* Remaining groups as cards (Stream / Rig / Desk) */}
+        <div className="mt-16 space-y-16">
+          {loadout
+            .filter((group) => ['stream', 'rig', 'desk'].includes(group.id))
+            .map((group, i) => (
+              <Group key={group.id} group={group} index={i} />
+            ))}
         </div>
 
         {/* Footer note */}
