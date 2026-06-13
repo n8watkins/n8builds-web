@@ -30,6 +30,27 @@ const tools: FreeTool[] = [
     platform: { label: 'In-browser · free', icon: <FiGlobe className="h-3.5 w-3.5" /> },
     blurb: 'Drop in a sprite sheet, slice it, preview the animation, and export a GIF or frames — entirely in your browser. No sign-up, nothing uploaded.',
   },
+  {
+    slug: 'canihost',
+    icon: '/builds/canihost/icon.png',
+    visual: '/builds/canihost/og-image.png',
+    platform: { label: 'In-browser · free', icon: <FiGlobe className="h-3.5 w-3.5" /> },
+    blurb: 'Browse 1,300+ self-hosted apps by what you want to do ("replace Google Photos"), find out if your box can run them with a RAM/CPU calculator, and generate the docker-compose. Built on awesome-selfhosted.',
+  },
+  {
+    slug: 'freestack',
+    icon: '/builds/freestack/icon.png',
+    visual: '/builds/freestack/og-image.png',
+    platform: { label: 'In-browser · free', icon: <FiGlobe className="h-3.5 w-3.5" /> },
+    blurb: 'Every free developer tier from the free-for-dev list, browsable by what you need to build — then compare 2–4 free tiers head-to-head with the best value in each row highlighted.',
+  },
+  {
+    slug: 'apiscout',
+    icon: '/builds/apiscout/icon.png',
+    visual: '/builds/apiscout/og-image.png',
+    platform: { label: 'In-browser · free', icon: <FiGlobe className="h-3.5 w-3.5" /> },
+    blurb: 'Find, filter and test 1,500+ free public APIs live in your browser. Real categories (Animals, Anime, Weather…), a no-auth + CORS filter, and HTTPS marked verified — not just claimed.',
+  },
 ]
 
 const ToolCard = ({ tool, index }: { tool: FreeTool; index: number }) => {

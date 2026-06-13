@@ -396,6 +396,81 @@ export const builds: Build[] = [
     github: 'https://github.com/n8watkins/sprite-bench',
     liveSite: 'https://sprite-bench.vercel.app',
   },
+  {
+    slug: 'canihost',
+    name: 'CanIHost',
+    tagline: 'Self-hosted apps, by what you want to do',
+    category: 'Web tool',
+    tags: ['Next.js', 'TypeScript', 'Open source'],
+    color: 'from-amber-500/20 to-orange-600/20',
+    problem:
+      'Every self-hosted directory (awesome-selfhosted, selfh.st) sorts by tech category — but nobody wakes up wanting "a Feed Reader," they want to replace Google Photos. And no list tells you whether your Raspberry Pi can actually run the five things you just got excited about.',
+    solution:
+      'A real frontend for the awesome-selfhosted list that you browse by goal ("Replace Google Photos", "Run my own Netflix"), plus a "Can I run this?" RAM/CPU/ARM calculator and an auto docker-compose generator. 1,300+ apps, maintenance signals, all client-side.',
+    stack: [
+      { name: 'Next.js · TypeScript', detail: 'Static App Router site, all filtering client-side' },
+      { name: 'Tailwind CSS', detail: 'Light "blueprint / homelab" design' },
+      { name: 'Vercel', detail: 'Hosting and deploys' },
+    ],
+    process: [
+      'Built on the structured awesome-selfhosted-data set — credit flows upstream.',
+      'Goal-first browsing is the differentiator no competitor ships.',
+      'Free, open source, with a Ko-fi link — stars welcome.',
+    ],
+    images: [{ src: '/builds/canihost/og-image.png', alt: 'CanIHost — find self-hosted apps, plan your homelab' }],
+    github: 'https://github.com/n8watkins/canihost',
+    liveSite: 'https://canihost.vercel.app',
+  },
+  {
+    slug: 'freestack',
+    name: 'FreeStack',
+    tagline: 'Every free developer tier, searchable & side-by-side',
+    category: 'Web tool',
+    tags: ['Next.js', 'TypeScript', 'Open source'],
+    color: 'from-emerald-500/20 to-teal-600/20',
+    problem:
+      'The famous free-for-dev list is a giant alphabetical README. You can\'t search it, can\'t filter it, and definitely can\'t line up four hosting providers to see which gives you the most free storage.',
+    solution:
+      'A frontend for free-for-dev that you browse by what you need to build ("a database", "send email", "add logins"), then compare 2–4 free tiers head-to-head in a table with the best value in each row highlighted. 1,200+ services, all client-side.',
+    stack: [
+      { name: 'Next.js · TypeScript', detail: 'Static App Router site, client-side search/compare' },
+      { name: 'Tailwind CSS', detail: 'Light "pricing-page" design with an emerald accent' },
+      { name: 'Vercel', detail: 'Hosting' },
+    ],
+    process: [
+      'Parses the free-tier limits out of the prose into comparable facets.',
+      'The side-by-side compare table is the headline feature.',
+      'Free, open source, Ko-fi link — contribute services upstream.',
+    ],
+    images: [{ src: '/builds/freestack/og-image.png', alt: 'FreeStack — every free developer tier, searchable' }],
+    github: 'https://github.com/n8watkins/freestack',
+    liveSite: 'https://freestack-livid.vercel.app',
+  },
+  {
+    slug: 'apiscout',
+    name: 'APIScout',
+    tagline: 'Find, filter & test free public APIs — live',
+    category: 'Web tool',
+    tags: ['Next.js', 'TypeScript', 'Open source'],
+    color: 'from-indigo-500/20 to-blue-600/20',
+    problem:
+      'The public-apis list is great but static: you can\'t test an endpoint, can\'t find the no-auth + CORS-friendly ones, and it claims HTTPS support it never actually verified.',
+    solution:
+      'A searchable frontend for public-apis with a live in-browser "try it" playground, a no-auth + CORS filter, real categories (Animals, Anime, Weather…) as browsable tiles, popularity ranking, and a build-time verifier that marks HTTPS as verified vs merely claimed. 1,500+ APIs.',
+    stack: [
+      { name: 'Next.js · TypeScript', detail: 'Static directory + one SSRF-hardened proxy route for the playground' },
+      { name: 'Tailwind CSS', detail: 'Light "dev playground" design with an animated hero' },
+      { name: 'Vercel', detail: 'Hosting' },
+    ],
+    process: [
+      'A build-time pipeline verifies HTTPS and scrapes GitHub activity — claims are checked, not asserted.',
+      'Live "try it" calls run client-side for CORS APIs, else via a hardened proxy.',
+      'Free, open source, Ko-fi link — stars welcome.',
+    ],
+    images: [{ src: '/builds/apiscout/og-image.png', alt: 'APIScout — find, filter & test free public APIs' }],
+    github: 'https://github.com/n8watkins/apiscout',
+    liveSite: 'https://apiscout-cyan.vercel.app',
+  },
 ]
 
 export function getBuild(slug: string): Build | undefined {
