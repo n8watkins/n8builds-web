@@ -1,7 +1,7 @@
 # Nate Builds — The Big Plan
 
-> Status: IN PROGRESS — Loadout + shelves + homepage sections SHIPPED (local, unpushed). Remaining: `/builds` Log index, live layer.
-> Last updated: 2026-06-12
+> Status: SHIPPED to prod (n8builds.dev) as of 2026-06-13 — Loadout, shelves, homepage redesign (extensions showcase, Projects+Lab merge, free-tools, Currently-Building carousel, galleries, tech-stack bento). Remaining: `/builds` Log index, live-status layer, real screenshots for TL;DW/LocalDictate.
+> Last updated: 2026-06-13
 > Site: n8builds.dev — the public workshop
 
 ---

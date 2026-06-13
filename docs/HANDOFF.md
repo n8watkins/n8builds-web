@@ -1,11 +1,11 @@
 # HANDOFF — Nate Builds (n8builds-web)
 
-_Last updated: 2026-06-12 (session: IA OVERHAUL — Loadout page, content shelves, homepage now surfaces all content inline. See the top section below first.)_
+_Last updated: 2026-06-13 (session: HOMEPAGE REDESIGN — extensions showcase, Projects+Lab merge, free-tools section, Currently-Building carousel, image galleries, tech-stack bento. Pushed to prod.)_
 
-> **⚡ NEWEST WORK FIRST:** the "IA overhaul" section directly below is this
-> session's work and the current state of the site's structure. The long
-> launch/email history that follows it is still accurate but older. Strategy
-> doc: `docs/NATE_BUILDS_PLAN.md`.
+> **⚡ NEWEST WORK FIRST:** read the "Homepage redesign (2026-06-13)" section
+> directly below — it's the current state of the site. The "IA overhaul" and
+> launch/email sections after it are older but still accurate context.
+> Strategy doc: `docs/NATE_BUILDS_PLAN.md`.
 
 ## Project summary
 
@@ -25,7 +25,66 @@ then rebranded.
 Dev runs at **http://localhost:1337** (`npm run dev`). Not yet deployed —
 Vercel project + n8builds.dev domain hookup is pending (Nate owns the domain).
 
-## Done 2026-06-12: IA overhaul — Loadout + shelves + homepage sections (NOT pushed)
+## Done 2026-06-13: Homepage redesign — showcases, lab merge, carousel (PUSHED ✅)
+
+Big iterative session driven by Nate's feedback. All committed AND **pushed to
+origin/main** (`ccace9c..e68569d`, ~16 commits) → Vercel auto-deployed to
+n8builds.dev. Build passes; visually verified via Playwright.
+
+**Current homepage order** (`app/page.tsx`):
+Hero → NowBuilding (carousel) → FeaturedProjects (galleries) → The Lab (shelf) →
+ExtensionsShowcase → ToolsSection → TechStackBento → Footer (contact card).
+**Nav** (`Navbar.tsx`): Lab · Extensions · Tools · Loadout (+ Portfolio/Appturnity).
+
+What shipped:
+
+- **Assets via 5 sub-agents** (Nate authorized): real icons + screenshots copied
+  into `public/builds/{piper-tts,tubevault,tldw,localdictate,sprite-arsenal,portfolio-rank}`.
+  TL;DW + LocalDictate had NO screenshots in-repo → they show their icon (TODO:
+  real captures). Sprite Arsenal/Portfolio Rank icons are the generic N8 mark.
+- **ExtensionsShowcase** (`components/sections/ExtensionsShowcase.tsx`): 3 exts
+  (Piper/TubeVault/TL;DW) side-by-side, auto-cycle (5s, progress bar), hover →
+  active + others blur, carousel detail panel, **Star-on-GitHub** CTA (OSS push),
+  Launch-Kit banner. Mobile = stacked detail (no hover/cycle). Replaced the
+  extensions on the homepage AND the extensions in FeaturedProjects.
+- **Projects + Lab MERGED** (`data/shelves.ts`): dropped the `project` shelf —
+  web apps/experiments all land in **`lab`**. `/projects` page deleted. Appturnity
+  excluded from the lab list (`featuredElsewhere`) since it's featured + its own
+  business. Added **'Web tool'** category → tool shelf.
+- **Portfolio Rank** and **Sprite Arsenal** added to `data/builds.tsx` (both OSS).
+- **ToolsSection** (`components/sections/ToolsSection.tsx`): curated "Free tools I
+  made" — LocalDictate + Sprite Arsenal, Free badge, Try-it/Star CTAs. Homepage
+  uses this; `/tools` page still the full shelf (VibeLog, LocalDictate, Repo
+  Steward, Sprite Arsenal).
+- **Loadout page restructured** (`components/sections/Loadout.tsx`): AI & Agents
+  is now a **hover-reveal marquee** (`components/features/AITechStack.tsx` +
+  `data/aiStack.tsx`) instead of text cards; Build/Ship replaced by **named
+  stacks** (`components/sections/BuildStacks.tsx` + `data/buildStacks.tsx` — Turso
+  / Firebase / Local-First / Extension; note: **prefer Firebase, avoid Supabase**).
+  Stream/Rig/Desk still render as cards from `data/loadout.tsx` (filtered by id).
+- **TechStackBento** (`components/sections/TechStackBento.tsx`): the portfolio's
+  bento tech-stack item, re-themed dark/cyan, on the homepage from
+  `data/techStack.tsx`. Replaced the old text `LoadoutTeaser` (deleted).
+- **NowBuilding → carousel** (`data/now.tsx` is now `nowItems[]`): Asset Arsenal /
+  VibeLog / Portfolio Rank, auto-advance + dots + arrows + pause-on-hover, "Check
+  out the lab" link.
+- **FeaturedProjects galleries**: Appturnity + Quizmatic get a clickable thumbnail
+  strip (4 images each from `public/projects/`). Solara moved out → into the Lab.
+- **Contact section redesigned** (`Footer.tsx`): two-column card (branded panel w/
+  portrait + socials | form), glows + grid texture + gradient accent (no longer
+  flat black).
+- **Page color shifts** (`app/page.tsx`): ambient cyan/blue/teal/indigo glow layer
+  + vertical gradient so it's not one flat tone.
+
+**Gotchas this session:** (1) `cd` in a Bash command persists across calls — a
+stray `cd` into a project dir made later `rm`/`npm` run from the wrong cwd (a
+delete silently no-op'd, tsc kept seeing a "deleted" file). Use absolute paths.
+(2) Dev server port 1337 conflicts: old `next dev` instances don't always die;
+`lsof -ti tcp:1337 | xargs -r kill -9` then start ONE. (3) Homepage sections are
+`next/dynamic` → not in SSR HTML, so `curl | grep` can't see them; screenshot
+instead. (4) framer `whileInView` needs a scroll-through before full-page shots.
+
+## Done 2026-06-12: IA overhaul — Loadout + shelves + homepage sections (NOT pushed → now pushed)
 
 This session reframed Nate Builds from "portfolio-ish" to a **public workshop /
 build-in-public hub**. Four commits, **local only on `main` (ahead of
@@ -296,30 +355,31 @@ Account-side polish only — site is fully launched, no deploy/DNS work left.
 Address review findings 1–2 above before wide promotion; finding 3 (GA4) when
 you want traffic data. Then the feature work below.
 
-Code-side feature work (updated 2026-06-12 after the IA overhaul):
+Code-side feature work (updated 2026-06-13 after the homepage redesign):
 
-0. **PUSH when ready.** 4 commits sit local on `main` (ahead of origin/main by
-   4). `git push` auto-deploys to prod n8builds.dev — only do it when Nate says
-   go. Until then the new Loadout/shelves/homepage are local-only.
-1. **`/builds` Log index page** — THE top must-have still unbuilt (the journal
-   "heartbeat" from `docs/NATE_BUILDS_PLAN.md` §IA). Detail pages already exist
-   at `app/builds/[slug]/page.tsx`; there is no `app/builds/page.tsx` index.
-   Decide: is "Log" a journal of posts (cadence ~weekly per Nate) or just an
-   index of all builds? Then build it and add "Log" to the nav. The separate
-   blog project at `/home/natkins/n8builds/blog` (name **N8 Notes**, decided) —
-   check whether to integrate or link before building from scratch.
-2. **Replace made-up Loadout content with real values** — `data/loadout.tsx`,
-   especially **The Rig** (CPU/GPU/RAM specs are plausible guesses) and The Desk.
-3. **Keep `data/now.tsx` fresh** — "Currently Building" is the live hook; it's
-   only as alive as Nate keeps it (current project, status, recent-activity
-   lines).
-4. **Hero upgrades** — "LIVE on VibeLog" badge (corner, conditional) and an
-   LA callout ("Base of operations: Los Angeles, CA"). Headshot already there.
-5. **(optional) "See all projects" parity / Work With Me bridge** — footer
-   partially covers the bridge today.
+0. **Verify the prod deploy.** Everything is PUSHED (origin/main, auto-deploys to
+   n8builds.dev). Load the site and click Lab/Extensions/Tools/Loadout. If the
+   cert/build stalls, see the cert nudge in the launch notes below.
+1. **Real screenshots for TL;DW + LocalDictate** (and ideally Asset Arsenal /
+   VibeLog). They had none in-repo → currently show their icon. Drop captures in
+   `public/builds/<slug>/` and wire into ExtensionsShowcase / ToolsSection /
+   FeaturedProjects. Sprite Arsenal + Portfolio Rank icons are the generic N8
+   mark — swap for real marks if they exist.
+2. **`/builds` Log index page** — top structural piece still unbuilt (journal
+   "heartbeat"). Detail pages exist at `app/builds/[slug]/page.tsx`; no
+   `app/builds/page.tsx`. Decide journal-of-posts (~weekly) vs index; add "Log"
+   to nav. Separate blog project at `/home/natkins/n8builds/blog` (name **N8
+   Notes**) — integrate or link.
+3. **Replace made-up content with real values** — `data/loadout.tsx` (The Rig
+   specs, The Desk), `data/now.tsx` (keep the carousel fresh), `data/aiStack.tsx`
+   / `data/buildStacks.tsx` if anything's off.
+4. **Live status** — the Hero "Live" pill is manual; wire to Twitch/YouTube later.
+5. **Hero upgrades** — "LIVE on VibeLog" badge + LA callout (still open).
 
-**DONE this session (was on the old list):** the "AI Loadout section" shipped as
-the full `/loadout` page + homepage teaser.
+**DONE 2026-06-13 (was on the list):** AI loadout (now a hover marquee), shelves,
+homepage inline sections, extensions showcase, Projects+Lab merge, free-tools
+section, Currently-Building carousel, featured-project galleries, tech-stack
+bento, contact redesign, page color shifts, Portfolio Rank + Sprite Arsenal added.
 
 Account-side, post-launch (needs Nate, not code):
 
@@ -341,6 +401,19 @@ Account-side, post-launch (needs Nate, not code):
 
 - Blue/cyan accents, **no purple** (except Twitch brand hover in Navbar).
 - Blog name: **N8 Notes**.
+- **Projects and Lab are ONE** ("the lab is everything"). No separate Projects
+  page/shelf. Extensions and Tools keep their own shelves.
+- **Don't list the same build twice.** Chrome extensions live only in the
+  Extensions showcase (not the alternating featured rows). Appturnity is featured
+  + excluded from the Lab list.
+- **Stack preference: Firebase over Supabase** (avoid Supabase) — reflected in
+  `data/buildStacks.tsx`.
+- **Open-source push:** Piper, TubeVault, TL;DW, Sprite Arsenal, Portfolio Rank,
+  LocalDictate are OSS — surface **Star-on-GitHub** CTAs, don't bury them.
+- Chrome Extension Launch Kit is a **banner** under the extensions, not a main card.
+- Extensions/featured use **auto-cycle + hover-to-expand** (desktop) / tap or
+  stacked (mobile) — Nate explicitly does NOT want click-only or the alternating
+  back-and-forth for the extensions.
 - **(superseded 2026-06-12)** ~~Marquee stays as browse-entry~~ — the marquee
   was REMOVED; the homepage now shows real shelf sections (Projects/Extensions/
   Tools/Lab) inline, each "See all →" linking to its full filterable page.
@@ -406,23 +479,31 @@ Account-side, post-launch (needs Nate, not code):
 ## File map
 
 - `docs/NATE_BUILDS_PLAN.md` — **read first**: IA strategy, pillars, Loadout concept, roadmap
-- `data/builds.tsx` — single source of truth: all 12 builds (category, status, stack, links, images)
-- `data/shelves.ts` — `getShelf()` classifier + `buildsForShelf()`/`tagsForShelf()`; powers all shelves
-- `app/{projects,extensions,tools,lab}/page.tsx` — thin shelf pages → `<Shelf>`
+- `data/builds.tsx` — single source of truth: all builds (category, status, stack, links, images); incl. Portfolio Rank + Sprite Arsenal
+- `data/shelves.ts` — `getShelf()` classifier (extension/tool/lab; NO 'project' — merged into lab) + `buildsForShelf()` (excludes `featuredElsewhere`)
+- `app/{extensions,tools,lab}/page.tsx` — thin shelf pages → `<Shelf>` (NO /projects — deleted)
 - `components/sections/Shelf.tsx` — full filterable shelf page (tag chips)
-- `components/sections/ShelfSection.tsx` — homepage inline shelf preview (≤3 cards + See all)
-- `components/sections/BuildCard.tsx` — shared card (stretched-link → /builds/[slug]); used by both above
+- `components/sections/ShelfSection.tsx` — homepage inline shelf preview (≤3 cards + See all) — used for The Lab
+- `components/sections/BuildCard.tsx` — shared card (stretched-link → /builds/[slug])
 - `app/builds/[slug]/page.tsx` — build detail pages (back-link returns to the build's shelf)
-- `data/loadout.tsx` + `components/sections/Loadout.tsx` — /loadout page (6 groups + whoami)
-- `components/sections/LoadoutTeaser.tsx` — homepage loadout headliners → /loadout
-- `data/now.tsx` + `components/sections/NowBuilding.tsx` — "Currently Building" hook (keep fresh)
-- `app/page.tsx` — homepage composition (Hero → NowBuilding → shelves → LoadoutTeaser → Footer)
-- `components/layout/Navbar.tsx` — nav (Projects/Extensions/Tools/Loadout/Lab + cross-links)
-- `components/Projects/TechStackCycle.tsx` — dock-hover tech stack (tabs/bullets/icons); NOTE: was only used by the now-deleted FeaturedProjects — currently unreferenced
-- `components/sections/Hero.tsx` — hero; "Explore Builds" → #projects; next: LIVE badge + LA callout
-- _(deleted this session: `components/sections/FeaturedProjects.tsx`, `ProjectsMarquee.tsx`, `components/sections/Clients.tsx`, `data/testimonials.tsx`)_
+- **HOMEPAGE sections** (`app/page.tsx`, all `next/dynamic`):
+  - `components/sections/NowBuilding.tsx` + `data/now.tsx` (`nowItems[]`) — Currently-Building CAROUSEL
+  - `components/sections/FeaturedProjects.tsx` — Appturnity + Quizmatic, alternating rows w/ image GALLERIES (images from `public/projects/`)
+  - `components/sections/ExtensionsShowcase.tsx` — Piper/TubeVault/TL;DW auto-cycle + hover detail + Star CTA + Launch-Kit banner
+  - `components/sections/ToolsSection.tsx` — curated free tools (LocalDictate + Sprite Arsenal)
+  - `components/sections/TechStackBento.tsx` — bento tech-stack hover-marquee from `data/techStack.tsx`
+- **LOADOUT page** (`components/sections/Loadout.tsx`):
+  - `components/features/AITechStack.tsx` + `data/aiStack.tsx` — AI hover-reveal marquee
+  - `components/sections/BuildStacks.tsx` + `data/buildStacks.tsx` — named stacks (prefer Firebase, avoid Supabase)
+  - `data/loadout.tsx` — Stream/Rig/Desk groups (ai/build/ship groups still in data but filtered out of the page render)
+- `components/layout/Navbar.tsx` — nav (Lab/Extensions/Tools/Loadout + cross-links)
+- `components/layout/Footer.tsx` — redesigned contact card (branded panel + form, glows)
+- `public/builds/<slug>/` — gathered icons + screenshots (piper-tts, tubevault, tldw, localdictate, sprite-arsenal, portfolio-rank, solara)
+- `components/Projects/TechStackCycle.tsx` — dock-hover tech stack; currently UNREFERENCED (FeaturedProjects falls back to flat tags)
+- `components/sections/Hero.tsx` — hero; "Explore Builds" → #projects (now scrolls toward Lab)
+- _(deleted across sessions: `ProjectsMarquee.tsx`, `Clients.tsx`, `data/testimonials.tsx`, `LoadoutTeaser.tsx`, `app/projects/`)_
 - `data/projects.tsx` — project data incl. Frontend/Backend/Cloud descriptionParts + techNameMapping
-- `data/techStack.tsx` — react-icons tech list (for AI Loadout)
+- `data/techStack.tsx` — react-icons tech list (powers TechStackBento)
 - `app/layout.tsx` — metadata, siteUrl, gated GA scripts, favicon set
 - `next.config.mjs` — /portfolio + /appturnity redirects, headers
 - `app/sitemap.ts`, `public/robots.txt` — n8builds.dev SEO
