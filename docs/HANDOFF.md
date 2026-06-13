@@ -1,6 +1,6 @@
 # HANDOFF — Nate Builds (n8builds-web)
 
-_Last updated: 2026-06-12 (session: email templates polished, contact@ identity live)_
+_Last updated: 2026-06-12 (session: Vercel deploy live, appturnity.com sweep; DNS records pending in Cloudflare)_
 
 ## Project summary
 
@@ -141,16 +141,45 @@ Template state (all of this is deliberate; don't "improve" it back):
 - Both headers use the cyan→blue gradient (`#06b6d4`→`#2563eb`); the purple
   one is gone. 404 page also re-themed earlier.
 
+## Done 2026-06-12: Vercel deploy live (`5c0d17b`, `3673cae`)
+
+Nathan created the Vercel project in the browser (n8builds-web under
+natkins23s-projects, created 2026-06-12); agent verified/finished the rest:
+
+- Env vars set in Production: `GMAIL_USER`, `GMAIL_APP_PASSWORD`,
+  `CONTACT_EMAIL_TO`, `NEXT_PUBLIC_SITE_URL`.
+- GitHub repo connected — push to main auto-deploys (verified live).
+- Production alias **https://n8builds-web.vercel.app** serves 200; raw
+  `*-natkins23s-projects.vercel.app` deployment URLs return 401 (Vercel
+  deployment protection — normal, not a bug).
+- **Prod bug found+fixed** (`5c0d17b`): `lib/security/recaptcha.ts` returned
+  `false` in production when `RECAPTCHA_SECRET_KEY` is unset, 400-ing every
+  submission. Now skip==allow (matches client's `dev_bypass_token` behavior;
+  honeypot + rate limit still active).
+- **Contact form verified in production**: POST to the alias returned 200,
+  both emails delivered via Gmail SMTP.
+- Domains n8builds.dev + www.n8builds.dev attached to n8builds-web;
+  **portfolio.n8builds.dev attached to the portfolio project** (Nathan did
+  this in the dashboard — needs its own CNAME too).
+
 ## Next steps (ordered)
 
-1. **Vercel deploy** (Nathan in browser, agent can drive CLI): import
-   n8watkins/n8builds-web at vercel.com/new, env vars before first deploy
-   (`GMAIL_USER`, `GMAIL_APP_PASSWORD`, `CONTACT_EMAIL_TO`, optional
-   `CONTACT_EMAIL_FROM`), then add n8builds.dev (A 76.76.21.21 apex / CNAME
-   cname.vercel-dns.com www in Cloudflare DNS, **grey cloud / DNS only** —
-   but do NOT touch the MX/TXT records Email Routing added). Details:
-   `~/docs/faq/deploying-to-vercel.md`. Acceptance: n8builds.dev serves the
-   site over HTTPS and a real contact-form submit delivers both emails.
+1. **Cloudflare DNS records — Nathan, browser only** (the only thing between
+   here and n8builds.dev being live). The zone is active on Cloudflare but
+   has **ZERO records** (verified via DoH + API 2026-06-12) — which also
+   means the Email Routing MX/TXT records are NOT published and
+   contact@n8builds.dev forwarding is currently dead despite the earlier
+   "done" note. In dash.cloudflare.com → n8builds.dev:
+   a) DNS → Records: add `A @ 76.76.21.21` (DNS only/grey) and
+      `CNAME www cname.vercel-dns.com` (DNS only/grey); optionally
+      `CNAME portfolio cname.vercel-dns.com` (DNS only) for the portfolio.
+   b) Email → Email Routing: re-enable / "add records" so the MX + SPF TXT
+      records get published again, then send a test mail to
+      contact@n8builds.dev and confirm it lands in Gmail.
+   The wrangler OAuth token on this machine is zone-read-only — an agent
+   cannot create DNS records; don't burn time trying.
+   Acceptance: https://n8builds.dev serves over HTTPS; a real form submit
+   delivers both emails; mail to contact@n8builds.dev arrives in Gmail.
 2. ~~appturnity.web.app → appturnity.com sweep~~ — **done 2026-06-12**: all
    code references (redirect, Navbar, Footer, gridItem4, projects/builds data)
    now use appturnity.com.
@@ -178,8 +207,11 @@ Account-side, post-launch (needs Nate, not code):
   `lib/security/recaptcha.ts`; note the zod schema still requires a non-empty
   `recaptcha` string in the POST body either way)
 - ~~Resend: verify n8builds.dev~~ — obsolete, see the Resend section above
-- ~~Cloudflare Email Routing + Gmail "Send mail as"~~ — **done 2026-06-12**,
-  verified: From shows contact@n8builds.dev
+- ~~Cloudflare Email Routing + Gmail "Send mail as"~~ — set up 2026-06-12
+  (From shows contact@n8builds.dev), **BUT** the zone's MX/TXT records are
+  no longer published (zone is empty as of the deploy session) — inbound
+  forwarding is broken until Email Routing's records are re-added; see
+  next step 1b.
 - Optional Sentry: `instrumentation.ts` / `instrumentation-client.ts` are
   empty placeholders ready for `npx @sentry/wizard -i nextjs`
 
