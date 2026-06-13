@@ -7,6 +7,12 @@ _Last updated: 2026-06-13 (session: HOMEPAGE REDESIGN — extensions showcase, P
 > launch/email sections after it are older but still accurate context.
 > Strategy doc: `docs/NATE_BUILDS_PLAN.md`.
 
+> **🧰 Free Tools Trio (CanIHost · FreeStack · APIScout):** three OSS tools built
+> 2026-06-13, now in the homepage Free Tools section. They live in their own
+> repos under `/home/natkins/n8builds/public/<slug>/`. Cross-cutting state +
+> the one open step (add Cloudflare CNAMEs for the subdomains, then flip the
+> homepage `liveSite` links) → **`docs/FREE_TOOLS_TRIO_HANDOFF.md`**.
+
 ## Project summary
 
 **Nate Builds** is Nathan Watkins' public builder-lab site — the top-of-funnel
