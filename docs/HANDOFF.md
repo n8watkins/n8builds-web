@@ -1,6 +1,11 @@
 # HANDOFF — Nate Builds (n8builds-web)
 
-_Last updated: 2026-06-12 (session: FULLY LAUNCHED — Vercel deploy, DNS, HTTPS, Email Routing, appturnity.com sweep all live & verified)_
+_Last updated: 2026-06-12 (session: IA OVERHAUL — Loadout page, content shelves, homepage now surfaces all content inline. See the top section below first.)_
+
+> **⚡ NEWEST WORK FIRST:** the "IA overhaul" section directly below is this
+> session's work and the current state of the site's structure. The long
+> launch/email history that follows it is still accurate but older. Strategy
+> doc: `docs/NATE_BUILDS_PLAN.md`.
 
 ## Project summary
 
@@ -20,7 +25,54 @@ then rebranded.
 Dev runs at **http://localhost:1337** (`npm run dev`). Not yet deployed —
 Vercel project + n8builds.dev domain hookup is pending (Nate owns the domain).
 
-## State (this session's commits, all pushed to origin/main)
+## Done 2026-06-12: IA overhaul — Loadout + shelves + homepage sections (NOT pushed)
+
+This session reframed Nate Builds from "portfolio-ish" to a **public workshop /
+build-in-public hub**. Four commits, **local only on `main` (ahead of
+origin/main by 4) — NOT pushed** (pushing auto-deploys to prod; user hasn't
+asked). Strategy + full roadmap: **`docs/NATE_BUILDS_PLAN.md`** (read it).
+
+- `4f273b0` — `docs/NATE_BUILDS_PLAN.md`: positioning (the public workshop),
+  3 pillars (Build / Stream / Signal), the **Loadout** concept, unified content
+  schema, phased roadmap. Derived from a 3-agent analysis (content/IA/brand).
+- `b61b96c` — **/loadout** page. `data/loadout.tsx` = 6 groups (AI & Agents,
+  Build Stack, Ship & Infra, Stream Kit, The Rig, The Desk); each item = what
+  it is + what I use it for + a `//` take + optional tag badge. `whoami`
+  terminal block. `components/sections/Loadout.tsx` (note `accentMap` holds full
+  static Tailwind class strings — dynamic `text-${x}` would be purged).
+  **Content is representative/made-up — Nate to replace Rig specs etc. with real
+  values.**
+- `61e6674` — homepage reorder: added **NowBuilding** (`data/now.tsx` =
+  "Currently Building", the live in-public hook — keep this fresh) + a Loadout
+  teaser; **deleted testimonials** (Clients.tsx + data/testimonials.tsx + barrel
+  export).
+- `08b3a71` — **the shelves**: `/projects`, `/extensions`, `/tools`, `/lab`.
+  `data/shelves.ts` derives each shelf from the single `data/builds.tsx` source
+  via `getShelf()` (by `category`; `status:'in the lab'` → /lab). `Shelf.tsx` =
+  full filterable page (tag chips). Sitemap + build-detail back-links updated
+  (back-link now returns to the build's actual shelf, was a dead `/#lab`).
+- `d42976b` — **homepage surfaces shelf content inline** (Nate's explicit ask:
+  "have the content on the page, not just navbar links"). Extracted shared
+  `components/sections/BuildCard.tsx`; new `ShelfSection.tsx` previews ≤3 cards
+  per shelf + "See all N →". **Deleted** the stale `FeaturedProjects.tsx` (had a
+  hardcoded **Quizmatic** not in the data) and `ProjectsMarquee.tsx`. Hero's
+  "Explore Builds" now scrolls to `#projects`.
+
+**Homepage order now** (`app/page.tsx`): Hero → NowBuilding → Projects →
+Extensions → Tools → Lab → LoadoutTeaser → Footer.
+**Nav now** (`components/layout/Navbar.tsx`): Projects · Extensions · Tools ·
+Loadout · Lab (+ Portfolio/Appturnity cross-links).
+
+**Verified:** `npm run type-check` clean, `npm run build` passes (all routes
+prerender: /loadout, /projects, /extensions, /tools, /lab), eslint clean
+(lint-staged auto-runs on commit). Visually verified all pages via Playwright
+against :1337. **Shelf counts:** projects 4, extensions 4, tools 3, lab 1.
+
+**Gotcha (animations):** sections use framer `whileInView` — full-page
+Playwright screenshots show below-fold sections as empty unless you scroll the
+page first (scroll in steps, `waitFor`, then capture). Real browsers are fine.
+
+## State (FIRST session's commits, all pushed to origin/main)
 
 - `60c8a4b` — **TechStackCycle** (`components/Projects/TechStackCycle.tsx`):
   dock-hover tech icon component ported from Portfolio 2.0's IconCycle,
@@ -244,20 +296,30 @@ Account-side polish only — site is fully launched, no deploy/DNS work left.
 Address review findings 1–2 above before wide promotion; finding 3 (GA4) when
 you want traffic data. Then the feature work below.
 
-Code-side feature work (from the brand-architecture analysis, see
-"Decisions" below):
+Code-side feature work (updated 2026-06-12 after the IA overhaul):
 
-1. **N8 Notes** (blog) — name is decided ("N8 Notes", beat out "Nate's
-   Notions"). Homepage preview section (3–5 latest cards) + posts. There is a
-   separate blog project at `/home/natkins/n8builds/blog` — check whether to
-   integrate or link before building from scratch.
-2. **Hero upgrades** — "LIVE on VibeLog" badge (corner, conditional) and an
+0. **PUSH when ready.** 4 commits sit local on `main` (ahead of origin/main by
+   4). `git push` auto-deploys to prod n8builds.dev — only do it when Nate says
+   go. Until then the new Loadout/shelves/homepage are local-only.
+1. **`/builds` Log index page** — THE top must-have still unbuilt (the journal
+   "heartbeat" from `docs/NATE_BUILDS_PLAN.md` §IA). Detail pages already exist
+   at `app/builds/[slug]/page.tsx`; there is no `app/builds/page.tsx` index.
+   Decide: is "Log" a journal of posts (cadence ~weekly per Nate) or just an
+   index of all builds? Then build it and add "Log" to the nav. The separate
+   blog project at `/home/natkins/n8builds/blog` (name **N8 Notes**, decided) —
+   check whether to integrate or link before building from scratch.
+2. **Replace made-up Loadout content with real values** — `data/loadout.tsx`,
+   especially **The Rig** (CPU/GPU/RAM specs are plausible guesses) and The Desk.
+3. **Keep `data/now.tsx` fresh** — "Currently Building" is the live hook; it's
+   only as alive as Nate keeps it (current project, status, recent-activity
+   lines).
+4. **Hero upgrades** — "LIVE on VibeLog" badge (corner, conditional) and an
    LA callout ("Base of operations: Los Angeles, CA"). Headshot already there.
-3. **AI Loadout section** — tight curated "stack I actually use" card with
-   icons (NOT a wall of every tech). `data/techStack.tsx` has icon data.
-4. **Work With Me bridge section** — two cards: "Need a developer?" →
-   portfolio, "Need a website/business system?" → Appturnity (footer partially
-   covers this today).
+5. **(optional) "See all projects" parity / Work With Me bridge** — footer
+   partially covers the bridge today.
+
+**DONE this session (was on the old list):** the "AI Loadout section" shipped as
+the full `/loadout` page + homepage teaser.
 
 Account-side, post-launch (needs Nate, not code):
 
@@ -279,7 +341,18 @@ Account-side, post-launch (needs Nate, not code):
 
 - Blue/cyan accents, **no purple** (except Twitch brand hover in Navbar).
 - Blog name: **N8 Notes**.
-- Marquee stays as browse-entry; drill-in via detail pages.
+- **(superseded 2026-06-12)** ~~Marquee stays as browse-entry~~ — the marquee
+  was REMOVED; the homepage now shows real shelf sections (Projects/Extensions/
+  Tools/Lab) inline, each "See all →" linking to its full filterable page.
+- **The site is a build-in-public workshop, not a portfolio** (the polished
+  hire-me lane is portfolio.n8builds.dev; client work is appturnity.com).
+- **`data/builds.tsx` is the single source of truth** for all shelves +
+  homepage sections — add a build there with a `category` and it auto-routes to
+  the right shelf via `data/shelves.ts`. Never make a parallel dataset.
+- The **Loadout** ("who I am without a resume") is the chosen identity device;
+  PC/hardware builds live there as "The Rig", not as a top-level lane.
+- Stream platform assumed **Twitch** (twitch.tv/n8watkins, already linked in
+  Hero); live status is a manual pill for now. Not finalized by Nate.
 - Footer/Navbar/redirect links to nathansportfolio.vercel.app and
   appturnity.com are intentional bridges, not leftovers.
 - Keep the three brands on separate sites; no mega-site.
@@ -332,12 +405,22 @@ Account-side, post-launch (needs Nate, not code):
 
 ## File map
 
-- `components/Projects/TechStackCycle.tsx` — dock-hover tech stack (tabs/bullets/icons)
-- `components/sections/FeaturedProjects.tsx` — sideways featured rows; consumes TechStackCycle
-- `components/sections/ProjectsMarquee.tsx` — "Builds from the lab" marquee (`id="lab"`, cards link to `/builds/[slug]`)
-- `data/builds.tsx` — all 12 lab builds: problem/solution, stack, process notes, images
-- `app/builds/[slug]/page.tsx` — statically generated build detail pages
-- `components/sections/Hero.tsx` — hero; next: LIVE badge + LA callout
+- `docs/NATE_BUILDS_PLAN.md` — **read first**: IA strategy, pillars, Loadout concept, roadmap
+- `data/builds.tsx` — single source of truth: all 12 builds (category, status, stack, links, images)
+- `data/shelves.ts` — `getShelf()` classifier + `buildsForShelf()`/`tagsForShelf()`; powers all shelves
+- `app/{projects,extensions,tools,lab}/page.tsx` — thin shelf pages → `<Shelf>`
+- `components/sections/Shelf.tsx` — full filterable shelf page (tag chips)
+- `components/sections/ShelfSection.tsx` — homepage inline shelf preview (≤3 cards + See all)
+- `components/sections/BuildCard.tsx` — shared card (stretched-link → /builds/[slug]); used by both above
+- `app/builds/[slug]/page.tsx` — build detail pages (back-link returns to the build's shelf)
+- `data/loadout.tsx` + `components/sections/Loadout.tsx` — /loadout page (6 groups + whoami)
+- `components/sections/LoadoutTeaser.tsx` — homepage loadout headliners → /loadout
+- `data/now.tsx` + `components/sections/NowBuilding.tsx` — "Currently Building" hook (keep fresh)
+- `app/page.tsx` — homepage composition (Hero → NowBuilding → shelves → LoadoutTeaser → Footer)
+- `components/layout/Navbar.tsx` — nav (Projects/Extensions/Tools/Loadout/Lab + cross-links)
+- `components/Projects/TechStackCycle.tsx` — dock-hover tech stack (tabs/bullets/icons); NOTE: was only used by the now-deleted FeaturedProjects — currently unreferenced
+- `components/sections/Hero.tsx` — hero; "Explore Builds" → #projects; next: LIVE badge + LA callout
+- _(deleted this session: `components/sections/FeaturedProjects.tsx`, `ProjectsMarquee.tsx`, `components/sections/Clients.tsx`, `data/testimonials.tsx`)_
 - `data/projects.tsx` — project data incl. Frontend/Backend/Cloud descriptionParts + techNameMapping
 - `data/techStack.tsx` — react-icons tech list (for AI Loadout)
 - `app/layout.tsx` — metadata, siteUrl, gated GA scripts, favicon set

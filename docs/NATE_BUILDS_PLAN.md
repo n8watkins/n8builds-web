@@ -1,6 +1,6 @@
 # Nate Builds — The Big Plan
 
-> Status: DRAFT / strategy locked, implementation pending
+> Status: IN PROGRESS — Loadout + shelves + homepage sections SHIPPED (local, unpushed). Remaining: `/builds` Log index, live layer.
 > Last updated: 2026-06-12
 > Site: n8builds.dev — the public workshop
 
@@ -148,27 +148,28 @@ Key moves: promote *latest activity* up; demote the marquee down.
 
 ## 7. Implementation Roadmap (phased)
 
-**Phase 1 — Foundation (do first)**
-- [ ] Define unified `Item` schema; refactor `data/projects.tsx` + `data/builds.tsx` to derive from it.
-- [ ] Populate real data for all ~15 shipped items (inventory below).
-- [ ] Update `data/navigation.tsx` to the new nav.
+**Phase 1 — Foundation** ✅ DONE
+- [x] Single source of truth: `data/builds.tsx` (12 builds) + `data/shelves.ts` classifier (chose to derive from the existing rich builds.tsx rather than refactor to a new `Item` schema — same outcome, less churn).
+- [x] Real data populated (the 12 builds; loadout/now content is representative pending Nate's real values).
+- [x] Nav updated (`components/layout/Navbar.tsx`): Projects · Extensions · Tools · Loadout · Lab.
 
-**Phase 2 — Homepage reorder**
-- [ ] Add **NOW / Currently Building** section.
-- [ ] Reorder sections per §5; demote marquee.
-- [ ] Add offline status line + `whoami` micro-blurb to Hero.
-- [ ] Remove testimonials.
+**Phase 2 — Homepage reorder** ✅ DONE
+- [x] Added **NowBuilding** ("Currently Building") section (`data/now.tsx`).
+- [x] Reordered; marquee REMOVED entirely (replaced by inline shelf sections).
+- [x] `whoami` block — shipped on the /loadout page (not the hero). Hero offline-status line still TODO.
+- [x] Removed testimonials.
 
-**Phase 3 — The shelves**
-- [ ] `/projects` filterable grid (filter by tag/tier).
-- [ ] `/extensions` shelf with Install actions.
-- [ ] `/loadout` — Tech Loadout + The Rig + Desk.
-- [ ] `/tools` + `/lab`.
+**Phase 3 — The shelves** ✅ DONE
+- [x] `/projects` filterable grid (tag filter).
+- [x] `/extensions` shelf. (Install actions = the github/live links; dedicated Web Store buttons still optional.)
+- [x] `/loadout` — Tech Loadout + The Rig + Desk.
+- [x] `/tools` + `/lab`.
+- [x] BONUS: shelf content also surfaced inline on the homepage via `ShelfSection`.
 
-**Phase 4 — Live layer**
+**Phase 4 — Live layer** ⬜ NOT STARTED (next session)
 - [ ] Wire real live/offline status (manual flag first, stream API later).
-- [ ] Stream/VOD embed (YouTube/Twitch — TBD which).
-- [ ] Log/journal authoring flow.
+- [ ] Stream/VOD embed (assumed Twitch — Nate to confirm).
+- [ ] **`/builds` Log index page** + journal authoring flow (top remaining must-have).
 
 ---
 
@@ -186,8 +187,9 @@ Terminal Invaders, Sprite Arsenal.
 
 ## 9. Open Questions (need Nate)
 
-- **Stream platform** — YouTube, Twitch, or both? Drives the live embed + status logic.
-- **Live status source** — manual toggle to start, or auto from stream API later?
-- **Loadout content** — need the real Tech Loadout list (tool + "what I use it for"), Rig specs, desk gear.
+- **Stream platform** — assumed **Twitch** for now (already linked in Hero); confirm or add YouTube.
+- **Live status source** — currently a manual pill; auto-from-stream-API is a Phase 4 option.
+- **Loadout content** — `data/loadout.tsx` has representative content; replace The Rig specs + Desk gear with real values.
+- **"Log" definition** — is `/builds` a journal of written posts (~weekly) or just an index of all builds? Decides Phase 4 build.
 - **GA4 + reCAPTCHA** — still blank in `.env.local` (TODO from launch); wire when ready.
 - **Log cadence** — how often will journal entries get written? Affects how prominent the Log is.
