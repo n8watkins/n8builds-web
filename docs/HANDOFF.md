@@ -162,24 +162,36 @@ natkins23s-projects, created 2026-06-12); agent verified/finished the rest:
   **portfolio.n8builds.dev attached to the portfolio project** (Nathan did
   this in the dashboard — needs its own CNAME too).
 
+## Done 2026-06-12 (evening): n8builds.dev LIVE 🎉
+
+- Nathan added the DNS records in Cloudflare (A @ 76.76.21.21, CNAME www +
+  portfolio → cname.vercel-dns.com, all DNS only/grey). First attempt saved
+  as **Proxied** → HTTP 525; symptom of proxied-to-Vercel is Cloudflare IPs
+  (172.67.x/104.21.x) on the apex instead of 76.76.21.21.
+- Cert gotcha: Vercel's automatic domain check never re-ran after the DNS
+  fix — `vercel certs ls` showed NO certs 15+ min later. **`vercel certs
+  issue n8builds.dev www.n8builds.dev`** forced issuance (13s) and the site
+  came up ~1 min later. Remember this nudge for portfolio.n8builds.dev.
+- Acceptance verified: https://n8builds.dev → 200 over HTTPS (www too);
+  /appturnity → 307 appturnity.com; /portfolio → 307 portfolio; real POST
+  to /api/contact on the live domain → 200, both emails delivered.
+
 ## Next steps (ordered)
 
-1. **Cloudflare DNS records — Nathan, browser only** (the only thing between
-   here and n8builds.dev being live). The zone is active on Cloudflare but
-   has **ZERO records** (verified via DoH + API 2026-06-12) — which also
-   means the Email Routing MX/TXT records are NOT published and
-   contact@n8builds.dev forwarding is currently dead despite the earlier
-   "done" note. In dash.cloudflare.com → n8builds.dev:
-   a) DNS → Records: add `A @ 76.76.21.21` (DNS only/grey) and
-      `CNAME www cname.vercel-dns.com` (DNS only/grey); optionally
-      `CNAME portfolio cname.vercel-dns.com` (DNS only) for the portfolio.
-   b) Email → Email Routing: re-enable / "add records" so the MX + SPF TXT
-      records get published again, then send a test mail to
-      contact@n8builds.dev and confirm it lands in Gmail.
+1. **Email Routing re-enable — Nathan, browser only, still pending.** The
+   Cloudflare Email Routing page shows status disabled/not configured (its
+   earlier setup got reset; that's why the MX/TXT records vanished). Inbound
+   mail to contact@n8builds.dev BOUNCES until done (outbound From: works —
+   that's Gmail Send-mail-as, independent of MX). Wizard: Email → Email
+   Routing → Get started → custom address `contact` → destination
+   nathancwatkins23@gmail.com → "Add records and enable". Verify MX
+   (route1/2/3.mx.cloudflare.net) + SPF TXT publish, then send a real mail
+   to contact@n8builds.dev and confirm it lands in Gmail.
    The wrangler OAuth token on this machine is zone-read-only — an agent
-   cannot create DNS records; don't burn time trying.
-   Acceptance: https://n8builds.dev serves over HTTPS; a real form submit
-   delivers both emails; mail to contact@n8builds.dev arrives in Gmail.
+   cannot create/read DNS records via API; verify via public DoH instead.
+2. **portfolio.n8builds.dev**: CNAME exists and the domain is attached to
+   the portfolio Vercel project — check it serves; if cert lags, use the
+   `vercel certs issue` nudge (switch project context first).
 2. ~~appturnity.web.app → appturnity.com sweep~~ — **done 2026-06-12**: all
    code references (redirect, Navbar, Footer, gridItem4, projects/builds data)
    now use appturnity.com.
