@@ -17,6 +17,7 @@ const Navbar = () => {
 
   const navLinks = [
     { label: 'Builds', href: '#builds' },
+    { label: 'Loadout', href: '/loadout' },
   ]
   const socialLinks = [
     { label: 'Twitch', href: 'https://twitch.tv/n8watkins', icon: <SiTwitch className="w-3.5 h-3.5" />, hoverColor: 'hover:text-purple-400' },
