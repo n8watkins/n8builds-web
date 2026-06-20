@@ -150,26 +150,25 @@ const Hero = () => {
                   inherits: false;
                 }
 
-                /* Each chip owns one 1/6 slot of a shared 7.2s loop.
-                   Within its slot the comet sweeps the full perimeter
-                   (--n8ang 0deg -> 360deg); the rest of the loop it sits dim.
-                   Staggering each chip's negative animation-delay by one slot
-                   makes the lit outline hand off box -> box around the chain. */
+                /* Each chip owns one 2s slot of a shared 12s loop. Within its
+                   slot the comet sweeps the full perimeter (--n8ang 0deg -> 360deg)
+                   and is then HIDDEN; staggering each chip's POSITIVE animation-delay
+                   by one slot hands the lit outline off box -> box, left -> right,
+                   and the previous box goes dark the instant the comet leaves it. */
                 @keyframes n8cometSweep {
-                  0%      { --n8ang: 0deg; }
-                  16.666% { --n8ang: 360deg; }
-                  /* 16.666% .. 100% : comet parked off-arc, chip dim */
-                  100%    { --n8ang: 360deg; }
+                  0%          { --n8ang: 0deg;   opacity: 1; }
+                  16.666%     { --n8ang: 360deg; opacity: 1; }
+                  16.8%, 100% { --n8ang: 360deg; opacity: 0; }
                 }
                 @keyframes n8chipGlow {
-                  0%      { border-color: rgba(34,211,238,0.5); background-color: rgba(34,211,238,0.05); color: rgb(165,243,252); text-shadow: 0 0 8px rgba(34,211,238,0.55); }
-                  16.666% { border-color: rgba(34,211,238,0.5); background-color: rgba(34,211,238,0.05); color: rgb(165,243,252); text-shadow: 0 0 8px rgba(34,211,238,0.55); }
-                  28%, 100% { border-color: rgba(34,211,238,0.12); background-color: rgba(34,211,238,0); color: rgb(100,116,139); text-shadow: none; }
+                  0%        { border-color: rgba(34,211,238,0.55); background-color: rgba(34,211,238,0.06); color: rgb(165,243,252); text-shadow: 0 0 8px rgba(34,211,238,0.6); }
+                  16.666%   { border-color: rgba(34,211,238,0.55); background-color: rgba(34,211,238,0.06); color: rgb(165,243,252); text-shadow: 0 0 8px rgba(34,211,238,0.6); }
+                  18%, 100% { border-color: rgba(34,211,238,0.12); background-color: rgba(34,211,238,0); color: rgb(100,116,139); text-shadow: none; }
                 }
                 @keyframes n8arrowGlow {
-                  0%, 100% { color: rgba(255,255,255,0.12); text-shadow: none; }
-                  6%, 12%  { color: rgb(34,211,238); text-shadow: 0 0 8px rgba(34,211,238,0.85); }
-                  20%      { color: rgba(255,255,255,0.12); text-shadow: none; }
+                  0%        { color: rgba(255,255,255,0.12); text-shadow: none; }
+                  4%, 9%    { color: rgb(34,211,238); text-shadow: 0 0 8px rgba(34,211,238,0.85); }
+                  14%, 100% { color: rgba(255,255,255,0.12); text-shadow: none; }
                 }
 
                 .n8-cnode {
@@ -179,7 +178,7 @@ const Hero = () => {
                   color: rgb(100,116,139);
                   /* --n8delay is set per-chip inline; the chip glow and the
                      ::before comet sweep share it so they stay in lockstep. */
-                  animation: n8chipGlow 7.2s linear infinite;
+                  animation: n8chipGlow 12s linear infinite;
                   animation-delay: var(--n8delay, 0s);
                 }
                 .n8-cnode::before {
@@ -188,6 +187,7 @@ const Hero = () => {
                   inset: 0;
                   border-radius: inherit;
                   padding: 1px;
+                  opacity: 0;
                   background: conic-gradient(
                     from var(--n8ang),
                     transparent 0 75%,
@@ -201,17 +201,18 @@ const Hero = () => {
                           mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
                           mask-composite: exclude;
                   filter: drop-shadow(0 0 4px rgba(34,211,238,0.7));
-                  animation: n8cometSweep 7.2s linear infinite;
+                  animation: n8cometSweep 12s linear infinite;
                   animation-delay: var(--n8delay, 0s);
                   z-index: 1;
                   pointer-events: none;
                 }
                 .n8-carrow {
-                  animation: n8arrowGlow 7.2s linear infinite;
+                  animation: n8arrowGlow 12s linear infinite;
                 }
 
                 @media (prefers-reduced-motion: reduce) {
                   .n8-cnode, .n8-cnode::before, .n8-carrow { animation: none; }
+                  .n8-cnode::before { opacity: 0; }
                   .n8-cnode { border-color: rgba(34,211,238,0.3); }
                 }
               `}</style>
@@ -219,13 +220,13 @@ const Hero = () => {
                 <React.Fragment key={w}>
                   <span
                     className="n8-cnode rounded-md border px-2 py-1 lowercase tracking-wide"
-                    style={{ ['--n8delay' as string]: `${-i * 1.2}s` }}
+                    style={{ ['--n8delay' as string]: `${i * 2}s` }}
                   >
                     {w}
                   </span>
                   {i < arr.length - 1 && (
-                    // arrow lights at the hand-off: ~just after chip i's sweep ends
-                    <span className="n8-carrow" style={{ animationDelay: `${-(i * 1.2 + 0.55)}s` }}>→</span>
+                    // arrow lights at the hand-off as the comet leaves chip i
+                    <span className="n8-carrow" style={{ animationDelay: `${i * 2 + 1.5}s` }}>→</span>
                   )}
                 </React.Fragment>
               ))}
