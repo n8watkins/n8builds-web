@@ -10,6 +10,7 @@ import dynamic from 'next/dynamic'
 const NowBuilding = dynamic(() => import('@/components/sections/NowBuilding'))
 const FeaturedProjects = dynamic(() => import('@/components/sections/FeaturedProjects'))
 const ShelfSection = dynamic(() => import('@/components/sections/ShelfSection'))
+const NotionsStrip = dynamic(() => import('@/components/sections/NotionsStrip'))
 const ExtensionsShowcase = dynamic(() => import('@/components/sections/ExtensionsShowcase'))
 const ToolsSection = dynamic(() => import('@/components/sections/ToolsSection'))
 const HomeStack = dynamic(() => import('@/components/sections/HomeStack'))
@@ -21,7 +22,10 @@ export default function Home() {
   useScrollTracking()
 
   return (
-    <main id="main-content" className="relative w-full min-h-screen bg-gradient-to-b from-[#050812] via-[#06101f] to-[#050812]">
+    <main
+      id="main-content"
+      className="relative w-full min-h-screen bg-gradient-to-b from-[#050812] via-[#06101f] to-[#050812]"
+    >
       <Navbar />
 
       {/* Ambient color shift — soft glows so the page isn't one flat color */}
@@ -51,6 +55,11 @@ export default function Home() {
         {/* The Lab — everything I'm building (merged projects + lab) */}
         <SectionErrorBoundary sectionName="The Lab">
           <ShelfSection shelf="lab" />
+        </SectionErrorBoundary>
+
+        {/* N8 Notions — latest blog posts */}
+        <SectionErrorBoundary sectionName="N8 Notions">
+          <NotionsStrip />
         </SectionErrorBoundary>
 
         <SectionErrorBoundary sectionName="Extensions">

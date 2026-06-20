@@ -1,6 +1,11 @@
 # HANDOFF — Nate Builds (n8builds-web)
 
-_Last updated: 2026-06-13 (session: HOMEPAGE REDESIGN — extensions showcase, Projects+Lab merge, free-tools section, Currently-Building carousel, image galleries, tech-stack bento. Pushed to prod.)_
+_Last updated: 2026-06-19 — reconciliation pass: re-verified against live prod
+that n8builds.dev IS deployed and serving, and corrected the stale/false "MX
+records dropped → inbound broken" note (the records are in fact published).
+Previous: 2026-06-13 (HOMEPAGE REDESIGN — extensions showcase, Projects+Lab
+merge, free-tools section, Currently-Building carousel, image galleries,
+tech-stack bento. Pushed to prod.)_
 
 > **⚡ NEWEST WORK FIRST:** read the "Homepage redesign (2026-06-13)" section
 > directly below — it's the current state of the site. The "IA overhaul" and
@@ -28,8 +33,11 @@ Nate Builds should *feed* the other two (bridge links), never replace them.
 Stack: Next.js 16 (Turbopack dev), TypeScript, Tailwind, framer-motion,
 Playwright, Nodemailer + Gmail SMTP contact form. Cloned from Portfolio 2.0,
 then rebranded.
-Dev runs at **http://localhost:1337** (`npm run dev`). Not yet deployed —
-Vercel project + n8builds.dev domain hookup is pending (Nate owns the domain).
+Dev runs at **http://localhost:1337** (`npm run dev`). **LIVE in production at
+https://n8builds.dev** — Vercel project `n8builds-web` (team natkins23s-projects),
+auto-deploys on push to `main`. Re-verified serving HTTP 200 over HTTPS on
+2026-06-19; details in the launch sections below. (The old "not yet deployed"
+line here was a fossil from before the 2026-06-12 launch and was just removed.)
 
 ## Done 2026-06-13: Homepage redesign — showcases, lab merge, carousel (PUSHED ✅)
 
@@ -395,11 +403,17 @@ Account-side, post-launch (needs Nate, not code):
   `lib/security/recaptcha.ts`; note the zod schema still requires a non-empty
   `recaptcha` string in the POST body either way)
 - ~~Resend: verify n8builds.dev~~ — obsolete, see the Resend section above
-- ~~Cloudflare Email Routing + Gmail "Send mail as"~~ — set up 2026-06-12
-  (From shows contact@n8builds.dev), **BUT** the zone's MX/TXT records are
-  no longer published (zone is empty as of the deploy session) — inbound
-  forwarding is broken until Email Routing's records are re-added; see
-  next step 1b.
+- ~~Cloudflare Email Routing + Gmail "Send mail as"~~ — set up 2026-06-12.
+  **Correction 2026-06-19:** the earlier "MX/TXT records dropped / zone is
+  empty / inbound broken" note was STALE and WRONG. A live DNS check confirms
+  the records ARE published — MX `route1/2/3.mx.cloudflare.net` (pri 42/37/59)
+  and SPF TXT `v=spf1 include:_spf.mx.cloudflare.net ~all` — and Nathan
+  re-confirmed (2026-06-19) that mail to contact@n8builds.dev forwards into
+  Gmail. **Inbound is fully working.** The one open item is OUTBOUND identity:
+  whether Gmail honors `contact@n8builds.dev` as a verified "Send mail as"
+  alias (showing that as the From) or silently rewrites it to the personal
+  Gmail address — being re-verified 2026-06-19. The 06-12 note that live sends
+  showed `From: contact@n8builds.dev` suggests it works, pending a fresh check.
 - Optional Sentry: `instrumentation.ts` / `instrumentation-client.ts` are
   empty placeholders ready for `npx @sentry/wizard -i nextjs`
 
