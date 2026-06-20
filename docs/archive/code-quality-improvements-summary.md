@@ -1,5 +1,7 @@
 # Code Quality Improvements Summary
 
+> **Archived snapshot (2025-10-19 era).** The app is now Next 16.x, the multi-route n8builds.dev site (portfolio lives at the `portfolio.n8builds.dev` subdomain), and Sentry was removed (no `@sentry/nextjs` dep, no config). The grades, line counts, and "portfolio" framing below are a period snapshot — preserved as-is. See `docs/HANDOFF.md` for current state.
+
 **Date**: 2025-10-19
 **Branch**: `feature/code-quality-improvements`
 **Status**: ✅ Complete - Ready for Merge
@@ -42,9 +44,9 @@ Total: 7 commits with focused, atomic changes
 - `README.md`: Added API key acquisition guide, architecture decisions
 - `.env.local.example`: Inline comments with URLs
 
-**New Documentation**:
-- `docs/bundle-analysis.md`: Comprehensive bundle analysis report
-- `docs/code-quality-improvements-summary.md`: This file
+**New Documentation** (since relocated into `docs/archive/` during the docs reconciliation):
+- `docs/archive/bundle-analysis.md`: Comprehensive bundle analysis report
+- `docs/archive/code-quality-improvements-summary.md`: This file
 
 ### 3. Refactoring - Contact API (3 hours)
 
@@ -121,7 +123,7 @@ Total: 7 commits with focused, atomic changes
 - Image optimization (AVIF/WebP, responsive sizes, 24h caching)
 - Compression enabled
 - Security headers configured
-- Sentry automatic tree-shaking
+- ~~Sentry automatic tree-shaking~~ (historical; Sentry has since been removed — no `@sentry/nextjs` dep or config)
 
 **Conclusion**: No immediate optimizations needed. Bundle is highly optimized.
 
@@ -168,7 +170,7 @@ All checks passed:
 
 1. ✅ Merge `feature/code-quality-improvements` → `main`
 2. ✅ Deploy to production
-3. ✅ Monitor Sentry for any errors in new error boundaries
+3. ✅ Monitor errors in new error boundaries (originally via Sentry; Sentry has since been removed)
 4. ✅ Track bundle size over time with `npm run analyze`
 
 ## Notes

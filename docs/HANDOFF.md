@@ -1,8 +1,12 @@
 # HANDOFF — Nate Builds (n8builds-web)
 
-_Last updated: 2026-06-19 — reconciliation pass: re-verified against live prod
-that n8builds.dev IS deployed and serving, and corrected the stale/false "MX
-records dropped → inbound broken" note (the records are in fact published).
+_Last updated: 2026-06-20 — docs-staleness refresh: GA live (`G-JZQGKY9Q37`,
+domain-wide — portfolio is a subdomain), blog shipped as N8 Notions (Sanity
+`abgyc32w`), homepage now ends NotionsStrip → … → HomeStack, free-tool repos
+live under `published/<slug>`, Resend→Nodemailer/Gmail + DOMPurify→sanitizeHtml
+marked DONE, commit trailer corrected. Previous: 2026-06-19 — reconciliation
+pass: re-verified against live prod that n8builds.dev IS deployed and serving,
+and corrected the stale/false "MX records dropped → inbound broken" note.
 Previous: 2026-06-13 (HOMEPAGE REDESIGN — extensions showcase, Projects+Lab
 merge, free-tools section, Currently-Building carousel, image galleries,
 tech-stack bento. Pushed to prod.)_
@@ -14,9 +18,45 @@ tech-stack bento. Pushed to prod.)_
 
 > **🧰 Free Tools Trio (CanIHost · FreeStack · APIScout):** three OSS tools built
 > 2026-06-13, now in the homepage Free Tools section. They live in their own
-> repos under `/home/natkins/n8builds/public/<slug>/`. Cross-cutting state +
+> repos under `/home/natkins/n8builds/published/<slug>/`. Cross-cutting state +
 > the one open step (add Cloudflare CNAMEs for the subdomains, then flip the
 > homepage `liveSite` links) → **`docs/FREE_TOOLS_TRIO_HANDOFF.md`**.
+
+## Session status — 2026-06-20
+
+**Done (recent):**
+- Contact form migrated Resend → Nodemailer + Gmail SMTP (live); DOMPurify →
+  hand-rolled `sanitizeHtml` in `lib/email/templates.ts`.
+- Homepage redesign (HomeStack / NotionsStrip / etc.) shipped.
+- Free Tools Trio (CanIHost / FreeStack / APIScout) added.
+- Portfolio moved to the `portfolio.n8builds.dev` subdomain;
+  `nathansportfolio.vercel.app` removed everywhere (Navbar/Footer/next.config
+  redirect).
+- Google Analytics wired: `NEXT_PUBLIC_GA_ID=G-JZQGKY9Q37` set in Vercel
+  Production (non-sensitive), redeployed, gtag confirmed live on n8builds.dev.
+  (Reuse is correct — portfolio is a subdomain, so one domain-wide GA4 property
+  covers the whole site.)
+- Docs staleness audit run; this refresh applies its fixes.
+
+**To do (open):**
+- Hero "electrified circuit" animation — finalize on `feat/hero-terminal-circuit`
+  per review, then merge to main.
+- Set `NEXT_PUBLIC_SITE_URL=https://n8builds.dev` in Vercel Production (currently
+  EMPTY — weakens canonical/OG/sitemap).
+- Ensure the `portfolio.n8builds.dev` deployment fires the same `G-JZQGKY9Q37`
+  tag (cross-subdomain tracking); optionally rename the GA property/stream to
+  n8builds.dev.
+- Free-tool subdomains (`canihost`/`freestack`/`apiscout.n8builds.dev`): DNS
+  CNAMEs not yet added (Cloudflare token read-only) → `liveSite` still on
+  `*.vercel.app` in `data/builds.tsx`; flip once DNS resolves.
+- reCAPTCHA: register/configure keys + env vars; close the skip-when-unset gap
+  in `lib/security/recaptcha.ts`.
+- Remove the dead `app/api/sentry-example-api/route.ts` + `SENTRY_ORG` health
+  flag (or actually wire Sentry).
+- Add `NEXT_PUBLIC_SANITY_PROJECT_ID` to `.env.example` (a fresh clone currently
+  crashes without it).
+- Pre-existing: Portfolio Rank real backend stack; Appturnity "Currently
+  building" copy; confirm VibeLoge spelling/slug.
 
 ## Project summary
 
@@ -47,8 +87,11 @@ n8builds.dev. Build passes; visually verified via Playwright.
 
 **Current homepage order** (`app/page.tsx`):
 Hero → NowBuilding (carousel) → FeaturedProjects (galleries) → The Lab (shelf) →
-ExtensionsShowcase → ToolsSection → TechStackBento → Footer (contact card).
-**Nav** (`Navbar.tsx`): Lab · Extensions · Tools · Loadout (+ Portfolio/Appturnity).
+NotionsStrip → ExtensionsShowcase → ToolsSection → HomeStack → Footer (contact
+card). _(HomeStack — "My Stack", from `data/buildStacks` — replaced TechStackBento
+on the homepage; TechStackBento is now Loadout-only.)_
+**Nav** (`Navbar.tsx`): Lab · Notions · Extensions · Tools · Loadout
+(+ Portfolio/Appturnity).
 
 What shipped:
 
@@ -67,18 +110,20 @@ What shipped:
   business. Added **'Web tool'** category → tool shelf.
 - **Portfolio Rank** and **Sprite Arsenal** added to `data/builds.tsx` (both OSS).
 - **ToolsSection** (`components/sections/ToolsSection.tsx`): curated "Free tools I
-  made" — LocalDictate + Sprite Arsenal, Free badge, Try-it/Star CTAs. Homepage
-  uses this; `/tools` page still the full shelf (VibeLog, LocalDictate, Repo
-  Steward, Sprite Arsenal).
+  made" — LocalDictate, Sprite Arsenal, CanIHost, FreeStack, APIScout, Free badge,
+  Try-it/Star CTAs. Homepage uses this; `/tools` page still the full shelf (VibeLog,
+  LocalDictate, Repo Steward, Sprite Arsenal).
 - **Loadout page restructured** (`components/sections/Loadout.tsx`): AI & Agents
   is now a **hover-reveal marquee** (`components/features/AITechStack.tsx` +
   `data/aiStack.tsx`) instead of text cards; Build/Ship replaced by **named
   stacks** (`components/sections/BuildStacks.tsx` + `data/buildStacks.tsx` — Turso
   / Firebase / Local-First / Extension; note: **prefer Firebase, avoid Supabase**).
   Stream/Rig/Desk still render as cards from `data/loadout.tsx` (filtered by id).
-- **TechStackBento** (`components/sections/TechStackBento.tsx`): the portfolio's
-  bento tech-stack item, re-themed dark/cyan, on the homepage from
-  `data/techStack.tsx`. Replaced the old text `LoadoutTeaser` (deleted).
+- **HomeStack** (`components/sections/HomeStack.tsx`): "My Stack", sourced from
+  `data/buildStacks`, now the homepage tech-stack section. It replaced the old
+  `TechStackBento` on the homepage — `TechStackBento`
+  (`components/sections/TechStackBento.tsx`, the re-themed portfolio bento item
+  from `data/techStack.tsx`) now lives only on the Loadout page.
 - **NowBuilding → carousel** (`data/now.tsx` is now `nowItems[]`): Asset Arsenal /
   VibeLog / Portfolio Rank, auto-advance + dots + arrows + pause-on-hover, "Check
   out the lab" link.
@@ -205,7 +250,10 @@ and written up in Nathan's personal docs repo — **`/home/natkins/docs`**
 `faq/deploying-to-vercel.md`. Read those before touching email or deploy work;
 the summary below is the short version.
 
-**The Resend situation (why it's being dropped from this repo):**
+**The Resend situation (why it was dropped from this repo) — DONE:** the swap
+shipped — contact form now sends via Nodemailer + Gmail SMTP (`smtp.gmail.com`),
+and DOMPurify was replaced by a hand-rolled `sanitizeHtml` in
+`lib/email/templates.ts`. The rationale below is kept for context.
 
 - Resend free tier = 1 verified domain, **on the first team only**; creating a
   second team requires a paid plan from $20/mo (verified June 2026 against
@@ -229,8 +277,9 @@ until he wants authenticated reply-as for n8builds.dev.
 
 Two working sessions. First (`b5e85a9`..`4ee52ed`): the planned Nodemailer
 swap shipped — `lib/email/smtp.ts` (Gmail SMTP transport + `EMAIL_CONFIG`)
-replaced `resend.ts`; DOMPurify replaced with plain HTML escaping (jsdom broke
-Vercel serverless); Sprite Arsenal project card added. Second
+replaced `resend.ts`; DOMPurify/isomorphic-dompurify replaced with a hand-rolled
+`sanitizeHtml` in `lib/email/templates.ts` (jsdom broke Vercel serverless);
+Sprite Arsenal project card added. Second
 (`1c238de`..`921b4c0`): both email templates reworked end-to-end per Nathan's
 dictated feedback, and the full account-side identity is **done and verified**
 — Cloudflare Email Routing (contact@n8builds.dev → Gmail) and Gmail "Send mail
@@ -358,8 +407,12 @@ against live prod 2026-06-12 (reCAPTCHA/GA still absent from Vercel,
    the endpoint returns env/uptime/memory/dependency flags to anyone. Low
    severity (no secrets), but trivial to close: set `HEALTH_CHECK_SECRET` in
    Vercel, or delete the route if you're not monitoring it.
-3. **No analytics.** `NEXT_PUBLIC_GA_ID` blank everywhere → zero traffic data
-   on an audience-focused brand site. See account-side list below.
+3. **Analytics — DONE (2026-06-20).** `NEXT_PUBLIC_GA_ID=G-JZQGKY9Q37` is now set
+   in Vercel Production and the gtag is confirmed live on n8builds.dev. Because
+   portfolio is a SUBDOMAIN, reusing the single domain-wide GA4 property
+   (`G-JZQGKY9Q37`) is correct — no separate property needed. Open follow-up:
+   make sure the `portfolio.n8builds.dev` deploy fires the same tag for
+   cross-subdomain tracking.
 4. **Cosmetic:** `NEXT_PUBLIC_VERSION` not in Vercel, so `/api/health` reports
    a hardcoded "2.0.0" while local `.env.local` says "1.0.0". Harmless.
 
@@ -382,8 +435,10 @@ Code-side feature work (updated 2026-06-13 after the homepage redesign):
 2. **`/builds` Log index page** — top structural piece still unbuilt (journal
    "heartbeat"). Detail pages exist at `app/builds/[slug]/page.tsx`; no
    `app/builds/page.tsx`. Decide journal-of-posts (~weekly) vs index; add "Log"
-   to nav. Separate blog project at `/home/natkins/n8builds/blog` (name **N8
-   Notes**) — integrate or link.
+   to nav. **Blog is DONE:** shipped as **N8 Notions** (Sanity-backed,
+   `NEXT_PUBLIC_SANITY_PROJECT_ID`, project id `abgyc32w`), live at `/blog` with a
+   "Notions" nav item and a homepage `NotionsStrip` (fetches `/api/notions/recent`,
+   a server route). The `/home/natkins/n8builds/blog` folder is source/legacy.
 3. **Replace made-up content with real values** — `data/loadout.tsx` (The Rig
    specs, The Desk), `data/now.tsx` (keep the carousel fresh), `data/aiStack.tsx`
    / `data/buildStacks.tsx` if anything's off.
@@ -397,11 +452,17 @@ bento, contact redesign, page color shifts, Portfolio Rank + Sprite Arsenal adde
 
 Account-side, post-launch (needs Nate, not code):
 
-- New GA4 property (do NOT reuse portfolio's `G-JZQGKY9Q37`) → `.env.local`
-- New reCAPTCHA v3 keys bound to n8builds.dev (portfolio's are domain-bound;
-  form skips verification while blank — that's by design, see
+- ~~GA4~~ — **DONE (2026-06-20):** reuse the single domain-wide property
+  `G-JZQGKY9Q37` (portfolio is a subdomain, so one property covers the whole
+  domain — do NOT create a separate property). `NEXT_PUBLIC_GA_ID=G-JZQGKY9Q37`
+  is set in Vercel Production and confirmed live on n8builds.dev. Remaining:
+  fire the same tag from the `portfolio.n8builds.dev` deploy for cross-subdomain
+  tracking.
+- reCAPTCHA v3 keys for n8builds.dev (a registration scoped to the domain can
+  cover subdomains like `portfolio.n8builds.dev`; verify whether one already
+  covers it). Form skips verification while blank — that's by design, see
   `lib/security/recaptcha.ts`; note the zod schema still requires a non-empty
-  `recaptcha` string in the POST body either way)
+  `recaptcha` string in the POST body either way.
 - ~~Resend: verify n8builds.dev~~ — obsolete, see the Resend section above
 - ~~Cloudflare Email Routing + Gmail "Send mail as"~~ — set up 2026-06-12.
   **Correction 2026-06-19:** the earlier "MX/TXT records dropped / zone is
@@ -414,13 +475,15 @@ Account-side, post-launch (needs Nate, not code):
   alias (showing that as the From) or silently rewrites it to the personal
   Gmail address — being re-verified 2026-06-19. The 06-12 note that live sends
   showed `From: contact@n8builds.dev` suggests it works, pending a fresh check.
-- Optional Sentry: `instrumentation.ts` / `instrumentation-client.ts` are
-  empty placeholders ready for `npx @sentry/wizard -i nextjs`
+- Sentry was deliberately removed (no `@sentry/nextjs` dep, no config). All that
+  remains is a dead `app/api/sentry-example-api/route.ts` and a `SENTRY_ORG`
+  boolean health-check flag in `/api/health`. Either delete those two artifacts
+  or actually re-wire Sentry (`npx @sentry/wizard -i nextjs`).
 
 ## Decisions already made (do not re-ask)
 
 - Blue/cyan accents, **no purple** (except Twitch brand hover in Navbar).
-- Blog name: **N8 Notes**.
+- Blog name: **N8 Notions** (Sanity-backed, live at `/blog`, nav label "Notions").
 - **Projects and Lab are ONE** ("the lab is everything"). No separate Projects
   page/shelf. Extensions and Tools keep their own shelves.
 - **Don't list the same build twice.** Chrome extensions live only in the
@@ -466,7 +529,8 @@ Account-side, post-launch (needs Nate, not code):
 ## Conventions & gotchas
 
 - Commit after each logical change; trailer
-  `Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>`. lint-staged runs
+  `Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>`.
+  lint-staged runs
   eslint --fix on commit. Push n8builds-web freely; portfolio only when asked.
 - `npm run dev` = port 1337 (`next dev -p 1337`). If `EADDRINUSE`, a stale
   dev server is holding the port: `ss -ltnp | grep 1337` then kill it.
@@ -493,8 +557,8 @@ Account-side, post-launch (needs Nate, not code):
 - Regenerate email signature icons (PNG + `lib/email/icons.ts`) with
   `node scripts/gen-email-icons.mjs` after changing icon color/size.
 - Project memory for Claude sessions lives at
-  `~/.claude/projects/-home-natkins-n8builds/memory/` — update it for brand
-  decisions.
+  `~/.claude/projects/-home-natkins-n8builds-n8builds-web/memory/` — update it
+  for brand decisions.
 
 ## File map
 
@@ -510,16 +574,18 @@ Account-side, post-launch (needs Nate, not code):
   - `components/sections/NowBuilding.tsx` + `data/now.tsx` (`nowItems[]`) — Currently-Building CAROUSEL
   - `components/sections/FeaturedProjects.tsx` — Appturnity + Quizmatic, alternating rows w/ image GALLERIES (images from `public/projects/`)
   - `components/sections/ExtensionsShowcase.tsx` — Piper/TubeVault/TL;DW auto-cycle + hover detail + Star CTA + Launch-Kit banner
-  - `components/sections/ToolsSection.tsx` — curated free tools (LocalDictate + Sprite Arsenal)
-  - `components/sections/TechStackBento.tsx` — bento tech-stack hover-marquee from `data/techStack.tsx`
+  - `components/sections/ToolsSection.tsx` — curated free tools (LocalDictate, Sprite Arsenal, CanIHost, FreeStack, APIScout)
+  - `components/sections/NotionsStrip.tsx` — homepage blog strip (fetches `/api/notions/recent`, a server route — keeps `@sanity/client` out of the homepage bundle)
+  - `components/sections/HomeStack.tsx` — "My Stack" homepage tech-stack section (from `data/buildStacks`); replaced TechStackBento on the homepage
 - **LOADOUT page** (`components/sections/Loadout.tsx`):
   - `components/features/AITechStack.tsx` + `data/aiStack.tsx` — AI hover-reveal marquee
   - `components/sections/BuildStacks.tsx` + `data/buildStacks.tsx` — named stacks (prefer Firebase, avoid Supabase)
   - `data/loadout.tsx` — Stream/Rig/Desk groups (ai/build/ship groups still in data but filtered out of the page render)
-- `components/layout/Navbar.tsx` — nav (Lab/Extensions/Tools/Loadout + cross-links)
+  - `components/sections/TechStackBento.tsx` — bento tech-stack hover-marquee from `data/techStack.tsx` (Loadout-only now; was on the homepage)
+- `components/layout/Navbar.tsx` — nav (Lab/Notions/Extensions/Tools/Loadout + Portfolio/Appturnity cross-links)
 - `components/layout/Footer.tsx` — redesigned contact card (branded panel + form, glows)
 - `public/builds/<slug>/` — gathered icons + screenshots (piper-tts, tubevault, tldw, localdictate, sprite-arsenal, portfolio-rank, solara)
-- `components/Projects/TechStackCycle.tsx` — dock-hover tech stack; currently UNREFERENCED (FeaturedProjects falls back to flat tags)
+- `components/Projects/TechStackCycle.tsx` — dock-hover tech stack; used by `components/sections/FeaturedProjects.tsx` (per-project tech stack on hover)
 - `components/sections/Hero.tsx` — hero; "Explore Builds" → #projects (now scrolls toward Lab)
 - _(deleted across sessions: `ProjectsMarquee.tsx`, `Clients.tsx`, `data/testimonials.tsx`, `LoadoutTeaser.tsx`, `app/projects/`)_
 - `data/projects.tsx` — project data incl. Frontend/Backend/Cloud descriptionParts + techNameMapping

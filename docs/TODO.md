@@ -27,9 +27,11 @@ defense:
 visitors — not just spam the inbox.
 
 **Fix (pick the first; second is optional):**
-- [ ] Register reCAPTCHA v3 keys for n8builds.dev at
-      https://www.google.com/recaptcha/admin (the portfolio's keys are
-      domain-bound and won't work). Add `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` +
+- [ ] Register/configure reCAPTCHA v3 keys for n8builds.dev at
+      https://www.google.com/recaptcha/admin (verify whether the existing
+      n8builds.dev registration already covers the `portfolio.n8builds.dev`
+      subdomain — reCAPTCHA site keys can be scoped to a domain + its
+      subdomains). Add `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` +
       `RECAPTCHA_SECRET_KEY` to Vercel (Production) and redeploy. This alone
       closes the gap.
 - [ ] (Optional) Make the rate limiter fail-safe so it isn't silently relied
@@ -55,19 +57,19 @@ flags. Low severity (no secrets leak) but shouldn't be public.
 
 ## 3. Set up analytics (GA4)
 
-**Status:** open · **Effort:** ~10 min · **File:** `app/layout.tsx` (already
-gated on the env var)
+**Status:** done (2026-06-20) · **Effort:** ~10 min · **File:** `app/layout.tsx`
+(already gated on the env var)
 
-**Why:** `NEXT_PUBLIC_GA_ID` is blank, so no traffic data on an
+**Why:** `NEXT_PUBLIC_GA_ID` was blank, so there was no traffic data on an
 audience-focused brand site. The HTML has a `preconnect` hint to
-googletagmanager.com but no actual tag (the gtag script is gated on the env
-var). The preconnect is currently wasted.
+googletagmanager.com; the gtag script is gated on the env var.
 
 **Fix:**
-- [ ] Create a NEW GA4 property for n8builds.dev (do NOT reuse the portfolio's
-      `G-JZQGKY9Q37` — traffic would mix). Add `NEXT_PUBLIC_GA_ID=G-XXXX` to
-      Vercel (Production) and redeploy. The gtag script renders automatically
-      once the var is set.
+- [x] Reuse the domain-wide `G-JZQGKY9Q37` GA4 property. Because the portfolio
+      is now the `portfolio.n8builds.dev` subdomain, a single property covers
+      the whole `n8builds.dev` domain (subdomains included) — there's no traffic
+      mixing to worry about. `NEXT_PUBLIC_GA_ID=G-JZQGKY9Q37` is set in Vercel
+      (Production) and the gtag is confirmed live on https://n8builds.dev.
 
 ---
 
@@ -90,14 +92,15 @@ Purely cosmetic.
 
 Brand-architecture features from `HANDOFF.md`, not yet started:
 
-- [ ] **N8 Notes** (blog) — homepage preview (3–5 latest cards) + posts. Check
-      the separate blog project at `/home/natkins/n8builds/blog` first — decide
-      integrate vs. link before building from scratch.
-- [ ] **Hero upgrades** — the "Live on GitHub" live pill (`components/sections/Hero.tsx`,
+- [x] **N8 Notions** (blog) — shipped, integrated into this repo (Sanity-backed,
+      project `abgyc32w`). Live at `/blog` with a "Notions" nav item and a
+      homepage `NotionsStrip` (fetches `/api/notions/recent`). The separate
+      `/home/natkins/n8builds/blog` folder is source/legacy.
+- [x] **Hero upgrades** — the "Live on GitHub" live pill (`components/sections/Hero.tsx`,
       linking to github.com/n8watkins with "Currently Building: …") and an LA
       reference in the portrait `alt` text ("builder based in Los Angeles") are
-      done. Still open: a *visible* LA callout (e.g. "Base of operations: Los
-      Angeles, CA") — right now LA only lives in alt-text, not on-screen.
+      done. The *visible* LA callout also shipped: "Los Angeles, CA" renders
+      on-screen via the LA bento components (`LACard.tsx`, `MapDetails.tsx`).
 - [x] ~~**AI Loadout section** — tight curated "stack I actually use" card with
       icons (NOT a wall of every tech).~~ Shipped 2026-06-13 as the
       `AITechStack` hover marquee (`components/features/AITechStack.tsx`), data in
