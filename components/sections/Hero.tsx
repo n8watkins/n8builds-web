@@ -135,7 +135,8 @@ const Hero = () => {
             {/* whoami terminal = the description (blended copy) */}
             <WhoamiTerminal className="w-full max-w-[520px]" />
 
-            {/* Build philosophy — electrified circuit (neon current loops around the chain) */}
+            {/* Build philosophy — electrified circuit (a glowing comet traces each chip's
+                outline in sequence, then hands off through the arrow to the next chip) */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -143,27 +144,88 @@ const Hero = () => {
               className="flex items-center gap-1.5 font-mono text-[0.7rem] select-none flex-wrap"
             >
               <style>{`
-                @keyframes n8circuitNode {
-                  0%, 100% { border-color: rgba(34,211,238,0.12); color: rgb(100,116,139); box-shadow: none; text-shadow: none; }
-                  46%, 54% { border-color: rgba(34,211,238,0.95); color: rgb(103,232,249); box-shadow: 0 0 10px rgba(34,211,238,0.5), inset 0 0 6px rgba(34,211,238,0.22); text-shadow: 0 0 8px rgba(34,211,238,0.8); }
+                @property --n8ang {
+                  syntax: '<angle>';
+                  initial-value: 0deg;
+                  inherits: false;
                 }
-                @keyframes n8circuitArrow {
+
+                /* Each chip owns one 1/6 slot of a shared 7.2s loop.
+                   Within its slot the comet sweeps the full perimeter
+                   (--n8ang 0deg -> 360deg); the rest of the loop it sits dim.
+                   Staggering each chip's negative animation-delay by one slot
+                   makes the lit outline hand off box -> box around the chain. */
+                @keyframes n8cometSweep {
+                  0%      { --n8ang: 0deg; }
+                  16.666% { --n8ang: 360deg; }
+                  /* 16.666% .. 100% : comet parked off-arc, chip dim */
+                  100%    { --n8ang: 360deg; }
+                }
+                @keyframes n8chipGlow {
+                  0%      { border-color: rgba(34,211,238,0.5); background-color: rgba(34,211,238,0.05); color: rgb(165,243,252); text-shadow: 0 0 8px rgba(34,211,238,0.55); }
+                  16.666% { border-color: rgba(34,211,238,0.5); background-color: rgba(34,211,238,0.05); color: rgb(165,243,252); text-shadow: 0 0 8px rgba(34,211,238,0.55); }
+                  28%, 100% { border-color: rgba(34,211,238,0.12); background-color: rgba(34,211,238,0); color: rgb(100,116,139); text-shadow: none; }
+                }
+                @keyframes n8arrowGlow {
                   0%, 100% { color: rgba(255,255,255,0.12); text-shadow: none; }
-                  46%, 54% { color: rgb(34,211,238); text-shadow: 0 0 8px rgba(34,211,238,0.85); }
+                  6%, 12%  { color: rgb(34,211,238); text-shadow: 0 0 8px rgba(34,211,238,0.85); }
+                  20%      { color: rgba(255,255,255,0.12); text-shadow: none; }
                 }
-                .n8-cnode { animation: n8circuitNode 5s ease-in-out infinite; }
-                .n8-carrow { animation: n8circuitArrow 5s ease-in-out infinite; }
+
+                .n8-cnode {
+                  position: relative;
+                  isolation: isolate;
+                  border-color: rgba(34,211,238,0.12);
+                  color: rgb(100,116,139);
+                  /* --n8delay is set per-chip inline; the chip glow and the
+                     ::before comet sweep share it so they stay in lockstep. */
+                  animation: n8chipGlow 7.2s linear infinite;
+                  animation-delay: var(--n8delay, 0s);
+                }
+                .n8-cnode::before {
+                  content: '';
+                  position: absolute;
+                  inset: 0;
+                  border-radius: inherit;
+                  padding: 1px;
+                  background: conic-gradient(
+                    from var(--n8ang),
+                    transparent 0 75%,
+                    rgba(103,232,249,0.55) 84%,
+                    #67e8f9 90%,
+                    #22d3ee 95%,
+                    transparent 100%
+                  );
+                  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+                  -webkit-mask-composite: xor;
+                          mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+                          mask-composite: exclude;
+                  filter: drop-shadow(0 0 4px rgba(34,211,238,0.7));
+                  animation: n8cometSweep 7.2s linear infinite;
+                  animation-delay: var(--n8delay, 0s);
+                  z-index: 1;
+                  pointer-events: none;
+                }
+                .n8-carrow {
+                  animation: n8arrowGlow 7.2s linear infinite;
+                }
+
+                @media (prefers-reduced-motion: reduce) {
+                  .n8-cnode, .n8-cnode::before, .n8-carrow { animation: none; }
+                  .n8-cnode { border-color: rgba(34,211,238,0.3); }
+                }
               `}</style>
               {['idea', 'prompt', 'build', 'stream', 'ship', 'repeat'].map((w, i, arr) => (
                 <React.Fragment key={w}>
                   <span
                     className="n8-cnode rounded-md border px-2 py-1 lowercase tracking-wide"
-                    style={{ animationDelay: `${i * 0.5}s` }}
+                    style={{ ['--n8delay' as string]: `${-i * 1.2}s` }}
                   >
                     {w}
                   </span>
                   {i < arr.length - 1 && (
-                    <span className="n8-carrow" style={{ animationDelay: `${i * 0.5 + 0.25}s` }}>→</span>
+                    // arrow lights at the hand-off: ~just after chip i's sweep ends
+                    <span className="n8-carrow" style={{ animationDelay: `${-(i * 1.2 + 0.55)}s` }}>→</span>
                   )}
                 </React.Fragment>
               ))}

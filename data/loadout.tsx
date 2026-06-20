@@ -26,8 +26,8 @@ export interface LoadoutGroup {
 // First-person intro, no resume energy. Shown as a terminal block (homepage hero + /loadout).
 export const whoami: string[] = [
   '$ whoami',
-  'nate — builder in LA, shipping software in public (occasionally on purpose).',
-  'apps, AI tools, agents & creator systems — agent-assisted, prompt-native, local inference.',
+  'Nathan — an AI-first software developer in LA, shipping in public.',
+  'all in on AI and agentic coding, building everything I can.',
   'follow the journey, watch the process, ship with me.',
 ]
 
