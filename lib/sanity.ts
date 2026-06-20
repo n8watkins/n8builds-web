@@ -1,7 +1,7 @@
 import { createClient } from '@sanity/client'
 
 // Read-only client for the N8 Notions blog. Reads the shared Sanity dataset
-// (project it7x216y / production) that the Sanity Studio (n8builds.sanity.studio)
+// (project abgyc32w / production) that the Sanity Studio (n8builds.sanity.studio)
 // writes to. Public CDN read — no token needed. Server-only: do not import this
 // into client components (keeps @sanity/client out of the browser bundle).
 if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) {
@@ -21,10 +21,15 @@ export type Post = {
   title: string
   slug: { current: string }
   publishedAt: string
+  author?: string
   topics?: string[]
+  tags?: string[]
   excerpt?: string
   coverUrl?: string
   coverAlt?: string
+  gallery?: { url: string; alt?: string }[]
+  seoDescription?: string
+  seoOgUrl?: string
   body?: any[]
 }
 
@@ -46,6 +51,11 @@ export const getPostBySlug = (slug: string) =>
   sanity.fetch<Post | null>(
     `*[_type == "post" && slug.current == $slug][0]{
       ${POST_CARD},
+      author,
+      tags,
+      "gallery": gallery[]{ "url": asset->url, "alt": alt },
+      "seoDescription": seo.metaDescription,
+      "seoOgUrl": seo.ogImage.asset->url,
       body[]{
         ...,
         _type == "image" => { "url": asset->url, "alt": alt }

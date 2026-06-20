@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { FiArrowLeft } from 'react-icons/fi'
@@ -26,7 +27,9 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
   if (!post) return { title: 'Not found — Nate Builds' }
 
   const title = `${post.title} — Nate Builds`
-  const description = post.excerpt?.slice(0, 160) ?? 'A note from N8 Notions.'
+  const description =
+    post.seoDescription?.slice(0, 200) ?? post.excerpt?.slice(0, 160) ?? 'A note from N8 Notions.'
+  const ogImage = post.seoOgUrl ?? post.coverUrl
   return {
     title,
     description,
@@ -37,7 +40,8 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
       url: `/blog/${slug}`,
       type: 'article',
       publishedTime: post.publishedAt,
-      images: post.coverUrl ? [{ url: post.coverUrl }] : undefined,
+      authors: post.author ? [post.author] : undefined,
+      images: ogImage ? [{ url: ogImage }] : undefined,
     },
     twitter: { card: 'summary_large_image', title, description },
   }
@@ -79,14 +83,28 @@ export default async function PostPage({ params }: PostPageProps) {
             <h1 className="mt-4 text-3xl font-extrabold leading-tight tracking-tight text-slate-50 sm:text-[2.75rem]">
               {post.title}
             </h1>
-            <time
-              dateTime={post.publishedAt}
-              className="mt-4 block font-mono text-sm text-slate-500"
-            >
-              {formatPostDate(post.publishedAt)}
-            </time>
+
+            <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-sm text-slate-500">
+              <span>By {post.author || 'Nathan "n8" Watkins'}</span>
+              <span aria-hidden>·</span>
+              <time dateTime={post.publishedAt}>{formatPostDate(post.publishedAt)}</time>
+            </div>
+
             {post.excerpt && (
               <p className="mt-4 text-lg leading-relaxed text-[#9cadc5]">{post.excerpt}</p>
+            )}
+
+            {post.tags && post.tags.length > 0 && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {post.tags.map((t) => (
+                  <span
+                    key={t}
+                    className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 font-mono text-xs text-slate-400"
+                  >
+                    #{t}
+                  </span>
+                ))}
+              </div>
             )}
           </header>
 
@@ -100,6 +118,30 @@ export default async function PostPage({ params }: PostPageProps) {
           />
 
           <div className="mt-10">{post.body && <PortableTextRenderer value={post.body} />}</div>
+
+          {post.gallery && post.gallery.length > 0 && (
+            <section className="mt-12" aria-label="Gallery">
+              <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-slate-500">
+                Gallery
+              </h2>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {post.gallery.map((img, i) => (
+                  <div
+                    key={i}
+                    className="relative aspect-[4/3] overflow-hidden rounded-xl border border-white/8 bg-white/[0.03]"
+                  >
+                    <Image
+                      src={img.url}
+                      alt={img.alt || ''}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 600px"
+                      className="object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
         </article>
 
         {related.length > 0 && (
