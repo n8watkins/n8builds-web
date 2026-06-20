@@ -18,7 +18,7 @@ const ShelfSection = ({ shelf, limit = 3 }: { shelf: Shelf; limit?: number }) =>
     <section id={meta.slug} aria-label={meta.heading} className="py-16">
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-cyan-400">{meta.eyebrow}</p>
+          <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-teal-400">{meta.eyebrow}</p>
           <h2 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">{meta.heading}</h2>
           <p className="mt-2 max-w-[520px] text-[#9cadc5]">{meta.blurb}</p>
         </div>

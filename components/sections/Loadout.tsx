@@ -7,6 +7,7 @@ import { loadout, type LoadoutGroup, type LoadoutItem } from '@/data/loadout'
 import AITechStack from '@/components/features/AITechStack'
 import BuildStacks from '@/components/sections/BuildStacks'
 import WhoamiTerminal from '@/components/features/WhoamiTerminal'
+import TechStackBento from '@/components/sections/TechStackBento'
 
 // Static class maps so Tailwind keeps these in the build.
 const accentMap: Record<LoadoutGroup['accent'], { text: string; dot: string; ring: string; glow: string }> = {
@@ -129,6 +130,9 @@ const Loadout = () => {
           </div>
           <BuildStacks />
         </section>
+
+        {/* Generic tech marquee — the full stack lives here (moved off the homepage) */}
+        <TechStackBento showLink={false} />
 
         {/* Remaining groups as cards (Stream / Rig / Desk) */}
         <div className="mt-16 space-y-16">
