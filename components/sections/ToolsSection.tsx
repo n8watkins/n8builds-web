@@ -155,7 +155,7 @@ const ToolsSection = () => {
         </Link>
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {tools.map((t, i) => (
           <ToolCard key={t.slug} tool={t} index={i} />
         ))}

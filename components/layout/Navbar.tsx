@@ -24,7 +24,7 @@ const Navbar = () => {
   const socialLinks = [
     { label: 'Twitch', href: 'https://twitch.tv/n8watkins', icon: <SiTwitch className="w-3.5 h-3.5" />, hoverColor: 'hover:text-purple-400' },
     { label: 'YouTube', href: 'https://youtube.com/@n8watkins', icon: <SiYoutube className="w-4 h-4" />, hoverColor: 'hover:text-red-400' },
-    { label: 'ViBlog', href: '#contact', icon: null, hoverColor: 'hover:text-cyan-400' },
+    { label: 'VibeLoge', href: '/builds/vibelog', icon: null, hoverColor: 'hover:text-cyan-400' },
   ]
 
   return (

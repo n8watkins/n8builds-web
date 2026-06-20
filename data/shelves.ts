@@ -16,7 +16,8 @@ export interface ShelfMeta {
 }
 
 // Slugs featured prominently elsewhere on the page (so they don't double-list in the Lab).
-const featuredElsewhere = ['appturnity']
+// appturnity -> Currently Building carousel; portfolio-rank -> Recent builds (FeaturedProjects).
+const featuredElsewhere = ['appturnity', 'portfolio-rank']
 
 export const shelfMeta: Record<Shelf, ShelfMeta> = {
   extension: {

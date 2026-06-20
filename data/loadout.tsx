@@ -151,7 +151,7 @@ export const loadout: LoadoutGroup[] = [
         take: 'Free, infinitely tweakable, runs everything. The backbone of streaming.',
       },
       {
-        name: 'VibeLog',
+        name: 'VibeLoge',
         whatFor: 'My own build-telemetry overlay — git activity, Claude tokens, session stats live on stream.',
         take: 'I built the thing I wanted: a HUD that turns a coding session into a watchable story.',
         tag: 'built it myself',
