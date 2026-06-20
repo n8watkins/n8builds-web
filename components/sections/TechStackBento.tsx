@@ -40,9 +40,9 @@ const StackContainer = ({
   </figure>
 )
 
-const TechStackBento = () => {
+const TechStackBento = ({ showLink = true }: { showLink?: boolean }) => {
   return (
-    <section id="loadout" aria-label="My tech stack" className="py-16">
+    <section id="techstack" aria-label="My tech stack" className="py-16">
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-cyan-400">The loadout</p>
@@ -51,13 +51,15 @@ const TechStackBento = () => {
             What I build with. Hover any tile for what it&apos;s for — or see the full loadout, rig, and AI kit.
           </p>
         </div>
-        <Link
-          href="/loadout"
-          className="group flex items-center gap-2 rounded-xl border border-white/12 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/[0.08]"
-        >
-          See the full loadout
-          <FiArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-        </Link>
+        {showLink && (
+          <Link
+            href="/loadout"
+            className="group flex items-center gap-2 rounded-xl border border-white/12 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/[0.08]"
+          >
+            See the full loadout
+            <FiArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </Link>
+        )}
       </div>
 
       <div className="relative flex flex-col gap-3 overflow-hidden rounded-3xl border border-white/[0.06] bg-gradient-to-br from-[#081427] via-[#0a1a33] to-[#081427] py-8">

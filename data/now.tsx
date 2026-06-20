@@ -23,6 +23,20 @@ export interface NowState {
 
 export const nowItems: NowState[] = [
   {
+    project: 'Appturnity',
+    tagline: 'Software consulting & app studio',
+    status: 'active',
+    // DRAFT copy — replace focus/goal/updates with real build-log lines.
+    focus: 'Tightening the lead-to-scope flow so a rough idea turns into a clear build plan fast.',
+    goal: 'A consulting front door that scopes, prices, and kicks off real software for clients.',
+    stack: ['React', 'TypeScript', 'Tailwind', 'Express'],
+    links: { github: 'https://github.com/n8watkins/appturnity', live: 'https://appturnity.com' },
+    updates: [
+      { date: 'Jun 18', text: 'Live at appturnity.com — scoping new client builds.' },
+      { date: 'Jun 12', text: 'Refined the on-site services and pricing breakdown.' },
+    ],
+  },
+  {
     project: 'Asset Arsenal',
     tagline: 'AI icon extraction workbench',
     status: 'prototype',
@@ -37,7 +51,7 @@ export const nowItems: NowState[] = [
     ],
   },
   {
-    project: 'VibeLog',
+    project: 'VibeLoge',
     tagline: 'Live coding telemetry & OBS overlay',
     status: 'active',
     focus: 'Tightening the live HUD and the auto end-of-stream recap.',
@@ -48,19 +62,6 @@ export const nowItems: NowState[] = [
       { date: 'Jun 11', text: 'Markers ("vibe mark feature/bug") now annotate the session live.' },
       { date: 'Jun 09', text: 'Overlay served as an OBS browser source at localhost:4545/overlay.' },
       { date: 'Jun 07', text: 'Demo mode seeds fake data so the overlay previews with no repo.' },
-    ],
-  },
-  {
-    project: 'Portfolio Rank',
-    tagline: 'The best developer portfolios, ranked',
-    status: 'active',
-    focus: 'Building the head-to-head voting + AI scoring ranker on top of the catalog.',
-    goal: 'Rank 1,700+ developer portfolios by what is actually good, not alphabetically.',
-    stack: ['Next.js', 'TypeScript', 'Vercel'],
-    links: { github: 'https://github.com/n8watkins/portfolio-rank', live: 'https://portfoliorank.vercel.app' },
-    updates: [
-      { date: 'Jun 12', text: 'Catalog browsing + search live across 1,700+ portfolios.' },
-      { date: 'Jun 09', text: 'Designing the head-to-head vote UI and scoring model.' },
     ],
   },
 ]

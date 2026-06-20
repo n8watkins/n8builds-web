@@ -23,12 +23,12 @@ export interface LoadoutGroup {
   items: LoadoutItem[]
 }
 
-// First-person, 3 lines, no resume energy. Shown as a terminal block.
+// First-person intro, no resume energy. Shown as a terminal block (homepage hero + /loadout).
 export const whoami: string[] = [
   '$ whoami',
-  'nate — builder in LA. I ship software in public, occasionally on purpose.',
-  'I make web apps, AI tools, Chrome extensions, and the odd cursed experiment.',
-  'If it can be automated, prototyped, or streamed at 2am — I\'m probably already in it.',
+  'nate — builder in LA, shipping software in public (occasionally on purpose).',
+  'apps, AI tools, agents & creator systems — agent-assisted, prompt-native, local inference.',
+  'follow the journey, watch the process, ship with me.',
 ]
 
 export const loadout: LoadoutGroup[] = [
@@ -151,7 +151,7 @@ export const loadout: LoadoutGroup[] = [
         take: 'Free, infinitely tweakable, runs everything. The backbone of streaming.',
       },
       {
-        name: 'VibeLog',
+        name: 'VibeLoge',
         whatFor: 'My own build-telemetry overlay — git activity, Claude tokens, session stats live on stream.',
         take: 'I built the thing I wanted: a HUD that turns a coding session into a watchable story.',
         tag: 'built it myself',

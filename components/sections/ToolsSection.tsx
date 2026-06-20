@@ -140,7 +140,7 @@ const ToolsSection = () => {
     <section id="tools" aria-label="Free tools I made" className="py-16">
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-cyan-400">Dev tools</p>
+          <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-emerald-400">Dev tools</p>
           <h2 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">Free tools I made</h2>
           <p className="mt-2 max-w-[520px] text-[#9cadc5]">
             I built these for myself, then made them free. Go use them — and a star never hurts.
@@ -155,7 +155,7 @@ const ToolsSection = () => {
         </Link>
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {tools.map((t, i) => (
           <ToolCard key={t.slug} tool={t} index={i} />
         ))}

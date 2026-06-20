@@ -7,7 +7,8 @@ import { CiLinkedin } from 'react-icons/ci'
 import { FaXTwitter } from 'react-icons/fa6'
 import { MdRadioButtonChecked } from 'react-icons/md'
 import { coloredSquares } from '@/data/grid'
-import ScrollButton from '@/components/ui/BentoComponents/ScrollButton'
+import WhoamiTerminal from '@/components/features/WhoamiTerminal'
+import { nowItems } from '@/data/now'
 
 const CELL = 52
 
@@ -102,7 +103,7 @@ const Hero = () => {
             <span className="text-[0.72rem] font-bold tracking-widest uppercase">Live on GitHub</span>
           </span>
           <span className="text-white/20">·</span>
-          <span className="text-slate-400 text-[0.82rem]">Currently Building: <span className="text-cyan-400 font-semibold">Asset Arsenal</span></span>
+          <span className="text-slate-400 text-[0.82rem]">Currently Building: <span className="text-cyan-400 font-semibold">{nowItems[0]?.project}</span></span>
           <span className="text-slate-600 text-xs group-hover:translate-x-0.5 transition-transform">→</span>
         </motion.a>
 
@@ -110,41 +111,60 @@ const Hero = () => {
           {/* Text */}
           <div className="flex-1 flex flex-col items-start gap-5 min-w-0">
 
+            <motion.p
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.08 }}
+              className="font-mono text-[0.78rem] tracking-wide text-slate-500 lowercase"
+            >
+              building software in public
+            </motion.p>
+
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.12, ease: [0.25, 0.1, 0.25, 1] }}
-              className="text-[2.8rem] sm:text-5xl lg:text-6xl xl:text-[4.2rem] font-extrabold leading-[1.04] tracking-tight text-slate-50"
+              className="text-[2.8rem] sm:text-5xl lg:text-6xl xl:text-[4.2rem] font-extrabold leading-[1.04] tracking-tight text-slate-50 lowercase"
             >
-              Building software{' '}
-              <br className="hidden sm:block" />
+              n8builds{' '}
               <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-blue-600 bg-clip-text text-transparent">
-                in public.
+                in public
               </span>
             </motion.h1>
 
-            <motion.p
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-              className="text-[#9cadc5] text-base md:text-lg leading-relaxed max-w-[480px]"
-            >
-              I build apps, AI tools, agents, and creator systems live and in public —
-              agent-assisted builds, prompt-native workflows, local inference experiments.
-              Follow the journey, watch the process, and ship with me.
-            </motion.p>
+            {/* whoami terminal = the description (blended copy) */}
+            <WhoamiTerminal className="w-full max-w-[520px]" />
 
-            {/* Build philosophy — subtle side note */}
+            {/* Build philosophy — electrified circuit (neon current loops around the chain) */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.45 }}
-              className="flex items-center gap-3 font-mono text-[0.75rem] text-slate-600 select-none"
+              className="flex items-center gap-1.5 font-mono text-[0.7rem] select-none flex-wrap"
             >
+              <style>{`
+                @keyframes n8circuitNode {
+                  0%, 100% { border-color: rgba(34,211,238,0.12); color: rgb(100,116,139); box-shadow: none; text-shadow: none; }
+                  46%, 54% { border-color: rgba(34,211,238,0.95); color: rgb(103,232,249); box-shadow: 0 0 10px rgba(34,211,238,0.5), inset 0 0 6px rgba(34,211,238,0.22); text-shadow: 0 0 8px rgba(34,211,238,0.8); }
+                }
+                @keyframes n8circuitArrow {
+                  0%, 100% { color: rgba(255,255,255,0.12); text-shadow: none; }
+                  46%, 54% { color: rgb(34,211,238); text-shadow: 0 0 8px rgba(34,211,238,0.85); }
+                }
+                .n8-cnode { animation: n8circuitNode 5s ease-in-out infinite; }
+                .n8-carrow { animation: n8circuitArrow 5s ease-in-out infinite; }
+              `}</style>
               {['idea', 'prompt', 'build', 'stream', 'ship', 'repeat'].map((w, i, arr) => (
                 <React.Fragment key={w}>
-                  <span className="text-slate-500">{w}</span>
-                  {i < arr.length - 1 && <span className="text-white/15">→</span>}
+                  <span
+                    className="n8-cnode rounded-md border px-2 py-1 lowercase tracking-wide"
+                    style={{ animationDelay: `${i * 0.5}s` }}
+                  >
+                    {w}
+                  </span>
+                  {i < arr.length - 1 && (
+                    <span className="n8-carrow" style={{ animationDelay: `${i * 0.5 + 0.25}s` }}>→</span>
+                  )}
                 </React.Fragment>
               ))}
             </motion.div>
@@ -157,19 +177,14 @@ const Hero = () => {
               className="flex items-center gap-3 flex-wrap"
             >
               <a
-                href="https://twitch.tv/n8watkins"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-sm transition-all duration-200 hover:scale-[1.02] shadow-lg shadow-blue-900/40"
+                href="#now"
+                className="relative inline-flex h-10 overflow-hidden rounded-xl p-[1px] transition-all duration-200 hover:scale-[1.02]"
               >
-                <MdRadioButtonChecked className="w-4 h-4" />
-                Watch Live
+                <span className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#22d3ee_0%,#2563eb_50%,#22d3ee_100%)]" />
+                <span className="inline-flex h-full w-full items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-bold text-slate-100 backdrop-blur-3xl">
+                  See what I&apos;m building
+                </span>
               </a>
-              <ScrollButton
-                link="projects"
-                text="Explore Builds"
-                className="px-5 py-2.5 rounded-xl border border-white/12 bg-white/[0.04] hover:bg-white/[0.07] text-slate-300 font-bold text-sm transition-all duration-200 hover:scale-[1.02]"
-              />
             </motion.div>
 
             {/* Socials */}
@@ -181,12 +196,12 @@ const Hero = () => {
               className="flex items-center gap-0.5 -ml-2"
             >
               {[
-                { href: 'https://github.com/n8watkins', label: 'GitHub', icon: <FiGithub className="w-4.5 h-4.5" /> },
-                { href: 'https://linkedin.com/in/n8watkins', label: 'LinkedIn', icon: <CiLinkedin className="w-5 h-5" /> },
-                { href: 'https://x.com/n8watkins', label: 'X', icon: <FaXTwitter className="w-4 h-4" /> },
+                { href: 'https://github.com/n8watkins', label: 'GitHub', icon: <FiGithub className="w-[1.35rem] h-[1.35rem]" /> },
+                { href: 'https://linkedin.com/in/n8watkins', label: 'LinkedIn', icon: <CiLinkedin className="w-7 h-7" /> },
+                { href: 'https://x.com/n8watkins', label: 'X', icon: <FaXTwitter className="w-[1.2rem] h-[1.2rem]" /> },
               ].map(s => (
                 <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label}
-                  className="w-9 h-9 flex items-center justify-center rounded-lg text-slate-500 hover:text-slate-300 hover:bg-white/8 transition-all duration-150">
+                  className="w-11 h-11 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/8 transition-all duration-150">
                   {s.icon}
                 </a>
               ))}

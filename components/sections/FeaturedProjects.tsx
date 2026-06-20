@@ -21,21 +21,16 @@ interface FeaturedProject {
 
 const featured: FeaturedProject[] = [
   {
-    title: 'Appturnity',
-    subtitle: 'Software Consulting',
+    title: 'Portfolio Rank',
+    subtitle: 'Developer Portfolio Ranker',
     description:
-      'App consulting platform that helps clients validate and scope software ideas. Clean interface for scoping, pricing, and connecting with dev resources.',
-    image: '/projects/Appturnity.webp',
-    images: [
-      '/projects/Appturnity.webp',
-      '/projects/Appturnity1.webp',
-      '/projects/Appturnity2.webp',
-      '/projects/Appturnity3.webp',
-    ],
-    imageAlt: 'Appturnity consulting platform screenshot',
-    tags: ['React', 'TypeScript', 'Tailwind', 'Express'],
-    github: 'https://github.com/n8watkins/appturnity',
-    liveSite: 'https://appturnity.com/',
+      "Ranks 1,700+ developer portfolios by what's actually good — head-to-head voting + AI scoring, not alphabetical. Build lists, save the ones you love, and like the best.",
+    image: '/projects/PortfolioRank-1.png',
+    images: ['/projects/PortfolioRank-1.png'],
+    imageAlt: 'Portfolio Rank — developer portfolio ranker screenshot',
+    tags: ['Next.js', 'TypeScript', 'Vercel'],
+    github: 'https://github.com/n8watkins/portfolio-rank',
+    liveSite: 'https://portfoliorank.vercel.app/',
   },
   {
     title: 'Quizmatic',

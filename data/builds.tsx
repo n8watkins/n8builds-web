@@ -71,7 +71,7 @@ export const builds: Build[] = [
   },
   {
     slug: 'vibelog',
-    name: 'VibeLog',
+    name: 'VibeLoge',
     tagline: 'Live coding telemetry & OBS overlay',
     category: 'Streaming tool',
     tags: ['Node.js', 'OBS', 'TypeScript'],
@@ -89,7 +89,7 @@ export const builds: Build[] = [
       'Markers are first-class: "vibe mark feature/bug" annotates the session live, and the end-of-day report is built entirely from the local log — no AI, no network.',
       'A demo mode seeds fake data so the whole overlay can be previewed without a real git repo or session.',
       'Direction lives in a canonical VISION.md; earlier spec docs are kept but explicitly marked historical.',
-      'This is the tool behind the "LIVE on VibeLog" badge planned for this site\'s hero.',
+      'This is the tool behind the "LIVE on VibeLoge" badge planned for this site\'s hero.',
     ],
     images: [],
   },

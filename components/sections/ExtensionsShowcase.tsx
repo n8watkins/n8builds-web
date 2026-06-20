@@ -138,7 +138,7 @@ const ExtensionsShowcase = () => {
     <section id="extensions" aria-label="Chrome extensions" className="py-16">
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-cyan-400">Browser tools</p>
+          <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-indigo-400">Browser tools</p>
           <h2 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">Chrome extensions</h2>
           <p className="mt-2 max-w-[520px] text-[#9cadc5]">
             Small, local-first tools I built and actually use. All open source — if one&apos;s useful, a star helps a ton.

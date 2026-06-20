@@ -275,6 +275,50 @@ export const projects = [
     github: 'https://github.com/n8watkins/sprite-bench',
     liveSite: 'https://sprite-bench.vercel.app',
   },
+  {
+    id: 6,
+    title: 'Portfolio Rank',
+    subTitle: 'Developer Portfolio Ranker',
+    des: 'Ranks 1,700+ developer portfolios by what is actually good — head-to-head voting, AI scoring, plus lists, saving, and likes.',
+    images: ['/projects/PortfolioRank-1.png'],
+    // NOTE: backend stack below is a best-guess (Drizzle/AI) — swap for the real one.
+    technologies: {
+      Frontend: {
+        descriptionParts: [
+          {
+            text: 'Responsive UI with head-to-head voting and a live leaderboard',
+            icons: [{ icon: 're.svg' }, { icon: 'next.svg' }, { icon: 'tail.svg' }],
+          },
+          {
+            text: 'Type-safe throughout',
+            icons: [{ icon: 'ts.svg' }],
+          },
+        ],
+      },
+      Backend: {
+        descriptionParts: [
+          {
+            text: 'AI scoring ranks portfolios on what actually makes them good',
+            icons: [{ icon: 'gpt.png' }],
+          },
+          {
+            text: 'Catalog, votes, lists, saves, and likes stored with a type-safe ORM',
+            icons: [{ icon: 'drizzle.png' }],
+          },
+        ],
+      },
+      Cloud: {
+        descriptionParts: [
+          {
+            text: 'Deployed on Vercel with auto-deploy on push',
+            icons: [{ icon: 'vercel.png' }, { icon: 'github.png' }],
+          },
+        ],
+      },
+    },
+    github: 'https://github.com/n8watkins/portfolio-rank',
+    liveSite: 'https://portfoliorank.vercel.app/',
+  },
 ]
 
 export const techNameMapping = {

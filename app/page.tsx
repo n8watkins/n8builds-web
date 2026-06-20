@@ -13,7 +13,7 @@ const ShelfSection = dynamic(() => import('@/components/sections/ShelfSection'))
 const NotionsStrip = dynamic(() => import('@/components/sections/NotionsStrip'))
 const ExtensionsShowcase = dynamic(() => import('@/components/sections/ExtensionsShowcase'))
 const ToolsSection = dynamic(() => import('@/components/sections/ToolsSection'))
-const TechStackBento = dynamic(() => import('@/components/sections/TechStackBento'))
+const HomeStack = dynamic(() => import('@/components/sections/HomeStack'))
 const Footer = dynamic(() => import('@/components/layout/Footer'))
 const ScrollToTop = dynamic(() => import('@/components/ui/ScrollToTop'), { ssr: false })
 
@@ -30,10 +30,11 @@ export default function Home() {
 
       {/* Ambient color shift — soft glows so the page isn't one flat color */}
       <div aria-hidden className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute -left-[10%] top-[20%] h-[40rem] w-[40rem] rounded-full bg-cyan-500/[0.06] blur-[140px]" />
-        <div className="absolute -right-[12%] top-[45%] h-[38rem] w-[38rem] rounded-full bg-blue-600/[0.07] blur-[140px]" />
-        <div className="absolute left-[15%] top-[70%] h-[34rem] w-[34rem] rounded-full bg-teal-500/[0.05] blur-[140px]" />
-        <div className="absolute right-[10%] top-[90%] h-[34rem] w-[34rem] rounded-full bg-indigo-600/[0.05] blur-[140px]" />
+        <div className="absolute -left-[10%] top-[6%] h-[40rem] w-[40rem] rounded-full bg-cyan-500/[0.10] blur-[150px]" />
+        <div className="absolute -right-[12%] top-[26%] h-[38rem] w-[38rem] rounded-full bg-blue-600/[0.11] blur-[150px]" />
+        <div className="absolute left-[12%] top-[46%] h-[34rem] w-[34rem] rounded-full bg-teal-500/[0.09] blur-[150px]" />
+        <div className="absolute -right-[8%] top-[66%] h-[34rem] w-[34rem] rounded-full bg-indigo-600/[0.09] blur-[150px]" />
+        <div className="absolute left-[8%] top-[86%] h-[34rem] w-[34rem] rounded-full bg-emerald-500/[0.07] blur-[150px]" />
       </div>
 
       <SectionErrorBoundary sectionName="Hero Section">
@@ -69,9 +70,9 @@ export default function Home() {
           <ToolsSection />
         </SectionErrorBoundary>
 
-        {/* Tech stack bento marquee → /loadout */}
-        <SectionErrorBoundary sectionName="Tech Stack">
-          <TechStackBento />
+        {/* Homepage stack — AI marquee + Turso TL;DR → /loadout */}
+        <SectionErrorBoundary sectionName="My Stack">
+          <HomeStack />
         </SectionErrorBoundary>
 
         <section id="contact">
