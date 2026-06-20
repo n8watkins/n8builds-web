@@ -8,6 +8,7 @@ import { FaXTwitter } from 'react-icons/fa6'
 import { MdRadioButtonChecked } from 'react-icons/md'
 import { coloredSquares } from '@/data/grid'
 import WhoamiTerminal from '@/components/features/WhoamiTerminal'
+import { nowItems } from '@/data/now'
 
 const CELL = 52
 
@@ -102,7 +103,7 @@ const Hero = () => {
             <span className="text-[0.72rem] font-bold tracking-widest uppercase">Live on GitHub</span>
           </span>
           <span className="text-white/20">·</span>
-          <span className="text-slate-400 text-[0.82rem]">Currently Building: <span className="text-cyan-400 font-semibold">Asset Arsenal</span></span>
+          <span className="text-slate-400 text-[0.82rem]">Currently Building: <span className="text-cyan-400 font-semibold">{nowItems[0]?.project}</span></span>
           <span className="text-slate-600 text-xs group-hover:translate-x-0.5 transition-transform">→</span>
         </motion.a>
 
