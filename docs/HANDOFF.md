@@ -26,7 +26,7 @@ personality brand in a three-brand ecosystem:
 | Brand | Job | Where |
 |---|---|---|
 | **Nate Builds** (this repo) | audience + attention ("building software in public") | n8builds.dev · github.com/n8watkins/n8builds-web |
-| Portfolio 2.0 | developer credibility | nathansportfolio.vercel.app · `/home/natkins/portfolio/portfolio2.0` |
+| Portfolio 2.0 | developer credibility | portfolio.n8builds.dev · `/home/natkins/portfolio/portfolio2.0` |
 | Appturnity | client work / consulting funnel | **appturnity.com** (live; appturnity.web.app is the same site's old URL) |
 
 Nate Builds should *feed* the other two (bridge links), never replace them.
@@ -167,7 +167,7 @@ page first (scroll in steps, `waitFor`, then capture). Real browsers are fine.
   **local only, not pushed** (user hasn't asked to push portfolio).
 
 **Verified working:** type-check + eslint clean; dev server 200; `/portfolio`
-→ 307 nathansportfolio.vercel.app; `/appturnity` → 307 appturnity.com;
+→ 307 portfolio.n8builds.dev; `/appturnity` → 307 appturnity.com;
 sitemap emits n8builds.dev; gtag script absent while GA ID blank; `.env.local`
 confirmed NOT tracked/in history (only placeholder `.env*.example` files are).
 
@@ -325,7 +325,7 @@ natkins23s-projects, created 2026-06-12); agent verified/finished the rest:
 - DNS: A apex → 76.76.21.21; www + portfolio CNAME → cname.vercel-dns.com;
   MX route1/2/3.mx.cloudflare.net; SPF TXT present.
 - https://n8builds.dev and https://www.n8builds.dev → 200 over HTTPS.
-- /appturnity → 307 appturnity.com; /portfolio → 307 nathansportfolio.
+- /appturnity → 307 appturnity.com; /portfolio → 307 portfolio.n8builds.dev
 - portfolio.n8builds.dev → 200.
 - Contact form: real POST on the live domain → 200, both emails delivered.
 - Inbound: mail to contact@n8builds.dev forwards into Gmail.
@@ -446,7 +446,7 @@ Account-side, post-launch (needs Nate, not code):
   PC/hardware builds live there as "The Rig", not as a top-level lane.
 - Stream platform assumed **Twitch** (twitch.tv/n8watkins, already linked in
   Hero); live status is a manual pill for now. Not finalized by Nate.
-- Footer/Navbar/redirect links to nathansportfolio.vercel.app and
+- Footer/Navbar/redirect links to portfolio.n8builds.dev and
   appturnity.com are intentional bridges, not leftovers.
 - Keep the three brands on separate sites; no mega-site.
 - The N8 neon icon (blue→purple gradient square) is the brand mark for
