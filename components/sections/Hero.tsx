@@ -184,15 +184,14 @@ const Hero = () => {
                   3%, 8%    { color: rgb(34,211,238); text-shadow: 0 0 8px rgba(34,211,238,0.85); }
                   13%, 100% { color: rgba(255,255,255,0.12); text-shadow: none; }
                 }
-                /* loop-back comet: invisible while the chips run, then the SAME moving-
-                   light look as the box comets — a bright dash that travels the under-line.
-                   It appears at 78% (the instant ship's comet lands at 4:30) and crawls
-                   ship (right) -> down -> under the chain -> up into idea (left), arriving
-                   just as the loop restarts and idea spawns. ~3.1s of visible travel. */
+                /* loop-back comet: a single fast moving light (no static track) with the
+                   same look as the comet around the ship box. It zips ship (right) -> down
+                   -> under the chain -> up into idea (left) in ~2.2s, landing as the loop
+                   restarts and idea spawns. */
                 @keyframes n8loopComet {
-                  0%, 76% { stroke-dashoffset: 0;    opacity: 0; }
-                  78%     { stroke-dashoffset: 0;    opacity: 1; }
-                  99%     { stroke-dashoffset: -86;  opacity: 1; }
+                  0%, 81% { stroke-dashoffset: 0;    opacity: 0; }
+                  83%     { stroke-dashoffset: 0;    opacity: 1; }
+                  98%     { stroke-dashoffset: -88;  opacity: 1; }
                   100%    { stroke-dashoffset: -100; opacity: 0; }
                 }
 
@@ -275,7 +274,6 @@ const Hero = () => {
                   overflow: visible;
                   pointer-events: none;
                 }
-                .n8-loop-base { stroke: rgba(34,211,238,0.10); }
                 .n8-loop-comet {
                   stroke: #67e8f9;
                   filter: drop-shadow(0 0 6px rgba(34,211,238,0.95));
@@ -319,20 +317,13 @@ const Hero = () => {
                   chain width; non-scaling-stroke keeps the line crisp. */}
               <svg className="n8-loop" viewBox="0 0 100 16" preserveAspectRatio="none" aria-hidden="true">
                 <path
-                  className="n8-loop-base"
-                  d="M98,0 L98,9 Q98,14 93,14 L7,14 Q2,14 2,9 L2,0"
-                  fill="none"
-                  strokeWidth="1"
-                  vectorEffect="non-scaling-stroke"
-                />
-                <path
                   className="n8-loop-comet"
                   d="M98,0 L98,9 Q98,14 93,14 L7,14 Q2,14 2,9 L2,0"
                   fill="none"
                   strokeWidth="2.5"
                   strokeLinecap="round"
                   pathLength={100}
-                  strokeDasharray="16 200"
+                  strokeDasharray="12 200"
                   vectorEffect="non-scaling-stroke"
                 />
               </svg>
