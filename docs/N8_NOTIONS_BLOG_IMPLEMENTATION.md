@@ -34,9 +34,9 @@ monorepo, no CMS code in this repo beyond a read client.
   tooling cost for no benefit.
 - The content lives in **Sanity's cloud**, not in any repo. The site just *reads*
   the same dataset the Studio writes to. Sanity is multi-consumer by design.
-- The old standalone blog app at `~/n8builds/blog` (GitHub `n8watkins/byn8`) is
-  being **retired**. We lift only its read-path code as reference; we drop its
-  NextAuth admin, the Gemini AI-generate path, and the Resend/Drizzle newsletter.
+- An earlier standalone blog app was **retired** in favor of this `/blog` feature;
+  we lifted only its read-path code as reference and dropped its admin,
+  AI-generate, and newsletter paths.
 
 ## Stack reality check (this repo)
 
