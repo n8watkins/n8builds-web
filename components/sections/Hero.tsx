@@ -87,9 +87,6 @@ const Hero = () => {
 
       <div className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 w-full flex flex-col items-center justify-center pt-28 pb-16">
 
-        {/* whoami terminal — ported from /loadout */}
-        <WhoamiTerminal className="mb-8 w-full max-w-2xl" />
-
         {/* Live pill */}
         <motion.a
           href="https://github.com/n8watkins"
@@ -113,29 +110,29 @@ const Hero = () => {
           {/* Text */}
           <div className="flex-1 flex flex-col items-start gap-5 min-w-0">
 
+            <motion.p
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.08 }}
+              className="font-mono text-[0.78rem] tracking-wide text-slate-500 lowercase"
+            >
+              building software in public
+            </motion.p>
+
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.12, ease: [0.25, 0.1, 0.25, 1] }}
-              className="text-[2.8rem] sm:text-5xl lg:text-6xl xl:text-[4.2rem] font-extrabold leading-[1.04] tracking-tight text-slate-50"
+              className="text-[2.8rem] sm:text-5xl lg:text-6xl xl:text-[4.2rem] font-extrabold leading-[1.04] tracking-tight text-slate-50 lowercase"
             >
-              Building software{' '}
-              <br className="hidden sm:block" />
+              n8builds{' '}
               <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-blue-600 bg-clip-text text-transparent">
-                in public.
+                in public
               </span>
             </motion.h1>
 
-            <motion.p
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-              className="text-[#9cadc5] text-base md:text-lg leading-relaxed max-w-[480px]"
-            >
-              I build apps, AI tools, agents, and creator systems live and in public —
-              agent-assisted builds, prompt-native workflows, local inference experiments.
-              Follow the journey, watch the process, and ship with me.
-            </motion.p>
+            {/* whoami terminal = the description (blended copy) */}
+            <WhoamiTerminal className="w-full max-w-[520px]" />
 
             {/* Build philosophy — electrified circuit (neon current loops around the chain) */}
             <motion.div
@@ -179,16 +176,7 @@ const Hero = () => {
               className="flex items-center gap-3 flex-wrap"
             >
               <a
-                href="https://twitch.tv/n8watkins"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-sm transition-all duration-200 hover:scale-[1.02] shadow-lg shadow-blue-900/40"
-              >
-                <MdRadioButtonChecked className="w-4 h-4" />
-                Watch Live
-              </a>
-              <a
-                href="#builds"
+                href="#now"
                 className="relative inline-flex h-10 overflow-hidden rounded-xl p-[1px] transition-all duration-200 hover:scale-[1.02]"
               >
                 <span className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#22d3ee_0%,#2563eb_50%,#22d3ee_100%)]" />
