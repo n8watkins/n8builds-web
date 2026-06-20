@@ -1,6 +1,6 @@
 # Web Vitals Monitoring
 
-This portfolio includes comprehensive Web Vitals monitoring to track and optimize performance.
+This site includes comprehensive Web Vitals monitoring to track and optimize performance.
 
 ## What Are Web Vitals?
 
@@ -50,11 +50,13 @@ All Web Vitals are automatically logged to the browser console with:
 - Formatted values with appropriate units
 - Detailed tables in development mode
 
-### 2. Google Analytics Integration
+### 2. Google Analytics Integration (conditional)
 
-All metrics are automatically sent to Google Analytics as custom events:
+When `NEXT_PUBLIC_GA_ID` is set, all metrics are automatically sent to Google Analytics as custom events:
 - Event name: `web_vital`
 - Parameters: metric name, value, rating, ID
+
+> **Note:** `NEXT_PUBLIC_GA_ID` is currently unset (blank), so GA is **inactive** — the gtag scripts in `app/layout.tsx` are not loaded and `trackWebVital` (in `lib/analytics.ts`) early-returns without sending anything. Set `NEXT_PUBLIC_GA_ID` to a valid measurement ID (e.g. `G-XXXXXXXXXX`) to enable it.
 
 ### 3. Visual HUD (Development Only)
 
@@ -102,6 +104,8 @@ Example console output:
 
 ### Viewing in Google Analytics
 
+> Requires `NEXT_PUBLIC_GA_ID` to be set (see the Google Analytics Integration note above). With it unset, no events are sent.
+
 1. Go to your Google Analytics dashboard
 2. Navigate to Events
 3. Look for the `web_vital` event
@@ -111,10 +115,11 @@ Example console output:
 
 ### Files
 
-- `lib/performance.ts` - Core Web Vitals reporting logic
-- `app/web-vitals.tsx` - Next.js Web Vitals hook integration
+- `lib/performance.ts` - Core Web Vitals reporting logic (logs to console, forwards to analytics, broadcasts to the HUD)
+- `lib/analytics.ts` - Exports the `trackWebVital` helper that sends metrics to Google Analytics (no-op when `NEXT_PUBLIC_GA_ID` is unset)
+- `app/web-vitals.tsx` - Next.js Web Vitals hook integration (`useReportWebVitals` → `reportWebVitals`)
 - `components/WebVitalsHUD.tsx` - Visual HUD component
-- `app/layout.tsx` - Integration point
+- `app/layout.tsx` - Integration point (renders the hooks/HUD and conditionally loads the GA scripts)
 
 ### How It Works
 
@@ -122,7 +127,7 @@ Example console output:
 2. The `useReportWebVitals` hook captures these metrics
 3. Each metric is:
    - Logged to console with formatting
-   - Sent to Google Analytics
+   - Sent to Google Analytics (only when `NEXT_PUBLIC_GA_ID` is set; otherwise skipped)
    - Broadcast to the HUD component via custom events
 4. Thresholds are automatically evaluated based on Google's recommendations
 

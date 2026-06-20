@@ -41,6 +41,8 @@ Verified working: goal pills, per-app logos (CanIHost), sort-by-basics + collaps
 
 **Subdomains attached on Vercel but DNS STILL NOT live (re-checked 2026-06-14: all NXDOMAIN).** `canihost.n8builds.dev`, `freestack.n8builds.dev`, `apiscout.n8builds.dev` are added to their Vercel projects, but the Cloudflare token on this machine is **read-only**, so the DNS records were NOT created. They do not resolve yet. The homepage links currently point at the working `*.vercel.app` aliases. **This is the only blocker** — code is all pushed/deployed/live on aliases. (Vercel `domains inspect` shows nameservers as Cloudflare's, not Vercel's `✘` — that's EXPECTED for the CNAME method, not a problem.)
 
+> **Re-verified 2026-06-19:** the `canihost`/`freestack`/`apiscout.n8builds.dev` subdomains still do not resolve (CNAMEs not added in Cloudflare — all NXDOMAIN), and the `liveSite` links in `data/builds.tsx` still point at `*.vercel.app` (`canihost.vercel.app`, `freestack-livid.vercel.app`, `apiscout-cyan.vercel.app`). No change since 2026-06-14; the Cloudflare-CNAME step in "Next steps" is still pending.
+
 ## Next steps (ordered)
 
 1. **(USER action) Add 3 Cloudflare CNAME records** — zone `n8builds.dev`, all **DNS-only (grey cloud)**, matching the existing `portfolio` record:
@@ -84,4 +86,4 @@ All 3: `next.config.ts` (security headers + dev-only `'unsafe-eval'` CSP gate).
 
 **n8builds-web integration:** `components/sections/ToolsSection.tsx` (the homepage Free Tools grid — `tools[]` array) · `data/builds.tsx` (Build entries: `canihost`/`freestack`/`apiscout` — edit `liveSite` here to flip to subdomains) · `public/builds/<slug>/{icon.png,og-image.png}` (assets).
 
-**Memory:** `freetool-trio.md` in the agent memory dir mirrors this state.
+**Memory:** there is NO `freetool-trio.md` in this project's agent memory dir (`~/.claude/projects/-home-natkins-n8builds-n8builds-web/memory/`) — that earlier pointer was stale. This handoff doc is the canonical state; treat it as the source of truth.
