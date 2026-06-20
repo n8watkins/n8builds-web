@@ -151,15 +151,15 @@ const Hero = () => {
                   inherits: false;
                 }
 
-                /* Shared 12s loop = 6 x 2s slots: one per chip (5) + the loop-back leg.
+                /* Shared 15s loop = 6 x 2.5s slots: one per chip (5) + the loop-back leg.
                    Each chip's comet sweeps its perimeter during its slot (positive,
                    staggered delay -> left-to-right); then the loop-back line carries
                    the comet from ship back under the chain into idea, and it repeats. */
                 @keyframes n8cometSweep {
                   0%          { --n8ang: 0deg;   opacity: 0; }
                   3%          { opacity: 1; }
-                  11%         { --n8ang: 360deg; opacity: 1; }
-                  13.5%, 100% { --n8ang: 360deg; opacity: 0; }
+                  11%         { --n8ang: 225deg; opacity: 1; }
+                  13.5%, 100% { --n8ang: 225deg; opacity: 0; }
                 }
                 /* split trace (middle chips): two lights start at 9 o'clock and sweep
                    a half each (one over the top, one under the bottom), meeting at the
@@ -184,13 +184,16 @@ const Hero = () => {
                   3%, 8%    { color: rgb(34,211,238); text-shadow: 0 0 8px rgba(34,211,238,0.85); }
                   13%, 100% { color: rgba(255,255,255,0.12); text-shadow: none; }
                 }
-                /* loop-back comet: hidden until ship finishes (~83% of the loop), then a
-                   bright dash travels the under-line from ship (right) to idea (left). */
+                /* loop-back comet: invisible while the chips run, then the SAME moving-
+                   light look as the box comets — a bright dash that travels the under-line.
+                   It appears at 78% (the instant ship's comet lands at 4:30) and crawls
+                   ship (right) -> down -> under the chain -> up into idea (left), arriving
+                   just as the loop restarts and idea spawns. ~3.1s of visible travel. */
                 @keyframes n8loopComet {
-                  0%, 83.5% { stroke-dashoffset: 0;    opacity: 0; }
-                  85%       { stroke-dashoffset: 0;    opacity: 1; }
-                  98%       { stroke-dashoffset: -86;  opacity: 1; }
-                  100%      { stroke-dashoffset: -100; opacity: 0; }
+                  0%, 76% { stroke-dashoffset: 0;    opacity: 0; }
+                  78%     { stroke-dashoffset: 0;    opacity: 1; }
+                  99%     { stroke-dashoffset: -86;  opacity: 1; }
+                  100%    { stroke-dashoffset: -100; opacity: 0; }
                 }
 
                 .n8-cnode {
@@ -198,7 +201,7 @@ const Hero = () => {
                   isolation: isolate;
                   border-color: rgba(34,211,238,0.12);
                   color: rgb(100,116,139);
-                  animation: n8chipGlow 18s linear infinite;
+                  animation: n8chipGlow 15s linear infinite;
                   animation-delay: var(--n8delay, 0s);
                 }
                 .n8-cnode:not(.n8-split)::before {
@@ -208,8 +211,9 @@ const Hero = () => {
                   border-radius: inherit;
                   padding: 1px;
                   opacity: 0;
-                  /* idea/ship (single comet): starts & ends at the 3 o'clock edge —
-                     bright head at 25% of the cone, one clockwise turn. */
+                  /* idea/ship (single comet): a partial 225deg clockwise arc (up & over).
+                     idea 7:30 -> 3:00 (--n8start 135deg); ship 9:00 -> 4:30 (--n8start 180deg).
+                     bright head sits 90deg ahead of the from-angle (the 25% cone stop). */
                   background: conic-gradient(
                     from calc(var(--n8ang) + var(--n8start, 0deg)),
                     transparent 0 10%,
@@ -223,7 +227,7 @@ const Hero = () => {
                           mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
                           mask-composite: exclude;
                   filter: drop-shadow(0 0 4px rgba(34,211,238,0.7));
-                  animation: n8cometSweep 18s linear infinite;
+                  animation: n8cometSweep 15s linear infinite;
                   animation-delay: var(--n8delay, 0s);
                   z-index: 1;
                   pointer-events: none;
@@ -241,7 +245,7 @@ const Hero = () => {
                           mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
                           mask-composite: exclude;
                   filter: drop-shadow(0 0 4px rgba(34,211,238,0.7));
-                  animation: n8splitSweep 18s linear infinite;
+                  animation: n8splitSweep 15s linear infinite;
                   animation-delay: var(--n8delay, 0s);
                   z-index: 1;
                   pointer-events: none;
@@ -259,7 +263,7 @@ const Hero = () => {
                     transparent 334deg, rgba(103,232,249,0.4) 347deg, #22d3ee 360deg);
                 }
                 .n8-carrow {
-                  animation: n8arrowGlow 18s linear infinite;
+                  animation: n8arrowGlow 15s linear infinite;
                 }
                 .n8-loop {
                   position: absolute;
@@ -271,11 +275,11 @@ const Hero = () => {
                   overflow: visible;
                   pointer-events: none;
                 }
-                .n8-loop-base { stroke: rgba(34,211,238,0.18); }
+                .n8-loop-base { stroke: rgba(34,211,238,0.10); }
                 .n8-loop-comet {
-                  stroke: #22d3ee;
-                  filter: drop-shadow(0 0 4px rgba(34,211,238,0.8));
-                  animation: n8loopComet 18s linear infinite;
+                  stroke: #67e8f9;
+                  filter: drop-shadow(0 0 6px rgba(34,211,238,0.95));
+                  animation: n8loopComet 15s linear infinite;
                 }
 
                 @media (prefers-reduced-motion: reduce) {
@@ -292,7 +296,7 @@ const Hero = () => {
                         i > 0 && i < arr.length - 1 ? ' n8-split' : ''
                       }`}
                       style={{
-                        ['--n8delay' as string]: `${i * 3}s`,
+                        ['--n8delay' as string]: `${i * 2.5}s`,
                         // idea starts bottom-left (~7:30), ship at 9 o'clock; the split
                         // chips ignore --n8start (they sweep from 270deg +/- the angle).
                         ['--n8start' as string]:
@@ -305,7 +309,7 @@ const Hero = () => {
                         ::after, so the two halves meet at the 3 o'clock arrow */}
                     {i < arr.length - 1 && (
                       // arrow lights at the hand-off as the comet leaves chip i
-                      <span className="n8-carrow" style={{ animationDelay: `${i * 3 + 2.2}s` }}>→</span>
+                      <span className="n8-carrow" style={{ animationDelay: `${i * 2.5 + 1.8}s` }}>→</span>
                     )}
                   </React.Fragment>
                 ))}
@@ -325,10 +329,10 @@ const Hero = () => {
                   className="n8-loop-comet"
                   d="M98,0 L98,9 Q98,14 93,14 L7,14 Q2,14 2,9 L2,0"
                   fill="none"
-                  strokeWidth="1.5"
+                  strokeWidth="2.5"
                   strokeLinecap="round"
                   pathLength={100}
-                  strokeDasharray="14 200"
+                  strokeDasharray="16 200"
                   vectorEffect="non-scaling-stroke"
                 />
               </svg>
