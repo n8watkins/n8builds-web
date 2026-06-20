@@ -24,7 +24,7 @@ const featured: FeaturedProject[] = [
     title: 'Portfolio Rank',
     subtitle: 'Developer Portfolio Ranker',
     description:
-      "Ranks 1,700+ developer portfolios by what's actually good — head-to-head voting plus AI scoring, not alphabetical. Browse the catalog, search, and see how the best stack up.",
+      "Ranks 1,700+ developer portfolios by what's actually good — head-to-head voting + AI scoring, not alphabetical. Build lists, save the ones you love, and like the best.",
     image: '/projects/PortfolioRank-1.png',
     images: ['/projects/PortfolioRank-1.png'],
     imageAlt: 'Portfolio Rank — developer portfolio ranker screenshot',
