@@ -135,13 +135,14 @@ const Hero = () => {
             {/* whoami terminal = the description (blended copy) */}
             <WhoamiTerminal className="w-full max-w-[520px]" />
 
-            {/* Build philosophy — electrified circuit (a glowing comet traces each chip's
-                outline in sequence, then hands off through the arrow to the next chip) */}
+            {/* Build philosophy — electrified circuit: a comet traces each chip's
+                outline left -> right, then runs the loop-back line from ship under the
+                whole chain back into idea, and repeats (the "repeat" chip is now the line). */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.45 }}
-              className="flex items-center gap-1.5 font-mono text-[0.7rem] select-none flex-wrap"
+              className="relative w-fit font-mono text-[0.7rem] select-none"
             >
               <style>{`
                 @property --n8ang {
@@ -150,11 +151,10 @@ const Hero = () => {
                   inherits: false;
                 }
 
-                /* Each chip owns one 2s slot of a shared 12s loop. Within its
-                   slot the comet sweeps the full perimeter (--n8ang 0deg -> 360deg)
-                   and is then HIDDEN; staggering each chip's POSITIVE animation-delay
-                   by one slot hands the lit outline off box -> box, left -> right,
-                   and the previous box goes dark the instant the comet leaves it. */
+                /* Shared 12s loop = 6 x 2s slots: one per chip (5) + the loop-back leg.
+                   Each chip's comet sweeps its perimeter during its slot (positive,
+                   staggered delay -> left-to-right); then the loop-back line carries
+                   the comet from ship back under the chain into idea, and it repeats. */
                 @keyframes n8cometSweep {
                   0%          { --n8ang: 0deg;   opacity: 1; }
                   16.666%     { --n8ang: 360deg; opacity: 1; }
@@ -170,14 +170,20 @@ const Hero = () => {
                   4%, 9%    { color: rgb(34,211,238); text-shadow: 0 0 8px rgba(34,211,238,0.85); }
                   14%, 100% { color: rgba(255,255,255,0.12); text-shadow: none; }
                 }
+                /* loop-back comet: hidden until ship finishes (~83% of the loop), then a
+                   bright dash travels the under-line from ship (right) to idea (left). */
+                @keyframes n8loopComet {
+                  0%, 83%   { stroke-dashoffset: 0;    opacity: 0; }
+                  84.5%     { stroke-dashoffset: 0;    opacity: 1; }
+                  99%       { stroke-dashoffset: -100; opacity: 1; }
+                  100%      { stroke-dashoffset: -100; opacity: 0; }
+                }
 
                 .n8-cnode {
                   position: relative;
                   isolation: isolate;
                   border-color: rgba(34,211,238,0.12);
                   color: rgb(100,116,139);
-                  /* --n8delay is set per-chip inline; the chip glow and the
-                     ::before comet sweep share it so they stay in lockstep. */
                   animation: n8chipGlow 12s linear infinite;
                   animation-delay: var(--n8delay, 0s);
                 }
@@ -188,9 +194,8 @@ const Hero = () => {
                   border-radius: inherit;
                   padding: 1px;
                   opacity: 0;
-                  /* comet starts & ends at the 3 o'clock edge (where the arrow is):
-                     the bright head sits at 25% of the cone (right side) and sweeps
-                     one full turn clockwise back to it. */
+                  /* comet starts & ends at the 3 o'clock edge (the right side, where the
+                     arrow is): bright head at 25% of the cone, one clockwise turn. */
                   background: conic-gradient(
                     from var(--n8ang),
                     transparent 0 10%,
@@ -212,27 +217,67 @@ const Hero = () => {
                 .n8-carrow {
                   animation: n8arrowGlow 12s linear infinite;
                 }
+                .n8-loop {
+                  position: absolute;
+                  left: 0;
+                  right: 0;
+                  top: 100%;
+                  width: 100%;
+                  height: 16px;
+                  overflow: visible;
+                  pointer-events: none;
+                }
+                .n8-loop-base { stroke: rgba(34,211,238,0.18); }
+                .n8-loop-comet {
+                  stroke: #22d3ee;
+                  filter: drop-shadow(0 0 4px rgba(34,211,238,0.8));
+                  animation: n8loopComet 12s linear infinite;
+                }
 
                 @media (prefers-reduced-motion: reduce) {
-                  .n8-cnode, .n8-cnode::before, .n8-carrow { animation: none; }
-                  .n8-cnode::before { opacity: 0; }
+                  .n8-cnode, .n8-cnode::before, .n8-carrow, .n8-loop-comet { animation: none; }
+                  .n8-cnode::before, .n8-loop-comet { opacity: 0; }
                   .n8-cnode { border-color: rgba(34,211,238,0.3); }
                 }
               `}</style>
-              {['idea', 'prompt', 'build', 'stream', 'ship', 'repeat'].map((w, i, arr) => (
-                <React.Fragment key={w}>
-                  <span
-                    className="n8-cnode rounded-md border px-2 py-1 lowercase tracking-wide"
-                    style={{ ['--n8delay' as string]: `${i * 2}s` }}
-                  >
-                    {w}
-                  </span>
-                  {i < arr.length - 1 && (
-                    // arrow lights at the hand-off as the comet leaves chip i
-                    <span className="n8-carrow" style={{ animationDelay: `${i * 2 + 1.5}s` }}>→</span>
-                  )}
-                </React.Fragment>
-              ))}
+              <div className="flex items-center gap-1.5">
+                {['idea', 'prompt', 'build', 'stream', 'ship'].map((w, i, arr) => (
+                  <React.Fragment key={w}>
+                    <span
+                      className="n8-cnode rounded-md border px-2 py-1 lowercase tracking-wide"
+                      style={{ ['--n8delay' as string]: `${i * 2}s` }}
+                    >
+                      {w}
+                    </span>
+                    {i < arr.length - 1 && (
+                      // arrow lights at the hand-off as the comet leaves chip i
+                      <span className="n8-carrow" style={{ animationDelay: `${i * 2 + 1.5}s` }}>→</span>
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+              {/* loop-back circuit line: ship (right) -> down -> under the chain ->
+                  up into idea (left). preserveAspectRatio=none stretches it to the
+                  chain width; non-scaling-stroke keeps the line crisp. */}
+              <svg className="n8-loop" viewBox="0 0 100 16" preserveAspectRatio="none" aria-hidden="true">
+                <path
+                  className="n8-loop-base"
+                  d="M98,0 L98,9 Q98,14 93,14 L7,14 Q2,14 2,9 L2,0"
+                  fill="none"
+                  strokeWidth="1"
+                  vectorEffect="non-scaling-stroke"
+                />
+                <path
+                  className="n8-loop-comet"
+                  d="M98,0 L98,9 Q98,14 93,14 L7,14 Q2,14 2,9 L2,0"
+                  fill="none"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  pathLength={100}
+                  strokeDasharray="14 200"
+                  vectorEffect="non-scaling-stroke"
+                />
+              </svg>
             </motion.div>
 
             {/* CTAs */}
