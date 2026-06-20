@@ -23,10 +23,18 @@ export type Post = {
   publishedAt: string
   topics?: string[]
   excerpt?: string
+  coverUrl?: string
+  coverAlt?: string
   body?: any[]
 }
 
-const POST_CARD = `_id, title, slug, publishedAt, topics, excerpt`
+// Card fields. The cover image asset is dereferenced to a plain CDN URL in GROQ
+// so client components never need @sanity/client or @sanity/image-url.
+const POST_CARD = `
+  _id, title, slug, publishedAt, topics, excerpt,
+  "coverUrl": coverImage.asset->url,
+  "coverAlt": coverImage.alt
+`
 
 export const getAllPosts = () =>
   sanity.fetch<Post[]>(`*[_type == "post"] | order(publishedAt desc){ ${POST_CARD} }`)
@@ -36,7 +44,13 @@ export const getRecentPosts = (limit = 3) =>
 
 export const getPostBySlug = (slug: string) =>
   sanity.fetch<Post | null>(
-    `*[_type == "post" && slug.current == $slug][0]{ ${POST_CARD}, body }`,
+    `*[_type == "post" && slug.current == $slug][0]{
+      ${POST_CARD},
+      body[]{
+        ...,
+        _type == "image" => { "url": asset->url, "alt": alt }
+      }
+    }`,
     { slug }
   )
 

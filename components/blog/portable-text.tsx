@@ -1,9 +1,28 @@
 import { PortableText } from '@portabletext/react'
 
 // Renders Sanity Portable Text in the n8builds.dev dark theme. Matches the post
-// schema exactly: block styles normal/h1-h4/blockquote, bullet lists, and
-// strong/em/link marks. No `prose` plugin — every element is hand-styled.
+// schema: block styles normal/h1-h4/blockquote, bullet lists, strong/em/link
+// marks, and inline images. No `prose` plugin — every element is hand-styled.
 const components = {
+  types: {
+    image: ({ value }: any) =>
+      value?.url ? (
+        <figure className="my-7 overflow-hidden rounded-xl border border-white/8">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`${value.url}?w=1400&q=80&auto=format`}
+            alt={value.alt || ''}
+            loading="lazy"
+            className="w-full"
+          />
+          {value.alt && (
+            <figcaption className="bg-white/[0.02] px-4 py-2 text-center text-xs text-slate-500">
+              {value.alt}
+            </figcaption>
+          )}
+        </figure>
+      ) : null,
+  },
   block: {
     normal: ({ children }: any) => (
       <p className="mb-5 leading-relaxed text-slate-300">{children}</p>
