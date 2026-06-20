@@ -163,7 +163,7 @@ const Hero = () => {
                 @keyframes n8chipGlow {
                   0%        { border-color: rgba(34,211,238,0.55); background-color: rgba(34,211,238,0.06); color: rgb(165,243,252); text-shadow: 0 0 8px rgba(34,211,238,0.6); }
                   16.666%   { border-color: rgba(34,211,238,0.55); background-color: rgba(34,211,238,0.06); color: rgb(165,243,252); text-shadow: 0 0 8px rgba(34,211,238,0.6); }
-                  18%, 100% { border-color: rgba(34,211,238,0.12); background-color: rgba(34,211,238,0); color: rgb(100,116,139); text-shadow: none; }
+                  21%, 100% { border-color: rgba(34,211,238,0.12); background-color: rgba(34,211,238,0); color: rgb(100,116,139); text-shadow: none; }
                 }
                 @keyframes n8arrowGlow {
                   0%        { color: rgba(255,255,255,0.12); text-shadow: none; }
@@ -188,13 +188,16 @@ const Hero = () => {
                   border-radius: inherit;
                   padding: 1px;
                   opacity: 0;
+                  /* comet starts & ends at the 3 o'clock edge (where the arrow is):
+                     the bright head sits at 25% of the cone (right side) and sweeps
+                     one full turn clockwise back to it. */
                   background: conic-gradient(
                     from var(--n8ang),
-                    transparent 0 75%,
-                    rgba(103,232,249,0.55) 84%,
-                    #67e8f9 90%,
-                    #22d3ee 95%,
-                    transparent 100%
+                    transparent 0 10%,
+                    rgba(103,232,249,0.5) 18%,
+                    #67e8f9 23%,
+                    #22d3ee 25%,
+                    transparent 28%
                   );
                   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
                   -webkit-mask-composite: xor;

@@ -17,7 +17,7 @@ const Navbar = () => {
 
   const navLinks = [
     { label: 'Lab', href: '/lab' },
-    { label: 'N8 Notions', href: '/blog' },
+    { label: 'Notions', href: '/blog' },
     { label: 'Extensions', href: '/extensions' },
     { label: 'Tools', href: '/tools' },
     { label: 'Loadout', href: '/loadout' },
