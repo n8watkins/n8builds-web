@@ -184,8 +184,8 @@ const Hero = () => {
                   3%, 8%    { color: rgb(34,211,238); text-shadow: 0 0 8px rgba(34,211,238,0.85); }
                   13%, 100% { color: rgba(255,255,255,0.12); text-shadow: none; }
                 }
-                /* loop-back comet: a single fast moving light (no static track) with the
-                   same look as the comet around the ship box. It zips ship (right) -> down
+                /* loop-back connector: a dim always-on wire (so the ship->idea line stays
+                   visible) plus a bright moving pulse. The pulse zips ship (right) -> down
                    -> under the chain -> up into idea (left) in ~2.2s, landing as the loop
                    restarts and idea spawns. */
                 @keyframes n8loopComet {
@@ -274,6 +274,7 @@ const Hero = () => {
                   overflow: visible;
                   pointer-events: none;
                 }
+                .n8-loop-base { stroke: rgba(34,211,238,0.22); }
                 .n8-loop-comet {
                   stroke: #67e8f9;
                   filter: drop-shadow(0 0 6px rgba(34,211,238,0.95));
@@ -316,6 +317,13 @@ const Hero = () => {
                   up into idea (left). preserveAspectRatio=none stretches it to the
                   chain width; non-scaling-stroke keeps the line crisp. */}
               <svg className="n8-loop" viewBox="0 0 100 16" preserveAspectRatio="none" aria-hidden="true">
+                <path
+                  className="n8-loop-base"
+                  d="M98,0 L98,9 Q98,14 93,14 L7,14 Q2,14 2,9 L2,0"
+                  fill="none"
+                  strokeWidth="1.25"
+                  vectorEffect="non-scaling-stroke"
+                />
                 <path
                   className="n8-loop-comet"
                   d="M98,0 L98,9 Q98,14 93,14 L7,14 Q2,14 2,9 L2,0"
