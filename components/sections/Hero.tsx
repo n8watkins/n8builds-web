@@ -185,14 +185,16 @@ const Hero = () => {
                   13%, 100% { color: rgba(255,255,255,0.12); text-shadow: none; }
                 }
                 /* loop-back connector: a dim always-on wire (so the ship->idea line stays
-                   visible) plus a bright moving pulse. The pulse zips ship (right) -> down
-                   -> under the chain -> up into idea (left) in ~2.2s, landing as the loop
+                   visible) plus ONE long bright pulse (~3x the old length) flowing
+                   ship (right) -> down -> under the chain -> up into idea (left). It starts
+                   ~73% — overlapping ship's comet as it finishes, so the hand-off reads as
+                   one continuous light — and takes ~3.8s to cross, arriving as the loop
                    restarts and idea spawns. */
                 @keyframes n8loopComet {
-                  0%, 81% { stroke-dashoffset: 0;    opacity: 0; }
-                  83%     { stroke-dashoffset: 0;    opacity: 1; }
-                  98%     { stroke-dashoffset: -88;  opacity: 1; }
-                  100%    { stroke-dashoffset: -100; opacity: 0; }
+                  0%, 71% { stroke-dashoffset: 0;    opacity: 0; }
+                  73%     { stroke-dashoffset: 0;    opacity: 1; }
+                  98%     { stroke-dashoffset: -100; opacity: 1; }
+                  100%    { stroke-dashoffset: -136; opacity: 0; }
                 }
 
                 .n8-cnode {
@@ -331,7 +333,7 @@ const Hero = () => {
                   strokeWidth="2.5"
                   strokeLinecap="round"
                   pathLength={100}
-                  strokeDasharray="12 200"
+                  strokeDasharray="36 200"
                   vectorEffect="non-scaling-stroke"
                 />
               </svg>
