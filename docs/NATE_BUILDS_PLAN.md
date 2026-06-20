@@ -1,8 +1,8 @@
 # Nate Builds — The Big Plan
 
-> Status: SHIPPED to prod (n8builds.dev) as of 2026-06-13 — Loadout, shelves, homepage redesign (extensions showcase, Projects+Lab merge, free-tools, Currently-Building carousel, galleries, tech-stack bento). Remaining: `/builds` Log index, live-status layer, real screenshots for TL;DW/LocalDictate.
-> Last updated: 2026-06-13
-> Site: n8builds.dev — the public workshop
+> Status: SHIPPED to prod (n8builds.dev) — Loadout, shelves, homepage redesign (extensions showcase, Projects+Lab merge, free-tools trio, Currently-Building section, galleries, tech-stack bento). Remaining: `/builds` Log index page, live-status layer, real screenshots for TL;DW/LocalDictate.
+> Last updated: 2026-06-19
+> Site: n8builds.dev — the public workshop (Next.js 16 + React 19, on Vercel, Cloudflare DNS)
 
 ---
 
@@ -64,25 +64,24 @@ what I was last doing.
 
 ### Pages (priority order)
 
-**MUST-HAVE**
+**MUST-HAVE — all SHIPPED**
 1. **Home / The Bench** — bento dashboard that IS the pitch: who I am + live signal + doors to everything.
-2. **Projects** (`/projects`) — filterable grid of the ~10 shipped apps. Proof-of-work spine.
-3. **Log** (`/builds` → relabel "Log") — the build-in-public journal, newest-first. The heartbeat. *(route already wired at /builds/[slug])*
-4. **Extensions** (`/extensions`) — the 5 Chrome extensions; own shelf, "Install" action.
-5. **Loadout** (`/loadout`) — Tech Loadout + The Rig + Desk. (replaces the dry "/uses" idea)
+2. **Lab** (`/lab`) — the filterable grid of everything I'm building. Projects + experiments were MERGED into one Lab shelf; there is no separate `/projects` route. Proof-of-work spine.
+3. **Extensions** (`/extensions`) — the Chrome extensions; own shelf, github/live "Install" links.
+4. **Loadout** (`/loadout`) — Tech Loadout + The Rig + Desk. (replaces the dry "/uses" idea)
+5. **Tools** (`/tools`) — dev tools and free utilities I made (Scribe/LocalDictate, the free-tools trio).
 
-**SHOULD-HAVE**
-6. **Tools & Signal** (`/tools`) — dev tools I made (Scribe) + curated resources worth passing on.
-7. **Lab** (`/lab`) — meme/throwaway experiments (Terminal Invaders, FitFlow 7), quarantined.
+**NOT YET BUILT**
+- **Log** ("/builds" Log index) — the build-in-public journal, newest-first. The heartbeat. Only the *detail* route is wired (`app/builds/[slug]`); the **index page is still unbuilt** (Phase 4). There is no `/blog` route.
 
 **NICE-TO-LATER**
-8. Unified reverse-chron feed across all lanes once volume justifies it.
+- Unified reverse-chron feed across all lanes once volume justifies it.
 
-### Top nav
-`Projects · Log · Extensions · Loadout · Lab`
-- Logo → Home. Right side: GitHub icon + small Portfolio/Appturnity cross-link.
-- Keep to ~5-6 items, single row, no dropdowns.
-- **Rename current nav** (`Builds / Stack / Contact`) → the above. "Stack" becomes part of Loadout.
+### Top nav (as shipped — `components/layout/Navbar.tsx`)
+`Lab · Extensions · Tools · Loadout`
+- Logo → Home. After the nav links: Twitch + YouTube + a ViBlog `#contact` link.
+- Right side: a **Portfolio** cross-link and an **Appturnity** button (the two bridge destinations) — not a GitHub icon.
+- Single row, no dropdowns. "Projects" was folded into Lab; "Stack" lives inside Loadout / the homepage tech-stack bento.
 
 ---
 
@@ -118,40 +117,46 @@ have projects/extensions/tools/experiments all derive from it.
 
 ---
 
-## 5. Homepage Section Order (concrete)
+## 5. Homepage Section Order (as shipped)
 
-Current: `Hero → FeaturedProjects → ProjectsMarquee → Contact`. Reorder to:
+The shipped sequence in `app/page.tsx` (each section wrapped in a `SectionErrorBoundary`,
+most lazy-loaded via `next/dynamic`):
 
-1. **Hero** — identity + live pill (keep). Add the offline status line that name-drops last activity.
-2. **NOW / Currently Building** *(NEW — highest-leverage add)* — "what I'm building right now"
-   block right under the hero. This is the in-public hook. Pulls the newest `log` entry +
-   current project. Make the site feel alive.
-3. **Featured Builds** — 3-4 hand-picked shipped projects (VibeLog, cutelyask.me, Portfolio Rank, FitFlow 7 / Piper TTS), premium cards.
-4. **Latest from the Log** — 2-3 newest journal posts.
-5. **Extensions + Tools strip** — compact dual-shelf teaser → links to full pages.
-6. **Tech Loadout teaser** — a few loadout items with "what I use it for," → /loadout.
-7. **Projects marquee** — DEMOTED to here as a "and 15 more" breadth-flex.
-8. **Contact / Footer** — keep, with Appturnity cross-link (not a hire-me CTA).
+1. **Hero** (`components/sections/Hero.tsx`) — identity + a "Live on GitHub" pill that links
+   github.com/n8watkins and name-drops "Currently Building: Asset Arsenal." A "Watch Live"
+   CTA links Twitch. *(The hero offline status line is still TODO.)*
+2. **NowBuilding / Currently Building** (`components/sections/NowBuilding.tsx`, data in
+   `data/now.tsx`) — the in-public hook right under the hero.
+3. **FeaturedProjects** (`components/sections/FeaturedProjects.tsx`) — hand-picked builds in
+   alternating image rows.
+4. **The Lab** — `ShelfSection shelf="lab"`: everything I'm building (the merged projects + lab grid).
+5. **ExtensionsShowcase** (`components/sections/ExtensionsShowcase.tsx`).
+6. **ToolsSection** (`components/sections/ToolsSection.tsx`).
+7. **TechStackBento** (`components/sections/TechStackBento.tsx`) — tech-stack bento marquee → /loadout.
+8. **Footer / Contact** (`components/layout/Footer.tsx`, in a `#contact` section) — with the
+   Appturnity cross-link, not a hire-me CTA.
 
-Key moves: promote *latest activity* up; demote the marquee down.
+Note: the old standalone "Projects marquee" was removed entirely; shelf content is surfaced
+inline via `ShelfSection` instead. The "Latest from the Log" strip is not on the homepage yet
+(the Log index doesn't exist).
 
 ---
 
 ## 6. Cleanup / Remove
 
-- **Delete testimonials** (`data/testimonials.tsx` + section) — read fake here; that's Portfolio/Appturnity's job.
+- **Delete testimonials** (`data/testimonials.tsx` + section) — read fake here; that's Portfolio/Appturnity's job. ✅ done.
 - No "Hire Me" CTA, rate cards, skills bars, "X yrs experience," generic SaaS gradient hero.
 - No purple — blue/cyan HUD only (purple is the agency lane).
-- Remove leftover `app/api/sentry-example-api` if still present.
+- ⬜ **STILL OPEN:** `app/api/sentry-example-api/route.ts` is still present — Sentry was never integrated (no `@sentry` runtime dep, only stub/scaffolding), so this example route should be deleted.
 
 ---
 
 ## 7. Implementation Roadmap (phased)
 
 **Phase 1 — Foundation** ✅ DONE
-- [x] Single source of truth: `data/builds.tsx` (12 builds) + `data/shelves.ts` classifier (chose to derive from the existing rich builds.tsx rather than refactor to a new `Item` schema — same outcome, less churn).
-- [x] Real data populated (the 12 builds; loadout/now content is representative pending Nate's real values).
-- [x] Nav updated (`components/layout/Navbar.tsx`): Projects · Extensions · Tools · Loadout · Lab.
+- [x] Single source of truth: `data/builds.tsx` (17 build records) + `data/shelves.ts` classifier (chose to derive from the existing rich builds.tsx rather than refactor to a new `Item` schema — same outcome, less churn).
+- [x] Real data populated (the 17 builds; loadout/now content is representative pending Nate's real values).
+- [x] Nav updated (`components/layout/Navbar.tsx`): Lab · Extensions · Tools · Loadout (Projects merged into Lab; Twitch/YouTube + Portfolio/Appturnity cross-links alongside).
 
 **Phase 2 — Homepage reorder** ✅ DONE
 - [x] Added **NowBuilding** ("Currently Building") section (`data/now.tsx`).
@@ -160,7 +165,7 @@ Key moves: promote *latest activity* up; demote the marquee down.
 - [x] Removed testimonials.
 
 **Phase 3 — The shelves** ✅ DONE
-- [x] `/projects` filterable grid (tag filter).
+- [x] `/lab` filterable grid (tag filter) — this absorbed the planned `/projects` page; there is no separate `/projects` route.
 - [x] `/extensions` shelf. (Install actions = the github/live links; dedicated Web Store buttons still optional.)
 - [x] `/loadout` — Tech Loadout + The Rig + Desk.
 - [x] `/tools` + `/lab`.
@@ -173,23 +178,31 @@ Key moves: promote *latest activity* up; demote the marquee down.
 
 ---
 
-## 8. Content Inventory (raw material, all real)
+## 8. Content Inventory (from `data/builds.tsx` — 17 records)
 
-**Shipped & live (homepage-eligible):** VibeLog, Solara, cutelyask.me, Portfolio Rank,
-FitFlow 7, Piper TTS, TL;DW, TL;DR Comments, TubeVault, Scribe (LocalDictate),
-Terminal Invaders, Sprite Arsenal.
-**Active dev:** Asset Arsenal, Local Ops, BF6 Field Intel.
-**Extensions (own shelf):** TL;DW, TL;DR Comments, TubeVault, Piper TTS, Chrome Extension Launch Kit.
-**Tools:** Scribe (LocalDictate).
-**Lab/experiments:** Terminal Invaders, FitFlow 7.
+All 17 builds, by their `category` in the data file. Only **Suggestion Box** carries
+`status: 'in the lab'`; the rest have no status flag (treated as shipped/active).
+
+**Web apps:** Asset Arsenal, Appturnity, JobSignal (web app + extension), Solara,
+Suggestion Box *(in the lab)*, Portfolio Rank.
+**Web tools:** Sprite Arsenal, CanIHost, FreeStack, APIScout — the free-tools utilities.
+**Chrome extensions (own shelf):** Piper TTS, TL;DW, TubeVault. Plus the Chrome Extension
+Launch Kit (a starter template) and JobSignal's Mark-Applied extension.
+**Streaming tool:** VibeLog (the OBS/telemetry tool behind the planned "LIVE on VibeLog" badge).
+**Desktop app / Tools:** LocalDictate (a.k.a. Scribe) — local speech-to-text (Tauri + whisper.cpp).
+**GitHub Actions bot:** Repo Steward.
+
+(Removed from this list: items that were never in the data — cutelyask.me, FitFlow 7,
+TL;DR Comments, Terminal Invaders, Local Ops, BF6 Field Intel. If any of those ship later,
+they get added to `data/builds.tsx`, not pages.)
 
 ---
 
 ## 9. Open Questions (need Nate)
 
-- **Stream platform** — assumed **Twitch** for now (already linked in Hero); confirm or add YouTube.
-- **Live status source** — currently a manual pill; auto-from-stream-API is a Phase 4 option.
+- **Stream platform** — both **Twitch** and **YouTube** are already linked in the Navbar, and the Hero "Watch Live" CTA points at Twitch. Confirm which is the primary stream home.
+- **Live status source** — currently a static "Live on GitHub" pill in the Hero (links github.com/n8watkins); auto-from-stream-API is a Phase 4 option.
 - **Loadout content** — `data/loadout.tsx` has representative content; replace The Rig specs + Desk gear with real values.
-- **"Log" definition** — is `/builds` a journal of written posts (~weekly) or just an index of all builds? Decides Phase 4 build.
-- **GA4 + reCAPTCHA** — still blank in `.env.local` (TODO from launch); wire when ready.
+- **"Log" definition** — is the `/builds` Log index a journal of written posts (~weekly) or just an index of all builds? Decides the Phase 4 build (the index page doesn't exist yet — only `app/builds/[slug]`).
+- **reCAPTCHA is intentionally OFF in production** — not a "wire it later" TODO. `lib/security/recaptcha.ts` skips verification (returns true) when `RECAPTCHA_SECRET_KEY` is unset, and it is not set on Vercel. The active bot defenses are the honeypot + an in-memory (per-serverless-instance) rate limiter. GA4 wiring is the only env item still genuinely pending.
 - **Log cadence** — how often will journal entries get written? Affects how prominent the Log is.

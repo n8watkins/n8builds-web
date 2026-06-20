@@ -2,8 +2,9 @@
 
 Site is **fully launched** (https://n8builds.dev live, contact form + email
 routing verified). Everything below is post-launch hardening and polish — none
-of it blocks the site working. All findings re-verified against live prod on
-**2026-06-12**. Ordered by priority. See `HANDOFF.md` for full context.
+of it blocks the site working. All four hardening findings re-confirmed still
+open against live prod on **2026-06-19**. Ordered by priority. See `HANDOFF.md`
+for full context.
 
 ---
 
@@ -92,9 +93,14 @@ Brand-architecture features from `HANDOFF.md`, not yet started:
 - [ ] **N8 Notes** (blog) — homepage preview (3–5 latest cards) + posts. Check
       the separate blog project at `/home/natkins/n8builds/blog` first — decide
       integrate vs. link before building from scratch.
-- [ ] **Hero upgrades** — "LIVE on VibeLog" badge (corner, conditional) + LA
-      callout ("Base of operations: Los Angeles, CA").
-- [ ] **AI Loadout section** — tight curated "stack I actually use" card with
-      icons (NOT a wall of every tech). `data/techStack.tsx` has the data.
+- [ ] **Hero upgrades** — the "Live on GitHub" live pill (`components/sections/Hero.tsx`,
+      linking to github.com/n8watkins with "Currently Building: …") and an LA
+      reference in the portrait `alt` text ("builder based in Los Angeles") are
+      done. Still open: a *visible* LA callout (e.g. "Base of operations: Los
+      Angeles, CA") — right now LA only lives in alt-text, not on-screen.
+- [x] ~~**AI Loadout section** — tight curated "stack I actually use" card with
+      icons (NOT a wall of every tech).~~ Shipped 2026-06-13 as the
+      `AITechStack` hover marquee (`components/features/AITechStack.tsx`), data in
+      `data/aiStack` (two rows: agents + tools).
 - [ ] **Work With Me bridge section** — two cards: "Need a developer?" →
       portfolio, "Need a website/business system?" → Appturnity.

@@ -54,7 +54,6 @@
     "@lhci/cli": "^0.15.1",
     "@next/bundle-analyzer": "^16.2.7",
     "@playwright/test": "^1.56.1",
-    "@types/dompurify": "^3.0.5",
     "@types/node": "^20",
     "@types/nodemailer": "^8.0.1",
     "@types/react": "^19",
