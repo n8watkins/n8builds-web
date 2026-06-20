@@ -164,7 +164,7 @@ const Footer = () => {
                 <span>↗</span>
               </a>
               <a
-                href="https://nathansportfolio.vercel.app"
+                href="https://portfolio.n8builds.dev"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-between gap-3 px-5 py-2.5 rounded-xl border border-white/12 bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-sm transition-all duration-200 hover:scale-[1.02]"

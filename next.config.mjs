@@ -49,7 +49,7 @@ const nextConfig = {
     return [
       {
         source: '/portfolio',
-        destination: 'https://nathansportfolio.vercel.app',
+        destination: 'https://portfolio.n8builds.dev',
         permanent: false,
       },
       {
