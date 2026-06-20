@@ -223,9 +223,11 @@ const navLinks = [
 ]
 ```
 
-Also **remove the dead `ViBlog → #contact` placeholder** from `socialLinks`
-(line 27). Ignore `data/navigation.tsx` and `FloatingNav.tsx` — dead code, not
-wired into the live header.
+**Do NOT touch the existing `ViBlog` / VibeLog social link** (line 27) — VibeLog
+is a **separate product**, not this blog. (Its label/href may need its own fix,
+but that's out of scope here.) Just add the N8 Notions link to `navLinks`. Ignore
+`data/navigation.tsx` and `FloatingNav.tsx` — dead code, not wired into the live
+header.
 
 ### 7. `app/sitemap.ts` (edit) — add blog URLs
 
