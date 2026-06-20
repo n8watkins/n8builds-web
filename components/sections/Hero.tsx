@@ -160,6 +160,15 @@ const Hero = () => {
                   16.666%     { --n8ang: 360deg; opacity: 1; }
                   16.8%, 100% { --n8ang: 360deg; opacity: 0; }
                 }
+                /* split trace (middle chips): two lights start at 9 o'clock and sweep
+                   a half each (one over the top, one under the bottom), meeting at the
+                   3 o'clock arrow. --n8ang 0 -> 180; the +/- in the conic from-angle sends
+                   ::before clockwise (top) and ::after counter-clockwise (bottom). */
+                @keyframes n8splitSweep {
+                  0%          { --n8ang: 0deg;   opacity: 1; }
+                  16.666%     { --n8ang: 180deg; opacity: 1; }
+                  16.8%, 100% { --n8ang: 180deg; opacity: 0; }
+                }
                 @keyframes n8chipGlow {
                   0%        { border-color: rgba(34,211,238,0.55); background-color: rgba(34,211,238,0.06); color: rgb(165,243,252); text-shadow: 0 0 8px rgba(34,211,238,0.6); }
                   16.666%   { border-color: rgba(34,211,238,0.55); background-color: rgba(34,211,238,0.06); color: rgb(165,243,252); text-shadow: 0 0 8px rgba(34,211,238,0.6); }
@@ -187,15 +196,15 @@ const Hero = () => {
                   animation: n8chipGlow 12s linear infinite;
                   animation-delay: var(--n8delay, 0s);
                 }
-                .n8-cnode::before {
+                .n8-cnode:not(.n8-split)::before {
                   content: '';
                   position: absolute;
                   inset: 0;
                   border-radius: inherit;
                   padding: 1px;
                   opacity: 0;
-                  /* comet starts & ends at the 3 o'clock edge (the right side, where the
-                     arrow is): bright head at 25% of the cone, one clockwise turn. */
+                  /* idea/ship (single comet): starts & ends at the 3 o'clock edge —
+                     bright head at 25% of the cone, one clockwise turn. */
                   background: conic-gradient(
                     from var(--n8ang),
                     transparent 0 10%,
@@ -213,6 +222,36 @@ const Hero = () => {
                   animation-delay: var(--n8delay, 0s);
                   z-index: 1;
                   pointer-events: none;
+                }
+                .n8-split::before,
+                .n8-split::after {
+                  content: '';
+                  position: absolute;
+                  inset: 0;
+                  border-radius: inherit;
+                  padding: 1px;
+                  opacity: 0;
+                  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+                  -webkit-mask-composite: xor;
+                          mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+                          mask-composite: exclude;
+                  filter: drop-shadow(0 0 4px rgba(34,211,238,0.7));
+                  animation: n8splitSweep 12s linear infinite;
+                  animation-delay: var(--n8delay, 0s);
+                  z-index: 1;
+                  pointer-events: none;
+                }
+                /* top light: 9 o'clock -> over the top -> 3 o'clock (clockwise) */
+                .n8-split::before {
+                  background: conic-gradient(from calc(270deg + var(--n8ang)),
+                    #22d3ee 0deg, rgba(103,232,249,0.4) 13deg, transparent 26deg,
+                    transparent 334deg, rgba(103,232,249,0.4) 347deg, #22d3ee 360deg);
+                }
+                /* bottom light: 9 o'clock -> under the bottom -> 3 o'clock (counter-cw) */
+                .n8-split::after {
+                  background: conic-gradient(from calc(270deg - var(--n8ang)),
+                    #22d3ee 0deg, rgba(103,232,249,0.4) 13deg, transparent 26deg,
+                    transparent 334deg, rgba(103,232,249,0.4) 347deg, #22d3ee 360deg);
                 }
                 .n8-carrow {
                   animation: n8arrowGlow 12s linear infinite;
@@ -235,8 +274,8 @@ const Hero = () => {
                 }
 
                 @media (prefers-reduced-motion: reduce) {
-                  .n8-cnode, .n8-cnode::before, .n8-carrow, .n8-loop-comet { animation: none; }
-                  .n8-cnode::before, .n8-loop-comet { opacity: 0; }
+                  .n8-cnode, .n8-cnode::before, .n8-cnode::after, .n8-carrow, .n8-loop-comet { animation: none; }
+                  .n8-cnode::before, .n8-cnode::after, .n8-loop-comet { opacity: 0; }
                   .n8-cnode { border-color: rgba(34,211,238,0.3); }
                 }
               `}</style>
@@ -244,11 +283,15 @@ const Hero = () => {
                 {['idea', 'prompt', 'build', 'stream', 'ship'].map((w, i, arr) => (
                   <React.Fragment key={w}>
                     <span
-                      className="n8-cnode rounded-md border px-2 py-1 lowercase tracking-wide"
+                      className={`n8-cnode rounded-md border px-2 py-1 lowercase tracking-wide${
+                        i > 0 && i < arr.length - 1 ? ' n8-split' : ''
+                      }`}
                       style={{ ['--n8delay' as string]: `${i * 2}s` }}
                     >
                       {w}
                     </span>
+                    {/* middle chips (prompt/build/stream) carry a second light via
+                        ::after, so the two halves meet at the 3 o'clock arrow */}
                     {i < arr.length - 1 && (
                       // arrow lights at the hand-off as the comet leaves chip i
                       <span className="n8-carrow" style={{ animationDelay: `${i * 2 + 1.5}s` }}>→</span>
