@@ -2,10 +2,11 @@
 import React from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { FiArrowLeft, FiTerminal } from 'react-icons/fi'
-import { loadout, whoami, type LoadoutGroup, type LoadoutItem } from '@/data/loadout'
+import { FiArrowLeft } from 'react-icons/fi'
+import { loadout, type LoadoutGroup, type LoadoutItem } from '@/data/loadout'
 import AITechStack from '@/components/features/AITechStack'
 import BuildStacks from '@/components/sections/BuildStacks'
+import WhoamiTerminal from '@/components/features/WhoamiTerminal'
 
 // Static class maps so Tailwind keeps these in the build.
 const accentMap: Record<LoadoutGroup['accent'], { text: string; dot: string; ring: string; glow: string }> = {
@@ -100,33 +101,8 @@ const Loadout = () => {
           </p>
         </motion.div>
 
-        {/* whoami terminal block */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
-          className="mt-8 overflow-hidden rounded-2xl border border-white/[0.08] bg-black/30 backdrop-blur-sm"
-        >
-          <div className="flex items-center gap-2 border-b border-white/[0.06] px-4 py-2.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-red-400/70" />
-            <span className="h-2.5 w-2.5 rounded-full bg-yellow-400/70" />
-            <span className="h-2.5 w-2.5 rounded-full bg-green-400/70" />
-            <span className="ml-2 flex items-center gap-1.5 font-mono text-xs text-slate-500">
-              <FiTerminal className="h-3.5 w-3.5" />
-              nate@n8builds: ~
-            </span>
-          </div>
-          <div className="space-y-1 p-5 font-mono text-[0.82rem] leading-relaxed">
-            {whoami.map((line, i) => (
-              <p key={i} className={i === 0 ? 'text-cyan-400' : 'text-slate-300'}>
-                {line}
-              </p>
-            ))}
-            <p className="text-slate-600">
-              <span className="text-cyan-400">$</span> <span className="animate-pulse">▊</span>
-            </p>
-          </div>
-        </motion.div>
+        {/* whoami terminal block (shared with the homepage hero) */}
+        <WhoamiTerminal className="mt-8" />
 
         {/* AI tech stack — hover-reveal marquee (ported from the portfolio bento) */}
         <section id="ai" className="mt-14 scroll-mt-24">

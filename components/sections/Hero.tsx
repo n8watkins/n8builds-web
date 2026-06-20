@@ -7,7 +7,7 @@ import { CiLinkedin } from 'react-icons/ci'
 import { FaXTwitter } from 'react-icons/fa6'
 import { MdRadioButtonChecked } from 'react-icons/md'
 import { coloredSquares } from '@/data/grid'
-import ScrollButton from '@/components/ui/BentoComponents/ScrollButton'
+import WhoamiTerminal from '@/components/features/WhoamiTerminal'
 
 const CELL = 52
 
@@ -87,6 +87,9 @@ const Hero = () => {
 
       <div className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 w-full flex flex-col items-center justify-center pt-28 pb-16">
 
+        {/* whoami terminal — ported from /loadout */}
+        <WhoamiTerminal className="mb-8 w-full max-w-2xl" />
+
         {/* Live pill */}
         <motion.a
           href="https://github.com/n8watkins"
@@ -134,17 +137,36 @@ const Hero = () => {
               Follow the journey, watch the process, and ship with me.
             </motion.p>
 
-            {/* Build philosophy — subtle side note */}
+            {/* Build philosophy — electrified circuit (neon current loops around the chain) */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.45 }}
-              className="flex items-center gap-3 font-mono text-[0.75rem] text-slate-600 select-none"
+              className="flex items-center gap-1.5 font-mono text-[0.7rem] select-none flex-wrap"
             >
+              <style>{`
+                @keyframes n8circuitNode {
+                  0%, 100% { border-color: rgba(34,211,238,0.12); color: rgb(100,116,139); box-shadow: none; text-shadow: none; }
+                  46%, 54% { border-color: rgba(34,211,238,0.95); color: rgb(103,232,249); box-shadow: 0 0 10px rgba(34,211,238,0.5), inset 0 0 6px rgba(34,211,238,0.22); text-shadow: 0 0 8px rgba(34,211,238,0.8); }
+                }
+                @keyframes n8circuitArrow {
+                  0%, 100% { color: rgba(255,255,255,0.12); text-shadow: none; }
+                  46%, 54% { color: rgb(34,211,238); text-shadow: 0 0 8px rgba(34,211,238,0.85); }
+                }
+                .n8-cnode { animation: n8circuitNode 5s ease-in-out infinite; }
+                .n8-carrow { animation: n8circuitArrow 5s ease-in-out infinite; }
+              `}</style>
               {['idea', 'prompt', 'build', 'stream', 'ship', 'repeat'].map((w, i, arr) => (
                 <React.Fragment key={w}>
-                  <span className="text-slate-500">{w}</span>
-                  {i < arr.length - 1 && <span className="text-white/15">→</span>}
+                  <span
+                    className="n8-cnode rounded-md border px-2 py-1 lowercase tracking-wide"
+                    style={{ animationDelay: `${i * 0.5}s` }}
+                  >
+                    {w}
+                  </span>
+                  {i < arr.length - 1 && (
+                    <span className="n8-carrow" style={{ animationDelay: `${i * 0.5 + 0.25}s` }}>→</span>
+                  )}
                 </React.Fragment>
               ))}
             </motion.div>
@@ -165,11 +187,15 @@ const Hero = () => {
                 <MdRadioButtonChecked className="w-4 h-4" />
                 Watch Live
               </a>
-              <ScrollButton
-                link="projects"
-                text="Explore Builds"
-                className="px-5 py-2.5 rounded-xl border border-white/12 bg-white/[0.04] hover:bg-white/[0.07] text-slate-300 font-bold text-sm transition-all duration-200 hover:scale-[1.02]"
-              />
+              <a
+                href="#builds"
+                className="relative inline-flex h-10 overflow-hidden rounded-xl p-[1px] transition-all duration-200 hover:scale-[1.02]"
+              >
+                <span className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#22d3ee_0%,#2563eb_50%,#22d3ee_100%)]" />
+                <span className="inline-flex h-full w-full items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-bold text-slate-100 backdrop-blur-3xl">
+                  See what I&apos;m building
+                </span>
+              </a>
             </motion.div>
 
             {/* Socials */}
@@ -181,12 +207,12 @@ const Hero = () => {
               className="flex items-center gap-0.5 -ml-2"
             >
               {[
-                { href: 'https://github.com/n8watkins', label: 'GitHub', icon: <FiGithub className="w-4.5 h-4.5" /> },
-                { href: 'https://linkedin.com/in/n8watkins', label: 'LinkedIn', icon: <CiLinkedin className="w-5 h-5" /> },
-                { href: 'https://x.com/n8watkins', label: 'X', icon: <FaXTwitter className="w-4 h-4" /> },
+                { href: 'https://github.com/n8watkins', label: 'GitHub', icon: <FiGithub className="w-[1.35rem] h-[1.35rem]" /> },
+                { href: 'https://linkedin.com/in/n8watkins', label: 'LinkedIn', icon: <CiLinkedin className="w-7 h-7" /> },
+                { href: 'https://x.com/n8watkins', label: 'X', icon: <FaXTwitter className="w-[1.2rem] h-[1.2rem]" /> },
               ].map(s => (
                 <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label}
-                  className="w-9 h-9 flex items-center justify-center rounded-lg text-slate-500 hover:text-slate-300 hover:bg-white/8 transition-all duration-150">
+                  className="w-11 h-11 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/8 transition-all duration-150">
                   {s.icon}
                 </a>
               ))}
