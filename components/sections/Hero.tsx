@@ -181,7 +181,7 @@ const Hero = () => {
                 }
                 @keyframes n8arrowGlow {
                   0%        { color: rgb(100,116,139); text-shadow: none; }
-                  3%, 8%    { color: rgb(34,211,238); text-shadow: 0 0 8px rgba(34,211,238,0.85); }
+                  3%, 8%    { color: rgb(103,232,249); text-shadow: 0 0 4px rgba(34,211,238,1), 0 0 10px rgba(34,211,238,0.7); }
                   13%, 100% { color: rgb(100,116,139); text-shadow: none; }
                 }
                 /* loop-back connector: dim wire + ONE blue pulse (#22d3ee, same as the
@@ -283,7 +283,9 @@ const Hero = () => {
                 .n8-loop-comet {
                   stroke: #22d3ee;
                   filter: drop-shadow(0 0 2px #67e8f9) drop-shadow(0 0 6px #22d3ee) drop-shadow(0 0 9px rgba(34,211,238,0.7));
-                  animation: n8loopComet 15s linear infinite;
+                  /* -12.5s phase: page loads mid-loop with the pulse already on the bottom
+                     wire (more negative -> closer to idea; less -> closer to ship). */
+                  animation: n8loopComet 15s linear -12.5s infinite;
                 }
 
                 @media (prefers-reduced-motion: reduce) {
@@ -300,8 +302,9 @@ const Hero = () => {
                         i > 0 && i < arr.length - 1 ? ' n8-split' : ''
                       }`}
                       style={{
-                        // idea fires ~0.6s early so it lights right as the wire lands
-                        ['--n8delay' as string]: i === 0 ? '-0.6s' : `${i * 2.5}s`,
+                        // whole circuit phase-shifted -12.5s so the page loads with the
+                        // pulse mid-bottom-wire; idea still fires ~0.6s early (relative).
+                        ['--n8delay' as string]: `${(i === 0 ? -0.6 : i * 2.5) - 12.5}s`,
                         // idea starts bottom-left (~7:30), ship at 9 o'clock; the split
                         // chips ignore --n8start (they sweep from 270deg +/- the angle).
                         ['--n8start' as string]:
@@ -314,7 +317,7 @@ const Hero = () => {
                         ::after, so the two halves meet at the 3 o'clock arrow */}
                     {i < arr.length - 1 && (
                       // arrow lights at the hand-off as the comet leaves chip i
-                      <span className="n8-carrow" style={{ animationDelay: `${i === 0 ? 1.2 : i * 2.5 + 1.8}s` }}>→</span>
+                      <span className="n8-carrow" style={{ animationDelay: `${(i === 0 ? 0.6 : i * 2.5 + 1.2) - 12.5}s` }}>→</span>
                     )}
                   </React.Fragment>
                 ))}
