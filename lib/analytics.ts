@@ -146,7 +146,7 @@ export const trackResumeEvent = (action: 'view' | 'download') => {
  * Track contact form interactions
  */
 export const trackContactEvent = (
-  action: 'view' | 'field_focus' | 'submit_attempt' | 'submit_success' | 'submit_error' | 'recaptcha_complete',
+  action: 'view' | 'field_focus' | 'submit_attempt' | 'submit_success' | 'submit_error' | 'turnstile_complete',
   field?: string,
   additionalData: EventParameters = {}
 ) => {

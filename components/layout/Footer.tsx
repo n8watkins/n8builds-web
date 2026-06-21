@@ -116,7 +116,7 @@ const Footer = () => {
                 </ContactFormErrorBoundary>
                 <div className="mt-3 flex items-center gap-1 text-xs text-slate-500 select-none">
                   <span>🛡️</span>
-                  <span>Protected by reCAPTCHA v3</span>
+                  <span>Protected by Cloudflare Turnstile</span>
                 </div>
               </div>
             </div>

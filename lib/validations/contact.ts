@@ -30,9 +30,9 @@ export const contactFormSchema = z.object({
     .min(10, 'Message must be at least 10 characters')
     .max(1000, 'Message must be less than 1000 characters'),
 
-  recaptcha: z
+  turnstile: z
     .string()
-    .min(1, 'Please complete the reCAPTCHA verification'),
+    .min(1, 'Please complete the Turnstile verification'),
 
   // Security: Honeypot field
   honeypot: z.string().max(0, 'Bot detected'),

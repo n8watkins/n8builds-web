@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { contactFormSchema, ContactFormData } from '@/lib/validations/contact'
 import { trackContactEvent } from '@/lib/analytics'
 import { logger } from '@/lib/logger'
@@ -26,7 +25,6 @@ export function useContactFormSubmit(): UseContactFormSubmitReturn {
   const [liveRegionMessage, setLiveRegionMessage] = useState('')
   const [showConfetti, setShowConfetti] = useState(false)
   const [confettiKey, setConfettiKey] = useState(0)
-  const { executeRecaptcha } = useGoogleReCaptcha()
   const isMountedRef = useRef(true)
 
   // Track component mount status to prevent setState on unmounted component
@@ -44,7 +42,7 @@ export function useContactFormSubmit(): UseContactFormSubmitReturn {
       email: '',
       subject: undefined,
       message: '',
-      recaptcha: '',
+      turnstile: '',
       honeypot: '',
     },
   })
@@ -109,22 +107,15 @@ export function useContactFormSubmit(): UseContactFormSubmitReturn {
   }
 
   const handleFormSubmit = async () => {
-    // Execute reCAPTCHA if needed
-    const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
-    let recaptchaToken = 'dev_bypass_token'
+    // Turnstile runs invisibly via the <Turnstile> widget rendered in the form,
+    // writing its token into the `turnstile` field via onSuccess. In development,
+    // or when no site key is configured (pre-launch), the widget is not rendered,
+    // so we fall back to a dev-bypass token so submission still works
+    // (protected only by honeypot + rate limiting until keys are added).
+    const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
 
-    if (executeRecaptcha && !isDevelopment) {
-      try {
-        recaptchaToken = await executeRecaptcha('contact_form')
-        setValue('recaptcha', recaptchaToken)
-      } catch (error) {
-        logger.error('❌ [FORM] reCAPTCHA execution failed:', error)
-        setSubmissionState('error')
-        setLiveRegionMessage('Security verification failed. Please try again.')
-        return
-      }
-    } else if (isDevelopment) {
-      setValue('recaptcha', recaptchaToken)
+    if (isDevelopment) {
+      setValue('turnstile', 'dev_bypass_token')
     }
 
     // Trigger form validation and submission

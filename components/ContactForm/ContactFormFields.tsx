@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Turnstile } from '@marsidev/react-turnstile'
 import { ContactInput } from '@/components/ui/ContactInput'
 import { ContactSelect } from '@/components/ui/ContactSelect'
 import { ContactTextarea } from '@/components/ui/ContactTextarea'
@@ -14,14 +15,16 @@ interface ContactFormFieldsProps {
   form: UseFormReturn<ContactFormData>
   submissionState: SubmissionState
   onSubmit: () => Promise<void>
+  turnstileSiteKey: string
 }
 
-export function ContactFormFields({ form, submissionState, onSubmit }: ContactFormFieldsProps) {
+export function ContactFormFields({ form, submissionState, onSubmit, turnstileSiteKey }: ContactFormFieldsProps) {
   const [charCount, setCharCount] = useState(0)
 
   const {
     register,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = form
 
@@ -156,6 +159,25 @@ export function ContactFormFields({ form, submissionState, onSubmit }: ContactFo
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.45, ease: "easeOut" }}
       >
+        {/*
+          Invisible Cloudflare Turnstile widget.
+          appearance: 'interaction-only' keeps it hidden unless a challenge is
+          truly required. On success it writes its token into the `turnstile`
+          form field. Only rendered when a site key is configured — in dev or
+          pre-launch (no key), useContactFormSubmit falls back to a dev-bypass token.
+        */}
+        {turnstileSiteKey && (
+          <Turnstile
+            siteKey={turnstileSiteKey}
+            onSuccess={(token) => {
+              setValue('turnstile', token)
+              trackContactEvent('turnstile_complete')
+            }}
+            options={{ appearance: 'interaction-only', refreshExpired: 'auto' }}
+            className="absolute"
+          />
+        )}
+
         <button
           type="button"
           disabled={isSubmitting}
