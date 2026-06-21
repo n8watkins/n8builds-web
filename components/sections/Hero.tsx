@@ -212,7 +212,7 @@ const Hero = () => {
                   position: absolute;
                   inset: 0;
                   border-radius: inherit;
-                  padding: 1px;
+                  padding: 1.5px;
                   opacity: 0;
                   /* idea/ship (single comet): a partial 225deg clockwise arc (up & over).
                      idea 7:30 -> 3:00 (--n8start 135deg); ship 9:00 -> 4:30 (--n8start 180deg).
@@ -229,7 +229,7 @@ const Hero = () => {
                   -webkit-mask-composite: xor;
                           mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
                           mask-composite: exclude;
-                  filter: drop-shadow(0 0 4px rgba(34,211,238,0.7));
+                  filter: drop-shadow(0 0 5px rgba(34,211,238,0.7));
                   animation: n8cometSweep 15s linear infinite;
                   animation-delay: var(--n8delay, 0s);
                   z-index: 1;
@@ -241,13 +241,13 @@ const Hero = () => {
                   position: absolute;
                   inset: 0;
                   border-radius: inherit;
-                  padding: 1px;
+                  padding: 1.5px;
                   opacity: 0;
                   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
                   -webkit-mask-composite: xor;
                           mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
                           mask-composite: exclude;
-                  filter: drop-shadow(0 0 4px rgba(34,211,238,0.7));
+                  filter: drop-shadow(0 0 5px rgba(34,211,238,0.7));
                   animation: n8splitSweep 15s linear infinite;
                   animation-delay: var(--n8delay, 0s);
                   z-index: 1;
@@ -300,7 +300,8 @@ const Hero = () => {
                         i > 0 && i < arr.length - 1 ? ' n8-split' : ''
                       }`}
                       style={{
-                        ['--n8delay' as string]: `${i * 2.5}s`,
+                        // idea fires ~0.6s early so it lights right as the wire lands
+                        ['--n8delay' as string]: i === 0 ? '-0.6s' : `${i * 2.5}s`,
                         // idea starts bottom-left (~7:30), ship at 9 o'clock; the split
                         // chips ignore --n8start (they sweep from 270deg +/- the angle).
                         ['--n8start' as string]:
@@ -313,7 +314,7 @@ const Hero = () => {
                         ::after, so the two halves meet at the 3 o'clock arrow */}
                     {i < arr.length - 1 && (
                       // arrow lights at the hand-off as the comet leaves chip i
-                      <span className="n8-carrow" style={{ animationDelay: `${i * 2.5 + 1.8}s` }}>→</span>
+                      <span className="n8-carrow" style={{ animationDelay: `${i === 0 ? 1.2 : i * 2.5 + 1.8}s` }}>→</span>
                     )}
                   </React.Fragment>
                 ))}
