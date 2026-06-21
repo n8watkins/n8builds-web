@@ -184,16 +184,16 @@ const Hero = () => {
                   3%, 8%    { color: rgb(34,211,238); text-shadow: 0 0 8px rgba(34,211,238,0.85); }
                   13%, 100% { color: rgb(100,116,139); text-shadow: none; }
                 }
-                /* loop-back connector: a dim always-on wire plus ONE short, bright pulse
-                   that runs strictly ONE WAY — ship (right) -> under the chain -> idea
-                   (left) — then HOLDS off-screen until the next loop (it never interpolates
-                   back, so no return trip). The wire is shallow so the motion reads as one
-                   horizontal direction. Starts ~80% (ship at the 4:30 corner), ~1.1s across. */
+                /* loop-back connector: a dim always-on wire plus ONE short, bright pulse,
+                   strictly ONE WAY — ship (right) -> under the chain -> idea (left) — then
+                   HOLDS off-screen (no return trip). Starts ~81%, AFTER ship's own comet has
+                   fully faded, so the two never overlap as separate lights. Travels the full
+                   length to idea, then exits. */
                 @keyframes n8loopComet {
-                  0%, 78%   { stroke-dashoffset: 0;    opacity: 0; }
-                  80%       { stroke-dashoffset: 0;    opacity: 1; }
-                  88%       { stroke-dashoffset: -116; opacity: 1; }
-                  90%, 100% { stroke-dashoffset: -116; opacity: 0; }
+                  0%, 79%   { stroke-dashoffset: 0;    opacity: 0; }
+                  81%       { stroke-dashoffset: 0;    opacity: 1; }
+                  93%       { stroke-dashoffset: -120; opacity: 1; }
+                  95%, 100% { stroke-dashoffset: -130; opacity: 0; }
                 }
 
                 .n8-cnode {
@@ -333,7 +333,7 @@ const Hero = () => {
                   strokeWidth="3"
                   strokeLinecap="round"
                   pathLength={100}
-                  strokeDasharray="16 200"
+                  strokeDasharray="16 999"
                   vectorEffect="non-scaling-stroke"
                 />
               </svg>
