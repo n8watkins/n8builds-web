@@ -196,7 +196,10 @@ const Footer = () => {
         </motion.div>
 
         <motion.p variants={staggerItemVariants} className="lg:text-sm text-xs text-slate-500">
-          © 2025 Nate Builds. All rights reserved.
+          © 2026 Nate Builds. All rights reserved. ·{' '}
+          <a href="/privacy" className="hover:text-slate-300 underline underline-offset-2">
+            Privacy
+          </a>
         </motion.p>
 
         <motion.nav
