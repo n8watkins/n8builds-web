@@ -58,18 +58,21 @@ free-tools section, Currently-Building carousel, galleries, tech-stack bento.)_
   `nathansportfolio.vercel.app` removed everywhere.
 
 **To do (open):**
+- **Sentry — wire it up (we want error monitoring).** Set up Sentry for real
+  (`npx @sentry/wizard -i nextjs`) and replace the leftover dead
+  `app/api/sentry-example-api/route.ts` stub + `SENTRY_ORG` health flag. We're
+  keeping Sentry on the roadmap — don't just delete the stub.
 - Ensure the `portfolio.n8builds.dev` deployment fires the same `G-JZQGKY9Q37`
-  tag (cross-subdomain tracking); optionally rename the GA property/stream to
-  n8builds.dev.
+  GA tag. **(Verified needed:** GA only tracks pages *this* repo serves — the
+  portfolio is a separate deploy, so the subdomain isn't tracked until its own
+  code fires the tag. Optionally rename the GA property/stream to n8builds.dev.)
 - Free-tool subdomains (`canihost`/`freestack`/`apiscout.n8builds.dev`): DNS
   CNAMEs not yet added (Cloudflare token read-only) → `liveSite` still on
   `*.vercel.app` in `data/builds.tsx`; flip once DNS resolves.
-- Remove the dead `app/api/sentry-example-api/route.ts` + `SENTRY_ORG` health
-  flag (or actually wire Sentry).
 - `/api/health` is still public (`HEALTH_CHECK_SECRET` unset in Vercel) — set it
   or delete the route.
 - Pre-existing: Portfolio Rank real backend stack; Appturnity "Currently
-  building" copy; confirm VibeLoge spelling/slug.
+  building" copy.
 
 ## Project summary
 
