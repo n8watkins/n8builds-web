@@ -193,8 +193,8 @@ const Hero = () => {
                    pathLength. (If it still stops short, raise -280; if it vanishes early
                    before idea, lower it.) */
                 @keyframes n8loopComet {
-                  0%, 82%  { stroke-dashoffset: 0;    opacity: 0; }
-                  84%      { stroke-dashoffset: 0;    opacity: 1; }
+                  0%, 75%  { stroke-dashoffset: 0;    opacity: 0; }
+                  77%      { stroke-dashoffset: 0;    opacity: 1; }
                   99%      { stroke-dashoffset: -280; opacity: 1; }
                   100%     { stroke-dashoffset: -300; opacity: 0; }
                 }
@@ -303,9 +303,9 @@ const Hero = () => {
                         i > 0 && i < arr.length - 1 ? ' n8-split' : ''
                       }`}
                       style={{
-                        // 11s loop, 2.0s chip spacing, phase-shifted -10s so the page loads
+                        // 11s loop, 1.8s chip spacing, phase-shifted -10s so the page loads
                         // pulse-mid-wire; idea fires ~0.45s early so it lights as the wire lands.
-                        ['--n8delay' as string]: `${(i === 0 ? -0.45 : i * 2.0) - 10}s`,
+                        ['--n8delay' as string]: `${(i === 0 ? -0.45 : i * 1.8) - 10}s`,
                         // idea starts bottom-left (~7:30), ship at 9 o'clock; the split
                         // chips ignore --n8start (they sweep from 270deg +/- the angle).
                         ['--n8start' as string]:
@@ -318,7 +318,7 @@ const Hero = () => {
                         ::after, so the two halves meet at the 3 o'clock arrow */}
                     {i < arr.length - 1 && (
                       // arrow lights at the hand-off as the comet leaves chip i
-                      <span className="n8-carrow" style={{ animationDelay: `${(i === 0 ? 0.43 : i * 2.0 + 0.88) - 10}s` }}>→</span>
+                      <span className="n8-carrow" style={{ animationDelay: `${(i === 0 ? 0.43 : i * 1.8 + 0.88) - 10}s` }}>→</span>
                     )}
                   </React.Fragment>
                 ))}
