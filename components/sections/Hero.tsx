@@ -184,16 +184,16 @@ const Hero = () => {
                   3%, 8%    { color: rgb(34,211,238); text-shadow: 0 0 8px rgba(34,211,238,0.85); }
                   13%, 100% { color: rgb(100,116,139); text-shadow: none; }
                 }
-                /* loop-back connector: a dim always-on wire (so the ship->idea line stays
-                   visible) plus ONE long bright pulse that sweeps ship (right) -> down ->
-                   under the chain -> up into idea (left). It starts ~79% — when ship's comet
-                   reaches the bottom-right (4:30) corner where the wire attaches — and
-                   sweeps across fast (~1.8s). */
+                /* loop-back connector: a dim always-on wire plus ONE short, bright pulse
+                   that travels a single direction — ship (right) -> down -> left under the
+                   chain -> up into idea (left). A short dash keeps it on one leg at a time
+                   so it never reads as two opposing motions. Starts ~79% (when ship's comet
+                   hits the 4:30 corner) and zips across in ~1.1s. */
                 @keyframes n8loopComet {
                   0%, 77% { stroke-dashoffset: 0;    opacity: 0; }
                   79%     { stroke-dashoffset: 0;    opacity: 1; }
-                  91%     { stroke-dashoffset: -100; opacity: 1; }
-                  93%     { stroke-dashoffset: -136; opacity: 0; }
+                  87%     { stroke-dashoffset: -100; opacity: 1; }
+                  89%     { stroke-dashoffset: -116; opacity: 0; }
                 }
 
                 .n8-cnode {
@@ -278,8 +278,8 @@ const Hero = () => {
                 }
                 .n8-loop-base { stroke: rgba(34,211,238,0.22); }
                 .n8-loop-comet {
-                  stroke: #67e8f9;
-                  filter: drop-shadow(0 0 6px rgba(34,211,238,0.95));
+                  stroke: #a5f3fc;
+                  filter: drop-shadow(0 0 4px #67e8f9) drop-shadow(0 0 10px rgba(34,211,238,0.9));
                   animation: n8loopComet 15s linear infinite;
                 }
 
@@ -330,10 +330,10 @@ const Hero = () => {
                   className="n8-loop-comet"
                   d="M98,0 L98,9 Q98,14 93,14 L7,14 Q2,14 2,9 L2,0"
                   fill="none"
-                  strokeWidth="2.5"
+                  strokeWidth="3"
                   strokeLinecap="round"
                   pathLength={100}
-                  strokeDasharray="72 200"
+                  strokeDasharray="16 200"
                   vectorEffect="non-scaling-stroke"
                 />
               </svg>
