@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { contactFormSchema, type ContactFormData } from '@/lib/validations/contact'
 import { logger } from '@/lib/logger'
 import { getRateLimitKey, checkRateLimit, clearRateLimit } from '@/lib/security/rateLimiter'
-import { verifyRecaptcha, validateHoneypot } from '@/lib/security/recaptcha'
+import { verifyTurnstile, validateHoneypot } from '@/lib/security/turnstile'
 import { validateRequestSize, parseJsonBody } from '@/lib/security/validation'
 import { sendContactEmails } from '@/lib/email/sender'
 
@@ -14,13 +14,13 @@ import { sendContactEmails } from '@/lib/email/sender'
  * 2. Rate limiting (5 requests/hour in production)
  * 3. Input validation (Zod schema)
  * 4. Honeypot field check (bot detection)
- * 5. reCAPTCHA v3 verification (score-based)
+ * 5. Cloudflare Turnstile verification
  *
  * FLOW:
  * 1. Validate request size
  * 2. Check rate limit
  * 3. Parse and validate form data
- * 4. Security checks (honeypot + reCAPTCHA)
+ * 4. Security checks (honeypot + Turnstile)
  * 5. Send notification email (to site owner)
  * 6. Send auto-reply email (to submitter)
  */
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
     // ========================================
     // STEP 4: Security Checks
     // A) Honeypot: Hidden field must be empty (bots often fill it)
-    // B) reCAPTCHA v3: Score-based verification (0.5+ threshold)
+    // B) Cloudflare Turnstile: success-based verification
     // ========================================
     if (!validateHoneypot(validatedData.honeypot)) {
       return NextResponse.json(
@@ -107,13 +107,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    logger.info('🔐 Verifying reCAPTCHA...')
-    const isRecaptchaValid = await verifyRecaptcha(validatedData.recaptcha)
-    logger.info('🔐 reCAPTCHA valid:', isRecaptchaValid)
+    logger.info('🔐 Verifying Turnstile...')
+    const isTurnstileValid = await verifyTurnstile(validatedData.turnstile)
+    logger.info('🔐 Turnstile valid:', isTurnstileValid)
 
-    if (!isRecaptchaValid) {
+    if (!isTurnstileValid) {
       return NextResponse.json(
-        { error: 'reCAPTCHA verification failed. Please try again.' },
+        { error: 'Turnstile verification failed. Please try again.' },
         { status: 400 }
       )
     }

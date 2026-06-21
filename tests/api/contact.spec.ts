@@ -7,7 +7,7 @@ import { test, expect } from '@playwright/test'
  * - Valid submissions
  * - Rate limiting
  * - Input validation (Zod schema)
- * - Security checks (honeypot, reCAPTCHA)
+ * - Security checks (honeypot, Turnstile)
  * - Error handling
  */
 
@@ -20,7 +20,7 @@ function createValidFormData(overrides: Partial<any> = {}) {
     email: 'john.doe@example.com',
     subject: 'project_opportunity',
     message: 'This is a test message that is longer than 10 characters.',
-    recaptcha: 'dev_bypass_token',
+    turnstile: 'dev_bypass_token',
     honeypot: '',
     ...overrides,
   }
@@ -254,10 +254,10 @@ test.describe('Contact API - Security Checks', () => {
     expect(data.error).toBe('Invalid form data. Please check your inputs and try again.')
   })
 
-  test('should reject submission without recaptcha token in production mode', async ({ request }) => {
+  test('should reject submission without turnstile token in production mode', async ({ request }) => {
     // This test would fail in development mode due to bypass
     // In production, this should fail
-    const formData = createValidFormData({ recaptcha: '' })
+    const formData = createValidFormData({ turnstile: '' })
 
     const response = await request.post(`${BASE_URL}/api/contact`, {
       headers: createTestHeaders(),

@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useEffect } from 'react'
-import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3'
 import { motion } from 'framer-motion'
 import { useContactFormSubmit } from './useContactFormSubmit'
 import { ContactFormSuccess } from './ContactFormSuccess'
@@ -13,7 +12,13 @@ interface ContactFormProps {
   className?: string
 }
 
-function ContactFormInner({ className }: ContactFormProps) {
+export default function ContactForm({ className }: ContactFormProps) {
+  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''
+
+  if (!turnstileSiteKey && process.env.NODE_ENV === 'production') {
+    console.error('Missing NEXT_PUBLIC_TURNSTILE_SITE_KEY')
+  }
+
   const {
     submissionState,
     setSubmissionState,
@@ -80,21 +85,8 @@ function ContactFormInner({ className }: ContactFormProps) {
         form={form}
         submissionState={submissionState}
         onSubmit={handleFormSubmit}
+        turnstileSiteKey={turnstileSiteKey}
       />
     </motion.div>
-  )
-}
-
-export default function ContactForm({ className }: ContactFormProps) {
-  const recaptchaKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''
-
-  if (!recaptchaKey && process.env.NODE_ENV === 'production') {
-    console.error('Missing NEXT_PUBLIC_RECAPTCHA_SITE_KEY')
-  }
-
-  return (
-    <GoogleReCaptchaProvider reCaptchaKey={recaptchaKey}>
-      <ContactFormInner className={className} />
-    </GoogleReCaptchaProvider>
   )
 }

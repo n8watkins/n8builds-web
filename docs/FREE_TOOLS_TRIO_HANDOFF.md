@@ -2,7 +2,7 @@
 
 _Last updated: 2026-06-14. Covers the three OSS "awesome-list → real frontend" star-generation tools, how they're wired into n8builds.dev, plus the 2026-06-14 dev-CSP fix, security audit, and APIScout proxy hardening._
 
-> **Read this if** you're picking up the free-tools initiative. The three tools each live in their OWN git repo under `/home/natkins/n8builds/public/<slug>/` (NOT part of n8builds-web). This doc is the cross-cutting state; each repo also has its own `README.md` + `HOW_IT_WORKS.md`.
+> **Read this if** you're picking up the free-tools initiative. The three tools each live in their OWN git repo under `/home/natkins/n8builds/published/<slug>/` (NOT part of n8builds-web). This doc is the cross-cutting state; each repo also has its own `README.md` + `HOW_IT_WORKS.md`.
 
 ## What this is
 
@@ -10,9 +10,9 @@ Three free, open-source, mostly-client-side web tools. Each takes a beloved gian
 
 | Tool | Repo | Live (alias) | Upstream | Differentiator |
 |---|---|---|---|---|
-| **CanIHost** | `public/canihost` → n8watkins/canihost | https://canihost.vercel.app | awesome-selfhosted | goal pills ("Replace Google Photos") + "Can I run this?" RAM/CPU/ARM calculator + docker-compose generator + live build bar |
-| **FreeStack** | `public/freestack` → n8watkins/freestack | https://freestack-livid.vercel.app | ripienaar/free-for-dev | goal pills ("Spin up a database") + side-by-side free-tier **compare** table |
-| **APIScout** | `public/apiscout` → n8watkins/apiscout | https://apiscout-cyan.vercel.app | public-apis/public-apis | live in-browser "try it" playground + no-auth/CORS filter + real category tiles + **HTTPS verified-vs-claimed** + animated hero |
+| **CanIHost** | `published/canihost` → n8watkins/canihost | https://canihost.vercel.app | awesome-selfhosted | goal pills ("Replace Google Photos") + "Can I run this?" RAM/CPU/ARM calculator + docker-compose generator + live build bar |
+| **FreeStack** | `published/freestack` → n8watkins/freestack | https://freestack-livid.vercel.app | ripienaar/free-for-dev | goal pills ("Spin up a database") + side-by-side free-tier **compare** table |
+| **APIScout** | `published/apiscout` → n8watkins/apiscout | https://apiscout-cyan.vercel.app | public-apis/public-apis | live in-browser "try it" playground + no-auth/CORS filter + real category tiles + **HTTPS verified-vs-claimed** + animated hero |
 
 **Stack (all three):** Next.js 15 App Router · React 19 · TypeScript · Tailwind v4 · framer-motion. Static-first, client-side filtering, data baked to `data/*.json` at build time. Hosted on Vercel free tier (team `natkins23s-projects`). APIScout additionally has ONE dynamic serverless route (`app/api/proxy/route.ts`, SSRF-hardened) for the playground.
 
@@ -66,7 +66,7 @@ Verified working: goal pills, per-app logos (CanIHost), sort-by-basics + collaps
 - **Honesty rule (APIScout):** never display "HTTPS ✓" you didn't verify — `scripts/enrich.mjs` probes for real and the UI distinguishes **verified / claimed / unconfirmed**. Resource/RAM numbers in CanIHost are labeled **estimates** (heuristics, not vendor specs). Keep this honesty — it's a brand value.
 - **Data regen:** CanIHost `npm run data` (needs `awesome-selfhosted-data` cloned to /tmp first — see its README); APIScout `npm run data` then `npm run enrich` (enrich needs network + `gh auth token`; cached, incremental). Committed JSON makes deploy builds fully offline.
 - **`pkill` in a `&&`/`;` chain returns exit 144** (signal propagation) and aborts the chain — run server-kills as their own standalone command, or just start the next server on a fresh port.
-- **Screenshots:** each tool has `scripts/screenshot.mjs` (or `capture.mjs`); run against a running `npm run start` server. playwright is in the tool repos' deps (n8builds-web may not have it — borrow a tool's `node_modules` by running the script from that dir).
+- **Screenshots:** each tool has `scripts/screenshot.mjs` (or `capture.mjs`); run against a running `npm run start` server. playwright is in the tool repos' deps, and n8builds-web now ships `@playwright/test` (^1.56.1) directly too.
 - **n8builds-web** has a husky/lint-staged pre-commit hook (`eslint --fix`) — expect it to run on commit. Pushing to `main` auto-deploys n8builds.dev. Dynamic-imported homepage sections aren't in SSR HTML, so `curl | grep` won't see them — verify visually.
 - **Tool deploys are git-integration auto-deploys** (confirmed 2026-06-14): `git push origin master` in a tool repo auto-builds+deploys to Vercel prod. `vercel deploy --prod` still works but is redundant. Test the alias (`canihost.vercel.app`, `freestack-livid.vercel.app`, `apiscout-cyan.vercel.app`) — raw `*-natkins23s-projects.vercel.app` URLs 401.
 - **Dev CSP needs `'unsafe-eval'` (dev only).** All 3 `next.config.ts` now gate it on `NODE_ENV !== "production"`. Don't strip it or local `next dev` heroes go blank again. Production must NOT have it.

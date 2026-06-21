@@ -1,5 +1,7 @@
 # Bundle Analysis Report
 
+> **Archived snapshot (Next 14.2.32 / single-page portfolio era).** The app is now Next 16.x, the multi-route n8builds.dev site (the portfolio now lives at the `portfolio.n8builds.dev` subdomain), and Sentry was removed (no `@sentry/nextjs` dep, no `withSentryConfig`). The route table, bundle figures, and Sentry sections below are a period snapshot and are NOT current — see `docs/HANDOFF.md` for current state and re-run `npm run analyze` for fresh numbers.
+
 **Date**: 2025-10-19
 **Next.js Version**: 14.2.32
 **Analysis Tool**: @next/bundle-analyzer
@@ -14,7 +16,7 @@ The portfolio application has been optimized with modern Next.js 14 App Router f
 |-------|------|---------------|------|
 | `/` (Home) | 90 kB | 340 kB | Static |
 | `/_not-found` | 305 B | 209 kB | Static |
-| `/sentry-example-page` | 1.99 kB | 211 kB | Static |
+| `/sentry-example-page` | 1.99 kB | 211 kB | Static *(removed — no longer exists)* |
 
 ### Shared Bundle Analysis
 
@@ -61,7 +63,7 @@ The portfolio application has been optimized with modern Next.js 14 App Router f
    - Permissions-Policy
    - X-XSS-Protection
 
-6. **Sentry Optimizations**:
+6. **Sentry Optimizations** *(historical — Sentry has since been removed; no `@sentry/nextjs` dep, no `withSentryConfig`)*:
    - Automatic logger tree-shaking
    - Hidden source maps
    - Deleted source maps after upload
@@ -83,7 +85,7 @@ The portfolio application has been optimized with modern Next.js 14 App Router f
 
 ✅ **Static Generation**: All public pages are pre-rendered
 - `/` - 90 kB (main portfolio)
-- `/sentry-example-page` - 1.99 kB (minimal test page)
+- `/sentry-example-page` - 1.99 kB (minimal test page) *(removed — route no longer exists)*
 - `/_not-found` - 305 B (error page)
 
 ✅ **API Routes**: Zero initial JavaScript (server-rendered)
@@ -136,7 +138,7 @@ npm run analyze
 
 1. **Vercel Speed Insights**: Real user metrics (already integrated)
 2. **Web Vitals**: Core Web Vitals tracking (already integrated)
-3. **Sentry Performance**: Server-side performance monitoring (already integrated)
+3. ~~**Sentry Performance**: Server-side performance monitoring~~ *(removed — Sentry was deliberately dropped from the app; no longer integrated)*
 
 ### Bundle Size Tracking
 

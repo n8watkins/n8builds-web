@@ -116,7 +116,7 @@ const Footer = () => {
                 </ContactFormErrorBoundary>
                 <div className="mt-3 flex items-center gap-1 text-xs text-slate-500 select-none">
                   <span>🛡️</span>
-                  <span>Protected by reCAPTCHA v3</span>
+                  <span>Protected by Cloudflare Turnstile</span>
                 </div>
               </div>
             </div>
@@ -133,7 +133,7 @@ const Footer = () => {
             <div className="text-center md:text-left max-w-xs">
               <p className="font-bold text-slate-100 text-base mb-1">Need something built?</p>
               <p className="text-slate-500 text-sm leading-relaxed">
-                Nate Builds is the public lab. For custom projects, product builds, and technical consulting — let&apos;s connect through Appturnity.
+                Nate Builds is the public lab. For project work and consulting, let&apos;s connect through Appturnity. Looking to hire me on a contract or full-time basis? View my portfolio.
               </p>
             </div>
 
@@ -164,7 +164,7 @@ const Footer = () => {
                 <span>↗</span>
               </a>
               <a
-                href="https://nathansportfolio.vercel.app"
+                href="https://portfolio.n8builds.dev"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-between gap-3 px-5 py-2.5 rounded-xl border border-white/12 bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-sm transition-all duration-200 hover:scale-[1.02]"
@@ -183,14 +183,23 @@ const Footer = () => {
         {...defaultAnimationConfig}
         className="flex mt-4 lg:flex-row flex-col-reverse justify-center xl:justify-between items-center gap-6 lg:mx-10 pt-6 border-t border-white/8">
         <motion.div variants={staggerItemVariants} className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center">
-            <span className="text-white font-black text-xs">N8</span>
+          <div className="w-7 h-7 rounded-lg overflow-hidden ring-1 ring-white/10">
+            <Image
+              src="/tab/n8-logo.png"
+              alt="Nate Builds"
+              width={28}
+              height={28}
+              className="w-full h-full object-cover"
+            />
           </div>
           <span className="font-bold text-slate-200 text-sm">Nate Builds</span>
         </motion.div>
 
         <motion.p variants={staggerItemVariants} className="lg:text-sm text-xs text-slate-500">
-          © 2025 Nate Builds. All rights reserved.
+          © 2026 Nate Builds. All rights reserved. ·{' '}
+          <a href="/privacy" className="hover:text-slate-300 underline underline-offset-2">
+            Privacy
+          </a>
         </motion.p>
 
         <motion.nav

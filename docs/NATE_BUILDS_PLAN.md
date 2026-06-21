@@ -1,7 +1,7 @@
 # Nate Builds — The Big Plan
 
 > Status: SHIPPED to prod (n8builds.dev) — Loadout, shelves, homepage redesign (extensions showcase, Projects+Lab merge, free-tools trio, Currently-Building section, galleries, tech-stack bento). Remaining: `/builds` Log index page, live-status layer, real screenshots for TL;DW/LocalDictate.
-> Last updated: 2026-06-19
+> Last updated: 2026-06-20 (hero now carries a shared `whoami` terminal + an in-progress "build philosophy" electrified-circuit animation on `feat/hero-terminal-circuit`)
 > Site: n8builds.dev — the public workshop (Next.js 16 + React 19, on Vercel, Cloudflare DNS)
 
 ---
@@ -123,8 +123,11 @@ The shipped sequence in `app/page.tsx` (each section wrapped in a `SectionErrorB
 most lazy-loaded via `next/dynamic`):
 
 1. **Hero** (`components/sections/Hero.tsx`) — identity + a "Live on GitHub" pill that links
-   github.com/n8watkins and name-drops "Currently Building: Asset Arsenal." A "Watch Live"
-   CTA links Twitch. *(The hero offline status line is still TODO.)*
+   github.com/n8watkins and name-drops the first Currently-Building item (rendered dynamically
+   from `nowItems[0]` in `data/now.tsx` — currently **Appturnity**). A "Watch Live" CTA links
+   Twitch. The Hero now also renders the shared `whoami` terminal (`WhoamiTerminal`) and an
+   in-progress "build philosophy" electrified-circuit animation (on branch
+   `feat/hero-terminal-circuit`). *(The hero offline status line is still TODO.)*
 2. **NowBuilding / Currently Building** (`components/sections/NowBuilding.tsx`, data in
    `data/now.tsx`) — the in-public hook right under the hero.
 3. **FeaturedProjects** (`components/sections/FeaturedProjects.tsx`) — hand-picked builds in
@@ -161,7 +164,7 @@ inline via `ShelfSection` instead. The "Latest from the Log" strip is not on the
 **Phase 2 — Homepage reorder** ✅ DONE
 - [x] Added **NowBuilding** ("Currently Building") section (`data/now.tsx`).
 - [x] Reordered; marquee REMOVED entirely (replaced by inline shelf sections).
-- [x] `whoami` block — shipped on the /loadout page (not the hero). Hero offline-status line still TODO.
+- [x] `whoami` block — extracted to a shared `components/features/WhoamiTerminal.tsx` and now rendered on BOTH the /loadout page and the homepage hero. Hero offline-status line still TODO.
 - [x] Removed testimonials.
 
 **Phase 3 — The shelves** ✅ DONE
@@ -186,6 +189,9 @@ All 17 builds, by their `category` in the data file. Only **Suggestion Box** car
 **Web apps:** Asset Arsenal, Appturnity, JobSignal (web app + extension), Solara,
 Suggestion Box *(in the lab)*, Portfolio Rank.
 **Web tools:** Sprite Arsenal, CanIHost, FreeStack, APIScout — the free-tools utilities.
+(TODO: their `liveSite` values in `data/builds.tsx` still point at `*.vercel.app` —
+canihost.vercel.app, freestack-livid.vercel.app, apiscout-cyan.vercel.app — and need
+updating to `*.n8builds.dev` subdomains once that DNS resolves.)
 **Chrome extensions (own shelf):** Piper TTS, TL;DW, TubeVault. Plus the Chrome Extension
 Launch Kit (a starter template) and JobSignal's Mark-Applied extension.
 **Streaming tool:** VibeLog (the OBS/telemetry tool behind the planned "LIVE on VibeLog" badge).

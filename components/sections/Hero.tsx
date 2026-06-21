@@ -135,38 +135,212 @@ const Hero = () => {
             {/* whoami terminal = the description (blended copy) */}
             <WhoamiTerminal className="w-full max-w-[520px]" />
 
-            {/* Build philosophy — electrified circuit (neon current loops around the chain) */}
+            {/* Build philosophy — electrified circuit: a comet traces each chip's
+                outline left -> right, then runs the loop-back line from ship under the
+                whole chain back into idea, and repeats (the "repeat" chip is now the line). */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.45 }}
-              className="flex items-center gap-1.5 font-mono text-[0.7rem] select-none flex-wrap"
+              className="relative w-fit font-mono text-[0.7rem] select-none"
             >
               <style>{`
-                @keyframes n8circuitNode {
-                  0%, 100% { border-color: rgba(34,211,238,0.12); color: rgb(100,116,139); box-shadow: none; text-shadow: none; }
-                  46%, 54% { border-color: rgba(34,211,238,0.95); color: rgb(103,232,249); box-shadow: 0 0 10px rgba(34,211,238,0.5), inset 0 0 6px rgba(34,211,238,0.22); text-shadow: 0 0 8px rgba(34,211,238,0.8); }
+                @property --n8ang {
+                  syntax: '<angle>';
+                  initial-value: 0deg;
+                  inherits: false;
                 }
-                @keyframes n8circuitArrow {
-                  0%, 100% { color: rgba(255,255,255,0.12); text-shadow: none; }
-                  46%, 54% { color: rgb(34,211,238); text-shadow: 0 0 8px rgba(34,211,238,0.85); }
+
+                /* Shared 15s loop = 6 x 2.5s slots: one per chip (5) + the loop-back leg.
+                   Each chip's comet sweeps its perimeter during its slot (positive,
+                   staggered delay -> left-to-right); then the loop-back line carries
+                   the comet from ship back under the chain into idea, and it repeats. */
+                @keyframes n8cometSweep {
+                  0%          { --n8ang: 0deg;   opacity: 0; }
+                  3%          { opacity: 1; }
+                  11%         { --n8ang: 225deg; opacity: 1; }
+                  13.5%, 100% { --n8ang: 225deg; opacity: 0; }
                 }
-                .n8-cnode { animation: n8circuitNode 5s ease-in-out infinite; }
-                .n8-carrow { animation: n8circuitArrow 5s ease-in-out infinite; }
+                /* split trace (middle chips): two lights start at 9 o'clock and sweep
+                   a half each (one over the top, one under the bottom), meeting at the
+                   3 o'clock arrow. --n8ang 0 -> 180; the +/- in the conic from-angle sends
+                   ::before clockwise (top) and ::after counter-clockwise (bottom). */
+                @keyframes n8splitSweep {
+                  0%          { --n8ang: 0deg;   opacity: 0; }
+                  3%          { opacity: 1; }
+                  11%         { --n8ang: 180deg; opacity: 1; }
+                  13.5%, 100% { --n8ang: 180deg; opacity: 0; }
+                }
+                /* fade in (dim -> lit), hold while the comet traces, fade out, then a
+                   gap before the next chip so the hand-off reads as a clear flow. */
+                @keyframes n8chipGlow {
+                  0%        { border-color: rgba(34,211,238,0.12); background-color: rgba(34,211,238,0); color: rgb(100,116,139); text-shadow: none; }
+                  3%        { border-color: rgba(34,211,238,0.55); background-color: rgba(34,211,238,0.06); color: rgb(165,243,252); text-shadow: 0 0 8px rgba(34,211,238,0.6); }
+                  11%       { border-color: rgba(34,211,238,0.55); background-color: rgba(34,211,238,0.06); color: rgb(165,243,252); text-shadow: 0 0 8px rgba(34,211,238,0.6); }
+                  14%, 100% { border-color: rgba(34,211,238,0.12); background-color: rgba(34,211,238,0); color: rgb(100,116,139); text-shadow: none; }
+                }
+                @keyframes n8arrowGlow {
+                  0%        { color: rgb(100,116,139); text-shadow: none; }
+                  3%, 8%    { color: rgb(34,211,238); text-shadow: 0 0 8px rgba(34,211,238,0.85); }
+                  13%, 100% { color: rgb(100,116,139); text-shadow: none; }
+                }
+                /* loop-back connector: dim wire + ONE blue pulse (#22d3ee, same as the
+                   chips). Tight hand-off both ends: starts ~78%, right as ship's comet
+                   lands on the 4:30 corner (no lead-in gap), travels the WHOLE wire, and
+                   reaches the idea corner ~99%, right before the loop restarts and idea
+                   lights (no trailing gap). The -280 offset ~ the wire's on-screen pixel
+                   length, since non-scaling-stroke makes the dash use px, ignoring
+                   pathLength. (If it still stops short, raise -280; if it vanishes early
+                   before idea, lower it.) */
+                @keyframes n8loopComet {
+                  0%, 76%  { stroke-dashoffset: 0;    opacity: 0; }
+                  78%      { stroke-dashoffset: 0;    opacity: 1; }
+                  99%      { stroke-dashoffset: -280; opacity: 1; }
+                  100%     { stroke-dashoffset: -300; opacity: 0; }
+                }
+
+                .n8-cnode {
+                  position: relative;
+                  isolation: isolate;
+                  border-color: rgba(34,211,238,0.12);
+                  color: rgb(100,116,139);
+                  animation: n8chipGlow 15s linear infinite;
+                  animation-delay: var(--n8delay, 0s);
+                }
+                .n8-cnode:not(.n8-split)::before {
+                  content: '';
+                  position: absolute;
+                  inset: 0;
+                  border-radius: inherit;
+                  padding: 1.5px;
+                  opacity: 0;
+                  /* idea/ship (single comet): a partial 225deg clockwise arc (up & over).
+                     idea 7:30 -> 3:00 (--n8start 135deg); ship 9:00 -> 4:30 (--n8start 180deg).
+                     bright head sits 90deg ahead of the from-angle (the 25% cone stop). */
+                  background: conic-gradient(
+                    from calc(var(--n8ang) + var(--n8start, 0deg)),
+                    transparent 0 10%,
+                    rgba(103,232,249,0.5) 18%,
+                    #67e8f9 23%,
+                    #22d3ee 25%,
+                    transparent 28%
+                  );
+                  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+                  -webkit-mask-composite: xor;
+                          mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+                          mask-composite: exclude;
+                  filter: drop-shadow(0 0 5px rgba(34,211,238,0.7));
+                  animation: n8cometSweep 15s linear infinite;
+                  animation-delay: var(--n8delay, 0s);
+                  z-index: 1;
+                  pointer-events: none;
+                }
+                .n8-split::before,
+                .n8-split::after {
+                  content: '';
+                  position: absolute;
+                  inset: 0;
+                  border-radius: inherit;
+                  padding: 1.5px;
+                  opacity: 0;
+                  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+                  -webkit-mask-composite: xor;
+                          mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+                          mask-composite: exclude;
+                  filter: drop-shadow(0 0 5px rgba(34,211,238,0.7));
+                  animation: n8splitSweep 15s linear infinite;
+                  animation-delay: var(--n8delay, 0s);
+                  z-index: 1;
+                  pointer-events: none;
+                }
+                /* top light: 9 o'clock -> over the top -> 3 o'clock (clockwise) */
+                .n8-split::before {
+                  background: conic-gradient(from calc(270deg + var(--n8ang)),
+                    #22d3ee 0deg, rgba(103,232,249,0.4) 13deg, transparent 26deg,
+                    transparent 334deg, rgba(103,232,249,0.4) 347deg, #22d3ee 360deg);
+                }
+                /* bottom light: 9 o'clock -> under the bottom -> 3 o'clock (counter-cw) */
+                .n8-split::after {
+                  background: conic-gradient(from calc(270deg - var(--n8ang)),
+                    #22d3ee 0deg, rgba(103,232,249,0.4) 13deg, transparent 26deg,
+                    transparent 334deg, rgba(103,232,249,0.4) 347deg, #22d3ee 360deg);
+                }
+                .n8-carrow {
+                  color: rgb(100,116,139);
+                  animation: n8arrowGlow 15s linear infinite;
+                }
+                .n8-loop {
+                  position: absolute;
+                  left: 0;
+                  right: 0;
+                  top: 100%;
+                  width: 100%;
+                  height: 9px;
+                  overflow: visible;
+                  pointer-events: none;
+                }
+                .n8-loop-base { stroke: rgba(34,211,238,0.22); }
+                .n8-loop-comet {
+                  stroke: #22d3ee;
+                  filter: drop-shadow(0 0 2px #67e8f9) drop-shadow(0 0 6px #22d3ee) drop-shadow(0 0 9px rgba(34,211,238,0.7));
+                  animation: n8loopComet 15s linear infinite;
+                }
+
+                @media (prefers-reduced-motion: reduce) {
+                  .n8-cnode, .n8-cnode::before, .n8-cnode::after, .n8-carrow, .n8-loop-comet { animation: none; }
+                  .n8-cnode::before, .n8-cnode::after, .n8-loop-comet { opacity: 0; }
+                  .n8-cnode { border-color: rgba(34,211,238,0.3); }
+                }
               `}</style>
-              {['idea', 'prompt', 'build', 'stream', 'ship', 'repeat'].map((w, i, arr) => (
-                <React.Fragment key={w}>
-                  <span
-                    className="n8-cnode rounded-md border px-2 py-1 lowercase tracking-wide"
-                    style={{ animationDelay: `${i * 0.5}s` }}
-                  >
-                    {w}
-                  </span>
-                  {i < arr.length - 1 && (
-                    <span className="n8-carrow" style={{ animationDelay: `${i * 0.5 + 0.25}s` }}>→</span>
-                  )}
-                </React.Fragment>
-              ))}
+              <div className="flex items-center gap-1.5">
+                {['idea', 'prompt', 'build', 'stream', 'ship'].map((w, i, arr) => (
+                  <React.Fragment key={w}>
+                    <span
+                      className={`n8-cnode rounded-md border px-2 py-1 lowercase tracking-wide${
+                        i > 0 && i < arr.length - 1 ? ' n8-split' : ''
+                      }`}
+                      style={{
+                        // idea fires ~0.6s early so it lights right as the wire lands
+                        ['--n8delay' as string]: i === 0 ? '-0.6s' : `${i * 2.5}s`,
+                        // idea starts bottom-left (~7:30), ship at 9 o'clock; the split
+                        // chips ignore --n8start (they sweep from 270deg +/- the angle).
+                        ['--n8start' as string]:
+                          i === 0 ? '135deg' : i === arr.length - 1 ? '180deg' : '0deg',
+                      }}
+                    >
+                      {w}
+                    </span>
+                    {/* middle chips (prompt/build/stream) carry a second light via
+                        ::after, so the two halves meet at the 3 o'clock arrow */}
+                    {i < arr.length - 1 && (
+                      // arrow lights at the hand-off as the comet leaves chip i
+                      <span className="n8-carrow" style={{ animationDelay: `${i === 0 ? 1.2 : i * 2.5 + 1.8}s` }}>→</span>
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+              {/* loop-back circuit line: ship (right) -> down -> under the chain ->
+                  up into idea (left). preserveAspectRatio=none stretches it to the
+                  chain width; non-scaling-stroke keeps the line crisp. */}
+              <svg className="n8-loop" viewBox="0 0 100 16" preserveAspectRatio="none" aria-hidden="true">
+                <path
+                  className="n8-loop-base"
+                  d="M98,0 L98,9 Q98,14 93,14 L7,14 Q2,14 2,9 L2,0"
+                  fill="none"
+                  strokeWidth="1.25"
+                  vectorEffect="non-scaling-stroke"
+                />
+                <path
+                  className="n8-loop-comet"
+                  d="M98,0 L98,9 Q98,14 93,14 L7,14 Q2,14 2,9 L2,0"
+                  fill="none"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  pathLength={100}
+                  strokeDasharray="16 999"
+                  vectorEffect="non-scaling-stroke"
+                />
+              </svg>
             </motion.div>
 
             {/* CTAs */}

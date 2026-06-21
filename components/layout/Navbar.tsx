@@ -17,7 +17,7 @@ const Navbar = () => {
 
   const navLinks = [
     { label: 'Lab', href: '/lab' },
-    { label: 'N8 Notions', href: '/blog' },
+    { label: 'Notions', href: '/blog' },
     { label: 'Extensions', href: '/extensions' },
     { label: 'Tools', href: '/tools' },
     { label: 'Loadout', href: '/loadout' },
@@ -93,7 +93,7 @@ const Navbar = () => {
           {/* Right actions */}
           <div className="flex items-center gap-2">
             <a
-              href="https://nathansportfolio.vercel.app"
+              href="https://portfolio.n8builds.dev"
               target="_blank"
               rel="noopener noreferrer"
               className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-sm text-slate-400 hover:text-slate-200 border border-white/10 rounded-lg hover:border-white/20 hover:bg-white/5 transition-all duration-150"
@@ -156,7 +156,7 @@ const Navbar = () => {
             ))}
             <hr className="border-white/8 my-1" />
             <a
-              href="https://nathansportfolio.vercel.app"
+              href="https://portfolio.n8builds.dev"
               target="_blank"
               rel="noopener noreferrer"
               className="px-3 py-2.5 text-sm text-slate-400 hover:text-slate-100 rounded-lg hover:bg-white/5 transition-colors"

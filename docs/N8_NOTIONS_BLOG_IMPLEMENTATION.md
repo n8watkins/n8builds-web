@@ -1,8 +1,14 @@
 # N8 Notions — Blog Implementation Plan (UI)
 
-Status: **planned, not built**. Scope: **UI / read-only frontend only.** Posts are
+Status: **built / shipped** (commit `6078dd4`, "feat: N8 Notions blog (read-only,
+Sanity-backed)"). This is now an implementation record of what shipped, not a
+forward-looking plan. Scope: **UI / read-only frontend only.** Posts are
 authored in the **Sanity Studio** (hosted at `n8builds.sanity.studio`); this work
-only adds the pages that *display* those posts on n8builds.dev.
+only adds the pages that *display* those posts on n8builds.dev. The shipped build
+also added a few files beyond this original plan: `components/blog/CoverBanner.tsx`,
+`components/blog/NotionsList.tsx`, `components/blog/PostCard.tsx`,
+`lib/blog-utils.ts`, and a server route `app/api/notions/recent/route.ts` (the
+homepage strip fetches it instead of the Sanity client in-browser — see §5).
 
 ## TL;DR
 
@@ -15,7 +21,7 @@ monorepo, no CMS code in this repo beyond a read client.
   visible label everywhere is "N8 Notions". Easy to switch to `/notions` later —
   it's one constant.)*
 - **Homepage:** a "Latest from N8 Notions" strip (3 newest posts) on `/`.
-- **Content source:** existing Sanity project `it7x216y`, dataset `production`
+- **Content source:** existing Sanity project `abgyc32w`, dataset `production`
   (already has the posts; nothing to migrate). Read-only, public CDN, **no token
   needed**.
 - **Authoring:** unchanged — Nathan writes in the Sanity Studio. This plan adds
@@ -53,24 +59,26 @@ monorepo, no CMS code in this repo beyond a read client.
   `next build --webpack`. Husky + lint-staged run on commit, so code must pass
   `eslint` and be Prettier-clean.
 
-## Dependencies to add
+## Dependencies
+
+Already installed: `@sanity/client@^7.23.0` and `@portabletext/react@^6.2.0`
+(the original `npm install @sanity/client @portabletext/react` is done).
 
 ```bash
-# from ~/n8builds/n8builds-web
-npm install @sanity/client @portabletext/react
 # next-sanity is OPTIONAL (only for the `groq` template tag and the revalidate
-# webhook). We can inline GROQ strings and skip it. Add only if porting the webhook.
+# webhook). We inlined GROQ strings and skipped it. Add only if porting the webhook.
 ```
 
-Do **not** add: `@google/genai`, `next-auth`, `drizzle-orm`, `resend`,
-`@sanity/image-url` (no image field in the schema yet), or `@tailwindcss/typography`.
+Did **not** add: `@google/genai`, `next-auth`, `drizzle-orm`, `resend`,
+`@sanity/image-url` (image assets are dereferenced to CDN URLs in GROQ instead —
+posts do have cover/gallery/OG images), or `@tailwindcss/typography`.
 
 ## Environment
 
 Add to `.env.local` and to Vercel (Project Settings → Environment Variables):
 
 ```
-NEXT_PUBLIC_SANITY_PROJECT_ID=it7x216y
+NEXT_PUBLIC_SANITY_PROJECT_ID=abgyc32w
 ```
 
 That's it for the read path. `dataset='production'` and `apiVersion='2024-07-01'`
@@ -98,15 +106,28 @@ export const sanity = createClient({
   stega: false,
 })
 
-const POST_CARD = `_id, title, slug, publishedAt, topics, excerpt`
+// As shipped: POST_CARD dereferences the cover image to a plain CDN URL in GROQ
+// so client components never need @sanity/client or @sanity/image-url.
+const POST_CARD = `
+  _id, title, slug, publishedAt, topics, excerpt,
+  "coverUrl": coverImage.asset->url,
+  "coverAlt": coverImage.alt
+`
 
 export type Post = {
   _id: string
   title: string
   slug: { current: string }
   publishedAt: string
+  author?: string
   topics?: string[]
+  tags?: string[]
   excerpt?: string
+  coverUrl?: string
+  coverAlt?: string
+  gallery?: { url: string; alt?: string }[]
+  seoDescription?: string
+  seoOgUrl?: string
   body?: any[]
 }
 
@@ -116,9 +137,22 @@ export const getAllPosts = () =>
 export const getRecentPosts = (limit = 3) =>
   sanity.fetch<Post[]>(`*[_type == "post"] | order(publishedAt desc)[0...${limit}]{ ${POST_CARD} }`)
 
+// The single-post query pulls the richer fields: author, tags, gallery, SEO, and
+// inline image blocks in the body (dereferenced to CDN URLs).
 export const getPostBySlug = (slug: string) =>
   sanity.fetch<Post | null>(
-    `*[_type == "post" && slug.current == $slug][0]{ ${POST_CARD}, body }`, { slug })
+    `*[_type == "post" && slug.current == $slug][0]{
+      ${POST_CARD},
+      author,
+      tags,
+      "gallery": gallery[]{ "url": asset->url, "alt": alt },
+      "seoDescription": seo.metaDescription,
+      "seoOgUrl": seo.ogImage.asset->url,
+      body[]{
+        ...,
+        _type == "image" => { "url": asset->url, "alt": alt }
+      }
+    }`, { slug })
 
 export const getRelatedPosts = (currentSlug: string) =>
   sanity.fetch<Post[]>(
@@ -128,8 +162,10 @@ export const getRelatedPosts = (currentSlug: string) =>
 
 Post schema contract (from `studio/schemas/post.ts`): `title`, `slug`,
 `publishedAt` (required); `topics` enum = **ai / growth / predictions / startup**;
-`excerpt`; `body` (Portable Text: styles normal/h1–h4/blockquote, **bullet lists
-only**, marks strong/em/link).
+`excerpt`; `author`; `tags`; `coverImage` (dereferenced to `coverUrl`/`coverAlt`);
+`gallery`; `seo` (`metaDescription` + `ogImage`); `body` (Portable Text: styles
+normal/h1–h4/blockquote, **bullet lists only**, marks strong/em/link, plus inline
+image blocks).
 
 ### 2. `components/blog/portable-text.tsx` (new) — re-themed renderer
 
@@ -196,17 +232,15 @@ Model on `app/builds/[slug]/page.tsx`:
 
 ### 5. `components/sections/NotionsStrip.tsx` (new) — homepage strip
 
-`app/page.tsx` is a **client** component, so this strip fetches client-side via
-the public CDN client (read-only, fine for a teaser; the canonical SEO content is
-the SSR `/blog` pages). Render 3 newest posts as cards matching `ShelfSection`,
-with a "Read all notes →" link to `/blog`. Mount it in `app/page.tsx` (e.g. right
-after `<ShelfSection shelf="lab" />`) inside a `<SectionErrorBoundary>`, using
+`app/page.tsx` is a **client** component, so this strip fetches client-side. As
+shipped it fetches from the internal **server route `/api/notions/recent`** (not
+the Sanity client in-browser), which deliberately keeps `@sanity/client` out of
+the homepage bundle. (Read-only, fine for a teaser; the canonical SEO content is
+the SSR `/blog` pages.) Render 3 newest posts as cards (via `PostCard`),
+with a "Read all notes →" link to `/blog`. Mounted in `app/page.tsx` after
+`<ShelfSection shelf="lab" />`, using
 `dynamic(() => import('@/components/sections/NotionsStrip'))` like the other
 sections.
-
-> Alt (better SEO, more work): make the strip a server component and lift the
-> fetch — but `app/page.tsx` is `'use client'`, so client-fetch is the pragmatic
-> choice for a homepage teaser.
 
 ### 6. `components/layout/Navbar.tsx` (edit) — nav link
 
@@ -216,18 +250,18 @@ mobile menus:
 ```ts
 const navLinks = [
   { label: 'Lab', href: '/lab' },
-  { label: 'N8 Notions', href: '/blog' },   // ← add
+  { label: 'Notions', href: '/blog' },   // ← add (shipped label is 'Notions', not 'N8 Notions')
   { label: 'Extensions', href: '/extensions' },
   { label: 'Tools', href: '/tools' },
   { label: 'Loadout', href: '/loadout' },
 ]
 ```
 
-**Do NOT touch the existing `ViBlog` / VibeLog social link** (line 27) — VibeLog
-is a **separate product**, not this blog. (Its label/href may need its own fix,
-but that's out of scope here.) Just add the N8 Notions link to `navLinks`. Ignore
-`data/navigation.tsx` and `FloatingNav.tsx` — dead code, not wired into the live
-header.
+**Do NOT touch the existing VibeLog social link** — VibeLog is a **separate
+product**, not this blog. (As shipped, that link is now labeled `'VibeLoge'` →
+`/builds/vibelog`, Navbar line 38; the placeholder's "own fix" already happened.)
+Just add the `'Notions'` link to `navLinks`. Ignore `data/navigation.tsx` and
+`FloatingNav.tsx` — dead code, not wired into the live header.
 
 ### 7. `app/sitemap.ts` (edit) — add blog URLs
 
@@ -253,11 +287,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
 `public/robots.txt` already allows all + points at the sitemap — no change.
 
-### 8. `next.config.mjs` (edit, only when needed)
+### 8. `next.config.mjs` (edit)
 
-The current schema has **no image field**, so no change is required now. **When**
-posts gain images, add `{ protocol: 'https', hostname: 'cdn.sanity.io' }` to
-`images.remotePatterns` (and add `@sanity/image-url`).
+Posts **do** have images (cover, gallery, and OG images), and as shipped
+`{ protocol: 'https', hostname: 'cdn.sanity.io' }` is already in
+`images.remotePatterns`. We dereference image assets to plain CDN URLs in GROQ
+(see `lib/sanity.ts`), so `@sanity/image-url` was not needed.
 
 ## Chrome decision
 
@@ -287,13 +322,13 @@ webhook in sanity.io/manage. Requires adding `next-sanity`.
 
 1. `git checkout -b feat/n8-notions-blog`
 2. `npm install @sanity/client @portabletext/react`
-3. Add `NEXT_PUBLIC_SANITY_PROJECT_ID=it7x216y` to `.env.local` (+ Vercel).
+3. Add `NEXT_PUBLIC_SANITY_PROJECT_ID=abgyc32w` to `.env.local` (+ Vercel).
 4. `lib/sanity.ts` (read client + queries + `Post` type).
 5. `components/blog/portable-text.tsx` (re-themed).
 6. `app/blog/page.tsx` (list + topic filter).
 7. `app/blog/[slug]/page.tsx` (post + metadata + ISR).
 8. `components/sections/NotionsStrip.tsx` + mount in `app/page.tsx`.
-9. `components/layout/Navbar.tsx` (add link, remove ViBlog placeholder).
+9. `components/layout/Navbar.tsx` (add the `'Notions'` → `/blog` link).
 10. `app/sitemap.ts` (async + blog URLs).
 11. Verify (below). Commit, push, open PR / Vercel preview.
 

@@ -44,7 +44,7 @@ The public builder lab of Nathan Watkins — a Next.js site for building softwar
 - Husky + lint-staged for git hooks
 - Bundle analyzer for optimization
 - Vercel for deployment (auto-deploy on push to `main`)
-- Sentry error monitoring — *planned; scaffolding only, SDK not yet integrated*
+- Error tracking handled by section/global error boundaries (Sentry was removed — no `@sentry/nextjs` dependency or config)
 
 ### Project Structure
 
@@ -180,10 +180,6 @@ CONTACT_EMAIL_TO=your-email@domain.com
 # as the From address once it is registered as a verified "Send mail as" alias —
 # until then Gmail rewrites From to GMAIL_USER's own address.
 CONTACT_EMAIL_FROM=contact@n8builds.dev
-
-# Sentry (planned — SDK not yet integrated)
-SENTRY_AUTH_TOKEN=your_sentry_token
-NEXT_PUBLIC_SENTRY_DSN=your_sentry_dsn
 ```
 
 #### 🔑 Where to Get API Keys
@@ -193,7 +189,6 @@ NEXT_PUBLIC_SENTRY_DSN=your_sentry_dsn
 | Google Analytics | [analytics.google.com](https://analytics.google.com) | ✅ Yes | Create a GA4 property |
 | reCAPTCHA v3 | [google.com/recaptcha](https://www.google.com/recaptcha/admin) | ✅ Yes | Select "reCAPTCHA v3" (NOT v2) |
 | Gmail app password | [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords) | ✅ ~500 emails/day | Requires 2-step verification |
-| Sentry | [sentry.io](https://sentry.io) | ✅ 5K errors/month | Planned — env placeholders only, SDK not yet integrated |
 
 ## 📧 Contact Form Deep Dive
 
@@ -259,7 +254,7 @@ The active layers (in request order):
 - **Staggered reveals** for portfolio grid items
 - **Smooth page transitions** and micro-interactions
 - **Loading states** with skeleton animations
-- **Success celebrations** with Lottie animations
+- **Success celebrations** rendered with `lottie-react` (`data/confetti.json` in `ContactFormSuccess.tsx`), not Framer Motion
 
 ### Performance Optimizations
 
@@ -325,7 +320,7 @@ npm run prepare      # Setup Husky git hooks
 - **Section-level error boundaries** for granular failure isolation
 - **Global error boundary** for unhandled exceptions
 - **Custom error reporting** to health API endpoint
-- **Sentry** — *planned; scaffolding/env placeholders only, the `@sentry` SDK is not yet a dependency*
+- **Sentry** — *removed; no `@sentry/nextjs` dependency or config remains (only a stray `app/api/sentry-example-api/route.ts` and a `SENTRY_ORG` boolean health-check flag)*
 
 ## 🚢 Deployment
 
