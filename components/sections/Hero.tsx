@@ -180,21 +180,20 @@ const Hero = () => {
                   14%, 100% { border-color: rgba(34,211,238,0.12); background-color: rgba(34,211,238,0); color: rgb(100,116,139); text-shadow: none; }
                 }
                 @keyframes n8arrowGlow {
-                  0%        { color: rgba(255,255,255,0.12); text-shadow: none; }
+                  0%        { color: rgb(100,116,139); text-shadow: none; }
                   3%, 8%    { color: rgb(34,211,238); text-shadow: 0 0 8px rgba(34,211,238,0.85); }
-                  13%, 100% { color: rgba(255,255,255,0.12); text-shadow: none; }
+                  13%, 100% { color: rgb(100,116,139); text-shadow: none; }
                 }
                 /* loop-back connector: a dim always-on wire (so the ship->idea line stays
-                   visible) plus ONE long bright pulse (~3x the old length) flowing
-                   ship (right) -> down -> under the chain -> up into idea (left). It starts
-                   ~73% — overlapping ship's comet as it finishes, so the hand-off reads as
-                   one continuous light — and takes ~3.8s to cross, arriving as the loop
-                   restarts and idea spawns. */
+                   visible) plus ONE long bright pulse that sweeps ship (right) -> down ->
+                   under the chain -> up into idea (left). It starts ~79% — when ship's comet
+                   reaches the bottom-right (4:30) corner where the wire attaches — and
+                   sweeps across fast (~1.8s). */
                 @keyframes n8loopComet {
-                  0%, 71% { stroke-dashoffset: 0;    opacity: 0; }
-                  73%     { stroke-dashoffset: 0;    opacity: 1; }
-                  98%     { stroke-dashoffset: -100; opacity: 1; }
-                  100%    { stroke-dashoffset: -136; opacity: 0; }
+                  0%, 77% { stroke-dashoffset: 0;    opacity: 0; }
+                  79%     { stroke-dashoffset: 0;    opacity: 1; }
+                  91%     { stroke-dashoffset: -100; opacity: 1; }
+                  93%     { stroke-dashoffset: -136; opacity: 0; }
                 }
 
                 .n8-cnode {
@@ -264,6 +263,7 @@ const Hero = () => {
                     transparent 334deg, rgba(103,232,249,0.4) 347deg, #22d3ee 360deg);
                 }
                 .n8-carrow {
+                  color: rgb(100,116,139);
                   animation: n8arrowGlow 15s linear infinite;
                 }
                 .n8-loop {
@@ -333,7 +333,7 @@ const Hero = () => {
                   strokeWidth="2.5"
                   strokeLinecap="round"
                   pathLength={100}
-                  strokeDasharray="36 200"
+                  strokeDasharray="72 200"
                   vectorEffect="non-scaling-stroke"
                 />
               </svg>
