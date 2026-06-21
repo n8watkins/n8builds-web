@@ -319,3 +319,17 @@ build green.
   time is optional polish.
 - **Studio location:** keep hosted at `n8builds.sanity.studio` (recommended) vs.
   embed as `/studio` here later.
+
+## Studio embed attempt (2026-06-20) — blocked by Next 16
+
+We tried embedding the Sanity Studio into this repo at `/studio` (so blog
+authoring + display would live in one repo). **It does not build on Next 16**:
+`sanity` v6 / `next-sanity` 13 fail to resolve `rxjs` named exports (`catchError`,
+`share`, `takeUntil`, …) under **both** `next build --webpack` and Turbopack.
+`next-sanity` 13 *declares* Next 16 support, so this is a known lag that should get
+patched.
+
+**Decision: keep the Studio standalone** — repo `n8watkins/n8builds-studio`,
+Sanity-hosted at n8builds.sanity.studio. Revisit the `/studio` embed once Sanity
+bundles cleanly on Next 16 (it builds fine on Next 15). The live `/blog` read path
+is unaffected — it works fine on Next 16.
