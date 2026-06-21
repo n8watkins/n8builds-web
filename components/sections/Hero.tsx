@@ -187,13 +187,15 @@ const Hero = () => {
                 /* loop-back connector: a dim always-on wire plus ONE short, bright pulse,
                    strictly ONE WAY — ship (right) -> under the chain -> idea (left). Starts
                    ~82% (after ship's own comet has faded, so they never overlap as two
-                   lights) and stays bright across the FULL length, arriving at the idea
-                   corner right as the loop restarts and the idea block lights up. */
+                   lights) and crosses the WHOLE wire fast, reaching idea just before the
+                   loop restarts. NOTE: non-scaling-stroke makes the dash use on-screen
+                   pixels (pathLength is ignored), so the offset must exceed the wire's
+                   pixel length (~200px) to traverse it fully — hence the big -240. */
                 @keyframes n8loopComet {
-                  0%, 80%  { stroke-dashoffset: 0;    opacity: 0; }
-                  82%      { stroke-dashoffset: 0;    opacity: 1; }
-                  98%      { stroke-dashoffset: -84;  opacity: 1; }
-                  100%     { stroke-dashoffset: -110; opacity: 0; }
+                  0%, 80%   { stroke-dashoffset: 0;    opacity: 0; }
+                  82%       { stroke-dashoffset: 0;    opacity: 1; }
+                  93%       { stroke-dashoffset: -240; opacity: 1; }
+                  95%, 100% { stroke-dashoffset: -260; opacity: 0; }
                 }
 
                 .n8-cnode {
@@ -278,8 +280,8 @@ const Hero = () => {
                 }
                 .n8-loop-base { stroke: rgba(34,211,238,0.22); }
                 .n8-loop-comet {
-                  stroke: #cffafe;
-                  filter: drop-shadow(0 0 2px #cffafe) drop-shadow(0 0 6px #67e8f9) drop-shadow(0 0 9px rgba(34,211,238,0.8));
+                  stroke: #22d3ee;
+                  filter: drop-shadow(0 0 2px #67e8f9) drop-shadow(0 0 6px #22d3ee) drop-shadow(0 0 9px rgba(34,211,238,0.7));
                   animation: n8loopComet 15s linear infinite;
                 }
 
