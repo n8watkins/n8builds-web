@@ -304,8 +304,8 @@ const Hero = () => {
                       }`}
                       style={{
                         // 11s loop, 2.0s chip spacing, phase-shifted -10s so the page loads
-                        // pulse-mid-wire; idea still fires ~0.6s early.
-                        ['--n8delay' as string]: `${(i === 0 ? -0.6 : i * 2.0) - 10}s`,
+                        // pulse-mid-wire; idea fires ~0.45s early so it lights as the wire lands.
+                        ['--n8delay' as string]: `${(i === 0 ? -0.45 : i * 2.0) - 10}s`,
                         // idea starts bottom-left (~7:30), ship at 9 o'clock; the split
                         // chips ignore --n8start (they sweep from 270deg +/- the angle).
                         ['--n8start' as string]:
@@ -318,7 +318,7 @@ const Hero = () => {
                         ::after, so the two halves meet at the 3 o'clock arrow */}
                     {i < arr.length - 1 && (
                       // arrow lights at the hand-off as the comet leaves chip i
-                      <span className="n8-carrow" style={{ animationDelay: `${(i === 0 ? 0.28 : i * 2.0 + 0.88) - 10}s` }}>→</span>
+                      <span className="n8-carrow" style={{ animationDelay: `${(i === 0 ? 0.43 : i * 2.0 + 0.88) - 10}s` }}>→</span>
                     )}
                   </React.Fragment>
                 ))}
