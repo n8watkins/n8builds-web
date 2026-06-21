@@ -1,15 +1,17 @@
 # HANDOFF — Nate Builds (n8builds-web)
 
-_Last updated: 2026-06-20 — docs-staleness refresh: GA live (`G-JZQGKY9Q37`,
-domain-wide — portfolio is a subdomain), blog shipped as N8 Notions (Sanity
-`abgyc32w`), homepage now ends NotionsStrip → … → HomeStack, free-tool repos
-live under `published/<slug>`, Resend→Nodemailer/Gmail + DOMPurify→sanitizeHtml
-marked DONE, commit trailer corrected. Previous: 2026-06-19 — reconciliation
-pass: re-verified against live prod that n8builds.dev IS deployed and serving,
-and corrected the stale/false "MX records dropped → inbound broken" note.
-Previous: 2026-06-13 (HOMEPAGE REDESIGN — extensions showcase, Projects+Lab
-merge, free-tools section, Currently-Building carousel, image galleries,
-tech-stack bento. Pushed to prod.)_
+_Last updated: 2026-06-21 — bot protection + env refresh: invisible **Cloudflare
+Turnstile** replaced reCAPTCHA entirely (live on Vercel), GA (`G-JZQGKY9Q37`) +
+`NEXT_PUBLIC_SITE_URL=https://n8builds.dev` confirmed live, **privacy policy**
+added at `app/privacy/page.tsx` (linked in footer), hero **electrified-circuit
+animation SHIPPED to `main`** (`feat/hero-terminal-circuit` merged + deleted),
+all branches consolidated to `main`. Previous: 2026-06-20 — GA live, blog shipped
+as N8 Notions (Sanity `abgyc32w`), homepage NotionsStrip → … → HomeStack,
+free-tool repos live under `published/<slug>`, Resend→Nodemailer/Gmail +
+DOMPurify→sanitizeHtml marked DONE. Previous: 2026-06-19 — re-verified n8builds.dev
+IS deployed/serving, corrected stale "MX records dropped" note. Previous:
+2026-06-13 (HOMEPAGE REDESIGN — extensions showcase, Projects+Lab merge,
+free-tools section, Currently-Building carousel, galleries, tech-stack bento.)_
 
 > **⚡ NEWEST WORK FIRST:** read the "Homepage redesign (2026-06-13)" section
 > directly below — it's the current state of the site. The "IA overhaul" and
@@ -22,39 +24,50 @@ tech-stack bento. Pushed to prod.)_
 > the one open step (add Cloudflare CNAMEs for the subdomains, then flip the
 > homepage `liveSite` links) → **`docs/FREE_TOOLS_TRIO_HANDOFF.md`**.
 
-## Session status — 2026-06-20
+## Session status — 2026-06-21
 
-**Done (recent):**
+**Done this session:**
+- **Bot protection: reCAPTCHA → Cloudflare Turnstile (invisible).** reCAPTCHA v3
+  is fully removed — no `lib/security/recaptcha.ts` (it's `lib/security/turnstile.ts`
+  now), no `RECAPTCHA_*` env vars. Client uses `@marsidev/react-turnstile`; server
+  verifies via `verifyTurnstile()`. `NEXT_PUBLIC_TURNSTILE_SITE_KEY` +
+  `TURNSTILE_SECRET_KEY` set in Vercel (Production), live on n8builds.dev. The Zod
+  field is now `turnstile` (was `recaptcha`); honeypot + rate-limit still active.
+- **Privacy policy added** at `app/privacy/page.tsx` (references the Cloudflare
+  Turnstile Privacy Addendum — required for invisible mode — + Google Analytics),
+  linked from the footer ("© 2026 Nate Builds … · Privacy").
+- **`NEXT_PUBLIC_SITE_URL=https://n8builds.dev`** set in Vercel Production (was
+  EMPTY — fixes canonical/OG/sitemap).
+- **GA confirmed live** — `NEXT_PUBLIC_GA_ID=G-JZQGKY9Q37` set in Vercel Production
+  and firing on n8builds.dev. Portfolio is a subdomain, so the one domain-wide GA4
+  property is correct (no separate property).
+- **Hero "electrified circuit" animation SHIPPED to `main`** — the
+  `feat/hero-terminal-circuit` branch was merged and **deleted**. The hero now
+  carries the `whoami` terminal + the build-philosophy circuit animation in prod.
+- **Branches consolidated.** Everything is on `main`; `feat/hero-terminal-circuit`
+  and `feat/n8-notions-blog` were merged and deleted (N8 Notions is fully on main).
+- Email stays on **Gmail SMTP** (Resend/SendGrid/Brevo were exploration only —
+  nothing wired).
+
+**Done (prior sessions, still current):**
 - Contact form migrated Resend → Nodemailer + Gmail SMTP (live); DOMPurify →
   hand-rolled `sanitizeHtml` in `lib/email/templates.ts`.
-- Homepage redesign (HomeStack / NotionsStrip / etc.) shipped.
+- Homepage redesign (HomeStack / NotionsStrip / etc.) + N8 Notions blog shipped.
 - Free Tools Trio (CanIHost / FreeStack / APIScout) added.
 - Portfolio moved to the `portfolio.n8builds.dev` subdomain;
-  `nathansportfolio.vercel.app` removed everywhere (Navbar/Footer/next.config
-  redirect).
-- Google Analytics wired: `NEXT_PUBLIC_GA_ID=G-JZQGKY9Q37` set in Vercel
-  Production (non-sensitive), redeployed, gtag confirmed live on n8builds.dev.
-  (Reuse is correct — portfolio is a subdomain, so one domain-wide GA4 property
-  covers the whole site.)
-- Docs staleness audit run; this refresh applies its fixes.
+  `nathansportfolio.vercel.app` removed everywhere.
 
 **To do (open):**
-- Hero "electrified circuit" animation — finalize on `feat/hero-terminal-circuit`
-  per review, then merge to main.
-- Set `NEXT_PUBLIC_SITE_URL=https://n8builds.dev` in Vercel Production (currently
-  EMPTY — weakens canonical/OG/sitemap).
 - Ensure the `portfolio.n8builds.dev` deployment fires the same `G-JZQGKY9Q37`
   tag (cross-subdomain tracking); optionally rename the GA property/stream to
   n8builds.dev.
 - Free-tool subdomains (`canihost`/`freestack`/`apiscout.n8builds.dev`): DNS
   CNAMEs not yet added (Cloudflare token read-only) → `liveSite` still on
   `*.vercel.app` in `data/builds.tsx`; flip once DNS resolves.
-- reCAPTCHA: register/configure keys + env vars; close the skip-when-unset gap
-  in `lib/security/recaptcha.ts`.
 - Remove the dead `app/api/sentry-example-api/route.ts` + `SENTRY_ORG` health
   flag (or actually wire Sentry).
-- Add `NEXT_PUBLIC_SANITY_PROJECT_ID` to `.env.example` (a fresh clone currently
-  crashes without it).
+- `/api/health` is still public (`HEALTH_CHECK_SECRET` unset in Vercel) — set it
+  or delete the route.
 - Pre-existing: Portfolio Rank real backend stack; Appturnity "Currently
   building" copy; confirm VibeLoge spelling/slug.
 
@@ -389,19 +402,15 @@ ordered by what actually matters. None block the launch. All re-verified
 against live prod 2026-06-12 (reCAPTCHA/GA still absent from Vercel,
 `/api/health` still public, GA tag absent — only a dead preconnect hint).
 
-1. **Contact form has weak spam protection — do before promoting widely.**
-   Two compounding gaps: (a) reCAPTCHA keys aren't registered, so captcha
-   verification is skipped (by design for launch, see finding in
-   `lib/security/recaptcha.ts`); (b) the rate limiter
-   (`lib/security/rateLimiter.ts`) is an **in-memory `Map`** — on Vercel
-   serverless that's per-instance and wiped on cold start, so the documented
-   "5/hour/IP" limit barely applies. Net: the honeypot is the only reliable
-   defense. Real risk isn't just inbox spam — each submit sends 2 emails via
-   Gmail SMTP, which **caps at ~500/day**; a bot could exhaust that and
-   silently break the form for real visitors. Fix: register reCAPTCHA v3 keys
-   for n8builds.dev + add to Vercel (closes it on its own). Optionally make
-   the rate limiter fail-safe, but don't rely on it as-is. Don't bother
-   re-architecting to Redis/KV for a personal site.
+1. **Contact form spam protection — RESOLVED (2026-06-21).** Originally two
+   gaps: (a) no captcha gating in prod; (b) the in-memory rate limiter
+   (`lib/security/rateLimiter.ts`) is per-serverless-instance / wiped on cold
+   start, so "5/hour/IP" is best-effort. Gap (a) is now **closed by invisible
+   Cloudflare Turnstile** (`lib/security/turnstile.ts`, `@marsidev/react-turnstile`)
+   — keys live on Vercel, actively gating submissions (this replaced the never-wired
+   reCAPTCHA). Gap (b) remains optional polish: each submit sends 2 emails via Gmail
+   SMTP (~500/day cap), so making the limiter fail-safe is still worthwhile, but
+   don't re-architect to Redis/KV for a personal site.
 2. **`/api/health` is public in production.** `HEALTH_CHECK_SECRET` isn't set
    in Vercel, so the auth guard in `app/api/health/route.ts` is skipped and
    the endpoint returns env/uptime/memory/dependency flags to anyone. Low
@@ -458,11 +467,12 @@ Account-side, post-launch (needs Nate, not code):
   is set in Vercel Production and confirmed live on n8builds.dev. Remaining:
   fire the same tag from the `portfolio.n8builds.dev` deploy for cross-subdomain
   tracking.
-- reCAPTCHA v3 keys for n8builds.dev (a registration scoped to the domain can
-  cover subdomains like `portfolio.n8builds.dev`; verify whether one already
-  covers it). Form skips verification while blank — that's by design, see
-  `lib/security/recaptcha.ts`; note the zod schema still requires a non-empty
-  `recaptcha` string in the POST body either way.
+- ~~reCAPTCHA v3 keys~~ — **DONE (2026-06-21), replaced by Cloudflare Turnstile.**
+  Invisible Turnstile now gates the form (`lib/security/turnstile.ts`,
+  `@marsidev/react-turnstile`); `NEXT_PUBLIC_TURNSTILE_SITE_KEY` +
+  `TURNSTILE_SECRET_KEY` are set in Vercel Production and live. reCAPTCHA is gone
+  (no `recaptcha.ts`, no `RECAPTCHA_*` vars). The zod schema requires a non-empty
+  `turnstile` token in the POST body.
 - ~~Resend: verify n8builds.dev~~ — obsolete, see the Resend section above
 - ~~Cloudflare Email Routing + Gmail "Send mail as"~~ — set up 2026-06-12.
   **Correction 2026-06-19:** the earlier "MX/TXT records dropped / zone is
@@ -548,8 +558,8 @@ Account-side, post-launch (needs Nate, not code):
   `curl -X POST http://localhost:1337/api/contact -H 'Content-Type:
   application/json' -d '{"name":"Nathan Watkins","email":
   "nathancwatkins23@gmail.com","subject":"consulting","message":"ten chars
-  min","honeypot":"","recaptcha":"dev-test"}'` — `recaptcha` must be non-empty
-  even though verification is skipped, `honeypot` must be empty. Subjects:
+  min","honeypot":"","turnstile":"dev-test"}'` — `turnstile` must be non-empty
+  (the zod field; verification is skipped in dev), `honeypot` must be empty. Subjects:
   `project_opportunity` | `consulting` | `networking`. Rate limit clears on
   localhost. Self-tests look "duplicated" in Gmail: you receive both the
   notification AND the auto-reply, plus Gmail threads your own Sent copies —
@@ -597,7 +607,7 @@ Account-side, post-launch (needs Nate, not code):
 - `lib/email/sender.ts` — sends notification + auto-reply (subjects, plain-text parts, CID icon attachments)
 - `lib/email/templates.ts` — both HTML templates + `getSubjectSpecificLine()` per-subject copy
 - `lib/email/icons.ts` — generated base64 icon PNGs (regen via `scripts/gen-email-icons.mjs`)
-- `.env.local` — has working `GMAIL_USER`/`GMAIL_APP_PASSWORD`/`CONTACT_EMAIL_TO`; TODOs for GA/reCAPTCHA (untracked; examples are tracked)
+- `.env.local` — has working `GMAIL_USER`/`GMAIL_APP_PASSWORD`/`CONTACT_EMAIL_TO`, GA (`G-JZQGKY9Q37`), Turnstile keys, and `NEXT_PUBLIC_SANITY_PROJECT_ID` (untracked; `.env.example`/`.env.local.example` are tracked and current)
 - `/home/natkins/docs` — Nathan's personal FAQ repo (private, github.com/n8watkins/docs): email + Vercel deploy rationale
 - `public/tab/` — n8-icon*.png, apple-icon.png, preview.png (OG), n8-logo.png (navbar)
 - `docs/` — this handoff + older bundle/code-quality notes; `FOLLOW_UP.md`, `PIN_IT.md` at root predate this session

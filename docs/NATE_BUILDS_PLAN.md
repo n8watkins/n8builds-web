@@ -1,7 +1,7 @@
 # Nate Builds — The Big Plan
 
-> Status: SHIPPED to prod (n8builds.dev) — Loadout, shelves, homepage redesign (extensions showcase, Projects+Lab merge, free-tools trio, Currently-Building section, galleries, tech-stack bento). Remaining: `/builds` Log index page, live-status layer, real screenshots for TL;DW/LocalDictate.
-> Last updated: 2026-06-20 (hero now carries a shared `whoami` terminal + an in-progress "build philosophy" electrified-circuit animation on `feat/hero-terminal-circuit`)
+> Status: SHIPPED to prod (n8builds.dev) — Loadout, shelves, homepage redesign (extensions showcase, Projects+Lab merge, free-tools trio, Currently-Building section, galleries, tech-stack bento), N8 Notions blog, hero electrified-circuit animation. Remaining: `/builds` Log index page, live-status layer, real screenshots for TL;DW/LocalDictate.
+> Last updated: 2026-06-21 (hero `whoami` terminal + "build philosophy" electrified-circuit animation are SHIPPED on `main` — the `feat/hero-terminal-circuit` branch was merged and deleted; everything is on `main`)
 > Site: n8builds.dev — the public workshop (Next.js 16 + React 19, on Vercel, Cloudflare DNS)
 
 ---
@@ -71,8 +71,11 @@ what I was last doing.
 4. **Loadout** (`/loadout`) — Tech Loadout + The Rig + Desk. (replaces the dry "/uses" idea)
 5. **Tools** (`/tools`) — dev tools and free utilities I made (Scribe/LocalDictate, the free-tools trio).
 
+**SHIPPED SINCE**
+- **N8 Notions** (`/blog`) — the Sanity-backed blog (nav label "Notions") + homepage `NotionsStrip`. Live. See `docs/N8_NOTIONS_BLOG_IMPLEMENTATION.md`.
+
 **NOT YET BUILT**
-- **Log** ("/builds" Log index) — the build-in-public journal, newest-first. The heartbeat. Only the *detail* route is wired (`app/builds/[slug]`); the **index page is still unbuilt** (Phase 4). There is no `/blog` route.
+- **Log** ("/builds" Log index) — the build-in-public journal of all builds, newest-first. Only the *detail* route is wired (`app/builds/[slug]`); the **index page is still unbuilt** (Phase 4). (Distinct from the `/blog` N8 Notions writing, which IS live.)
 
 **NICE-TO-LATER**
 - Unified reverse-chron feed across all lanes once volume justifies it.
@@ -125,9 +128,9 @@ most lazy-loaded via `next/dynamic`):
 1. **Hero** (`components/sections/Hero.tsx`) — identity + a "Live on GitHub" pill that links
    github.com/n8watkins and name-drops the first Currently-Building item (rendered dynamically
    from `nowItems[0]` in `data/now.tsx` — currently **Appturnity**). A "Watch Live" CTA links
-   Twitch. The Hero now also renders the shared `whoami` terminal (`WhoamiTerminal`) and an
-   in-progress "build philosophy" electrified-circuit animation (on branch
-   `feat/hero-terminal-circuit`). *(The hero offline status line is still TODO.)*
+   Twitch. The Hero also renders the shared `whoami` terminal (`WhoamiTerminal`) and the
+   "build philosophy" electrified-circuit animation — both **shipped to `main`** (the
+   `feat/hero-terminal-circuit` branch was merged and deleted). *(The hero offline status line is still TODO.)*
 2. **NowBuilding / Currently Building** (`components/sections/NowBuilding.tsx`, data in
    `data/now.tsx`) — the in-public hook right under the hero.
 3. **FeaturedProjects** (`components/sections/FeaturedProjects.tsx`) — hand-picked builds in
@@ -210,5 +213,5 @@ they get added to `data/builds.tsx`, not pages.)
 - **Live status source** — currently a static "Live on GitHub" pill in the Hero (links github.com/n8watkins); auto-from-stream-API is a Phase 4 option.
 - **Loadout content** — `data/loadout.tsx` has representative content; replace The Rig specs + Desk gear with real values.
 - **"Log" definition** — is the `/builds` Log index a journal of written posts (~weekly) or just an index of all builds? Decides the Phase 4 build (the index page doesn't exist yet — only `app/builds/[slug]`).
-- **reCAPTCHA is intentionally OFF in production** — not a "wire it later" TODO. `lib/security/recaptcha.ts` skips verification (returns true) when `RECAPTCHA_SECRET_KEY` is unset, and it is not set on Vercel. The active bot defenses are the honeypot + an in-memory (per-serverless-instance) rate limiter. GA4 wiring is the only env item still genuinely pending.
+- **Bot protection is LIVE via Cloudflare Turnstile** (replaced reCAPTCHA entirely, 2026-06-21). `lib/security/turnstile.ts → verifyTurnstile()` gates the form; `NEXT_PUBLIC_TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY` are set on Vercel. Honeypot + an in-memory (per-serverless-instance) rate limiter back it up. GA4 (`G-JZQGKY9Q37`) and `NEXT_PUBLIC_SITE_URL` are also now set in Vercel — no env items pending.
 - **Log cadence** — how often will journal entries get written? Affects how prominent the Log is.

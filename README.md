@@ -10,9 +10,9 @@ The public builder lab of Nathan Watkins — a Next.js site for building softwar
 - **Hardened Contact Form**: Gmail SMTP (Nodemailer) with a layered defense stack — rate limiting, honeypot, Zod validation, and template-time HTML escaping
 - **Advanced Animations**: Framer Motion with scroll-triggered fade-ins and interactive elements
 - **Performance Optimized**: Code-split below-the-fold sections, optimized images, and Web Vitals monitoring
-- **Security First**: Request-size cap, in-memory rate limiting (5/hour), honeypot, and HTML-entity escaping of user input in emails
+- **Security First**: Request-size cap, in-memory rate limiting (5/hour), honeypot, invisible Cloudflare Turnstile, and HTML-entity escaping of user input in emails
 - **Fully Responsive**: Mobile-first design with seamless desktop experience
-- **Analytics Integration**: Google Analytics with custom event tracking for all interactions
+- **Analytics Integration**: Google Analytics (live, `G-JZQGKY9Q37`) with custom event tracking for all interactions
 - **Dark/Light Theme**: Automatic system preference detection with manual toggle
 - **Error Boundaries**: Granular section-level error handling with graceful degradation
 - **Web Vitals HUD**: Real-time performance monitoring (Alt+Shift+V toggle in dev mode)
@@ -34,7 +34,7 @@ The public builder lab of Nathan Watkins — a Next.js site for building softwar
 **Backend:**
 - Next.js API Routes
 - Nodemailer + Gmail SMTP for email delivery
-- Google reCAPTCHA v3 (wired, disabled in production — see Contact Form Deep Dive)
+- Cloudflare Turnstile (invisible) for bot protection — see Contact Form Deep Dive
 - Layered request validation + security middleware
 
 **Development & Testing:**
@@ -90,7 +90,7 @@ n8builds-web/
 ├── lib/                          # Utilities and business logic
 │   ├── security/                 # Security modules
 │   │   ├── rateLimiter.ts        # In-memory IP-based rate limiting
-│   │   ├── recaptcha.ts          # reCAPTCHA + honeypot verification
+│   │   ├── turnstile.ts          # Cloudflare Turnstile + honeypot verification
 │   │   └── validation.ts         # Request size (10KB) + JSON parse validation
 │   ├── email/                    # Email functionality
 │   │   ├── smtp.ts               # Gmail SMTP transport + config
@@ -165,12 +165,15 @@ n8builds-web/
 NEXT_PUBLIC_SITE_URL=http://localhost:1337
 NEXT_PUBLIC_VERSION=1.0.0
 
-# Google Analytics
+# Google Analytics (live: G-JZQGKY9Q37 — shared domain-wide property)
 NEXT_PUBLIC_GA_ID=your_ga_id
 
-# Google reCAPTCHA v3 (optional — verification is skipped when the secret is unset)
-NEXT_PUBLIC_RECAPTCHA_SITE_KEY=your_site_key
-RECAPTCHA_SECRET_KEY=your_secret_key
+# Sanity (N8 Notions blog) — read-only public CDN; lib/sanity.ts throws without it
+NEXT_PUBLIC_SANITY_PROJECT_ID=abgyc32w
+
+# Cloudflare Turnstile (invisible bot protection — verification is skipped when the secret is unset)
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=your_turnstile_site_key
+TURNSTILE_SECRET_KEY=your_turnstile_secret_key
 
 # Contact Form Email (Nodemailer + Gmail SMTP)
 GMAIL_USER=your@gmail.com
@@ -186,8 +189,8 @@ CONTACT_EMAIL_FROM=contact@n8builds.dev
 
 | Service | URL | Free Tier | Notes |
 |---------|-----|-----------|-------|
-| Google Analytics | [analytics.google.com](https://analytics.google.com) | ✅ Yes | Create a GA4 property |
-| reCAPTCHA v3 | [google.com/recaptcha](https://www.google.com/recaptcha/admin) | ✅ Yes | Select "reCAPTCHA v3" (NOT v2) |
+| Google Analytics | [analytics.google.com](https://analytics.google.com) | ✅ Yes | Reuse the shared `G-JZQGKY9Q37` GA4 property (covers the whole domain incl. the portfolio subdomain) |
+| Cloudflare Turnstile | [dash.cloudflare.com → Turnstile](https://dash.cloudflare.com/?to=/:account/turnstile) | ✅ Yes | Create the widget in "Invisible" (or "Managed") mode; test keys are built in for local dev |
 | Gmail app password | [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords) | ✅ ~500 emails/day | Requires 2-step verification |
 
 ## 📧 Contact Form Deep Dive
@@ -203,7 +206,7 @@ The contact form is a layered, defense-in-depth solution backed by Gmail SMTP.
 - **Honeypot field** for bot detection
 - **HTML-entity escaping** of all user input rendered into emails (prevents HTML/XSS injection in the inbox)
 - **Request size validation** (10KB limit)
-- **reCAPTCHA v3** — wired but currently disabled in production (no secret key set)
+- **Cloudflare Turnstile** (invisible) — live in production (`NEXT_PUBLIC_TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY` set on Vercel)
 - **Professional email templates** with auto-reply functionality
 - **Real-time character counting** and field validation
 - **Smooth animations** and loading states with confetti celebration
@@ -213,8 +216,8 @@ The contact form is a layered, defense-in-depth solution backed by Gmail SMTP.
 
 **Frontend Flow:**
 1. User fills out form with real-time validation
-2. On submit, reCAPTCHA executes invisibly (when site/secret keys are configured)
-3. Form validation runs with the reCAPTCHA token
+2. On submit, Cloudflare Turnstile runs invisibly (`@marsidev/react-turnstile`) and issues a token
+3. Form validation runs with the Turnstile token
 4. API request sent to `/api/contact`
 5. Success/error states with animations
 
@@ -223,7 +226,7 @@ The contact form is a layered, defense-in-depth solution backed by Gmail SMTP.
 2. Rate limiting check per IP (5 requests/hour in production)
 3. JSON parse + Zod schema validation
 4. Honeypot field check
-5. reCAPTCHA token verification (skipped when `RECAPTCHA_SECRET_KEY` is unset — see below)
+5. Turnstile token verification (skipped when `TURNSTILE_SECRET_KEY` is unset — see below)
 6. Email sending via Nodemailer (Gmail SMTP), with user input HTML-entity-escaped at template time
 7. Auto-reply confirmation email to the submitter
 
@@ -234,15 +237,15 @@ The active layers (in request order):
 1. **Request Size Validation** — `lib/security/validation.ts` caps the raw body at 10KB (DoS guard) and safely parses JSON.
 2. **In-memory Rate Limiting** — `lib/security/rateLimiter.ts` enforces 5 requests/hour per IP in production (50/hour in dev). Note: the store is per serverless instance, so the limit is best-effort across Vercel's pool, not a global counter.
 3. **Zod Schema Validation** — `lib/validations/contact.ts` enforces field types, lengths, and shape; invalid payloads are rejected.
-4. **Honeypot Field** — `lib/security/recaptcha.ts → validateHoneypot()` rejects submissions where the hidden field is filled.
+4. **Honeypot Field** — `lib/security/turnstile.ts → validateHoneypot()` rejects submissions where the hidden field is filled.
 5. **Template-time HTML Escaping** — `lib/email/templates.ts → sanitizeHtml()` escapes `&`, `<`, `>`, `"`, and `'` in every user-supplied value before it is interpolated into the email HTML. (This is a hand-rolled escaper — DOMPurify/jsdom were removed because their dependency chain breaks Vercel's serverless runtime.)
 6. **Error Masking** — generic error messages are returned to clients while detailed errors are logged server-side.
 
-**reCAPTCHA v3 (currently inactive in production):** `lib/security/recaptcha.ts` returns `true` (allow) when `RECAPTCHA_SECRET_KEY` is unset, and the key is **not** configured on Vercel — so reCAPTCHA does not gate submissions in production today. It also short-circuits in development. The wiring is in place and the layer activates automatically once the secret key is set. Honeypot + rate limiting are the active bot defenses in the meantime.
+**Cloudflare Turnstile (live in production):** `lib/security/turnstile.ts → verifyTurnstile()` calls Cloudflare's `siteverify` API and passes only on `success === true` (Turnstile has no score). It short-circuits to allow in development, and falls back to allow when `TURNSTILE_SECRET_KEY` is unset (so the form still works pre-launch on honeypot + rate limiting alone). In production the keys (`NEXT_PUBLIC_TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY`) ARE set on Vercel, so Turnstile actively gates submissions. The Zod schema requires a non-empty `turnstile` token in the POST body.
 
 **Additional notes:**
 - In-memory rate-limit store with automatic cleanup
-- reCAPTCHA + rate limiting are bypassed in development for easier testing
+- Turnstile + rate limiting are bypassed in development for easier testing
 - Comprehensive logging for audit trails
 - No sensitive data exposure in responses
 
@@ -376,7 +379,7 @@ npm run start
 - **CSS Masks**: Gradient effects in infinite card animations
 - **Marquee Components**: Magic UI marquee for performant infinite scroll
 - **Animation Performance**: Framer Motion optimized for 60fps
-- **Form UX**: Invisible reCAPTCHA v3 wiring keeps the experience seamless when enabled
+- **Form UX**: Invisible Cloudflare Turnstile keeps the experience seamless — no checkbox/challenge for legitimate users
 - **Error Resilience**: Section-level boundaries prevent cascading failures
 - **Type Safety**: Zod schemas provide runtime validation + TypeScript types
 

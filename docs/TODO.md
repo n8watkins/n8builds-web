@@ -2,38 +2,29 @@
 
 Site is **fully launched** (https://n8builds.dev live, contact form + email
 routing verified). Everything below is post-launch hardening and polish — none
-of it blocks the site working. All four hardening findings re-confirmed still
-open against live prod on **2026-06-19**. Ordered by priority. See `HANDOFF.md`
+of it blocks the site working. Last reviewed **2026-06-21** (Turnstile + GA now
+live; remaining open items below). Ordered by priority. See `HANDOFF.md`
 for full context.
 
 ---
 
-## 1. Harden the contact form against spam — do before promoting widely
+## 1. Harden the contact form against spam — bot protection DONE
 
-**Status:** open · **Effort:** ~15 min (browser + env) · **Files:**
-`lib/security/recaptcha.ts`, `lib/security/rateLimiter.ts`
+**Status:** bot protection done (2026-06-21); rate-limiter robustness optional ·
+**Files:** `lib/security/turnstile.ts`, `lib/security/rateLimiter.ts`
 
-**Why:** Two compounding gaps leave the honeypot as the only reliable bot
-defense:
-- reCAPTCHA keys aren't registered, so captcha verification is skipped (by
-  design for launch — `verifyRecaptcha` returns `true` when
-  `RECAPTCHA_SECRET_KEY` is unset).
-- The rate limiter is an in-memory `Map` (`rateLimitMap = new Map()`). On
-  Vercel serverless that's per-instance and wiped on cold start, so the
-  "5 requests/hour/IP" limit barely applies in practice.
+**What shipped:** invisible **Cloudflare Turnstile** now gates the contact form
+(`lib/security/turnstile.ts → verifyTurnstile()`, `@marsidev/react-turnstile` on
+the client). `NEXT_PUBLIC_TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY` are set in
+Vercel (Production) and live on n8builds.dev. This replaced reCAPTCHA v3 entirely
+(reCAPTCHA is fully gone — no `recaptcha.ts`, no `RECAPTCHA_*` env vars). The
+honeypot + Turnstile are the active bot defenses.
 
-**Real risk:** each submit sends 2 emails via Gmail SMTP, which caps at
-~500/day. A bot could exhaust that quota and silently break the form for real
-visitors — not just spam the inbox.
-
-**Fix (pick the first; second is optional):**
-- [ ] Register/configure reCAPTCHA v3 keys for n8builds.dev at
-      https://www.google.com/recaptcha/admin (verify whether the existing
-      n8builds.dev registration already covers the `portfolio.n8builds.dev`
-      subdomain — reCAPTCHA site keys can be scoped to a domain + its
-      subdomains). Add `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` +
-      `RECAPTCHA_SECRET_KEY` to Vercel (Production) and redeploy. This alone
-      closes the gap.
+**Remaining (optional):** the rate limiter is still an in-memory `Map` — on
+Vercel serverless that's per-instance and wiped on cold start, so the
+"5 requests/hour/IP" limit is best-effort. Each submit sends 2 emails via Gmail
+SMTP (caps ~500/day), so a determined bot could still spike usage even past
+Turnstile.
 - [ ] (Optional) Make the rate limiter fail-safe so it isn't silently relied
       on. Don't bother re-architecting to Redis/Vercel KV for a personal site.
 
