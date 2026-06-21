@@ -180,9 +180,9 @@ const Hero = () => {
                   14%, 100% { border-color: rgba(34,211,238,0.12); background-color: rgba(34,211,238,0); color: rgb(100,116,139); text-shadow: none; }
                 }
                 @keyframes n8arrowGlow {
-                  0%        { color: rgb(100,116,139); text-shadow: none; }
-                  3%, 8%    { color: rgb(103,232,249); text-shadow: 0 0 4px rgba(34,211,238,1), 0 0 10px rgba(34,211,238,0.7); }
-                  13%, 100% { color: rgb(100,116,139); text-shadow: none; }
+                  0%        { color: rgb(100,116,139); text-shadow: none; box-shadow: none; }
+                  3%, 8%    { color: rgb(165,243,252); text-shadow: 0 0 5px rgba(34,211,238,1), 0 0 13px rgba(34,211,238,0.85); box-shadow: 0 0 12px 2px rgba(34,211,238,0.55); }
+                  13%, 100% { color: rgb(100,116,139); text-shadow: none; box-shadow: none; }
                 }
                 /* loop-back connector: dim wire + ONE blue pulse (#22d3ee, same as the
                    chips). Tight hand-off both ends: starts ~78%, right as ship's comet
@@ -267,6 +267,10 @@ const Hero = () => {
                 }
                 .n8-carrow {
                   color: rgb(100,116,139);
+                  display: inline-block;
+                  font-size: 0.85rem;
+                  line-height: 1;
+                  border-radius: 4px;
                   animation: n8arrowGlow 15s linear infinite;
                 }
                 .n8-loop {
@@ -302,9 +306,9 @@ const Hero = () => {
                         i > 0 && i < arr.length - 1 ? ' n8-split' : ''
                       }`}
                       style={{
-                        // whole circuit phase-shifted -12.5s so the page loads with the
-                        // pulse mid-bottom-wire; idea still fires ~0.6s early (relative).
-                        ['--n8delay' as string]: `${(i === 0 ? -0.6 : i * 2.5) - 12.5}s`,
+                        // 2.0s chip spacing (tighter), whole circuit phase-shifted -12.5s so
+                        // the page loads pulse-mid-wire; idea still fires ~0.6s early.
+                        ['--n8delay' as string]: `${(i === 0 ? -0.6 : i * 2.0) - 12.5}s`,
                         // idea starts bottom-left (~7:30), ship at 9 o'clock; the split
                         // chips ignore --n8start (they sweep from 270deg +/- the angle).
                         ['--n8start' as string]:
@@ -317,7 +321,7 @@ const Hero = () => {
                         ::after, so the two halves meet at the 3 o'clock arrow */}
                     {i < arr.length - 1 && (
                       // arrow lights at the hand-off as the comet leaves chip i
-                      <span className="n8-carrow" style={{ animationDelay: `${(i === 0 ? 0.6 : i * 2.5 + 1.2) - 12.5}s` }}>→</span>
+                      <span className="n8-carrow" style={{ animationDelay: `${(i === 0 ? 0.6 : i * 2.0 + 1.2) - 12.5}s` }}>→</span>
                     )}
                   </React.Fragment>
                 ))}
