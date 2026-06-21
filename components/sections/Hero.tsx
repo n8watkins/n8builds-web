@@ -185,15 +185,15 @@ const Hero = () => {
                   13%, 100% { color: rgb(100,116,139); text-shadow: none; }
                 }
                 /* loop-back connector: a dim always-on wire plus ONE short, bright pulse,
-                   strictly ONE WAY — ship (right) -> under the chain -> idea (left) — then
-                   HOLDS off-screen (no return trip). Starts ~81%, AFTER ship's own comet has
-                   fully faded, so the two never overlap as separate lights. Travels the full
-                   length to idea, then exits. */
+                   strictly ONE WAY — ship (right) -> under the chain -> idea (left). Starts
+                   ~82% (after ship's own comet has faded, so they never overlap as two
+                   lights) and stays bright across the FULL length, arriving at the idea
+                   corner right as the loop restarts and the idea block lights up. */
                 @keyframes n8loopComet {
-                  0%, 79%   { stroke-dashoffset: 0;    opacity: 0; }
-                  81%       { stroke-dashoffset: 0;    opacity: 1; }
-                  93%       { stroke-dashoffset: -120; opacity: 1; }
-                  95%, 100% { stroke-dashoffset: -130; opacity: 0; }
+                  0%, 80%  { stroke-dashoffset: 0;    opacity: 0; }
+                  82%      { stroke-dashoffset: 0;    opacity: 1; }
+                  98%      { stroke-dashoffset: -84;  opacity: 1; }
+                  100%     { stroke-dashoffset: -110; opacity: 0; }
                 }
 
                 .n8-cnode {
@@ -278,8 +278,8 @@ const Hero = () => {
                 }
                 .n8-loop-base { stroke: rgba(34,211,238,0.22); }
                 .n8-loop-comet {
-                  stroke: #a5f3fc;
-                  filter: drop-shadow(0 0 4px #67e8f9) drop-shadow(0 0 10px rgba(34,211,238,0.9));
+                  stroke: #cffafe;
+                  filter: drop-shadow(0 0 2px #cffafe) drop-shadow(0 0 6px #67e8f9) drop-shadow(0 0 9px rgba(34,211,238,0.8));
                   animation: n8loopComet 15s linear infinite;
                 }
 
@@ -330,7 +330,7 @@ const Hero = () => {
                   className="n8-loop-comet"
                   d="M98,0 L98,9 Q98,14 93,14 L7,14 Q2,14 2,9 L2,0"
                   fill="none"
-                  strokeWidth="3"
+                  strokeWidth="2"
                   strokeLinecap="round"
                   pathLength={100}
                   strokeDasharray="16 999"
