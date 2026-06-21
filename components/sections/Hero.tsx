@@ -185,15 +185,15 @@ const Hero = () => {
                   13%, 100% { color: rgb(100,116,139); text-shadow: none; }
                 }
                 /* loop-back connector: a dim always-on wire plus ONE short, bright pulse
-                   that travels a single direction — ship (right) -> down -> left under the
-                   chain -> up into idea (left). A short dash keeps it on one leg at a time
-                   so it never reads as two opposing motions. Starts ~79% (when ship's comet
-                   hits the 4:30 corner) and zips across in ~1.1s. */
+                   that runs strictly ONE WAY — ship (right) -> under the chain -> idea
+                   (left) — then HOLDS off-screen until the next loop (it never interpolates
+                   back, so no return trip). The wire is shallow so the motion reads as one
+                   horizontal direction. Starts ~80% (ship at the 4:30 corner), ~1.1s across. */
                 @keyframes n8loopComet {
-                  0%, 77% { stroke-dashoffset: 0;    opacity: 0; }
-                  79%     { stroke-dashoffset: 0;    opacity: 1; }
-                  87%     { stroke-dashoffset: -100; opacity: 1; }
-                  89%     { stroke-dashoffset: -116; opacity: 0; }
+                  0%, 78%   { stroke-dashoffset: 0;    opacity: 0; }
+                  80%       { stroke-dashoffset: 0;    opacity: 1; }
+                  88%       { stroke-dashoffset: -116; opacity: 1; }
+                  90%, 100% { stroke-dashoffset: -116; opacity: 0; }
                 }
 
                 .n8-cnode {
@@ -272,7 +272,7 @@ const Hero = () => {
                   right: 0;
                   top: 100%;
                   width: 100%;
-                  height: 16px;
+                  height: 9px;
                   overflow: visible;
                   pointer-events: none;
                 }
