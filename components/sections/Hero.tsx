@@ -184,18 +184,19 @@ const Hero = () => {
                   3%, 8%    { color: rgb(34,211,238); text-shadow: 0 0 8px rgba(34,211,238,0.85); }
                   13%, 100% { color: rgb(100,116,139); text-shadow: none; }
                 }
-                /* loop-back connector: a dim always-on wire plus ONE short, bright pulse,
-                   strictly ONE WAY — ship (right) -> under the chain -> idea (left). Starts
-                   ~82% (after ship's own comet has faded, so they never overlap as two
-                   lights) and crosses the WHOLE wire fast, reaching idea just before the
-                   loop restarts. NOTE: non-scaling-stroke makes the dash use on-screen
-                   pixels (pathLength is ignored), so the offset must exceed the wire's
-                   pixel length (~200px) to traverse it fully — hence the big -240. */
+                /* loop-back connector: dim wire + ONE blue pulse (#22d3ee, same as the
+                   chips). Tight hand-off both ends: starts ~78%, right as ship's comet
+                   lands on the 4:30 corner (no lead-in gap), travels the WHOLE wire, and
+                   reaches the idea corner ~99%, right before the loop restarts and idea
+                   lights (no trailing gap). The -280 offset ~ the wire's on-screen pixel
+                   length, since non-scaling-stroke makes the dash use px, ignoring
+                   pathLength. (If it still stops short, raise -280; if it vanishes early
+                   before idea, lower it.) */
                 @keyframes n8loopComet {
-                  0%, 80%   { stroke-dashoffset: 0;    opacity: 0; }
-                  82%       { stroke-dashoffset: 0;    opacity: 1; }
-                  93%       { stroke-dashoffset: -240; opacity: 1; }
-                  95%, 100% { stroke-dashoffset: -260; opacity: 0; }
+                  0%, 76%  { stroke-dashoffset: 0;    opacity: 0; }
+                  78%      { stroke-dashoffset: 0;    opacity: 1; }
+                  99%      { stroke-dashoffset: -280; opacity: 1; }
+                  100%     { stroke-dashoffset: -300; opacity: 0; }
                 }
 
                 .n8-cnode {
