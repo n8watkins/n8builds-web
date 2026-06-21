@@ -181,7 +181,7 @@ const Hero = () => {
                 }
                 @keyframes n8arrowGlow {
                   0%        { color: rgb(100,116,139); text-shadow: none; }
-                  3%, 8%    { color: rgb(165,243,252); text-shadow: 0 0 5px rgba(34,211,238,1), 0 0 13px rgba(34,211,238,0.85); }
+                  3%, 8%    { color: rgb(165,243,252); text-shadow: 0 0 4px rgba(34,211,238,1), 0 0 9px rgba(34,211,238,1), 0 0 16px rgba(34,211,238,0.7); }
                   13%, 100% { color: rgb(100,116,139); text-shadow: none; }
                 }
                 /* loop-back connector: dim wire + ONE blue pulse (#22d3ee, same as the
@@ -193,8 +193,8 @@ const Hero = () => {
                    pathLength. (If it still stops short, raise -280; if it vanishes early
                    before idea, lower it.) */
                 @keyframes n8loopComet {
-                  0%, 60%  { stroke-dashoffset: 0;    opacity: 0; }
-                  62%      { stroke-dashoffset: 0;    opacity: 1; }
+                  0%, 63%  { stroke-dashoffset: 0;    opacity: 0; }
+                  65%      { stroke-dashoffset: 0;    opacity: 1; }
                   98%      { stroke-dashoffset: -280; opacity: 1; }
                   100%     { stroke-dashoffset: -300; opacity: 0; }
                 }
