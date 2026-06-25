@@ -26,10 +26,26 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // Top-level items besides the Lab dropdown.
+  // Smooth-scroll to a homepage section when a "/#id" nav link is clicked while
+  // already on the homepage. next/link's same-page hash scroll is unreliable, so
+  // we drive it directly (scrollIntoView honors html { scroll-padding-top }).
+  // On other pages we fall through and let the link navigate to "/#id".
+  const goToSection = (e: React.MouseEvent, href: string) => {
+    setLabOpen(false)
+    setMobileOpen(false)
+    if (!href.startsWith('/#')) return
+    if (typeof window === 'undefined' || window.location.pathname !== '/') return
+    const el = document.getElementById(href.slice(2))
+    if (!el) return
+    e.preventDefault()
+    el.scrollIntoView({ behavior: 'smooth' })
+    window.history.replaceState(null, '', href)
+  }
+
+  // Top-level items besides the Lab dropdown — each scrolls to its homepage section.
   const navLinks = [
-    { label: 'Notions', href: '/blog' },
-    { label: 'Loadout', href: '/loadout' },
+    { label: 'Notions', href: '/#notions' },
+    { label: 'Loadout', href: '/#loadout' },
   ]
   const socialLinks = [
     {
@@ -83,6 +99,7 @@ const Navbar = () => {
             >
               <Link
                 href="/#lab"
+                onClick={(e) => goToSection(e, '/#lab')}
                 onFocus={() => setLabOpen(true)}
                 aria-haspopup="true"
                 aria-expanded={labOpen}
@@ -107,6 +124,7 @@ const Navbar = () => {
                         <Link
                           key={item.href}
                           href={item.href}
+                          onClick={(e) => goToSection(e, item.href)}
                           className="group/item flex flex-col gap-0.5 px-3 py-2 rounded-lg hover:bg-white/[0.06] transition-colors"
                         >
                           <span className="text-sm font-semibold text-slate-200 transition-colors group-hover/item:text-cyan-300">
@@ -122,13 +140,14 @@ const Navbar = () => {
             </div>
 
             {navLinks.map((l) => (
-              <a
+              <Link
                 key={l.label}
                 href={l.href}
+                onClick={(e) => goToSection(e, l.href)}
                 className="px-3 py-2 text-sm text-slate-400 hover:text-slate-100 rounded-lg hover:bg-white/5 transition-all duration-150"
               >
                 {l.label}
-              </a>
+              </Link>
             ))}
             <span className="w-px h-4 bg-white/12 mx-2" />
             {socialLinks.map((l) => (
@@ -194,7 +213,7 @@ const Navbar = () => {
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={() => setMobileOpen(false)}
+                onClick={(e) => goToSection(e, item.href)}
                 className="px-3 py-2.5 text-sm text-slate-300 hover:text-slate-100 rounded-lg hover:bg-white/5 transition-colors"
               >
                 {item.label}
@@ -202,14 +221,14 @@ const Navbar = () => {
             ))}
             <hr className="border-white/8 my-1" />
             {navLinks.map((l) => (
-              <a
+              <Link
                 key={l.label}
                 href={l.href}
-                onClick={() => setMobileOpen(false)}
+                onClick={(e) => goToSection(e, l.href)}
                 className="px-3 py-2.5 text-sm text-slate-300 hover:text-slate-100 rounded-lg hover:bg-white/5 transition-colors"
               >
                 {l.label}
-              </a>
+              </Link>
             ))}
             {socialLinks.map((l) => (
               <a
