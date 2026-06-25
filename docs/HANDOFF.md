@@ -498,7 +498,14 @@ Account-side, post-launch (needs Nate, not code):
 - Blue/cyan accents, **no purple** (except Twitch brand hover in Navbar).
 - Blog name: **N8 Notions** (Sanity-backed, live at `/blog`, nav label "Notions").
 - **Projects and Lab are ONE** ("the lab is everything"). No separate Projects
-  page/shelf. Extensions and Tools keep their own shelves.
+  page/shelf. **The Lab is the umbrella** (2026-06-25): Extensions, Tools, and
+  Resources are its sub-shelves, surfaced via a **hover dropdown on the navbar
+  "Lab" item** (The Lab · Chrome Extensions · Tools · Resources) — they're no
+  longer top-level nav items, so the top nav reads **Lab ▾ · Notions · Loadout**.
+- **Resources shelf** (2026-06-25) = the free browser-based dev directories
+  (CanIHost / FreeStack / APIScout), category `'Resource'` → `/resources`. Split
+  out of `'Web tool'` so they don't double-list on `/tools`; Sprite Arsenal stays
+  a `'Web tool'` (Tools).
 - **Don't list the same build twice.** Chrome extensions live only in the
   Extensions showcase (not the alternating featured rows). Appturnity is featured
   + excluded from the Lab list.
@@ -583,8 +590,9 @@ Account-side, post-launch (needs Nate, not code):
 
 - `docs/N8BUILDS_PLAN.md` — **read first**: IA strategy, pillars, Loadout concept, roadmap
 - `data/builds.tsx` — single source of truth: all builds (category, status, stack, links, images); incl. Portfolio Rank + Sprite Arsenal
-- `data/shelves.ts` — `getShelf()` classifier (extension/tool/lab; NO 'project' — merged into lab) + `buildsForShelf()` (excludes `featuredElsewhere`)
-- `app/{extensions,tools,lab}/page.tsx` — thin shelf pages → `<Shelf>` (NO /projects — deleted)
+- `data/shelves.ts` — `getShelf()` classifier (extension/tool/resource/lab; NO 'project' — merged into lab) + `buildsForShelf()` (excludes `featuredElsewhere`)
+- `app/{extensions,tools,resources,lab}/page.tsx` — thin shelf pages → `<Shelf>` (NO /projects — deleted); navbar groups all four under the **Lab** hover dropdown
+- `components/layout/Navbar.tsx` — `labMenu[]` drives the Lab dropdown (The Lab/Extensions/Tools/Resources); top nav is Lab ▾ · Notions · Loadout + socials
 - `components/sections/Shelf.tsx` — full filterable shelf page (tag chips)
 - `components/sections/ShelfSection.tsx` — homepage inline shelf preview (≤3 cards + See all) — used for The Lab
 - `components/sections/BuildCard.tsx` — shared card (stretched-link → /builds/[slug])
