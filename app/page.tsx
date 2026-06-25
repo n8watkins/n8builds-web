@@ -14,6 +14,7 @@ const NotionsStrip = dynamic(() => import('@/components/sections/NotionsStrip'))
 const ExtensionsShowcase = dynamic(() => import('@/components/sections/ExtensionsShowcase'))
 const ToolsSection = dynamic(() => import('@/components/sections/ToolsSection'))
 const HomeStack = dynamic(() => import('@/components/sections/HomeStack'))
+const WorkWithMe = dynamic(() => import('@/components/sections/WorkWithMe'))
 const Footer = dynamic(() => import('@/components/layout/Footer'))
 const ScrollToTop = dynamic(() => import('@/components/ui/ScrollToTop'), { ssr: false })
 
@@ -73,6 +74,11 @@ export default function Home() {
         {/* Homepage stack — AI marquee + Turso TL;DR → /loadout */}
         <SectionErrorBoundary sectionName="My Stack">
           <HomeStack />
+        </SectionErrorBoundary>
+
+        {/* Bridge — feeds the portfolio (hire me) + Appturnity (client work) */}
+        <SectionErrorBoundary sectionName="Work With Me">
+          <WorkWithMe />
         </SectionErrorBoundary>
 
         <section id="contact">
