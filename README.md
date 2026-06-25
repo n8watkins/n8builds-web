@@ -1,4 +1,4 @@
-# Nate Builds 🔧 — n8builds.dev
+# n8builds 🔧 — n8builds.dev
 
 The public builder lab of Nathan Watkins — a Next.js site for building software in public: apps, AI tools, agents, experiments, and build logs. Cloned from Portfolio 2.0 and rebranded.
 
