@@ -133,7 +133,7 @@ const Footer = () => {
             <div className="text-center md:text-left max-w-xs">
               <p className="font-bold text-slate-100 text-base mb-1">Need something built?</p>
               <p className="text-slate-500 text-sm leading-relaxed">
-                Nate Builds is the public lab. For project work and consulting, let&apos;s connect through Appturnity. Looking to hire me on a contract or full-time basis? View my portfolio.
+                n8builds is the public lab. For project work and consulting, let&apos;s connect through Appturnity. Looking to hire me on a contract or full-time basis? View my portfolio.
               </p>
             </div>
 
@@ -186,17 +186,17 @@ const Footer = () => {
           <div className="w-7 h-7 rounded-lg overflow-hidden ring-1 ring-white/10">
             <Image
               src="/tab/n8-logo.png"
-              alt="Nate Builds"
+              alt="n8builds"
               width={28}
               height={28}
               className="w-full h-full object-cover"
             />
           </div>
-          <span className="font-bold text-slate-200 text-sm">Nate Builds</span>
+          <span className="font-bold text-slate-200 text-sm">n8builds</span>
         </motion.div>
 
         <motion.p variants={staggerItemVariants} className="lg:text-sm text-xs text-slate-500">
-          © 2026 Nate Builds. All rights reserved. ·{' '}
+          © 2026 n8builds. All rights reserved. ·{' '}
           <a href="/privacy" className="hover:text-slate-300 underline underline-offset-2">
             Privacy
           </a>
