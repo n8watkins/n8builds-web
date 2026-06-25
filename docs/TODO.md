@@ -30,19 +30,18 @@ Turnstile.
 
 ---
 
-## 2. Lock down or remove `/api/health`
+## 2. Lock down or remove `/api/health` — DONE
 
-**Status:** open · **Effort:** ~5 min · **File:** `app/api/health/route.ts`
+**Status:** done (2026-06-25) · **File:** `app/api/health/route.ts`
 
-**Why:** `HEALTH_CHECK_SECRET` isn't set in Vercel, so the auth guard is
-skipped and the endpoint publicly returns env, uptime, memory, and dependency
-flags. Low severity (no secrets leak) but shouldn't be public.
+**What shipped:** the route is now **fail-safe in code** — the detailed payload
+(env/uptime/memory/dependency flags/version) is gated behind BOTH a configured
+`HEALTH_CHECK_SECRET` AND a matching `Authorization: Bearer <secret>`. The
+public/unauthenticated path returns only `{ "status": "ok" }`, so nothing leaks
+even with the secret unset. Verified live in dev. No Vercel env change required.
 
-**Fix (pick one):**
-- [ ] Set `HEALTH_CHECK_SECRET` in Vercel (Production) to a real random value
-      and redeploy — the existing guard then requires `Authorization: Bearer
-      <secret>`.
-- [ ] Or delete the route entirely if you're not monitoring uptime.
+**Optional (not needed):** if you want full diagnostics in prod, set
+`HEALTH_CHECK_SECRET` in Vercel and call with the bearer header.
 
 ---
 
@@ -96,5 +95,7 @@ Brand-architecture features from `HANDOFF.md`, not yet started:
       icons (NOT a wall of every tech).~~ Shipped 2026-06-13 as the
       `AITechStack` hover marquee (`components/features/AITechStack.tsx`), data in
       `data/aiStack` (two rows: agents + tools).
-- [ ] **Work With Me bridge section** — two cards: "Need a developer?" →
-      portfolio, "Need a website/business system?" → Appturnity.
+- [x] **Work With Me bridge section** — shipped 2026-06-25
+      (`components/sections/WorkWithMe.tsx`, on the homepage before the contact
+      footer). Two cards: "Need a developer?" → portfolio (cyan), "Need a
+      website or business system?" → Appturnity (emerald).
