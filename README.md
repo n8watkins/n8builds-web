@@ -162,7 +162,7 @@ n8builds-web/
 
 ```env
 # Site Configuration
-NEXT_PUBLIC_SITE_URL=http://localhost:1337
+NEXT_PUBLIC_SITE_URL=http://localhost:3737
 NEXT_PUBLIC_VERSION=1.0.0
 
 # Google Analytics (live: G-JZQGKY9Q37 — shared domain-wide property)

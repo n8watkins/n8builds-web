@@ -1,10 +1,10 @@
 import { chromium } from '@playwright/test'
 
 const shots = [
-  { url: 'http://localhost:1337/builds/piper-tts', out: '/tmp/shot-piper.png', full: true },
-  { url: 'http://localhost:1337/builds/appturnity', out: '/tmp/shot-appturnity.png', full: true },
-  { url: 'http://localhost:1337/builds/repo-steward', out: '/tmp/shot-steward.png', full: true },
-  { url: 'http://localhost:1337/#builds', out: '/tmp/shot-marquee.png', full: false },
+  { url: 'http://localhost:3737/builds/piper-tts', out: '/tmp/shot-piper.png', full: true },
+  { url: 'http://localhost:3737/builds/appturnity', out: '/tmp/shot-appturnity.png', full: true },
+  { url: 'http://localhost:3737/builds/repo-steward', out: '/tmp/shot-steward.png', full: true },
+  { url: 'http://localhost:3737/#builds', out: '/tmp/shot-marquee.png', full: false },
 ]
 
 const browser = await chromium.launch()

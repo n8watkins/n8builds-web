@@ -55,7 +55,7 @@ monorepo, no CMS code in this repo beyond a read client.
 - **No `@tailwindcss/typography`** here, and the site hand-styles content (see the
   builds page). So we **drop the `prose` wrapper** and style Portable Text blocks
   with explicit per-element classes (no new plugin needed).
-- Path alias is only `@/* -> ./*`. Dev server runs on **port 1337**. Build uses
+- Path alias is only `@/* -> ./*`. Dev server runs on **port 3737**. Build uses
   `next build --webpack`. Husky + lint-staged run on commit, so code must pass
   `eslint` and be Prettier-clean.
 
@@ -335,7 +335,7 @@ webhook in sanity.io/manage. Requires adding `next-sanity`.
 ## Verification
 
 ```bash
-npm run dev          # http://localhost:1337  → /blog lists the existing posts; open one
+npm run dev          # http://localhost:3737  → /blog lists the existing posts; open one
 npm run lint         # must pass (husky/lint-staged gate on commit)
 npm run build        # next build --webpack — confirms /blog/[slug] prerenders
 ```

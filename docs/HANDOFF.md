@@ -89,7 +89,7 @@ Nate Builds should *feed* the other two (bridge links), never replace them.
 Stack: Next.js 16 (Turbopack dev), TypeScript, Tailwind, framer-motion,
 Playwright, Nodemailer + Gmail SMTP contact form. Cloned from Portfolio 2.0,
 then rebranded.
-Dev runs at **http://localhost:1337** (`npm run dev`). **LIVE in production at
+Dev runs at **http://localhost:3737** (`npm run dev`). **LIVE in production at
 https://n8builds.dev** — Vercel project `n8builds-web` (team natkins23s-projects),
 auto-deploys on push to `main`. Re-verified serving HTTP 200 over HTTPS on
 2026-06-19; details in the launch sections below. (The old "not yet deployed"
@@ -154,8 +154,8 @@ What shipped:
 **Gotchas this session:** (1) `cd` in a Bash command persists across calls — a
 stray `cd` into a project dir made later `rm`/`npm` run from the wrong cwd (a
 delete silently no-op'd, tsc kept seeing a "deleted" file). Use absolute paths.
-(2) Dev server port 1337 conflicts: old `next dev` instances don't always die;
-`lsof -ti tcp:1337 | xargs -r kill -9` then start ONE. (3) Homepage sections are
+(2) Dev server port 3737 conflicts: old `next dev` instances don't always die;
+`lsof -ti tcp:3737 | xargs -r kill -9` then start ONE. (3) Homepage sections are
 `next/dynamic` → not in SSR HTML, so `curl | grep` can't see them; screenshot
 instead. (4) framer `whileInView` needs a scroll-through before full-page shots.
 
@@ -200,7 +200,7 @@ Loadout · Lab (+ Portfolio/Appturnity cross-links).
 **Verified:** `npm run type-check` clean, `npm run build` passes (all routes
 prerender: /loadout, /projects, /extensions, /tools, /lab), eslint clean
 (lint-staged auto-runs on commit). Visually verified all pages via Playwright
-against :1337. **Shelf counts:** projects 4, extensions 4, tools 3, lab 1.
+against :3737. **Shelf counts:** projects 4, extensions 4, tools 3, lab 1.
 
 **Gotcha (animations):** sections use framer `whileInView` — full-page
 Playwright screenshots show below-fold sections as empty unless you scroll the
@@ -545,20 +545,26 @@ Account-side, post-launch (needs Nate, not code):
   `Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>`.
   lint-staged runs
   eslint --fix on commit. Push n8builds-web freely; portfolio only when asked.
-- `npm run dev` = port 1337 (`next dev -p 1337`). If `EADDRINUSE`, a stale
-  dev server is holding the port: `ss -ltnp | grep 1337` then kill it.
+- `npm run dev` = port 3737 (`next dev -p 3737`). If `EADDRINUSE`, a stale
+  dev server is holding the port: `ss -ltnp | grep 3737` then kill it.
   Portfolio dev runs on 4829 — both can run simultaneously.
+  **Port history:** dev used to be 1337, but on this Windows box the
+  **Razer Chroma SDK Server** service (`RzSDKServer.exe`, runs as LocalSystem,
+  StartType Automatic) permanently squats `127.0.0.1:1337`. Because WSL2
+  forwards localhost to Windows, `next dev -p 1337` fails `EADDRINUSE` even
+  though Linux-side `lsof`/`ss` show nothing — the holder only appears via
+  `netstat.exe -ano | grep :1337`. Moved to **3737** (2026-06-25) to dodge it.
 - Env or `next.config.mjs` changes need a dev-server restart.
 - Node scripts importing project deps (sharp, playwright) fail from /tmp —
   copy the script into the repo first; import playwright as
   `@playwright/test` (plain `playwright` isn't installed).
-- Screenshot trick: Playwright headless against :1337; strip dev overlays
+- Screenshot trick: Playwright headless against :3737; strip dev overlays
   with `document.querySelectorAll('[class*="z-\\[9999\\]"], nextjs-portal')
   .forEach(el => el.remove())` before capturing (used for OG image).
 - `git check-ignore <path>` echoes the path on success — don't mistake it for
   ls-files output when auditing tracked files.
 - **Email test recipe** (dev server up, real sends via Gmail SMTP):
-  `curl -X POST http://localhost:1337/api/contact -H 'Content-Type:
+  `curl -X POST http://localhost:3737/api/contact -H 'Content-Type:
   application/json' -d '{"name":"Nathan Watkins","email":
   "nathancwatkins23@gmail.com","subject":"consulting","message":"ten chars
   min","honeypot":"","turnstile":"dev-test"}'` — `turnstile` must be non-empty
