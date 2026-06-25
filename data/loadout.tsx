@@ -206,9 +206,9 @@ export const loadout: LoadoutGroup[] = [
     path: '~/loadout/desk',
     items: [
       {
-        name: '27" 1440p 180Hz + 23" 1080p',
-        whatFor: 'Acer XV272U V3 as the main code/stream surface; a Dell U2312HM second screen for chat, docs, and logs.',
-        take: 'A high-refresh main + a utility second screen beats two identical panels. Living in a terminal and a browser at once needs the room.',
+        name: 'Acer XV272U V3 — 27" 1440p 180Hz',
+        whatFor: 'The main code and stream surface. High-refresh 1440p IPS, with a second screen off to the side for reference.',
+        take: 'A fast, sharp panel is the one screen upgrade I feel every single day — 180Hz spoils you.',
       },
       {
         name: 'Leopold mechanical',
