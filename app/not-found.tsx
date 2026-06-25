@@ -14,7 +14,7 @@ export default function NotFound() {
           href="/"
           className="inline-flex items-center px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold transition-all duration-200 hover:scale-[1.02]"
         >
-          Back to Nate Builds
+          Back to n8builds
         </Link>
       </div>
     </div>

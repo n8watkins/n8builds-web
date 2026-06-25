@@ -24,9 +24,9 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PostPageProps): Promise<Metadata> {
   const { slug } = await params
   const post = await getPostBySlug(slug)
-  if (!post) return { title: 'Not found — Nate Builds' }
+  if (!post) return { title: 'Not found — n8builds' }
 
-  const title = `${post.title} — Nate Builds`
+  const title = `${post.title} — n8builds`
   const description =
     post.seoDescription?.slice(0, 200) ?? post.excerpt?.slice(0, 160) ?? 'A note from N8 Notions.'
   const ogImage = post.seoOgUrl ?? post.coverUrl

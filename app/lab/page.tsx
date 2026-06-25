@@ -5,9 +5,9 @@ import { shelfMeta, buildsForShelf, tagsForShelf } from '@/data/shelves'
 const meta = shelfMeta.lab
 
 export const metadata: Metadata = {
-  title: `${meta.heading} — Nate Builds`,
+  title: `${meta.heading} — n8builds`,
   description: meta.blurb,
-  openGraph: { title: `${meta.heading} — Nate Builds`, description: meta.blurb },
+  openGraph: { title: `${meta.heading} — n8builds`, description: meta.blurb },
 }
 
 export default function LabPage() {

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Navbar from '@/components/layout/Navbar'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy — Nate Builds',
+  title: 'Privacy Policy — n8builds',
   description: 'How n8builds.dev collects, uses, and protects your information.',
   robots: 'index, follow',
 }
@@ -26,7 +26,7 @@ export default function PrivacyPolicy() {
         <div className="mt-10 space-y-8 leading-relaxed text-[0.95rem]">
           <p>
             This Privacy Policy explains how <strong className="text-slate-100">n8builds.dev</strong>{' '}
-            (&ldquo;Nate Builds,&rdquo; operated by Nathan Watkins) collects, uses, and protects your
+            (&ldquo;n8builds,&rdquo; operated by Nathan Watkins) collects, uses, and protects your
             information when you visit the site or get in touch.
           </p>
 

@@ -17,9 +17,9 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: BuildPageProps): Promise<Metadata> {
   const { slug } = await params
   const build = getBuild(slug)
-  if (!build) return { title: 'Build not found — Nate Builds' }
+  if (!build) return { title: 'Build not found — n8builds' }
 
-  const title = `${build.name} — Nate Builds`
+  const title = `${build.name} — n8builds`
   const description = `${build.tagline}. ${build.solution}`
   return {
     title,

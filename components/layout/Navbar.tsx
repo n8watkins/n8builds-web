@@ -53,7 +53,7 @@ const Navbar = () => {
             <div className="w-9 h-9 rounded-xl overflow-hidden ring-1 ring-white/10 group-hover:ring-white/20 transition-all duration-200">
               <Image
                 src="/tab/n8-logo.png"
-                alt="Nate Builds"
+                alt="n8builds"
                 width={36}
                 height={36}
                 className="w-full h-full object-cover"

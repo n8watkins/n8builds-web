@@ -6,11 +6,11 @@ import { getAllPosts } from '@/lib/sanity'
 export const revalidate = 3600
 
 export const metadata: Metadata = {
-  title: 'N8 Notions — Nate Builds',
+  title: 'N8 Notions — n8builds',
   description: 'Notes, essays, and build logs from n8 — building software in public.',
   alternates: { canonical: '/blog' },
   openGraph: {
-    title: 'N8 Notions — Nate Builds',
+    title: 'N8 Notions — n8builds',
     description: 'Notes, essays, and build logs from n8 — building software in public.',
     url: '/blog',
     type: 'website',

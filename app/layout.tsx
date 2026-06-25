@@ -17,12 +17,12 @@ const inter = Inter({
 })
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://n8builds.dev'
-const siteName = 'Nate Builds'
+const siteName = 'n8builds'
 
 export const metadata: Metadata = {
   title: `${siteName} — Public Builder Lab`,
   description: 'Apps, AI tools, Chrome extensions, local utilities, and build logs — all in public.',
-  keywords: ['Nathan Watkins', 'Nate Builds', 'Public Builder', 'Next.js', 'AI Tools', 'Chrome Extensions'],
+  keywords: ['Nathan Watkins', 'n8builds', 'Public Builder', 'Next.js', 'AI Tools', 'Chrome Extensions'],
   robots: 'index, follow',
   openGraph: {
     title: `${siteName} — Public Builder Lab`,
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
         url: `${siteUrl}/tab/preview.png`,
         width: 1200,
         height: 630,
-        alt: 'Nate Builds Preview',
+        alt: 'n8builds Preview',
       },
     ],
     type: 'website',

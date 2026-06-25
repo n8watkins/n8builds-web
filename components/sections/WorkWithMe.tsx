@@ -20,7 +20,7 @@ interface Bridge {
   }
 }
 
-// Two doors off the workshop. Nate Builds is the top-of-funnel; it should feed
+// Two doors off the workshop. n8builds is the top-of-funnel; it should feed
 // the portfolio (developer credibility) and Appturnity (client work), never
 // replace them. Keep these copies conversational, not salesy.
 const bridges: Bridge[] = [
