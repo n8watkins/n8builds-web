@@ -210,14 +210,14 @@ header gradient title "N8 Notions", a post-card grid, and a topic filter using t
 existing tag-chip pattern from `components/sections/Shelf.tsx` (topics:
 all/ai/growth/predictions/startup). Card links to `/blog/${slug}`. Render
 `<Navbar />` at top + a "Back to home" or the site footer (see Chrome note).
-Add static `export const metadata = { title: 'N8 Notions — Nate Builds', ... }`.
+Add static `export const metadata = { title: 'N8 Notions — n8builds', ... }`.
 
 ### 4. `app/blog/[slug]/page.tsx` (new) — single post
 
 Model on `app/builds/[slug]/page.tsx`:
 
 - `params: Promise<{ slug: string }>`; `generateStaticParams` from
-  `getAllPosts()` slugs; async `generateMetadata` → `${title} — Nate Builds`,
+  `getAllPosts()` slugs; async `generateMetadata` → `${title} — n8builds`,
   `openGraph` type `article` with `publishedTime`, canonical `/blog/${slug}`.
 - `export const revalidate = 3600`.
 - `getPostBySlug(slug)` → `notFound()` if null.

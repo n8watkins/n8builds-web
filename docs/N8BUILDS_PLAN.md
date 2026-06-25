@@ -1,4 +1,4 @@
-# Nate Builds — The Big Plan
+# n8builds — The Big Plan
 
 > Status: SHIPPED to prod (n8builds.dev) — Loadout, shelves, homepage redesign (extensions showcase, Projects+Lab merge, free-tools trio, Currently-Building section, galleries, tech-stack bento), N8 Notions blog, hero electrified-circuit animation. Remaining: `/builds` Log index page, live-status layer, real screenshots for TL;DW/LocalDictate.
 > Last updated: 2026-06-21 (hero `whoami` terminal + "build philosophy" electrified-circuit animation are SHIPPED on `main` — the `feat/hero-terminal-circuit` branch was merged and deleted; everything is on `main`)
@@ -8,7 +8,7 @@
 
 ## 0. North Star
 
-**Nate Builds is the public workshop.** You watch the *during* — the build happening
+**n8builds is the public workshop.** You watch the *during* — the build happening
 live and unfinished, on purpose — not the polished after.
 
 It is NOT a resume, NOT a hire-me page, NOT a linktree. It's a place to share myself

@@ -1,4 +1,4 @@
-# HANDOFF — Nate Builds (n8builds-web)
+# HANDOFF — n8builds (n8builds-web)
 
 _Last updated: 2026-06-21 — bot protection + env refresh: invisible **Cloudflare
 Turnstile** replaced reCAPTCHA entirely (live on Vercel), GA (`G-JZQGKY9Q37`) +
@@ -16,7 +16,7 @@ free-tools section, Currently-Building carousel, galleries, tech-stack bento.)_
 > **⚡ NEWEST WORK FIRST:** read the "Homepage redesign (2026-06-13)" section
 > directly below — it's the current state of the site. The "IA overhaul" and
 > launch/email sections after it are older but still accurate context.
-> Strategy doc: `docs/NATE_BUILDS_PLAN.md`.
+> Strategy doc: `docs/N8BUILDS_PLAN.md`.
 
 > **🧰 Free Tools Trio (CanIHost · FreeStack · APIScout):** three OSS tools built
 > 2026-06-13, now in the homepage Free Tools section. They live in their own
@@ -35,7 +35,7 @@ free-tools section, Currently-Building carousel, galleries, tech-stack bento.)_
   field is now `turnstile` (was `recaptcha`); honeypot + rate-limit still active.
 - **Privacy policy added** at `app/privacy/page.tsx` (references the Cloudflare
   Turnstile Privacy Addendum — required for invisible mode — + Google Analytics),
-  linked from the footer ("© 2026 Nate Builds … · Privacy").
+  linked from the footer ("© 2026 n8builds … · Privacy").
 - **`NEXT_PUBLIC_SITE_URL=https://n8builds.dev`** set in Vercel Production (was
   EMPTY — fixes canonical/OG/sitemap).
 - **GA confirmed live** — `NEXT_PUBLIC_GA_ID=G-JZQGKY9Q37` set in Vercel Production
@@ -76,16 +76,16 @@ free-tools section, Currently-Building carousel, galleries, tech-stack bento.)_
 
 ## Project summary
 
-**Nate Builds** is Nathan Watkins' public builder-lab site — the top-of-funnel
+**n8builds** is Nathan Watkins' public builder-lab site — the top-of-funnel
 personality brand in a three-brand ecosystem:
 
 | Brand | Job | Where |
 |---|---|---|
-| **Nate Builds** (this repo) | audience + attention ("building software in public") | n8builds.dev · github.com/n8watkins/n8builds-web |
+| **n8builds** (this repo) | audience + attention ("building software in public") | n8builds.dev · github.com/n8watkins/n8builds-web |
 | Portfolio 2.0 | developer credibility | portfolio.n8builds.dev · `/home/natkins/portfolio/portfolio2.0` |
 | Appturnity | client work / consulting funnel | **appturnity.com** (live; appturnity.web.app is the same site's old URL) |
 
-Nate Builds should *feed* the other two (bridge links), never replace them.
+n8builds should *feed* the other two (bridge links), never replace them.
 Stack: Next.js 16 (Turbopack dev), TypeScript, Tailwind, framer-motion,
 Playwright, Nodemailer + Gmail SMTP contact form. Cloned from Portfolio 2.0,
 then rebranded.
@@ -161,12 +161,12 @@ instead. (4) framer `whileInView` needs a scroll-through before full-page shots.
 
 ## Done 2026-06-12: IA overhaul — Loadout + shelves + homepage sections (NOT pushed → now pushed)
 
-This session reframed Nate Builds from "portfolio-ish" to a **public workshop /
+This session reframed n8builds from "portfolio-ish" to a **public workshop /
 build-in-public hub**. Four commits, **local only on `main` (ahead of
 origin/main by 4) — NOT pushed** (pushing auto-deploys to prod; user hasn't
-asked). Strategy + full roadmap: **`docs/NATE_BUILDS_PLAN.md`** (read it).
+asked). Strategy + full roadmap: **`docs/N8BUILDS_PLAN.md`** (read it).
 
-- `4f273b0` — `docs/NATE_BUILDS_PLAN.md`: positioning (the public workshop),
+- `4f273b0` — `docs/N8BUILDS_PLAN.md`: positioning (the public workshop),
   3 pillars (Build / Stream / Signal), the **Loadout** concept, unified content
   schema, phased roadmap. Derived from a 3-agent analysis (content/IA/brand).
 - `b61b96c` — **/loadout** page. `data/loadout.tsx` = 6 groups (AI & Agents,
@@ -581,7 +581,7 @@ Account-side, post-launch (needs Nate, not code):
 
 ## File map
 
-- `docs/NATE_BUILDS_PLAN.md` — **read first**: IA strategy, pillars, Loadout concept, roadmap
+- `docs/N8BUILDS_PLAN.md` — **read first**: IA strategy, pillars, Loadout concept, roadmap
 - `data/builds.tsx` — single source of truth: all builds (category, status, stack, links, images); incl. Portfolio Rank + Sprite Arsenal
 - `data/shelves.ts` — `getShelf()` classifier (extension/tool/lab; NO 'project' — merged into lab) + `buildsForShelf()` (excludes `featuredElsewhere`)
 - `app/{extensions,tools,lab}/page.tsx` — thin shelf pages → `<Shelf>` (NO /projects — deleted)
