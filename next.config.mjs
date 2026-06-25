@@ -62,6 +62,12 @@ const nextConfig = {
         destination: 'https://sprite-bench.vercel.app',
         permanent: false,
       },
+      // The shelf pages were folded into the homepage Lab section — redirect the
+      // old routes to their on-page anchors so existing links/bookmarks still land.
+      { source: '/lab', destination: '/#lab', permanent: false },
+      { source: '/extensions', destination: '/#extensions', permanent: false },
+      { source: '/tools', destination: '/#tools', permanent: false },
+      { source: '/resources', destination: '/#resources', permanent: false },
     ]
   },
   async headers() {

@@ -1,6 +1,5 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FiGithub, FiExternalLink, FiActivity, FiChevronLeft, FiChevronRight, FiArrowUpRight } from 'react-icons/fi'
 import { MdRadioButtonChecked } from 'react-icons/md'
@@ -111,10 +110,10 @@ const NowBuilding = () => {
           </p>
           <h2 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">What I&apos;m working on right now</h2>
         </div>
-        <Link href="/lab" className="group flex items-center gap-2 rounded-xl border border-white/12 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/[0.08]">
+        <a href="#lab" className="group flex items-center gap-2 rounded-xl border border-white/12 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/[0.08]">
           Check out the lab
           <FiArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-        </Link>
+        </a>
       </div>
 
       <div

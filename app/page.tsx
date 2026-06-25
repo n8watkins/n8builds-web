@@ -12,7 +12,6 @@ const FeaturedProjects = dynamic(() => import('@/components/sections/FeaturedPro
 const ShelfSection = dynamic(() => import('@/components/sections/ShelfSection'))
 const NotionsStrip = dynamic(() => import('@/components/sections/NotionsStrip'))
 const ExtensionsShowcase = dynamic(() => import('@/components/sections/ExtensionsShowcase'))
-const ToolsSection = dynamic(() => import('@/components/sections/ToolsSection'))
 const HomeStack = dynamic(() => import('@/components/sections/HomeStack'))
 const WorkWithMe = dynamic(() => import('@/components/sections/WorkWithMe'))
 const Footer = dynamic(() => import('@/components/layout/Footer'))
@@ -53,14 +52,39 @@ export default function Home() {
           <FeaturedProjects />
         </SectionErrorBoundary>
 
-        {/* The Lab — everything I'm building (merged projects + lab) */}
-        <SectionErrorBoundary sectionName="The Lab">
-          <ShelfSection shelf="lab" />
-        </SectionErrorBoundary>
+        {/* ===== THE LAB — one big section: web apps, extensions, tools, resources.
+             The navbar "Lab" dropdown scrolls to these anchors (#lab/#extensions/
+             #tools/#resources). No separate shelf pages. ===== */}
 
-        {/* N8 Notions — latest blog posts */}
-        <SectionErrorBoundary sectionName="N8 Notions">
-          <NotionsStrip />
+        {/* Lab lead-in + in-page jump nav */}
+        <div id="lab" className="pt-16">
+          <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-teal-400">The bench</p>
+          <h2 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">The Lab</h2>
+          <p className="mt-2 max-w-[560px] text-[#9cadc5]">
+            Everything I&apos;m building, in one place — web apps and experiments, Chrome extensions,
+            dev tools, and free resources.
+          </p>
+          <nav aria-label="Lab sections" className="mt-5 flex flex-wrap gap-2">
+            {[
+              { label: 'Web apps', href: '#lab' },
+              { label: 'Chrome Extensions', href: '#extensions' },
+              { label: 'Tools', href: '#tools' },
+              { label: 'Resources', href: '#resources' },
+            ].map((c) => (
+              <a
+                key={c.href}
+                href={c.href}
+                className="rounded-full border border-white/12 bg-white/[0.04] px-3.5 py-1.5 text-sm font-medium text-slate-300 transition-all duration-150 hover:border-cyan-400/40 hover:bg-white/[0.07] hover:text-cyan-200"
+              >
+                {c.label}
+              </a>
+            ))}
+          </nav>
+        </div>
+
+        {/* Web apps & experiments (the lead-in div above owns the #lab anchor) */}
+        <SectionErrorBoundary sectionName="The Lab">
+          <ShelfSection shelf="lab" anchorId={null} />
         </SectionErrorBoundary>
 
         <SectionErrorBoundary sectionName="Extensions">
@@ -68,7 +92,17 @@ export default function Home() {
         </SectionErrorBoundary>
 
         <SectionErrorBoundary sectionName="Tools">
-          <ToolsSection />
+          <ShelfSection shelf="tool" />
+        </SectionErrorBoundary>
+
+        <SectionErrorBoundary sectionName="Resources">
+          <ShelfSection shelf="resource" />
+        </SectionErrorBoundary>
+        {/* ===== end THE LAB ===== */}
+
+        {/* N8 Notions — latest blog posts */}
+        <SectionErrorBoundary sectionName="N8 Notions">
+          <NotionsStrip />
         </SectionErrorBoundary>
 
         {/* Homepage stack — AI marquee + Turso TL;DR → /loadout */}

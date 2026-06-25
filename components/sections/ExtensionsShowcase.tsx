@@ -136,21 +136,12 @@ const ExtensionsShowcase = () => {
 
   return (
     <section id="extensions" aria-label="Chrome extensions" className="py-16">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-indigo-400">Browser tools</p>
-          <h2 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">Chrome extensions</h2>
-          <p className="mt-2 max-w-[520px] text-[#9cadc5]">
-            Small, local-first tools I built and actually use. All open source — if one&apos;s useful, a star helps a ton.
-          </p>
-        </div>
-        <Link
-          href="/extensions"
-          className="group hidden items-center gap-2 rounded-xl border border-white/12 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/[0.08] sm:flex"
-        >
-          See all
-          <FiArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-        </Link>
+      <div className="mb-8">
+        <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-indigo-400">Browser tools</p>
+        <h2 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">Chrome extensions</h2>
+        <p className="mt-2 max-w-[520px] text-[#9cadc5]">
+          Small, local-first tools I built and actually use. All open source — if one&apos;s useful, a star helps a ton.
+        </p>
       </div>
 
       {/* ===== Desktop: 3 side-by-side + auto-cycle detail ===== */}

@@ -1,6 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { SiTwitch, SiYoutube } from 'react-icons/si'
 import { FiExternalLink, FiMenu, FiX, FiChevronDown } from 'react-icons/fi'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -8,10 +9,10 @@ import { motion, AnimatePresence } from 'framer-motion'
 // The Lab is the umbrella — its sub-shelves live in a hover dropdown so the top
 // nav stays short. Each item routes to its existing shelf page.
 const labMenu = [
-  { label: 'The Lab', href: '/lab', desc: "Everything I'm building" },
-  { label: 'Chrome Extensions', href: '/extensions', desc: 'Browser tools, local-first' },
-  { label: 'Tools', href: '/tools', desc: 'Desktop apps, bots & utilities' },
-  { label: 'Resources', href: '/resources', desc: 'Free dev directories' },
+  { label: 'The Lab', href: '/#lab', desc: "Everything I'm building" },
+  { label: 'Chrome Extensions', href: '/#extensions', desc: 'Browser tools, local-first' },
+  { label: 'Tools', href: '/#tools', desc: 'Desktop apps, bots & utilities' },
+  { label: 'Resources', href: '/#resources', desc: 'Free dev directories' },
 ]
 
 const Navbar = () => {
@@ -80,8 +81,8 @@ const Navbar = () => {
               onMouseEnter={() => setLabOpen(true)}
               onMouseLeave={() => setLabOpen(false)}
             >
-              <a
-                href="/lab"
+              <Link
+                href="/#lab"
                 onFocus={() => setLabOpen(true)}
                 aria-haspopup="true"
                 aria-expanded={labOpen}
@@ -91,7 +92,7 @@ const Navbar = () => {
                 <FiChevronDown
                   className={`w-3.5 h-3.5 transition-transform duration-200 ${labOpen ? 'rotate-180' : ''}`}
                 />
-              </a>
+              </Link>
               <AnimatePresence>
                 {labOpen && (
                   <motion.div
@@ -103,7 +104,7 @@ const Navbar = () => {
                   >
                     <div className="rounded-xl border border-white/[0.08] bg-[#070b16]/97 backdrop-blur-2xl p-1.5 shadow-2xl shadow-black/50">
                       {labMenu.map((item) => (
-                        <a
+                        <Link
                           key={item.href}
                           href={item.href}
                           className="group/item flex flex-col gap-0.5 px-3 py-2 rounded-lg hover:bg-white/[0.06] transition-colors"
@@ -112,7 +113,7 @@ const Navbar = () => {
                             {item.label}
                           </span>
                           <span className="text-xs text-slate-500">{item.desc}</span>
-                        </a>
+                        </Link>
                       ))}
                     </div>
                   </motion.div>
@@ -190,14 +191,14 @@ const Navbar = () => {
               Lab
             </p>
             {labMenu.map((item) => (
-              <a
+              <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setMobileOpen(false)}
                 className="px-3 py-2.5 text-sm text-slate-300 hover:text-slate-100 rounded-lg hover:bg-white/5 transition-colors"
               >
                 {item.label}
-              </a>
+              </Link>
             ))}
             <hr className="border-white/8 my-1" />
             {navLinks.map((l) => (

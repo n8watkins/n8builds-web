@@ -48,9 +48,9 @@ export const shelfMeta: Record<Shelf, ShelfMeta> = {
     id: 'lab',
     slug: 'lab',
     label: 'Lab',
-    eyebrow: 'In the lab',
-    heading: 'The Lab',
-    blurb: 'Everything I\'m building — shipped apps, ongoing projects, and half-built experiments. This is the whole bench.',
+    eyebrow: 'Apps & experiments',
+    heading: 'Web apps & experiments',
+    blurb: 'Shipped apps, ongoing projects, and half-built experiments — the web side of the bench.',
   },
 }
 

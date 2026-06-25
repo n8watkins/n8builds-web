@@ -7,6 +7,7 @@
     @apply custom-scrollbar;
     scrollbar-gutter: stable;
     scroll-padding-top: 80px; /* Offset for fixed navigation */
+    scroll-behavior: smooth; /* nav anchor links glide to homepage sections */
   }
 
   body {
