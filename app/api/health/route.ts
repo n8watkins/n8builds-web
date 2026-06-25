@@ -1,21 +1,34 @@
+// Health check.
+//
+// Detailed diagnostics (environment, uptime, memory, dependency flags, version)
+// are returned ONLY when a valid bearer token is presented AND
+// HEALTH_CHECK_SECRET is configured. Without the secret the endpoint is a
+// minimal liveness ping that leaks nothing — so it's safe to leave public even
+// if the secret is never set in the deploy environment.
+//
+// To enable full diagnostics: set HEALTH_CHECK_SECRET in Vercel, then call with
+//   Authorization: Bearer <secret>
+
 // Simple dependency health check
 async function checkDependencies() {
-  const deps = {
+  return {
     sentry: !!process.env.SENTRY_ORG,
     analytics: !!process.env.NEXT_PUBLIC_GA_ID,
-    env: process.env.NODE_ENV || 'unknown'
+    env: process.env.NODE_ENV || 'unknown',
   }
-  return deps
 }
 
 export async function GET(request: Request) {
-  // Optional: Simple token-based protection
-  const authHeader = request.headers.get('authorization')
   const expectedToken = process.env.HEALTH_CHECK_SECRET
+  const authHeader = request.headers.get('authorization')
+  const authorized = !!expectedToken && authHeader === `Bearer ${expectedToken}`
 
-  if (expectedToken && authHeader !== `Bearer ${expectedToken}`) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  // Public, unauthenticated path: minimal liveness only — no env / uptime /
+  // memory / dependency details exposed.
+  if (!authorized) {
+    return Response.json({ status: 'ok' })
   }
+
   try {
     const dependencies = await checkDependencies()
     const healthData = {
