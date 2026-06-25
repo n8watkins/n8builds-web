@@ -400,7 +400,7 @@ export const builds: Build[] = [
     slug: 'canihost',
     name: 'CanIHost',
     tagline: 'Self-hosted apps, by what you want to do',
-    category: 'Web tool',
+    category: 'Resource',
     tags: ['Next.js', 'TypeScript', 'Open source'],
     color: 'from-amber-500/20 to-orange-600/20',
     problem:
@@ -425,7 +425,7 @@ export const builds: Build[] = [
     slug: 'freestack',
     name: 'FreeStack',
     tagline: 'Every free developer tier, searchable & side-by-side',
-    category: 'Web tool',
+    category: 'Resource',
     tags: ['Next.js', 'TypeScript', 'Open source'],
     color: 'from-emerald-500/20 to-teal-600/20',
     problem:
@@ -450,7 +450,7 @@ export const builds: Build[] = [
     slug: 'apiscout',
     name: 'APIScout',
     tagline: 'Find, filter & test free public APIs — live',
-    category: 'Web tool',
+    category: 'Resource',
     tags: ['Next.js', 'TypeScript', 'Open source'],
     color: 'from-indigo-500/20 to-blue-600/20',
     problem:

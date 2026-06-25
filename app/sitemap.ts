@@ -5,7 +5,7 @@ import { getAllPosts } from '@/lib/sanity'
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://n8builds.dev'
 
-  const shelfRoutes = ['lab', 'extensions', 'tools', 'loadout']
+  const shelfRoutes = ['lab', 'extensions', 'tools', 'resources', 'loadout']
 
   // N8 Notions posts (read from Sanity). Tolerate Sanity being unreachable at
   // build time — still emit the rest of the sitemap.

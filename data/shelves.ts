@@ -4,7 +4,7 @@ import { builds, type Build } from './builds'
 // source of truth (data/builds.tsx) so adding a build = it shows up on the right shelf.
 // No parallel dataset, no duplicated links.
 
-export type Shelf = 'extension' | 'tool' | 'lab'
+export type Shelf = 'extension' | 'tool' | 'resource' | 'lab'
 
 export interface ShelfMeta {
   id: Shelf
@@ -36,6 +36,14 @@ export const shelfMeta: Record<Shelf, ShelfMeta> = {
     heading: 'Tools',
     blurb: 'Desktop apps, bots, and dev utilities I made because I wanted them to exist.',
   },
+  resource: {
+    id: 'resource',
+    slug: 'resources',
+    label: 'Resources',
+    eyebrow: 'Free dev resources',
+    heading: 'Resources',
+    blurb: 'Free, browser-based developer directories I built — find self-hosted apps, free dev tiers, and public APIs without the rabbit hole. No account, nothing uploaded.',
+  },
   lab: {
     id: 'lab',
     slug: 'lab',
@@ -46,8 +54,8 @@ export const shelfMeta: Record<Shelf, ShelfMeta> = {
   },
 }
 
-// Classify a build onto a shelf. Extensions and tools get their own shelves;
-// everything else (web apps, experiments, "in the lab") lands in the Lab.
+// Classify a build onto a shelf. Extensions, tools, and resources get their own
+// shelves; everything else (web apps, experiments, "in the lab") lands in the Lab.
 export function getShelf(build: Build): Shelf {
   switch (build.category) {
     case 'Chrome extension':
@@ -58,6 +66,8 @@ export function getShelf(build: Build): Shelf {
     case 'GitHub Actions bot':
     case 'Web tool':
       return 'tool'
+    case 'Resource':
+      return 'resource'
     default:
       return 'lab'
   }
