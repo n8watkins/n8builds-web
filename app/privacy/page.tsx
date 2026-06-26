@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   robots: 'index, follow',
 }
 
-const UPDATED = 'June 20, 2026'
+const UPDATED = 'June 25, 2026'
 
 export default function PrivacyPolicy() {
   return (
@@ -46,6 +46,12 @@ export default function PrivacyPolicy() {
                 <span className="text-slate-100">Bot protection.</span> The contact form is protected by
                 Cloudflare Turnstile, which collects limited device and interaction signals to confirm you
                 are a human and to block automated abuse.
+              </li>
+              <li>
+                <span className="text-slate-100">Error monitoring.</span> To catch and fix bugs, the site
+                uses Sentry. When an error occurs it may capture technical details along with your IP
+                address, browser and device information, and a recording (&ldquo;session replay&rdquo;) of
+                that browsing session. Replays mask text and form inputs by default.
               </li>
             </ul>
           </section>
@@ -86,6 +92,19 @@ export default function PrivacyPolicy() {
                   className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
                 >
                   Google Privacy Policy
+                </a>
+                .
+              </li>
+              <li>
+                <span className="text-slate-100">Sentry.</span> Error and performance monitoring is
+                processed by Sentry under the{' '}
+                <a
+                  href="https://sentry.io/privacy/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
+                >
+                  Sentry Privacy Policy
                 </a>
                 .
               </li>
