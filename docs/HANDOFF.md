@@ -69,8 +69,9 @@ free-tools section, Currently-Building carousel, galleries, tech-stack bento.)_
 - Free-tool subdomains (`canihost`/`freestack`/`apiscout.n8builds.dev`): DNS
   CNAMEs not yet added (Cloudflare token read-only) → `liveSite` still on
   `*.vercel.app` in `data/builds.tsx`; flip once DNS resolves.
-- `/api/health` is still public (`HEALTH_CHECK_SECRET` unset in Vercel) — set it
-  or delete the route.
+- ~~`/api/health` public~~ — DONE (2026-06-25): simplified to a plain
+  `{status:'ok'}` liveness ping; the verbose diagnostics + `HEALTH_CHECK_SECRET`
+  bearer gate were removed (no auth, no monitor, nothing to expose).
 - Pre-existing: Portfolio Rank real backend stack; Appturnity "Currently
   building" copy.
 
@@ -489,9 +490,10 @@ Account-side, post-launch (needs Nate, not code):
   Gmail address — being re-verified 2026-06-19. The 06-12 note that live sends
   showed `From: contact@n8builds.dev` suggests it works, pending a fresh check.
 - Sentry was deliberately removed (no `@sentry/nextjs` dep, no config). All that
-  remains is a dead `app/api/sentry-example-api/route.ts` and a `SENTRY_ORG`
-  boolean health-check flag in `/api/health`. Either delete those two artifacts
-  or actually re-wire Sentry (`npx @sentry/wizard -i nextjs`).
+  remains is a dead `app/api/sentry-example-api/route.ts` and the `SENTRY_ORG`
+  env placeholder (no longer read — the `/api/health` flag that used it was
+  removed 2026-06-25). Either delete those artifacts or actually re-wire Sentry
+  (`npx @sentry/wizard -i nextjs`).
 
 ## Decisions already made (do not re-ask)
 

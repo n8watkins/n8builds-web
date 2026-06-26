@@ -34,14 +34,13 @@ Turnstile.
 
 **Status:** done (2026-06-25) · **File:** `app/api/health/route.ts`
 
-**What shipped:** the route is now **fail-safe in code** — the detailed payload
-(env/uptime/memory/dependency flags/version) is gated behind BOTH a configured
-`HEALTH_CHECK_SECRET` AND a matching `Authorization: Bearer <secret>`. The
-public/unauthenticated path returns only `{ "status": "ok" }`, so nothing leaks
-even with the secret unset. Verified live in dev. No Vercel env change required.
-
-**Optional (not needed):** if you want full diagnostics in prod, set
-`HEALTH_CHECK_SECRET` in Vercel and call with the bearer header.
+**What shipped:** the route is now a **plain liveness ping** — `GET` returns just
+`{ "status": "ok" }`. The inherited verbose diagnostics (env/uptime/memory/dep
+flags/version) and the `HEALTH_CHECK_SECRET` bearer gate were **removed entirely**,
+not just gated. On a public, no-auth site there's nothing to expose and nothing
+to authenticate, so the secret machinery was dead weight (no monitor consumes it,
+the var was never set in Vercel). `HEALTH_CHECK_SECRET` is gone from `.env.example`.
+`/api/health/error` (POST, used by the error boundaries) is untouched.
 
 ---
 
@@ -63,18 +62,13 @@ googletagmanager.com; the gtag script is gated on the env var.
 
 ---
 
-## 4. Fix version string mismatch (cosmetic)
+## 4. Fix version string mismatch (cosmetic) — MOOT
 
-**Status:** open · **Effort:** ~2 min · **Files:** `.env.local`,
-`app/api/health/route.ts`
+**Status:** resolved by #2 (2026-06-25) · **File:** `app/api/health/route.ts`
 
-**Why:** `/api/health` reports a hardcoded fallback "2.0.0" in prod because
-`NEXT_PUBLIC_VERSION` isn't in Vercel, while local `.env.local` says "1.0.0".
-Purely cosmetic.
-
-**Fix:**
-- [ ] Set `NEXT_PUBLIC_VERSION` in Vercel to match, or align the hardcoded
-      fallback in `route.ts`. (Moot if finding #2 removes the route.)
+`/api/health` no longer reports a version (or any diagnostics) — it's a plain
+`{ "status": "ok" }` liveness ping now, so there's no "2.0.0" string to mismatch.
+`NEXT_PUBLIC_VERSION` is unused by the app.
 
 ---
 
