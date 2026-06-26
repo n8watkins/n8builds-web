@@ -38,7 +38,8 @@ const Navbar = () => {
     const el = document.getElementById(href.slice(2))
     if (!el) return
     e.preventDefault()
-    el.scrollIntoView({ behavior: 'smooth' })
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' })
     window.history.replaceState(null, '', href)
   }
 
