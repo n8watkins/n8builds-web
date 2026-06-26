@@ -1,4 +1,5 @@
 import bundleAnalyzer from '@next/bundle-analyzer'
+import { withSentryConfig } from '@sentry/nextjs'
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
@@ -89,4 +90,14 @@ const nextConfig = {
   },
 }
 
-export default withBundleAnalyzer(nextConfig)
+// Wrap with Sentry. Source-map upload runs only when SENTRY_AUTH_TOKEN (+ ORG/
+// PROJECT) are set — without them the build still succeeds, you just get
+// minified stack traces. The runtime SDK stays inert until NEXT_PUBLIC_SENTRY_DSN
+// is set, so this is safe to ship before the Sentry project exists.
+export default withSentryConfig(withBundleAnalyzer(nextConfig), {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  silent: !process.env.CI,
+  widenClientFileUpload: true,
+  disableLogger: true,
+})

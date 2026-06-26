@@ -58,10 +58,16 @@ free-tools section, Currently-Building carousel, galleries, tech-stack bento.)_
   `nathansportfolio.vercel.app` removed everywhere.
 
 **To do (open):**
-- **Sentry — wire it up (we want error monitoring).** Set up Sentry for real
-  (`npx @sentry/wizard -i nextjs`) and replace the leftover dead
-  `app/api/sentry-example-api/route.ts` stub + `SENTRY_ORG` health flag. We're
-  keeping Sentry on the roadmap — don't just delete the stub.
+- ~~**Sentry — wire it up**~~ — DONE (2026-06-25). `@sentry/nextjs@^10` is
+  installed and wired: `sentry.{server,edge}.config.ts`, `instrumentation.ts`
+  (`register()` + `onRequestError`), `instrumentation-client.ts`
+  (`onRouterTransitionStart`), `withSentryConfig` wrapping `next.config.mjs`, and
+  both error boundaries call `Sentry.captureException`. The dead
+  `app/api/sentry-example-api/route.ts` stub was removed. **It's fully inert until
+  `NEXT_PUBLIC_SENTRY_DSN` is set** — the only thing left is account-side: create
+  the Sentry project, set `NEXT_PUBLIC_SENTRY_DSN` in `.env.local` + Vercel (and
+  optionally `SENTRY_ORG`/`SENTRY_PROJECT`/`SENTRY_AUTH_TOKEN` for source-map
+  upload). Build verified passing on Next 16.
 - Ensure the `portfolio.n8builds.dev` deployment fires the same `G-JZQGKY9Q37`
   GA tag. **(Verified needed:** GA only tracks pages *this* repo serves — the
   portfolio is a separate deploy, so the subdomain isn't tracked until its own
@@ -489,11 +495,11 @@ Account-side, post-launch (needs Nate, not code):
   alias (showing that as the From) or silently rewrites it to the personal
   Gmail address — being re-verified 2026-06-19. The 06-12 note that live sends
   showed `From: contact@n8builds.dev` suggests it works, pending a fresh check.
-- Sentry was deliberately removed (no `@sentry/nextjs` dep, no config). All that
-  remains is a dead `app/api/sentry-example-api/route.ts` and the `SENTRY_ORG`
-  env placeholder (no longer read — the `/api/health` flag that used it was
-  removed 2026-06-25). Either delete those artifacts or actually re-wire Sentry
-  (`npx @sentry/wizard -i nextjs`).
+- Sentry: **now wired up (2026-06-25)** — see the Session status "Done" note above.
+  `@sentry/nextjs` installed, config + instrumentation in place, error boundaries
+  report to it, dead stub removed. Inert until `NEXT_PUBLIC_SENTRY_DSN` is set
+  (account-side step). `SENTRY_ORG`/`SENTRY_PROJECT`/`SENTRY_AUTH_TOKEN` are only
+  for source-map upload.
 
 ## Decisions already made (do not re-ask)
 
