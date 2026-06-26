@@ -113,11 +113,16 @@ throughout; dev runs on **:3737** now.
   `NEXT_PUBLIC_SENTRY_DSN` is set in Vercel Production and verified embedded in the
   live client bundle (org `o4507767562371072`, project `4511629733855232`). The DSN
   was fetched via the Sentry CLI (`sentry api projects/nathan-watkins/n8builds/keys/`;
-  read-only OAuth token in `~/.sentry/cli.db`, ~4wk). Still TODO (optional):
-  `SENTRY_AUTH_TOKEN` for source-map upload (readable stack traces). Sentry **MCP**
-  added (local scope, `~/.claude.json`) → `/mcp` to authenticate, then issues are
-  queryable from chat. Org `nathan-watkins` / project `n8builds` hardcoded in
-  `next.config.mjs`. Build verified on Next 16.
+  read-only OAuth token in `~/.sentry/cli.db`, ~4wk). **Source maps: DONE** —
+  `SENTRY_AUTH_TOKEN` (org auth token) is set in Vercel Production and upload was
+  verified in the build log (80 files, "artifact bundle"), so prod stack traces are
+  readable. The token value lives ONLY in Vercel env (and the chat transcript) — it
+  is not stored in any committed file; `.env.example` lists `SENTRY_AUTH_TOKEN=` as
+  an empty placeholder. **Prod capture verified** end-to-end via a throwaway
+  `/api/sentry-test` route (issue `N8BUILDS-1`, since resolved + route removed).
+  Sentry **MCP** added (local scope, `~/.claude.json`) → `/mcp` to authenticate,
+  then issues are queryable from chat (confirmed working). Org `nathan-watkins` /
+  project `n8builds` hardcoded in `next.config.mjs`. Build verified on Next 16.
   Config follows skills.sentry.dev/sentry-nextjs-sdk: **`sendDefaultPii: true` +
   Session Replay + Logs are on**, and `tunnelRoute: '/monitoring'` bypasses ad
   blockers. **Privacy:** once the DSN is set this collects user IPs + records
