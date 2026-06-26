@@ -1,6 +1,15 @@
 # HANDOFF — n8builds (n8builds-web)
 
-_Last updated: 2026-06-21 — bot protection + env refresh: invisible **Cloudflare
+_Last updated: 2026-06-25 — BIG session: **"Nate Builds" → n8builds** rebrand
+site-wide; **the Lab is now ONE homepage section** with anchor-scroll nav + a new
+**Resources** shelf (standalone `/lab`,`/extensions`,`/tools`,`/resources` pages
+removed → 307-redirect to anchors); **Work With Me** bridge section (live
+portfolio + Appturnity screenshots); real **Rig/Desk** loadout specs; dev port
+**1337 → 3737** (Razer squats 1337); `/api/health` simplified to a liveness ping;
+**security.txt + DMARC** added for Cloudflare findings (→ `docs/CLOUDFLARE_SECURITY.md`);
+reduced-motion a11y; **Sentry LIVE** (`@sentry/nextjs` + DSN in Vercel + MCP, prod
+capture verified). Also a `/prev-req` global skill (in `~/.claude`, not the repo).
+Previous: 2026-06-21 — bot protection + env refresh: invisible **Cloudflare
 Turnstile** replaced reCAPTCHA entirely (live on Vercel), GA (`G-JZQGKY9Q37`) +
 `NEXT_PUBLIC_SITE_URL=https://n8builds.dev` confirmed live, **privacy policy**
 added at `app/privacy/page.tsx` (linked in footer), hero **electrified-circuit
@@ -23,6 +32,41 @@ free-tools section, Currently-Building carousel, galleries, tech-stack bento.)_
 > repos under `/home/natkins/n8builds/published/<slug>/`. Cross-cutting state +
 > the one open step (add Cloudflare CNAMEs for the subdomains, then flip the
 > homepage `liveSite` links) → **`docs/FREE_TOOLS_TRIO_HANDOFF.md`**.
+
+## Session status — 2026-06-25
+
+**Done this session (all pushed to `main` → live on n8builds.dev):**
+- **Rebrand "Nate Builds" → n8builds** site-wide (titles/metadata/OG/navbar/footer/404/
+  privacy) + active docs; renamed `docs/NATE_BUILDS_PLAN.md` → `N8BUILDS_PLAN.md`.
+  Kept "Nathan Watkins" (person) + "N8 Notions" (blog) as-is.
+- **The Lab is now ONE big homepage section** (`app/page.tsx`): a `#lab` lead-in +
+  jump chips, then Web apps (`<ShelfSection shelf="lab">`) · Chrome Extensions
+  (`<ExtensionsShowcase>` #extensions) · Tools (`<ShelfSection shelf="tool">`) ·
+  Resources (`<ShelfSection shelf="resource">`). **New `resource` shelf** +
+  `Resource` category (CanIHost/FreeStack/APIScout moved off `Web tool`). **Deleted
+  the standalone `/lab`,`/extensions`,`/tools`,`/resources` pages** + `Shelf.tsx` +
+  `ToolsSection.tsx`; old URLs **307-redirect to `/#anchor`** (`next.config.mjs`).
+  **Navbar**: "Lab" is a hover dropdown; **every nav item smooth-scrolls** to its
+  homepage section via `goToSection` (next/link same-page hash is flaky), honoring
+  `prefers-reduced-motion`. Notions/Loadout now scroll to `#notions`/`#loadout`.
+- **Work With Me** bridge section (`components/sections/WorkWithMe.tsx`) before the
+  footer — two cards (→ portfolio, → Appturnity) leading with **live site
+  screenshots** (`public/bridge/*.webp`, captured via Playwright).
+- **Real Rig/Desk** in `data/loadout.tsx` (was placeholder): Ryzen 7 9700X, RX
+  7800 XT 16GB, 32GB DDR5-6000, 990 PRO 2TB, B650 Gaming X AX V2; Acer XV272U V3
+  (27" 1440p 180Hz), Leopold kb, Razer Cobra, Fifine mic.
+- **Dev/start port 1337 → 3737** — Razer Chroma SDK service squats `127.0.0.1:1337`
+  on this Windows box (see Port history in Conventions). All refs updated.
+- **`/api/health`** simplified to a plain `{status:'ok'}` liveness ping (dropped the
+  inherited diagnostics + `HEALTH_CHECK_SECRET` bearer gate — no auth, no monitor).
+- **Cloudflare security findings** triaged (`docs/CLOUDFLARE_SECURITY.md`): added a
+  **DMARC** record (`_dmarc` TXT, `p=none`) + **security.txt** (`public/.well-known/`);
+  ignored the proxy/Bot-Fight-Mode ones (don't apply to a Vercel/DNS-only site).
+- **Sentry — LIVE** (see the "Done (open)" note below): wired per the official skill,
+  DSN set in Vercel + verified capturing in prod, MCP connected.
+
+**Verify needed / still open:** see "To do (open)" below. Build + type-check clean
+throughout; dev runs on **:3737** now.
 
 ## Session status — 2026-06-21
 
