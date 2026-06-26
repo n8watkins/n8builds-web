@@ -95,9 +95,10 @@ const nextConfig = {
 // minified stack traces. The runtime SDK stays inert until NEXT_PUBLIC_SENTRY_DSN
 // is set, so this is safe to ship before the Sentry project exists.
 export default withSentryConfig(withBundleAnalyzer(nextConfig), {
-  org: process.env.SENTRY_ORG,
-  project: process.env.SENTRY_PROJECT,
-  silent: !process.env.CI,
+  org: 'nathan-watkins',
+  project: 'n8builds',
+  authToken: process.env.SENTRY_AUTH_TOKEN,
   widenClientFileUpload: true,
-  disableLogger: true,
+  tunnelRoute: '/monitoring',
+  silent: !process.env.CI,
 })

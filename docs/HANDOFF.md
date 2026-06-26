@@ -65,9 +65,15 @@ free-tools section, Currently-Building carousel, galleries, tech-stack bento.)_
   both error boundaries call `Sentry.captureException`. The dead
   `app/api/sentry-example-api/route.ts` stub was removed. **It's fully inert until
   `NEXT_PUBLIC_SENTRY_DSN` is set** — the only thing left is account-side: create
-  the Sentry project, set `NEXT_PUBLIC_SENTRY_DSN` in `.env.local` + Vercel (and
-  optionally `SENTRY_ORG`/`SENTRY_PROJECT`/`SENTRY_AUTH_TOKEN` for source-map
-  upload). Build verified passing on Next 16.
+  the Sentry project, set `NEXT_PUBLIC_SENTRY_DSN` in `.env.local` + Vercel
+  (optionally `SENTRY_AUTH_TOKEN` for source-map upload — org `nathan-watkins` /
+  project `n8builds` are hardcoded in `next.config.mjs`). Build verified on Next 16.
+  Config follows skills.sentry.dev/sentry-nextjs-sdk: **`sendDefaultPii: true` +
+  Session Replay + Logs are on**, and `tunnelRoute: '/monitoring'` bypasses ad
+  blockers. **Privacy:** once the DSN is set this collects user IPs + records
+  replays — update `app/privacy/page.tsx` before going live, or flip
+  `sendDefaultPii:false` / drop `Sentry.replayIntegration()` in
+  `instrumentation-client.ts`.
 - Ensure the `portfolio.n8builds.dev` deployment fires the same `G-JZQGKY9Q37`
   GA tag. **(Verified needed:** GA only tracks pages *this* repo serves — the
   portfolio is a separate deploy, so the subdomain isn't tracked until its own
