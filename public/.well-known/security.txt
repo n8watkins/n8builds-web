@@ -1,0 +1,7 @@
+# Security contact for n8builds.dev
+# https://securitytxt.org  (RFC 9116)
+
+Contact: mailto:contact@n8builds.dev
+Expires: 2027-06-25T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://n8builds.dev/.well-known/security.txt

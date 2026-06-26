@@ -68,6 +68,9 @@ const nextConfig = {
       { source: '/extensions', destination: '/#extensions', permanent: false },
       { source: '/tools', destination: '/#tools', permanent: false },
       { source: '/resources', destination: '/#resources', permanent: false },
+      // RFC 9116: canonical lives at /.well-known/security.txt; redirect the
+      // legacy root path some scanners still probe.
+      { source: '/security.txt', destination: '/.well-known/security.txt', permanent: true },
     ]
   },
   async headers() {
