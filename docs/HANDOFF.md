@@ -65,9 +65,15 @@ free-tools section, Currently-Building carousel, galleries, tech-stack bento.)_
   both error boundaries call `Sentry.captureException`. The dead
   `app/api/sentry-example-api/route.ts` stub was removed. **It's fully inert until
   `NEXT_PUBLIC_SENTRY_DSN` is set** — the only thing left is account-side: create
-  the Sentry project, set `NEXT_PUBLIC_SENTRY_DSN` in `.env.local` + Vercel
-  (optionally `SENTRY_AUTH_TOKEN` for source-map upload — org `nathan-watkins` /
-  project `n8builds` are hardcoded in `next.config.mjs`). Build verified on Next 16.
+  the Sentry project. **DONE — Sentry is LIVE in prod (2026-06-25):**
+  `NEXT_PUBLIC_SENTRY_DSN` is set in Vercel Production and verified embedded in the
+  live client bundle (org `o4507767562371072`, project `4511629733855232`). The DSN
+  was fetched via the Sentry CLI (`sentry api projects/nathan-watkins/n8builds/keys/`;
+  read-only OAuth token in `~/.sentry/cli.db`, ~4wk). Still TODO (optional):
+  `SENTRY_AUTH_TOKEN` for source-map upload (readable stack traces). Sentry **MCP**
+  added (local scope, `~/.claude.json`) → `/mcp` to authenticate, then issues are
+  queryable from chat. Org `nathan-watkins` / project `n8builds` hardcoded in
+  `next.config.mjs`. Build verified on Next 16.
   Config follows skills.sentry.dev/sentry-nextjs-sdk: **`sendDefaultPii: true` +
   Session Replay + Logs are on**, and `tunnelRoute: '/monitoring'` bypasses ad
   blockers. **Privacy:** once the DSN is set this collects user IPs + records
