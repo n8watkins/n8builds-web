@@ -41,7 +41,7 @@ const Footer = () => {
         <motion.div
           variants={fadeInVariants}
           {...defaultAnimationConfig}
-          className="w-full max-w-5xl mx-auto mb-12 px-4">
+          className="w-full max-w-5xl mx-auto mb-12 sm:px-4">
           <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#08152a] via-[#0a1a33] to-[#07101f] shadow-2xl">
             {/* decorative glows + grid */}
             <div aria-hidden className="pointer-events-none absolute inset-0">
@@ -52,7 +52,7 @@ const Footer = () => {
             {/* top accent line */}
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-400" />
 
-            <div className="relative grid gap-8 p-7 md:grid-cols-[0.9fr_1.1fr] md:p-10">
+            <div className="relative grid gap-8 p-5 sm:p-7 md:grid-cols-[0.9fr_1.1fr] md:p-10">
               {/* Left — branded panel */}
               <div className="flex flex-col gap-5">
                 <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] px-3 py-1 text-xs font-semibold text-slate-300">
@@ -110,7 +110,7 @@ const Footer = () => {
               </div>
 
               {/* Right — form */}
-              <div className="relative rounded-2xl border border-white/10 bg-[#050c18]/60 p-5 backdrop-blur-sm sm:p-6">
+              <div className="relative rounded-2xl border border-white/10 bg-[#050c18]/60 p-4 backdrop-blur-sm sm:p-6">
                 <ContactFormErrorBoundary>
                   <ContactForm />
                 </ContactFormErrorBoundary>
@@ -127,7 +127,7 @@ const Footer = () => {
         <motion.div
           variants={fadeInVariants}
           {...defaultAnimationConfig}
-          className="w-full max-w-4xl mx-auto mb-10 px-4">
+          className="w-full max-w-4xl mx-auto mb-10 sm:px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6 rounded-2xl border border-white/10 bg-white/3 dark:bg-slate-900/40 backdrop-blur-sm">
             {/* Left */}
             <div className="text-center md:text-left max-w-xs">

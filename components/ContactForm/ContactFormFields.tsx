@@ -161,7 +161,7 @@ export function ContactFormFields({
       </AnimatePresence>
 
       <motion.div
-        className="text-center px-4"
+        className="text-center sm:px-4"
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.45, ease: "easeOut" }}
@@ -199,7 +199,7 @@ export function ContactFormFields({
           }`}
         >
           <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
-          <span className="inline-flex h-full w-full items-center justify-center rounded-lg bg-slate-950 px-7 text-sm font-medium text-white backdrop-blur-3xl gap-2 pointer-events-none">
+          <span className="inline-flex h-full w-full items-center justify-center whitespace-nowrap rounded-lg bg-slate-950 px-7 text-sm font-medium text-white backdrop-blur-3xl gap-2 pointer-events-none">
             {isVerifying ? "Verifying... 🛡️" : isSubmitting ? "Sending... 🚀" : "Send Message 🚀"}
           </span>
         </button>

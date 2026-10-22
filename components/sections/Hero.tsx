@@ -100,10 +100,10 @@ const Hero = () => {
         >
           <span className="flex items-center gap-1.5 text-green-400">
             <MdRadioButtonChecked className="w-3 h-3 animate-pulse" />
-            <span className="text-[0.72rem] font-bold tracking-widest uppercase">Live on GitHub</span>
+            <span className="whitespace-nowrap text-[0.72rem] font-bold tracking-widest uppercase">Live on GitHub</span>
           </span>
           <span className="text-white/20">·</span>
-          <span className="text-slate-400 text-[0.82rem]">Currently Building: <span className="text-cyan-400 font-semibold">{nowItems[0]?.project}</span></span>
+          <span className="whitespace-nowrap text-slate-400 text-[0.82rem]"><span className="hidden sm:inline">Currently </span>Building: <span className="text-cyan-400 font-semibold">{nowItems[0]?.project}</span></span>
           <span className="text-slate-475 text-xs group-hover:translate-x-0.5 transition-transform">→</span>
         </motion.a>
 
