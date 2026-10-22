@@ -37,7 +37,11 @@ async function waitForTurnstileToken(page: Page) {
 }
 
 async function openContactForm(page: Page) {
-  await page.goto('/#contact')
+  // Not 'load': Turnstile's script, injected on hydration, delays the load
+  // event when it starts first, so a test holding that script back would hang
+  // whenever the page's other resources are slow. Tests wait on hydration-
+  // dependent state instead (the token, or the Send button being enabled).
+  await page.goto('/#contact', { waitUntil: 'domcontentloaded' })
   await page.locator('#contact form').scrollIntoViewIfNeeded()
 }
 
