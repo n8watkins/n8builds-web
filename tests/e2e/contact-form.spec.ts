@@ -124,6 +124,9 @@ test('client-side validation blocks an empty submission', async ({ page }) => {
   })
 
   await openContactForm(page)
+  // The widget only renders after hydration; clicking before then would hit a
+  // button with no handler yet (flaky under load).
+  await waitForTurnstileToken(page)
   await page.getByRole('button', { name: /Send Message/ }).click()
   await expect(page.getByText('Name must be at least 2 characters')).toBeVisible()
   expect(calls).toBe(0)
