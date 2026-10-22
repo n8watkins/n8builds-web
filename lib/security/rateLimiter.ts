@@ -13,8 +13,12 @@ import { isContactTestMode } from '@/lib/security/testMode'
  *
  * Production uses Upstash Redis so every serverless instance shares the same
  * counters. Without Upstash configured, production fails closed (rejects) rather
- * than silently running unlimited. `next dev` and CONTACT_TEST_MODE fall back to
- * an in-memory store.
+ * than silently running unlimited. CONTACT_TEST_MODE always uses an in-memory
+ * store, and `next dev` does too when Upstash isn't configured.
+ *
+ * One Redis database can serve every environment: keys outside Vercel
+ * production get their own namespace (contact:preview:*, contact:local:*), so
+ * previews and local runs never touch production's counters.
  */
 
 const IP_WINDOW_MS = 60 * 60 * 1000
@@ -115,21 +119,33 @@ function hasUpstashConfig(): boolean {
   )
 }
 
+/** Redis key prefix: production keeps the bare names, everything else is namespaced. */
+function keyPrefix(): string {
+  const env = process.env.VERCEL_ENV || 'local'
+  return env === 'production' ? 'contact' : `contact:${env}`
+}
+
+function memoryLimiters(): Record<RateLimitScope, Limiter> {
+  return {
+    ip: new MemoryLimiter(IP_LIMIT, IP_WINDOW_MS),
+    global: new MemoryLimiter(globalLimit(), GLOBAL_WINDOW_MS),
+  }
+}
+
 function createLimiters(): Record<RateLimitScope, Limiter> {
+  // Test runs must never count against (or be blocked by) real counters.
+  if (isContactTestMode()) return memoryLimiters()
+
   if (hasUpstashConfig()) {
     const redis = Redis.fromEnv()
+    const prefix = keyPrefix()
     return {
-      ip: new UpstashLimiter(redis, IP_LIMIT, '1 h', 'contact:ip'),
-      global: new UpstashLimiter(redis, globalLimit(), '1 d', 'contact:global'),
+      ip: new UpstashLimiter(redis, IP_LIMIT, '1 h', `${prefix}:ip`),
+      global: new UpstashLimiter(redis, globalLimit(), '1 d', `${prefix}:global`),
     }
   }
 
-  if (process.env.NODE_ENV === 'development' || isContactTestMode()) {
-    return {
-      ip: new MemoryLimiter(IP_LIMIT, IP_WINDOW_MS),
-      global: new MemoryLimiter(globalLimit(), GLOBAL_WINDOW_MS),
-    }
-  }
+  if (process.env.NODE_ENV === 'development') return memoryLimiters()
 
   logger.error('Upstash Redis is not configured - contact form is disabled')
   return { ip: unavailable, global: unavailable }

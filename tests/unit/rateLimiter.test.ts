@@ -1,10 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const upstashLimit = vi.fn()
+const upstashPrefixes: string[] = []
 vi.mock('@upstash/ratelimit', () => {
   class Ratelimit {
     static slidingWindow = vi.fn()
     limit = upstashLimit
+    constructor({ prefix }: { prefix: string }) {
+      upstashPrefixes.push(prefix)
+    }
   }
   return { Ratelimit }
 })
@@ -25,6 +29,7 @@ function clearBackendEnv() {
     'CONTACT_TEST_MODE',
     'CONTACT_DAILY_LIMIT',
     'VERCEL',
+    'VERCEL_ENV',
   ]) {
     vi.stubEnv(key, '')
   }
@@ -33,6 +38,7 @@ function clearBackendEnv() {
 beforeEach(() => {
   clearBackendEnv()
   upstashLimit.mockReset()
+  upstashPrefixes.length = 0
 })
 
 describe('MemoryLimiter', () => {
@@ -144,6 +150,39 @@ describe('Upstash-backed limiting', () => {
     upstashLimit.mockRejectedValue(new Error('network down'))
     const { checkRateLimit } = await loadLimiter()
     expect(await checkRateLimit('ip', '1.2.3.4')).toEqual({ allowed: false, reason: 'unavailable' })
+  })
+
+  it('keeps the bare key names in Vercel production', async () => {
+    vi.stubEnv('VERCEL', '1')
+    vi.stubEnv('VERCEL_ENV', 'production')
+    upstashLimit.mockResolvedValue({ success: true })
+    const { checkRateLimit } = await loadLimiter()
+    await checkRateLimit('ip', '1.2.3.4')
+    expect(upstashPrefixes).toEqual(['contact:ip', 'contact:global'])
+  })
+
+  it('namespaces preview deployments away from production counters', async () => {
+    vi.stubEnv('VERCEL', '1')
+    vi.stubEnv('VERCEL_ENV', 'preview')
+    upstashLimit.mockResolvedValue({ success: true })
+    const { checkRateLimit } = await loadLimiter()
+    await checkRateLimit('ip', '1.2.3.4')
+    expect(upstashPrefixes).toEqual(['contact:preview:ip', 'contact:preview:global'])
+  })
+
+  it('namespaces local runs away from production counters', async () => {
+    upstashLimit.mockResolvedValue({ success: true })
+    const { checkRateLimit } = await loadLimiter()
+    await checkRateLimit('ip', '1.2.3.4')
+    expect(upstashPrefixes).toEqual(['contact:local:ip', 'contact:local:global'])
+  })
+
+  it('never touches Upstash in test mode, even when it is configured', async () => {
+    vi.stubEnv('CONTACT_TEST_MODE', '1')
+    const { checkRateLimit } = await loadLimiter()
+    expect(await checkRateLimit('ip', '1.2.3.4')).toEqual({ allowed: true })
+    expect(upstashLimit).not.toHaveBeenCalled()
+    expect(upstashPrefixes).toEqual([])
   })
 
   it('accepts the UPSTASH_REDIS_REST_* variable names too', async () => {

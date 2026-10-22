@@ -18,6 +18,9 @@ vercel integration add upstash/upstash-kv
 - Pick the **Free** plan.
 - Pick the region closest to the Vercel functions (`iad1` / us-east-1 is Vercel's default).
 - Connect it to the `n8builds-web` project for Production, Preview and Development.
+  One database is fine for all three: only Vercel production uses the `contact:ip` / `contact:global` keys.
+  Previews use `contact:preview:*` and local runs `contact:local:*`, so neither can touch production's counters.
+  `CONTACT_TEST_MODE` never uses Redis at all.
 
 It sets `KV_REST_API_URL` and `KV_REST_API_TOKEN` automatically.
 Check with `vercel env ls | grep KV_`.

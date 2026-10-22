@@ -59,7 +59,8 @@ CI (`.github/workflows/`):
 Flow (`app/api/contact/route.ts`): size check (10KB), per-IP rate limit, JSON + Zod validation, honeypot, Turnstile, site-wide daily limit, then the notification email and the auto-reply.
 
 - **Rate limits** (`lib/security/rateLimiter.ts`): 5/hour per IP and `CONTACT_DAILY_LIMIT` (default 50) verified submissions per day, stored in Upstash Redis via `KV_REST_API_*` (or `UPSTASH_REDIS_REST_*`).
-  `next dev` uses an in-memory store.
+  Keys outside Vercel production are namespaced (`contact:preview:*`, `contact:local:*`), so one database serves every environment without previews or local runs touching production's counters.
+  `CONTACT_TEST_MODE` always uses an in-memory store, as does `next dev` without Upstash configured.
 - **Fail closed:** in production, a missing Turnstile secret, a Turnstile error, missing Upstash config, or an Upstash outage or timeout all reject the submission, with a message telling the visitor to email directly.
 - **Turnstile** (`lib/security/turnstile.ts`): tokens must be issued on `n8builds.dev` or `www.n8builds.dev` (`TURNSTILE_ALLOWED_HOSTNAMES` overrides).
   Verification is skipped only under `next dev`.
@@ -71,7 +72,7 @@ Flow (`app/api/contact/route.ts`): size check (10KB), per-IP rate limit, JSON + 
   All user input is HTML-escaped exactly once at template time.
   Regenerate the signature icons with `node scripts/gen-email-icons.mjs`.
 - **Testing by hand:** `CONTACT_TEST_MODE=1` with the test secret `1x0000000000000000000000000000000AA` exercises the real API on a production build without sending email.
-  To send real email locally, use `npm run dev` and submit the form (Turnstile and Upstash are skipped in dev).
+  To send real email locally, use `npm run dev` and submit the form (Turnstile is skipped in dev, and Upstash too unless configured).
 
 ## Decisions already made (do not re-ask)
 
