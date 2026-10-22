@@ -73,10 +73,23 @@ test('shows the server message on failure, and a retry succeeds with a fresh Tur
   const tokens: string[] = []
   let calls = 0
 
+  // Cloudflare's test key issues the same dummy token every time, so comparing
+  // tokens proves nothing. Instead, hold the remounted widget back after the
+  // first send: a retry that reused the spent token would send right away
+  // rather than wait for the fresh one.
+  let holdTurnstile = false
+  let releaseTurnstile = () => {}
+  const turnstileReleased = new Promise<void>((resolve) => (releaseTurnstile = resolve))
+  await page.route('https://challenges.cloudflare.com/**', async (route) => {
+    if (holdTurnstile) await turnstileReleased
+    await route.continue()
+  })
+
   await page.route('/api/contact', async (route) => {
     calls++
     tokens.push(route.request().postDataJSON().turnstile)
     if (calls === 1) {
+      holdTurnstile = true
       await route.fulfill({ status: 429, json: { error: limitMessage, type: 'rate_limit' } })
     } else {
       await route.fallback()
@@ -92,8 +105,11 @@ test('shows the server message on failure, and a retry succeeds with a fresh Tur
   // Retry straight away: the spent token was discarded, so the form waits for
   // the remounted widget's fresh one before sending.
   await page.getByRole('button', { name: /Send Message/ }).click()
-  await expect(page.getByText('Message sent successfully!')).toBeVisible({ timeout: SEND_TIMEOUT })
+  await expect(page.getByRole('button', { name: /Verifying/ })).toBeVisible()
+  expect(calls).toBe(1)
 
+  releaseTurnstile()
+  await expect(page.getByText('Message sent successfully!')).toBeVisible({ timeout: SEND_TIMEOUT })
   expect(calls).toBe(2)
   expect(tokens.every(Boolean)).toBe(true)
 })
