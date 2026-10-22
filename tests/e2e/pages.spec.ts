@@ -101,6 +101,18 @@ test.describe('blog post', () => {
   })
 })
 
+test('the skip link moves focus past the navbar on every route', async ({ page, request }) => {
+  for (const path of [...STATIC_PAGES, await firstBlogPostPath(request), '/definitely-not-a-page']) {
+    await page.goto(path)
+    await page.keyboard.press('Tab')
+    await expect(page.getByRole('link', { name: 'Skip to main content' }), path).toBeFocused()
+    await page.keyboard.press('Enter')
+    await expect(page.locator('main#main-content'), path).toBeFocused()
+    // The navbar is outside <main>, so this really skips it.
+    await expect(page.locator('main#main-content nav[aria-label="Primary"]'), path).toHaveCount(0)
+  }
+})
+
 test('unknown routes return the 404 page', async ({ page }) => {
   const response = await page.goto('/definitely-not-a-page')
   expect(response?.status()).toBe(404)

@@ -57,7 +57,7 @@ export default async function PostPage({ params }: PostPageProps) {
   return (
     <>
       <Navbar />
-      <main className="relative min-h-screen bg-darkBlue text-slate-100">
+      <main id="main-content" tabIndex={-1} className="relative min-h-screen bg-darkBlue text-slate-100 focus:outline-none">
         <article className="mx-auto max-w-3xl px-5 pb-20 pt-28 sm:px-8 md:pt-32">
           <Link
             href="/blog"

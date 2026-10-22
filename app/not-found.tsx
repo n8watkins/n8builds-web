@@ -5,7 +5,7 @@ export default function NotFound() {
   return (
     <div className="min-h-screen bg-darkBlue flex items-center justify-center">
       <Navbar />
-      <div className="text-center px-5">
+      <main id="main-content" tabIndex={-1} className="text-center px-5 focus:outline-none">
         <h1 className="text-6xl font-bold mb-4">
           <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">404</span>
         </h1>
@@ -18,7 +18,7 @@ export default function NotFound() {
         >
           Back to n8builds
         </Link>
-      </div>
+      </main>
     </div>
   )
 }

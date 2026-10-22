@@ -71,7 +71,7 @@ const Group = ({ group, index }: { group: LoadoutGroup; index: number }) => {
 
 const Loadout = () => {
   return (
-    <main className="relative min-h-screen bg-darkBlue text-slate-100">
+    <main id="main-content" tabIndex={-1} className="relative min-h-screen bg-darkBlue text-slate-100 focus:outline-none">
       <div className="mx-auto max-w-6xl px-5 pt-28 pb-10 sm:px-8 md:pt-32 md:pb-16">
         {/* Back link */}
         <Link

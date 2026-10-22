@@ -23,7 +23,7 @@ export default async function BlogIndexPage() {
   return (
     <>
       <Navbar />
-      <main className="relative min-h-screen bg-darkBlue text-slate-100">
+      <main id="main-content" tabIndex={-1} className="relative min-h-screen bg-darkBlue text-slate-100 focus:outline-none">
         {/* Ambient glows */}
         <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute left-[-10%] top-0 h-128 w-lg rounded-full bg-cyan-500/6 blur-[140px]" />
