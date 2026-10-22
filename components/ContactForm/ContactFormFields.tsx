@@ -119,6 +119,9 @@ export function ContactFormFields({
         <ContactSelect
           {...register('subject')}
           id="subject"
+          // Start on the placeholder: without this the browser silently
+          // pre-selects the first subject.
+          defaultValue=""
           label="What's this about?"
           emoji="💼"
           options={subjectOptions}

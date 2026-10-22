@@ -219,7 +219,10 @@ test('client-side validation blocks an empty submission', async ({ page }) => {
   // The widget only renders after hydration; clicking before then would hit a
   // button with no handler yet (flaky under load).
   await waitForTurnstileToken(page)
+  // No subject is pre-selected; leaving it blank is an error, not a silent default.
+  await expect(page.locator('#contact form').getByLabel("What's this about?")).toHaveValue('')
   await page.getByRole('button', { name: /Send Message/ }).click()
   await expect(page.getByText('Name must be at least 2 characters')).toBeVisible()
+  await expect(page.getByText('Please select a subject')).toBeVisible()
   expect(calls).toBe(0)
 })

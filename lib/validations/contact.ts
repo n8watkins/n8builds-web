@@ -21,15 +21,9 @@ export const contactFormSchema = z.object({
       return parts.length === 2 && parts[1].includes('.')
     }, 'Please enter a valid email address'),
 
-  subject: z
-    .enum([
-      'project_opportunity',
-      'consulting',
-      'networking'
-    ])
-    .refine((val) => val !== undefined, {
-      message: 'Please select a subject',
-    }),
+  subject: z.enum(['project_opportunity', 'consulting', 'networking'], {
+    error: 'Please select a subject',
+  }),
 
   message: z
     .string()

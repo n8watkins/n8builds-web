@@ -27,6 +27,8 @@ export const ContactSelect = forwardRef<HTMLSelectElement, ContactSelectProps>(
             "focus:ring-2 focus:ring-cyan-500 focus:border-transparent",
             "transition-all duration-200",
             "hover:border-slate-400 dark:hover:border-slate-500",
+            // Placeholder still selected: muted, like the other fields' placeholders.
+            "has-[option[value='']:checked]:text-slate-500 dark:has-[option[value='']:checked]:text-slate-400",
             error && "border-red-500 dark:border-red-400 focus:ring-red-500",
             className
           )}
@@ -34,7 +36,7 @@ export const ContactSelect = forwardRef<HTMLSelectElement, ContactSelectProps>(
         >
           <option value="" disabled>Select an option...</option>
           {options.map((option) => (
-            <option key={option.value} value={option.value}>
+            <option key={option.value} value={option.value} className="text-slate-900 dark:text-slate-100">
               {option.label}
             </option>
           ))}
