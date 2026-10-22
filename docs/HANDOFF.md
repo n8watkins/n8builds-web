@@ -21,7 +21,7 @@ Strategy and IA: `docs/N8BUILDS_PLAN.md`.
 ## Current state
 
 - Live at https://n8builds.dev on Vercel (project `n8builds-web`, team natkins23s-projects), auto-deploying from `main`.
-- Stack: Next.js 16 (App Router, webpack build), React 19, TypeScript, Tailwind 3, framer-motion, Sanity (blog), Nodemailer + Gmail SMTP, Cloudflare Turnstile, Upstash Redis (rate limits), Sentry, GA4, Vercel Speed Insights.
+- Stack: Next.js 16 (App Router, webpack build), React 19, TypeScript, Tailwind 3, Motion (`motion/react`; not framer-motion), Sanity (blog), Nodemailer + Gmail SMTP, Cloudflare Turnstile, Upstash Redis (rate limits), Sentry, GA4, Vercel Speed Insights.
 - Pages: `/` (hero, lab sections, work-with-me, contact), `/blog` + `/blog/[slug]` (N8 Notions, ISR hourly), `/builds/[slug]`, `/loadout`, `/privacy`.
 - **Pending push (2026-10-21):** the contact-form hardening and everything after it is committed locally but not pushed, because production now requires Upstash.
   See `docs/OWNER_TODO.md` step 1.

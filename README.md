@@ -8,7 +8,7 @@ The public builder lab of Nathan Watkins — a Next.js site for building softwar
 
 - **Modern Stack**: Next.js 16 (App Router) with React 19, TypeScript, and Tailwind CSS
 - **Hardened Contact Form**: Gmail SMTP (Nodemailer) with a layered defense stack — rate limiting, honeypot, Zod validation, and template-time HTML escaping
-- **Advanced Animations**: Framer Motion with scroll-triggered fade-ins and interactive elements
+- **Advanced Animations**: Motion (`motion/react`) with scroll-triggered fade-ins and interactive elements
 - **Performance Optimized**: Code-split below-the-fold sections, optimized images, and Web Vitals monitoring
 - **Security First**: Request-size cap, shared Upstash Redis rate limiting (5/hour per IP plus a daily site-wide cap), honeypot, invisible Cloudflare Turnstile, and HTML-entity escaping of user input in emails
 - **Fully Responsive**: Mobile-first design with seamless desktop experience
@@ -27,7 +27,7 @@ The public builder lab of Nathan Watkins — a Next.js site for building softwar
 - React 19
 - TypeScript for type safety
 - Tailwind CSS for styling
-- Framer Motion for animations
+- Motion (`motion/react`, formerly framer-motion) for animations
 - React Hook Form + Zod validation
 - Next Themes for theme management
 
@@ -99,7 +99,7 @@ n8builds-web/
 │   ├── validations/              # Zod schemas
 │   │   └── contact.ts            # Contact form validation
 │   ├── analytics.ts              # Google Analytics tracking
-│   ├── animations.ts             # Framer Motion presets
+│   ├── animations.ts             # Motion animation presets
 │   ├── logger.ts                 # Centralized logging
 │   └── types.ts                  # TypeScript types
 ├── data/                         # Static content
@@ -259,13 +259,14 @@ Test mode sends no email (Nodemailer JSON transport), uses an in-memory rate lim
 
 ## 🎨 Animations & UX
 
-### Framer Motion Integration
+### Motion Integration
 
 - **Scroll-triggered animations** with intersection observers
 - **Staggered reveals** for portfolio grid items
 - **Smooth page transitions** and micro-interactions
 - **Loading states** with skeleton animations
-- **Success celebrations** rendered with `lottie-react` (`data/confetti.json` in `ContactFormSuccess.tsx`), not Framer Motion
+- **Success celebrations** rendered with `lottie-react` (`data/confetti.json` in `ContactFormSuccess.tsx`).
+  The player and the animation data load on demand (`preloadConfetti()` starts fetching on the "Sending..." screen), keeping about 120 KB off the homepage.
 
 ### Performance Optimizations
 
@@ -390,12 +391,12 @@ npm run start
 - **Dynamic Imports**: Below-the-fold components lazy loaded
 - **Image Optimization**: AVIF/WebP formats with Next/Image
 - **Font Optimization**: Inter font with subset loading and swap display
-- **Package Tree-shaking**: Optimized imports for framer-motion and react-icons
+- **Package Tree-shaking**: Optimized imports for `motion/react` and react-icons
 
 ### Technical Highlights
 - **CSS Masks**: Gradient effects in infinite card animations
 - **Marquee Components**: Magic UI marquee for performant infinite scroll
-- **Animation Performance**: Framer Motion optimized for 60fps
+- **Animation Performance**: Motion animations run on compositor-friendly properties (opacity, transform)
 - **Form UX**: Invisible Cloudflare Turnstile keeps the experience seamless — no checkbox/challenge for legitimate users
 - **Error Resilience**: Section-level boundaries prevent cascading failures
 - **Type Safety**: Zod schemas provide runtime validation + TypeScript types
