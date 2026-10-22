@@ -61,6 +61,11 @@ export default defineConfig({
       KV_REST_API_TOKEN: '',
       UPSTASH_REDIS_REST_URL: '',
       UPSTASH_REDIS_REST_TOKEN: '',
+      // A .env.local from `vercel env pull` sets these, and test mode is
+      // (deliberately) ignored on anything that looks like Vercel.
+      VERCEL: '',
+      VERCEL_ENV: '',
+      VERCEL_URL: '',
     },
   },
 })

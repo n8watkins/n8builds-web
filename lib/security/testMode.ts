@@ -6,11 +6,13 @@ import { logger } from '@/lib/logger'
  *
  * When CONTACT_TEST_MODE=1:
  * - Emails go to Nodemailer's JSON transport instead of Gmail (nothing is sent)
- * - Rate limiting uses the in-memory store when Upstash isn't configured
+ * - Rate limiting always uses the in-memory store
  * - Turnstile accepts Cloudflare's test-key hostname
  *
- * It is ignored on Vercel (any environment), so a stray env var can never
- * weaken a deployed site.
+ * It is ignored whenever VERCEL is set (any environment), so a stray env var
+ * can never weaken a deployed site. That includes a local .env.local pulled
+ * with `vercel env pull`, which sets VERCEL=1; unset it for local test runs
+ * (playwright.config.ts does).
  */
 export function isContactTestMode(): boolean {
   if (process.env.CONTACT_TEST_MODE !== '1') return false

@@ -18,7 +18,8 @@ import { isContactTestMode } from '@/lib/security/testMode'
  *
  * One Redis database can serve every environment: keys outside Vercel
  * production get their own namespace (contact:preview:*, contact:local:*), so
- * previews and local runs never touch production's counters.
+ * previews and local runs never touch production's counters. The namespace is
+ * VERCEL_ENV (so `vercel env pull` gives contact:development:*), or "local".
  */
 
 const IP_WINDOW_MS = 60 * 60 * 1000
