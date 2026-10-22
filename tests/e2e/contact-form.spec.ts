@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
+import { SEND_TIMEOUT } from '../e2e-env'
 
 /**
  * The homepage contact form, driven like a visitor would. Runs against the
@@ -8,10 +9,6 @@ import { test, expect, type Page } from '@playwright/test'
 
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
-// A successful send chains a real Cloudflare script load, a Turnstile token,
-// the API call, and the success transition. That legitimately takes longer
-// than the default 5s on a loaded CI runner.
-const SEND_TIMEOUT = 15_000
 
 // Give each test its own client IP so the per-IP rate limit (5/hour) never
 // carries over between tests. Tests that also intercept /api/contact must use

@@ -1,4 +1,5 @@
 import { test, expect, type APIRequestContext, type Page } from '@playwright/test'
+import { SEND_TIMEOUT } from '../e2e-env'
 
 /**
  * Security headers are present, and the Content-Security-Policy blocks nothing
@@ -114,7 +115,7 @@ test.describe('the CSP blocks nothing the site uses', () => {
     await form.getByLabel("What's this about?").selectOption('consulting')
     await form.getByLabel('Tell me more').fill('Hello! This is an end-to-end CSP test message.')
     await page.getByRole('button', { name: /Send Message/ }).click()
-    await expect(page.getByText('Message sent successfully!')).toBeVisible()
+    await expect(page.getByText('Message sent successfully!')).toBeVisible({ timeout: SEND_TIMEOUT })
 
     expect(await violations()).toEqual([])
   })
