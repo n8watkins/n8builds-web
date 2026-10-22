@@ -53,23 +53,6 @@ class SectionErrorBoundary extends Component<Props, State> {
       tags: { section: sectionName },
       contexts: { react: { componentStack: errorInfo.componentStack } },
     })
-
-    // Report to health endpoint (non-blocking)
-    if (typeof window !== 'undefined') {
-      fetch('/api/health/error', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          section: sectionName,
-          error: error.message,
-          stack: error.stack?.substring(0, 1000),
-          timestamp: new Date().toISOString(),
-          url: window.location.href,
-        }),
-      }).catch(() => {
-        // Silently fail if health endpoint is unavailable
-      })
-    }
   }
 
   public render() {

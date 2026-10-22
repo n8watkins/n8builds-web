@@ -27,22 +27,6 @@ class ErrorBoundary extends Component<Props, State> {
     Sentry.captureException(error, {
       contexts: { react: { componentStack: errorInfo.componentStack } },
     })
-
-    // Report error to health endpoint (non-blocking)
-    if (typeof window !== 'undefined') {
-      fetch('/api/health/error', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          error: error.message,
-          stack: error.stack?.substring(0, 1000), // Limit stack trace size
-          timestamp: new Date().toISOString(),
-          url: window.location.href,
-        }),
-      }).catch(() => {
-        // Silently fail if health endpoint is unavailable
-      })
-    }
   }
 
   public render() {

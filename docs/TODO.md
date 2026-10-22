@@ -40,7 +40,7 @@ flags/version) and the `HEALTH_CHECK_SECRET` bearer gate were **removed entirely
 not just gated. On a public, no-auth site there's nothing to expose and nothing
 to authenticate, so the secret machinery was dead weight (no monitor consumes it,
 the var was never set in Vercel). `HEALTH_CHECK_SECRET` is gone from `.env.example`.
-`/api/health/error` (POST, used by the error boundaries) is untouched.
+`/api/health/error` was later removed too (2026-10-21): the error boundaries report to Sentry only.
 
 ---
 
