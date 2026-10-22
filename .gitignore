@@ -46,3 +46,6 @@ next-env.d.ts
 
 # lighthouse ci
 /.lighthouseci/
+# Under WSL, chrome-launcher always creates its Chrome profile with a Windows
+# temp path, which lands here as a literal "C:\Users\..." folder.
+C:\\Users\\*
