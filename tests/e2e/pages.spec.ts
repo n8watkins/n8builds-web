@@ -68,6 +68,21 @@ for (const path of STATIC_PAGES) {
   })
 }
 
+// The suite runs with reduced motion, where marquees render as plain lists.
+// Audit the animated layout too: its repeated marquee copies must stay out of
+// the accessibility tree.
+test.describe('motion allowed', () => {
+  test.use({ contextOptions: { reducedMotion: 'no-preference' } })
+
+  for (const path of ['/', '/loadout']) {
+    test(`${path} has no serious accessibility violations`, async ({ page }) => {
+      await page.goto(path)
+      await page.waitForTimeout(SETTLE_MS)
+      await expectNoSeriousA11yViolations(page)
+    })
+  }
+})
+
 test.describe('blog post', () => {
   test('renders without errors', async ({ page, request }) => {
     const path = await firstBlogPostPath(request)

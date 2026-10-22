@@ -1,6 +1,12 @@
-import React, { useState } from 'react'
+import React, { createContext, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
+
+/**
+ * True inside the loop's duplicate copies. Focusable children should leave the
+ * tab order there (tabIndex -1), so keyboard users reach each item once.
+ */
+export const MarqueeCopyContext = createContext(false)
 
 interface MarqueeProps {
   /** Accessible name for the list, used when it becomes a scrollable region. */
@@ -24,18 +30,12 @@ export default function Marquee({
   repeat = 4,
   ...props
 }: MarqueeProps) {
-  const [isPaused, setIsPaused] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
+  // Focus inside (a keyboard user, or a tapped tile) always pauses, so the
+  // focused item doesn't slide out from under the visitor.
+  const [hasFocus, setHasFocus] = useState(false)
+  const isPaused = (pauseOnHover && isHovered) || hasFocus
   const reduceMotion = usePrefersReducedMotion()
-
-  const handleMouseEnter = () => {
-    if (pauseOnHover) {
-      setIsPaused(true)
-    }
-  }
-
-  const handleMouseLeave = () => {
-    setIsPaused(false)
-  }
 
   // Reduced motion: show every item once instead of a frozen track that clips
   // items at the edges. Small screens get a row the visitor swipes themselves;
@@ -71,20 +71,27 @@ export default function Marquee({
         },
         className
       )}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}>
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onFocus={() => setHasFocus(true)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setHasFocus(false)
+      }}>
       {Array(repeat)
         .fill(0)
         .map((_, i) => (
           <div
             key={i}
+            // The copies only make the loop seamless: hide them from assistive
+            // tech so each item is announced once (see MarqueeCopyContext).
+            aria-hidden={i > 0 || undefined}
             className={cn('flex shrink-0 justify-around gap-(--gap)', {
               'animate-marquee flex-row': !vertical,
               'animate-marquee-vertical flex-col': vertical,
               '[animation-play-state:paused]': isPaused,
               '[animation-direction:reverse]': reverse,
             })}>
-            {children}
+            <MarqueeCopyContext.Provider value={i > 0}>{children}</MarqueeCopyContext.Provider>
           </div>
         ))}
     </div>
