@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { cn } from '@/lib/utils'
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 
 interface MarqueeProps {
   className?: string
@@ -21,6 +22,7 @@ export default function Marquee({
   ...props
 }: MarqueeProps) {
   const [isPaused, setIsPaused] = useState(false)
+  const reduceMotion = usePrefersReducedMotion()
 
   const handleMouseEnter = () => {
     if (pauseOnHover) {
@@ -30,6 +32,25 @@ export default function Marquee({
 
   const handleMouseLeave = () => {
     setIsPaused(false)
+  }
+
+  // Reduced motion: show every item once instead of a frozen track that clips
+  // items at the edges. Small screens get a row the visitor swipes themselves;
+  // wider ones wrap the items into a centred grid.
+  if (reduceMotion) {
+    return (
+      <div
+        {...props}
+        className={cn(
+          'flex p-2 [--gap:1rem] [gap:var(--gap)]',
+          vertical
+            ? 'flex-col items-center'
+            : 'w-full snap-x overflow-x-auto md:flex-wrap md:justify-center md:overflow-visible [&>*]:shrink-0 [&>*]:snap-start',
+          className
+        )}>
+        {children}
+      </div>
+    )
   }
 
   return (

@@ -73,8 +73,8 @@ const TechStackBento = ({ showLink = true }: { showLink?: boolean }) => {
             <StackContainer key={t.name} name={t.name} icon={t.icon} description={t.description} />
           ))}
         </Marquee>
-        <div className="pointer-events-none absolute left-0 h-full w-1/4 bg-gradient-to-r from-[#081427] to-transparent" />
-        <div className="pointer-events-none absolute right-0 h-full w-1/4 bg-gradient-to-l from-[#081427] to-transparent" />
+        <div className="pointer-events-none absolute left-0 h-full w-1/4 bg-gradient-to-r from-[#081427] to-transparent motion-reduce:hidden" />
+        <div className="pointer-events-none absolute right-0 h-full w-1/4 bg-gradient-to-l from-[#081427] to-transparent motion-reduce:hidden" />
       </div>
     </section>
   )
