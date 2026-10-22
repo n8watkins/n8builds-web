@@ -49,7 +49,7 @@ tests/
 
 ## Getting started
 
-Requires Node.js 20.9+.
+Requires Node.js 22.19+ (Lighthouse 13 and Vitest need it; CI uses Node 24).
 
 ```bash
 git clone https://github.com/n8watkins/n8builds-web.git
