@@ -1,5 +1,11 @@
 import { z } from 'zod'
 
+// Zod JIT-compiles object parsers with new Function() after probing whether
+// eval is allowed. Our Content-Security-Policy forbids eval, so the probe would
+// log a violation on every page that loads this schema. Jitless parsing is
+// plenty fast for a five-field form.
+z.config({ jitless: true })
+
 export const contactFormSchema = z.object({
   name: z
     .string()
