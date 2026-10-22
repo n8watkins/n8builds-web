@@ -90,10 +90,10 @@ const Footer = () => {
                 {/* socials */}
                 <div className="mt-auto flex items-center gap-2">
                   {[
-                    { href: 'https://github.com/n8watkins', label: 'GitHub', icon: <FiGithub className="w-4.5 h-4.5" /> },
+                    { href: 'https://github.com/n8watkins', label: 'GitHub', icon: <FiGithub className="w-[1.125rem] h-[1.125rem]" /> },
                     { href: 'https://x.com/n8watkins', label: 'X (Twitter)', icon: <FaXTwitter className="w-4 h-4" /> },
-                    { href: 'https://www.linkedin.com/in/n8watkins/', label: 'LinkedIn', icon: <CiLinkedin className="w-5 h-5" /> },
-                    { href: 'mailto:nathancwatkins23@gmail.com', label: 'Email', icon: <FiMail className="w-4.5 h-4.5" /> },
+                    { href: 'https://www.linkedin.com/in/n8watkins/', label: 'LinkedIn', icon: <CiLinkedin className="w-[1.35rem] h-[1.35rem]" /> },
+                    { href: 'mailto:nathancwatkins23@gmail.com', label: 'Email', icon: <FiMail className="w-[1.125rem] h-[1.125rem]" /> },
                   ].map(s => (
                     <a
                       key={s.label}
@@ -212,11 +212,11 @@ const Footer = () => {
           </a>
           <a href="https://x.com/n8watkins" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"
             className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors duration-200">
-            <FaXTwitter className="w-4.5 h-4.5 text-slate-400 hover:text-slate-200 transition-colors" aria-hidden="true" />
+            <FaXTwitter className="w-[1.125rem] h-[1.125rem] text-slate-400 hover:text-slate-200 transition-colors" aria-hidden="true" />
           </a>
           <a href="https://www.linkedin.com/in/n8watkins/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"
             className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors duration-200">
-            <CiLinkedin className="w-5.5 h-5.5 text-slate-400 hover:text-slate-200 transition-colors" aria-hidden="true" />
+            <CiLinkedin className="w-6 h-6 text-slate-400 hover:text-slate-200 transition-colors" aria-hidden="true" />
           </a>
           <a href="mailto:nathancwatkins23@gmail.com" aria-label="Email"
             className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors duration-200">
