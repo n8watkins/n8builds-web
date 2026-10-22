@@ -16,7 +16,7 @@ export default function HomeStack() {
           <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-cyan-400">The loadout</p>
           <h2 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">The AI kit I build with</h2>
           <p className="mt-2 max-w-[520px] text-[#9cadc5]">
-            The agents and tools doing the heavy lifting right now — hover a tile for what I use it for.
+            The agents and tools doing the heavy lifting right now — hover or tap a tile for what I use it for.
           </p>
         </div>
         <Link

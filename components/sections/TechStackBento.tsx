@@ -1,44 +1,10 @@
 'use client'
-import React, { ReactElement } from 'react'
+import React from 'react'
 import Link from 'next/link'
-import { cn } from '@/lib/utils'
 import Marquee from '@/components/magicui/marquee'
+import StackTile from '@/components/ui/StackTile'
 import { FiArrowUpRight } from 'react-icons/fi'
 import { tech_libraries, tech_tools } from '@/data/techStack'
-
-// The portfolio's bento tech-stack item, re-themed for n8builds (dark, cyan).
-// Icon + name show; the description reveals on hover.
-const StackContainer = ({
-  name,
-  icon,
-  description,
-}: {
-  name: string
-  icon?: string | ReactElement
-  description: string
-}) => (
-  <figure
-    className={cn(
-      'relative flex h-28 min-w-40 max-w-52 cursor-pointer items-center justify-center overflow-hidden rounded-xl border px-2 pb-2',
-      'border-white/8 bg-white/4 hover:border-cyan-400/30 hover:bg-white/8',
-      'transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-cyan-500/5',
-      'hover:[&_.content-wrapper]:scale-75 hover:[&_.content-wrapper]:-translate-y-9',
-      'hover:[&_.description]:opacity-100'
-    )}
-  >
-    <div className="content-wrapper flex flex-col items-center transition-all duration-300 ease-in-out">
-      <figcaption className="mt-2 flex flex-col items-center text-xl font-medium text-white transition-all duration-300 ease-in-out">
-        <div className="flex flex-row items-center gap-2 pt-24 text-cyan-300/90">
-          <span className="transition-transform duration-300 ease-in-out">{icon}</span>
-          <span className="whitespace-nowrap text-white transition-all duration-300 ease-in-out">{name}</span>
-        </div>
-        <div className="description flex h-24 w-48 items-start justify-center text-center text-sm text-[#9cadc5] opacity-0 transition-all duration-300 ease-in-out">
-          {description}
-        </div>
-      </figcaption>
-    </div>
-  </figure>
-)
 
 const TechStackBento = ({ showLink = true }: { showLink?: boolean }) => {
   return (
@@ -48,7 +14,7 @@ const TechStackBento = ({ showLink = true }: { showLink?: boolean }) => {
           <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-cyan-400">The loadout</p>
           <h2 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">My tech stack</h2>
           <p className="mt-2 max-w-[480px] text-[#9cadc5]">
-            What I build with. Hover any tile for what it&apos;s for — or see the full loadout, rig, and AI kit.
+            What I build with. Hover or tap any tile for what it&apos;s for — or see the full loadout, rig, and AI kit.
           </p>
         </div>
         {showLink && (
@@ -65,12 +31,12 @@ const TechStackBento = ({ showLink = true }: { showLink?: boolean }) => {
       <div className="relative flex flex-col gap-3 overflow-hidden rounded-3xl border border-white/6 bg-linear-to-br from-[#081427] via-[#0a1a33] to-[#081427] py-8">
         <Marquee label="Libraries and frameworks" pauseOnHover className="[--duration:50s]">
           {tech_libraries.map((t) => (
-            <StackContainer key={t.name} name={t.name} icon={t.icon} description={t.description} />
+            <StackTile key={t.name} name={t.name} icon={t.icon} description={t.description} iconClassName="text-cyan-300/90" />
           ))}
         </Marquee>
         <Marquee label="Tools and services" reverse pauseOnHover className="[--duration:50s]">
           {tech_tools.map((t) => (
-            <StackContainer key={t.name} name={t.name} icon={t.icon} description={t.description} />
+            <StackTile key={t.name} name={t.name} icon={t.icon} description={t.description} iconClassName="text-cyan-300/90" />
           ))}
         </Marquee>
         <div className="pointer-events-none absolute left-0 h-full w-1/4 bg-linear-to-r from-[#081427] to-transparent motion-reduce:hidden" />

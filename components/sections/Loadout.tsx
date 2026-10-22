@@ -113,7 +113,7 @@ const Loadout = () => {
               <span className="h-2 w-2 rounded-full bg-cyan-400" />
               <h2 className="text-2xl font-extrabold tracking-tight text-slate-50">AI & Agents</h2>
             </div>
-            <p className="text-sm text-[#9cadc5]">The part of the kit that does the heavy lifting now — hover a tile for what I use it for.</p>
+            <p className="text-sm text-[#9cadc5]">The part of the kit that does the heavy lifting now — hover or tap a tile for what I use it for.</p>
           </div>
           <AITechStack />
         </section>
