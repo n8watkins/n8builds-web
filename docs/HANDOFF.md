@@ -21,9 +21,9 @@ Strategy and IA: `docs/N8BUILDS_PLAN.md`.
 ## Current state
 
 - Live at https://n8builds.dev on Vercel (project `n8builds-web`, team natkins23s-projects), auto-deploying from `main`.
-- Stack: Next.js 16 (App Router, webpack build), React 19, TypeScript, Tailwind 3, Motion (`motion/react`; not framer-motion), Sanity (blog), Nodemailer + Gmail SMTP, Cloudflare Turnstile, Upstash Redis (rate limits), Sentry, GA4, Vercel Speed Insights.
+- Stack: Next.js 16 (App Router, webpack build), React 19, TypeScript, Tailwind 4 (configured in `app/globals.css`; there is no `tailwind.config`), Motion (`motion/react`; not framer-motion), Sanity (blog), Nodemailer + Gmail SMTP, Cloudflare Turnstile, Upstash Redis (rate limits), Sentry, GA4, Vercel Speed Insights.
 - Pages: `/` (hero, lab sections, work-with-me, contact), `/blog` + `/blog/[slug]` (N8 Notions, ISR hourly), `/builds/[slug]`, `/loadout`, `/privacy`.
-- **Pending push (2026-10-21):** the contact-form hardening and everything after it is committed locally but not pushed, because production now requires Upstash.
+- **Pending push (2026-10-21/22):** the contact-form hardening and everything after it (the Tailwind 4 upgrade and the review fixes included) is committed locally but not pushed, because production now requires Upstash.
   See `docs/OWNER_TODO.md` step 1.
 
 ## Running and testing
@@ -64,9 +64,11 @@ Flow (`app/api/contact/route.ts`): size check (10KB), per-IP rate limit, JSON + 
 - **Fail closed:** in production, a missing Turnstile secret, a Turnstile error, missing Upstash config, or an Upstash outage or timeout all reject the submission, with a message telling the visitor to email directly.
 - **Turnstile** (`lib/security/turnstile.ts`): tokens must be issued on `n8builds.dev` or `www.n8builds.dev` (`TURNSTILE_ALLOWED_HOSTNAMES` overrides).
   Verification is skipped only under `next dev`.
-- **Client** (`components/ContactForm/`): if Turnstile has not issued a token when Send is clicked, the button shows "Verifying..." and submits once it arrives.
+- **Client** (`components/ContactForm/`): Send is disabled until the form hydrates (`hooks/useHydrated.ts`), so an early click is never silently lost.
+  If Turnstile has not issued a token when Send is clicked, the button shows "Verifying..." and submits once it arrives.
   After 15s it explains the failure (often an ad or privacy blocker).
   Server error messages are shown to the visitor.
+  The success confetti is lazily loaded and has its own error boundary: if its chunk fails, the confetti is dropped and the success message stays.
 - **Emails** (`lib/email/`): Gmail SMTP with an app password.
   Notifications go straight to the Gmail inbox (`CONTACT_EMAIL_TO`), never to contact@n8builds.dev, which forwards back to the same Gmail and gets deduped.
   All user input is HTML-escaped exactly once at template time.
@@ -119,12 +121,22 @@ Flow (`app/api/contact/route.ts`): size check (10KB), per-IP rate limit, JSON + 
 - Node scripts that import project dependencies must run from inside the repo; import Playwright as `@playwright/test`.
 - `npm run type-check` can report errors from stale generated types after deleting a route; `rm -rf .next/types .next/dev` and rerun.
 - `npm run lint` fails on any warning (CI too).
-- Reduced motion is honored everywhere: CSS animations stop globally, Motion uses `MotionConfig reducedMotion="user"`, and timer-driven cycles check `usePrefersReducedMotion` (`hooks/`).
+- Reduced motion is honored everywhere: CSS animations stop globally, smooth scrolling is enabled only under `prefers-reduced-motion: no-preference`, Motion uses `MotionConfig reducedMotion="user"`, and timer-driven cycles check `usePrefersReducedMotion` (`hooks/`).
   `Marquee` requires a `label` prop (its reduced-motion fallback is a labelled, keyboard-reachable list).
   `tests/e2e/reduced-motion.spec.ts` covers this.
 - Known dev-only noise: `next dev` (Turbopack) logs a 404 for a stale preload hint of the lazily loaded confetti chunk (`ConfettiPlayer`).
   The chunk itself loads and the confetti renders; production (webpack) is unaffected.
 - Lighthouse: `npm run build && LHCI_PORT=3747 npm run lighthouse`; under WSL set `CHROME_PATH` to a Linux Chrome.
+- One build or Playwright run per checkout at a time: they share `.next/` and `test-results/`, and a second one breaks the first (a running `next start` serves mismatched chunks; Playwright wipes `test-results/` mid-run).
+  For parallel work, use a second `git worktree` with its own `npm ci` and `E2E_PORT`.
+- Tailwind 4 notes:
+  - Theme tokens (`darkBlue`, `slate-450` / `slate-475`, `border` / `background` / `foreground`, the marquee keyframes) live in the `@theme` block in `app/globals.css`.
+  - An explicit `leading-*` now wins over a responsive `text-*` size at every breakpoint (in v3 the size reset it).
+    Pair a responsive size with its line height instead, for example `sm:text-5xl/none`.
+  - `space-y-*` now puts the margin on the bottom of each child except the last, and counts hidden children.
+    The contact form's `pt-4 md:pt-6` replaces spacing v3 used to add because of the hidden honeypot.
+  - Any opacity step works (`bg-white/7`); in v3, steps outside the scale silently produced no CSS.
+  - `tailwind-merge` must stay on v3+ to understand v4 class names.
 - Project memory for Claude sessions: `~/.claude/projects/-home-natkins-n8builds-n8builds-web/memory/`.
 
 ## File map
@@ -145,34 +157,10 @@ Flow (`app/api/contact/route.ts`): size check (10KB), per-IP rate limit, JSON + 
 - `public/builds/<slug>/`: build icons and screenshots; `public/tab/`: favicons and OG image.
 - `docs/`: this file, `OWNER_TODO.md`, `N8BUILDS_PLAN.md`, `N8_NOTIONS_BLOG_IMPLEMENTATION.md`, `CLOUDFLARE_SECURITY.md`, `archive/`.
 
-## Next up: Tailwind 4 upgrade (start in a fresh session)
-
-Everything else from the 2026-10-21 review is done and merged on `main`.
-Goal: move from Tailwind 3.4 to the latest stable 4.x (at least two weeks old) with **zero visual change** and all checks green.
-It also clears the last `npm audit` findings, which are all Tailwind 3 build-time dependencies (braces, chokidar, micromatch, fast-glob, postcss-selector-parser).
-
-Method:
-
-1. **Baseline first.** On current `main`, screenshot every page (`/`, `/blog`, a post, two `/builds/<slug>`, `/loadout`, `/privacy`, 404) at 1440 and 390 widths, with reduced motion on and all animations paused (`document.getAnimations().forEach(a => { a.currentTime = 0; a.pause() })`), against a production build in `CONTACT_TEST_MODE`.
-   Save them outside the repo.
-2. Run `npx @tailwindcss/upgrade`, then review its diff by hand.
-3. Port `tailwind.config.ts` to CSS (`@theme`, `@plugin`, `@utility`, `@custom-variant`). Before porting each piece, check whether anything still uses it, and drop it if not:
-   - `darkMode: ['class']` becomes `@custom-variant dark` (the site is dark-only via `next-themes`).
-   - The custom `slate-450` / `slate-475` colors (WCAG contrast fixes; keep exact hex values).
-   - The extra opacity steps (`/3`, `/8`, `/12`): v4 accepts any number natively, so these can go.
-   - `tailwindcss-animate` becomes `tw-animate-css`; check `tailwindcss-animated` 2.x supports v4 or replace it.
-   - Custom plugins: `addVariablesForColors` (exposes every color as a CSS variable; v4 does this natively as `--color-*`, so find usages of the old `--<color>` names), the `landscape` variant, and the `bg-grid` / `bg-grid-small` / `bg-dot` utilities (they use `mini-svg-data-uri` and `flattenColorPalette`, which is gone in v4).
-   - The keyframes and animations in `theme.extend`.
-   - shadcn-style HSL CSS variables in `app/globals.css`.
-4. PostCSS: `@tailwindcss/postcss` replaces `tailwindcss` + `autoprefixer`. The production build uses webpack (`next build --webpack`).
-5. Known v4 default changes to check visually: default border and divide color (now `currentColor`), `ring` width (3px to 1px) and color, `shadow-sm` / `rounded-sm` / `blur-sm` renamed scales, `outline-none`, placeholder color, `space-*` selector change, hover only applying on devices that can hover, and the OKLCH default palette (slightly different colors; axe contrast tests will catch regressions).
-6. Re-screenshot and compare with the baseline (pixel diff); fix every difference that isn't explained by the palette change.
-7. Verify: `npm run lint`, `npm run type-check`, `npm run test:unit`, `npm run test:e2e:all` (expect 201+ passing, including axe), `npm audit --omit=dev` (expect 0), Lighthouse.
-   Commit in logical steps without an agent co-author trailer.
-
-Browser support after v4: Safari 16.4+, Chrome 111+, Firefox 128+.
-
 ## Backlog
+
+Owner decision pending: the blog cover banners (`components/blog/CoverBanner.tsx`) use violet/fuchsia gradients.
+They are multi-hue cover art rather than accents, so the no-purple rule was not applied to them.
 
 Feature work, roughly in priority order:
 
