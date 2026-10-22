@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { createClient } from '@sanity/client'
 
 // Read-only client for the N8 Notions blog. Reads the shared Sanity dataset
@@ -48,7 +49,10 @@ export const getAllPosts = () =>
 export const getRecentPosts = (limit = 3) =>
   sanity.fetch<Post[]>(`*[_type == "post"] | order(publishedAt desc)[0...${limit}]{ ${POST_CARD} }`)
 
-export const getPostBySlug = (slug: string) =>
+// cache(): generateMetadata and the page both ask for the post in one request;
+// @sanity/client doesn't go through Next's fetch dedupe, so this keeps it to one
+// Sanity query (an unknown slug costs one, not two).
+export const getPostBySlug = cache((slug: string) =>
   sanity.fetch<Post | null>(
     `*[_type == "post" && slug.current == $slug][0]{
       ${POST_CARD},
@@ -64,6 +68,7 @@ export const getPostBySlug = (slug: string) =>
     }`,
     { slug }
   )
+)
 
 export const getRelatedPosts = (currentSlug: string) =>
   sanity.fetch<Post[]>(
