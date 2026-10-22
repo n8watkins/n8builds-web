@@ -15,7 +15,7 @@ Manual steps that need the owner live in [`docs/OWNER_TODO.md`](docs/OWNER_TODO.
 - Sanity (read-only CDN client) for the N8 Notions blog
 - Nodemailer + Gmail SMTP, Cloudflare Turnstile, Upstash Redis rate limiting
 - Sentry (inert until `NEXT_PUBLIC_SENTRY_DSN` is set), GA4, Vercel Speed Insights
-- Vitest (unit), Playwright + axe (E2E and accessibility), Lighthouse CI
+- Vitest (unit), Playwright + axe (E2E and accessibility), Lighthouse budgets
 
 The site is dark-only and honors `prefers-reduced-motion` everywhere.
 
@@ -73,13 +73,14 @@ Under `next dev`, Turnstile verification and Upstash are skipped, so the contact
 | `npm run test:e2e` | Playwright (contact API + Chromium) against a production build |
 | `npm run test:e2e:all` | Playwright on Chromium, Firefox, WebKit and mobile |
 | `npm test` | Unit + E2E |
-| `npm run lighthouse` | Lighthouse CI (build first; see below) |
+| `npm run lighthouse` | Lighthouse budgets on the production build (build first; see below) |
 | `npm run analyze` | Production build with the bundle analyzer |
 
 Playwright builds and starts the app itself on port 3747 (`E2E_PORT` overrides it) in `CONTACT_TEST_MODE`, with Cloudflare's always-pass Turnstile test keys.
 No email is sent, and GA, Sentry and Upstash are forced off.
 
-Lighthouse: `npm run build && LHCI_PORT=3747 npm run lighthouse`.
+Lighthouse: `npm run build && npm run lighthouse` (`LIGHTHOUSE_PORT`, default 3747).
+It audits four pages three times each, checks the medians against the budgets in `scripts/lighthouse.mjs`, and writes HTML reports to `.lighthouse/`.
 Under WSL, set `CHROME_PATH` to a Linux Chrome.
 
 CI runs lint, type-check, unit tests and E2E (API + Chromium) on every push to `main` and every PR.

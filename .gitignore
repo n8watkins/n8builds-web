@@ -44,8 +44,5 @@ next-env.d.ts
 /blob-report/
 /playwright/.cache/
 
-# lighthouse ci
-/.lighthouseci/
-# Under WSL, chrome-launcher always creates its Chrome profile with a Windows
-# temp path, which lands here as a literal "C:\Users\..." folder.
-C:\\Users\\*
+# lighthouse reports (scripts/lighthouse.mjs)
+/.lighthouse/

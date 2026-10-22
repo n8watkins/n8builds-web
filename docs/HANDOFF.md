@@ -126,8 +126,11 @@ Flow (`app/api/contact/route.ts`): size check (10KB), per-IP rate limit, JSON + 
   `tests/e2e/reduced-motion.spec.ts` covers this.
 - Known dev-only noise: `next dev` (Turbopack) logs a 404 for a stale preload hint of the lazily loaded confetti chunk (`ConfettiPlayer`).
   The chunk itself loads and the confetti renders; production (webpack) is unaffected.
-- Lighthouse: `npm run build && LHCI_PORT=3747 npm run lighthouse`; under WSL set `CHROME_PATH` to a Linux Chrome (Playwright's works: `~/.cache/ms-playwright/chromium-*/chrome-linux64/chrome`).
-  On WSL, chrome-launcher still creates its profile folders under a literal `C:\Users\...` name in the repo; `.gitignore` covers them, and they are safe to delete.
+- Lighthouse: `npm run build && npm run lighthouse` runs `scripts/lighthouse.mjs` (Lighthouse 13 directly; `@lhci/cli` was dropped as unmaintained and the source of most `npm audit` findings).
+  Budgets live in that script; reports go to `.lighthouse/` (a CI artifact in the nightly run), not to public storage.
+  Under WSL set `CHROME_PATH` to a Linux Chrome (Playwright's works: `~/.cache/ms-playwright/chromium-*/chrome-linux64/chrome`).
+- `npm audit` (all deps) has one known, unfixable finding: `braces` (GHSA-vfj7-8cjw-p6xm), via `eslint-config-next` → `fast-glob` → `micromatch`.
+  No patched `braces` exists; it only expands the lint plugin's own glob patterns, never untrusted input. `npm audit --omit=dev` is 0.
 - One build or Playwright run per checkout at a time: they share `.next/` and `test-results/`, and a second one breaks the first (a running `next start` serves mismatched chunks; Playwright wipes `test-results/` mid-run).
   For parallel work, use a second `git worktree` with its own `npm ci` and `E2E_PORT`.
 - Tailwind 4 notes:
