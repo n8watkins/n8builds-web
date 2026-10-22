@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useEffect, useRef } from 'react'
+import React from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
+import { Turnstile } from '@marsidev/react-turnstile'
 import { ContactInput } from '@/components/ui/ContactInput'
 import { ContactSelect } from '@/components/ui/ContactSelect'
 import { ContactTextarea } from '@/components/ui/ContactTextarea'
@@ -15,29 +15,31 @@ interface ContactFormFieldsProps {
   form: UseFormReturn<ContactFormData>
   submissionState: SubmissionState
   errorMessage: string
+  isVerifying: boolean
   onSubmit: () => Promise<void>
+  onTurnstileToken: (token: string) => void
+  onTurnstileExpire: () => void
   turnstileSiteKey: string
 }
 
-export function ContactFormFields({ form, submissionState, errorMessage, onSubmit, turnstileSiteKey }: ContactFormFieldsProps) {
-  const turnstileRef = useRef<TurnstileInstance>(null)
-
+export function ContactFormFields({
+  form,
+  submissionState,
+  errorMessage,
+  isVerifying,
+  onSubmit,
+  onTurnstileToken,
+  onTurnstileExpire,
+  turnstileSiteKey,
+}: ContactFormFieldsProps) {
   const {
     register,
     watch,
-    setValue,
     formState: { errors, isSubmitting },
   } = form
 
   const charCount = watch('message')?.length || 0
-
-  // Turnstile tokens are single-use: after a failed submission the server has
-  // already spent this one, so fetch a fresh token for the retry.
-  useEffect(() => {
-    if (submissionState !== 'error') return
-    setValue('turnstile', '')
-    turnstileRef.current?.reset()
-  }, [submissionState, setValue])
+  const isBusy = isSubmitting || isVerifying
 
   const handleFieldFocus = (fieldName: string) => {
     trackContactEvent('field_focus', fieldName)
@@ -167,18 +169,19 @@ export function ContactFormFields({ form, submissionState, errorMessage, onSubmi
         {/*
           Invisible Cloudflare Turnstile widget.
           appearance: 'interaction-only' keeps it hidden unless a challenge is
-          truly required. On success it writes its token into the `turnstile`
-          form field. Only rendered when a site key is configured — in dev or
-          pre-launch (no key), useContactFormSubmit falls back to a dev-bypass token.
+          truly required. On success it hands its token to the form, which
+          waits for one if the visitor clicks Send first. Only rendered when a
+          site key is configured; otherwise useContactFormSubmit falls back to a
+          placeholder token.
         */}
         {turnstileSiteKey && (
           <Turnstile
-            ref={turnstileRef}
             siteKey={turnstileSiteKey}
             onSuccess={(token) => {
-              setValue('turnstile', token)
+              onTurnstileToken(token)
               trackContactEvent('turnstile_complete')
             }}
+            onExpire={onTurnstileExpire}
             options={{ appearance: 'interaction-only', refreshExpired: 'auto' }}
             className="absolute"
           />
@@ -186,18 +189,18 @@ export function ContactFormFields({ form, submissionState, errorMessage, onSubmi
 
         <button
           type="button"
-          disabled={isSubmitting}
+          disabled={isBusy}
           onClick={(e) => {
             e.preventDefault()
             onSubmit()
           }}
           className={`relative inline-flex h-12 w-full md:w-60 overflow-hidden rounded-lg p-[1px] focus:outline-none transition-all duration-200 ${
-            isSubmitting ? "opacity-75 cursor-not-allowed" : ""
+            isBusy ? "opacity-75 cursor-not-allowed" : ""
           }`}
         >
           <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
           <span className="inline-flex h-full w-full items-center justify-center rounded-lg bg-slate-950 px-7 text-sm font-medium text-white backdrop-blur-3xl gap-2 pointer-events-none">
-            {isSubmitting ? "Sending... 🚀" : "Send Message 🚀"}
+            {isVerifying ? "Verifying... 🛡️" : isSubmitting ? "Sending... 🚀" : "Send Message 🚀"}
           </span>
         </button>
       </motion.div>

@@ -23,6 +23,7 @@ export default function ContactForm({ className }: ContactFormProps) {
     submissionState,
     setSubmissionState,
     errorMessage,
+    isVerifying,
     liveRegionMessage,
     showConfetti,
     setShowConfetti,
@@ -30,6 +31,8 @@ export default function ContactForm({ className }: ContactFormProps) {
     setConfettiKey,
     form,
     handleFormSubmit,
+    onTurnstileToken,
+    onTurnstileExpire,
   } = useContactFormSubmit()
 
   // Track form view when component mounts
@@ -86,7 +89,10 @@ export default function ContactForm({ className }: ContactFormProps) {
         form={form}
         submissionState={submissionState}
         errorMessage={errorMessage}
+        isVerifying={isVerifying}
         onSubmit={handleFormSubmit}
+        onTurnstileToken={onTurnstileToken}
+        onTurnstileExpire={onTurnstileExpire}
         turnstileSiteKey={turnstileSiteKey}
       />
     </motion.div>

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { contactFormSchema, ContactFormData } from '@/lib/validations/contact'
@@ -9,6 +9,12 @@ export type SubmissionState = 'idle' | 'submitting' | 'success' | 'error'
 
 const DEFAULT_ERROR_MESSAGE = 'Oops! Something went wrong. Please try again or email me directly.'
 
+// How long to wait for Turnstile to issue a token after the visitor clicks Send.
+const TURNSTILE_WAIT_MS = 15_000
+
+const VERIFICATION_FAILED_MESSAGE =
+  "We couldn't verify your browser (an ad or privacy blocker can cause this). Please refresh and try again, or email me directly at nathancwatkins23@gmail.com."
+
 /** An error whose message came from the API and is safe to show the visitor. */
 class SubmissionError extends Error {}
 
@@ -16,6 +22,7 @@ interface UseContactFormSubmitReturn {
   submissionState: SubmissionState
   setSubmissionState: (state: SubmissionState) => void
   errorMessage: string
+  isVerifying: boolean
   liveRegionMessage: string
   setLiveRegionMessage: (message: string) => void
   showConfetti: boolean
@@ -24,15 +31,19 @@ interface UseContactFormSubmitReturn {
   setConfettiKey: (key: number) => void
   form: ReturnType<typeof useForm<ContactFormData>>
   handleFormSubmit: () => Promise<void>
+  onTurnstileToken: (token: string) => void
+  onTurnstileExpire: () => void
 }
 
 export function useContactFormSubmit(): UseContactFormSubmitReturn {
   const [submissionState, setSubmissionState] = useState<SubmissionState>('idle')
   const [errorMessage, setErrorMessage] = useState('')
+  const [isVerifying, setIsVerifying] = useState(false)
   const [liveRegionMessage, setLiveRegionMessage] = useState('')
   const [showConfetti, setShowConfetti] = useState(false)
   const [confettiKey, setConfettiKey] = useState(0)
   const isMountedRef = useRef(true)
+  const tokenWaiterRef = useRef<((token: string | null) => void) | null>(null)
 
   // Track component mount status to prevent setState on unmounted component
   useEffect(() => {
@@ -54,12 +65,42 @@ export function useContactFormSubmit(): UseContactFormSubmitReturn {
     },
   })
 
-  const { handleSubmit, setValue, reset } = form
+  const { handleSubmit, setValue, getValues, trigger, reset } = form
+
+  const onTurnstileToken = useCallback((token: string) => {
+    setValue('turnstile', token)
+    tokenWaiterRef.current?.(token)
+    tokenWaiterRef.current = null
+  }, [setValue])
+
+  const onTurnstileExpire = useCallback(() => {
+    setValue('turnstile', '')
+  }, [setValue])
+
+  /** Resolve with the current Turnstile token, waiting for one if needed. */
+  const waitForTurnstileToken = (): Promise<string | null> => {
+    const current = getValues('turnstile')
+    if (current) return Promise.resolve(current)
+
+    return new Promise((resolve) => {
+      const timer = setTimeout(() => {
+        tokenWaiterRef.current = null
+        resolve(null)
+      }, TURNSTILE_WAIT_MS)
+      tokenWaiterRef.current = (token) => {
+        clearTimeout(timer)
+        resolve(token)
+      }
+    })
+  }
 
   const onSubmit = async (data: ContactFormData) => {
     try {
       if (!isMountedRef.current) return
 
+      // Turnstile tokens are single-use: this one is spent once sent. The form
+      // remounts after submitting, and the new widget issues a fresh token.
+      setValue('turnstile', '')
       setSubmissionState('submitting')
       setErrorMessage('')
       setLiveRegionMessage('Submitting your message...')
@@ -114,17 +155,35 @@ export function useContactFormSubmit(): UseContactFormSubmitReturn {
 
   const handleFormSubmit = async () => {
     // Turnstile runs invisibly via the <Turnstile> widget rendered in the form,
-    // writing its token into the `turnstile` field via onSuccess. In development,
-    // or when no site key is configured (pre-launch), the widget is not rendered,
-    // so we fall back to a dev-bypass token so submission still works
-    // (protected only by honeypot + rate limiting until keys are added).
-    const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
+    // writing its token into the `turnstile` field via onTurnstileToken. Under
+    // `next dev`, or when no site key is configured, the widget is not
+    // rendered, so a placeholder token is used (the server skips Turnstile in
+    // dev and rejects it everywhere else).
+    const widgetDisabled = process.env.NODE_ENV === 'development' || !process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
 
-    if (isDevelopment) {
+    if (widgetDisabled) {
       setValue('turnstile', 'dev_bypass_token')
+    } else if (!getValues('turnstile')) {
+      // No token yet (Turnstile still working, or blocked). Validate the visible
+      // fields first so errors show immediately, then wait for the token.
+      const fieldsValid = await trigger(['name', 'email', 'subject', 'message'])
+      if (!fieldsValid) return
+
+      setIsVerifying(true)
+      setLiveRegionMessage('Verifying...')
+      const token = await waitForTurnstileToken()
+      if (!isMountedRef.current) return
+      setIsVerifying(false)
+
+      if (!token) {
+        setSubmissionState('error')
+        setErrorMessage(VERIFICATION_FAILED_MESSAGE)
+        setLiveRegionMessage(VERIFICATION_FAILED_MESSAGE)
+        trackContactEvent('submit_error', undefined, { error: 'turnstile_timeout' })
+        return
+      }
     }
 
-    // Trigger form validation and submission
     handleSubmit(onSubmit)()
   }
 
@@ -132,6 +191,7 @@ export function useContactFormSubmit(): UseContactFormSubmitReturn {
     submissionState,
     setSubmissionState,
     errorMessage,
+    isVerifying,
     liveRegionMessage,
     setLiveRegionMessage,
     showConfetti,
@@ -140,5 +200,7 @@ export function useContactFormSubmit(): UseContactFormSubmitReturn {
     setConfettiKey,
     form,
     handleFormSubmit,
+    onTurnstileToken,
+    onTurnstileExpire,
   }
 }
