@@ -1,7 +1,6 @@
 import { ReactElement } from 'react'
 import {
   SiClaude,
-  SiOpenai,
   SiGooglegemini,
   SiOllama,
   SiHuggingface,
@@ -9,6 +8,8 @@ import {
   SiPerplexity,
 } from 'react-icons/si'
 import { FiEdit3, FiMic, FiVolume2 } from 'react-icons/fi'
+// Simple Icons dropped the OpenAI mark (react-icons 5.7); Bootstrap Icons has it.
+import { BsOpenai } from 'react-icons/bs'
 
 export interface AIStackItem {
   name: string
@@ -22,7 +23,7 @@ const ICON = 'w-7 h-7'
 export const ai_agents: AIStackItem[] = [
   { name: 'Claude Code', icon: <SiClaude className={ICON} style={{ color: '#D97757' }} />, description: 'My pair-programmer — I build most things here now.' },
   { name: 'Cursor', icon: <FiEdit3 className={ICON} style={{ color: '#38bdf8' }} />, description: 'Inline, context-aware edits when my hands are on the keys.' },
-  { name: 'OpenAI', icon: <SiOpenai className={ICON} style={{ color: '#10A37F' }} />, description: 'Generation pipelines and structured outputs.' },
+  { name: 'OpenAI', icon: <BsOpenai className={ICON} style={{ color: '#10A37F' }} />, description: 'Generation pipelines and structured outputs.' },
   { name: 'Gemini', icon: <SiGooglegemini className={ICON} style={{ color: '#4285F4' }} />, description: 'Long-context summarization in my extensions.' },
   { name: 'Perplexity', icon: <SiPerplexity className={ICON} style={{ color: '#20B8CD' }} />, description: 'Fast research with sources.' },
 ]

@@ -38,13 +38,7 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   experimental: {
-    optimizePackageImports: [
-      'lucide-react',
-      'framer-motion',
-      'react-icons',
-      '@radix-ui/react-dropdown-menu',
-      '@radix-ui/react-icons',
-    ],
+    optimizePackageImports: ['framer-motion', 'react-icons'],
   },
   async redirects() {
     return [

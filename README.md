@@ -381,7 +381,7 @@ npm run start
 - **Dynamic Imports**: Below-the-fold components lazy loaded
 - **Image Optimization**: AVIF/WebP formats with Next/Image
 - **Font Optimization**: Inter font with subset loading and swap display
-- **Package Tree-shaking**: Optimized imports for lucide-react, framer-motion, etc.
+- **Package Tree-shaking**: Optimized imports for framer-motion and react-icons
 
 ### Technical Highlights
 - **CSS Masks**: Gradient effects in infinite card animations
