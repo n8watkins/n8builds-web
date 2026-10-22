@@ -44,5 +44,8 @@ If you ever want the form to work on Vercel preview URLs, add those hostnames to
 
 - **Daily cap:** the site-wide limit defaults to 50 verified submissions per day.
   To change it, set `CONTACT_DAILY_LIMIT` in Vercel.
+- **HSTS preload:** Vercel already sends `Strict-Transport-Security: max-age=63072000`.
+  Adding `includeSubDomains; preload` would force HTTPS on every `*.n8builds.dev` subdomain permanently (preload lists are slow to undo).
+  Only do it if every subdomain will always be HTTPS; tell Claude and it will add the header.
 - **Branch protection:** require the `CI` checks to pass before merging into `main` (GitHub → Settings → Branches).
 - **Gmail connector for Claude:** it needs re-authenticating (`/mcp`) if you want Claude to check inboxes during end-to-end email tests.

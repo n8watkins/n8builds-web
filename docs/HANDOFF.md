@@ -131,7 +131,7 @@ Flow (`app/api/contact/route.ts`): size check (10KB), per-IP rate limit, JSON + 
 - `data/`: `builds.tsx` (source of truth), `shelves.ts`, `loadout.tsx`, `aiStack.tsx`, `buildStacks.tsx`, `techStack.tsx`, `projects.tsx`, `now.tsx`.
 - `lib/security/`: `rateLimiter.ts`, `turnstile.ts`, `validation.ts`, `testMode.ts`.
 - `lib/email/`: `smtp.ts` (transport + `EMAIL_CONFIG`), `sender.ts`, `templates.ts`, `icons.ts` (generated).
-- `next.config.mjs`: redirects, headers, Sentry wrapper (tunnel at `/monitoring`).
+- `next.config.mjs`: redirects, Sentry wrapper (tunnel at `/monitoring`); headers come from `lib/security/headers.mjs` (enforced CSP: add any new third-party origin there).
 - `instrumentation*.ts`, `sentry.*.config.ts`: Sentry (inert without a DSN).
 - `tests/unit/`, `tests/e2e/`, `playwright.config.ts`, `vitest.config.ts`.
 - `public/builds/<slug>/`: build icons and screenshots; `public/tab/`: favicons and OG image.

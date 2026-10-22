@@ -291,7 +291,10 @@ npm run lint:fix     # Fix ESLint issues automatically
 npm run type-check   # TypeScript type checking without emit
 
 # Testing & Analysis
-npm run test         # Run Playwright E2E tests
+npm test             # Unit tests + E2E (API + Chromium)
+npm run test:unit    # Vitest unit tests (tests/unit)
+npm run test:e2e     # Playwright: contact API + Chromium, against a production build
+npm run test:e2e:all # Playwright on every browser project (Chromium, Firefox, WebKit, mobile)
 npm run test:ui      # Run Playwright in UI mode
 npm run lighthouse   # Run Lighthouse CI performance audit
 npm run analyze      # Build with bundle analysis (ANALYZE=true)
@@ -368,6 +371,12 @@ npm run start
 
 ## 🔒 Security Considerations
 
+- **Security headers** live in `lib/security/headers.mjs` and are applied in `next.config.mjs`.
+  The Content-Security-Policy is enforced, so any new third-party origin (script, image, frame, or API) must be added there or the browser will block it.
+- Scripts keep `'unsafe-inline'`: App Router pages inline per-page RSC payload scripts, so hashes can't go in static headers, and nonces would force every page to render dynamically.
+  Everything else is locked down (`object-src 'none'`, `base-uri 'self'`, `form-action 'self'`, `frame-ancestors 'none'`).
+- CSP violations are reported to Sentry when `NEXT_PUBLIC_SENTRY_DSN` is set.
+- `tests/e2e/security-headers.spec.ts` asserts the headers and fails on any CSP violation across every page and the contact flow.
 - Never commit API keys or secrets
 - Use environment variables for all sensitive data
 - Regular dependency updates for security patches
