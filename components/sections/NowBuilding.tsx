@@ -1,7 +1,15 @@
 'use client'
-import React, { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
-import { FiGithub, FiExternalLink, FiActivity, FiChevronLeft, FiChevronRight, FiArrowUpRight } from 'react-icons/fi'
+import React, { useEffect, useRef, useState } from 'react'
+import {
+  FiGithub,
+  FiExternalLink,
+  FiActivity,
+  FiChevronLeft,
+  FiChevronRight,
+  FiArrowUpRight,
+  FiPause,
+  FiPlay,
+} from 'react-icons/fi'
 import { MdRadioButtonChecked } from 'react-icons/md'
 import { nowItems, type NowState } from '@/data/now'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
@@ -14,6 +22,9 @@ const statusStyles: Record<NowState['status'], string> = {
 }
 
 const CYCLE_MS = 7000
+
+const arrowClass =
+  'flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/4 text-slate-400 transition-colors hover:bg-white/8 hover:text-slate-100'
 
 const Card = ({ now }: { now: NowState }) => (
   <div className="grid gap-6 md:grid-cols-[1.2fr_1fr]">
@@ -84,24 +95,35 @@ const Card = ({ now }: { now: NowState }) => (
 
 const NowBuilding = () => {
   const [index, setIndex] = useState(0)
-  const [dir, setDir] = useState(1)
-  const [paused, setPaused] = useState(false)
+  // Why the cycle is paused, if it is: each reason clears independently.
+  const [hovered, setHovered] = useState(false)
+  const [focused, setFocused] = useState(false)
+  const [visible, setVisible] = useState(false)
+  // Set by the pause button, or by any tap: a visitor who touched the card is
+  // reading it, so it stops moving under their finger.
+  const [stopped, setStopped] = useState(false)
+  const card = useRef<HTMLDivElement>(null)
   const count = nowItems.length
   const reduceMotion = usePrefersReducedMotion()
+  const cycling = !reduceMotion && count > 1 && !stopped && !hovered && !focused && visible
 
-  const go = (next: number, d: number) => {
-    setDir(d)
-    setIndex((next + count) % count)
-  }
+  const go = (next: number) => setIndex((next + count) % count)
+
+  // Only cycle while the card is on screen, so it never shifts what a visitor
+  // is reading elsewhere (and costs nothing while scrolled away).
+  useEffect(() => {
+    const el = card.current
+    if (!el) return
+    const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting))
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
-    if (paused || reduceMotion || count <= 1) return
-    const t = setInterval(() => {
-      setDir(1)
-      setIndex((i) => (i + 1) % count)
-    }, CYCLE_MS)
+    if (!cycling) return
+    const t = setInterval(() => setIndex((i) => (i + 1) % count), CYCLE_MS)
     return () => clearInterval(t)
-  }, [paused, reduceMotion, count])
+  }, [cycling, count])
 
   return (
     <section id="now" aria-label="Currently building" className="py-16">
@@ -119,22 +141,35 @@ const NowBuilding = () => {
       </div>
 
       <div
+        ref={card}
         className="relative overflow-hidden rounded-3xl border border-white/8 bg-white/2 p-6 md:p-8"
-        onMouseEnter={() => setPaused(true)}
-        onMouseLeave={() => setPaused(false)}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        onFocus={() => setFocused(true)}
+        onBlur={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocused(false)
+        }}
+        onPointerDown={(e) => {
+          if (e.pointerType === 'touch') setStopped(true)
+        }}
       >
-        <AnimatePresence mode="wait" custom={dir}>
-          <motion.div
-            key={index}
-            custom={dir}
-            initial={{ opacity: 0, x: dir * 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: dir * -40 }}
-            transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
-          >
-            <Card now={nowItems[index]} />
-          </motion.div>
-        </AnimatePresence>
+        {/* Every card sits in the same grid cell, so the box is always as tall
+            as the tallest one and the page never jumps when they swap. Only
+            the current one is visible; the rest are inert. */}
+        <div className="grid">
+          {nowItems.map((item, i) => (
+            <div
+              key={item.project}
+              inert={i !== index}
+              aria-hidden={i !== index}
+              className={`col-start-1 row-start-1 transition-opacity duration-500 ease-out motion-reduce:transition-none ${
+                i === index ? 'opacity-100' : 'pointer-events-none opacity-0'
+              }`}
+            >
+              <Card now={item} />
+            </div>
+          ))}
+        </div>
 
         {count > 1 && (
           <div className="mt-6 flex items-center justify-between border-t border-white/6 pt-4">
@@ -144,7 +179,7 @@ const NowBuilding = () => {
                 // 24px hit area (WCAG 2.5.8) around the small visual dot.
                 <button
                   key={item.project}
-                  onClick={() => go(i, i > index ? 1 : -1)}
+                  onClick={() => go(i)}
                   aria-label={`Show ${item.project}`}
                   aria-current={i === index ? 'true' : undefined}
                   className="group flex h-6 min-w-6 items-center justify-center px-1"
@@ -157,14 +192,22 @@ const NowBuilding = () => {
                 </button>
               ))}
             </div>
-            {/* arrows */}
+            {/* pause and arrows */}
             <div className="flex items-center gap-2">
-              <button onClick={() => go(index - 1, -1)} aria-label="Previous"
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/4 text-slate-400 transition-colors hover:bg-white/8 hover:text-slate-100">
+              {!reduceMotion && (
+                <button
+                  type="button"
+                  onClick={() => setStopped((v) => !v)}
+                  aria-label={stopped ? 'Resume rotation' : 'Pause rotation'}
+                  className={arrowClass}
+                >
+                  {stopped ? <FiPlay className="h-4 w-4" /> : <FiPause className="h-4 w-4" />}
+                </button>
+              )}
+              <button type="button" onClick={() => go(index - 1)} aria-label="Previous" className={arrowClass}>
                 <FiChevronLeft className="h-4 w-4" />
               </button>
-              <button onClick={() => go(index + 1, 1)} aria-label="Next"
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/4 text-slate-400 transition-colors hover:bg-white/8 hover:text-slate-100">
+              <button type="button" onClick={() => go(index + 1)} aria-label="Next" className={arrowClass}>
                 <FiChevronRight className="h-4 w-4" />
               </button>
             </div>

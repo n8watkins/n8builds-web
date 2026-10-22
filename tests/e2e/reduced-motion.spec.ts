@@ -97,8 +97,10 @@ test.describe('motion allowed', () => {
     await page.goto('/')
     await page.clock.resume()
     const selected = await selectSecondNowBuildingItem(page)
-    // Clicking pauses the carousel while hovered; move the pointer away.
+    // The carousel pauses while hovered or focused (the click did both), so
+    // move the pointer away and drop focus.
     await page.mouse.move(0, 0)
+    await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
     await page.clock.fastForward(8_000)
     await expect.poll(() => activeNowBuildingDot(page)).not.toBe(selected)
   })
