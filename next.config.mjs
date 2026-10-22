@@ -95,4 +95,12 @@ export default withSentryConfig(withBundleAnalyzer(nextConfig), {
   widenClientFileUpload: true,
   tunnelRoute: '/monitoring',
   silent: !process.env.CI,
+  // Drop SDK code this site never runs: debug logging, and Session Replay's
+  // iframe and shadow-DOM recording (no iframes or shadow roots of ours to
+  // replay). Replay itself, tracing, and error capture are unchanged.
+  bundleSizeOptimizations: {
+    excludeDebugStatements: true,
+    excludeReplayIframe: true,
+    excludeReplayShadowDom: true,
+  },
 })
