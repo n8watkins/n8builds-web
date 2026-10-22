@@ -2,6 +2,7 @@
 
 import React, { lazy, Suspense } from 'react'
 import { motion } from 'motion/react'
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 
 // lottie-web is ~74 KB gzipped and only needed after a successful send, so the
 // player and the confetti data load on demand instead of with the homepage.
@@ -10,6 +11,8 @@ import { motion } from 'motion/react'
 // only renders client-side, and next/dynamic here made Turbopack dev emit a
 // preload link for a chunk it never serves (a 404 on every page load).
 export function preloadConfetti() {
+  // Never shown with reduced motion (see below), so don't fetch it either.
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
   // Best effort: if the chunk can't load, ConfettiBoundary drops the confetti.
   // Unhandled, the rejection would surface as an uncaught error (and a Sentry
   // report) for something the visitor never notices.
@@ -43,6 +46,10 @@ interface ContactFormSuccessProps {
 }
 
 export function ContactFormSuccess({ showConfetti, confettiKey, onSendAnother }: ContactFormSuccessProps) {
+  // lottie-web ignores MotionConfig and the global reduced-motion CSS, so skip
+  // the confetti entirely for visitors who asked for less motion.
+  const reduceMotion = usePrefersReducedMotion()
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.8 }}
@@ -51,9 +58,11 @@ export function ContactFormSuccess({ showConfetti, confettiKey, onSendAnother }:
       className="text-center py-12 relative min-h-[600px] flex flex-col items-center justify-center"
     >
       {/* Confetti Animation */}
-      {showConfetti && (
+      {showConfetti && !reduceMotion && (
         <motion.div
           key={confettiKey}
+          aria-hidden
+          data-confetti
           className="absolute inset-0 pointer-events-none z-10 flex justify-center items-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

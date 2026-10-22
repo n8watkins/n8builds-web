@@ -52,24 +52,41 @@ test('a visitor can send a message', async ({ page }) => {
   await page.getByRole('button', { name: /Send Message/ }).click()
 
   await expect(page.getByText('Message sent successfully!')).toBeVisible({ timeout: SEND_TIMEOUT })
+  // This file runs with reduced motion: no confetti (lottie ignores the CSS rule).
+  await expect(page.locator('[data-confetti]')).toHaveCount(0)
 })
 
-test('a sent message still shows success if the confetti chunk fails to load', async ({ page }) => {
-  await openContactForm(page)
-  await waitForTurnstileToken(page)
-  // As after a deploy since the page was opened: chunks not loaded yet are gone.
-  await page.route('**/_next/static/chunks/**', (route) => route.fulfill({ status: 404, body: '' }))
-  const chunkFailed = page.waitForResponse((r) => r.url().includes('/_next/static/chunks/') && r.status() === 404)
-  await fillForm(page)
-  await page.getByRole('button', { name: /Send Message/ }).click()
+test.describe('motion allowed', () => {
+  test.use({ contextOptions: { reducedMotion: 'no-preference' } })
 
-  // The success screen renders before the confetti chunk fails, so check it
-  // again once the failure has had time to propagate.
-  await expect(page.getByText('Message sent successfully!')).toBeVisible({ timeout: SEND_TIMEOUT })
-  await chunkFailed
-  await page.waitForTimeout(1000)
-  await expect(page.getByText('Message sent successfully!')).toBeVisible()
-  await expect(page.getByText('Something went wrong')).toHaveCount(0)
+  test('a successful send celebrates with confetti', async ({ page }) => {
+    await openContactForm(page)
+    await waitForTurnstileToken(page)
+    await fillForm(page)
+    await page.getByRole('button', { name: /Send Message/ }).click()
+
+    await expect(page.getByText('Message sent successfully!')).toBeVisible({ timeout: SEND_TIMEOUT })
+    await expect(page.locator('[data-confetti] svg')).toBeVisible()
+  })
+
+  // Needs motion allowed: with reduced motion the confetti is never loaded.
+  test('a sent message still shows success if the confetti chunk fails to load', async ({ page }) => {
+    await openContactForm(page)
+    await waitForTurnstileToken(page)
+    // As after a deploy since the page was opened: chunks not loaded yet are gone.
+    await page.route('**/_next/static/chunks/**', (route) => route.fulfill({ status: 404, body: '' }))
+    const chunkFailed = page.waitForResponse((r) => r.url().includes('/_next/static/chunks/') && r.status() === 404)
+    await fillForm(page)
+    await page.getByRole('button', { name: /Send Message/ }).click()
+
+    // The success screen renders before the confetti chunk fails, so check it
+    // again once the failure has had time to propagate.
+    await expect(page.getByText('Message sent successfully!')).toBeVisible({ timeout: SEND_TIMEOUT })
+    await chunkFailed
+    await page.waitForTimeout(1000)
+    await expect(page.getByText('Message sent successfully!')).toBeVisible()
+    await expect(page.getByText('Something went wrong')).toHaveCount(0)
+  })
 })
 
 test('shows the server message on failure, and a retry succeeds with a fresh Turnstile token', async ({ page }) => {
