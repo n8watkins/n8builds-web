@@ -13,9 +13,9 @@ export default function WhoamiTerminal({ className = '' }: { className?: string 
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
-      className={`overflow-hidden rounded-2xl border border-white/[0.08] bg-black/30 backdrop-blur-sm ${className}`}
+      className={`overflow-hidden rounded-2xl border border-white/8 bg-black/30 backdrop-blur-xs ${className}`}
     >
-      <div className="flex items-center gap-2 border-b border-white/[0.06] px-4 py-2.5">
+      <div className="flex items-center gap-2 border-b border-white/6 px-4 py-2.5">
         <span className="h-2.5 w-2.5 rounded-full bg-red-400/70" />
         <span className="h-2.5 w-2.5 rounded-full bg-yellow-400/70" />
         <span className="h-2.5 w-2.5 rounded-full bg-green-400/70" />

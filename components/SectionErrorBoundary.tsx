@@ -82,7 +82,7 @@ class SectionErrorBoundary extends Component<Props, State> {
                 <summary className="cursor-pointer text-sm text-red-600 dark:text-red-400">
                   Error Details (Dev Mode)
                 </summary>
-                <pre className="mt-2 text-xs bg-red-100 dark:bg-red-900/20 p-3 rounded overflow-auto max-h-40">
+                <pre className="mt-2 text-xs bg-red-100 dark:bg-red-900/20 p-3 rounded-sm overflow-auto max-h-40">
                   {this.state.error.stack}
                 </pre>
               </details>

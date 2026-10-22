@@ -24,17 +24,17 @@ export default function Home() {
   return (
     <main
       id="main-content"
-      className="relative w-full min-h-screen bg-gradient-to-b from-[#050812] via-[#06101f] to-[#050812]"
+      className="relative w-full min-h-screen bg-linear-to-b from-darkBlue via-[#06101f] to-darkBlue"
     >
       <Navbar />
 
       {/* Ambient color shift — soft glows so the page isn't one flat color */}
       <div aria-hidden className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute -left-[10%] top-[6%] h-[40rem] w-[40rem] rounded-full bg-cyan-500/[0.10] blur-[150px]" />
-        <div className="absolute -right-[12%] top-[26%] h-[38rem] w-[38rem] rounded-full bg-blue-600/[0.11] blur-[150px]" />
-        <div className="absolute left-[12%] top-[46%] h-[34rem] w-[34rem] rounded-full bg-teal-500/[0.09] blur-[150px]" />
-        <div className="absolute -right-[8%] top-[66%] h-[34rem] w-[34rem] rounded-full bg-indigo-600/[0.09] blur-[150px]" />
-        <div className="absolute left-[8%] top-[86%] h-[34rem] w-[34rem] rounded-full bg-emerald-500/[0.07] blur-[150px]" />
+        <div className="absolute left-[-10%] top-[6%] h-160 w-160 rounded-full bg-cyan-500/10 blur-[150px]" />
+        <div className="absolute right-[-12%] top-[26%] h-152 w-152 rounded-full bg-blue-600/11 blur-[150px]" />
+        <div className="absolute left-[12%] top-[46%] h-136 w-136 rounded-full bg-teal-500/9 blur-[150px]" />
+        <div className="absolute right-[-8%] top-[66%] h-136 w-136 rounded-full bg-indigo-600/9 blur-[150px]" />
+        <div className="absolute left-[8%] top-[86%] h-136 w-136 rounded-full bg-emerald-500/[0.07] blur-[150px]" />
       </div>
 
       <SectionErrorBoundary sectionName="Hero Section">
@@ -73,7 +73,7 @@ export default function Home() {
               <a
                 key={c.href}
                 href={c.href}
-                className="rounded-full border border-white/12 bg-white/[0.04] px-3.5 py-1.5 text-sm font-medium text-slate-300 transition-all duration-150 hover:border-cyan-400/40 hover:bg-white/[0.07] hover:text-cyan-200"
+                className="rounded-full border border-white/12 bg-white/4 px-3.5 py-1.5 text-sm font-medium text-slate-300 transition-all duration-150 hover:border-cyan-400/40 hover:bg-white/[0.07] hover:text-cyan-200"
               >
                 {c.label}
               </a>

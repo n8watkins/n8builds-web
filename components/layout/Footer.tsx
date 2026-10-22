@@ -42,26 +42,26 @@ const Footer = () => {
           variants={fadeInVariants}
           {...defaultAnimationConfig}
           className="w-full max-w-5xl mx-auto mb-12 sm:px-4">
-          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#08152a] via-[#0a1a33] to-[#07101f] shadow-2xl">
+          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-linear-to-br from-[#08152a] via-[#0a1a33] to-[#07101f] shadow-2xl">
             {/* decorative glows + grid */}
             <div aria-hidden className="pointer-events-none absolute inset-0">
               <div className="absolute -top-20 -left-16 h-72 w-72 rounded-full bg-cyan-500/15 blur-3xl" />
               <div className="absolute -bottom-24 -right-10 h-72 w-72 rounded-full bg-blue-600/15 blur-3xl" />
-              <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:38px_38px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
+              <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-size-[38px_38px] mask-[radial-gradient(ellipse_at_center,black,transparent_75%)]" />
             </div>
             {/* top accent line */}
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-400" />
+            <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-cyan-400 via-blue-500 to-cyan-400" />
 
             <div className="relative grid gap-8 p-5 sm:p-7 md:grid-cols-[0.9fr_1.1fr] md:p-10">
               {/* Left — branded panel */}
               <div className="flex flex-col gap-5">
-                <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] px-3 py-1 text-xs font-semibold text-slate-300">
+                <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/12 bg-white/4 px-3 py-1 text-xs font-semibold text-slate-300">
                   <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" /> Building in public
                 </span>
 
                 <div className="flex items-center gap-4">
-                  <div className="relative h-16 w-16 flex-shrink-0">
-                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-cyan-500/30 to-blue-600/30 blur-lg" />
+                  <div className="relative h-16 w-16 shrink-0">
+                    <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-cyan-500/30 to-blue-600/30 blur-lg" />
                     <Image
                       src="/hero/portrait.jpg"
                       alt="Nathan Watkins"
@@ -78,7 +78,7 @@ const Footer = () => {
 
                 <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-50">
                   Want to work together or{' '}
-                  <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                  <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
                     follow the build?
                   </span>
                 </h2>
@@ -90,10 +90,10 @@ const Footer = () => {
                 {/* socials */}
                 <div className="mt-auto flex items-center gap-2">
                   {[
-                    { href: 'https://github.com/n8watkins', label: 'GitHub', icon: <FiGithub className="w-[1.125rem] h-[1.125rem]" /> },
+                    { href: 'https://github.com/n8watkins', label: 'GitHub', icon: <FiGithub className="w-4.5 h-4.5" /> },
                     { href: 'https://x.com/n8watkins', label: 'X (Twitter)', icon: <FaXTwitter className="w-4 h-4" /> },
                     { href: 'https://www.linkedin.com/in/n8watkins/', label: 'LinkedIn', icon: <CiLinkedin className="w-[1.35rem] h-[1.35rem]" /> },
-                    { href: 'mailto:nathancwatkins23@gmail.com', label: 'Email', icon: <FiMail className="w-[1.125rem] h-[1.125rem]" /> },
+                    { href: 'mailto:nathancwatkins23@gmail.com', label: 'Email', icon: <FiMail className="w-4.5 h-4.5" /> },
                   ].map(s => (
                     <a
                       key={s.label}
@@ -101,7 +101,7 @@ const Footer = () => {
                       target={s.href.startsWith('http') ? '_blank' : undefined}
                       rel={s.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                       aria-label={s.label}
-                      className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-slate-400 transition-all duration-200 hover:scale-[1.05] hover:border-cyan-400/30 hover:text-cyan-300"
+                      className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/4 text-slate-400 transition-all duration-200 hover:scale-[1.05] hover:border-cyan-400/30 hover:text-cyan-300"
                     >
                       {s.icon}
                     </a>
@@ -110,7 +110,7 @@ const Footer = () => {
               </div>
 
               {/* Right — form */}
-              <div className="relative rounded-2xl border border-white/10 bg-[#050c18]/60 p-4 backdrop-blur-sm sm:p-6">
+              <div className="relative rounded-2xl border border-white/10 bg-[#050c18]/60 p-4 backdrop-blur-xs sm:p-6">
                 <ContactFormErrorBoundary>
                   <ContactForm />
                 </ContactFormErrorBoundary>
@@ -128,7 +128,7 @@ const Footer = () => {
           variants={fadeInVariants}
           {...defaultAnimationConfig}
           className="w-full max-w-4xl mx-auto mb-10 sm:px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6 rounded-2xl border border-white/10 bg-white/3 dark:bg-slate-900/40 backdrop-blur-sm">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6 rounded-2xl border border-white/10 bg-white/3 dark:bg-slate-900/40 backdrop-blur-xs">
             {/* Left */}
             <div className="text-center md:text-left max-w-xs">
               <p className="font-bold text-slate-100 text-base mb-1">Need something built?</p>
@@ -138,7 +138,7 @@ const Footer = () => {
             </div>
 
             {/* Center */}
-            <div className="flex items-center gap-4 flex-shrink-0">
+            <div className="flex items-center gap-4 shrink-0">
               <AppturnityLogo />
               <div>
                 <div className="flex items-center gap-2 mb-0.5">
@@ -153,12 +153,12 @@ const Footer = () => {
             </div>
 
             {/* Right */}
-            <div className="flex flex-col gap-2 flex-shrink-0">
+            <div className="flex flex-col gap-2 shrink-0">
               <a
                 href="https://appturnity.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between gap-3 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-sm transition-all duration-200 hover:scale-[1.02] shadow-lg shadow-blue-900/30"
+                className="flex items-center justify-between gap-3 px-5 py-2.5 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-sm transition-all duration-200 hover:scale-[1.02] shadow-lg shadow-blue-900/30"
               >
                 <span>Visit Appturnity</span>
                 <span>↗</span>
@@ -212,7 +212,7 @@ const Footer = () => {
           </a>
           <a href="https://x.com/n8watkins" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"
             className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors duration-200">
-            <FaXTwitter className="w-[1.125rem] h-[1.125rem] text-slate-400 hover:text-slate-200 transition-colors" aria-hidden="true" />
+            <FaXTwitter className="w-4.5 h-4.5 text-slate-400 hover:text-slate-200 transition-colors" aria-hidden="true" />
           </a>
           <a href="https://www.linkedin.com/in/n8watkins/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"
             className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors duration-200">

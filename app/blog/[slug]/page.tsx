@@ -57,7 +57,7 @@ export default async function PostPage({ params }: PostPageProps) {
   return (
     <>
       <Navbar />
-      <main className="relative min-h-screen bg-[#050812] text-slate-100">
+      <main className="relative min-h-screen bg-darkBlue text-slate-100">
         <article className="mx-auto max-w-3xl px-5 pb-20 pt-28 sm:px-8 md:pt-32">
           <Link
             href="/blog"
@@ -99,7 +99,7 @@ export default async function PostPage({ params }: PostPageProps) {
                 {post.tags.map((t) => (
                   <span
                     key={t}
-                    className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 font-mono text-xs text-slate-400"
+                    className="rounded-full border border-white/10 bg-white/4 px-2.5 py-1 font-mono text-xs text-slate-400"
                   >
                     #{t}
                   </span>
@@ -114,7 +114,7 @@ export default async function PostPage({ params }: PostPageProps) {
             seed={post.slug.current}
             topic={post.topics?.[0]}
             priority
-            className="mt-8 aspect-[2/1] rounded-2xl border border-white/8"
+            className="mt-8 aspect-2/1 rounded-2xl border border-white/8"
           />
 
           <div className="mt-10">{post.body && <PortableTextRenderer value={post.body} />}</div>
@@ -128,7 +128,7 @@ export default async function PostPage({ params }: PostPageProps) {
                 {post.gallery.map((img, i) => (
                   <div
                     key={i}
-                    className="relative aspect-[4/3] overflow-hidden rounded-xl border border-white/8 bg-white/[0.03]"
+                    className="relative aspect-4/3 overflow-hidden rounded-xl border border-white/8 bg-white/3"
                   >
                     <Image
                       src={img.url}

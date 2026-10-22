@@ -23,7 +23,7 @@ export default function CoverBanner({
   seed,
   topic,
   priority = false,
-  className = 'aspect-[16/9]',
+  className = 'aspect-video',
 }: {
   coverUrl?: string
   coverAlt?: string
@@ -43,7 +43,7 @@ export default function CoverBanner({
           sizes="(max-width: 768px) 100vw, 800px"
           className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#050812]/80 via-[#050812]/10 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-darkBlue/80 via-darkBlue/10 to-transparent" />
       </div>
     )
   }
@@ -52,12 +52,12 @@ export default function CoverBanner({
   const palette = PALETTES[seedIndex(seed, PALETTES.length)]
   return (
     <div
-      className={`relative w-full overflow-hidden bg-gradient-to-br ${palette} ${className}`}
+      className={`relative w-full overflow-hidden bg-linear-to-br ${palette} ${className}`}
       aria-hidden
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.13)_1px,transparent_0)] bg-[size:18px_18px]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.13)_1px,transparent_0)] bg-size-[18px_18px]" />
       <div className="absolute -right-10 -top-12 h-44 w-44 rounded-full bg-white/10 blur-2xl" />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#050812] via-[#050812]/20 to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-t from-darkBlue via-darkBlue/20 to-transparent" />
       {topic && (
         <span className="absolute bottom-3 left-4 font-mono text-[0.62rem] uppercase tracking-[0.2em] text-white/75">
           {topic}

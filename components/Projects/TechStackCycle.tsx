@@ -138,7 +138,7 @@ const TechStackCycle: React.FC<TechStackCycleProps> = ({ technologies }) => {
             className={`text-xs font-semibold px-2.5 py-1 rounded-full border transition-all duration-200 ${
               category === currentCategory
                 ? 'bg-blue-500/15 border-blue-400/40 text-blue-300'
-                : 'bg-white/[0.05] border-white/10 text-slate-400 hover:bg-white/[0.08] hover:text-slate-300'
+                : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/8 hover:text-slate-300'
             }`}
           >
             {category}
@@ -147,7 +147,7 @@ const TechStackCycle: React.FC<TechStackCycleProps> = ({ technologies }) => {
       </div>
 
       {/* Description bullets */}
-      <div className="min-h-[5.5rem]">
+      <div className="min-h-22">
         <AnimatePresence mode="wait">
           <motion.ul
             key={currentCategory}
@@ -171,7 +171,7 @@ const TechStackCycle: React.FC<TechStackCycleProps> = ({ technologies }) => {
                   index === highlightedPart ? 'bg-blue-500/10 text-slate-200' : ''
                 }`}
               >
-                <span className="text-blue-400 flex-shrink-0">•</span>
+                <span className="text-blue-400 shrink-0">•</span>
                 <span>{part.text}</span>
               </motion.li>
             ))}

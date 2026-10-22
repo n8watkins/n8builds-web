@@ -40,7 +40,7 @@ const Card = ({ now }: { now: NowState }) => (
 
       <div className="flex flex-wrap gap-1.5">
         {now.stack.map((s) => (
-          <span key={s} className="rounded-md border border-white/[0.08] bg-white/[0.03] px-2 py-0.5 font-mono text-[0.7rem] text-slate-400">
+          <span key={s} className="rounded-md border border-white/8 bg-white/3 px-2 py-0.5 font-mono text-[0.7rem] text-slate-400">
             {s}
           </span>
         ))}
@@ -50,13 +50,13 @@ const Card = ({ now }: { now: NowState }) => (
         <div className="mt-1 flex flex-wrap gap-3">
           {now.links?.live && (
             <a href={now.links.live} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 px-4 py-2 text-sm font-bold text-white transition-all duration-200 hover:scale-[1.02] hover:from-blue-500 hover:to-cyan-400">
+              className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 px-4 py-2 text-sm font-bold text-white transition-all duration-200 hover:scale-[1.02] hover:from-blue-500 hover:to-cyan-400">
               <FiExternalLink className="h-3.5 w-3.5" /> Live
             </a>
           )}
           {now.links?.github && (
             <a href={now.links.github} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-xl border border-white/12 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/[0.08]">
+              className="flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8">
               <FiGithub className="h-3.5 w-3.5" /> GitHub
             </a>
           )}
@@ -65,14 +65,14 @@ const Card = ({ now }: { now: NowState }) => (
     </div>
 
     {/* Right: recent activity feed */}
-    <div className="rounded-2xl border border-white/[0.06] bg-black/20 p-5">
+    <div className="rounded-2xl border border-white/6 bg-black/20 p-5">
       <p className="mb-4 flex items-center gap-2 font-mono text-xs text-slate-450">
         <FiActivity className="h-3.5 w-3.5 text-cyan-400" /> recent activity
       </p>
-      <ol className="relative space-y-4 border-l border-white/[0.08] pl-5">
+      <ol className="relative space-y-4 border-l border-white/8 pl-5">
         {now.updates.map((u, i) => (
           <li key={i} className="relative">
-            <span className="absolute -left-[1.42rem] top-1.5 h-2 w-2 rounded-full bg-cyan-400/80 ring-4 ring-[#050812]" />
+            <span className="absolute left-[-1.42rem] top-1.5 h-2 w-2 rounded-full bg-cyan-400/80 ring-4 ring-darkBlue" />
             <p className="font-mono text-[0.68rem] uppercase tracking-wider text-slate-475">{u.date}</p>
             <p className="mt-0.5 text-sm leading-relaxed text-[#9cadc5]">{u.text}</p>
           </li>
@@ -112,14 +112,14 @@ const NowBuilding = () => {
           </p>
           <h2 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">What I&apos;m working on right now</h2>
         </div>
-        <a href="#lab" className="group flex items-center gap-2 rounded-xl border border-white/12 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/[0.08]">
+        <a href="#lab" className="group flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8">
           Check out the lab
           <FiArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         </a>
       </div>
 
       <div
-        className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.02] p-6 md:p-8"
+        className="relative overflow-hidden rounded-3xl border border-white/8 bg-white/2 p-6 md:p-8"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
       >
@@ -137,7 +137,7 @@ const NowBuilding = () => {
         </AnimatePresence>
 
         {count > 1 && (
-          <div className="mt-6 flex items-center justify-between border-t border-white/[0.06] pt-4">
+          <div className="mt-6 flex items-center justify-between border-t border-white/6 pt-4">
             {/* dots */}
             <div className="-ml-2 flex items-center">
               {nowItems.map((item, i) => (
@@ -160,11 +160,11 @@ const NowBuilding = () => {
             {/* arrows */}
             <div className="flex items-center gap-2">
               <button onClick={() => go(index - 1, -1)} aria-label="Previous"
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-400 transition-colors hover:bg-white/[0.08] hover:text-slate-100">
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/4 text-slate-400 transition-colors hover:bg-white/8 hover:text-slate-100">
                 <FiChevronLeft className="h-4 w-4" />
               </button>
               <button onClick={() => go(index + 1, 1)} aria-label="Next"
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-400 transition-colors hover:bg-white/[0.08] hover:text-slate-100">
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/4 text-slate-400 transition-colors hover:bg-white/8 hover:text-slate-100">
                 <FiChevronRight className="h-4 w-4" />
               </button>
             </div>

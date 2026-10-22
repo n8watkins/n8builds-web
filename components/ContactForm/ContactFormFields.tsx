@@ -50,7 +50,7 @@ export function ContactFormFields({
       onSubmit={(e) => {
         e.preventDefault()
       }}
-      className="space-y-4 md:space-y-6 min-h-[600px]"
+      className="space-y-4 md:space-y-6 pt-4 md:pt-6 min-h-[600px]"
     >
       {/* Security: Honeypot field - hidden from users */}
       <div className="hidden">
@@ -194,7 +194,7 @@ export function ContactFormFields({
             e.preventDefault()
             onSubmit()
           }}
-          className={`relative inline-flex h-12 w-full md:w-60 overflow-hidden rounded-lg p-[1px] focus:outline-none transition-all duration-200 ${
+          className={`relative inline-flex h-12 w-full md:w-60 overflow-hidden rounded-lg p-px focus:outline-hidden transition-all duration-200 ${
             isBusy ? "opacity-75 cursor-not-allowed" : ""
           }`}
         >

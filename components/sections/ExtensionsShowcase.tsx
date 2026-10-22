@@ -52,7 +52,7 @@ const Detail = ({ ext }: { ext: Ext }) => {
         href={build.github}
         target="_blank"
         rel="noopener noreferrer"
-        className="group/visual relative block aspect-[16/10] overflow-hidden rounded-2xl border border-white/[0.08] bg-[#07101d]"
+        className="group/visual relative block aspect-16/10 overflow-hidden rounded-2xl border border-white/8 bg-[#07101d]"
       >
         {ext.shot ? (
           <Image
@@ -63,11 +63,11 @@ const Detail = ({ ext }: { ext: Ext }) => {
             sizes="(max-width: 768px) 100vw, 50vw"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#0a1a33] to-[#081427]">
+          <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-[#0a1a33] to-[#081427]">
             <Image src={ext.icon} alt={`${build.name} icon`} width={88} height={88} className="rounded-2xl" />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#050812]/50 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-darkBlue/50 to-transparent" />
       </a>
 
       {/* Text */}
@@ -82,7 +82,7 @@ const Detail = ({ ext }: { ext: Ext }) => {
         <p className="text-[#9cadc5] leading-relaxed">{ext.blurb}</p>
         <div className="flex flex-wrap gap-1.5">
           {build.tags.map((t) => (
-            <span key={t} className="rounded-md border border-white/[0.08] bg-white/[0.03] px-2 py-0.5 font-mono text-[0.68rem] text-slate-400">
+            <span key={t} className="rounded-md border border-white/8 bg-white/3 px-2 py-0.5 font-mono text-[0.68rem] text-slate-400">
               {t}
             </span>
           ))}
@@ -93,7 +93,7 @@ const Detail = ({ ext }: { ext: Ext }) => {
               href={build.github}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500/90 to-yellow-500/90 px-4 py-2 text-sm font-bold text-black transition-all duration-200 hover:scale-[1.02]"
+              className="flex items-center gap-2 rounded-xl bg-linear-to-r from-amber-500/90 to-yellow-500/90 px-4 py-2 text-sm font-bold text-black transition-all duration-200 hover:scale-[1.02]"
             >
               <FiStar className="h-4 w-4" />
               Star on GitHub
@@ -101,7 +101,7 @@ const Detail = ({ ext }: { ext: Ext }) => {
           )}
           <Link
             href={`/builds/${build.slug}`}
-            className="flex items-center gap-2 rounded-xl border border-white/12 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/[0.08]"
+            className="flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8"
           >
             Read more<span className="sr-only"> about {build.name}</span>
             <FiArrowUpRight className="h-3.5 w-3.5" />
@@ -166,8 +166,8 @@ const ExtensionsShowcase = () => {
                 }}
                 className={`group relative overflow-hidden rounded-2xl border p-5 text-left transition-all duration-300 ${
                   isActive
-                    ? 'border-cyan-400/40 bg-white/[0.05] shadow-lg shadow-cyan-500/5'
-                    : 'border-white/[0.08] bg-white/[0.02] opacity-55 blur-[1.5px] hover:opacity-80'
+                    ? 'border-cyan-400/40 bg-white/5 shadow-lg shadow-cyan-500/5'
+                    : 'border-white/8 bg-white/2 opacity-55 blur-[1.5px] hover:opacity-80'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -178,11 +178,11 @@ const ExtensionsShowcase = () => {
                   </div>
                 </div>
                 {/* progress timer on the active card */}
-                <div className="mt-4 h-0.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                <div className="mt-4 h-0.5 w-full overflow-hidden rounded-full bg-white/6">
                   {isActive && (
                     <motion.div
                       key={progressKey}
-                      className="h-full bg-gradient-to-r from-cyan-400 to-blue-500"
+                      className="h-full bg-linear-to-r from-cyan-400 to-blue-500"
                       initial={{ width: '0%' }}
                       animate={{ width: paused ? '100%' : '100%' }}
                       transition={{ duration: paused ? 0.3 : CYCLE_MS / 1000, ease: 'linear' }}
@@ -195,7 +195,7 @@ const ExtensionsShowcase = () => {
         </div>
 
         {/* Detail panel — carousels as active changes */}
-        <div className="mt-6 rounded-3xl border border-white/[0.08] bg-white/[0.02] p-6 md:p-8">
+        <div className="mt-6 rounded-3xl border border-white/8 bg-white/2 p-6 md:p-8">
           <AnimatePresence mode="wait">
             <motion.div
               key={active}
@@ -213,7 +213,7 @@ const ExtensionsShowcase = () => {
       {/* ===== Mobile: stacked, each with its detail (no hover/cycle) ===== */}
       <div className="flex flex-col gap-5 md:hidden">
         {exts.map((ext) => (
-          <div key={ext.slug} className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5">
+          <div key={ext.slug} className="rounded-2xl border border-white/8 bg-white/2 p-5">
             <Detail ext={ext} />
           </div>
         ))}
@@ -222,7 +222,7 @@ const ExtensionsShowcase = () => {
       {/* Launch Kit banner */}
       <Link
         href="/builds/chrome-extension-kit"
-        className="group mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-5 py-4 transition-all duration-200 hover:border-cyan-400/30 hover:bg-white/[0.04]"
+        className="group mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/8 bg-white/2 px-5 py-4 transition-all duration-200 hover:border-cyan-400/30 hover:bg-white/4"
       >
         <div className="flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-400/10 font-mono text-cyan-400">{'</>'}</span>

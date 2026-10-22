@@ -1,8 +1,94 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+/* Dark-only site: next-themes puts `.dark` on <html>. */
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --breakpoint-1sm: 320px;
+
+  --color-darkBlue: #050812;
+
+  /* Muted text tones for the dark UI. Stock slate-500 / slate-600 fall below
+     WCAG AA (4.5:1) for small text on the site's near-black backgrounds;
+     these keep the same hierarchy at >= 4.6:1. */
+  --color-slate-450: #8291a7;
+  --color-slate-475: #768399;
+
+  --color-border: hsl(var(--border));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --animate-marquee: marquee var(--duration) linear infinite;
+  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(-100% - var(--gap)));
+    }
+  }
+  @keyframes marquee-vertical {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(calc(-100% - var(--gap)));
+    }
+  }
+}
+
+@utility custom-scrollbar {
+  &::-webkit-scrollbar-track {
+    background-color: var(--scrollbar-track);
+  }
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--color-blue-500);
+  }
+}
 
 @layer base {
+  :root {
+    --scrollbar-track: #0a0f1e;
+    --scrollbar-thumb: #4a5fa8;
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --border: 240 5.9% 90%;
+  }
+
+  .dark {
+    --scrollbar-thumb: #4a5fa8;
+    --scrollbar-track: #050812;
+    /* Site navy (#050812), so the canvas below short pages matches them. */
+    --background: 226 57% 4.5%;
+    --foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+  }
+
+  /* Tailwind 4 defaults borders to currentColor; keep the theme border color. */
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-border);
+  }
+
+  * {
+    scroll-behavior: smooth !important;
+  }
+
   html {
     @apply custom-scrollbar;
     scrollbar-gutter: stable;
@@ -34,177 +120,14 @@
     overflow-y: scroll;
   }
 
-  :root {
-    --scrollbar-track: #0a0f1e;
-    --scrollbar-thumb: #4a5fa8;
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 10% 3.9%;
-
-    --radius: 0.5rem;
+  /* Tailwind 4 gives buttons the default cursor; keep v3's pointer. */
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
   }
 
-  .dark {
-    --scrollbar-thumb: #4a5fa8;
-    --scrollbar-track: #050812;
-    /* Site navy (#050812), so the canvas below short pages matches them. */
-    --background: 226 57% 4.5%;
-    --foreground: 0 0% 98%;
-
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+  button:active {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
   }
-}
-
-@layer base {
-  * {
-    @apply border-border !scroll-smooth;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-  button {
-    @apply active:outline-none;
-  }
-}
-
-@layer components {
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background-color: var(--scrollbar-track);
-  }
-
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-thumb);
-    border-radius: 10px;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: theme('colors.blue.500');
-  }
-}
-
-.hover-underline-animation {
-  position: relative;
-  text-decoration: none !important; /* Prevent default underline */
-}
-
-.hover-underline-animation::after {
-  content: '';
-  position: absolute;
-  width: 100%;
-  left: 0;
-  bottom: 0;
-  background-color: currentColor;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.3s ease-out;
-}
-
-/* Default thickness if no Tailwind class is specified */
-.hover-underline-animation::after {
-  height: 1px;
-}
-
-.group:hover .hover-underline-animation-trigger::after {
-  transform: scaleX(1);
-}
-
-/* Respect Tailwind's decoration thickness classes */
-.decoration-1.hover-underline-animation::after {
-  height: 1px;
-}
-.decoration-2.hover-underline-animation::after {
-  height: 2px;
-}
-.decoration-3.hover-underline-animation::after {
-  height: 3px;
-}
-.decoration-4.hover-underline-animation::after {
-  height: 4px;
-}
-.decoration-6.hover-underline-animation::after {
-  height: 6px;
-}
-.decoration-8.hover-underline-animation::after {
-  height: 8px;
-}
-
-.hover-underline-animation:hover::after,
-*:hover > .hover-underline-animation::after {
-  transform: scaleX(1);
-}
-
-@layer utilities {
-  .heading {
-    @apply font-bold text-4xl md:text-5xl xl:text-3xl text-center;
-  }
-
-  .black-gradient {
-    background: linear-gradient(90deg, #161a31 0%, #06091f 100%);
-  }
-  .breakpoint-display {
-    @apply fixed top-10 right-10 m-2 p-2 z-[6000] text-lg rounded shadow-md !bg-blue-800 text-white dark:bg-white dark:text-blue-800;
-  }
-}
-.flip-horizontal {
-  transform: scaleX(-1);
-}
-
-.breakpoint-display {
-  background-color: theme('colors.blue.800') !important;
-}
-
-/* Hide the Google reCAPTCHA badge */
-.grecaptcha-badge {
-  display: none !important;
 }

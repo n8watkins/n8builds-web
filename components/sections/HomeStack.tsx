@@ -21,7 +21,7 @@ export default function HomeStack() {
         </div>
         <Link
           href="/loadout"
-          className="group flex items-center gap-2 rounded-xl border border-white/12 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/[0.08]"
+          className="group flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8"
         >
           See the full loadout
           <FiArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -31,7 +31,7 @@ export default function HomeStack() {
       <AITechStack />
 
       {/* TL;DR — my default stack */}
-      <div className="mt-6 rounded-2xl border border-cyan-400/20 bg-gradient-to-br from-cyan-500/[0.06] to-transparent p-5 sm:p-6">
+      <div className="mt-6 rounded-2xl border border-cyan-400/20 bg-linear-to-br from-cyan-500/6 to-transparent p-5 sm:p-6">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <span className="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-cyan-400">TL;DR — my default stack</span>
           <span className="text-slate-475">·</span>
@@ -40,7 +40,7 @@ export default function HomeStack() {
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
           {turso.tools.map((t) => (
-            <span key={t} className="rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 text-xs font-medium text-slate-300">
+            <span key={t} className="rounded-md border border-white/10 bg-white/4 px-2 py-0.5 text-xs font-medium text-slate-300">
               {t}
             </span>
           ))}

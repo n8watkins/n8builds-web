@@ -23,11 +23,11 @@ export default async function BlogIndexPage() {
   return (
     <>
       <Navbar />
-      <main className="relative min-h-screen bg-[#050812] text-slate-100">
+      <main className="relative min-h-screen bg-darkBlue text-slate-100">
         {/* Ambient glows */}
         <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute -left-[10%] top-0 h-[32rem] w-[32rem] rounded-full bg-cyan-500/[0.06] blur-[140px]" />
-          <div className="absolute -right-[10%] top-[28%] h-[30rem] w-[30rem] rounded-full bg-blue-600/[0.06] blur-[140px]" />
+          <div className="absolute left-[-10%] top-0 h-128 w-lg rounded-full bg-cyan-500/6 blur-[140px]" />
+          <div className="absolute right-[-10%] top-[28%] h-120 w-120 rounded-full bg-blue-600/6 blur-[140px]" />
         </div>
 
         <div className="relative mx-auto max-w-6xl px-5 pb-24 pt-28 sm:px-8 md:pt-36">
@@ -35,12 +35,12 @@ export default async function BlogIndexPage() {
             <p className="font-mono text-[0.7rem] font-bold uppercase tracking-[0.22em] text-cyan-400">
               The Build Log
             </p>
-            <h1 className="mt-3 text-[2.6rem] font-extrabold leading-[1.03] tracking-tight text-slate-50 sm:text-6xl">
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            <h1 className="mt-3 text-[2.6rem] font-extrabold leading-[1.03] tracking-tight text-slate-50 sm:text-6xl/none">
+              <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
                 N8 Notions
               </span>
             </h1>
-            <p className="mt-4 max-w-[600px] text-base leading-relaxed text-[#9cadc5] sm:text-lg">
+            <p className="mt-4 max-w-[600px] text-base leading-relaxed text-[#9cadc5] sm:text-lg/7">
               Notes, essays, and lessons from building software in public.
             </p>
           </header>

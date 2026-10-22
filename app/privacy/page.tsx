@@ -13,7 +13,7 @@ export default function PrivacyPolicy() {
   return (
     <main
       id="main-content"
-      className="relative w-full min-h-screen bg-gradient-to-b from-[#050812] via-[#06101f] to-[#050812] text-slate-300"
+      className="relative w-full min-h-screen bg-linear-to-b from-darkBlue via-[#06101f] to-darkBlue text-slate-300"
     >
       <Navbar />
 

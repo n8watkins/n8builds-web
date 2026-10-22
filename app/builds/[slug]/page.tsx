@@ -41,7 +41,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
   const shelf = shelfMeta[getShelf(build)]
 
   return (
-    <main className="relative min-h-screen bg-[#050812] text-slate-100">
+    <main className="relative min-h-screen bg-darkBlue text-slate-100">
       <Navbar />
       <div className="max-w-4xl mx-auto px-5 sm:px-8 pt-28 pb-10 md:pt-32 md:pb-16">
         {/* Top nav */}
@@ -66,7 +66,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
             )}
           </div>
           <h1 className="mt-4 text-4xl md:text-5xl font-bold tracking-tight">
-            <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
               {build.name}
             </span>
           </h1>
@@ -89,7 +89,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
                 href={build.liveSite}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-sm font-semibold text-white transition-all duration-200 hover:scale-[1.02]"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-linear-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-sm font-semibold text-white transition-all duration-200 hover:scale-[1.02]"
               >
                 Visit live site
                 <FiArrowUpRight className="w-4 h-4" />
@@ -111,7 +111,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
         {/* Screenshots */}
         {build.images.length > 0 && (
           <section className="mt-12" aria-label="Screenshots">
-            <div className={`relative rounded-2xl border border-white/8 bg-gradient-to-br ${build.color} overflow-hidden`}>
+            <div className={`relative rounded-2xl border border-white/8 bg-linear-to-br ${build.color} overflow-hidden`}>
               <div className="relative aspect-video">
                 <Image
                   src={build.images[0].src}
@@ -128,7 +128,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
                 {build.images.slice(1).map(img => (
                   <div
                     key={img.src}
-                    className="relative aspect-video rounded-xl border border-white/8 bg-white/[0.03] overflow-hidden"
+                    className="relative aspect-video rounded-xl border border-white/8 bg-white/3 overflow-hidden"
                   >
                     <Image
                       src={img.src}
@@ -146,11 +146,11 @@ export default async function BuildPage({ params }: BuildPageProps) {
 
         {/* Problem / Solution */}
         <section className="mt-12 grid md:grid-cols-2 gap-5" aria-label="Problem and solution">
-          <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-6">
+          <div className="rounded-2xl border border-white/8 bg-white/3 p-6">
             <h2 className="text-sm font-bold uppercase tracking-widest text-slate-450">The problem</h2>
             <p className="mt-3 text-slate-300 leading-relaxed">{build.problem}</p>
           </div>
-          <div className="rounded-2xl border border-cyan-400/15 bg-gradient-to-br from-cyan-500/[0.07] to-blue-600/[0.07] p-6">
+          <div className="rounded-2xl border border-cyan-400/15 bg-linear-to-br from-cyan-500/[0.07] to-blue-600/[0.07] p-6">
             <h2 className="text-sm font-bold uppercase tracking-widest text-cyan-400">The build</h2>
             <p className="mt-3 text-slate-300 leading-relaxed">{build.solution}</p>
           </div>
@@ -160,13 +160,13 @@ export default async function BuildPage({ params }: BuildPageProps) {
         <section className="mt-12" aria-label="Tech stack">
           <h2 className="text-2xl font-bold tracking-tight">
             Stack{' '}
-            <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
               &amp; choices
             </span>
           </h2>
           <ul className="mt-5 grid sm:grid-cols-2 gap-3">
             {build.stack.map(item => (
-              <li key={item.name} className="rounded-xl border border-white/8 bg-white/[0.03] p-4">
+              <li key={item.name} className="rounded-xl border border-white/8 bg-white/3 p-4">
                 <span className="block text-sm font-bold text-slate-100">{item.name}</span>
                 <span className="mt-1 block text-sm text-slate-400 leading-relaxed">{item.detail}</span>
               </li>
@@ -178,14 +178,14 @@ export default async function BuildPage({ params }: BuildPageProps) {
         <section className="mt-12" aria-label="Process notes">
           <h2 className="text-2xl font-bold tracking-tight">
             Process{' '}
-            <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
               notes
             </span>
           </h2>
           <ol className="mt-5 space-y-4">
             {build.process.map((note, i) => (
               <li key={i} className="flex gap-4">
-                <span className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-full border border-cyan-400/20 bg-cyan-400/10 text-cyan-300 text-xs font-bold mt-0.5">
+                <span className="shrink-0 flex items-center justify-center w-7 h-7 rounded-full border border-cyan-400/20 bg-cyan-400/10 text-cyan-300 text-xs font-bold mt-0.5">
                   {i + 1}
                 </span>
                 <p className="text-slate-300 leading-relaxed">{note}</p>

@@ -18,7 +18,7 @@ const AnimatedGrid = () => {
 
   return (
     <div
-      className="absolute inset-0 overflow-hidden pointer-events-none [mask-image:linear-gradient(to_bottom,black_70%,transparent)]"
+      className="absolute inset-0 overflow-hidden pointer-events-none mask-[linear-gradient(to_bottom,black_70%,transparent)]"
       aria-hidden="true"
     >
       <svg
@@ -84,7 +84,7 @@ const AnimatedGrid = () => {
 const Hero = () => {
   return (
     <div
-      className="relative flex flex-col min-h-[90vh] items-center justify-center bg-gradient-to-b from-[#050812] from-70% to-transparent overflow-hidden select-none"
+      className="relative flex flex-col min-h-[90vh] items-center justify-center bg-linear-to-b from-darkBlue from-70% to-transparent overflow-hidden select-none"
       id="home"
     >
       <AnimatedGrid />
@@ -99,7 +99,7 @@ const Hero = () => {
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-          className="mb-8 inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-white/12 bg-white/[0.04] backdrop-blur-sm hover:bg-white/[0.07] transition-all duration-200 text-sm font-medium text-slate-300 cursor-pointer group"
+          className="mb-8 inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-white/12 bg-white/4 backdrop-blur-xs hover:bg-white/[0.07] transition-all duration-200 text-sm font-medium text-slate-300 cursor-pointer group"
         >
           <span className="flex items-center gap-1.5 text-green-400">
             <MdRadioButtonChecked className="w-3 h-3 animate-pulse" />
@@ -127,10 +127,10 @@ const Hero = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.12, ease: [0.25, 0.1, 0.25, 1] }}
-              className="text-[2.8rem] sm:text-5xl lg:text-6xl xl:text-[4.2rem] font-extrabold leading-[1.04] tracking-tight text-slate-50 lowercase"
+              className="text-[2.8rem] sm:text-5xl/none lg:text-6xl/none xl:text-[4.2rem] font-extrabold leading-[1.04] tracking-tight text-slate-50 lowercase"
             >
               n8builds{' '}
-              <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-blue-600 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-cyan-400 via-blue-400 to-blue-600 bg-clip-text text-transparent">
                 in public
               </span>
             </motion.h1>
@@ -359,7 +359,7 @@ const Hero = () => {
             >
               <a
                 href="#now"
-                className="relative inline-flex h-10 overflow-hidden rounded-xl p-[1px] transition-all duration-200 hover:scale-[1.02]"
+                className="relative inline-flex h-10 overflow-hidden rounded-xl p-px transition-all duration-200 hover:scale-[1.02]"
               >
                 <span className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#22d3ee_0%,#2563eb_50%,#22d3ee_100%)]" />
                 <span className="inline-flex h-full w-full items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-bold text-slate-100 backdrop-blur-3xl">
@@ -396,9 +396,9 @@ const Hero = () => {
             initial={{ scale: 0.95 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.6, delay: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
-            className="w-[14rem] h-[14rem] sm:w-[17rem] sm:h-[17rem] md:w-[19rem] md:h-[19rem] relative flex-shrink-0"
+            className="w-56 h-56 sm:w-68 sm:h-68 md:w-76 md:h-76 relative shrink-0"
           >
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-500/20 to-blue-600/20 blur-xl scale-110" />
+            <div className="absolute inset-0 rounded-full bg-linear-to-br from-cyan-500/20 to-blue-600/20 blur-xl scale-110" />
             <div className="relative w-full h-full">
               <div className="absolute inset-0 dark:bg-black/10 rounded-full z-10" />
               <Image

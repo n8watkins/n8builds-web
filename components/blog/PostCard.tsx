@@ -10,7 +10,7 @@ export default function PostCard({ post }: { post: Post }) {
   return (
     <Link
       href={`/blog/${post.slug.current}`}
-      className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] transition-all duration-200 hover:-translate-y-0.5 hover:border-cyan-400/30 hover:bg-white/[0.04]"
+      className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/8 bg-white/2 transition-all duration-200 hover:-translate-y-0.5 hover:border-cyan-400/30 hover:bg-white/4"
     >
       <CoverBanner
         coverUrl={post.coverUrl}
@@ -41,7 +41,7 @@ export default function PostCard({ post }: { post: Post }) {
             {post.topics.map((t) => (
               <span
                 key={t}
-                className="rounded-md border border-white/[0.08] bg-white/[0.03] px-2 py-0.5 font-mono text-[0.68rem] text-slate-400"
+                className="rounded-md border border-white/8 bg-white/3 px-2 py-0.5 font-mono text-[0.68rem] text-slate-400"
               >
                 {t}
               </span>
@@ -49,7 +49,7 @@ export default function PostCard({ post }: { post: Post }) {
           </div>
         )}
 
-        <span className="mt-auto flex items-center gap-1 border-t border-white/[0.06] pt-3 font-mono text-[0.7rem] text-slate-475 transition-colors group-hover:text-cyan-400">
+        <span className="mt-auto flex items-center gap-1 border-t border-white/6 pt-3 font-mono text-[0.7rem] text-slate-475 transition-colors group-hover:text-cyan-400">
           read
           <FiArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         </span>

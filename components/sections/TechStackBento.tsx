@@ -20,10 +20,10 @@ const StackContainer = ({
   <figure
     className={cn(
       'relative flex h-28 min-w-40 max-w-52 cursor-pointer items-center justify-center overflow-hidden rounded-xl border px-2 pb-2',
-      'border-white/[0.08] bg-white/[0.04] hover:border-cyan-400/30 hover:bg-white/[0.08]',
+      'border-white/8 bg-white/4 hover:border-cyan-400/30 hover:bg-white/8',
       'transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-cyan-500/5',
-      '[&_.content-wrapper]:hover:scale-75 [&_.content-wrapper]:hover:-translate-y-9',
-      '[&_.description]:hover:opacity-100'
+      'hover:[&_.content-wrapper]:scale-75 hover:[&_.content-wrapper]:-translate-y-9',
+      'hover:[&_.description]:opacity-100'
     )}
   >
     <div className="content-wrapper flex flex-col items-center transition-all duration-300 ease-in-out">
@@ -54,7 +54,7 @@ const TechStackBento = ({ showLink = true }: { showLink?: boolean }) => {
         {showLink && (
           <Link
             href="/loadout"
-            className="group flex items-center gap-2 rounded-xl border border-white/12 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/[0.08]"
+            className="group flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8"
           >
             See the full loadout
             <FiArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -62,7 +62,7 @@ const TechStackBento = ({ showLink = true }: { showLink?: boolean }) => {
         )}
       </div>
 
-      <div className="relative flex flex-col gap-3 overflow-hidden rounded-3xl border border-white/[0.06] bg-gradient-to-br from-[#081427] via-[#0a1a33] to-[#081427] py-8">
+      <div className="relative flex flex-col gap-3 overflow-hidden rounded-3xl border border-white/6 bg-linear-to-br from-[#081427] via-[#0a1a33] to-[#081427] py-8">
         <Marquee label="Libraries and frameworks" pauseOnHover className="[--duration:50s]">
           {tech_libraries.map((t) => (
             <StackContainer key={t.name} name={t.name} icon={t.icon} description={t.description} />
@@ -73,8 +73,8 @@ const TechStackBento = ({ showLink = true }: { showLink?: boolean }) => {
             <StackContainer key={t.name} name={t.name} icon={t.icon} description={t.description} />
           ))}
         </Marquee>
-        <div className="pointer-events-none absolute left-0 h-full w-1/4 bg-gradient-to-r from-[#081427] to-transparent motion-reduce:hidden" />
-        <div className="pointer-events-none absolute right-0 h-full w-1/4 bg-gradient-to-l from-[#081427] to-transparent motion-reduce:hidden" />
+        <div className="pointer-events-none absolute left-0 h-full w-1/4 bg-linear-to-r from-[#081427] to-transparent motion-reduce:hidden" />
+        <div className="pointer-events-none absolute right-0 h-full w-1/4 bg-linear-to-l from-[#081427] to-transparent motion-reduce:hidden" />
       </div>
     </section>
   )

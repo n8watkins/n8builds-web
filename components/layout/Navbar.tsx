@@ -70,13 +70,13 @@ const Navbar = () => {
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
-            ? 'bg-[#050812]/92 backdrop-blur-2xl border-b border-white/[0.07]'
+            ? 'bg-darkBlue/92 backdrop-blur-2xl border-b border-white/[0.07]'
             : 'bg-transparent'
         }`}
       >
         <div className="max-w-6xl mx-auto px-5 sm:px-8 h-[68px] flex items-center justify-between gap-6">
           {/* Brand */}
-          <a href="#" className="flex items-center gap-2.5 flex-shrink-0 group">
+          <a href="#" className="flex items-center gap-2.5 shrink-0 group">
             <div className="w-9 h-9 rounded-xl overflow-hidden ring-1 ring-white/10 group-hover:ring-white/20 transition-all duration-200">
               <Image
                 src="/tab/n8-logo.png"
@@ -134,13 +134,13 @@ const Navbar = () => {
                     transition={{ duration: 0.15 }}
                     className="absolute left-0 top-full w-64 pt-2"
                   >
-                    <div className="rounded-xl border border-white/[0.08] bg-[#070b16]/97 backdrop-blur-2xl p-1.5 shadow-2xl shadow-black/50">
+                    <div className="rounded-xl border border-white/8 bg-[#070b16]/97 backdrop-blur-2xl p-1.5 shadow-2xl shadow-black/50">
                       {labMenu.map((item) => (
                         <Link
                           key={item.href}
                           href={item.href}
                           onClick={(e) => goToSection(e, item.href)}
-                          className="group/item flex flex-col gap-0.5 px-3 py-2 rounded-lg hover:bg-white/[0.06] transition-colors"
+                          className="group/item flex flex-col gap-0.5 px-3 py-2 rounded-lg hover:bg-white/6 transition-colors"
                         >
                           <span className="text-sm font-semibold text-slate-200 transition-colors group-hover/item:text-cyan-300">
                             {item.label}
@@ -193,7 +193,7 @@ const Navbar = () => {
               href="https://appturnity.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold text-sm transition-all duration-200 hover:scale-[1.02] shadow-lg shadow-blue-900/30"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-linear-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold text-sm transition-all duration-200 hover:scale-[1.02] shadow-lg shadow-blue-900/30"
             >
               Appturnity
               <FiExternalLink className="w-3 h-3" />
@@ -218,7 +218,7 @@ const Navbar = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.18 }}
-            className="fixed top-[68px] left-0 right-0 z-40 bg-[#050812]/96 backdrop-blur-2xl border-b border-white/[0.07] px-5 py-4 flex flex-col gap-1 md:hidden"
+            className="fixed top-[68px] left-0 right-0 z-40 bg-darkBlue/96 backdrop-blur-2xl border-b border-white/[0.07] px-5 py-4 flex flex-col gap-1 md:hidden"
           >
             {/* Lab group */}
             <p className="px-3 pt-1 pb-1 text-[0.65rem] font-bold uppercase tracking-wider text-slate-475">

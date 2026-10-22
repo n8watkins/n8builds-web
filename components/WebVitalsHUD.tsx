@@ -110,14 +110,14 @@ export function WebVitalsHUD() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
-          className="fixed bottom-4 right-4 z-[9999] bg-black/90 backdrop-blur-sm text-white p-4 rounded-lg shadow-2xl border border-white/20 font-mono text-xs"
+          className="fixed bottom-4 right-4 z-9999 bg-black/90 backdrop-blur-xs text-white p-4 rounded-lg shadow-2xl border border-white/20 font-mono text-xs"
           style={{ maxWidth: '400px' }}
         >
           <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/20">
             <h3 className="text-sm font-bold">Web Vitals</h3>
             <button
               onClick={() => setIsVisible(false)}
-              className="text-white/60 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-white/50 rounded"
+              className="text-white/60 hover:text-white transition-colors focus:outline-hidden focus:ring-2 focus:ring-white/50 rounded-sm"
               aria-label="Close Web Vitals HUD"
             >
               ✕
@@ -164,7 +164,7 @@ export function WebVitalsHUD() {
           )}
 
           <div className="mt-3 pt-2 border-t border-white/20 text-[10px] text-white/40">
-            Press <kbd className="px-1 py-0.5 bg-white/10 rounded">Alt+Shift+V</kbd> to toggle
+            Press <kbd className="px-1 py-0.5 bg-white/10 rounded-sm">Alt+Shift+V</kbd> to toggle
           </div>
         </motion.div>
       )}

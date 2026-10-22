@@ -13,10 +13,10 @@ const BuildCard = ({ build, index = 0 }: { build: Build; index?: number }) => {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-60px' }}
       transition={{ duration: 0.35, delay: Math.min(index * 0.03, 0.18), ease: [0.25, 0.1, 0.25, 1] }}
-      className="group relative flex flex-col gap-3 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 transition-all duration-200 hover:border-cyan-400/30 hover:bg-white/[0.04]"
+      className="group relative flex flex-col gap-3 overflow-hidden rounded-2xl border border-white/8 bg-white/2 p-5 transition-all duration-200 hover:border-cyan-400/30 hover:bg-white/4"
     >
       {/* Accent wash */}
-      <div className={`pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b ${build.color} opacity-40 blur-2xl`} />
+      <div className={`pointer-events-none absolute inset-x-0 top-0 h-24 bg-linear-to-b ${build.color} opacity-40 blur-2xl`} />
 
       {/* Stretched link → detail page (sits under the content, above the card bg) */}
       <Link
@@ -28,11 +28,11 @@ const BuildCard = ({ build, index = 0 }: { build: Build; index?: number }) => {
       <div className="relative z-0 flex items-start justify-between gap-3">
         <span className="font-mono text-[0.7rem] uppercase tracking-wider text-slate-450">{build.category}</span>
         {build.status === 'in the lab' ? (
-          <span className="flex-shrink-0 rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider text-amber-400">
+          <span className="shrink-0 rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider text-amber-400">
             in the lab
           </span>
         ) : (
-          <span className="flex-shrink-0 rounded-full border border-green-400/30 bg-green-400/10 px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider text-green-400">
+          <span className="shrink-0 rounded-full border border-green-400/30 bg-green-400/10 px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider text-green-400">
             shipped
           </span>
         )}
@@ -47,7 +47,7 @@ const BuildCard = ({ build, index = 0 }: { build: Build; index?: number }) => {
         {build.tags.map((t) => (
           <span
             key={t}
-            className="rounded-md border border-white/[0.08] bg-white/[0.03] px-2 py-0.5 font-mono text-[0.68rem] text-slate-400"
+            className="rounded-md border border-white/8 bg-white/3 px-2 py-0.5 font-mono text-[0.68rem] text-slate-400"
           >
             {t}
           </span>
@@ -55,7 +55,7 @@ const BuildCard = ({ build, index = 0 }: { build: Build; index?: number }) => {
       </div>
 
       {/* Footer: external links (z-10 so they sit above the stretched link) + read cue */}
-      <div className="relative z-10 mt-1 flex items-center justify-between border-t border-white/[0.06] pt-3">
+      <div className="relative z-10 mt-1 flex items-center justify-between border-t border-white/6 pt-3">
         <div className="flex items-center gap-2">
           {build.github && (
             <a

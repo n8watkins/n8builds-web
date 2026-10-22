@@ -16,7 +16,7 @@ const components = {
             className="w-full"
           />
           {value.alt && (
-            <figcaption className="bg-white/[0.02] px-4 py-2 text-center text-xs text-slate-450">
+            <figcaption className="bg-white/2 px-4 py-2 text-center text-xs text-slate-450">
               {value.alt}
             </figcaption>
           )}

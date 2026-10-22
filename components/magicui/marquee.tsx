@@ -49,10 +49,10 @@ export default function Marquee({
         aria-label={label}
         tabIndex={0}
         className={cn(
-          'flex p-2 [--gap:1rem] [gap:var(--gap)]',
+          'flex p-2 [--gap:1rem] gap-(--gap)',
           vertical
             ? 'flex-col items-center'
-            : 'w-full snap-x overflow-x-auto md:flex-wrap md:justify-center md:overflow-visible [&>*]:shrink-0 [&>*]:snap-start',
+            : 'w-full snap-x overflow-x-auto md:flex-wrap md:justify-center md:overflow-visible *:shrink-0 *:snap-start',
           className
         )}>
         {children}
@@ -64,7 +64,7 @@ export default function Marquee({
     <div
       {...props}
       className={cn(
-        'flex overflow-hidden p-2 [--duration:40s] [--gap:1rem] [gap:var(--gap)]',
+        'flex overflow-hidden p-2 [--duration:40s] [--gap:1rem] gap-(--gap)',
         {
           'flex-row': !vertical,
           'flex-col': vertical,
@@ -78,7 +78,7 @@ export default function Marquee({
         .map((_, i) => (
           <div
             key={i}
-            className={cn('flex shrink-0 justify-around [gap:var(--gap)]', {
+            className={cn('flex shrink-0 justify-around gap-(--gap)', {
               'animate-marquee flex-row': !vertical,
               'animate-marquee-vertical flex-col': vertical,
               '[animation-play-state:paused]': isPaused,

@@ -61,6 +61,6 @@ function chip(isActive: boolean): string {
   return `rounded-full border px-3 py-1 text-sm font-semibold transition-all ${
     isActive
       ? 'border-cyan-400/40 bg-cyan-400/10 text-cyan-300'
-      : 'border-white/10 bg-white/[0.03] text-slate-400 hover:bg-white/[0.06] hover:text-slate-200'
+      : 'border-white/10 bg-white/3 text-slate-400 hover:bg-white/6 hover:text-slate-200'
   }`
 }

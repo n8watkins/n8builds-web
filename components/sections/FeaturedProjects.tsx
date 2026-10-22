@@ -62,8 +62,8 @@ const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: b
     className={`flex flex-col ${flipped ? 'md:flex-row-reverse' : 'md:flex-row'} gap-10 md:gap-14 items-center`}
   >
     {/* Image + gallery */}
-    <div className="w-full md:w-1/2 flex-shrink-0">
-      <div className="relative rounded-2xl overflow-hidden border border-white/8 bg-[#07101d] aspect-[16/10] group">
+    <div className="w-full md:w-1/2 shrink-0">
+      <div className="relative rounded-2xl overflow-hidden border border-white/8 bg-[#07101d] aspect-16/10 group">
         <Image
           key={current}
           src={current}
@@ -73,7 +73,7 @@ const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: b
           sizes="(max-width: 768px) 100vw, 50vw"
         />
         {/* Subtle overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#050812]/40 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-linear-to-t from-darkBlue/40 to-transparent pointer-events-none" />
       </div>
 
       {/* Thumbnail strip */}
@@ -84,7 +84,7 @@ const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: b
               key={src}
               onClick={() => setActive(i)}
               aria-label={`${project.title} image ${i + 1}`}
-              className={`relative aspect-[16/10] w-full overflow-hidden rounded-lg border transition-all duration-200 ${
+              className={`relative aspect-16/10 w-full overflow-hidden rounded-lg border transition-all duration-200 ${
                 i === active
                   ? 'border-cyan-400/60 ring-1 ring-cyan-400/40'
                   : 'border-white/10 opacity-60 hover:opacity-100'
@@ -102,7 +102,7 @@ const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: b
       <div>
         <p className="text-[0.7rem] font-bold tracking-[0.16em] uppercase text-blue-400 mb-2">{project.subtitle}</p>
         <h3 className="text-2xl sm:text-3xl font-bold text-slate-50 tracking-tight mb-3">{project.title}</h3>
-        <p className="text-[#9cadc5] text-sm sm:text-base leading-relaxed">{project.description}</p>
+        <p className="text-[#9cadc5] text-sm sm:text-base/6 leading-relaxed">{project.description}</p>
       </div>
 
       {/* Tech stack — interactive icon dock, falls back to flat tags */}
@@ -112,7 +112,7 @@ const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: b
         <div className="flex flex-wrap gap-2">
           {project.tags.map(tag => (
             <span key={tag}
-              className="text-xs font-semibold px-2.5 py-1 rounded-full bg-white/[0.05] border border-white/10 text-slate-400">
+              className="text-xs font-semibold px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-slate-400">
               {tag}
             </span>
           ))}
@@ -123,14 +123,14 @@ const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: b
       <div className="flex items-center gap-3 pt-1">
         {project.liveSite && (
           <a href={project.liveSite} target="_blank" rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold text-sm transition-all duration-200 hover:scale-[1.02]">
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold text-sm transition-all duration-200 hover:scale-[1.02]">
             <FiExternalLink className="w-3.5 h-3.5" />
             Live Site
           </a>
         )}
         {project.github && (
           <a href={project.github} target="_blank" rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/12 bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 font-semibold text-sm transition-all duration-200 hover:scale-[1.02]">
+            className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/12 bg-white/4 hover:bg-white/8 text-slate-300 font-semibold text-sm transition-all duration-200 hover:scale-[1.02]">
             <FiGithub className="w-3.5 h-3.5" />
             GitHub
           </a>

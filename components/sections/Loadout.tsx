@@ -22,19 +22,19 @@ const ItemCard = ({ item, accent }: { item: LoadoutItem; accent: LoadoutGroup['a
   const a = accentMap[accent]
   return (
     <div
-      className={`group relative flex flex-col gap-2.5 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 transition-all duration-200 ${a.ring} hover:bg-white/[0.04] hover:shadow-lg ${a.glow}`}
+      className={`group relative flex flex-col gap-2.5 rounded-2xl border border-white/8 bg-white/2 p-5 transition-all duration-200 ${a.ring} hover:bg-white/4 hover:shadow-lg ${a.glow}`}
     >
       <div className="flex items-start justify-between gap-3">
         <h3 className="font-bold text-slate-100 leading-tight">{item.name}</h3>
         {item.tag && (
-          <span className={`flex-shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[0.62rem] font-bold uppercase tracking-wider ${a.text}`}>
+          <span className={`shrink-0 rounded-full border border-white/10 bg-white/4 px-2 py-0.5 text-[0.62rem] font-bold uppercase tracking-wider ${a.text}`}>
             {item.tag}
           </span>
         )}
       </div>
       <p className="text-sm leading-relaxed text-[#9cadc5]">{item.whatFor}</p>
-      <div className="mt-1 flex items-start gap-2 border-t border-white/[0.06] pt-3">
-        <span className={`mt-0.5 flex-shrink-0 font-mono text-xs ${a.text}`}>{'//'}</span>
+      <div className="mt-1 flex items-start gap-2 border-t border-white/6 pt-3">
+        <span className={`mt-0.5 shrink-0 font-mono text-xs ${a.text}`}>{'//'}</span>
         <p className="font-mono text-[0.78rem] leading-relaxed text-slate-450">{item.take}</p>
       </div>
     </div>
@@ -71,7 +71,7 @@ const Group = ({ group, index }: { group: LoadoutGroup; index: number }) => {
 
 const Loadout = () => {
   return (
-    <main className="relative min-h-screen bg-[#050812] text-slate-100">
+    <main className="relative min-h-screen bg-darkBlue text-slate-100">
       <div className="mx-auto max-w-6xl px-5 pt-28 pb-10 sm:px-8 md:pt-32 md:pb-16">
         {/* Back link */}
         <Link
@@ -90,9 +90,9 @@ const Loadout = () => {
           className="mt-8"
         >
           <span className="font-mono text-xs uppercase tracking-[0.3em] text-cyan-400/80">The Loadout</span>
-          <h1 className="mt-3 text-[2.4rem] font-extrabold leading-[1.05] tracking-tight text-slate-50 sm:text-5xl">
+          <h1 className="mt-3 text-[2.4rem] font-extrabold leading-[1.05] tracking-tight text-slate-50 sm:text-5xl/none">
             My{' '}
-            <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-blue-600 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-cyan-400 via-blue-400 to-blue-600 bg-clip-text text-transparent">
               loadout.
             </span>
           </h1>
@@ -144,7 +144,7 @@ const Loadout = () => {
         </div>
 
         {/* Footer note */}
-        <p className="mt-16 border-t border-white/[0.06] pt-8 text-center font-mono text-xs text-slate-475">
+        <p className="mt-16 border-t border-white/6 pt-8 text-center font-mono text-xs text-slate-475">
           {'// the kit changes constantly — check back, it\'s always being re-rolled.'}
         </p>
       </div>
