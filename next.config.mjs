@@ -9,24 +9,22 @@ const withBundleAnalyzer = bundleAnalyzer({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    // Every source the optimizer accepts is one more image (and transformation)
+    // anyone can make it fetch, so these are exact: no query strings, only our
+    // own Sanity project, and only the one remote image we show.
+    localPatterns: [{ pathname: '/**', search: '' }],
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'pbs.twimg.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
         hostname: 'sprite-bench.vercel.app',
-        port: '',
-        pathname: '/**',
+        pathname: '/opengraph-image',
+        search: '',
       },
       {
         protocol: 'https',
         hostname: 'cdn.sanity.io',
-        port: '',
-        pathname: '/**',
+        pathname: '/images/abgyc32w/production/**',
+        search: '',
       },
     ],
     formats: ['image/avif', 'image/webp'],
