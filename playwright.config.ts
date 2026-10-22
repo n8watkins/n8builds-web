@@ -1,97 +1,66 @@
 import { defineConfig, devices } from '@playwright/test'
-import * as dotenv from 'dotenv'
-import * as path from 'path'
-
-// Load environment variables from .env.local
-dotenv.config({ path: path.resolve(__dirname, '.env.local') })
+import { E2E_BASE_URL, E2E_PORT } from './tests/e2e-env'
 
 /**
- * Playwright configuration for Web Vitals testing
- * See https://playwright.dev/docs/test-configuration
+ * Playwright runs against a production build (`next build && next start`) in
+ * CONTACT_TEST_MODE, with Cloudflare's always-pass Turnstile test keys. Nothing
+ * here reads .env.local: no email is sent, and analytics/Sentry are off.
+ *
+ * Projects:
+ * - api:      contact API tests (no browser)
+ * - chromium: page smoke, accessibility, and contact-form UI tests
+ * - firefox / webkit / mobile: the same browser tests, run nightly in CI
  */
 export default defineConfig({
-  testDir: './tests',
-
-  // Run tests in files in parallel
+  testDir: './tests/e2e',
   fullyParallel: true,
-
-  // Fail the build on CI if you accidentally left test.only in the source code
   forbidOnly: !!process.env.CI,
+  // Retries hide flakiness; fix flaky tests instead.
+  retries: 0,
+  workers: process.env.CI ? 2 : undefined,
+  reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : [['list'], ['html', { open: 'never' }]],
 
-  // Retry on CI only
-  retries: process.env.CI ? 2 : 0,
-
-  // Opt out of parallel tests on CI
-  workers: process.env.CI ? 1 : undefined,
-
-  // Reporter to use
-  reporter: [
-    ['html'],
-    ['list'],
-  ],
-
-  // Shared settings for all the projects below
   use: {
-    // Base URL to use in actions like `await page.goto('/')`
-    baseURL: 'http://localhost:3000',
-
-    // Collect trace when retrying the failed test
-    trace: 'on-first-retry',
-
-    // Screenshot on failure
+    baseURL: E2E_BASE_URL,
+    trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
-
-    // Video on failure
-    video: 'retain-on-failure',
   },
 
-  // Configure projects for major browsers
   projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-
-    // Test against mobile viewports
-    {
-      name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
-    },
-    {
-      name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
-    },
+    { name: 'api', testMatch: /api\/.*\.spec\.ts/ },
+    { name: 'chromium', testIgnore: /api\//, use: { ...devices['Desktop Chrome'] } },
+    { name: 'firefox', testIgnore: /api\//, use: { ...devices['Desktop Firefox'] } },
+    { name: 'webkit', testIgnore: /api\//, use: { ...devices['Desktop Safari'] } },
+    { name: 'mobile-chrome', testIgnore: /api\//, use: { ...devices['Pixel 7'] } },
+    { name: 'mobile-safari', testIgnore: /api\//, use: { ...devices['iPhone 14'] } },
   ],
 
-  // Run your local dev server before starting the tests
   webServer: {
-    command: 'NODE_ENV=test npm run dev',
-    url: 'http://localhost:3000',
+    // E2E_SKIP_BUILD=1 reuses an existing test build (CI builds in its own step).
+    command: process.env.E2E_SKIP_BUILD
+      ? `npx next start -p ${E2E_PORT}`
+      : `npm run build && npx next start -p ${E2E_PORT}`,
+    url: `${E2E_BASE_URL}/api/health`,
     reuseExistingServer: !process.env.CI,
-    timeout: 120000,
-    env: Object.fromEntries(
-      Object.entries({
-        NODE_ENV: 'test',
-        // Pass all environment variables from .env.local to the test server
-        GMAIL_USER: process.env.GMAIL_USER,
-        GMAIL_APP_PASSWORD: process.env.GMAIL_APP_PASSWORD,
-        CONTACT_EMAIL_TO: process.env.CONTACT_EMAIL_TO,
-        NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
-        TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY,
-        NEXT_PUBLIC_GA_ID: process.env.NEXT_PUBLIC_GA_ID,
-        NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
-        NEXT_PUBLIC_VERSION: process.env.NEXT_PUBLIC_VERSION,
-      }).filter(([_, value]) => value !== undefined)
-    ) as Record<string, string>,
+    timeout: 300_000,
+    env: {
+      CONTACT_TEST_MODE: '1',
+      // High enough that the suite never trips the site-wide cap; the cap
+      // itself is covered by unit tests.
+      CONTACT_DAILY_LIMIT: '100000',
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY: '1x00000000000000000000AA',
+      TURNSTILE_SECRET_KEY: '1x0000000000000000000000000000000AA',
+      NEXT_PUBLIC_SITE_URL: 'https://n8builds.dev',
+      NEXT_PUBLIC_SANITY_PROJECT_ID: 'abgyc32w',
+      // Explicitly blank so values in .env.local can't leak into test builds.
+      NEXT_PUBLIC_GA_ID: '',
+      NEXT_PUBLIC_SENTRY_DSN: '',
+      SENTRY_DSN: '',
+      SENTRY_AUTH_TOKEN: '',
+      KV_REST_API_URL: '',
+      KV_REST_API_TOKEN: '',
+      UPSTASH_REDIS_REST_URL: '',
+      UPSTASH_REDIS_REST_TOKEN: '',
+    },
   },
 })
