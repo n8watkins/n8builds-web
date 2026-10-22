@@ -3,6 +3,8 @@ import { cn } from '@/lib/utils'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 
 interface MarqueeProps {
+  /** Accessible name for the list, used when it becomes a scrollable region. */
+  label: string
   className?: string
   reverse?: boolean
   pauseOnHover?: boolean
@@ -13,6 +15,7 @@ interface MarqueeProps {
 }
 
 export default function Marquee({
+  label,
   className,
   reverse,
   pauseOnHover = false,
@@ -41,6 +44,10 @@ export default function Marquee({
     return (
       <div
         {...props}
+        // Scrollable on small screens, so it must be reachable by keyboard.
+        role="region"
+        aria-label={label}
+        tabIndex={0}
         className={cn(
           'flex p-2 [--gap:1rem] [gap:var(--gap)]',
           vertical
