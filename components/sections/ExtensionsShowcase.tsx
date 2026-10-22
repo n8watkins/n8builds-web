@@ -103,7 +103,7 @@ const Detail = ({ ext }: { ext: Ext }) => {
             href={`/builds/${build.slug}`}
             className="flex items-center gap-2 rounded-xl border border-white/12 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/[0.08]"
           >
-            Read more
+            Read more<span className="sr-only"> about {build.name}</span>
             <FiArrowUpRight className="h-3.5 w-3.5" />
           </Link>
         </div>

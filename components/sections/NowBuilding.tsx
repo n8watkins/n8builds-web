@@ -139,16 +139,22 @@ const NowBuilding = () => {
         {count > 1 && (
           <div className="mt-6 flex items-center justify-between border-t border-white/[0.06] pt-4">
             {/* dots */}
-            <div className="flex items-center gap-2">
+            <div className="-ml-2 flex items-center">
               {nowItems.map((item, i) => (
+                // 24px hit area (WCAG 2.5.8) around the small visual dot.
                 <button
                   key={item.project}
                   onClick={() => go(i, i > index ? 1 : -1)}
                   aria-label={`Show ${item.project}`}
-                  className={`h-2 rounded-full transition-all duration-200 ${
-                    i === index ? 'w-6 bg-cyan-400' : 'w-2 bg-white/15 hover:bg-white/30'
-                  }`}
-                />
+                  aria-current={i === index ? 'true' : undefined}
+                  className="group flex h-6 min-w-6 items-center justify-center px-1"
+                >
+                  <span
+                    className={`block h-2 rounded-full transition-all duration-200 ${
+                      i === index ? 'w-6 bg-cyan-400' : 'w-2 bg-white/15 group-hover:bg-white/30'
+                    }`}
+                  />
+                </button>
               ))}
             </div>
             {/* arrows */}
