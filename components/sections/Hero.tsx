@@ -17,7 +17,10 @@ const AnimatedGrid = () => {
   const gradId = useId()
 
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+    <div
+      className="absolute inset-0 overflow-hidden pointer-events-none [mask-image:linear-gradient(to_bottom,black_70%,transparent)]"
+      aria-hidden="true"
+    >
       <svg
         className="absolute inset-0 w-full h-full opacity-100"
         xmlns="http://www.w3.org/2000/svg"
@@ -81,7 +84,7 @@ const AnimatedGrid = () => {
 const Hero = () => {
   return (
     <div
-      className="relative flex flex-col min-h-[90vh] items-center justify-center bg-[#050812] overflow-hidden select-none"
+      className="relative flex flex-col min-h-[90vh] items-center justify-center bg-gradient-to-b from-[#050812] from-70% to-transparent overflow-hidden select-none"
       id="home"
     >
       <AnimatedGrid />
