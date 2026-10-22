@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 import { techNameMapping } from '@/data/projects'
 import { Technologies, TechNameMappingInterface } from '@/lib/types'
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 
 interface TechStackCycleProps {
   technologies: Technologies
@@ -47,6 +48,7 @@ const TechStackCycle: React.FC<TechStackCycleProps> = ({ technologies }) => {
   const [activeIndex, setActiveIndex] = useState(0)
   const [hoveredIcons, setHoveredIcons] = useState<string[]>([])
   const pausedRef = useRef(false)
+  const reduceMotion = usePrefersReducedMotion()
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
   const active = allIcons[activeIndex] ?? allIcons[0]
@@ -55,12 +57,13 @@ const TechStackCycle: React.FC<TechStackCycleProps> = ({ technologies }) => {
 
   const startCycle = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current)
+    if (reduceMotion) return
     intervalRef.current = setInterval(() => {
       if (!pausedRef.current) {
         setActiveIndex((prev) => (prev + 1) % allIcons.length)
       }
     }, CYCLE_INTERVAL)
-  }, [allIcons.length])
+  }, [allIcons.length, reduceMotion])
 
   useEffect(() => {
     startCycle()

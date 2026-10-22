@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { FiGithub, FiExternalLink, FiActivity, FiChevronLeft, FiChevronRight, FiArrowUpRight } from 'react-icons/fi'
 import { MdRadioButtonChecked } from 'react-icons/md'
 import { nowItems, type NowState } from '@/data/now'
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 
 const statusStyles: Record<NowState['status'], string> = {
   prototype: 'text-amber-400 border-amber-400/30 bg-amber-400/10',
@@ -86,6 +87,7 @@ const NowBuilding = () => {
   const [dir, setDir] = useState(1)
   const [paused, setPaused] = useState(false)
   const count = nowItems.length
+  const reduceMotion = usePrefersReducedMotion()
 
   const go = (next: number, d: number) => {
     setDir(d)
@@ -93,13 +95,13 @@ const NowBuilding = () => {
   }
 
   useEffect(() => {
-    if (paused || count <= 1) return
+    if (paused || reduceMotion || count <= 1) return
     const t = setInterval(() => {
       setDir(1)
       setIndex((i) => (i + 1) % count)
     }, CYCLE_MS)
     return () => clearInterval(t)
-  }, [paused, count])
+  }, [paused, reduceMotion, count])
 
   return (
     <section id="now" aria-label="Currently building" className="py-16">
