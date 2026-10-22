@@ -21,7 +21,7 @@ export default function PrivacyPolicy() {
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-50">
           Privacy Policy
         </h1>
-        <p className="mt-2 text-sm text-slate-500">Last updated: {UPDATED}</p>
+        <p className="mt-2 text-sm text-slate-450">Last updated: {UPDATED}</p>
 
         <div className="mt-10 space-y-8 leading-relaxed text-[0.95rem]">
           <p>

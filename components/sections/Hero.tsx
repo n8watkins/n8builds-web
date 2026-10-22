@@ -104,7 +104,7 @@ const Hero = () => {
           </span>
           <span className="text-white/20">·</span>
           <span className="text-slate-400 text-[0.82rem]">Currently Building: <span className="text-cyan-400 font-semibold">{nowItems[0]?.project}</span></span>
-          <span className="text-slate-600 text-xs group-hover:translate-x-0.5 transition-transform">→</span>
+          <span className="text-slate-475 text-xs group-hover:translate-x-0.5 transition-transform">→</span>
         </motion.a>
 
         <div className="flex flex-col md:flex-row items-center justify-between w-full gap-10 md:gap-8">
@@ -115,7 +115,7 @@ const Hero = () => {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.08 }}
-              className="font-mono text-[0.78rem] tracking-wide text-slate-500 lowercase"
+              className="font-mono text-[0.78rem] tracking-wide text-slate-450 lowercase"
             >
               building software in public
             </motion.p>

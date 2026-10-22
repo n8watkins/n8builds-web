@@ -131,7 +131,7 @@ const Navbar = () => {
                           <span className="text-sm font-semibold text-slate-200 transition-colors group-hover/item:text-cyan-300">
                             {item.label}
                           </span>
-                          <span className="text-xs text-slate-500">{item.desc}</span>
+                          <span className="text-xs text-slate-450">{item.desc}</span>
                         </Link>
                       ))}
                     </div>
@@ -207,7 +207,7 @@ const Navbar = () => {
             className="fixed top-[68px] left-0 right-0 z-40 bg-[#050812]/96 backdrop-blur-2xl border-b border-white/[0.07] px-5 py-4 flex flex-col gap-1 md:hidden"
           >
             {/* Lab group */}
-            <p className="px-3 pt-1 pb-1 text-[0.65rem] font-bold uppercase tracking-wider text-slate-600">
+            <p className="px-3 pt-1 pb-1 text-[0.65rem] font-bold uppercase tracking-wider text-slate-475">
               Lab
             </p>
             {labMenu.map((item) => (

@@ -40,6 +40,13 @@ const config = {
         darkBlue: {
           DEFAULT: '#050812',
         },
+        // Muted text tones for the dark UI. Stock slate-500 / slate-600 fall
+        // below WCAG AA (4.5:1) for small text on the site's near-black
+        // backgrounds; these keep the same hierarchy at >= 4.6:1.
+        slate: {
+          450: '#8291a7',
+          475: '#768399',
+        },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',

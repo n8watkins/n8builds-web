@@ -26,7 +26,7 @@ const BuildCard = ({ build, index = 0 }: { build: Build; index?: number }) => {
       />
 
       <div className="relative z-0 flex items-start justify-between gap-3">
-        <span className="font-mono text-[0.7rem] uppercase tracking-wider text-slate-500">{build.category}</span>
+        <span className="font-mono text-[0.7rem] uppercase tracking-wider text-slate-450">{build.category}</span>
         {build.status === 'in the lab' ? (
           <span className="flex-shrink-0 rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider text-amber-400">
             in the lab
@@ -63,7 +63,7 @@ const BuildCard = ({ build, index = 0 }: { build: Build; index?: number }) => {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`${build.name} on GitHub`}
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-white/8 hover:text-slate-200"
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-450 transition-colors hover:bg-white/8 hover:text-slate-200"
             >
               <FiGithub className="h-4 w-4" />
             </a>
@@ -74,13 +74,13 @@ const BuildCard = ({ build, index = 0 }: { build: Build; index?: number }) => {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`${build.name} live site`}
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-white/8 hover:text-slate-200"
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-450 transition-colors hover:bg-white/8 hover:text-slate-200"
             >
               <FiExternalLink className="h-4 w-4" />
             </a>
           )}
         </div>
-        <span className="flex items-center gap-1 font-mono text-[0.7rem] text-slate-600 transition-colors group-hover:text-cyan-400">
+        <span className="flex items-center gap-1 font-mono text-[0.7rem] text-slate-475 transition-colors group-hover:text-cyan-400">
           read
           <FiArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         </span>

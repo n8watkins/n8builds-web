@@ -145,7 +145,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
         {/* Problem / Solution */}
         <section className="mt-12 grid md:grid-cols-2 gap-5" aria-label="Problem and solution">
           <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-6">
-            <h2 className="text-sm font-bold uppercase tracking-widest text-slate-500">The problem</h2>
+            <h2 className="text-sm font-bold uppercase tracking-widest text-slate-450">The problem</h2>
             <p className="mt-3 text-slate-300 leading-relaxed">{build.problem}</p>
           </div>
           <div className="rounded-2xl border border-cyan-400/15 bg-gradient-to-br from-cyan-500/[0.07] to-blue-600/[0.07] p-6">

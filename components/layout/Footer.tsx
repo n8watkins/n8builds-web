@@ -114,7 +114,7 @@ const Footer = () => {
                 <ContactFormErrorBoundary>
                   <ContactForm />
                 </ContactFormErrorBoundary>
-                <div className="mt-3 flex items-center gap-1 text-xs text-slate-500 select-none">
+                <div className="mt-3 flex items-center gap-1 text-xs text-slate-450 select-none">
                   <span>🛡️</span>
                   <span>Protected by Cloudflare Turnstile</span>
                 </div>
@@ -132,7 +132,7 @@ const Footer = () => {
             {/* Left */}
             <div className="text-center md:text-left max-w-xs">
               <p className="font-bold text-slate-100 text-base mb-1">Need something built?</p>
-              <p className="text-slate-500 text-sm leading-relaxed">
+              <p className="text-slate-450 text-sm leading-relaxed">
                 n8builds is the public lab. For project work and consulting, let&apos;s connect through Appturnity. Looking to hire me on a contract or full-time basis? View my portfolio.
               </p>
             </div>
@@ -148,7 +148,7 @@ const Footer = () => {
                   </span>
                 </div>
                 <p className="text-slate-400 text-sm">Strategy. Product. Engineering.</p>
-                <p className="text-slate-500 text-xs">Built to ship.</p>
+                <p className="text-slate-450 text-xs">Built to ship.</p>
               </div>
             </div>
 
@@ -195,7 +195,7 @@ const Footer = () => {
           <span className="font-bold text-slate-200 text-sm">n8builds</span>
         </motion.div>
 
-        <motion.p variants={staggerItemVariants} className="lg:text-sm text-xs text-slate-500">
+        <motion.p variants={staggerItemVariants} className="lg:text-sm text-xs text-slate-450">
           © 2026 n8builds. All rights reserved. ·{' '}
           <a href="/privacy" className="hover:text-slate-300 underline underline-offset-2">
             Privacy

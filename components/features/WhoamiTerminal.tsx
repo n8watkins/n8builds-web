@@ -19,7 +19,7 @@ export default function WhoamiTerminal({ className = '' }: { className?: string 
         <span className="h-2.5 w-2.5 rounded-full bg-red-400/70" />
         <span className="h-2.5 w-2.5 rounded-full bg-yellow-400/70" />
         <span className="h-2.5 w-2.5 rounded-full bg-green-400/70" />
-        <span className="ml-2 flex items-center gap-1.5 font-mono text-xs text-slate-500">
+        <span className="ml-2 flex items-center gap-1.5 font-mono text-xs text-slate-450">
           <FiTerminal className="h-3.5 w-3.5" />
           nate@n8builds: ~
         </span>
@@ -30,7 +30,7 @@ export default function WhoamiTerminal({ className = '' }: { className?: string 
             {line}
           </p>
         ))}
-        <p className="text-slate-600">
+        <p className="text-slate-475">
           <span className="text-cyan-400">$</span> <span className="animate-pulse">▊</span>
         </p>
       </div>

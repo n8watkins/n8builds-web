@@ -75,7 +75,7 @@ const Detail = ({ ext }: { ext: Ext }) => {
           <Image src={ext.icon} alt="" width={36} height={36} className="rounded-xl" />
           <div>
             <h3 className="text-xl font-extrabold leading-tight text-slate-50">{build.name}</h3>
-            <p className="font-mono text-xs text-slate-500">{build.tagline}</p>
+            <p className="font-mono text-xs text-slate-450">{build.tagline}</p>
           </div>
         </div>
         <p className="text-[#9cadc5] leading-relaxed">{ext.blurb}</p>
@@ -172,7 +172,7 @@ const ExtensionsShowcase = () => {
                   <Image src={ext.icon} alt="" width={40} height={40} className="rounded-xl" />
                   <div className="min-w-0">
                     <p className="truncate font-bold text-slate-100">{build?.name}</p>
-                    <p className="truncate font-mono text-[0.7rem] text-slate-500">{build?.tagline}</p>
+                    <p className="truncate font-mono text-[0.7rem] text-slate-450">{build?.tagline}</p>
                   </div>
                 </div>
                 {/* progress timer on the active card */}
@@ -226,10 +226,10 @@ const ExtensionsShowcase = () => {
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-400/10 font-mono text-cyan-400">{'</>'}</span>
           <div>
             <p className="font-bold text-slate-100">Chrome Extension Launch Kit</p>
-            <p className="text-sm text-slate-500">The MV3 starter all three of these are built on — clone it and ship your own.</p>
+            <p className="text-sm text-slate-450">The MV3 starter all three of these are built on — clone it and ship your own.</p>
           </div>
         </div>
-        <span className="flex items-center gap-1 font-mono text-sm text-slate-500 transition-colors group-hover:text-cyan-400">
+        <span className="flex items-center gap-1 font-mono text-sm text-slate-450 transition-colors group-hover:text-cyan-400">
           view <FiArrowUpRight className="h-4 w-4" />
         </span>
       </Link>

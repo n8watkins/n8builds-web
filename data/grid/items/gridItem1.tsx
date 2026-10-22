@@ -36,7 +36,7 @@ export const gridItem1: GridItemConfig = {
         <p><span className="text-cyan-400/70">&gt;</span> <span className="text-slate-200">ship</span></p>
         <p><span className="text-cyan-400/70">&gt;</span> <span className="text-slate-200">repeat</span></p>
       </div>
-      <p className="font-mono text-[0.7rem] text-slate-600 mt-4 select-none"># public progress beats private perfection</p>
+      <p className="font-mono text-[0.7rem] text-slate-475 mt-4 select-none"># public progress beats private perfection</p>
     </div>
   ),
 }

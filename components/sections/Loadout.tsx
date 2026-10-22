@@ -35,7 +35,7 @@ const ItemCard = ({ item, accent }: { item: LoadoutItem; accent: LoadoutGroup['a
       <p className="text-sm leading-relaxed text-[#9cadc5]">{item.whatFor}</p>
       <div className="mt-1 flex items-start gap-2 border-t border-white/[0.06] pt-3">
         <span className={`mt-0.5 flex-shrink-0 font-mono text-xs ${a.text}`}>{'//'}</span>
-        <p className="font-mono text-[0.78rem] leading-relaxed text-slate-500">{item.take}</p>
+        <p className="font-mono text-[0.78rem] leading-relaxed text-slate-450">{item.take}</p>
       </div>
     </div>
   )
@@ -53,7 +53,7 @@ const Group = ({ group, index }: { group: LoadoutGroup; index: number }) => {
       id={group.id}
     >
       <div className="mb-5 flex flex-col gap-1.5">
-        <span className="font-mono text-xs text-slate-600">{group.path}</span>
+        <span className="font-mono text-xs text-slate-475">{group.path}</span>
         <div className="flex items-center gap-2.5">
           <span className={`h-2 w-2 rounded-full ${a.dot}`} />
           <h2 className="text-2xl font-extrabold tracking-tight text-slate-50">{group.title}</h2>
@@ -108,7 +108,7 @@ const Loadout = () => {
         {/* AI tech stack — hover-reveal marquee (ported from the portfolio bento) */}
         <section id="ai" className="mt-14 scroll-mt-24">
           <div className="mb-5 flex flex-col gap-1.5">
-            <span className="font-mono text-xs text-slate-600">~/loadout/ai</span>
+            <span className="font-mono text-xs text-slate-475">~/loadout/ai</span>
             <div className="flex items-center gap-2.5">
               <span className="h-2 w-2 rounded-full bg-cyan-400" />
               <h2 className="text-2xl font-extrabold tracking-tight text-slate-50">AI & Agents</h2>
@@ -121,7 +121,7 @@ const Loadout = () => {
         {/* Stacks I build with — named combos */}
         <section id="stacks" className="mt-16 scroll-mt-24">
           <div className="mb-5 flex flex-col gap-1.5">
-            <span className="font-mono text-xs text-slate-600">~/loadout/stacks</span>
+            <span className="font-mono text-xs text-slate-475">~/loadout/stacks</span>
             <div className="flex items-center gap-2.5">
               <span className="h-2 w-2 rounded-full bg-blue-400" />
               <h2 className="text-2xl font-extrabold tracking-tight text-slate-50">Stacks I build with</h2>
@@ -144,7 +144,7 @@ const Loadout = () => {
         </div>
 
         {/* Footer note */}
-        <p className="mt-16 border-t border-white/[0.06] pt-8 text-center font-mono text-xs text-slate-600">
+        <p className="mt-16 border-t border-white/[0.06] pt-8 text-center font-mono text-xs text-slate-475">
           {'// the kit changes constantly — check back, it\'s always being re-rolled.'}
         </p>
       </div>

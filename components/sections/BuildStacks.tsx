@@ -39,7 +39,7 @@ const StackCard = ({ stack, index }: { stack: BuildStack; index: number }) => {
         ))}
       </div>
 
-      <p className="mt-auto flex items-start gap-2 border-t border-white/[0.06] pt-3 font-mono text-[0.78rem] leading-relaxed text-slate-500">
+      <p className="mt-auto flex items-start gap-2 border-t border-white/[0.06] pt-3 font-mono text-[0.78rem] leading-relaxed text-slate-450">
         <span className={a.text}>{'//'}</span>
         {stack.note}
       </p>

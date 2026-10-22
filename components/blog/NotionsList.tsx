@@ -45,7 +45,7 @@ export default function NotionsList({ posts }: { posts: Post[] }) {
           ))}
         </div>
       ) : (
-        <p className="mt-16 text-center font-mono text-sm text-slate-600">
+        <p className="mt-16 text-center font-mono text-sm text-slate-475">
           {'// nothing here yet — more notes soon.'}
         </p>
       )}

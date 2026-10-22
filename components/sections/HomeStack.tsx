@@ -34,9 +34,9 @@ export default function HomeStack() {
       <div className="mt-6 rounded-2xl border border-cyan-400/20 bg-gradient-to-br from-cyan-500/[0.06] to-transparent p-5 sm:p-6">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <span className="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-cyan-400">TL;DR — my default stack</span>
-          <span className="text-slate-600">·</span>
+          <span className="text-slate-475">·</span>
           <span className="font-semibold text-slate-100">{turso.name}</span>
-          <span className="text-sm text-slate-500">{turso.tagline}</span>
+          <span className="text-sm text-slate-450">{turso.tagline}</span>
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
           {turso.tools.map((t) => (

@@ -22,7 +22,7 @@ export default function PostCard({ post }: { post: Post }) {
       <div className="flex flex-1 flex-col gap-3 p-5">
         <time
           dateTime={post.publishedAt}
-          className="font-mono text-[0.7rem] uppercase tracking-wider text-slate-500"
+          className="font-mono text-[0.7rem] uppercase tracking-wider text-slate-450"
         >
           {formatPostDate(post.publishedAt)}
         </time>
@@ -49,7 +49,7 @@ export default function PostCard({ post }: { post: Post }) {
           </div>
         )}
 
-        <span className="mt-auto flex items-center gap-1 border-t border-white/[0.06] pt-3 font-mono text-[0.7rem] text-slate-600 transition-colors group-hover:text-cyan-400">
+        <span className="mt-auto flex items-center gap-1 border-t border-white/[0.06] pt-3 font-mono text-[0.7rem] text-slate-475 transition-colors group-hover:text-cyan-400">
           read
           <FiArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         </span>

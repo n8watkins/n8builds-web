@@ -84,7 +84,7 @@ export default async function PostPage({ params }: PostPageProps) {
               {post.title}
             </h1>
 
-            <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-sm text-slate-500">
+            <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-sm text-slate-450">
               <span>By {post.author || 'Nathan "n8" Watkins'}</span>
               <span aria-hidden>·</span>
               <time dateTime={post.publishedAt}>{formatPostDate(post.publishedAt)}</time>
@@ -121,7 +121,7 @@ export default async function PostPage({ params }: PostPageProps) {
 
           {post.gallery && post.gallery.length > 0 && (
             <section className="mt-12" aria-label="Gallery">
-              <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-slate-500">
+              <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-slate-450">
                 Gallery
               </h2>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -146,7 +146,7 @@ export default async function PostPage({ params }: PostPageProps) {
 
         {related.length > 0 && (
           <section className="mx-auto max-w-5xl px-5 pb-24 sm:px-8" aria-label="More notes">
-            <h2 className="text-sm font-bold uppercase tracking-widest text-slate-500">
+            <h2 className="text-sm font-bold uppercase tracking-widest text-slate-450">
               More notes
             </h2>
             <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

@@ -24,15 +24,15 @@ const Card = ({ now }: { now: NowState }) => (
           {now.status}
         </span>
       </div>
-      <p className="font-mono text-sm text-slate-500">{now.tagline}</p>
+      <p className="font-mono text-sm text-slate-450">{now.tagline}</p>
 
       <div className="flex flex-col gap-3">
         <div>
-          <p className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-600">Right now</p>
+          <p className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-475">Right now</p>
           <p className="mt-1 text-[#9cadc5]">{now.focus}</p>
         </div>
         <div>
-          <p className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-600">The goal</p>
+          <p className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-475">The goal</p>
           <p className="mt-1 text-[#9cadc5]">{now.goal}</p>
         </div>
       </div>
@@ -65,14 +65,14 @@ const Card = ({ now }: { now: NowState }) => (
 
     {/* Right: recent activity feed */}
     <div className="rounded-2xl border border-white/[0.06] bg-black/20 p-5">
-      <p className="mb-4 flex items-center gap-2 font-mono text-xs text-slate-500">
+      <p className="mb-4 flex items-center gap-2 font-mono text-xs text-slate-450">
         <FiActivity className="h-3.5 w-3.5 text-cyan-400" /> recent activity
       </p>
       <ol className="relative space-y-4 border-l border-white/[0.08] pl-5">
         {now.updates.map((u, i) => (
           <li key={i} className="relative">
             <span className="absolute -left-[1.42rem] top-1.5 h-2 w-2 rounded-full bg-cyan-400/80 ring-4 ring-[#050812]" />
-            <p className="font-mono text-[0.68rem] uppercase tracking-wider text-slate-600">{u.date}</p>
+            <p className="font-mono text-[0.68rem] uppercase tracking-wider text-slate-475">{u.date}</p>
             <p className="mt-0.5 text-sm leading-relaxed text-[#9cadc5]">{u.text}</p>
           </li>
         ))}
