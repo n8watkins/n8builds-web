@@ -1,30 +1,28 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useSyncExternalStore } from 'react'
 import { FaArrowUp } from 'react-icons/fa6'
 
+function subscribe(onChange: () => void) {
+  window.addEventListener('scroll', onChange, { passive: true })
+  return () => window.removeEventListener('scroll', onChange)
+}
+
 const ScrollToTop = () => {
-  const [isVisible, setIsVisible] = useState(false)
-
-  // Show button when user scrolls down 300px
-  useEffect(() => {
-    const toggleVisibility = () => {
-      if (window.pageYOffset > 300) {
-        setIsVisible(true)
-      } else {
-        setIsVisible(false)
-      }
-    }
-
-    window.addEventListener('scroll', toggleVisibility)
-
-    return () => window.removeEventListener('scroll', toggleVisibility)
-  }, [])
+  // Shown once the page is scrolled past 300px, including when it loads
+  // already scrolled (a reload mid-page, or a /#section link).
+  const isVisible = useSyncExternalStore(
+    subscribe,
+    () => window.scrollY > 300,
+    () => false
+  )
 
   const scrollToTop = () => {
+    // 'auto' follows the CSS scroll-behavior: smooth, unless the visitor
+    // prefers reduced motion (app/globals.css).
     window.scrollTo({
       top: 0,
-      behavior: 'smooth'
+      behavior: 'auto'
     })
   }
 

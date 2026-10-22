@@ -14,6 +14,12 @@ const runningInfiniteAnimations = (page: Page) =>
         .filter((a) => a.playState === 'running' && a.effect?.getTiming().iterations === Infinity).length
   )
 
+const htmlScrollBehavior = (page: Page) =>
+  page.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior)
+
+const scrollYNextFrame = (page: Page) =>
+  page.evaluate(() => new Promise<number>((resolve) => requestAnimationFrame(() => resolve(window.scrollY))))
+
 const activeNowBuildingDot = (page: Page) =>
   page.locator('#now button[aria-current="true"]').getAttribute('aria-label')
 
@@ -59,10 +65,26 @@ test.describe('reduced motion', () => {
     await page.clock.fastForward(20_000)
     expect(await activeNowBuildingDot(page)).toBe(selected)
   })
+
+  test('scrolling jumps instead of animating', async ({ page }) => {
+    // Landing mid-page (as from a /#contact link) shows the button without
+    // any further scrolling.
+    await page.goto('/#contact')
+    expect(await htmlScrollBehavior(page)).toBe('auto')
+
+    await page.getByRole('button', { name: 'Scroll to top of page' }).click()
+    // A smooth scroll would still be on its way up a frame later.
+    expect(await scrollYNextFrame(page)).toBe(0)
+  })
 })
 
 test.describe('motion allowed', () => {
   test.use({ contextOptions: { reducedMotion: 'no-preference' } })
+
+  test('anchor scrolling is smooth', async ({ page }) => {
+    await page.goto('/')
+    expect(await htmlScrollBehavior(page)).toBe('smooth')
+  })
 
   test('marquees scroll a repeated track', async ({ page }) => {
     await page.goto('/loadout')

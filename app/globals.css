@@ -85,19 +85,16 @@
     border-color: var(--color-border);
   }
 
-  * {
-    scroll-behavior: smooth !important;
-  }
-
   html {
     @apply custom-scrollbar;
     scrollbar-gutter: stable;
     scroll-padding-top: 80px; /* Offset for fixed navigation */
   }
 
-  /* Smooth anchor scrolling for the nav, but honor reduced-motion preferences */
+  /* Smooth scrolling (anchors, the nav, scroll-to-top), only when the visitor
+     hasn't asked for reduced motion. */
   @media (prefers-reduced-motion: no-preference) {
-    html {
+    * {
       scroll-behavior: smooth;
     }
   }
