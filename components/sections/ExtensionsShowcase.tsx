@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'motion/react'
 import { FiGithub, FiStar, FiArrowUpRight } from 'react-icons/fi'
 import { getBuild } from '@/data/builds'
 

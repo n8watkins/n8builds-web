@@ -1,5 +1,5 @@
 'use client'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 import { FiTerminal } from 'react-icons/fi'
 import { whoami } from '@/data/loadout'
 

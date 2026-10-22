@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { SiTwitch, SiYoutube } from 'react-icons/si'
 import { FiExternalLink, FiMenu, FiX, FiChevronDown } from 'react-icons/fi'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'motion/react'
 
 // The Lab is the umbrella — its sub-shelves live in a hover dropdown so the top
 // nav stays short. Each item routes to its existing shelf page.

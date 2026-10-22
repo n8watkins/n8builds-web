@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 import { FiArrowLeft } from 'react-icons/fi'
 import { loadout, type LoadoutGroup, type LoadoutItem } from '@/data/loadout'
 import AITechStack from '@/components/features/AITechStack'

@@ -38,7 +38,7 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   experimental: {
-    optimizePackageImports: ['framer-motion', 'react-icons'],
+    optimizePackageImports: ['motion/react', 'react-icons'],
   },
   async redirects() {
     return [

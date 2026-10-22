@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'motion/react'
 import { FiGithub, FiExternalLink, FiActivity, FiChevronLeft, FiChevronRight, FiArrowUpRight } from 'react-icons/fi'
 import { MdRadioButtonChecked } from 'react-icons/md'
 import { nowItems, type NowState } from '@/data/now'

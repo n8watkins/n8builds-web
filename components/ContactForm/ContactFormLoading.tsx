@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 import Lottie from 'lottie-react'
 // TODO: Download a loading animation from https://lottiefiles.com/free-animations/send-mail
 // and save it as /data/loading-email.json
