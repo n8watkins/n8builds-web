@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, type FieldErrors } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { contactFormSchema, ContactFormData } from '@/lib/validations/contact'
 import { trackContactEvent } from '@/lib/analytics'
@@ -11,6 +11,9 @@ const DEFAULT_ERROR_MESSAGE = 'Oops! Something went wrong. Please try again or e
 
 // How long to wait for Turnstile to issue a token after the visitor clicks Send.
 const TURNSTILE_WAIT_MS = 15_000
+
+/** The visitor-facing fields, in form order (their ids match their names). */
+const VISIBLE_FIELDS = ['name', 'email', 'subject', 'message'] as const
 
 const VERIFICATION_FAILED_MESSAGE =
   "We couldn't verify your browser (an ad or privacy blocker can cause this). Please refresh and try again, or email me directly at nathancwatkins23@gmail.com."
@@ -55,6 +58,10 @@ export function useContactFormSubmit(): UseContactFormSubmitReturn {
 
   const form = useForm<ContactFormData>({
     resolver: zodResolver(contactFormSchema),
+    // We focus the first invalid field ourselves (focusFirstError): the
+    // browser's own focus scroll leaves it under the fixed navbar in Safari,
+    // which ignores scroll-margin there.
+    shouldFocusError: false,
     defaultValues: {
       name: '',
       email: '',
@@ -153,6 +160,16 @@ export function useContactFormSubmit(): UseContactFormSubmitReturn {
     }
   }
 
+  /** Bring the first invalid field to the middle of the screen and focus it. */
+  const focusFirstError = (errors: FieldErrors<ContactFormData>) => {
+    const field = VISIBLE_FIELDS.find((name) => errors[name])
+    const el = field && document.getElementById(field)
+    if (!el) return
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    el.scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' })
+    el.focus({ preventScroll: true })
+  }
+
   const handleFormSubmit = async () => {
     // Turnstile runs invisibly via the <Turnstile> widget rendered in the form,
     // writing its token into the `turnstile` field via onTurnstileToken. Under
@@ -166,8 +183,8 @@ export function useContactFormSubmit(): UseContactFormSubmitReturn {
     } else if (!getValues('turnstile')) {
       // No token yet (Turnstile still working, or blocked). Validate the visible
       // fields first so errors show immediately, then wait for the token.
-      const fieldsValid = await trigger(['name', 'email', 'subject', 'message'])
-      if (!fieldsValid) return
+      const fieldsValid = await trigger([...VISIBLE_FIELDS])
+      if (!fieldsValid) return focusFirstError(form.formState.errors)
 
       setIsVerifying(true)
       setLiveRegionMessage('Verifying...')
@@ -184,6 +201,9 @@ export function useContactFormSubmit(): UseContactFormSubmitReturn {
       }
     }
 
+    // Validate before handleSubmit: it disables the inputs (isSubmitting) while
+    // it runs, and a disabled field can't take focus.
+    if (!(await trigger())) return focusFirstError(form.formState.errors)
     handleSubmit(onSubmit)()
   }
 

@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react'
 import { cn } from '@/lib/utils'
-import { CONTROL_SCROLL_MARGIN, FieldWrapper, controlProps } from './FieldWrapper'
+import { FieldWrapper, controlProps } from './FieldWrapper'
 
 interface ContactTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label: string
@@ -30,7 +30,6 @@ export const ContactTextarea = forwardRef<HTMLTextAreaElement, ContactTextareaPr
             'focus:ring-2 focus:ring-cyan-500 focus:border-transparent',
             'transition-all duration-200 resize-y min-h-[120px]',
             'hover:border-slate-400 dark:hover:border-slate-500',
-            CONTROL_SCROLL_MARGIN,
             error && 'border-red-500 dark:border-red-400 focus:ring-red-500',
             className
           )}
