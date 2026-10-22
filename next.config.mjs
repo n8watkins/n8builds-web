@@ -1,5 +1,5 @@
 import bundleAnalyzer from '@next/bundle-analyzer'
-import { withSentryConfig } from '@sentry/nextjs'
+import { withSentryConfig } from '@sentry/nextjs/config'
 import { securityHeaders } from './lib/security/headers.mjs'
 
 const withBundleAnalyzer = bundleAnalyzer({
