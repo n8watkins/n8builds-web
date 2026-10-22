@@ -1,469 +1,118 @@
-# n8builds 🔧 — n8builds.dev
+# n8builds - n8builds.dev
 
-The public builder lab of Nathan Watkins — a Next.js site for building software in public: apps, AI tools, agents, experiments, and build logs. Cloned from Portfolio 2.0 and rebranded.
+The public builder lab of Nathan Watkins: a Next.js site for building software in public (apps, AI tools, Chrome extensions, experiments, and the N8 Notions blog).
 
-**Live at [n8builds.dev](https://n8builds.dev)** — deployed on Vercel (auto-deploy on push to `main`), DNS via Cloudflare.
+**Live at [n8builds.dev](https://n8builds.dev)**, deployed on Vercel (auto-deploys from `main`), DNS via Cloudflare.
 
-## ✨ Key Features
+Current project state, decisions and conventions live in [`docs/HANDOFF.md`](docs/HANDOFF.md).
+Manual steps that need the owner live in [`docs/OWNER_TODO.md`](docs/OWNER_TODO.md).
 
-- **Modern Stack**: Next.js 16 (App Router) with React 19, TypeScript, and Tailwind CSS
-- **Hardened Contact Form**: Gmail SMTP (Nodemailer) with a layered defense stack — rate limiting, honeypot, Zod validation, and template-time HTML escaping
-- **Advanced Animations**: Motion (`motion/react`) with scroll-triggered fade-ins and interactive elements
-- **Performance Optimized**: Code-split below-the-fold sections, optimized images, and Web Vitals monitoring
-- **Security First**: Request-size cap, shared Upstash Redis rate limiting (5/hour per IP plus a daily site-wide cap), honeypot, invisible Cloudflare Turnstile, and HTML-entity escaping of user input in emails
-- **Fully Responsive**: Mobile-first design with seamless desktop experience
-- **Analytics Integration**: Google Analytics (live, `G-JZQGKY9Q37`) with custom event tracking for all interactions
-- **Dark/Light Theme**: Automatic system preference detection with manual toggle
-- **Error Boundaries**: Granular section-level error handling with graceful degradation
-- **Web Vitals HUD**: Real-time performance monitoring (Alt+Shift+V toggle in dev mode)
-- **Testing & CI**: Playwright E2E tests, Lighthouse CI, and automated accessibility testing
+## Stack
 
-## 🏗️ Architecture
+- Next.js 16 (App Router, webpack production build), React 19, TypeScript (strict)
+- Tailwind CSS 4 (configured in `app/globals.css`), Motion (`motion/react`)
+- React Hook Form + Zod
+- Sanity (read-only CDN client) for the N8 Notions blog
+- Nodemailer + Gmail SMTP, Cloudflare Turnstile, Upstash Redis rate limiting
+- Sentry (inert until `NEXT_PUBLIC_SENTRY_DSN` is set), GA4, Vercel Speed Insights
+- Vitest (unit), Playwright + axe (E2E and accessibility), Lighthouse CI
 
-### Tech Stack
+The site is dark-only and honors `prefers-reduced-motion` everywhere.
 
-**Frontend:**
-- Next.js 16 (App Router)
-- React 19
-- TypeScript for type safety
-- Tailwind CSS for styling
-- Motion (`motion/react`, formerly framer-motion) for animations
-- React Hook Form + Zod validation
-- Next Themes for theme management
-
-**Backend:**
-- Next.js API Routes
-- Nodemailer + Gmail SMTP for email delivery
-- Cloudflare Turnstile (invisible) for bot protection — see Contact Form Deep Dive
-- Layered request validation + security middleware
-
-**Development & Testing:**
-- ESLint + TypeScript strict mode
-- Playwright for E2E testing
-- Lighthouse CI for performance
-- Husky + lint-staged for git hooks
-- Bundle analyzer for optimization
-- Vercel for deployment (auto-deploy on push to `main`)
-- Error tracking handled by section/global error boundaries (Sentry was removed — no `@sentry/nextjs` dependency or config)
-
-### Project Structure
+## Project structure
 
 ```
-n8builds-web/
-├── app/                          # Next.js 16 App Router
-│   ├── api/
-│   │   ├── contact/
-│   │   │   └── route.ts          # Contact API orchestration
-│   │   └── health/               # Health check endpoints
-│   ├── globals.css               # Global styles and CSS variables
-│   ├── layout.tsx                # Root layout with providers & metadata
-│   ├── page.tsx                  # Home page with lazy-loaded sections
-│   ├── provider.tsx              # Theme provider wrapper
-│   ├── web-vitals.tsx            # Performance monitoring
-│   └── global-error.tsx          # Global error boundary
-├── components/                   # React components
-│   ├── ContactForm/              # Multi-file contact form module
-│   ├── Projects/                 # Project showcase module
-│   ├── sections/                 # Page sections
-│   │   ├── Hero.tsx              # Landing section
-│   │   ├── Grid.tsx              # About/BentoGrid section
-│   │   ├── TechStackBento.tsx    # Tech-stack bento marquee
-│   │   ├── FeaturedProjects.tsx  # Featured builds
-│   │   ├── BuildStacks.tsx       # Build stacks
-│   │   ├── Loadout.tsx           # Daily-driver loadout
-│   │   ├── Shelf.tsx             # Shelf / collections
-│   │   ├── ExtensionsShowcase.tsx# Browser extensions showcase
-│   │   ├── ToolsSection.tsx      # Free tools suite
-│   │   ├── NowBuilding.tsx       # "Now building" section
-│   │   └── Experience.tsx        # Work experience
-│   ├── layout/                   # Layout components
-│   │   ├── FloatingNav.tsx       # Sticky floating navigation
-│   │   ├── Navbar.tsx            # Top navbar
-│   │   └── Footer.tsx            # Site footer
-│   ├── ui/                       # Reusable UI components
-│   │   ├── BentoGrid.tsx         # Data-driven grid system
-│   │   ├── MagicButton.tsx       # Animated buttons
-│   │   └── ScrollToTop.tsx       # Scroll-to-top button
-│   ├── SectionErrorBoundary.tsx  # Granular error boundaries
-│   ├── ErrorBoundary.tsx         # Global error boundary
-│   └── WebVitalsHUD.tsx          # Performance HUD (Alt+Shift+V)
-├── lib/                          # Utilities and business logic
-│   ├── security/                 # Security modules
-│   │   ├── rateLimiter.ts        # Upstash-backed per-IP + site-wide rate limiting
-│   │   ├── turnstile.ts          # Cloudflare Turnstile + honeypot verification
-│   │   └── validation.ts         # Request size (10KB) + JSON parse validation
-│   ├── email/                    # Email functionality
-│   │   ├── smtp.ts               # Gmail SMTP transport + config
-│   │   ├── sender.ts             # Email sending logic
-│   │   └── templates.ts          # HTML email templates + HTML-entity escaping
-│   ├── validations/              # Zod schemas
-│   │   └── contact.ts            # Contact form validation
-│   ├── analytics.ts              # Google Analytics tracking
-│   ├── animations.ts             # Motion animation presets
-│   ├── logger.ts                 # Centralized logging
-│   └── types.ts                  # TypeScript types
-├── data/                         # Static content
-│   ├── grid/                     # BentoGrid items (split into files)
-│   ├── index.ts                  # Data barrel re-exports
-│   ├── projects.tsx              # Project portfolio data
-│   ├── builds.tsx                # Build logs
-│   ├── experience.tsx            # Work history
-│   ├── techStack.tsx             # Technology arrays
-│   └── navigation.tsx            # Nav items
-├── hooks/                        # Custom React hooks
-│   ├── useSectionTracking.ts    # IntersectionObserver tracking
-│   └── useScrollTracking.ts     # Scroll depth monitoring
-├── tests/                        # Playwright E2E tests
-│   └── web-vitals.spec.ts       # Performance testing
-├── public/                       # Static assets
-│   ├── projects/                 # Project screenshots
-│   ├── hero/                     # Hero section images
-│   └── bento/                    # BentoGrid assets
-└── [config files]                # Next.js, TS, Tailwind, Playwright, etc.
+app/
+  api/contact/route.ts      Contact form API
+  api/health/route.ts       Liveness ping
+  api/notions/recent/       Latest posts for the homepage strip
+  blog/, blog/[slug]/       N8 Notions (ISR, hourly)
+  builds/[slug]/            Build detail pages
+  loadout/, privacy/        Static pages
+  layout.tsx, page.tsx      Root layout and homepage
+  globals.css               Tailwind theme and global styles
+components/
+  sections/                 Homepage sections (Hero, NowBuilding, FeaturedProjects, ShelfSection, ...)
+  layout/                   Navbar, Footer (contact card)
+  ContactForm/              Form UI and useContactFormSubmit
+  blog/, ui/, features/, magicui/
+data/                       builds.tsx (single source of truth for builds), shelves, loadout, stacks
+hooks/                      usePrefersReducedMotion, useHydrated, analytics tracking hooks
+lib/
+  security/                 headers.mjs (CSP), rateLimiter, turnstile, validation, testMode
+  email/                    smtp, sender, templates, icons (generated)
+  validations/contact.ts    Zod schema shared by client and server
+tests/
+  unit/                     Vitest
+  e2e/                      Playwright (api/, pages, contact form, reduced motion, security headers)
 ```
 
-**Key Stats:**
-- **~12k lines** of TypeScript/TSX across `app/`, `components/`, `lib/`, `data/`, and `hooks/`
-- **First Load JS**: measure with `npm run analyze` (bundle analyzer)
-- **ESLint**: 0 errors (15 pre-existing `react-hooks` warnings)
+## Getting started
 
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js 20.9+ and npm (see `engines` in `package.json`)
-- Environment variables (see `.env.local.example`)
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/n8watkins/n8builds-web.git
-   cd n8builds-web
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Configure environment variables**
-   ```bash
-   cp .env.local.example .env.local
-   # Edit .env.local with your API keys
-   ```
-
-4. **Start development server**
-   ```bash
-   npm run dev
-   ```
-
-### Environment Variables
-
-```env
-# Site Configuration
-NEXT_PUBLIC_SITE_URL=http://localhost:3737
-NEXT_PUBLIC_VERSION=1.0.0
-
-# Google Analytics (live: G-JZQGKY9Q37 — shared domain-wide property)
-NEXT_PUBLIC_GA_ID=your_ga_id
-
-# Sanity (N8 Notions blog) — read-only public CDN; lib/sanity.ts throws without it
-NEXT_PUBLIC_SANITY_PROJECT_ID=abgyc32w
-
-# Cloudflare Turnstile (invisible bot protection — verification is skipped when the secret is unset)
-NEXT_PUBLIC_TURNSTILE_SITE_KEY=your_turnstile_site_key
-TURNSTILE_SECRET_KEY=your_turnstile_secret_key
-
-# Contact Form Email (Nodemailer + Gmail SMTP)
-GMAIL_USER=your@gmail.com
-GMAIL_APP_PASSWORD=your_gmail_app_password
-CONTACT_EMAIL_TO=your-email@domain.com
-# Public From/reply address shown in outgoing mail. NOTE: Gmail only honors this
-# as the From address once it is registered as a verified "Send mail as" alias —
-# until then Gmail rewrites From to GMAIL_USER's own address.
-CONTACT_EMAIL_FROM=contact@n8builds.dev
-```
-
-#### 🔑 Where to Get API Keys
-
-| Service | URL | Free Tier | Notes |
-|---------|-----|-----------|-------|
-| Google Analytics | [analytics.google.com](https://analytics.google.com) | ✅ Yes | Reuse the shared `G-JZQGKY9Q37` GA4 property (covers the whole domain incl. the portfolio subdomain) |
-| Cloudflare Turnstile | [dash.cloudflare.com → Turnstile](https://dash.cloudflare.com/?to=/:account/turnstile) | ✅ Yes | Create the widget in "Invisible" (or "Managed") mode; test keys are built in for local dev |
-| Gmail app password | [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords) | ✅ ~500 emails/day | Requires 2-step verification |
-
-## 📧 Contact Form Deep Dive
-
-The contact form is a layered, defense-in-depth solution backed by Gmail SMTP.
-
-### Features
-
-- **Layered security** (see Security Measures below)
-- **Client-side validation** with React Hook Form + Zod
-- **Server-side validation** with Zod schema parsing
-- **Rate limiting** to prevent spam (5 requests per hour in production)
-- **Honeypot field** for bot detection
-- **HTML-entity escaping** of all user input rendered into emails (prevents HTML/XSS injection in the inbox)
-- **Request size validation** (10KB limit)
-- **Cloudflare Turnstile** (invisible) — live in production (`NEXT_PUBLIC_TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY` set on Vercel)
-- **Professional email templates** with auto-reply functionality
-- **Real-time character counting** and field validation
-- **Smooth animations** and loading states with confetti celebration
-- **Accessibility compliant** with WCAG guidelines
-
-### Technical Implementation
-
-**Frontend Flow:**
-1. User fills out form with real-time validation
-2. On submit, Cloudflare Turnstile runs invisibly (`@marsidev/react-turnstile`) and issues a token
-3. Form validation runs with the Turnstile token
-4. API request sent to `/api/contact`
-5. Success/error states with animations
-
-**Backend Flow** (`app/api/contact/route.ts`):
-1. Request size validation (10KB limit)
-2. Per-IP rate limit (5 requests/hour)
-3. JSON parse + Zod schema validation
-4. Honeypot field check
-5. Turnstile token verification
-6. Site-wide daily limit (counted only for verified submissions)
-7. Email sending via Nodemailer (Gmail SMTP), with user input HTML-entity-escaped at template time
-8. Auto-reply confirmation email to the submitter
-
-### Security Measures
-
-The active layers (in request order):
-
-1. **Request Size Validation** - `lib/security/validation.ts` caps the raw body at 10KB (DoS guard) and safely parses JSON.
-2. **Per-IP Rate Limiting** - `lib/security/rateLimiter.ts` allows 5 submissions/hour per IP (50/hour under `next dev`).
-   Counters live in Upstash Redis, so every serverless instance shares them.
-   The client IP comes from `x-real-ip` / `x-forwarded-for`, which Vercel's edge overwrites, so clients can't spoof it.
-3. **Zod Schema Validation** - `lib/validations/contact.ts` enforces field types, lengths, and shape; invalid payloads are rejected.
-4. **Honeypot Field** - `lib/security/turnstile.ts → validateHoneypot()` rejects submissions where the hidden field is filled.
-5. **Cloudflare Turnstile** - `lib/security/turnstile.ts → verifyTurnstile()` calls Cloudflare's `siteverify` API with the client IP.
-   It passes only when `success === true` and the token was issued on an allowed hostname (`TURNSTILE_ALLOWED_HOSTNAMES`, default: the site host and its `www.` variant).
-   It is skipped only under `next dev`.
-6. **Site-wide Daily Limit** - a second Upstash counter caps verified submissions per day (`CONTACT_DAILY_LIMIT`, default 50).
-   It runs after Turnstile so junk requests can't use it up.
-7. **Template-time HTML Escaping** - `lib/email/templates.ts → sanitizeHtml()` escapes `&`, `<`, `>`, `"`, and `'` in every user-supplied value before it is interpolated into the email HTML.
-   (This is a hand-rolled escaper - DOMPurify/jsdom were removed because their dependency chain breaks Vercel's serverless runtime.)
-8. **Error Masking** - generic error messages are returned to clients while detailed errors are logged server-side.
-
-**Everything fails closed in production.**
-A missing `TURNSTILE_SECRET_KEY`, a Turnstile network error, missing Upstash credentials, or an Upstash outage all reject the submission instead of letting it through unchecked.
-The rejection tells the visitor to email directly.
-
-**Testing:** set `CONTACT_TEST_MODE=1` with Cloudflare's always-pass test secret (`1x0000000000000000000000000000000AA`) to exercise the real API against `next build && next start`.
-Test mode sends no email (Nodemailer JSON transport), uses an in-memory rate limiter when Upstash isn't configured, and is ignored on Vercel.
-
-## 🎨 Animations & UX
-
-### Motion Integration
-
-- **Scroll-triggered animations** with intersection observers
-- **Staggered reveals** for portfolio grid items
-- **Smooth page transitions** and micro-interactions
-- **Loading states** with skeleton animations
-- **Success celebrations** rendered with `lottie-react` (`data/confetti.json` in `ContactFormSuccess.tsx`).
-  The player and the animation data load on demand (`preloadConfetti()` starts fetching on the "Sending..." screen), keeping about 120 KB off the homepage.
-
-### Performance Optimizations
-
-- **Lazy loading** for images and components
-- **Code splitting** for optimal bundle sizes
-- **Next.js Image optimization** with proper sizing
-- **CSS-in-JS optimization** with Tailwind
-- **Analytics integration** without performance impact
-
-## 🔧 Development
-
-### Available Scripts
+Requires Node.js 20.9+.
 
 ```bash
-# Development
-npm run dev          # Start development server (with HMR)
-npm run build        # Build for production
-npm run start        # Start production server
-
-# Code Quality
-npm run lint         # Run ESLint
-npm run lint:fix     # Fix ESLint issues automatically
-npm run type-check   # TypeScript type checking without emit
-
-# Testing & Analysis
-npm test             # Unit tests + E2E (API + Chromium)
-npm run test:unit    # Vitest unit tests (tests/unit)
-npm run test:e2e     # Playwright: contact API + Chromium, against a production build
-npm run test:e2e:all # Playwright on every browser project (Chromium, Firefox, WebKit, mobile)
-npm run test:ui      # Run Playwright in UI mode
-npm run lighthouse   # Lighthouse CI on /, /blog, a build page and /loadout (build first; see below)
-npm run analyze      # Build with bundle analysis (ANALYZE=true)
-
-# Maintenance
-npm run clean        # Clean .next and out directories
-npm run prepare      # Setup Husky git hooks
+git clone https://github.com/n8watkins/n8builds-web.git
+cd n8builds-web
+npm install
+cp .env.example .env.local   # then fill in values; each variable is documented there
+npm run dev                  # http://localhost:3737
 ```
 
-### Lighthouse
+Under `next dev`, Turnstile verification and Upstash are skipped, so the contact form works with only the Gmail variables set.
 
-`lighthouserc.js` starts the production build on `LHCI_PORT` (default 3747) and audits four pages against category-score and Core Web Vitals budgets.
+## Scripts
 
-```bash
-npm run build && LHCI_PORT=3747 npm run lighthouse
-```
+| Command | What it does |
+|---|---|
+| `npm run dev` | Dev server on port 3737 |
+| `npm run build` / `npm start` | Production build / server |
+| `npm run lint` | ESLint; fails on any warning |
+| `npm run type-check` | `tsc --noEmit` |
+| `npm run test:unit` | Vitest |
+| `npm run test:e2e` | Playwright (contact API + Chromium) against a production build |
+| `npm run test:e2e:all` | Playwright on Chromium, Firefox, WebKit and mobile |
+| `npm test` | Unit + E2E |
+| `npm run lighthouse` | Lighthouse CI (build first; see below) |
+| `npm run analyze` | Production build with the bundle analyzer |
 
-Under WSL, set `CHROME_PATH` to a Linux Chrome; otherwise Chrome's launcher drops Windows-named temp folders into the repo.
-A nightly GitHub Actions job runs it too.
+Playwright builds and starts the app itself on port 3747 (`E2E_PORT` overrides it) in `CONTACT_TEST_MODE`, with Cloudflare's always-pass Turnstile test keys.
+No email is sent, and GA, Sentry and Upstash are forced off.
 
-### Code Quality
+Lighthouse: `npm run build && LHCI_PORT=3747 npm run lighthouse`.
+Under WSL, set `CHROME_PATH` to a Linux Chrome.
 
-- **TypeScript Strict Mode** - Type-safe codebase
-- **ESLint** with Next.js configuration - `npm run lint` fails on any error **or warning** (`--max-warnings 0`), locally and in CI
-- **Husky + lint-staged** - Pre-commit hooks run `eslint --fix` on staged files
-- **Component-driven development** with modular architecture
-- **Inline documentation** - JSDoc comments across security and email modules
+CI runs lint, type-check, unit tests and E2E (API + Chromium) on every push to `main` and every PR.
+A nightly workflow runs E2E on every browser and Lighthouse.
 
-## 📈 Analytics & Monitoring
+## Contact form
 
-### Performance Monitoring
-- **Web Vitals HUD** - Real-time metrics display (Alt+Shift+V in dev mode)
-- **Vercel Speed Insights** - Real user monitoring in production
-- **Lighthouse CI** - Automated performance audits with thresholds
-- **Bundle Analyzer** - Track bundle size over time
+Request flow in `app/api/contact/route.ts`:
 
-### User Analytics
-- **Google Analytics 4** with comprehensive event tracking:
-  - Section views (IntersectionObserver-based)
-  - Scroll depth milestones (25%, 50%, 75%, 100%)
-  - Project interactions (views, icon clicks)
-  - Contact form events (view, focus, submit, errors)
-  - Resume downloads/views
-  - Social media clicks
-  - Web Vitals metrics
+1. Body size cap (10KB).
+2. Per-IP rate limit (5/hour), before any expensive work.
+3. JSON parse and Zod validation, including the honeypot field, which must be empty.
+4. Cloudflare Turnstile verification (`siteverify`), including the hostname the token was issued on.
+5. Site-wide daily limit (`CONTACT_DAILY_LIMIT`, default 50), counted only for verified submissions.
+6. Notification email to the owner and an auto-reply to the sender, with all user input HTML-escaped at template time.
 
-### Error Tracking
-- **Section-level error boundaries** for granular failure isolation
-- **Global error boundary** for unhandled exceptions
-- **Custom error reporting** to health API endpoint
-- **Sentry** — *removed; no `@sentry/nextjs` dependency or config remains (only a stray `app/api/sentry-example-api/route.ts` and a `SENTRY_ORG` boolean health-check flag)*
+Rate-limit counters live in Upstash Redis so every serverless instance shares them.
+Everything fails closed in production: a missing Turnstile secret, a Turnstile error, missing Upstash config, or an Upstash outage or timeout rejects the submission with a message to email directly.
 
-## 🚢 Deployment
+On the client, Send stays disabled until the form has hydrated.
+If Turnstile has not issued a token yet, the button shows "Verifying..." and sends once it arrives, or explains the failure after 15 seconds.
 
-The site is live at **[n8builds.dev](https://n8builds.dev)**, hosted on Vercel with DNS managed by Cloudflare. Pushes to `main` auto-deploy.
+To exercise the real API locally, run a production build with `CONTACT_TEST_MODE=1` and the test secret `1x0000000000000000000000000000000AA`.
+Test mode sends no email, always uses an in-memory rate limiter, and is ignored on Vercel.
 
-### Vercel (Recommended)
+## Security
 
-1. Connect your GitHub repository to Vercel
-2. Configure environment variables in Vercel dashboard
-3. Deploy automatically on push to `main`
+- Security headers, including an enforced Content-Security-Policy, live in `lib/security/headers.mjs`.
+  Any new third-party origin must be added there or the browser blocks it.
+- Scripts keep `'unsafe-inline'` because App Router pages inline RSC payload scripts; nonces would force every page to render dynamically.
+- CSP violations are reported to Sentry when a DSN is set.
+- `tests/e2e/security-headers.spec.ts` asserts the headers and fails on any CSP violation.
 
-### Manual Deployment
+## License
 
-```bash
-npm run build
-npm run start
-```
-
-## 🛠️ Customization
-
-### Content Management
-
-- **Portfolio data**: Edit the files under `data/` (re-exported via `data/index.ts`)
-- **Project information**: Update project arrays and images in `data/projects.tsx`
-- **Contact details**: Modify footer and contact sections
-- **Theme colors**: Customize in `app/globals.css`
-
-### Adding New Sections
-
-1. Create component in `components/sections/`
-2. Add to main page in `app/page.tsx`
-3. Update navigation in `components/layout/FloatingNav.tsx`
-4. Add animations and styling
-
-## 🔒 Security Considerations
-
-- **Security headers** live in `lib/security/headers.mjs` and are applied in `next.config.mjs`.
-  The Content-Security-Policy is enforced, so any new third-party origin (script, image, frame, or API) must be added there or the browser will block it.
-- Scripts keep `'unsafe-inline'`: App Router pages inline per-page RSC payload scripts, so hashes can't go in static headers, and nonces would force every page to render dynamically.
-  Everything else is locked down (`object-src 'none'`, `base-uri 'self'`, `form-action 'self'`, `frame-ancestors 'none'`).
-- CSP violations are reported to Sentry when `NEXT_PUBLIC_SENTRY_DSN` is set.
-- `tests/e2e/security-headers.spec.ts` asserts the headers and fails on any CSP violation across every page and the contact flow.
-- Never commit API keys or secrets
-- Use environment variables for all sensitive data
-- Regular dependency updates for security patches
-- Rate limiting and validation on all endpoints
-- Proper error handling without information disclosure
-
-## 📝 Development Notes
-
-### Performance Optimizations
-- **Bundle Size**: measured via `npm run analyze` (`@next/bundle-analyzer`)
-- **Dynamic Imports**: Below-the-fold components lazy loaded
-- **Image Optimization**: AVIF/WebP formats with Next/Image
-- **Font Optimization**: Inter font with subset loading and swap display
-- **Package Tree-shaking**: Optimized imports for `motion/react` and react-icons
-
-### Technical Highlights
-- **CSS Masks**: Gradient effects in infinite card animations
-- **Marquee Components**: Magic UI marquee for performant infinite scroll
-- **Animation Performance**: Motion animations run on compositor-friendly properties (opacity, transform)
-- **Form UX**: Invisible Cloudflare Turnstile keeps the experience seamless — no checkbox/challenge for legitimate users
-- **Error Resilience**: Section-level boundaries prevent cascading failures
-- **Type Safety**: Zod schemas provide runtime validation + TypeScript types
-
-## 🏛️ Architecture Decisions
-
-### Composition Pattern for Grid Items
-
-The BentoGrid uses a data-driven composition pattern instead of ID-based conditionals:
-
-```typescript
-// ✅ Clean: Data-driven render functions
-<BentoGridItem
-  renderBackground={() => <GridPattern />}
-  renderContent={() => <MapDetails />}
-  renderForeground={() => <TechStack />}
-/>
-
-// ❌ Old: 152 lines of ID-based conditionals
-{id === 1 && <Component1 />}
-{id === 2 && <Component2 />}
-```
-
-**Result**: 59% code reduction, better maintainability, easier testing
-
-### Shared Field Wrapper Component
-
-Form fields use a shared wrapper to eliminate duplication:
-
-```typescript
-<FieldWrapper label="Name" error={errors.name} emoji="👤">
-  <input {...field} />
-</FieldWrapper>
-```
-
-**Benefits**: DRY principle, consistent styling, centralized error handling
-
-### Centralized Animation Library
-
-All animations defined in `lib/animations.ts` for consistency:
-
-```typescript
-import { animationPresets } from '@/lib/animations'
-
-<motion.div {...animationPresets.fadeInUp}>
-  Content
-</motion.div>
-```
-
-**Benefits**: Consistent timing, easy global changes, better performance
-
-## 📄 License
-
-This project is open source and available under the MIT License.
-
----
-
-Built with ❤️ by Nathan Watkins using modern web technologies.
-
+MIT.
