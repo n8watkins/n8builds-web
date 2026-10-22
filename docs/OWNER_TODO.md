@@ -1,12 +1,13 @@
 # Owner to-do (manual steps)
 
 Things only you can do, because they need an interactive login, a terms acceptance, or a dashboard.
-Do them in order: step 1 blocks pushing everything else.
+Do them in order.
 
-## 1. Link Upstash Redis to Vercel (blocks the next push)
+## 1. Link Upstash Redis to Vercel (URGENT: the live contact form is down until this is done)
 
-The contact form now refuses submissions in production unless shared rate-limit storage is configured.
-Pushing before this step would make the live form return "temporarily unavailable" (503).
+Everything was pushed on 2026-10-22.
+The live contact form now refuses submissions (503 "temporarily unavailable, email me directly") until shared rate-limit storage is configured.
+The rest of the site is unaffected.
 
 Run from this repo:
 
@@ -25,13 +26,9 @@ vercel integration add upstash/upstash-kv
 It sets `KV_REST_API_URL` and `KV_REST_API_TOKEN` automatically.
 Check with `vercel env ls | grep KV_`.
 
-## 2. Push and verify production
+## 2. Verify production
 
-```bash
-git push origin main
-```
-
-After the Vercel deploy finishes:
+The code is already pushed and deployed. After linking Upstash, redeploy so the new env vars apply (`vercel --prod`, or Redeploy the latest deployment in the Vercel dashboard), then:
 
 - Send yourself a real message from https://n8builds.dev/#contact and confirm both emails arrive (the notification and the auto-reply).
 - Optional: in the Upstash console, confirm `contact:ip:*` and `contact:global:*` keys appear.
@@ -51,4 +48,5 @@ If you ever want the form to work on Vercel preview URLs, add those hostnames to
   Adding `includeSubDomains; preload` would force HTTPS on every `*.n8builds.dev` subdomain permanently (preload lists are slow to undo).
   Only do it if every subdomain will always be HTTPS; tell Claude and it will add the header.
 - **Branch protection:** require the `CI` checks to pass before merging into `main` (GitHub → Settings → Branches).
+- **Indigo accents:** decide whether the indigo accents (Loadout "indigo" group, "Browser tools" label) stay or switch to blue/sky (see HANDOFF backlog).
 - **Gmail connector for Claude:** it needs re-authenticating (`/mcp`) if you want Claude to check inboxes during end-to-end email tests.
