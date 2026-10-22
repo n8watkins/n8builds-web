@@ -13,7 +13,10 @@ interface ContactFormProps {
 }
 
 export default function ContactForm({ className }: ContactFormProps) {
-  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''
+  // Under `next dev` the server skips Turnstile, and the production site key
+  // rejects localhost (Cloudflare error 110200), so don't render the widget.
+  const turnstileSiteKey =
+    process.env.NODE_ENV === 'development' ? '' : process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''
 
   if (!turnstileSiteKey && process.env.NODE_ENV === 'production') {
     console.error('Missing NEXT_PUBLIC_TURNSTILE_SITE_KEY')
