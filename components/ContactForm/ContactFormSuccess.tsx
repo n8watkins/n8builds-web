@@ -10,7 +10,10 @@ import { motion } from 'motion/react'
 // only renders client-side, and next/dynamic here made Turbopack dev emit a
 // preload link for a chunk it never serves (a 404 on every page load).
 export function preloadConfetti() {
-  void import('./ConfettiPlayer')
+  // Best effort: if the chunk can't load, ConfettiBoundary drops the confetti.
+  // Unhandled, the rejection would surface as an uncaught error (and a Sentry
+  // report) for something the visitor never notices.
+  import('./ConfettiPlayer').catch(() => {})
 }
 
 const Confetti = lazy(() => import('./ConfettiPlayer'))
