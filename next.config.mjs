@@ -93,7 +93,6 @@ export default withSentryConfig(withBundleAnalyzer(nextConfig), {
   project: 'n8builds',
   authToken: process.env.SENTRY_AUTH_TOKEN,
   widenClientFileUpload: true,
-  tunnelRoute: '/monitoring',
   silent: !process.env.CI,
   // Drop SDK code this site never runs: debug logging, and Session Replay's
   // iframe and shadow-DOM recording (no iframes or shadow roots of ours to

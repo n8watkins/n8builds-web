@@ -7,6 +7,9 @@ const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN
 Sentry.init({
   dsn,
   enabled: !!dsn,
+  // Same-origin tunnel (app/monitoring/route.ts), so ad blockers and the CSP
+  // let events through.
+  tunnel: '/monitoring',
   // NOTE: sends user IP + request headers to Sentry, and Session Replay records
   // sessions (text masked by default). Disclose this in the privacy policy, or
   // set sendDefaultPii:false / drop the replay integration if you'd rather not.
