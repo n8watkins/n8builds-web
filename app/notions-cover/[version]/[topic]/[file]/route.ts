@@ -6,8 +6,11 @@ import { COVER_VERSION, coverSvg } from '@/lib/blog-cover'
 
 const SEGMENT = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
-export async function GET(_request: Request, ctx: RouteContext<'/notions-cover/[version]/[topic]/[file]'>) {
-  const { version, topic, file } = await ctx.params
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ version: string; topic: string; file: string }> }
+) {
+  const { version, topic, file } = await params
   const slug = file.endsWith('.svg') ? file.slice(0, -4) : ''
 
   if (version !== COVER_VERSION || !SEGMENT.test(topic) || topic.length > 60 || !SEGMENT.test(slug) || slug.length > 120) {

@@ -121,6 +121,8 @@ Flow (`app/api/contact/route.ts`): size check (10KB), per-IP rate limit, JSON + 
 - Env or `next.config.mjs` changes need a server restart.
 - Node scripts that import project dependencies must run from inside the repo; import Playwright as `@playwright/test`.
 - `npm run type-check` can report errors from stale generated types after deleting a route; `rm -rf .next/types .next/dev` and rerun.
+- Don't use Next's generated global type helpers (`RouteContext`, `PageProps`): they exist only after a build or `next dev`, and CI type-checks before building. Type `params` explicitly.
+  To type-check like CI: `rm -rf .next/types .next/dev && npm run type-check`.
 - `npm run lint` fails on any warning (CI too).
 - Reduced motion is honored everywhere: CSS animations stop globally, smooth scrolling is enabled only under `prefers-reduced-motion: no-preference`, Motion uses `MotionConfig reducedMotion="user"`, and timer-driven cycles check `usePrefersReducedMotion` (`hooks/`).
   `Marquee` requires a `label` prop (its reduced-motion fallback is a labelled, keyboard-reachable list).
