@@ -7,9 +7,15 @@ import { logger } from '@/lib/logger'
 
 export type SubmissionState = 'idle' | 'submitting' | 'success' | 'error'
 
+const DEFAULT_ERROR_MESSAGE = 'Oops! Something went wrong. Please try again or email me directly.'
+
+/** An error whose message came from the API and is safe to show the visitor. */
+class SubmissionError extends Error {}
+
 interface UseContactFormSubmitReturn {
   submissionState: SubmissionState
   setSubmissionState: (state: SubmissionState) => void
+  errorMessage: string
   liveRegionMessage: string
   setLiveRegionMessage: (message: string) => void
   showConfetti: boolean
@@ -22,6 +28,7 @@ interface UseContactFormSubmitReturn {
 
 export function useContactFormSubmit(): UseContactFormSubmitReturn {
   const [submissionState, setSubmissionState] = useState<SubmissionState>('idle')
+  const [errorMessage, setErrorMessage] = useState('')
   const [liveRegionMessage, setLiveRegionMessage] = useState('')
   const [showConfetti, setShowConfetti] = useState(false)
   const [confettiKey, setConfettiKey] = useState(0)
@@ -54,6 +61,7 @@ export function useContactFormSubmit(): UseContactFormSubmitReturn {
       if (!isMountedRef.current) return
 
       setSubmissionState('submitting')
+      setErrorMessage('')
       setLiveRegionMessage('Submitting your message...')
       trackContactEvent('submit_attempt')
 
@@ -69,18 +77,13 @@ export function useContactFormSubmit(): UseContactFormSubmitReturn {
       if (!isMountedRef.current) return
 
       if (!response.ok) {
-        const errorData = await response.json()
+        const errorData = await response.json().catch(() => ({}))
 
         // Check mount status again after another async operation
         if (!isMountedRef.current) return
 
         logger.error('Form submission error:', errorData)
-
-        if (response.status === 429 || errorData.type === 'rate_limit') {
-          setLiveRegionMessage(errorData.error || 'Rate limit exceeded. Please try again later or email me directly.')
-        }
-
-        throw new Error(errorData.error || 'Failed to send message')
+        throw new SubmissionError(errorData.error || DEFAULT_ERROR_MESSAGE)
       }
 
       // Check before success state updates
@@ -100,8 +103,11 @@ export function useContactFormSubmit(): UseContactFormSubmitReturn {
       if (!isMountedRef.current) return
 
       logger.error('Contact form error:', error)
+      // Server messages are written for visitors; network failures etc. are not.
+      const message = error instanceof SubmissionError ? error.message : DEFAULT_ERROR_MESSAGE
       setSubmissionState('error')
-      setLiveRegionMessage('Failed to send message. Please try again or email me directly.')
+      setErrorMessage(message)
+      setLiveRegionMessage(message)
       trackContactEvent('submit_error', undefined, { error: String(error) })
     }
   }
@@ -125,6 +131,7 @@ export function useContactFormSubmit(): UseContactFormSubmitReturn {
   return {
     submissionState,
     setSubmissionState,
+    errorMessage,
     liveRegionMessage,
     setLiveRegionMessage,
     showConfetti,

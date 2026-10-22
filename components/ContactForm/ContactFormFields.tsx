@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Turnstile } from '@marsidev/react-turnstile'
+import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 import { ContactInput } from '@/components/ui/ContactInput'
 import { ContactSelect } from '@/components/ui/ContactSelect'
 import { ContactTextarea } from '@/components/ui/ContactTextarea'
@@ -14,12 +14,13 @@ import { SubmissionState } from './useContactFormSubmit'
 interface ContactFormFieldsProps {
   form: UseFormReturn<ContactFormData>
   submissionState: SubmissionState
+  errorMessage: string
   onSubmit: () => Promise<void>
   turnstileSiteKey: string
 }
 
-export function ContactFormFields({ form, submissionState, onSubmit, turnstileSiteKey }: ContactFormFieldsProps) {
-  const [charCount, setCharCount] = useState(0)
+export function ContactFormFields({ form, submissionState, errorMessage, onSubmit, turnstileSiteKey }: ContactFormFieldsProps) {
+  const turnstileRef = useRef<TurnstileInstance>(null)
 
   const {
     register,
@@ -28,11 +29,15 @@ export function ContactFormFields({ form, submissionState, onSubmit, turnstileSi
     formState: { errors, isSubmitting },
   } = form
 
-  const messageValue = watch('message')
+  const charCount = watch('message')?.length || 0
 
+  // Turnstile tokens are single-use: after a failed submission the server has
+  // already spent this one, so fetch a fresh token for the retry.
   useEffect(() => {
-    setCharCount(messageValue?.length || 0)
-  }, [messageValue])
+    if (submissionState !== 'error') return
+    setValue('turnstile', '')
+    turnstileRef.current?.reset()
+  }, [submissionState, setValue])
 
   const handleFieldFocus = (fieldName: string) => {
     trackContactEvent('field_focus', fieldName)
@@ -143,11 +148,11 @@ export function ContactFormFields({ form, submissionState, onSubmit, turnstileSi
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-center"
+            className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4"
           >
-            <p className="text-red-800 dark:text-red-200 flex items-center justify-center gap-2">
-              <span>😅</span>
-              Oops! Something went wrong. Please try again or email me directly.
+            <p className="text-sm leading-relaxed text-red-800 dark:text-red-200 flex items-start gap-3">
+              <span aria-hidden="true" className="text-base leading-snug">😅</span>
+              <span>{errorMessage}</span>
             </p>
           </motion.div>
         )}
@@ -168,6 +173,7 @@ export function ContactFormFields({ form, submissionState, onSubmit, turnstileSi
         */}
         {turnstileSiteKey && (
           <Turnstile
+            ref={turnstileRef}
             siteKey={turnstileSiteKey}
             onSuccess={(token) => {
               setValue('turnstile', token)

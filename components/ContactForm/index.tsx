@@ -22,6 +22,7 @@ export default function ContactForm({ className }: ContactFormProps) {
   const {
     submissionState,
     setSubmissionState,
+    errorMessage,
     liveRegionMessage,
     showConfetti,
     setShowConfetti,
@@ -84,6 +85,7 @@ export default function ContactForm({ className }: ContactFormProps) {
       <ContactFormFields
         form={form}
         submissionState={submissionState}
+        errorMessage={errorMessage}
         onSubmit={handleFormSubmit}
         turnstileSiteKey={turnstileSiteKey}
       />
