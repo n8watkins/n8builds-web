@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { contactFormSchema } from '@/lib/validations/contact'
 import { logger } from '@/lib/logger'
-import { checkRateLimit, getClientIp, type RateLimitResult } from '@/lib/security/rateLimiter'
+import {
+  checkRateLimit,
+  getClientIp,
+  rateLimitIpKey,
+  recipientKey,
+  type RateLimitResult,
+} from '@/lib/security/rateLimiter'
 import { verifyTurnstile } from '@/lib/security/turnstile'
 import { validateRequestSize, parseJsonBody } from '@/lib/security/validation'
 import { sendContactEmails } from '@/lib/email/sender'
@@ -11,14 +17,19 @@ const DIRECT_EMAIL = 'nathancwatkins23@gmail.com'
 /**
  * POST /api/contact - Handle contact form submissions
  *
- * SECURITY LAYERS (in order):
- * 1. Request size validation (10KB limit)
- * 2. Per-IP rate limit (5/hour), before any expensive work
- * 3. Input validation (Zod schema, which also requires the hidden honeypot
+ * SECURITY LAYERS (in order). Every check that costs nothing runs before the
+ * first Upstash call, so junk requests can't spend the Redis quota (and, once
+ * it's gone, shut the form for everyone):
+ * 1. Request size validation (10KB limit) and a JSON content type, which
+ *    also rules out cross-site "simple" form posts
+ * 2. Input validation (Zod schema, which also requires the hidden honeypot
  *    field to be empty)
- * 4. Cloudflare Turnstile verification
- * 5. Site-wide daily limit, counted only for verified submissions so junk
- *    requests can't use it up
+ * 3. Cloudflare Turnstile verification
+ * 4. Per-IP rate limit (5/hour; IPv6 counted per /64)
+ * 5. Site-wide daily limit
+ * 6. Per-recipient auto-reply limit (1/day per address), so the form can't be
+ *    used to mail one third party repeatedly. Over it, the owner notification
+ *    still goes out; only the auto-reply is skipped.
  *
  * Then sends the notification email (to site owner) and auto-reply (to submitter).
  */
@@ -26,7 +37,7 @@ export async function POST(request: NextRequest) {
   logger.info('🚀 Contact API called')
 
   try {
-    // STEP 1: Request size validation
+    // STEP 1: Request size and type
     const bodyText = await request.text()
     const sizeValidation = validateRequestSize(bodyText)
 
@@ -37,15 +48,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // STEP 2: Per-IP rate limit
-    const clientIp = getClientIp(request.headers)
-    const ipLimit = await checkRateLimit('ip', clientIp)
-    if (!ipLimit.allowed) {
-      logger.info('❌ Per-IP rate limit:', ipLimit.reason)
-      return rateLimitResponse(ipLimit)
+    if (!request.headers.get('content-type')?.toLowerCase().startsWith('application/json')) {
+      return NextResponse.json({ error: 'Expected a JSON request.' }, { status: 415 })
     }
 
-    // STEP 3: Input validation
+    // STEP 2: Input validation
     const parseResult = parseJsonBody(bodyText)
     if (!parseResult.success) {
       return NextResponse.json(
@@ -65,13 +72,21 @@ export async function POST(request: NextRequest) {
     const validatedData = validation.data
     logger.info('✅ Validation passed')
 
-    // STEP 4: Cloudflare Turnstile
+    // STEP 3: Cloudflare Turnstile
+    const clientIp = getClientIp(request.headers)
     const isTurnstileValid = await verifyTurnstile(validatedData.turnstile, clientIp)
     if (!isTurnstileValid) {
       return NextResponse.json(
         { error: 'Verification failed. Please refresh the page and try again.' },
         { status: 400 }
       )
+    }
+
+    // STEP 4: Per-IP rate limit
+    const ipLimit = await checkRateLimit('ip', rateLimitIpKey(clientIp))
+    if (!ipLimit.allowed) {
+      logger.info('❌ Per-IP rate limit:', ipLimit.reason)
+      return rateLimitResponse(ipLimit)
     }
 
     // STEP 5: Site-wide daily limit
@@ -81,8 +96,13 @@ export async function POST(request: NextRequest) {
       return rateLimitResponse(globalLimit)
     }
 
-    // STEP 6: Send emails
-    const emailResult = await sendContactEmails(validatedData)
+    // STEP 6: Per-recipient auto-reply limit
+    const recipientLimit = await checkRateLimit('recipient', recipientKey(validatedData.email))
+    const autoReply = recipientLimit.allowed
+    if (!autoReply) logger.warn('⚠️ Skipping auto-reply:', recipientLimit.reason)
+
+    // STEP 7: Send emails
+    const emailResult = await sendContactEmails(validatedData, { autoReply })
 
     if (!emailResult.success) {
       return NextResponse.json(

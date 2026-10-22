@@ -143,10 +143,21 @@ export function getSubjectSpecificLine(subject: string): { html: string; text: s
   }
 }
 
+/**
+ * First name for the auto-reply greeting. The auto-reply goes to whatever
+ * address was typed, so the name is attacker-controlled text in our mail: a
+ * "name" like "www.evil-payday.com Offer" would arrive as a linked domain.
+ * Only a plain word (letters, apostrophes, hyphens) is used; otherwise "there".
+ */
+export function greetingName(name: string): string {
+  const first = name.trim().split(/\s+/)[0] ?? ''
+  return /^[\p{L}][\p{L}'-]{0,29}$/u.test(first) ? first : 'there'
+}
+
 export function createAutoReplyHtml(data: ContactFormData): string {
   // Escaped once, at interpolation below (escaping here too rendered names
   // like O'Brien as "O&#39;Brien" in the email).
-  const firstName = data.name.trim().split(/\s+/)[0] || 'there'
+  const firstName = greetingName(data.name)
   const subjectLine = getSubjectSpecificLine(data.subject)
   const subjectLabel = subjectOptions.find(opt => opt.value === data.subject)?.label || data.subject
   // Labels lead with an emoji ("🤝 Networking"); the header reads better

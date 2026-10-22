@@ -11,7 +11,9 @@ export const contactFormSchema = z.object({
     .string()
     .min(2, 'Name must be at least 2 characters')
     .max(50, 'Name must be less than 50 characters')
-    .regex(/^[a-zA-ZÀ-ÿ\u0100-\u017F\u0180-\u024F\u1E00-\u1EFF\s'-\.]+$/, 'Name contains invalid characters'),
+    // Letters, spaces, and the punctuation real names use (O'Brien, Jean-Luc,
+    // J. Smith). Plain spaces only: no newlines or tabs.
+    .regex(/^[a-zA-ZÀ-ÿ\u0100-\u017F\u0180-\u024F\u1E00-\u1EFF '.-]+$/, 'Name contains invalid characters'),
 
   email: z
     .email('Please enter a valid email address')

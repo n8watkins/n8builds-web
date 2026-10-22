@@ -15,6 +15,8 @@ vi.mock('@upstash/ratelimit', () => {
 vi.mock('@upstash/redis', () => ({ Redis: { fromEnv: vi.fn(() => ({})) } }))
 
 /** Fresh module per test: the limiter picks its backend once, on first use. */
+const { rateLimitIpKey, recipientKey } = await import('@/lib/security/rateLimiter')
+
 async function loadLimiter() {
   vi.resetModules()
   return import('@/lib/security/rateLimiter')
@@ -158,7 +160,7 @@ describe('Upstash-backed limiting', () => {
     upstashLimit.mockResolvedValue({ success: true })
     const { checkRateLimit } = await loadLimiter()
     await checkRateLimit('ip', '1.2.3.4')
-    expect(upstashPrefixes).toEqual(['contact:ip', 'contact:global'])
+    expect(upstashPrefixes).toEqual(['contact:ip', 'contact:global', 'contact:recipient'])
   })
 
   it('namespaces preview deployments away from production counters', async () => {
@@ -167,14 +169,14 @@ describe('Upstash-backed limiting', () => {
     upstashLimit.mockResolvedValue({ success: true })
     const { checkRateLimit } = await loadLimiter()
     await checkRateLimit('ip', '1.2.3.4')
-    expect(upstashPrefixes).toEqual(['contact:preview:ip', 'contact:preview:global'])
+    expect(upstashPrefixes).toEqual(['contact:preview:ip', 'contact:preview:global', 'contact:preview:recipient'])
   })
 
   it('namespaces local runs away from production counters', async () => {
     upstashLimit.mockResolvedValue({ success: true })
     const { checkRateLimit } = await loadLimiter()
     await checkRateLimit('ip', '1.2.3.4')
-    expect(upstashPrefixes).toEqual(['contact:local:ip', 'contact:local:global'])
+    expect(upstashPrefixes).toEqual(['contact:local:ip', 'contact:local:global', 'contact:local:recipient'])
   })
 
   it('never touches Upstash in test mode, even when it is configured', async () => {
@@ -210,5 +212,49 @@ describe('getClientIp', () => {
   it('returns "unknown" when no header is present', async () => {
     const { getClientIp } = await loadLimiter()
     expect(getClientIp(new Headers())).toBe('unknown')
+  })
+})
+
+describe('rateLimitIpKey', () => {
+  it('keeps IPv4 addresses as they are', () => {
+    expect(rateLimitIpKey('203.0.113.7')).toBe('203.0.113.7')
+  })
+
+  it('reduces IPv6 to its /64, so rotating the interface ID does not help', () => {
+    const a = rateLimitIpKey('2001:db8:abcd:12:1111:2222:3333:4444')
+    expect(a).toBe('2001:db8:abcd:12::/64')
+    expect(rateLimitIpKey('2001:db8:abcd:12::9')).toBe(a)
+    expect(rateLimitIpKey('2001:DB8:ABCD:0012:ffff::1')).toBe(a)
+    expect(rateLimitIpKey('2001:db8:abcd:13::1')).not.toBe(a)
+  })
+
+  it('expands :: in the prefix and ignores zone indexes', () => {
+    expect(rateLimitIpKey('2001:db8::1')).toBe('2001:db8:0:0::/64')
+    expect(rateLimitIpKey('fe80::1%eth0')).toBe('fe80:0:0:0::/64')
+  })
+
+  it('treats IPv4-mapped IPv6 as IPv4', () => {
+    expect(rateLimitIpKey('::ffff:203.0.113.7')).toBe('203.0.113.7')
+  })
+})
+
+describe('recipientKey', () => {
+  it('is the same for any casing or padding of one address, and hides it', () => {
+    const key = recipientKey('Someone@Example.com')
+    expect(recipientKey(' someone@example.com ')).toBe(key)
+    expect(recipientKey('other@example.com')).not.toBe(key)
+    expect(key).not.toContain('example')
+  })
+})
+
+describe('recipient limit', () => {
+  it('allows one auto-reply per address per day', async () => {
+    vi.stubEnv('NODE_ENV', 'production')
+    vi.stubEnv('CONTACT_TEST_MODE', '1')
+    const { checkRateLimit } = await loadLimiter()
+
+    expect(await checkRateLimit('recipient', 'a')).toEqual({ allowed: true })
+    expect(await checkRateLimit('recipient', 'a')).toEqual({ allowed: false, reason: 'limited' })
+    expect(await checkRateLimit('recipient', 'b')).toEqual({ allowed: true })
   })
 })

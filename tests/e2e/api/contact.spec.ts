@@ -93,12 +93,14 @@ test.describe('rate limiting', () => {
     expect(other.status()).toBe(200)
   })
 
-  test('invalid submissions count toward the per-IP limit', async ({ request }) => {
+  // Rate limits run only after validation and Turnstile, so junk requests never
+  // spend the Upstash quota (and can't lock a visitor out either).
+  test('invalid submissions never reach the per-IP limit', async ({ request }) => {
     const ip = uniqueIp()
-    for (let i = 0; i < 5; i++) await post(request, validForm({ name: '' }), ip)
+    for (let i = 0; i < 6; i++) expect((await post(request, validForm({ name: '' }), ip)).status()).toBe(400)
 
     const response = await post(request, validForm(), ip)
-    expect(response.status()).toBe(429)
+    expect(response.status()).toBe(200)
   })
 })
 
@@ -135,6 +137,14 @@ test.describe('input validation', () => {
     })
     expect(response.status()).toBe(400)
     expect((await response.json()).error).toBe('Invalid JSON in request body')
+  })
+
+  test('rejects a non-JSON content type with 415', async ({ request }) => {
+    const response = await request.post('/api/contact', {
+      headers: { 'x-real-ip': uniqueIp(), 'content-type': 'text/plain', origin: 'https://evil.example' },
+      data: Buffer.from(JSON.stringify(validForm())),
+    })
+    expect(response.status()).toBe(415)
   })
 
   test('rejects payloads over 10KB with 413', async ({ request }) => {

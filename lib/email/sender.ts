@@ -1,5 +1,5 @@
 import { getTransporter, EMAIL_CONFIG } from '@/lib/email/smtp'
-import { createContactEmailHtml, createAutoReplyHtml, getSubjectSpecificLine } from '@/lib/email/templates'
+import { createContactEmailHtml, createAutoReplyHtml, getSubjectSpecificLine, greetingName } from '@/lib/email/templates'
 import { EMAIL_ICONS } from '@/lib/email/icons'
 import { subjectOptions, type ContactFormData } from '@/lib/validations/contact'
 import { logger } from '@/lib/logger'
@@ -19,6 +19,8 @@ export interface EmailResult {
  * Handles both notification (to site owner) and auto-reply (to submitter)
  *
  * @param data - Validated contact form data
+ * @param options.autoReply - false sends only the owner notification (the
+ *   recipient has already had an auto-reply today)
  * @returns EmailResult with success status and email IDs or error message
  *
  * @example
@@ -29,7 +31,10 @@ export interface EmailResult {
  * }
  * ```
  */
-export async function sendContactEmails(data: ContactFormData): Promise<EmailResult> {
+export async function sendContactEmails(
+  data: ContactFormData,
+  { autoReply = true }: { autoReply?: boolean } = {}
+): Promise<EmailResult> {
   try {
     const transporter = getTransporter()
 
@@ -69,6 +74,10 @@ Sent from your portfolio contact form at ${new Date().toLocaleString()}
     logger.info('✅ Notification email sent successfully')
     logger.info('   Message ID:', notificationResult.messageId)
 
+    if (!autoReply) {
+      return { success: true, notificationId: notificationResult.messageId }
+    }
+
     // ========================================
     // STEP 2: Send auto-reply email to submitter
     // ========================================
@@ -94,7 +103,7 @@ Sent from your portfolio contact form at ${new Date().toLocaleString()}
         contentDisposition: 'inline' as const,
       })),
       text: `
-Hey ${data.name},
+Hey ${greetingName(data.name)},
 
 Appreciate you reaching out — I normally reply within 24 hours. Excited to hear more.
 

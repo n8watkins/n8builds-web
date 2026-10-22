@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { Ratelimit } from '@upstash/ratelimit'
 import { Redis } from '@upstash/redis'
 import { logger } from '@/lib/logger'
@@ -6,10 +7,13 @@ import { isContactTestMode } from '@/lib/security/testMode'
 /**
  * Contact-form rate limiting
  *
- * Two limits:
- * - Per IP: 5 submissions per hour (50 in `next dev`)
+ * Three limits:
+ * - Per IP: 5 submissions per hour (50 in `next dev`); IPv6 per /64, since
+ *   one subscriber usually holds a whole /64
  * - Site-wide: CONTACT_DAILY_LIMIT verified submissions per day (default 50),
  *   a backstop for the inbox and Gmail's sending quota
+ * - Per recipient: 1 auto-reply per address per day, keyed by a hash of the
+ *   address (no plain email in Redis)
  *
  * Production uses Upstash Redis so every serverless instance shares the same
  * counters. Without Upstash configured, production fails closed (rejects) rather
@@ -24,10 +28,12 @@ import { isContactTestMode } from '@/lib/security/testMode'
 
 const IP_WINDOW_MS = 60 * 60 * 1000
 const GLOBAL_WINDOW_MS = 24 * 60 * 60 * 1000
+const RECIPIENT_WINDOW_MS = 24 * 60 * 60 * 1000
+const RECIPIENT_LIMIT = 1
 const IP_LIMIT = process.env.NODE_ENV === 'development' ? 50 : 5
 const DEFAULT_GLOBAL_LIMIT = 50
 
-export type RateLimitScope = 'ip' | 'global'
+export type RateLimitScope = 'ip' | 'global' | 'recipient'
 
 export type RateLimitResult =
   | { allowed: true }
@@ -130,6 +136,7 @@ function memoryLimiters(): Record<RateLimitScope, Limiter> {
   return {
     ip: new MemoryLimiter(IP_LIMIT, IP_WINDOW_MS),
     global: new MemoryLimiter(globalLimit(), GLOBAL_WINDOW_MS),
+    recipient: new MemoryLimiter(RECIPIENT_LIMIT, RECIPIENT_WINDOW_MS),
   }
 }
 
@@ -143,22 +150,24 @@ function createLimiters(): Record<RateLimitScope, Limiter> {
     return {
       ip: new UpstashLimiter(redis, IP_LIMIT, '1 h', `${prefix}:ip`),
       global: new UpstashLimiter(redis, globalLimit(), '1 d', `${prefix}:global`),
+      recipient: new UpstashLimiter(redis, RECIPIENT_LIMIT, '1 d', `${prefix}:recipient`),
     }
   }
 
   if (process.env.NODE_ENV === 'development') return memoryLimiters()
 
   logger.error('Upstash Redis is not configured - contact form is disabled')
-  return { ip: unavailable, global: unavailable }
+  return { ip: unavailable, global: unavailable, recipient: unavailable }
 }
 
 let limiters: Record<RateLimitScope, Limiter> | null = null
 
 /**
- * Count one request against a limit.
- * - 'ip': call first, keyed by client IP, before any expensive work
- * - 'global': call only after Turnstile passes, so junk requests can't use up
- *   the site-wide daily allowance
+ * Count one request against a limit. Call only after Turnstile passes, so
+ * requests without a solved challenge never reach Redis.
+ * - 'ip': keyed by rateLimitIpKey()
+ * - 'global': keyed by 'all'
+ * - 'recipient': keyed by recipientKey(), before sending the auto-reply
  */
 export function checkRateLimit(scope: RateLimitScope, key: string): Promise<RateLimitResult> {
   limiters ??= createLimiters()
@@ -175,4 +184,32 @@ export function getClientIp(headers: Headers): string {
 
   const forwarded = headers.get('x-forwarded-for')?.split(',')[0]?.trim()
   return forwarded || 'unknown'
+}
+
+/**
+ * Rate-limit key for a client IP: IPv4 as is, IPv6 reduced to its /64 prefix.
+ * ISPs hand each subscriber a /64 (or larger), so per-address IPv6 limits are
+ * trivially bypassed by rotating the low 64 bits.
+ */
+export function rateLimitIpKey(ip: string): string {
+  if (!ip.includes(':')) return ip
+  // Drop a zone index, and an IPv4-mapped tail (::ffff:1.2.3.4 is just IPv4).
+  const address = ip.split('%')[0].toLowerCase()
+  const mapped = address.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/)
+  if (mapped) return mapped[1]
+
+  const [head, tail] = address.split('::')
+  const headParts = head ? head.split(':') : []
+  const tailParts = tail ? tail.split(':') : []
+  const groups =
+    tail === undefined ? headParts : [...headParts, ...Array(8 - headParts.length - tailParts.length).fill('0'), ...tailParts]
+  return `${groups
+    .slice(0, 4)
+    .map((g) => (parseInt(g, 16) || 0).toString(16))
+    .join(':')}::/64`
+}
+
+/** Rate-limit key for an auto-reply recipient: a hash of the normalized address. */
+export function recipientKey(email: string): string {
+  return createHash('sha256').update(email.trim().toLowerCase()).digest('hex').slice(0, 32)
 }
