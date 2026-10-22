@@ -17,7 +17,10 @@ const AnimatedGrid = () => {
   const gradId = useId()
 
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+    <div
+      className="absolute inset-0 overflow-hidden pointer-events-none [mask-image:linear-gradient(to_bottom,black_70%,transparent)]"
+      aria-hidden="true"
+    >
       <svg
         className="absolute inset-0 w-full h-full opacity-100"
         xmlns="http://www.w3.org/2000/svg"
@@ -81,7 +84,7 @@ const AnimatedGrid = () => {
 const Hero = () => {
   return (
     <div
-      className="relative flex flex-col min-h-[90vh] items-center justify-center bg-[#050812] overflow-hidden select-none"
+      className="relative flex flex-col min-h-[90vh] items-center justify-center bg-gradient-to-b from-[#050812] from-70% to-transparent overflow-hidden select-none"
       id="home"
     >
       <AnimatedGrid />
@@ -100,10 +103,10 @@ const Hero = () => {
         >
           <span className="flex items-center gap-1.5 text-green-400">
             <MdRadioButtonChecked className="w-3 h-3 animate-pulse" />
-            <span className="text-[0.72rem] font-bold tracking-widest uppercase">Live on GitHub</span>
+            <span className="whitespace-nowrap text-[0.72rem] font-bold tracking-widest uppercase">Live on GitHub</span>
           </span>
           <span className="text-white/20">·</span>
-          <span className="text-slate-400 text-[0.82rem]">Currently Building: <span className="text-cyan-400 font-semibold">{nowItems[0]?.project}</span></span>
+          <span className="whitespace-nowrap text-slate-400 text-[0.82rem]"><span className="hidden sm:inline">Currently </span>Building: <span className="text-cyan-400 font-semibold">{nowItems[0]?.project}</span></span>
           <span className="text-slate-475 text-xs group-hover:translate-x-0.5 transition-transform">→</span>
         </motion.a>
 
@@ -388,8 +391,10 @@ const Hero = () => {
 
           {/* Portrait */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
+            // No opacity fade: the server-rendered portrait (the page's LCP
+            // element) must be visible before hydration, not after it.
+            initial={{ scale: 0.95 }}
+            animate={{ scale: 1 }}
             transition={{ duration: 0.6, delay: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
             className="w-[14rem] h-[14rem] sm:w-[17rem] sm:h-[17rem] md:w-[19rem] md:h-[19rem] relative flex-shrink-0"
           >

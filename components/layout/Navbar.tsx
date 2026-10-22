@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { SiTwitch, SiYoutube } from 'react-icons/si'
@@ -18,6 +18,8 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [labOpen, setLabOpen] = useState(false)
+  // Set while Escape returns focus to the Lab link, so that focus doesn't reopen it.
+  const skipFocusOpen = useRef(false)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
@@ -96,11 +98,24 @@ const Navbar = () => {
               className="relative"
               onMouseEnter={() => setLabOpen(true)}
               onMouseLeave={() => setLabOpen(false)}
+              // Keyboard: close once focus moves past the menu, or on Escape.
+              onBlur={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setLabOpen(false)
+              }}
+              onKeyDown={(e) => {
+                if (e.key !== 'Escape' || !labOpen) return
+                setLabOpen(false)
+                skipFocusOpen.current = true
+                e.currentTarget.querySelector('a')?.focus()
+                skipFocusOpen.current = false
+              }}
             >
               <Link
                 href="/#lab"
                 onClick={(e) => goToSection(e, '/#lab')}
-                onFocus={() => setLabOpen(true)}
+                onFocus={() => {
+                  if (!skipFocusOpen.current) setLabOpen(true)
+                }}
                 aria-haspopup="true"
                 aria-expanded={labOpen}
                 className="flex items-center gap-1 px-3 py-2 text-sm text-slate-400 hover:text-slate-100 rounded-lg hover:bg-white/5 transition-all duration-150"

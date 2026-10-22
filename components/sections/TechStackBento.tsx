@@ -63,18 +63,18 @@ const TechStackBento = ({ showLink = true }: { showLink?: boolean }) => {
       </div>
 
       <div className="relative flex flex-col gap-3 overflow-hidden rounded-3xl border border-white/[0.06] bg-gradient-to-br from-[#081427] via-[#0a1a33] to-[#081427] py-8">
-        <Marquee pauseOnHover className="[--duration:50s]">
+        <Marquee label="Libraries and frameworks" pauseOnHover className="[--duration:50s]">
           {tech_libraries.map((t) => (
             <StackContainer key={t.name} name={t.name} icon={t.icon} description={t.description} />
           ))}
         </Marquee>
-        <Marquee reverse pauseOnHover className="[--duration:50s]">
+        <Marquee label="Tools and services" reverse pauseOnHover className="[--duration:50s]">
           {tech_tools.map((t) => (
             <StackContainer key={t.name} name={t.name} icon={t.icon} description={t.description} />
           ))}
         </Marquee>
-        <div className="pointer-events-none absolute left-0 h-full w-1/4 bg-gradient-to-r from-[#081427] to-transparent" />
-        <div className="pointer-events-none absolute right-0 h-full w-1/4 bg-gradient-to-l from-[#081427] to-transparent" />
+        <div className="pointer-events-none absolute left-0 h-full w-1/4 bg-gradient-to-r from-[#081427] to-transparent motion-reduce:hidden" />
+        <div className="pointer-events-none absolute right-0 h-full w-1/4 bg-gradient-to-l from-[#081427] to-transparent motion-reduce:hidden" />
       </div>
     </section>
   )

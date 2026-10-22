@@ -30,3 +30,27 @@ jobs:
             playwright-report/
             test-results/
           retention-days: 7
+
+  lighthouse:
+    name: Lighthouse
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Same test-mode build as the E2E suite: no email, analytics or Sentry.
+      CONTACT_TEST_MODE: '1'
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
+      TURNSTILE_SECRET_KEY: 1x0000000000000000000000000000000AA
+      NEXT_PUBLIC_SITE_URL: https://n8builds.dev
+      NEXT_PUBLIC_SANITY_PROJECT_ID: abgyc32w
+      LHCI_PORT: '3747'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      # Collects 3 runs per page, asserts the budgets in lighthouserc.js, and
+      # uploads the reports to temporary public storage (links in the log).
+      - run: npm run lighthouse

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import { FiGithub, FiExternalLink, FiActivity, FiChevronLeft, FiChevronRight, FiArrowUpRight } from 'react-icons/fi'
 import { MdRadioButtonChecked } from 'react-icons/md'
 import { nowItems, type NowState } from '@/data/now'
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 
 const statusStyles: Record<NowState['status'], string> = {
   prototype: 'text-amber-400 border-amber-400/30 bg-amber-400/10',
@@ -86,6 +87,7 @@ const NowBuilding = () => {
   const [dir, setDir] = useState(1)
   const [paused, setPaused] = useState(false)
   const count = nowItems.length
+  const reduceMotion = usePrefersReducedMotion()
 
   const go = (next: number, d: number) => {
     setDir(d)
@@ -93,13 +95,13 @@ const NowBuilding = () => {
   }
 
   useEffect(() => {
-    if (paused || count <= 1) return
+    if (paused || reduceMotion || count <= 1) return
     const t = setInterval(() => {
       setDir(1)
       setIndex((i) => (i + 1) % count)
     }, CYCLE_MS)
     return () => clearInterval(t)
-  }, [paused, count])
+  }, [paused, reduceMotion, count])
 
   return (
     <section id="now" aria-label="Currently building" className="py-16">
@@ -137,16 +139,22 @@ const NowBuilding = () => {
         {count > 1 && (
           <div className="mt-6 flex items-center justify-between border-t border-white/[0.06] pt-4">
             {/* dots */}
-            <div className="flex items-center gap-2">
+            <div className="-ml-2 flex items-center">
               {nowItems.map((item, i) => (
+                // 24px hit area (WCAG 2.5.8) around the small visual dot.
                 <button
                   key={item.project}
                   onClick={() => go(i, i > index ? 1 : -1)}
                   aria-label={`Show ${item.project}`}
-                  className={`h-2 rounded-full transition-all duration-200 ${
-                    i === index ? 'w-6 bg-cyan-400' : 'w-2 bg-white/15 hover:bg-white/30'
-                  }`}
-                />
+                  aria-current={i === index ? 'true' : undefined}
+                  className="group flex h-6 min-w-6 items-center justify-center px-1"
+                >
+                  <span
+                    className={`block h-2 rounded-full transition-all duration-200 ${
+                      i === index ? 'w-6 bg-cyan-400' : 'w-2 bg-white/15 group-hover:bg-white/30'
+                    }`}
+                  />
+                </button>
               ))}
             </div>
             {/* arrows */}

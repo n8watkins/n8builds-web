@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { FiArrowLeft, FiArrowUpRight, FiGithub } from 'react-icons/fi'
+import Navbar from '@/components/layout/Navbar'
 import { builds, getBuild } from '@/data/builds'
 import { shelfMeta, getShelf } from '@/data/shelves'
 
@@ -41,7 +42,8 @@ export default async function BuildPage({ params }: BuildPageProps) {
 
   return (
     <main className="relative min-h-screen bg-[#050812] text-slate-100">
-      <div className="max-w-4xl mx-auto px-5 sm:px-8 py-10 md:py-16">
+      <Navbar />
+      <div className="max-w-4xl mx-auto px-5 sm:px-8 pt-28 pb-10 md:pt-32 md:pb-16">
         {/* Top nav */}
         <Link
           href={`/#${shelf.slug}`}

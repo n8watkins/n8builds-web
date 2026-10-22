@@ -39,11 +39,15 @@ export default function NotionsList({ posts }: { posts: Post[] }) {
       )}
 
       {visible.length > 0 ? (
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {visible.map((p) => (
-            <PostCard key={p._id} post={p} />
-          ))}
-        </div>
+        <>
+          {/* Keeps heading levels sequential: page h1 -> list h2 -> card h3. */}
+          <h2 className="sr-only">{active ? `Notes tagged ${active}` : 'All notes'}</h2>
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {visible.map((p) => (
+              <PostCard key={p._id} post={p} />
+            ))}
+          </div>
+        </>
       ) : (
         <p className="mt-16 text-center font-mono text-sm text-slate-475">
           {'// nothing here yet — more notes soon.'}

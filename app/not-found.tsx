@@ -1,8 +1,10 @@
 import Link from 'next/link'
+import Navbar from '@/components/layout/Navbar'
 
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-[#050812] flex items-center justify-center">
+      <Navbar />
       <div className="text-center px-5">
         <h1 className="text-6xl font-bold mb-4">
           <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">404</span>

@@ -24,7 +24,7 @@ const AppturnityLogo = () => (
 
 const Footer = () => {
   return (
-    <footer className="xl:max-w-5xl pt-0 pb-12">
+    <footer className="mx-auto xl:max-w-5xl pt-0 pb-12">
       {/* Background grid */}
       <div className="w-full absolute left-0 1sm:-translate-y-52 -bottom-72 min-h-96 pointer-events-none">
         <Image
@@ -41,7 +41,7 @@ const Footer = () => {
         <motion.div
           variants={fadeInVariants}
           {...defaultAnimationConfig}
-          className="w-full max-w-5xl mx-auto mb-12 px-4">
+          className="w-full max-w-5xl mx-auto mb-12 sm:px-4">
           <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#08152a] via-[#0a1a33] to-[#07101f] shadow-2xl">
             {/* decorative glows + grid */}
             <div aria-hidden className="pointer-events-none absolute inset-0">
@@ -52,7 +52,7 @@ const Footer = () => {
             {/* top accent line */}
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-400" />
 
-            <div className="relative grid gap-8 p-7 md:grid-cols-[0.9fr_1.1fr] md:p-10">
+            <div className="relative grid gap-8 p-5 sm:p-7 md:grid-cols-[0.9fr_1.1fr] md:p-10">
               {/* Left — branded panel */}
               <div className="flex flex-col gap-5">
                 <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] px-3 py-1 text-xs font-semibold text-slate-300">
@@ -90,10 +90,10 @@ const Footer = () => {
                 {/* socials */}
                 <div className="mt-auto flex items-center gap-2">
                   {[
-                    { href: 'https://github.com/n8watkins', label: 'GitHub', icon: <FiGithub className="w-4.5 h-4.5" /> },
+                    { href: 'https://github.com/n8watkins', label: 'GitHub', icon: <FiGithub className="w-[1.125rem] h-[1.125rem]" /> },
                     { href: 'https://x.com/n8watkins', label: 'X (Twitter)', icon: <FaXTwitter className="w-4 h-4" /> },
-                    { href: 'https://www.linkedin.com/in/n8watkins/', label: 'LinkedIn', icon: <CiLinkedin className="w-5 h-5" /> },
-                    { href: 'mailto:nathancwatkins23@gmail.com', label: 'Email', icon: <FiMail className="w-4.5 h-4.5" /> },
+                    { href: 'https://www.linkedin.com/in/n8watkins/', label: 'LinkedIn', icon: <CiLinkedin className="w-[1.35rem] h-[1.35rem]" /> },
+                    { href: 'mailto:nathancwatkins23@gmail.com', label: 'Email', icon: <FiMail className="w-[1.125rem] h-[1.125rem]" /> },
                   ].map(s => (
                     <a
                       key={s.label}
@@ -110,7 +110,7 @@ const Footer = () => {
               </div>
 
               {/* Right — form */}
-              <div className="relative rounded-2xl border border-white/10 bg-[#050c18]/60 p-5 backdrop-blur-sm sm:p-6">
+              <div className="relative rounded-2xl border border-white/10 bg-[#050c18]/60 p-4 backdrop-blur-sm sm:p-6">
                 <ContactFormErrorBoundary>
                   <ContactForm />
                 </ContactFormErrorBoundary>
@@ -127,7 +127,7 @@ const Footer = () => {
         <motion.div
           variants={fadeInVariants}
           {...defaultAnimationConfig}
-          className="w-full max-w-4xl mx-auto mb-10 px-4">
+          className="w-full max-w-4xl mx-auto mb-10 sm:px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6 rounded-2xl border border-white/10 bg-white/3 dark:bg-slate-900/40 backdrop-blur-sm">
             {/* Left */}
             <div className="text-center md:text-left max-w-xs">
@@ -212,11 +212,11 @@ const Footer = () => {
           </a>
           <a href="https://x.com/n8watkins" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"
             className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors duration-200">
-            <FaXTwitter className="w-4.5 h-4.5 text-slate-400 hover:text-slate-200 transition-colors" aria-hidden="true" />
+            <FaXTwitter className="w-[1.125rem] h-[1.125rem] text-slate-400 hover:text-slate-200 transition-colors" aria-hidden="true" />
           </a>
           <a href="https://www.linkedin.com/in/n8watkins/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"
             className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors duration-200">
-            <CiLinkedin className="w-5.5 h-5.5 text-slate-400 hover:text-slate-200 transition-colors" aria-hidden="true" />
+            <CiLinkedin className="w-6 h-6 text-slate-400 hover:text-slate-200 transition-colors" aria-hidden="true" />
           </a>
           <a href="mailto:nathancwatkins23@gmail.com" aria-label="Email"
             className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors duration-200">

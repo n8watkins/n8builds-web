@@ -16,6 +16,19 @@
     }
   }
 
+  /* Reduced motion: stop decorative CSS animation (marquees, aurora, pulses,
+     spinners) site-wide. Each animation runs one near-instant iteration, so
+     anything that animates in still lands on its final state. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
   body {
     @apply bg-background text-foreground;
     overflow-y: scroll;
@@ -58,7 +71,8 @@
   .dark {
     --scrollbar-thumb: #4a5fa8;
     --scrollbar-track: #050812;
-    --background: 240 10% 3.9%;
+    /* Site navy (#050812), so the canvas below short pages matches them. */
+    --background: 226 57% 4.5%;
     --foreground: 0 0% 98%;
 
     --card: 240 10% 3.9%;

@@ -31,6 +31,13 @@ const config = {
         light: 'hsl(196, 98%, 67%)',
         dark: '#000319',
       },
+      // Opacity steps the UI uses (white/3, white/8, white/12) that are not in
+      // Tailwind 3's default scale; without them those classes emit no CSS.
+      opacity: {
+        3: '0.03',
+        8: '0.08',
+        12: '0.12',
+      },
       screens: {
         '1sm': '320px',
         '1md': '375px',
