@@ -21,11 +21,36 @@ const Navbar = () => {
   // Set while Escape returns focus to the Lab link, so that focus doesn't reopen it.
   const skipFocusOpen = useRef(false)
 
+  const menuButton = useRef<HTMLButtonElement>(null)
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  // The open mobile menu is an overlay: the page behind it doesn't scroll,
+  // Escape closes it (focus returns to the toggle), and so does widening the
+  // window past the breakpoint where the menu stops existing.
+  useEffect(() => {
+    if (!mobileOpen) return
+    const { overflow } = document.body.style
+    document.body.style.overflow = 'hidden'
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      setMobileOpen(false)
+      menuButton.current?.focus()
+    }
+    const desktop = window.matchMedia('(min-width: 64rem)')
+    const onWiden = () => desktop.matches && setMobileOpen(false)
+    window.addEventListener('keydown', onKey)
+    desktop.addEventListener('change', onWiden)
+    return () => {
+      document.body.style.overflow = overflow
+      window.removeEventListener('keydown', onKey)
+      desktop.removeEventListener('change', onWiden)
+    }
+  }, [mobileOpen])
 
   // Smooth-scroll to a homepage section when a "/#id" nav link is clicked while
   // already on the homepage. next/link's same-page hash scroll is unreliable, so
@@ -77,11 +102,11 @@ const Navbar = () => {
       >
         <div className="max-w-6xl mx-auto px-5 sm:px-8 h-[68px] flex items-center justify-between gap-6">
           {/* Brand */}
-          <a href="#" className="flex items-center gap-2.5 shrink-0 group">
+          <Link href="/" aria-label="n8builds.dev home" className="flex items-center gap-2.5 shrink-0 group">
             <div className="w-9 h-9 rounded-xl overflow-hidden ring-1 ring-white/10 group-hover:ring-white/20 transition-all duration-200">
               <Image
                 src="/tab/n8-logo.png"
-                alt="n8builds"
+                alt=""
                 width={36}
                 height={36}
                 className="w-full h-full object-cover"
@@ -90,10 +115,12 @@ const Navbar = () => {
             <span className="font-bold text-slate-100 tracking-tight text-[0.95rem] hidden sm:block">
               n8builds.dev
             </span>
-          </a>
+          </Link>
 
-          {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-1">
+          {/* Desktop nav. From lg up: below that the links and the right-hand
+              buttons don't fit on one row (tablets got the Appturnity CTA
+              pushed off-screen), so the menu button takes over. */}
+          <div className="hidden lg:flex items-center gap-1">
             {/* Lab dropdown */}
             <div
               className="relative"
@@ -201,9 +228,13 @@ const Navbar = () => {
             </a>
             {/* Mobile toggle */}
             <button
-              className="md:hidden w-9 h-9 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/8 transition-colors"
+              ref={menuButton}
+              type="button"
+              className="lg:hidden w-11 h-11 -mr-1.5 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/8 transition-colors"
               onClick={() => setMobileOpen((v) => !v)}
-              aria-label="Toggle menu"
+              aria-label="Menu"
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-menu"
             >
               {mobileOpen ? <FiX className="w-5 h-5" /> : <FiMenu className="w-5 h-5" />}
             </button>
@@ -215,11 +246,25 @@ const Navbar = () => {
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
+            key="backdrop"
+            aria-hidden
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            onClick={() => setMobileOpen(false)}
+            className="fixed inset-0 top-[68px] z-40 bg-black/50 lg:hidden"
+          />
+        )}
+        {mobileOpen && (
+          <motion.div
+            key="menu"
+            id="mobile-menu"
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.18 }}
-            className="fixed top-[68px] left-0 right-0 z-40 bg-darkBlue/96 backdrop-blur-2xl border-b border-white/[0.07] px-5 py-4 flex flex-col gap-1 md:hidden"
+            className="fixed top-[68px] left-0 right-0 z-40 max-h-[calc(100dvh-68px)] overflow-y-auto overscroll-contain bg-darkBlue/96 backdrop-blur-2xl border-b border-white/[0.07] px-5 py-4 flex flex-col gap-1 lg:hidden"
           >
             {/* Lab group */}
             <p className="px-3 pt-1 pb-1 text-[0.65rem] font-bold uppercase tracking-wider text-slate-475">
@@ -264,6 +309,7 @@ const Navbar = () => {
               href="https://portfolio.n8builds.dev"
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => setMobileOpen(false)}
               className="px-3 py-2.5 text-sm text-slate-400 hover:text-slate-100 rounded-lg hover:bg-white/5 transition-colors"
             >
               Portfolio ↗
