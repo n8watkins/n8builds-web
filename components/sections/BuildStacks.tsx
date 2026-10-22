@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 import { buildStacks, type BuildStack } from '@/data/buildStacks'
 
 const accentMap: Record<BuildStack['accent'], { bar: string; text: string }> = {

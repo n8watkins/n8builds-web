@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import Image from 'next/image'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'motion/react'
 
 import { techNameMapping } from '@/data/projects'
 import { Technologies, TechNameMappingInterface } from '@/lib/types'

@@ -1,14 +1,17 @@
 'use client'
 
-import React from 'react'
-import { motion } from 'framer-motion'
-import Lottie from 'lottie-react'
+import React, { useEffect } from 'react'
+import { motion } from 'motion/react'
+import { preloadConfetti } from './ContactFormSuccess'
 // TODO: Download a loading animation from https://lottiefiles.com/free-animations/send-mail
 // and save it as /data/loading-email.json
 // For now, we'll show a placeholder
 // import loadingData from '@/data/loading-email.json'
 
 export function ContactFormLoading() {
+  // Fetch the success confetti while the message is sending.
+  useEffect(preloadConfetti, [])
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.8 }}

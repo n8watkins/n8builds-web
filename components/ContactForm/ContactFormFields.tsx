@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { UseFormReturn } from 'react-hook-form'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'motion/react'
 import { Turnstile } from '@marsidev/react-turnstile'
 import { ContactInput } from '@/components/ui/ContactInput'
 import { ContactSelect } from '@/components/ui/ContactSelect'

@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 import { FiGithub, FiExternalLink } from 'react-icons/fi'
 import { defaultAnimationConfig } from '@/lib/animations'
 import TechStackCycle from '@/components/Projects/TechStackCycle'
