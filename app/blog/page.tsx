@@ -1,21 +1,15 @@
-import type { Metadata } from 'next'
 import Navbar from '@/components/layout/Navbar'
 import NotionsList from '@/components/blog/NotionsList'
 import { getAllPosts } from '@/lib/sanity'
+import { pageMetadata } from '@/lib/seo'
 
 export const revalidate = 3600
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'N8 Notions — n8builds',
   description: 'Notes, essays, and build logs from n8 — building software in public.',
-  alternates: { canonical: '/blog' },
-  openGraph: {
-    title: 'N8 Notions — n8builds',
-    description: 'Notes, essays, and build logs from n8 — building software in public.',
-    url: '/blog',
-    type: 'website',
-  },
-}
+  path: '/blog',
+})
 
 export default async function BlogIndexPage() {
   const posts = await getAllPosts()

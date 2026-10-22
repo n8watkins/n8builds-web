@@ -7,6 +7,7 @@ import ErrorBoundary from '@/components/ErrorBoundary'
 import { WebVitals } from './web-vitals'
 import { WebVitalsHUD } from '@/components/WebVitalsHUD'
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import { DEFAULT_PREVIEW, SITE_NAME, SITE_URL } from '@/lib/seo'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -16,34 +17,26 @@ const inter = Inter({
   fallback: ['system-ui', 'arial']
 })
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://n8builds.dev'
-const siteName = 'n8builds'
+const description = 'Apps, AI tools, Chrome extensions, local utilities, and build logs — all in public.'
 
+// Site-wide defaults. Each page replaces title, description, canonical, and the
+// share cards through pageMetadata() (lib/seo.ts); these cover anything else,
+// such as the 404 page, without claiming the homepage's URL.
 export const metadata: Metadata = {
-  title: `${siteName} — Public Builder Lab`,
-  description: 'Apps, AI tools, Chrome extensions, local utilities, and build logs — all in public.',
+  metadataBase: new URL(SITE_URL),
+  title: `${SITE_NAME} — Public Builder Lab`,
+  description,
   keywords: ['Nathan Watkins', 'n8builds', 'Public Builder', 'Next.js', 'AI Tools', 'Chrome Extensions'],
   robots: 'index, follow',
   openGraph: {
-    title: `${siteName} — Public Builder Lab`,
-    description: 'Apps, AI tools, Chrome extensions, local utilities, and build logs — all in public.',
-    url: siteUrl,
-    siteName: siteName,
-    images: [
-      {
-        url: `${siteUrl}/tab/preview.png`,
-        width: 1200,
-        height: 630,
-        alt: 'n8builds Preview',
-      },
-    ],
+    siteName: SITE_NAME,
+    locale: 'en_US',
     type: 'website',
+    images: [DEFAULT_PREVIEW],
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${siteName} — Public Builder Lab`,
-    description: 'Building software in public. Apps, tools, experiments, and build logs.',
-    images: [`${siteUrl}/tab/preview.png`],
+    images: [DEFAULT_PREVIEW],
     creator: '@n8watkins',
   },
   icons: {
@@ -53,7 +46,6 @@ export const metadata: Metadata = {
     ],
     apple: '/tab/apple-icon.png',
   },
-  metadataBase: new URL(siteUrl),
 };
 
 export default function RootLayout({

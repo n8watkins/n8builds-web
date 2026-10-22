@@ -6,6 +6,7 @@ import { FiArrowLeft, FiArrowUpRight, FiGithub } from 'react-icons/fi'
 import Navbar from '@/components/layout/Navbar'
 import { builds, getBuild } from '@/data/builds'
 import { shelfMeta, getShelf } from '@/data/shelves'
+import { pageMetadata, summarize } from '@/lib/seo'
 
 interface BuildPageProps {
   params: Promise<{ slug: string }>
@@ -20,17 +21,13 @@ export async function generateMetadata({ params }: BuildPageProps): Promise<Meta
   const build = getBuild(slug)
   if (!build) return { title: 'Build not found — n8builds' }
 
-  const title = `${build.name} — n8builds`
-  const description = `${build.tagline}. ${build.solution}`
-  return {
-    title,
-    description: description.slice(0, 160),
-    openGraph: {
-      title,
-      description: build.tagline,
-      images: build.images[0] ? [{ url: build.images[0].src, alt: build.images[0].alt }] : undefined,
-    },
-  }
+  return pageMetadata({
+    title: `${build.name} — n8builds`,
+    description: summarize(build.solution),
+    shareDescription: build.tagline,
+    path: `/builds/${slug}`,
+    image: { url: `/builds/${slug}/og.png`, width: 1200, height: 630, alt: `${build.name}: ${build.tagline}` },
+  })
 }
 
 export default async function BuildPage({ params }: BuildPageProps) {

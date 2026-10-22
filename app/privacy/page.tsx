@@ -1,11 +1,11 @@
-import type { Metadata } from 'next'
 import Navbar from '@/components/layout/Navbar'
+import { pageMetadata } from '@/lib/seo'
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Privacy Policy — n8builds',
   description: 'How n8builds.dev collects, uses, and protects your information.',
-  robots: 'index, follow',
-}
+  path: '/privacy',
+})
 
 const UPDATED = 'June 25, 2026'
 

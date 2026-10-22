@@ -9,6 +9,7 @@ import PostCard from '@/components/blog/PostCard'
 import { PortableTextRenderer } from '@/components/blog/portable-text'
 import { formatPostDate } from '@/lib/blog-utils'
 import { getAllPosts, getPostBySlug, getRelatedPosts } from '@/lib/sanity'
+import { pageMetadata, summarize } from '@/lib/seo'
 
 export const revalidate = 3600
 
@@ -26,25 +27,21 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
   const post = await getPostBySlug(slug)
   if (!post) return { title: 'Not found — n8builds' }
 
-  const title = `${post.title} — n8builds`
-  const description =
-    post.seoDescription?.slice(0, 200) ?? post.excerpt?.slice(0, 160) ?? 'A note from N8 Notions.'
-  const ogImage = post.seoOgUrl ?? post.coverUrl
-  return {
-    title,
-    description,
-    alternates: { canonical: `/blog/${slug}` },
-    openGraph: {
-      title,
-      description,
-      url: `/blog/${slug}`,
-      type: 'article',
-      publishedTime: post.publishedAt,
-      authors: post.author ? [post.author] : undefined,
-      images: ogImage ? [{ url: ogImage }] : undefined,
+  // An uploaded SEO image or cover wins (cropped to card size by Sanity's CDN);
+  // otherwise the post's generated share card.
+  const uploaded = post.seoOgUrl || post.coverUrl
+  return pageMetadata({
+    title: `${post.title} — n8builds`,
+    description: summarize(post.seoDescription || post.excerpt || 'A note from N8 Notions.'),
+    path: `/blog/${slug}`,
+    image: {
+      url: uploaded ? `${uploaded}?w=1200&h=630&fit=crop&fm=jpg` : `/blog/${slug}/og.png`,
+      width: 1200,
+      height: 630,
+      alt: post.coverAlt || post.title,
     },
-    twitter: { card: 'summary_large_image', title, description },
-  }
+    article: { publishedTime: post.publishedAt, authors: post.author ? [post.author] : undefined },
+  })
 }
 
 export default async function PostPage({ params }: PostPageProps) {
