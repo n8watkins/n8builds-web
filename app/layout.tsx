@@ -27,7 +27,6 @@ export const metadata: Metadata = {
   title: `${SITE_NAME} — Public Builder Lab`,
   description,
   keywords: ['Nathan Watkins', 'n8builds', 'Public Builder', 'Next.js', 'AI Tools', 'Chrome Extensions'],
-  robots: 'index, follow',
   openGraph: {
     siteName: SITE_NAME,
     locale: 'en_US',

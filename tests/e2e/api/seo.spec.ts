@@ -88,3 +88,47 @@ test('an unknown post has no preview image route', async ({ request }) => {
   const response = await request.get('/blog/no-such-post-anywhere/og.png')
   expect(response.status()).toBe(404)
 })
+
+test('404 pages are noindex only, with their own title', async ({ request }) => {
+  for (const path of ['/no-such-page', '/builds/no-such-build', '/blog/no-such-post']) {
+    const response = await request.get(path)
+    expect(response.status(), path).toBe(404)
+    const html = await response.text()
+    const robots = [...html.matchAll(/<meta name="robots" content="([^"]*)"/g)].map((m) => m[1])
+    expect(robots, `${path} robots`).toEqual(['noindex'])
+    expect(html, `${path} title`).toContain('<title>Not found — n8builds</title>')
+  }
+})
+
+test('an unknown build is a server-rendered 404, not an empty shell', async ({ request }) => {
+  const html = await (await request.get('/builds/no-such-build')).text()
+  expect(html).toContain('<html lang="en"')
+  expect(html).toContain('Nothing in the lab at this address')
+})
+
+test('the sitemap dates only posts, by their last edit', async ({ request }) => {
+  const xml = await (await request.get('/sitemap.xml')).text()
+  // Only posts (and the blog index) carry a real modification date.
+  const dated = [...xml.matchAll(/<url>\s*<loc>([^<]+)<\/loc>\s*<lastmod>/g)].map((m) => m[1])
+  expect(dated.length).toBeGreaterThan(1)
+  for (const url of dated) expect(url, 'only blog URLs have lastmod').toMatch(/\/blog(\/|$)/)
+})
+
+function jsonLd(html: string): Record<string, unknown>[] {
+  return [...html.matchAll(/<script type="application\/ld\+json">([^<]*)<\/script>/g)].map((m) => JSON.parse(m[1]))
+}
+
+test('the homepage describes the site and its author as structured data', async ({ request }) => {
+  const [data] = jsonLd(await (await request.get('/')).text())
+  const types = (data['@graph'] as { '@type': string }[]).map((node) => node['@type'])
+  expect(types).toEqual(['WebSite', 'Person'])
+})
+
+test('a blog post is a BlogPosting with its share image', async ({ request }) => {
+  const post = (await sitemapUrls(request)).find((url) => url.includes('/blog/'))!
+  const html = await (await request.get(local(post))).text()
+  const [data] = jsonLd(html)
+  expect(data).toMatchObject({ '@type': 'BlogPosting', url: post, mainEntityOfPage: post, image: meta(html, 'property', 'og:image') })
+  expect(data.headline).toBeTruthy()
+  expect(data.datePublished).toBeTruthy()
+})

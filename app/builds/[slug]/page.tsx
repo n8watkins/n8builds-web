@@ -12,6 +12,9 @@ interface BuildPageProps {
   params: Promise<{ slug: string }>
 }
 
+// The builds list is static: any other slug is a plain 404.
+export const dynamicParams = false
+
 export function generateStaticParams() {
   return builds.map(b => ({ slug: b.slug }))
 }
@@ -19,7 +22,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: BuildPageProps): Promise<Metadata> {
   const { slug } = await params
   const build = getBuild(slug)
-  if (!build) return { title: 'Build not found — n8builds' }
+  if (!build) notFound()
 
   return pageMetadata({
     title: `${build.name} — n8builds`,

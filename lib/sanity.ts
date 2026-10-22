@@ -18,6 +18,7 @@ export const sanity = createClient({
 
 export type Post = {
   _id: string
+  _updatedAt: string
   title: string
   slug: { current: string }
   publishedAt: string
@@ -36,7 +37,7 @@ export type Post = {
 // Card fields. The cover image asset is dereferenced to a plain CDN URL in GROQ
 // so client components never need @sanity/client or @sanity/image-url.
 const POST_CARD = `
-  _id, title, slug, publishedAt, topics, excerpt,
+  _id, _updatedAt, title, slug, publishedAt, topics, excerpt,
   "coverUrl": coverImage.asset->url,
   "coverAlt": coverImage.alt
 `

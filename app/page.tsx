@@ -1,5 +1,6 @@
 import HomePage from '@/components/HomePage'
-import { pageMetadata } from '@/lib/seo'
+import JsonLd from '@/components/JsonLd'
+import { pageMetadata, siteJsonLd } from '@/lib/seo'
 
 export const metadata = pageMetadata({
   title: 'n8builds — Public Builder Lab',
@@ -9,5 +10,10 @@ export const metadata = pageMetadata({
 })
 
 export default function Home() {
-  return <HomePage />
+  return (
+    <>
+      <JsonLd data={siteJsonLd} />
+      <HomePage />
+    </>
+  )
 }

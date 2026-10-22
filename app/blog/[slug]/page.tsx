@@ -8,8 +8,9 @@ import CoverBanner from '@/components/blog/CoverBanner'
 import PostCard from '@/components/blog/PostCard'
 import { PortableTextRenderer } from '@/components/blog/portable-text'
 import { formatPostDate } from '@/lib/blog-utils'
-import { getAllPosts, getPostBySlug, getRelatedPosts } from '@/lib/sanity'
-import { pageMetadata, summarize } from '@/lib/seo'
+import JsonLd from '@/components/JsonLd'
+import { getAllPosts, getPostBySlug, getRelatedPosts, type Post } from '@/lib/sanity'
+import { blogPostingJsonLd, pageMetadata, summarize, type PreviewImage } from '@/lib/seo'
 
 export const revalidate = 3600
 
@@ -22,24 +23,32 @@ export async function generateStaticParams() {
   return posts.map((p) => ({ slug: p.slug.current }))
 }
 
+const postDescription = (post: Post) => summarize(post.seoDescription || post.excerpt || 'A note from N8 Notions.')
+
+/**
+ * The post's share image: an uploaded SEO image or cover (cropped to card size
+ * by Sanity's CDN), otherwise its generated card (og.png/route.tsx).
+ */
+function postPreview(post: Post): PreviewImage {
+  const uploaded = post.seoOgUrl || post.coverUrl
+  return {
+    url: uploaded ? `${uploaded}?w=1200&h=630&fit=crop&fm=jpg` : `/blog/${post.slug.current}/og.png`,
+    width: 1200,
+    height: 630,
+    alt: post.coverAlt || post.title,
+  }
+}
+
 export async function generateMetadata({ params }: PostPageProps): Promise<Metadata> {
   const { slug } = await params
   const post = await getPostBySlug(slug)
-  if (!post) return { title: 'Not found — n8builds' }
+  if (!post) notFound()
 
-  // An uploaded SEO image or cover wins (cropped to card size by Sanity's CDN);
-  // otherwise the post's generated share card.
-  const uploaded = post.seoOgUrl || post.coverUrl
   return pageMetadata({
     title: `${post.title} — n8builds`,
-    description: summarize(post.seoDescription || post.excerpt || 'A note from N8 Notions.'),
+    description: postDescription(post),
     path: `/blog/${slug}`,
-    image: {
-      url: uploaded ? `${uploaded}?w=1200&h=630&fit=crop&fm=jpg` : `/blog/${slug}/og.png`,
-      width: 1200,
-      height: 630,
-      alt: post.coverAlt || post.title,
-    },
+    image: postPreview(post),
     article: { publishedTime: post.publishedAt, authors: post.author ? [post.author] : undefined },
   })
 }
@@ -53,6 +62,16 @@ export default async function PostPage({ params }: PostPageProps) {
 
   return (
     <>
+      <JsonLd
+        data={blogPostingJsonLd({
+          title: post.title,
+          description: postDescription(post),
+          path: `/blog/${slug}`,
+          image: postPreview(post).url,
+          publishedAt: post.publishedAt,
+          updatedAt: post._updatedAt,
+        })}
+      />
       <Navbar />
       <main id="main-content" tabIndex={-1} className="relative min-h-screen bg-darkBlue text-slate-100 focus:outline-none">
         <article className="mx-auto max-w-3xl px-5 pb-20 pt-28 sm:px-8 md:pt-32">

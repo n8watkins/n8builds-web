@@ -1,54 +1,39 @@
 import { MetadataRoute } from 'next'
 import { builds } from '@/data/builds'
 import { getAllPosts } from '@/lib/sanity'
+import { SITE_URL } from '@/lib/seo'
+
+// Refreshed hourly, like /blog, so new posts appear without a deploy. A Sanity
+// error throws on purpose: during a revalidation Next keeps serving the last
+// good sitemap instead of one with every post missing.
+export const revalidate = 3600
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://n8builds.dev'
+  const posts = await getAllPosts()
+  const latestPostEdit = posts.map((p) => p._updatedAt).sort().at(-1)
 
-  // Shelves now live as sections on the homepage (no standalone pages); only
-  // /loadout remains its own route.
-  const shelfRoutes = ['loadout']
-
-  // N8 Notions posts (read from Sanity). Tolerate Sanity being unreachable at
-  // build time — still emit the rest of the sitemap.
-  let postEntries: MetadataRoute.Sitemap = []
-  try {
-    const posts = await getAllPosts()
-    postEntries = posts.map((post) => ({
-      url: `${baseUrl}/blog/${post.slug.current}`,
-      lastModified: new Date(post.publishedAt),
-      changeFrequency: 'monthly' as const,
-      priority: 0.7,
-    }))
-  } catch {
-    // Sanity unreachable — skip post URLs this build.
-  }
-
+  // Pages without a real modification date leave lastModified out rather
+  // than claiming the build time, which teaches crawlers to ignore it.
   return [
+    { url: SITE_URL, changeFrequency: 'weekly', priority: 1 },
+    { url: `${SITE_URL}/loadout`, changeFrequency: 'monthly', priority: 0.8 },
     {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 1,
-    },
-    ...shelfRoutes.map((route) => ({
-      url: `${baseUrl}/${route}`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    })),
-    {
-      url: `${baseUrl}/blog`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly' as const,
+      url: `${SITE_URL}/blog`,
+      lastModified: latestPostEdit ? new Date(latestPostEdit) : undefined,
+      changeFrequency: 'weekly',
       priority: 0.8,
     },
     ...builds.map((build) => ({
-      url: `${baseUrl}/builds/${build.slug}`,
-      lastModified: new Date(),
+      url: `${SITE_URL}/builds/${build.slug}`,
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     })),
-    ...postEntries,
+    ...posts.map((post) => ({
+      url: `${SITE_URL}/blog/${post.slug.current}`,
+      lastModified: new Date(post._updatedAt),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    })),
+    { url: `${SITE_URL}/privacy`, changeFrequency: 'yearly', priority: 0.2 },
   ]
 }

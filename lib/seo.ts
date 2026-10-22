@@ -68,3 +68,71 @@ export function summarize(text: string, max = 155): string {
   const cut = clean.slice(0, max - 1)
   return `${cut.slice(0, cut.lastIndexOf(' ')).replace(/[\s,;:.—-]+$/, '')}…`
 }
+
+/** Absolute URL for a site-relative path. */
+export const absoluteUrl = (path: string) => new URL(path, SITE_URL).toString()
+
+// Structured data (schema.org JSON-LD), rendered by components/JsonLd.tsx.
+// The person and the site have stable @ids so every page can reference them.
+const PERSON_ID = `${SITE_URL}/#person`
+const WEBSITE_ID = `${SITE_URL}/#website`
+
+export const siteJsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': WEBSITE_ID,
+      url: SITE_URL,
+      name: SITE_NAME,
+      description: 'Building software in public: apps, AI tools, Chrome extensions, and build logs.',
+      inLanguage: 'en-US',
+      publisher: { '@id': PERSON_ID },
+    },
+    {
+      '@type': 'Person',
+      '@id': PERSON_ID,
+      name: 'Nathan Watkins',
+      alternateName: 'n8',
+      url: SITE_URL,
+      image: absoluteUrl('/tab/n8-icon.png'),
+      jobTitle: 'Software developer',
+      sameAs: [
+        'https://github.com/n8watkins',
+        'https://x.com/n8watkins',
+        'https://www.linkedin.com/in/n8watkins',
+        'https://youtube.com/@n8watkins',
+        'https://twitch.tv/n8watkins',
+        'https://portfolio.n8builds.dev',
+        'https://appturnity.com',
+      ],
+    },
+  ],
+}
+
+export function blogPostingJsonLd(post: {
+  title: string
+  description: string
+  path: string
+  image: string
+  publishedAt: string
+  updatedAt?: string
+}) {
+  const url = absoluteUrl(post.path)
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    '@id': `${url}#article`,
+    headline: post.title,
+    description: post.description,
+    url,
+    mainEntityOfPage: url,
+    image: absoluteUrl(post.image),
+    datePublished: post.publishedAt,
+    dateModified: post.updatedAt ?? post.publishedAt,
+    inLanguage: 'en-US',
+    author: { '@type': 'Person', '@id': PERSON_ID, name: 'Nathan Watkins', url: SITE_URL },
+    publisher: { '@id': PERSON_ID },
+    isPartOf: { '@type': 'Blog', name: 'N8 Notions', url: absoluteUrl('/blog') },
+  }
+}
