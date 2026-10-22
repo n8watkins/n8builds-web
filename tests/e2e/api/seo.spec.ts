@@ -132,3 +132,10 @@ test('a blog post is a BlogPosting with its share image', async ({ request }) =>
   expect(data.headline).toBeTruthy()
   expect(data.datePublished).toBeTruthy()
 })
+
+test('retired routes redirect permanently', async ({ request }) => {
+  for (const path of ['/lab', '/extensions', '/tools', '/resources', '/builds/canihost']) {
+    const response = await request.get(path, { maxRedirects: 0 })
+    expect(response.status(), path).toBe(308)
+  }
+})

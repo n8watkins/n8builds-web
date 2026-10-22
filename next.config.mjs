@@ -58,13 +58,14 @@ const nextConfig = {
       },
       // The shelf pages were folded into the homepage Lab section — redirect the
       // old routes to their on-page anchors so existing links/bookmarks still land.
-      { source: '/lab', destination: '/#lab', permanent: false },
-      { source: '/extensions', destination: '/#extensions', permanent: false },
-      { source: '/tools', destination: '/#tools', permanent: false },
+      // Permanent (308), so search engines move these URLs over instead of keeping them.
+      { source: '/lab', destination: '/#lab', permanent: true },
+      { source: '/extensions', destination: '/#extensions', permanent: true },
+      { source: '/tools', destination: '/#tools', permanent: true },
       // The Resources section was dropped; send old links to the Lab.
-      { source: '/resources', destination: '/#lab', permanent: false },
+      { source: '/resources', destination: '/#lab', permanent: true },
       // Builds dropped from the site on 2026-10-21; their old detail pages were in the sitemap.
-      { source: '/builds/:slug(canihost|freestack|apiscout)', destination: '/#lab', permanent: false },
+      { source: '/builds/:slug(canihost|freestack|apiscout)', destination: '/#lab', permanent: true },
       // RFC 9116: canonical lives at /.well-known/security.txt; redirect the
       // legacy root path some scanners still probe.
       { source: '/security.txt', destination: '/.well-known/security.txt', permanent: true },
