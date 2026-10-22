@@ -51,10 +51,12 @@ test.describe('reduced motion', () => {
   test('the Now Building carousel does not auto-advance', async ({ page }) => {
     await page.clock.install()
     await page.goto('/')
+    // Let time flow so hydration isn't stalled (WebKit); fastForward skips ahead.
+    await page.clock.resume()
     const selected = await selectSecondNowBuildingItem(page)
     // Hovering pauses the carousel anyway; move away so only reduced motion stops it.
     await page.mouse.move(0, 0)
-    await page.clock.runFor(20_000)
+    await page.clock.fastForward(20_000)
     expect(await activeNowBuildingDot(page)).toBe(selected)
   })
 })
@@ -71,10 +73,11 @@ test.describe('motion allowed', () => {
   test('the Now Building carousel auto-advances', async ({ page }) => {
     await page.clock.install()
     await page.goto('/')
+    await page.clock.resume()
     const selected = await selectSecondNowBuildingItem(page)
     // Clicking pauses the carousel while hovered; move the pointer away.
     await page.mouse.move(0, 0)
-    await page.clock.runFor(8_000)
+    await page.clock.fastForward(8_000)
     await expect.poll(() => activeNowBuildingDot(page)).not.toBe(selected)
   })
 })
