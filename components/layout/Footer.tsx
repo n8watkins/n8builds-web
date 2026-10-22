@@ -24,7 +24,7 @@ const AppturnityLogo = () => (
 
 const Footer = () => {
   return (
-    <footer className="xl:max-w-5xl pt-0 pb-12">
+    <footer className="mx-auto xl:max-w-5xl pt-0 pb-12">
       {/* Background grid */}
       <div className="w-full absolute left-0 1sm:-translate-y-52 -bottom-72 min-h-96 pointer-events-none">
         <Image
