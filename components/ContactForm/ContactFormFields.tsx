@@ -202,7 +202,7 @@ export function ContactFormFields({
             isBusy ? "opacity-75 cursor-not-allowed" : ""
           }`}
         >
-          <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
+          <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#A5F3FC_0%,#2563EB_50%,#A5F3FC_100%)]" />
           <span className="inline-flex h-full w-full items-center justify-center whitespace-nowrap rounded-lg bg-slate-950 px-7 text-sm font-medium text-white backdrop-blur-3xl gap-2 pointer-events-none">
             {isVerifying ? "Verifying... 🛡️" : isSubmitting ? "Sending... 🚀" : "Send Message 🚀"}
           </span>
@@ -213,7 +213,7 @@ export function ContactFormFields({
         Prefer email? Reach me directly at{' '}
         <a
           href="mailto:nathancwatkins23@gmail.com"
-          className="text-purple-600 dark:text-purple-400 hover:underline"
+          className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
         >
           nathancwatkins23@gmail.com
         </a>
