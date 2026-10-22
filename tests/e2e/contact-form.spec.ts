@@ -8,6 +8,11 @@ import { test, expect, type Page } from '@playwright/test'
 
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
+// A successful send chains a real Cloudflare script load, a Turnstile token,
+// the API call, and the success transition. That legitimately takes longer
+// than the default 5s on a loaded CI runner.
+const SEND_TIMEOUT = 15_000
+
 // Give each test its own client IP so the per-IP rate limit (5/hour) never
 // carries over between tests. Tests that also intercept /api/contact must use
 // route.fallback() so the request still reaches this handler.
@@ -42,7 +47,7 @@ test('a visitor can send a message', async ({ page }) => {
   await fillForm(page)
   await page.getByRole('button', { name: /Send Message/ }).click()
 
-  await expect(page.getByText('Message sent successfully!')).toBeVisible()
+  await expect(page.getByText('Message sent successfully!')).toBeVisible({ timeout: SEND_TIMEOUT })
 })
 
 test('shows the server message on failure, and a retry succeeds with a fresh Turnstile token', async ({ page }) => {
@@ -69,7 +74,7 @@ test('shows the server message on failure, and a retry succeeds with a fresh Tur
   // Retry straight away: the spent token was discarded, so the form waits for
   // the remounted widget's fresh one before sending.
   await page.getByRole('button', { name: /Send Message/ }).click()
-  await expect(page.getByText('Message sent successfully!')).toBeVisible()
+  await expect(page.getByText('Message sent successfully!')).toBeVisible({ timeout: SEND_TIMEOUT })
 
   expect(calls).toBe(2)
   expect(tokens.every(Boolean)).toBe(true)
@@ -90,7 +95,7 @@ test('clicking Send before Turnstile is ready waits for the token, then sends', 
   await expect(page.getByRole('button', { name: /Verifying/ })).toBeVisible()
 
   releaseTurnstile()
-  await expect(page.getByText('Message sent successfully!')).toBeVisible()
+  await expect(page.getByText('Message sent successfully!')).toBeVisible({ timeout: SEND_TIMEOUT })
 })
 
 test('if Turnstile never loads, the visitor gets an explanation instead of a dead button', async ({ page }) => {
