@@ -1,8 +1,4 @@
 User-agent: *
 Allow: /
 
-# Sitemap
 Sitemap: https://n8builds.dev/sitemap.xml
-
-# Disallow admin or private areas (none for portfolio)
-# Disallow: /admin
