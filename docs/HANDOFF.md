@@ -80,6 +80,7 @@ Flow (`app/api/contact/route.ts`): size check (10KB), per-IP rate limit, JSON + 
 ## Decisions already made (do not re-ask)
 
 - Blue/cyan accents, **no purple** (except the Twitch brand hover in the navbar).
+  Indigo (between blue and violet) is allowed and stays: the Loadout "indigo" group and the "Browser tools" eyebrow.
 - The site is a **build-in-public workshop, not a portfolio**.
   The hire-me lane is portfolio.n8builds.dev; client work is appturnity.com.
 - **Projects and Lab are one.**
@@ -169,9 +170,6 @@ Flow (`app/api/contact/route.ts`): size check (10KB), per-IP rate limit, JSON + 
 - `docs/`: this file, `OWNER_TODO.md`, `N8BUILDS_PLAN.md`, `N8_NOTIONS_BLOG_IMPLEMENTATION.md`, `CLOUDFLARE_SECURITY.md`, `archive/`.
 
 ## Backlog
-
-Owner decision pending: indigo accents (the Loadout "indigo" group, the "Browser tools" eyebrow, a few gradients) sit between blue and violet.
-Tailwind 4 kept their hue but made them about 15% more saturated, so they read slightly more purple than before; switch them to blue/sky if they now feel off-palette.
 
 Feature work, roughly in priority order:
 
