@@ -48,7 +48,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
           {/* Top nav */}
           <Link
             href={`/#${shelf.slug}`}
-            className="inline-flex items-center gap-2 text-sm font-semibold text-slate-400 hover:text-cyan-300 transition-colors"
+            className="-my-2.5 inline-flex items-center gap-2 py-2.5 text-sm font-semibold text-slate-400 hover:text-cyan-300 transition-colors"
           >
             <FiArrowLeft className="w-4 h-4" />
             Back to {shelf.label}
@@ -199,7 +199,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
           <footer className="mt-16 pt-8 border-t border-white/8 flex flex-wrap items-center justify-between gap-4">
             <Link
               href="/#lab"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-slate-400 hover:text-cyan-300 transition-colors"
+              className="-my-2.5 inline-flex items-center gap-2 py-2.5 text-sm font-semibold text-slate-400 hover:text-cyan-300 transition-colors"
             >
               <FiArrowLeft className="w-4 h-4" />
               All builds
@@ -208,7 +208,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
               href="https://github.com/n8watkins"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-slate-400 hover:text-cyan-300 transition-colors"
+              className="-my-2.5 inline-flex items-center gap-2 py-2.5 text-sm font-semibold text-slate-400 hover:text-cyan-300 transition-colors"
             >
               <FiGithub className="w-4 h-4" />
               github.com/n8watkins

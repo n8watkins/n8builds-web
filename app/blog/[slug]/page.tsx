@@ -77,7 +77,7 @@ export default async function PostPage({ params }: PostPageProps) {
         <article className="mx-auto max-w-3xl px-5 pb-20 pt-28 sm:px-8 md:pt-32">
           <Link
             href="/blog"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition-colors hover:text-cyan-300"
+            className="-my-2.5 inline-flex items-center gap-2 py-2.5 text-sm font-semibold text-slate-400 transition-colors hover:text-cyan-300"
           >
             <FiArrowLeft className="h-4 w-4" />
             All notes

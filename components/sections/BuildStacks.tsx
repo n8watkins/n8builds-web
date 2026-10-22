@@ -30,12 +30,14 @@ const StackCard = ({ stack, index }: { stack: BuildStack; index: number }) => {
       {/* The combo — tools chained together */}
       <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
         {stack.tools.map((tool, i) => (
-          <React.Fragment key={tool}>
+          // Each "+" stays with the tool after it, so a wrapped row starts with
+          // "+ Drizzle" instead of ending on a dangling "+".
+          <span key={tool} className="inline-flex items-center gap-x-1.5 whitespace-nowrap">
+            {i > 0 && <span className="text-white/20">+</span>}
             <span className="rounded-md border border-white/8 bg-white/4 px-2.5 py-1 font-mono text-[0.75rem] text-slate-200">
               {tool}
             </span>
-            {i < stack.tools.length - 1 && <span className="text-white/20">+</span>}
-          </React.Fragment>
+          </span>
         ))}
       </div>
 

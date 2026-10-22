@@ -197,7 +197,7 @@ const Footer = () => {
 
         <motion.p variants={staggerItemVariants} className="lg:text-sm text-xs text-slate-450">
           © 2026 n8builds. All rights reserved. ·{' '}
-          <a href="/privacy" className="hover:text-slate-300 underline underline-offset-2">
+          <a href="/privacy" className="inline-block py-3 -my-3 hover:text-slate-300 underline underline-offset-2">
             Privacy
           </a>
         </motion.p>
