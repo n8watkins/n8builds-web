@@ -3,36 +3,18 @@
 Things only you can do, because they need an interactive login, a terms acceptance, or a dashboard.
 Do them in order.
 
-## 1. Link Upstash Redis to Vercel (URGENT: the live contact form is down until this is done)
+## 1. Link Upstash Redis to Vercel (done 2026-10-22)
 
-Everything was pushed on 2026-10-22.
-The live contact form now refuses submissions (503 "temporarily unavailable, email me directly") until shared rate-limit storage is configured.
-The rest of the site is unaffected.
-
-Run from this repo:
-
-```bash
-vercel link --yes --project n8builds-web
-vercel integration add upstash/upstash-kv
-```
-
-- Pick the **Free** plan.
-- Pick the region closest to the Vercel functions (`iad1` / us-east-1 is Vercel's default).
-- Connect it to the `n8builds-web` project for Production, Preview and Development.
-  One database is fine for all three: only Vercel production uses the `contact:ip` / `contact:global` keys.
-  Previews use `contact:preview:*`, and local runs `contact:development:*` (after `vercel env pull`) or `contact:local:*`, so none of them can touch production's counters.
-  `CONTACT_TEST_MODE` never uses Redis at all.
-
-It sets `KV_REST_API_URL` and `KV_REST_API_TOKEN` automatically.
-Check with `vercel env ls | grep KV_`.
+Resource `upstash-kv-fulvous-magnet`, connected to Production, Preview and Development (`KV_REST_API_*` env vars), and production redeployed.
+The live API now passes the rate limiter (a fake Turnstile token gets 400, not 503).
+Optional: confirm in the Vercel dashboard (Storage, or Integrations → Upstash) that the resource is on the free plan.
 
 ## 2. Verify production
 
-The code is already pushed and deployed. After linking Upstash, redeploy so the new env vars apply (`vercel --prod`, or Redeploy the latest deployment in the Vercel dashboard), then:
+Pushed, deployed and redeployed with Upstash. What's left is a real end-to-end send:
 
 - Send yourself a real message from https://n8builds.dev/#contact and confirm both emails arrive (the notification and the auto-reply).
 - Optional: in the Upstash console, confirm `contact:ip:*` and `contact:global:*` keys appear.
-- Check the first GitHub Actions run passes: https://github.com/n8watkins/n8builds-web/actions
 
 ## 3. Cloudflare Turnstile widget hostnames
 
