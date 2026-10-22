@@ -137,18 +137,23 @@ test('clicking Send before Turnstile is ready waits for the token, then sends', 
 })
 
 test('on a slow connection, Send is not clickable until the form can handle it', async ({ page }) => {
-  // Hold the JS back so the server-rendered form is visible before it hydrates.
+  // Hold all JS back so the server-rendered form is on screen before it can
+  // hydrate. Released in one go (not a per-request delay, which adds up across
+  // the chunk waterfall).
+  let releaseJs = () => {}
+  const jsReleased = new Promise<void>((resolve) => (releaseJs = resolve))
   await page.route('**/_next/static/chunks/**', async (route) => {
-    await new Promise((resolve) => setTimeout(resolve, 3000))
+    await jsReleased
     await route.continue()
   })
   await page.route('https://challenges.cloudflare.com/turnstile/**', () => {}) // never answers
 
   await page.goto('/#contact', { waitUntil: 'domcontentloaded' })
   await expect(page.getByRole('button', { name: /Send Message/ })).toBeDisabled()
+  await fillForm(page)
 
   // Playwright's click waits for the button to become enabled, as a visitor would.
-  await fillForm(page)
+  releaseJs()
   await page.getByRole('button', { name: /Send Message/ }).click()
   await expect(page.getByRole('button', { name: /Verifying/ })).toBeVisible()
 })
