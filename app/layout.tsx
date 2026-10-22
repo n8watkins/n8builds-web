@@ -105,7 +105,8 @@ export default function RootLayout({
           </ErrorBoundary>
           <WebVitals />
           <WebVitalsHUD />
-          <SpeedInsights />
+          {/* The script is served only by Vercel's edge; elsewhere it 404s. */}
+          {process.env.VERCEL && <SpeedInsights />}
         </ThemeProvider>
       </body>
     </html>
