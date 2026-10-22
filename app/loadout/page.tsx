@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Navbar from '@/components/layout/Navbar'
 import Loadout from '@/components/sections/Loadout'
 
 export const metadata: Metadata = {
@@ -12,5 +13,10 @@ export const metadata: Metadata = {
 }
 
 export default function LoadoutPage() {
-  return <Loadout />
+  return (
+    <>
+      <Navbar />
+      <Loadout />
+    </>
+  )
 }

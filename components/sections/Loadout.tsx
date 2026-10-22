@@ -72,7 +72,7 @@ const Group = ({ group, index }: { group: LoadoutGroup; index: number }) => {
 const Loadout = () => {
   return (
     <main className="relative min-h-screen bg-[#050812] text-slate-100">
-      <div className="mx-auto max-w-6xl px-5 py-10 sm:px-8 md:py-16">
+      <div className="mx-auto max-w-6xl px-5 pt-28 pb-10 sm:px-8 md:pt-32 md:pb-16">
         {/* Back link */}
         <Link
           href="/"
