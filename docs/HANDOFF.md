@@ -124,6 +124,8 @@ Flow (`app/api/contact/route.ts`): size check (10KB), per-IP rate limit, JSON + 
 - `npm run lint` fails on any warning (CI too).
 - Reduced motion is honored everywhere: CSS animations stop globally, smooth scrolling is enabled only under `prefers-reduced-motion: no-preference`, Motion uses `MotionConfig reducedMotion="user"`, and timer-driven cycles check `usePrefersReducedMotion` (`hooks/`).
   `Marquee` requires a `label` prop (its reduced-motion fallback is a labelled, keyboard-reachable list).
+  With motion on, its loop copies are `aria-hidden`; focusable children read `MarqueeCopyContext` to leave the tab order there (see `components/ui/StackTile.tsx`).
+- Tailwind 4 applies `hover:` only on devices that can hover, so anything revealed on hover also needs a focus/tap path (`StackTile` reveals on `focus:` too).
   `tests/e2e/reduced-motion.spec.ts` covers this.
 - Known dev-only noise: `next dev` (Turbopack) logs a 404 for a stale preload hint of the lazily loaded confetti chunk (`ConfettiPlayer`).
   The chunk itself loads and the confetti renders; production (webpack) is unaffected.
@@ -153,6 +155,8 @@ Flow (`app/api/contact/route.ts`): size check (10KB), per-IP rate limit, JSON + 
 - `components/layout/`: `Navbar` (`labMenu[]` drives the Lab dropdown), `Footer` (contact card and form).
 - `components/ContactForm/`: form UI and `useContactFormSubmit` (submission and Turnstile handling).
 - `components/blog/`, `lib/sanity.ts`, `lib/blog-utils.ts`: N8 Notions.
+  Posts without a cover image get a generated "signal" cover: `lib/blog-cover.ts` (art and topic colours), served as cached SVG files by `app/notions-cover/[version]/[topic]/[file]/route.ts`.
+  The files are cached forever, so bump `COVER_VERSION` whenever the drawing changes.
 - `data/`: `builds.tsx` (source of truth), `shelves.ts`, `loadout.tsx`, `aiStack.tsx`, `buildStacks.tsx`, `techStack.tsx`, `projects.tsx`, `now.tsx`.
 - `lib/security/`: `rateLimiter.ts`, `turnstile.ts`, `validation.ts`, `testMode.ts`.
 - `lib/email/`: `smtp.ts` (transport + `EMAIL_CONFIG`), `sender.ts`, `templates.ts`, `icons.ts` (generated).
@@ -164,8 +168,8 @@ Flow (`app/api/contact/route.ts`): size check (10KB), per-IP rate limit, JSON + 
 
 ## Backlog
 
-Owner decision pending: the blog cover banners (`components/blog/CoverBanner.tsx`) use violet/fuchsia gradients.
-They are multi-hue cover art rather than accents, so the no-purple rule was not applied to them.
+Owner decision pending: indigo accents (the Loadout "indigo" group, the "Browser tools" eyebrow, a few gradients) sit between blue and violet.
+Tailwind 4 kept their hue but made them about 15% more saturated, so they read slightly more purple than before; switch them to blue/sky if they now feel off-palette.
 
 Feature work, roughly in priority order:
 
