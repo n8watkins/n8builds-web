@@ -9,11 +9,11 @@ import { test, expect, type APIRequestContext } from '@playwright/test'
  * leak between tests and no bypass is needed.
  */
 
-let ipCounter = 0
+// Random addresses rather than a counter: a counter restarts every run, so a
+// reused local server (whose in-memory limits persist) would see repeats.
 function uniqueIp(): string {
-  ipCounter++
-  // Worker index keeps parallel workers on disjoint ranges.
-  return `10.${test.info().workerIndex % 256}.${Math.floor(ipCounter / 256) % 256}.${ipCounter % 256}`
+  const octet = () => Math.floor(Math.random() * 256)
+  return `10.${octet()}.${octet()}.${octet()}`
 }
 
 function validForm(overrides: Record<string, unknown> = {}) {
