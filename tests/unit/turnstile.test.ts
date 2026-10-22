@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { validateHoneypot, verifyTurnstile } from '@/lib/security/turnstile'
+import { verifyTurnstile } from '@/lib/security/turnstile'
 
 const fetchMock = vi.fn()
 
@@ -105,16 +105,5 @@ describe('verifyTurnstile', () => {
     vi.stubEnv('TURNSTILE_SECRET_KEY', '')
     expect(await verifyTurnstile('anything')).toBe(true)
     expect(fetchMock).not.toHaveBeenCalled()
-  })
-})
-
-describe('validateHoneypot', () => {
-  it('passes when empty or missing', () => {
-    expect(validateHoneypot('')).toBe(true)
-    expect(validateHoneypot(undefined)).toBe(true)
-  })
-
-  it('fails when filled', () => {
-    expect(validateHoneypot('x')).toBe(false)
   })
 })

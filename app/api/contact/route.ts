@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { contactFormSchema } from '@/lib/validations/contact'
 import { logger } from '@/lib/logger'
 import { checkRateLimit, getClientIp, type RateLimitResult } from '@/lib/security/rateLimiter'
-import { verifyTurnstile, validateHoneypot } from '@/lib/security/turnstile'
+import { verifyTurnstile } from '@/lib/security/turnstile'
 import { validateRequestSize, parseJsonBody } from '@/lib/security/validation'
 import { sendContactEmails } from '@/lib/email/sender'
 
@@ -14,10 +14,10 @@ const DIRECT_EMAIL = 'nathancwatkins23@gmail.com'
  * SECURITY LAYERS (in order):
  * 1. Request size validation (10KB limit)
  * 2. Per-IP rate limit (5/hour), before any expensive work
- * 3. Input validation (Zod schema)
- * 4. Honeypot field check (bot detection)
- * 5. Cloudflare Turnstile verification
- * 6. Site-wide daily limit, counted only for verified submissions so junk
+ * 3. Input validation (Zod schema, which also requires the hidden honeypot
+ *    field to be empty)
+ * 4. Cloudflare Turnstile verification
+ * 5. Site-wide daily limit, counted only for verified submissions so junk
  *    requests can't use it up
  *
  * Then sends the notification email (to site owner) and auto-reply (to submitter).
@@ -65,15 +65,7 @@ export async function POST(request: NextRequest) {
     const validatedData = validation.data
     logger.info('✅ Validation passed')
 
-    // STEP 4: Honeypot (hidden field must be empty)
-    if (!validateHoneypot(validatedData.honeypot)) {
-      return NextResponse.json(
-        { error: 'Invalid submission' },
-        { status: 400 }
-      )
-    }
-
-    // STEP 5: Cloudflare Turnstile
+    // STEP 4: Cloudflare Turnstile
     const isTurnstileValid = await verifyTurnstile(validatedData.turnstile, clientIp)
     if (!isTurnstileValid) {
       return NextResponse.json(
@@ -82,14 +74,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // STEP 6: Site-wide daily limit
+    // STEP 5: Site-wide daily limit
     const globalLimit = await checkRateLimit('global', 'all')
     if (!globalLimit.allowed) {
       logger.warn('❌ Site-wide contact limit:', globalLimit.reason)
       return rateLimitResponse(globalLimit)
     }
 
-    // STEP 7: Send emails
+    // STEP 6: Send emails
     const emailResult = await sendContactEmails(validatedData)
 
     if (!emailResult.success) {

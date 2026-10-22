@@ -99,26 +99,3 @@ export async function verifyTurnstile(token: string, remoteIp?: string): Promise
     return false
   }
 }
-
-/**
- * Validate honeypot field
- * Honeypot is a hidden field that should remain empty
- * Bots often fill all fields automatically, revealing themselves
- *
- * @param honeypot - Value from honeypot field (should be empty string)
- * @returns true if honeypot is empty (valid submission), false if filled (bot detected)
- *
- * @example
- * ```ts
- * if (!validateHoneypot(formData.honeypot)) {
- *   return NextResponse.json({ error: 'Invalid submission' }, { status: 400 })
- * }
- * ```
- */
-export function validateHoneypot(honeypot: string | undefined): boolean {
-  if (honeypot && honeypot.length > 0) {
-    logger.warn('🤖 Bot detected via honeypot field')
-    return false
-  }
-  return true
-}
