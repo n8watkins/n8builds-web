@@ -10,7 +10,7 @@ The public builder lab of Nathan Watkins — a Next.js site for building softwar
 - **Hardened Contact Form**: Gmail SMTP (Nodemailer) with a layered defense stack — rate limiting, honeypot, Zod validation, and template-time HTML escaping
 - **Advanced Animations**: Framer Motion with scroll-triggered fade-ins and interactive elements
 - **Performance Optimized**: Code-split below-the-fold sections, optimized images, and Web Vitals monitoring
-- **Security First**: Request-size cap, in-memory rate limiting (5/hour), honeypot, invisible Cloudflare Turnstile, and HTML-entity escaping of user input in emails
+- **Security First**: Request-size cap, shared Upstash Redis rate limiting (5/hour per IP plus a daily site-wide cap), honeypot, invisible Cloudflare Turnstile, and HTML-entity escaping of user input in emails
 - **Fully Responsive**: Mobile-first design with seamless desktop experience
 - **Analytics Integration**: Google Analytics (live, `G-JZQGKY9Q37`) with custom event tracking for all interactions
 - **Dark/Light Theme**: Automatic system preference detection with manual toggle
@@ -89,7 +89,7 @@ n8builds-web/
 │   └── WebVitalsHUD.tsx          # Performance HUD (Alt+Shift+V)
 ├── lib/                          # Utilities and business logic
 │   ├── security/                 # Security modules
-│   │   ├── rateLimiter.ts        # In-memory IP-based rate limiting
+│   │   ├── rateLimiter.ts        # Upstash-backed per-IP + site-wide rate limiting
 │   │   ├── turnstile.ts          # Cloudflare Turnstile + honeypot verification
 │   │   └── validation.ts         # Request size (10KB) + JSON parse validation
 │   ├── email/                    # Email functionality
@@ -223,31 +223,39 @@ The contact form is a layered, defense-in-depth solution backed by Gmail SMTP.
 
 **Backend Flow** (`app/api/contact/route.ts`):
 1. Request size validation (10KB limit)
-2. Rate limiting check per IP (5 requests/hour in production)
+2. Per-IP rate limit (5 requests/hour)
 3. JSON parse + Zod schema validation
 4. Honeypot field check
-5. Turnstile token verification (skipped when `TURNSTILE_SECRET_KEY` is unset — see below)
-6. Email sending via Nodemailer (Gmail SMTP), with user input HTML-entity-escaped at template time
-7. Auto-reply confirmation email to the submitter
+5. Turnstile token verification
+6. Site-wide daily limit (counted only for verified submissions)
+7. Email sending via Nodemailer (Gmail SMTP), with user input HTML-entity-escaped at template time
+8. Auto-reply confirmation email to the submitter
 
 ### Security Measures
 
 The active layers (in request order):
 
-1. **Request Size Validation** — `lib/security/validation.ts` caps the raw body at 10KB (DoS guard) and safely parses JSON.
-2. **In-memory Rate Limiting** — `lib/security/rateLimiter.ts` enforces 5 requests/hour per IP in production (50/hour in dev). Note: the store is per serverless instance, so the limit is best-effort across Vercel's pool, not a global counter.
-3. **Zod Schema Validation** — `lib/validations/contact.ts` enforces field types, lengths, and shape; invalid payloads are rejected.
-4. **Honeypot Field** — `lib/security/turnstile.ts → validateHoneypot()` rejects submissions where the hidden field is filled.
-5. **Template-time HTML Escaping** — `lib/email/templates.ts → sanitizeHtml()` escapes `&`, `<`, `>`, `"`, and `'` in every user-supplied value before it is interpolated into the email HTML. (This is a hand-rolled escaper — DOMPurify/jsdom were removed because their dependency chain breaks Vercel's serverless runtime.)
-6. **Error Masking** — generic error messages are returned to clients while detailed errors are logged server-side.
+1. **Request Size Validation** - `lib/security/validation.ts` caps the raw body at 10KB (DoS guard) and safely parses JSON.
+2. **Per-IP Rate Limiting** - `lib/security/rateLimiter.ts` allows 5 submissions/hour per IP (50/hour under `next dev`).
+   Counters live in Upstash Redis, so every serverless instance shares them.
+   The client IP comes from `x-real-ip` / `x-forwarded-for`, which Vercel's edge overwrites, so clients can't spoof it.
+3. **Zod Schema Validation** - `lib/validations/contact.ts` enforces field types, lengths, and shape; invalid payloads are rejected.
+4. **Honeypot Field** - `lib/security/turnstile.ts → validateHoneypot()` rejects submissions where the hidden field is filled.
+5. **Cloudflare Turnstile** - `lib/security/turnstile.ts → verifyTurnstile()` calls Cloudflare's `siteverify` API with the client IP.
+   It passes only when `success === true` and the token was issued on an allowed hostname (`TURNSTILE_ALLOWED_HOSTNAMES`, default: the site host and its `www.` variant).
+   It is skipped only under `next dev`.
+6. **Site-wide Daily Limit** - a second Upstash counter caps verified submissions per day (`CONTACT_DAILY_LIMIT`, default 50).
+   It runs after Turnstile so junk requests can't use it up.
+7. **Template-time HTML Escaping** - `lib/email/templates.ts → sanitizeHtml()` escapes `&`, `<`, `>`, `"`, and `'` in every user-supplied value before it is interpolated into the email HTML.
+   (This is a hand-rolled escaper - DOMPurify/jsdom were removed because their dependency chain breaks Vercel's serverless runtime.)
+8. **Error Masking** - generic error messages are returned to clients while detailed errors are logged server-side.
 
-**Cloudflare Turnstile (live in production):** `lib/security/turnstile.ts → verifyTurnstile()` calls Cloudflare's `siteverify` API and passes only on `success === true` (Turnstile has no score). It short-circuits to allow in development, and falls back to allow when `TURNSTILE_SECRET_KEY` is unset (so the form still works pre-launch on honeypot + rate limiting alone). In production the keys (`NEXT_PUBLIC_TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY`) ARE set on Vercel, so Turnstile actively gates submissions. The Zod schema requires a non-empty `turnstile` token in the POST body.
+**Everything fails closed in production.**
+A missing `TURNSTILE_SECRET_KEY`, a Turnstile network error, missing Upstash credentials, or an Upstash outage all reject the submission instead of letting it through unchecked.
+The rejection tells the visitor to email directly.
 
-**Additional notes:**
-- In-memory rate-limit store with automatic cleanup
-- Turnstile + rate limiting are bypassed in development for easier testing
-- Comprehensive logging for audit trails
-- No sensitive data exposure in responses
+**Testing:** set `CONTACT_TEST_MODE=1` with Cloudflare's always-pass test secret (`1x0000000000000000000000000000000AA`) to exercise the real API against `next build && next start`.
+Test mode sends no email (Nodemailer JSON transport), uses an in-memory rate limiter when Upstash isn't configured, and is ignored on Vercel.
 
 ## 🎨 Animations & UX
 

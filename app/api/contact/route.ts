@@ -1,37 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { contactFormSchema, type ContactFormData } from '@/lib/validations/contact'
+import { contactFormSchema } from '@/lib/validations/contact'
 import { logger } from '@/lib/logger'
-import { getRateLimitKey, checkRateLimit, clearRateLimit } from '@/lib/security/rateLimiter'
+import { checkRateLimit, getClientIp, type RateLimitResult } from '@/lib/security/rateLimiter'
 import { verifyTurnstile, validateHoneypot } from '@/lib/security/turnstile'
 import { validateRequestSize, parseJsonBody } from '@/lib/security/validation'
 import { sendContactEmails } from '@/lib/email/sender'
 
+const DIRECT_EMAIL = 'nathancwatkins23@gmail.com'
+
 /**
  * POST /api/contact - Handle contact form submissions
  *
- * SECURITY LAYERS:
+ * SECURITY LAYERS (in order):
  * 1. Request size validation (10KB limit)
- * 2. Rate limiting (5 requests/hour in production)
+ * 2. Per-IP rate limit (5/hour), before any expensive work
  * 3. Input validation (Zod schema)
  * 4. Honeypot field check (bot detection)
  * 5. Cloudflare Turnstile verification
+ * 6. Site-wide daily limit, counted only for verified submissions so junk
+ *    requests can't use it up
  *
- * FLOW:
- * 1. Validate request size
- * 2. Check rate limit
- * 3. Parse and validate form data
- * 4. Security checks (honeypot + Turnstile)
- * 5. Send notification email (to site owner)
- * 6. Send auto-reply email (to submitter)
+ * Then sends the notification email (to site owner) and auto-reply (to submitter).
  */
 export async function POST(request: NextRequest) {
   logger.info('🚀 Contact API called')
 
   try {
-    // ========================================
-    // STEP 1: Request Size Validation
-    // Prevents DoS attacks via large payloads
-    // ========================================
+    // STEP 1: Request size validation
     const bodyText = await request.text()
     const sizeValidation = validateRequestSize(bodyText)
 
@@ -42,41 +37,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ========================================
-    // STEP 2: Rate Limiting
-    // Production: 5 requests/hour per IP
-    // Development: 50 requests/hour for testing
-    // Test: Bypassed with x-bypass-rate-limit header (except for rate limiter tests)
-    // ========================================
-    const bypassRateLimit = request.headers.get('x-bypass-rate-limit') === 'true'
-
-    if (!bypassRateLimit) {
-      const rateLimitKey = getRateLimitKey(request)
-      logger.info('🔑 Rate limit key:', rateLimitKey)
-
-      // Clear rate limit for localhost/development testing
-      if (process.env.NODE_ENV === 'development' && rateLimitKey.includes('localhost')) {
-        clearRateLimit(rateLimitKey)
-      }
-
-      if (!checkRateLimit(rateLimitKey)) {
-        logger.info('❌ Rate limit exceeded')
-        return NextResponse.json(
-          {
-            error: 'Your message didn\'t go through due to our submission limit. Please try again in an hour, or feel free to reach out to me directly at nathancwatkins23@gmail.com — I\'d love to hear from you!',
-            type: 'rate_limit'
-          },
-          { status: 429 }
-        )
-      }
-    } else {
-      logger.info('⏭️ Rate limit bypassed for test')
+    // STEP 2: Per-IP rate limit
+    const clientIp = getClientIp(request.headers)
+    const ipLimit = await checkRateLimit('ip', clientIp)
+    if (!ipLimit.allowed) {
+      logger.info('❌ Per-IP rate limit:', ipLimit.reason)
+      return rateLimitResponse(ipLimit)
     }
 
-    // ========================================
-    // STEP 3: Input Validation
-    // Zod schema validates: name, email, subject, message length
-    // ========================================
+    // STEP 3: Input validation
     const parseResult = parseJsonBody(bodyText)
     if (!parseResult.success) {
       return NextResponse.json(
@@ -85,21 +54,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const body = parseResult.data
-    logger.info('📝 Form data received:', {
-      name: (body as ContactFormData).name,
-      email: (body as ContactFormData).email,
-      subject: (body as ContactFormData).subject
-    })
-
-    const validatedData = contactFormSchema.parse(body)
+    const validation = contactFormSchema.safeParse(parseResult.data)
+    if (!validation.success) {
+      // Security: don't expose detailed validation errors
+      return NextResponse.json(
+        { error: 'Invalid form data. Please check your inputs and try again.' },
+        { status: 400 }
+      )
+    }
+    const validatedData = validation.data
     logger.info('✅ Validation passed')
 
-    // ========================================
-    // STEP 4: Security Checks
-    // A) Honeypot: Hidden field must be empty (bots often fill it)
-    // B) Cloudflare Turnstile: success-based verification
-    // ========================================
+    // STEP 4: Honeypot (hidden field must be empty)
     if (!validateHoneypot(validatedData.honeypot)) {
       return NextResponse.json(
         { error: 'Invalid submission' },
@@ -107,21 +73,23 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    logger.info('🔐 Verifying Turnstile...')
-    const isTurnstileValid = await verifyTurnstile(validatedData.turnstile)
-    logger.info('🔐 Turnstile valid:', isTurnstileValid)
-
+    // STEP 5: Cloudflare Turnstile
+    const isTurnstileValid = await verifyTurnstile(validatedData.turnstile, clientIp)
     if (!isTurnstileValid) {
       return NextResponse.json(
-        { error: 'Turnstile verification failed. Please try again.' },
+        { error: 'Verification failed. Please refresh the page and try again.' },
         { status: 400 }
       )
     }
 
-    // ========================================
-    // STEP 5: Send Emails
-    // Sends both notification (to me) and auto-reply (to sender)
-    // ========================================
+    // STEP 6: Site-wide daily limit
+    const globalLimit = await checkRateLimit('global', 'all')
+    if (!globalLimit.allowed) {
+      logger.warn('❌ Site-wide contact limit:', globalLimit.reason)
+      return rateLimitResponse(globalLimit)
+    }
+
+    // STEP 7: Send emails
     const emailResult = await sendContactEmails(validatedData)
 
     if (!emailResult.success) {
@@ -139,15 +107,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     logger.error('❌ Contact form submission error:', error)
-
-    // Security: Don't expose detailed validation errors
-    if (error instanceof Error && error.name === 'ZodError') {
-      return NextResponse.json(
-        { error: 'Invalid form data. Please check your inputs and try again.' },
-        { status: 400 }
-      )
-    }
-
     return NextResponse.json(
       { error: 'Failed to send message. Please try again.' },
       { status: 500 }
@@ -155,21 +114,22 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/**
- * OPTIONS /api/contact - Handle CORS for development
- * Allows cross-origin requests in development mode
- */
-export async function OPTIONS(request: NextRequest) {
-  const allowedOrigin = process.env.NODE_ENV === 'development'
-    ? '*'
-    : process.env.NEXT_PUBLIC_SITE_URL || 'https://n8builds.dev'
+function rateLimitResponse(result: Exclude<RateLimitResult, { allowed: true }>) {
+  if (result.reason === 'unavailable') {
+    return NextResponse.json(
+      {
+        error: `The contact form is temporarily unavailable. Please email me directly at ${DIRECT_EMAIL}.`,
+        type: 'unavailable',
+      },
+      { status: 503 }
+    )
+  }
 
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': allowedOrigin,
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+  return NextResponse.json(
+    {
+      error: `Your message didn't go through due to our submission limit. Please try again later, or reach out directly at ${DIRECT_EMAIL} - I'd love to hear from you!`,
+      type: 'rate_limit',
     },
-  })
+    { status: 429 }
+  )
 }

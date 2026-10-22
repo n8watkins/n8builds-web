@@ -1,4 +1,5 @@
 import nodemailer, { type Transporter } from 'nodemailer'
+import { isContactTestMode } from '@/lib/security/testMode'
 
 // Public-facing address shown in emails and used as the From identity.
 // Gmail SMTP only honors this From if it's registered as a "Send mail as"
@@ -29,8 +30,13 @@ let transporter: Transporter | null = null
  * Lazily create the Gmail SMTP transport so importing this module (e.g.
  * during `next build`) doesn't require credentials — only sending does.
  * Auth uses a Gmail app password (myaccount.google.com/apppasswords).
+ * In CONTACT_TEST_MODE, messages are rendered to JSON and never sent.
  */
 export function getTransporter(): Transporter {
+  if (!transporter && isContactTestMode()) {
+    transporter = nodemailer.createTransport({ jsonTransport: true })
+  }
+
   if (!transporter) {
     const user = process.env.GMAIL_USER
     const pass = process.env.GMAIL_APP_PASSWORD

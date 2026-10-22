@@ -1,173 +1,161 @@
-import { NextRequest } from 'next/server'
+import { Ratelimit } from '@upstash/ratelimit'
+import { Redis } from '@upstash/redis'
+import { logger } from '@/lib/logger'
+import { isContactTestMode } from '@/lib/security/testMode'
 
 /**
- * Rate Limiter Configuration
- * Prevents spam and abuse by limiting requests per IP address
+ * Contact-form rate limiting
+ *
+ * Two limits:
+ * - Per IP: 5 submissions per hour (50 in `next dev`)
+ * - Site-wide: CONTACT_DAILY_LIMIT verified submissions per day (default 50),
+ *   a backstop for the inbox and Gmail's sending quota
+ *
+ * Production uses Upstash Redis so every serverless instance shares the same
+ * counters. Without Upstash configured, production fails closed (rejects) rather
+ * than silently running unlimited. `next dev` and CONTACT_TEST_MODE fall back to
+ * an in-memory store.
  */
 
-// Configuration constants
-const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000 // 1 hour
-const RATE_LIMIT_MAX_REQUESTS_PROD = 5 // 5 requests per hour in production
-const RATE_LIMIT_MAX_REQUESTS_DEV = 50 // Higher limit for development
-const RATE_LIMIT_MAX_REQUESTS_TEST = 1000 // Very high limit for tests, but still capped to catch runaway tests
-const RATE_LIMIT_CLEANUP_INTERVAL_MS = 60 * 60 * 1000 // Clean up expired entries every hour
+const IP_WINDOW_MS = 60 * 60 * 1000
+const GLOBAL_WINDOW_MS = 24 * 60 * 60 * 1000
+const IP_LIMIT = process.env.NODE_ENV === 'development' ? 50 : 5
+const DEFAULT_GLOBAL_LIMIT = 50
 
-/**
- * Rate limit entry structure
- * Tracks count and reset time for each IP address
- */
-interface RateLimitEntry {
-  count: number
-  resetTime: number
+export type RateLimitScope = 'ip' | 'global'
+
+export type RateLimitResult =
+  | { allowed: true }
+  | { allowed: false; reason: 'limited' | 'unavailable' }
+
+interface Limiter {
+  limit(key: string): Promise<RateLimitResult>
+}
+
+function globalLimit(): number {
+  const parsed = Number(process.env.CONTACT_DAILY_LIMIT)
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : DEFAULT_GLOBAL_LIMIT
 }
 
 /**
- * In-memory store for rate limiting
- * Key: IP address
- * Value: { count, resetTime }
+ * Fixed-window counter kept in this process's memory. Only correct for a single
+ * long-lived process, which is why production never uses it.
  */
-const rateLimitMap = new Map<string, RateLimitEntry>()
+export class MemoryLimiter implements Limiter {
+  private entries = new Map<string, { count: number; resetAt: number }>()
 
-/**
- * Global type declaration for rate limit cleanup interval
- */
-declare global {
-  var rateLimitCleanupInterval: NodeJS.Timeout | undefined
-}
+  constructor(
+    private readonly max: number,
+    private readonly windowMs: number,
+    private readonly now: () => number = Date.now
+  ) {}
 
-/**
- * Cleanup expired rate limit entries
- * Prevents memory leaks by removing entries past their reset time
- */
-function cleanupRateLimit() {
-  const now = Date.now()
-  rateLimitMap.forEach((entry, key) => {
-    if (now > entry.resetTime) {
-      rateLimitMap.delete(key)
+  async limit(key: string): Promise<RateLimitResult> {
+    const now = this.now()
+    const entry = this.entries.get(key)
+
+    if (!entry || now >= entry.resetAt) {
+      this.entries.set(key, { count: 1, resetAt: now + this.windowMs })
+      this.prune(now)
+      return { allowed: true }
     }
-  })
-}
 
-/**
- * Initialize cleanup interval once
- * Runs every hour to remove expired entries
- */
-if (typeof global.rateLimitCleanupInterval === 'undefined') {
-  global.rateLimitCleanupInterval = setInterval(cleanupRateLimit, RATE_LIMIT_CLEANUP_INTERVAL_MS)
-}
+    if (entry.count >= this.max) return { allowed: false, reason: 'limited' }
 
-/**
- * Extract rate limit key from request
- * In test mode, uses IP + User-Agent + timestamp to give each test its own rate limit
- * In production, uses only IP address for rate limiting
- *
- * @param request - Next.js request object
- * @returns Rate limit key string
- */
-export function getRateLimitKey(request: NextRequest): string {
-  const forwarded = request.headers.get('x-forwarded-for')
-  // Next 16 removed NextRequest.ip; derive the client IP from forwarding headers.
-  const ip = forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip') || 'unknown'
-
-  // In test mode, include user-agent and test ID to separate each test
-  if (process.env.NODE_ENV === 'test') {
-    const userAgent = request.headers.get('user-agent') || 'unknown-agent'
-    const testId = request.headers.get('x-test-id') || Date.now().toString()
-    return `${ip}:${userAgent}:${testId}`
+    entry.count++
+    return { allowed: true }
   }
 
-  return ip
-}
-
-/**
- * Check if request is within rate limit
- * Automatically creates entry for new IPs
- * Automatically cleans up expired entries
- *
- * @param key - IP address (from getRateLimitKey)
- * @returns true if request is allowed, false if rate limit exceeded
- */
-export function checkRateLimit(key: string): boolean {
-  const now = Date.now()
-  const windowMs = RATE_LIMIT_WINDOW_MS
-
-  // Determine max requests based on environment
-  let maxRequests: number
-  if (process.env.NODE_ENV === 'test') {
-    maxRequests = RATE_LIMIT_MAX_REQUESTS_TEST
-  } else if (process.env.NODE_ENV === 'development') {
-    maxRequests = RATE_LIMIT_MAX_REQUESTS_DEV
-  } else {
-    maxRequests = RATE_LIMIT_MAX_REQUESTS_PROD
-  }
-
-  // Clean up expired entry for this key
-  const entry = rateLimitMap.get(key)
-  if (entry && now > entry.resetTime) {
-    rateLimitMap.delete(key)
-  }
-
-  const currentEntry = rateLimitMap.get(key)
-
-  // First request from this IP
-  if (!currentEntry) {
-    rateLimitMap.set(key, { count: 1, resetTime: now + windowMs })
-    return true
-  }
-
-  // Rate limit exceeded
-  if (currentEntry.count >= maxRequests) {
-    return false
-  }
-
-  // Increment count and allow request
-  currentEntry.count++
-  return true
-}
-
-/**
- * Clear rate limit for a specific key (development only)
- * Useful for testing without waiting for reset time
- *
- * @param key - IP address to clear
- */
-export function clearRateLimit(key: string): void {
-  if (process.env.NODE_ENV === 'development') {
-    rateLimitMap.delete(key)
+  private prune(now: number) {
+    if (this.entries.size < 10_000) return
+    this.entries.forEach((entry, key) => {
+      if (now >= entry.resetAt) this.entries.delete(key)
+    })
   }
 }
 
+class UpstashLimiter implements Limiter {
+  private readonly ratelimit: Ratelimit
+
+  constructor(redis: Redis, max: number, window: `${number} ${'h' | 'd'}`, prefix: string) {
+    this.ratelimit = new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(max, window),
+      prefix,
+      timeout: 3000,
+    })
+  }
+
+  async limit(key: string): Promise<RateLimitResult> {
+    try {
+      const { success, reason } = await this.ratelimit.limit(key)
+      // Upstash lets requests through on timeout; we'd rather reject.
+      if (reason === 'timeout') {
+        logger.error('Rate limiter timed out reaching Upstash')
+        return { allowed: false, reason: 'unavailable' }
+      }
+      return success ? { allowed: true } : { allowed: false, reason: 'limited' }
+    } catch (error) {
+      logger.error('Rate limiter error:', error)
+      return { allowed: false, reason: 'unavailable' }
+    }
+  }
+}
+
+const unavailable: Limiter = {
+  async limit() {
+    return { allowed: false, reason: 'unavailable' }
+  },
+}
+
+function hasUpstashConfig(): boolean {
+  return Boolean(
+    (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) ||
+      (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN)
+  )
+}
+
+function createLimiters(): Record<RateLimitScope, Limiter> {
+  if (hasUpstashConfig()) {
+    const redis = Redis.fromEnv()
+    return {
+      ip: new UpstashLimiter(redis, IP_LIMIT, '1 h', 'contact:ip'),
+      global: new UpstashLimiter(redis, globalLimit(), '1 d', 'contact:global'),
+    }
+  }
+
+  if (process.env.NODE_ENV === 'development' || isContactTestMode()) {
+    return {
+      ip: new MemoryLimiter(IP_LIMIT, IP_WINDOW_MS),
+      global: new MemoryLimiter(globalLimit(), GLOBAL_WINDOW_MS),
+    }
+  }
+
+  logger.error('Upstash Redis is not configured - contact form is disabled')
+  return { ip: unavailable, global: unavailable }
+}
+
+let limiters: Record<RateLimitScope, Limiter> | null = null
+
 /**
- * Get current rate limit status for a key
- * Useful for debugging and monitoring
- *
- * @param key - IP address to check
- * @returns Current entry or null if not found
+ * Count one request against a limit.
+ * - 'ip': call first, keyed by client IP, before any expensive work
+ * - 'global': call only after Turnstile passes, so junk requests can't use up
+ *   the site-wide daily allowance
  */
-export function getRateLimitStatus(key: string): RateLimitEntry | null {
-  return rateLimitMap.get(key) || null
+export function checkRateLimit(scope: RateLimitScope, key: string): Promise<RateLimitResult> {
+  limiters ??= createLimiters()
+  return limiters[scope].limit(key)
 }
 
 /**
- * Cleanup and stop the rate limit interval
- * Useful for graceful shutdown in long-running Node.js servers
- *
- * Note: In serverless environments (e.g., Vercel), this is not necessary
- * as the process is short-lived and will be terminated automatically.
- *
- * @example
- * ```ts
- * // On server shutdown
- * process.on('SIGTERM', () => {
- *   cleanupRateLimiterInterval()
- *   server.close()
- * })
- * ```
+ * Client IP for rate limiting. On Vercel both headers are set by the edge and
+ * overwrite anything the client sent, so they can't be spoofed there.
  */
-export function cleanupRateLimiterInterval(): void {
-  if (global.rateLimitCleanupInterval) {
-    clearInterval(global.rateLimitCleanupInterval)
-    global.rateLimitCleanupInterval = undefined
-    rateLimitMap.clear()
-  }
+export function getClientIp(headers: Headers): string {
+  const realIp = headers.get('x-real-ip')?.trim()
+  if (realIp) return realIp
+
+  const forwarded = headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+  return forwarded || 'unknown'
 }
