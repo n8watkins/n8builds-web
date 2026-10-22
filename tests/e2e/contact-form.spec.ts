@@ -50,6 +50,24 @@ test('a visitor can send a message', async ({ page }) => {
   await expect(page.getByText('Message sent successfully!')).toBeVisible({ timeout: SEND_TIMEOUT })
 })
 
+test('a sent message still shows success if the confetti chunk fails to load', async ({ page }) => {
+  await openContactForm(page)
+  await waitForTurnstileToken(page)
+  // As after a deploy since the page was opened: chunks not loaded yet are gone.
+  await page.route('**/_next/static/chunks/**', (route) => route.fulfill({ status: 404, body: '' }))
+  const chunkFailed = page.waitForResponse((r) => r.url().includes('/_next/static/chunks/') && r.status() === 404)
+  await fillForm(page)
+  await page.getByRole('button', { name: /Send Message/ }).click()
+
+  // The success screen renders before the confetti chunk fails, so check it
+  // again once the failure has had time to propagate.
+  await expect(page.getByText('Message sent successfully!')).toBeVisible({ timeout: SEND_TIMEOUT })
+  await chunkFailed
+  await page.waitForTimeout(1000)
+  await expect(page.getByText('Message sent successfully!')).toBeVisible()
+  await expect(page.getByText('Something went wrong')).toHaveCount(0)
+})
+
 test('shows the server message on failure, and a retry succeeds with a fresh Turnstile token', async ({ page }) => {
   const limitMessage = "Your message didn't go through due to our submission limit."
   const tokens: string[] = []

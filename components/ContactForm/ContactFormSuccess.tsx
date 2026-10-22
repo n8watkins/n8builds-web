@@ -15,6 +15,24 @@ export function preloadConfetti() {
 
 const Confetti = lazy(() => import('./ConfettiPlayer'))
 
+/**
+ * The confetti is decoration. If its chunk fails to load (a deploy since the
+ * page was opened, a flaky network), drop it instead of letting the error
+ * reach ContactFormErrorBoundary, which would hide the success message for a
+ * message that was in fact sent.
+ */
+class ConfettiBoundary extends React.Component<{ children: React.ReactNode }, { failed: boolean }> {
+  state = { failed: false }
+
+  static getDerivedStateFromError() {
+    return { failed: true }
+  }
+
+  render() {
+    return this.state.failed ? null : this.props.children
+  }
+}
+
 interface ContactFormSuccessProps {
   showConfetti: boolean
   confettiKey: number
@@ -38,9 +56,11 @@ export function ContactFormSuccess({ showConfetti, confettiKey, onSendAnother }:
           animate={{ opacity: 1 }}
           transition={{ duration: 0.1 }}
         >
-          <Suspense fallback={null}>
-            <Confetti />
-          </Suspense>
+          <ConfettiBoundary>
+            <Suspense fallback={null}>
+              <Confetti />
+            </Suspense>
+          </ConfettiBoundary>
         </motion.div>
       )}
 
