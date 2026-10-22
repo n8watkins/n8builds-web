@@ -79,8 +79,8 @@ Flow (`app/api/contact/route.ts`): size check (10KB), per-IP rate limit, JSON + 
 - The site is a **build-in-public workshop, not a portfolio**.
   The hire-me lane is portfolio.n8builds.dev; client work is appturnity.com.
 - **Projects and Lab are one.**
-  The Lab is one homepage section with anchored sub-sections: web apps and experiments (`#lab`), Chrome extensions (`#extensions`), tools (`#tools`), resources (`#resources`).
-  There are no standalone shelf pages; `/lab`, `/extensions`, `/tools` and `/resources` redirect to the anchors (`next.config.mjs`).
+  The Lab is one homepage section with anchored sub-sections: web apps and experiments (`#lab`), Chrome extensions (`#extensions`), tools (`#tools`).
+  There are no standalone shelf pages; `/lab`, `/extensions` and `/tools` redirect to the anchors, and the retired `/resources` redirects to `#lab` (`next.config.mjs`).
   The navbar "Lab" dropdown scrolls to them.
 - **`data/builds.tsx` is the single source of truth** for every build; `data/shelves.ts` routes each one to its section by `category`.
   Never create a parallel dataset.
@@ -90,6 +90,8 @@ Flow (`app/api/contact/route.ts`): size check (10KB), per-IP rate limit, JSON + 
   Not click-only.
 - The Chrome Extension Launch Kit is a banner under the extensions, not a main card.
 - Open-source builds (Piper, TubeVault, TL;DW, Sprite Arsenal, Portfolio Rank, LocalDictate) get prominent Star-on-GitHub CTAs.
+- CanIHost, FreeStack and APIScout (the "free tools trio") were dropped from the site on 2026-10-21.
+  Their repos and Vercel projects still exist; do not re-add them unless asked.
 - The **Loadout** is the identity device ("who I am without a resume"); PC hardware lives there as "The Rig".
 - Blog name: **N8 Notions** (Sanity project `abgyc32w`, dataset `production`, nav label "Notions").
 - Stack preference: **Firebase over Supabase** (reflected in `data/buildStacks.tsx`).
@@ -133,7 +135,7 @@ Flow (`app/api/contact/route.ts`): size check (10KB), per-IP rate limit, JSON + 
 - `instrumentation*.ts`, `sentry.*.config.ts`: Sentry (inert without a DSN).
 - `tests/unit/`, `tests/e2e/`, `playwright.config.ts`, `vitest.config.ts`.
 - `public/builds/<slug>/`: build icons and screenshots; `public/tab/`: favicons and OG image.
-- `docs/`: this file, `OWNER_TODO.md`, `N8BUILDS_PLAN.md`, `N8_NOTIONS_BLOG_IMPLEMENTATION.md`, `CLOUDFLARE_SECURITY.md`, `FREE_TOOLS_TRIO_HANDOFF.md`, `archive/`.
+- `docs/`: this file, `OWNER_TODO.md`, `N8BUILDS_PLAN.md`, `N8_NOTIONS_BLOG_IMPLEMENTATION.md`, `CLOUDFLARE_SECURITY.md`, `archive/`.
 
 ## Backlog
 
@@ -145,4 +147,3 @@ Feature work, roughly in priority order:
 4. Wire the Hero "Live" pill to real Twitch/YouTube status (manual today).
 5. Hero: "LIVE on VibeLog" badge.
 6. Fire the GA tag from the portfolio subdomain deploy for cross-subdomain tracking.
-7. Free tools trio: once their subdomains resolve (see `docs/OWNER_TODO.md`), switch the homepage `liveSite` links from `*.vercel.app` to the subdomains.

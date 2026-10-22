@@ -86,7 +86,7 @@ test('unknown routes return the 404 page', async ({ page }) => {
 })
 
 test('legacy shelf routes redirect to homepage anchors', async ({ page }) => {
-  for (const [from, anchor] of [['/lab', '#lab'], ['/tools', '#tools']]) {
+  for (const [from, anchor] of [['/lab', '#lab'], ['/tools', '#tools'], ['/resources', '#lab']]) {
     await page.goto(from)
     expect(new URL(page.url()).pathname).toBe('/')
     expect(new URL(page.url()).hash).toBe(anchor)

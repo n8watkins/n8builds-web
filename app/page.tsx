@@ -52,9 +52,9 @@ export default function Home() {
           <FeaturedProjects />
         </SectionErrorBoundary>
 
-        {/* ===== THE LAB — one big section: web apps, extensions, tools, resources.
+        {/* ===== THE LAB — one big section: web apps, extensions, tools.
              The navbar "Lab" dropdown scrolls to these anchors (#lab/#extensions/
-             #tools/#resources). No separate shelf pages. ===== */}
+             #tools). No separate shelf pages. ===== */}
 
         {/* Lab lead-in + in-page jump nav */}
         <div id="lab" className="pt-16">
@@ -62,14 +62,13 @@ export default function Home() {
           <h2 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">The Lab</h2>
           <p className="mt-2 max-w-[560px] text-[#9cadc5]">
             Everything I&apos;m building, in one place — web apps and experiments, Chrome extensions,
-            dev tools, and free resources.
+            and dev tools.
           </p>
           <nav aria-label="Lab sections" className="mt-5 flex flex-wrap gap-2">
             {[
               { label: 'Web apps', href: '#lab' },
               { label: 'Chrome Extensions', href: '#extensions' },
               { label: 'Tools', href: '#tools' },
-              { label: 'Resources', href: '#resources' },
             ].map((c) => (
               <a
                 key={c.href}
@@ -95,9 +94,6 @@ export default function Home() {
           <ShelfSection shelf="tool" />
         </SectionErrorBoundary>
 
-        <SectionErrorBoundary sectionName="Resources">
-          <ShelfSection shelf="resource" />
-        </SectionErrorBoundary>
         {/* ===== end THE LAB ===== */}
 
         {/* N8 Notions — latest blog posts */}

@@ -186,15 +186,13 @@ inline via `ShelfSection` instead. The "Latest from the Log" strip is not on the
 
 ## 8. Content Inventory (from `data/builds.tsx` — 17 records)
 
-All 17 builds, by their `category` in the data file. Only **Suggestion Box** carries
+All 14 builds, by their `category` in the data file. Only **Suggestion Box** carries
 `status: 'in the lab'`; the rest have no status flag (treated as shipped/active).
 
 **Web apps:** Asset Arsenal, Appturnity, JobSignal (web app + extension), Solara,
 Suggestion Box *(in the lab)*, Portfolio Rank.
-**Web tools:** Sprite Arsenal, CanIHost, FreeStack, APIScout — the free-tools utilities.
-(TODO: their `liveSite` values in `data/builds.tsx` still point at `*.vercel.app` —
-canihost.vercel.app, freestack-livid.vercel.app, apiscout-cyan.vercel.app — and need
-updating to `*.n8builds.dev` subdomains once that DNS resolves.)
+**Web tools:** Sprite Arsenal.
+(CanIHost, FreeStack and APIScout were dropped from the site on 2026-10-21; their repos still exist.)
 **Chrome extensions (own shelf):** Piper TTS, TL;DW, TubeVault. Plus the Chrome Extension
 Launch Kit (a starter template) and JobSignal's Mark-Applied extension.
 **Streaming tool:** VibeLog (the OBS/telemetry tool behind the planned "LIVE on VibeLog" badge).

@@ -62,7 +62,8 @@ const nextConfig = {
       { source: '/lab', destination: '/#lab', permanent: false },
       { source: '/extensions', destination: '/#extensions', permanent: false },
       { source: '/tools', destination: '/#tools', permanent: false },
-      { source: '/resources', destination: '/#resources', permanent: false },
+      // The Resources section was dropped; send old links to the Lab.
+      { source: '/resources', destination: '/#lab', permanent: false },
       // RFC 9116: canonical lives at /.well-known/security.txt; redirect the
       // legacy root path some scanners still probe.
       { source: '/security.txt', destination: '/.well-known/security.txt', permanent: true },

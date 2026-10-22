@@ -12,7 +12,6 @@ const labMenu = [
   { label: 'The Lab', href: '/#lab', desc: "Everything I'm building" },
   { label: 'Chrome Extensions', href: '/#extensions', desc: 'Browser tools, local-first' },
   { label: 'Tools', href: '/#tools', desc: 'Desktop apps, bots & utilities' },
-  { label: 'Resources', href: '/#resources', desc: 'Free dev directories' },
 ]
 
 const Navbar = () => {
