@@ -144,8 +144,9 @@ export function getSubjectSpecificLine(subject: string): { html: string; text: s
 }
 
 export function createAutoReplyHtml(data: ContactFormData): string {
-  const sanitizedName = sanitizeHtml(data.name)
-  const firstName = sanitizedName.split(' ')[0] || 'there'
+  // Escaped once, at interpolation below (escaping here too rendered names
+  // like O'Brien as "O&#39;Brien" in the email).
+  const firstName = data.name.trim().split(/\s+/)[0] || 'there'
   const subjectLine = getSubjectSpecificLine(data.subject)
   const subjectLabel = subjectOptions.find(opt => opt.value === data.subject)?.label || data.subject
   // Labels lead with an emoji ("🤝 Networking"); the header reads better
