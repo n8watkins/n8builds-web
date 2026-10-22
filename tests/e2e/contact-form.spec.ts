@@ -116,6 +116,23 @@ test('clicking Send before Turnstile is ready waits for the token, then sends', 
   await expect(page.getByText('Message sent successfully!')).toBeVisible({ timeout: SEND_TIMEOUT })
 })
 
+test('on a slow connection, Send is not clickable until the form can handle it', async ({ page }) => {
+  // Hold the JS back so the server-rendered form is visible before it hydrates.
+  await page.route('**/_next/static/chunks/**', async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 3000))
+    await route.continue()
+  })
+  await page.route('https://challenges.cloudflare.com/turnstile/**', () => {}) // never answers
+
+  await page.goto('/#contact', { waitUntil: 'domcontentloaded' })
+  await expect(page.getByRole('button', { name: /Send Message/ })).toBeDisabled()
+
+  // Playwright's click waits for the button to become enabled, as a visitor would.
+  await fillForm(page)
+  await page.getByRole('button', { name: /Send Message/ }).click()
+  await expect(page.getByRole('button', { name: /Verifying/ })).toBeVisible()
+})
+
 test('if Turnstile never loads, the visitor gets an explanation instead of a dead button', async ({ page }) => {
   test.setTimeout(60_000)
   await page.route('https://challenges.cloudflare.com/**', (route) => route.abort())

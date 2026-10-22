@@ -9,6 +9,7 @@ import { ContactSelect } from '@/components/ui/ContactSelect'
 import { ContactTextarea } from '@/components/ui/ContactTextarea'
 import { ContactFormData, subjectOptions } from '@/lib/validations/contact'
 import { trackContactEvent } from '@/lib/analytics'
+import { useHydrated } from '@/hooks/useHydrated'
 import { SubmissionState } from './useContactFormSubmit'
 
 interface ContactFormFieldsProps {
@@ -40,6 +41,9 @@ export function ContactFormFields({
 
   const charCount = watch('message')?.length || 0
   const isBusy = isSubmitting || isVerifying
+  // The server-rendered button has no click handler until hydration, so a
+  // click before then would be silently lost.
+  const hydrated = useHydrated()
 
   const handleFieldFocus = (fieldName: string) => {
     trackContactEvent('field_focus', fieldName)
@@ -189,7 +193,7 @@ export function ContactFormFields({
 
         <button
           type="button"
-          disabled={isBusy}
+          disabled={!hydrated || isBusy}
           onClick={(e) => {
             e.preventDefault()
             onSubmit()
