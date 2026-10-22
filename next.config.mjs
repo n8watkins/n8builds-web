@@ -65,6 +65,8 @@ const nextConfig = {
       { source: '/tools', destination: '/#tools', permanent: false },
       // The Resources section was dropped; send old links to the Lab.
       { source: '/resources', destination: '/#lab', permanent: false },
+      // Builds dropped from the site on 2026-10-21; their old detail pages were in the sitemap.
+      { source: '/builds/:slug(canihost|freestack|apiscout)', destination: '/#lab', permanent: false },
       // RFC 9116: canonical lives at /.well-known/security.txt; redirect the
       // legacy root path some scanners still probe.
       { source: '/security.txt', destination: '/.well-known/security.txt', permanent: true },

@@ -36,7 +36,7 @@ export default defineConfig({
   ],
 
   webServer: {
-    // E2E_SKIP_BUILD=1 reuses an existing test build (CI builds in its own step).
+    // E2E_SKIP_BUILD=1 reuses an existing test build instead of rebuilding.
     command: process.env.E2E_SKIP_BUILD
       ? `npx next start -p ${E2E_PORT}`
       : `npm run build && npx next start -p ${E2E_PORT}`,
