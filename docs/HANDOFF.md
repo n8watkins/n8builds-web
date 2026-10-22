@@ -23,8 +23,13 @@ Strategy and IA: `docs/N8BUILDS_PLAN.md`.
 - Live at https://n8builds.dev on Vercel (project `n8builds-web`, team natkins23s-projects), auto-deploying from `main`.
 - Stack: Next.js 16 (App Router, webpack build), React 19, TypeScript, Tailwind 4 (configured in `app/globals.css`; there is no `tailwind.config`), Motion (`motion/react`; not framer-motion), Sanity (blog), Nodemailer + Gmail SMTP, Cloudflare Turnstile, Upstash Redis (rate limits), Sentry, GA4, Vercel Speed Insights.
 - Pages: `/` (hero, lab sections, work-with-me, contact), `/blog` + `/blog/[slug]` (N8 Notions, ISR hourly), `/builds/[slug]`, `/loadout`, `/privacy`.
-- **Pending push (2026-10-21/22):** the contact-form hardening and everything after it (the Tailwind 4 upgrade and the review fixes included) is committed locally but not pushed, because production now requires Upstash.
-  See `docs/OWNER_TODO.md` step 1.
+- **Pending push (2026-10-22):** the review-and-improve pass (security, SEO and mobile fixes, below) is committed locally and verified, but not pushed.
+- SEO: every page builds its metadata with `pageMetadata()` (`lib/seo.ts`), which sets the canonical URL, og:url and both share cards with a preview image.
+  Next.js merges metadata shallowly, so a page that sets its own `openGraph` without the helper loses the image.
+  Blog posts and builds get generated 1200x630 PNG cards (`/blog/<slug>/og.png`, `/builds/<slug>/og.png`, drawn by `lib/og-card.tsx` with `next/og` over the blog-cover art, Inter from `assets/fonts/`).
+  Posts with an uploaded cover or SEO image use that instead.
+  JSON-LD: WebSite and Person on the homepage, BlogPosting on posts (`components/JsonLd.tsx`).
+  The sitemap revalidates hourly.
 
 ## Running and testing
 
@@ -56,9 +61,12 @@ CI (`.github/workflows/`):
 
 ## Contact form
 
-Flow (`app/api/contact/route.ts`): size check (10KB), per-IP rate limit, JSON + Zod validation, honeypot, Turnstile, site-wide daily limit, then the notification email and the auto-reply.
+Flow (`app/api/contact/route.ts`): size check (10KB) and a JSON content type (else 415), JSON + Zod validation, honeypot, Turnstile, per-IP rate limit, site-wide daily limit, per-recipient auto-reply limit, then the notification email and the auto-reply.
+Every free check runs before the first Upstash call, so requests without a solved Turnstile challenge never spend the Redis quota.
 
-- **Rate limits** (`lib/security/rateLimiter.ts`): 5/hour per IP and `CONTACT_DAILY_LIMIT` (default 50) verified submissions per day, stored in Upstash Redis via `KV_REST_API_*` (or `UPSTASH_REDIS_REST_*`).
+- **Rate limits** (`lib/security/rateLimiter.ts`): 5/hour per IP (IPv6 per /64), `CONTACT_DAILY_LIMIT` (default 50) verified submissions per day, and 1 auto-reply per recipient address per day (keyed by a hash), stored in Upstash Redis via `KV_REST_API_*` (or `UPSTASH_REDIS_REST_*`).
+  Past the recipient limit the owner notification still goes out; only the auto-reply is skipped.
+  The auto-reply greets by first name only when it is a plain word, otherwise "Hey there", so the form can't carry a linked domain to a third party.
   Keys outside Vercel production are namespaced by `VERCEL_ENV` (`contact:preview:*`, `contact:development:*` with a pulled env, `contact:local:*` otherwise), so one database serves every environment without previews or local runs touching production's counters.
   `CONTACT_TEST_MODE` always uses an in-memory store, as does `next dev` without Upstash configured.
 - **Fail closed:** in production, a missing Turnstile secret, a Turnstile error, missing Upstash config, or an Upstash outage or timeout all reject the submission, with a message telling the visitor to email directly.
@@ -137,6 +145,14 @@ Flow (`app/api/contact/route.ts`): size check (10KB), per-IP rate limit, JSON + 
   Under WSL set `CHROME_PATH` to a Linux Chrome (Playwright's works: `~/.cache/ms-playwright/chromium-*/chrome-linux64/chrome`).
 - `npm audit` (all deps) has one known, unfixable finding: `braces` (GHSA-vfj7-8cjw-p6xm), via `eslint-config-next` → `fast-glob` → `micromatch`.
   No patched `braces` exists; it only expands the lint plugin's own glob patterns, never untrusted input. `npm audit --omit=dev` is 0.
+- Don't `npm run build` by hand and then run Playwright with `E2E_SKIP_BUILD=1`: a hand build inlines the real Turnstile site key from `.env.local`, which Cloudflare rejects on localhost, so every contact-form test fails.
+  Let Playwright build (it sets the test keys), or set `NEXT_PUBLIC_TURNSTILE_SITE_KEY=1x00000000000000000000AA` for the build.
+- The image optimizer accepts exact sources only (`images` in `next.config.mjs`): local files and our Sanity project, without query strings.
+  Add any new remote image host there.
+- Unknown `/blog/<slug>` URLs return a 404 status with `noindex`, but Next 16 renders the 404 body client-side (it does this for any `notFound()` thrown from a page).
+  `/builds/<slug>` uses `dynamicParams = false`, so its 404 is fully server-rendered; the blog can't, since new posts must work without a deploy.
+- The navbar shows the desktop links from `lg` (1024px) up; below that, the menu button and overlay menu (scroll lock, backdrop, Escape).
+  Between 768px and ~1000px the desktop row didn't fit and pushed the Appturnity CTA off-screen.
 - One build or Playwright run per checkout at a time: they share `.next/` and `test-results/`, and a second one breaks the first (a running `next start` serves mismatched chunks; Playwright wipes `test-results/` mid-run).
   For parallel work, use a second `git worktree` with its own `npm ci` and `E2E_PORT`.
 - Tailwind 4 notes:
@@ -151,8 +167,8 @@ Flow (`app/api/contact/route.ts`): size check (10KB), per-IP rate limit, JSON + 
 
 ## File map
 
-- `app/page.tsx`: homepage; sections load via `next/dynamic` and are wrapped in `SectionErrorBoundary`.
-- `app/layout.tsx`: metadata, GA (gated on `NEXT_PUBLIC_GA_ID`), Speed Insights (Vercel only), providers.
+- `app/page.tsx`: homepage metadata and JSON-LD; the page itself is the client component `components/HomePage.tsx`, whose sections load via `next/dynamic` and are wrapped in `SectionErrorBoundary`.
+- `app/layout.tsx`: site-wide metadata defaults, GA (gated on `NEXT_PUBLIC_GA_ID`), Speed Insights (Vercel only), providers.
 - `app/api/contact/route.ts`, `app/api/health/route.ts` (liveness ping), `app/api/notions/recent/route.ts` (homepage blog strip; keeps `@sanity/client` out of the client bundle).
 - `components/sections/`: `Hero`, `NowBuilding` (+ `data/now.tsx`), `FeaturedProjects`, `ShelfSection`, `ExtensionsShowcase`, `HomeStack`, `NotionsStrip`, `WorkWithMe`, `Loadout`, `BuildStacks`, `TechStackBento`, `BuildCard`.
 - `components/layout/`: `Navbar` (`labMenu[]` drives the Lab dropdown), `Footer` (contact card and form).
@@ -163,8 +179,11 @@ Flow (`app/api/contact/route.ts`): size check (10KB), per-IP rate limit, JSON + 
 - `data/`: `builds.tsx` (source of truth), `shelves.ts`, `loadout.tsx`, `aiStack.tsx`, `buildStacks.tsx`, `techStack.tsx`, `projects.tsx`, `now.tsx`.
 - `lib/security/`: `rateLimiter.ts`, `turnstile.ts`, `validation.ts`, `testMode.ts`.
 - `lib/email/`: `smtp.ts` (transport + `EMAIL_CONFIG`), `sender.ts`, `templates.ts`, `icons.ts` (generated).
-- `next.config.mjs`: redirects, Sentry wrapper (tunnel at `/monitoring`); headers come from `lib/security/headers.mjs` (enforced CSP: add any new third-party origin there).
+- `lib/seo.ts`: `pageMetadata()`, `summarize()`, JSON-LD builders; `lib/og-card.tsx`: share-card renderer.
+- `next.config.mjs`: redirects (permanent 308s for retired routes), image sources, Sentry wrapper; headers come from `lib/security/headers.mjs` (enforced CSP: add any new third-party origin there).
 - `instrumentation*.ts`, `sentry.*.config.ts`: Sentry (inert without a DSN).
+  The browser SDK posts to `/monitoring` (`app/monitoring/route.ts`), which forwards only envelopes for our own DSN; the SDK's `tunnelRoute` rewrite was an open relay to any Sentry project.
+  The server SDK sends no stack-frame locals and drops contact-route request bodies (`lib/sentry-scrub.ts`).
 - `tests/unit/`, `tests/e2e/`, `playwright.config.ts`, `vitest.config.mts`.
 - `public/builds/<slug>/`: build icons and screenshots; `public/tab/`: favicons and OG image.
 - `docs/`: this file, `OWNER_TODO.md`, `prompts/review-and-improve.md` (ready-to-paste prompt for the next review pass), `N8BUILDS_PLAN.md`, `N8_NOTIONS_BLOG_IMPLEMENTATION.md`, `CLOUDFLARE_SECURITY.md`, `archive/`.
