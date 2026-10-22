@@ -1,6 +1,6 @@
 # Bundle Analysis Report
 
-> **Archived snapshot (Next 14.2.32 / single-page portfolio era).** The app is now Next 16.x, the multi-route n8builds.dev site (the portfolio now lives at the `portfolio.n8builds.dev` subdomain), and Sentry was removed (no `@sentry/nextjs` dep, no `withSentryConfig`). The route table, bundle figures, and Sentry sections below are a period snapshot and are NOT current — see `docs/HANDOFF.md` for current state and re-run `npm run analyze` for fresh numbers.
+> **Archived snapshot (Next 14.2.32 / single-page portfolio era).** The app is now Next 16.x, the multi-route n8builds.dev site (the portfolio now lives at the `portfolio.n8builds.dev` subdomain), and Sentry, removed at one point, is back and live (2026-06-25). The route table, bundle figures, and Sentry sections below are a period snapshot and are NOT current — see `docs/HANDOFF.md` for current state and re-run `npm run analyze` for fresh numbers.
 
 **Date**: 2025-10-19
 **Next.js Version**: 14.2.32

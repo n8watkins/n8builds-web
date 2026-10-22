@@ -1,6 +1,8 @@
 # Code Quality Improvements Summary
 
-> **Archived snapshot (2025-10-19 era).** The app is now Next 16.x, the multi-route n8builds.dev site (portfolio lives at the `portfolio.n8builds.dev` subdomain), and Sentry was removed (no `@sentry/nextjs` dep, no config). The grades, line counts, and "portfolio" framing below are a period snapshot — preserved as-is. See `docs/HANDOFF.md` for current state.
+> **Archived snapshot (2025-10-19 era).** The app is now Next 16.x, the multi-route n8builds.dev site (portfolio lives at the `portfolio.n8builds.dev` subdomain), and Sentry, removed at one point, is back and live (2026-06-25).
+> The grades below ("A+ 96/100") describe a much smaller app and are not a current assessment; the 2026-10-21 review found real gaps (contact-form rate limiting, a test suite that could not run, accessibility failures) that are fixed in the commits that followed.
+> The line counts and "portfolio" framing are a period snapshot, preserved as-is. See `docs/HANDOFF.md` for current state.
 
 **Date**: 2025-10-19
 **Branch**: `feature/code-quality-improvements`

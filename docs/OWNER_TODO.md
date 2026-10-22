@@ -40,7 +40,13 @@ The server now rejects tokens issued on any hostname other than `n8builds.dev` a
 In the Cloudflare dashboard (Turnstile → your widget → Hostnames), make sure those two are listed.
 If you ever want the form to work on Vercel preview URLs, add those hostnames to the widget **and** set `TURNSTILE_ALLOWED_HOSTNAMES` in Vercel's Preview environment.
 
-## 4. Optional
+## 4. DNS for the free tools trio
+
+`apiscout.n8builds.dev`, `freestack.n8builds.dev` and `canihost.n8builds.dev` do not resolve (checked 2026-10-21).
+Add the CNAME records in Cloudflare DNS and the domains in each Vercel project (details in `docs/FREE_TOOLS_TRIO_HANDOFF.md`).
+Then tell Claude to switch the homepage links from the `*.vercel.app` URLs to the subdomains.
+
+## 5. Optional
 
 - **Daily cap:** the site-wide limit defaults to 50 verified submissions per day.
   To change it, set `CONTACT_DAILY_LIMIT` in Vercel.
