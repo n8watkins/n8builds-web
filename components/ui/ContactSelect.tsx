@@ -1,5 +1,6 @@
 import React, { forwardRef } from 'react'
 import { cn } from '@/lib/utils'
+import { CONTROL_SCROLL_MARGIN, controlProps, errorId } from './FieldWrapper'
 
 interface ContactSelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label: string
@@ -27,11 +28,13 @@ export const ContactSelect = forwardRef<HTMLSelectElement, ContactSelectProps>(
             "focus:ring-2 focus:ring-cyan-500 focus:border-transparent",
             "transition-all duration-200",
             "hover:border-slate-400 dark:hover:border-slate-500",
+            CONTROL_SCROLL_MARGIN,
             // Placeholder still selected: muted, like the other fields' placeholders.
             "has-[option[value='']:checked]:text-slate-500 dark:has-[option[value='']:checked]:text-slate-400",
             error && "border-red-500 dark:border-red-400 focus:ring-red-500",
             className
           )}
+          {...controlProps(props.id, error)}
           {...props}
         >
           <option value="" disabled>Select an option...</option>
@@ -42,8 +45,8 @@ export const ContactSelect = forwardRef<HTMLSelectElement, ContactSelectProps>(
           ))}
         </select>
         {error && (
-          <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
-            <span>⚠️</span>
+          <p id={props.id && errorId(props.id)} className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+            <span aria-hidden="true">⚠️</span>
             {error}
           </p>
         )}

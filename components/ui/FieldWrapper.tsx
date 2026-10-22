@@ -1,6 +1,22 @@
 import React, { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
+/** Id of a field's error message, which the control points to with aria-describedby. */
+export const errorId = (id: string) => `${id}-error`
+
+/**
+ * Accessibility and scroll props for a form control: marks it invalid and ties
+ * it to its error message, so screen readers announce the error with the
+ * field. scroll-mt keeps the label clear of the fixed navbar when the form
+ * focuses the first invalid field.
+ */
+export const controlProps = (id: string | undefined, error: string | undefined) => ({
+  'aria-invalid': error ? true : undefined,
+  'aria-describedby': error && id ? errorId(id) : undefined,
+})
+
+export const CONTROL_SCROLL_MARGIN = 'scroll-mt-32'
+
 export interface FieldWrapperProps {
   label: string
   error?: string
@@ -45,8 +61,8 @@ export const FieldWrapper = ({
       </div>
       {children}
       {error && (
-        <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
-          <span>⚠️</span>
+        <p id={id && errorId(id)} className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+          <span aria-hidden="true">⚠️</span>
           {error}
         </p>
       )}

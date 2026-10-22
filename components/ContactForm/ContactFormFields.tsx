@@ -51,8 +51,12 @@ export function ContactFormFields({
 
   return (
     <form
+      // Send is a real submit button, so Enter (or Go on a phone keyboard)
+      // submits too. Before hydration the button is disabled and React isn't
+      // listening yet, so nothing can be lost.
       onSubmit={(e) => {
         e.preventDefault()
+        if (hydrated && !isBusy) onSubmit()
       }}
       className="space-y-4 md:space-y-6 pt-4 md:pt-6 min-h-[600px]"
     >
@@ -195,12 +199,8 @@ export function ContactFormFields({
         )}
 
         <button
-          type="button"
+          type="submit"
           disabled={!hydrated || isBusy}
-          onClick={(e) => {
-            e.preventDefault()
-            onSubmit()
-          }}
           className={`relative inline-flex h-12 w-full md:w-60 overflow-hidden rounded-lg p-px focus:outline-hidden focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 transition-all duration-200 ${
             isBusy ? "opacity-75 cursor-not-allowed" : ""
           }`}

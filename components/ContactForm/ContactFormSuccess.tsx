@@ -1,6 +1,6 @@
 'use client'
 
-import React, { lazy, Suspense } from 'react'
+import React, { lazy, Suspense, useEffect, useRef } from 'react'
 import { motion } from 'motion/react'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 
@@ -49,6 +49,10 @@ export function ContactFormSuccess({ showConfetti, confettiKey, onSendAnother }:
   // lottie-web ignores MotionConfig and the global reduced-motion CSS, so skip
   // the confetti entirely for visitors who asked for less motion.
   const reduceMotion = usePrefersReducedMotion()
+  // The form that had focus is gone; move focus to the result so keyboard and
+  // screen-reader users land on (and hear) it instead of the page body.
+  const heading = useRef<HTMLHeadingElement>(null)
+  useEffect(() => heading.current?.focus(), [])
 
   return (
     <motion.div
@@ -90,7 +94,9 @@ export function ContactFormSuccess({ showConfetti, confettiKey, onSendAnother }:
           🚀
         </motion.div>
         <motion.h3
-          className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-2"
+          ref={heading}
+          tabIndex={-1}
+          className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-2 focus:outline-none"
           initial={{ y: 10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.4 }}

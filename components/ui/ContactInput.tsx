@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react'
 import { cn } from '@/lib/utils'
-import { FieldWrapper } from './FieldWrapper'
+import { CONTROL_SCROLL_MARGIN, FieldWrapper, controlProps } from './FieldWrapper'
 
 interface ContactInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string
@@ -21,9 +21,11 @@ export const ContactInput = forwardRef<HTMLInputElement, ContactInputProps>(
             'focus:ring-2 focus:ring-cyan-500 focus:border-transparent',
             'transition-all duration-200',
             'hover:border-slate-400 dark:hover:border-slate-500',
+            CONTROL_SCROLL_MARGIN,
             error && 'border-red-500 dark:border-red-400 focus:ring-red-500',
             className
           )}
+          {...controlProps(props.id, error)}
           {...props}
         />
       </FieldWrapper>

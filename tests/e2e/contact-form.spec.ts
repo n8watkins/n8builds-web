@@ -49,6 +49,8 @@ test('a visitor can send a message', async ({ page }) => {
   await page.getByRole('button', { name: /Send Message/ }).click()
 
   await expect(page.getByText('Message sent successfully!')).toBeVisible({ timeout: SEND_TIMEOUT })
+  // The form that had focus is gone; focus lands on the result instead of <body>.
+  await expect(page.getByRole('heading', { name: 'Message sent successfully!' })).toBeFocused()
   // This file runs with reduced motion: no confetti (lottie ignores the CSS rule).
   await expect(page.locator('[data-confetti]')).toHaveCount(0)
 })
@@ -222,4 +224,35 @@ test('client-side validation blocks an empty submission', async ({ page }) => {
   await expect(page.getByText('Name must be at least 2 characters')).toBeVisible()
   await expect(page.getByText('Please select a subject')).toBeVisible()
   expect(calls).toBe(0)
+})
+
+test('pressing Enter in a field submits the form, like Go on a phone keyboard', async ({ page }) => {
+  await openContactForm(page)
+  await waitForTurnstileToken(page)
+  await fillForm(page)
+  await page.locator('#contact form').getByLabel('Email Address').press('Enter')
+
+  await expect(page.getByText('Message sent successfully!')).toBeVisible({ timeout: SEND_TIMEOUT })
+})
+
+test('validation errors are tied to their fields for screen readers', async ({ page }) => {
+  await openContactForm(page)
+  await waitForTurnstileToken(page)
+  await page.getByRole('button', { name: /Send Message/ }).click()
+
+  const form = page.locator('#contact form')
+  for (const [label, message] of [
+    ['Your Name', 'Name must be at least 2 characters'],
+    ["What's this about?", 'Please select a subject'],
+  ]) {
+    const field = form.getByLabel(label)
+    await expect(field).toHaveAttribute('aria-invalid', 'true')
+    await expect(field).toHaveAccessibleDescription(message)
+  }
+  // The first invalid field is focused, and its label clears the fixed navbar.
+  const name = form.getByLabel('Your Name')
+  await expect(name).toBeFocused()
+  const navBottom = await page.locator('nav[aria-label="Primary"]').evaluate((el) => el.getBoundingClientRect().bottom)
+  const labelTop = await form.locator('label[for="name"]').evaluate((el) => el.getBoundingClientRect().top)
+  expect(labelTop).toBeGreaterThanOrEqual(navBottom)
 })
