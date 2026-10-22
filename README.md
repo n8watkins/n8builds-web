@@ -297,7 +297,7 @@ npm run test:unit    # Vitest unit tests (tests/unit)
 npm run test:e2e     # Playwright: contact API + Chromium, against a production build
 npm run test:e2e:all # Playwright on every browser project (Chromium, Firefox, WebKit, mobile)
 npm run test:ui      # Run Playwright in UI mode
-npm run lighthouse   # Run Lighthouse CI performance audit
+npm run lighthouse   # Lighthouse CI on /, /blog, a build page and /loadout (build first; see below)
 npm run analyze      # Build with bundle analysis (ANALYZE=true)
 
 # Maintenance
@@ -305,10 +305,21 @@ npm run clean        # Clean .next and out directories
 npm run prepare      # Setup Husky git hooks
 ```
 
+### Lighthouse
+
+`lighthouserc.js` starts the production build on `LHCI_PORT` (default 3747) and audits four pages against category-score and Core Web Vitals budgets.
+
+```bash
+npm run build && LHCI_PORT=3747 npm run lighthouse
+```
+
+Under WSL, set `CHROME_PATH` to a Linux Chrome; otherwise Chrome's launcher drops Windows-named temp folders into the repo.
+A nightly GitHub Actions job runs it too.
+
 ### Code Quality
 
 - **TypeScript Strict Mode** - Type-safe codebase
-- **ESLint** with Next.js configuration — `npm run lint` reports **0 errors** (15 pre-existing `react-hooks` warnings)
+- **ESLint** with Next.js configuration - `npm run lint` fails on any error **or warning** (`--max-warnings 0`), locally and in CI
 - **Husky + lint-staged** - Pre-commit hooks run `eslint --fix` on staged files
 - **Component-driven development** with modular architecture
 - **Inline documentation** - JSDoc comments across security and email modules

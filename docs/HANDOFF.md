@@ -1,6 +1,6 @@
 # HANDOFF - n8builds (n8builds-web)
 
-_Last updated: 2026-10-21._
+_Last updated: 2026-10-22._
 This file describes the current state only.
 Session-by-session history up to 2026-06-25 lives in `docs/archive/HANDOFF-2026-06.md`.
 Manual steps that need the owner (logins, dashboards) live in `docs/OWNER_TODO.md`.
@@ -117,6 +117,13 @@ Flow (`app/api/contact/route.ts`): size check (10KB), per-IP rate limit, JSON + 
 - Env or `next.config.mjs` changes need a server restart.
 - Node scripts that import project dependencies must run from inside the repo; import Playwright as `@playwright/test`.
 - `npm run type-check` can report errors from stale generated types after deleting a route; `rm -rf .next/types .next/dev` and rerun.
+- `npm run lint` fails on any warning (CI too).
+- Reduced motion is honored everywhere: CSS animations stop globally, Motion uses `MotionConfig reducedMotion="user"`, and timer-driven cycles check `usePrefersReducedMotion` (`hooks/`).
+  `Marquee` requires a `label` prop (its reduced-motion fallback is a labelled, keyboard-reachable list).
+  `tests/e2e/reduced-motion.spec.ts` covers this.
+- Known dev-only noise: `next dev` (Turbopack) logs a 404 for a stale preload hint of the lazily loaded confetti chunk (`ConfettiPlayer`).
+  The chunk itself loads and the confetti renders; production (webpack) is unaffected.
+- Lighthouse: `npm run build && LHCI_PORT=3747 npm run lighthouse`; under WSL set `CHROME_PATH` to a Linux Chrome.
 - Project memory for Claude sessions: `~/.claude/projects/-home-natkins-n8builds-n8builds-web/memory/`.
 
 ## File map
@@ -136,6 +143,33 @@ Flow (`app/api/contact/route.ts`): size check (10KB), per-IP rate limit, JSON + 
 - `tests/unit/`, `tests/e2e/`, `playwright.config.ts`, `vitest.config.ts`.
 - `public/builds/<slug>/`: build icons and screenshots; `public/tab/`: favicons and OG image.
 - `docs/`: this file, `OWNER_TODO.md`, `N8BUILDS_PLAN.md`, `N8_NOTIONS_BLOG_IMPLEMENTATION.md`, `CLOUDFLARE_SECURITY.md`, `archive/`.
+
+## Next up: Tailwind 4 upgrade (start in a fresh session)
+
+Everything else from the 2026-10-21 review is done and merged on `main`.
+Goal: move from Tailwind 3.4 to the latest stable 4.x (at least two weeks old) with **zero visual change** and all checks green.
+It also clears the last `npm audit` findings, which are all Tailwind 3 build-time dependencies (braces, chokidar, micromatch, fast-glob, postcss-selector-parser).
+
+Method:
+
+1. **Baseline first.** On current `main`, screenshot every page (`/`, `/blog`, a post, two `/builds/<slug>`, `/loadout`, `/privacy`, 404) at 1440 and 390 widths, with reduced motion on and all animations paused (`document.getAnimations().forEach(a => { a.currentTime = 0; a.pause() })`), against a production build in `CONTACT_TEST_MODE`.
+   Save them outside the repo.
+2. Run `npx @tailwindcss/upgrade`, then review its diff by hand.
+3. Port `tailwind.config.ts` to CSS (`@theme`, `@plugin`, `@utility`, `@custom-variant`). Before porting each piece, check whether anything still uses it, and drop it if not:
+   - `darkMode: ['class']` becomes `@custom-variant dark` (the site is dark-only via `next-themes`).
+   - The custom `slate-450` / `slate-475` colors (WCAG contrast fixes; keep exact hex values).
+   - The extra opacity steps (`/3`, `/8`, `/12`): v4 accepts any number natively, so these can go.
+   - `tailwindcss-animate` becomes `tw-animate-css`; check `tailwindcss-animated` 2.x supports v4 or replace it.
+   - Custom plugins: `addVariablesForColors` (exposes every color as a CSS variable; v4 does this natively as `--color-*`, so find usages of the old `--<color>` names), the `landscape` variant, and the `bg-grid` / `bg-grid-small` / `bg-dot` utilities (they use `mini-svg-data-uri` and `flattenColorPalette`, which is gone in v4).
+   - The keyframes and animations in `theme.extend`.
+   - shadcn-style HSL CSS variables in `app/globals.css`.
+4. PostCSS: `@tailwindcss/postcss` replaces `tailwindcss` + `autoprefixer`. The production build uses webpack (`next build --webpack`).
+5. Known v4 default changes to check visually: default border and divide color (now `currentColor`), `ring` width (3px to 1px) and color, `shadow-sm` / `rounded-sm` / `blur-sm` renamed scales, `outline-none`, placeholder color, `space-*` selector change, hover only applying on devices that can hover, and the OKLCH default palette (slightly different colors; axe contrast tests will catch regressions).
+6. Re-screenshot and compare with the baseline (pixel diff); fix every difference that isn't explained by the palette change.
+7. Verify: `npm run lint`, `npm run type-check`, `npm run test:unit`, `npm run test:e2e:all` (expect 201+ passing, including axe), `npm audit --omit=dev` (expect 0), Lighthouse.
+   Commit in logical steps without an agent co-author trailer.
+
+Browser support after v4: Safari 16.4+, Chrome 111+, Firefox 128+.
 
 ## Backlog
 
