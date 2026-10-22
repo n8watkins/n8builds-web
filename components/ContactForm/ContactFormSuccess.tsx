@@ -1,9 +1,28 @@
 'use client'
 
 import React from 'react'
+import dynamic from 'next/dynamic'
 import { motion } from 'motion/react'
-import Lottie from 'lottie-react'
-import confettiData from '@/data/confetti.json'
+
+// lottie-web is ~74 KB gzipped and only needed after a successful send, so the
+// player and the confetti data load on demand instead of with the homepage.
+// ContactFormLoading calls preloadConfetti() so both are ready by the time
+// the success screen appears.
+const loadConfetti = () => Promise.all([import('lottie-react'), import('@/data/confetti.json')])
+
+export function preloadConfetti() {
+  void loadConfetti()
+}
+
+const Confetti = dynamic(
+  async () => {
+    const [{ default: Lottie }, { default: confettiData }] = await loadConfetti()
+    return function Confetti() {
+      return <Lottie animationData={confettiData} loop={false} autoplay={true} style={{ height: 600, width: 600 }} />
+    }
+  },
+  { ssr: false }
+)
 
 interface ContactFormSuccessProps {
   showConfetti: boolean
@@ -28,12 +47,7 @@ export function ContactFormSuccess({ showConfetti, confettiKey, onSendAnother }:
           animate={{ opacity: 1 }}
           transition={{ duration: 0.1 }}
         >
-          <Lottie
-            animationData={confettiData}
-            loop={false}
-            autoplay={true}
-            style={{ height: 600, width: 600 }}
-          />
+          <Confetti />
         </motion.div>
       )}
 
