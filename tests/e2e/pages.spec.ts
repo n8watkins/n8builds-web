@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test'
+import { test, expect, type APIRequestContext, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 
 /**
@@ -24,9 +24,15 @@ function trackErrors(page: Page): string[] {
   return errors
 }
 
-async function firstBlogPostPath(page: Page): Promise<string> {
-  await page.goto('/blog')
-  const href = await page.locator('a[href^="/blog/"]').first().getAttribute('href')
+/**
+ * Path of the first post on the blog index. Read from the HTML via the API
+ * client rather than by visiting /blog in the page under test: navigating away
+ * aborts /blog's route prefetches, which WebKit reports as uncaught
+ * "access control checks" errors.
+ */
+async function firstBlogPostPath(request: APIRequestContext): Promise<string> {
+  const html = await (await request.get('/blog')).text()
+  const href = html.match(/href="(\/blog\/[^"?#]+)"/)?.[1]
   expect(href, 'blog index links to at least one post').toBeTruthy()
   return href!
 }
@@ -63,8 +69,8 @@ for (const path of STATIC_PAGES) {
 }
 
 test.describe('blog post', () => {
-  test('renders without errors', async ({ page }) => {
-    const path = await firstBlogPostPath(page)
+  test('renders without errors', async ({ page, request }) => {
+    const path = await firstBlogPostPath(request)
     const errors = trackErrors(page)
     const response = await page.goto(path)
     expect(response?.status()).toBe(200)
@@ -73,8 +79,8 @@ test.describe('blog post', () => {
     expect(errors).toEqual([])
   })
 
-  test('has no serious accessibility violations', async ({ page }) => {
-    await page.goto(await firstBlogPostPath(page))
+  test('has no serious accessibility violations', async ({ page, request }) => {
+    await page.goto(await firstBlogPostPath(request))
     await page.waitForTimeout(SETTLE_MS)
     await expectNoSeriousA11yViolations(page)
   })
