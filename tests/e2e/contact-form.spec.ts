@@ -181,6 +181,16 @@ test('network failures show the generic message', async ({ page }) => {
   await expect(page.locator('#contact form').getByText('Oops! Something went wrong. Please try again or email me directly.')).toBeVisible()
 })
 
+test('Send shows a focus indicator when reached by keyboard', async ({ page }) => {
+  await openContactForm(page)
+  const send = page.getByRole('button', { name: /Send Message/ })
+  await expect(send).toBeEnabled() // hydrated, so focus won't be reset under us
+  await page.locator('#contact form').getByLabel('Tell me more').focus()
+  await page.keyboard.press('Tab')
+  await expect(send).toBeFocused()
+  expect(await send.evaluate((el) => getComputedStyle(el).boxShadow)).not.toBe('none')
+})
+
 test('client-side validation blocks an empty submission', async ({ page }) => {
   let calls = 0
   await page.route('/api/contact', (route) => {
