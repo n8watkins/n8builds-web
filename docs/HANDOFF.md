@@ -23,7 +23,9 @@ Strategy and IA: `docs/N8BUILDS_PLAN.md`.
 - Live at https://n8builds.dev on Vercel (project `n8builds-web`, team natkins23s-projects), auto-deploying from `main`.
 - Stack: Next.js 16 (App Router, webpack build), React 19, TypeScript, Tailwind 4 (configured in `app/globals.css`; there is no `tailwind.config`), Motion (`motion/react`; not framer-motion), Sanity (blog), Nodemailer + Gmail SMTP, Cloudflare Turnstile, Upstash Redis (rate limits), Sentry, GA4, Vercel Speed Insights.
 - Pages: `/` (hero, lab sections, work-with-me, contact), `/blog` + `/blog/[slug]` (N8 Notions, ISR hourly), `/builds/[slug]`, `/loadout`, `/privacy`.
-- **Pending push (2026-10-22):** the review-and-improve pass (security, SEO and mobile fixes, below) is committed locally and verified, but not pushed.
+- **Status (2026-10-22):** everything is pushed and live, including the review-and-improve pass, the marquee fix, the content changes (Scribe, removed builds, Solara featured, VibeLog), and the contact-form edge rate limit.
+- **Next session:** run `docs/prompts/review-2026-10-22-changes.md`.
+  The four rewritten blog posts are still unpublished Sanity drafts, waiting on that review; then the owner checks share cards (`docs/OWNER_TODO.md` 4b, 5b).
 - SEO: every page builds its metadata with `pageMetadata()` (`lib/seo.ts`), which sets the canonical URL, og:url and both share cards with a preview image.
   Next.js merges metadata shallowly, so a page that sets its own `openGraph` without the helper loses the image.
   Blog posts and builds get generated 1200x630 PNG cards (`/blog/<slug>/og.png`, `/builds/<slug>/og.png`, drawn by `lib/og-card.tsx` with `next/og` over the blog-cover art, Inter from `assets/fonts/`).
