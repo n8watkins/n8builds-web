@@ -89,7 +89,17 @@ test.describe('motion allowed', () => {
   test('marquees scroll a repeated track', async ({ page }) => {
     await page.goto('/loadout')
     expect(await page.getByText('Claude Code', { exact: true }).count()).toBeGreaterThan(1)
-    expect(await runningInfiniteAnimations(page)).toBeGreaterThan(0)
+    // Check the marquee tracks themselves, not just "some infinite animation":
+    // pulses elsewhere kept a page-wide count passing while every marquee had
+    // an invalid animation (animation-name: none) and stood still.
+    const tracks = await page.locator('.animate-marquee').evaluateAll((els) =>
+      els.map((el) => ({
+        name: getComputedStyle(el).animationName,
+        running: el.getAnimations().some((a) => a.playState === 'running'),
+      }))
+    )
+    expect(tracks.length).toBeGreaterThan(0)
+    for (const track of tracks) expect(track).toEqual({ name: 'marquee', running: true })
   })
 
   test('the Now Building carousel auto-advances', async ({ page }) => {

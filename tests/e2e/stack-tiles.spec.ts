@@ -14,11 +14,27 @@ test.describe('touch screens', () => {
 
   test('tapping a tile reveals its description', async ({ page }) => {
     await page.goto('/loadout')
-    const tile = page.locator('#techstack figure').first()
-    await tile.scrollIntoViewIfNeeded()
-    await expect.poll(() => descriptionOpacity(tile)).toBe('0')
+    // The marquee row itself doesn't move, unlike the tiles in it.
+    await page.locator('#techstack .overflow-hidden').first().scrollIntoViewIfNeeded()
 
-    await tile.tap()
+    // The marquee keeps moving until the tap focuses a tile (which pauses it),
+    // so tap like a finger does: wherever a tile is fully on screen right now.
+    const target = await page.locator('#techstack figure').evaluateAll((figures) => {
+      for (const [index, figure] of figures.entries()) {
+        const box = figure.getBoundingClientRect()
+        const row = figure.parentElement!.closest('.overflow-hidden')!.getBoundingClientRect()
+        const inView = box.top >= 0 && box.bottom <= innerHeight
+        if (inView && box.left >= row.left + 8 && box.right <= row.right - 8) {
+          return { index, x: box.left + box.width / 2, y: box.top + box.height / 2 }
+        }
+      }
+      return null
+    })
+    expect(target, 'a tile fully on screen').not.toBeNull()
+    const tile = page.locator('#techstack figure').nth(target!.index)
+    expect(await descriptionOpacity(tile)).toBe('0')
+
+    await page.touchscreen.tap(target!.x, target!.y)
     await expect.poll(() => descriptionOpacity(tile)).toBe('1')
   })
 })

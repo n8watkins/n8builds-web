@@ -18,9 +18,6 @@
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
 
-  --animate-marquee: marquee var(--duration) linear infinite;
-  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
-
   @keyframes marquee {
     from {
       transform: translateX(0);
@@ -37,6 +34,15 @@
       transform: translateY(calc(-100% - var(--gap)));
     }
   }
+}
+
+/* Inline, so the utility itself carries `marquee var(--duration) ...` and
+   --duration resolves on the marquee element. A plain @theme variable is set
+   on :root, where --duration doesn't exist, which made the whole animation
+   value invalid (animation-name: none) and stopped every marquee. */
+@theme inline {
+  --animate-marquee: marquee var(--duration) linear infinite;
+  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
 }
 
 @utility custom-scrollbar {
