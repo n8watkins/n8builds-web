@@ -91,6 +91,9 @@ test.describe('motion allowed', () => {
 })
 
 test('shows the server message on failure, and a retry succeeds with a fresh Turnstile token', async ({ page }) => {
+  // Two full Turnstile round trips against Cloudflare's servers: on a busy CI
+  // runner (mobile WebKit in the nightly) that alone can take most of 30s.
+  test.setTimeout(60_000)
   const limitMessage = "Your message didn't go through due to our submission limit."
   const tokens: string[] = []
   let calls = 0
