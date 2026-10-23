@@ -67,18 +67,26 @@ test('every sitemap page has a canonical URL and a working preview image', async
   }
 })
 
-test('a blog post with a generated cover gets its own 1200x630 PNG preview', async ({ request }) => {
+test("a post's share card is its uploaded cover sized 1200x630, or its generated card", async ({ request }) => {
   const post = (await sitemapUrls(request)).find((url) => url.includes('/blog/'))
   expect(post, 'sitemap lists at least one post').toBeTruthy()
 
   const html = await (await request.get(local(post!))).text()
   const ogImage = meta(html, 'property', 'og:image')!
-  expect(ogImage).toBe(`${post}/og.png`)
   expect(meta(html, 'property', 'og:image:width')).toBe('1200')
   expect(meta(html, 'property', 'og:image:height')).toBe('630')
   expect(meta(html, 'property', 'og:type')).toBe('article')
+  // Which one depends on the post's content in Sanity, so accept either.
+  expect(
+    ogImage === `${post}/og.png` ||
+      /^https:\/\/cdn\.sanity\.io\/images\/abgyc32w\/production\/.+\?w=1200&h=630&fit=crop&fm=jpg$/.test(ogImage),
+    ogImage
+  ).toBe(true)
+})
 
-  const image = await request.get(local(ogImage))
+test('the generated share card route renders a 1200x630 PNG for any post', async ({ request }) => {
+  const post = (await sitemapUrls(request)).find((url) => url.includes('/blog/'))!
+  const image = await request.get(`${local(post)}/og.png`)
   expect(image.status()).toBe(200)
   expect(image.headers()['content-type']).toBe('image/png')
   expect(pngSize(await image.body())).toEqual({ width: 1200, height: 630 })
