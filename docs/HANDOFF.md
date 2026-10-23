@@ -99,7 +99,11 @@ Every free check runs before the first Upstash call, so requests without a solve
   There is no "web apps and experiments" shelf (removed 2026-10-22); web apps are featured rows.
   There are no standalone shelf pages; `/lab`, `/extensions` and `/tools` redirect to the anchors, and the retired `/resources` redirects to `#lab` (`next.config.mjs`).
   The navbar "Lab" dropdown scrolls to them.
-- **No "Currently building" section** (removed 2026-10-22, owner's call); the hero pill links to github.com/n8watkins instead.
+- **"What I'm working on"** sits right under the hero (it was removed and then brought back on 2026-10-23), showing Appturnity only with a link to appturnity.com; its band fades in from the hero with no divider.
+  The hero pill links to github.com/n8watkins.
+- **Hero grid:** lit cells wander at random (fade out, jump to a free cell, fade in, each on its own clock) so no pattern repeats; it stays still under reduced motion.
+  Keep it dim: the owner found a brighter version too dramatic.
+- **Blog covers:** each post has its own topic illustration uploaded as its Sanity cover (2026-10-23); the generated "signal" cover is the fallback for posts without one.
   Hero copy (2026-10-22): "Spending tokens, shipping features." with the subline "Apps, Chrome extensions and tools I wish existed, built by Nathan Watkins with AI agents doing the heavy lifting."
   Say "in public" sparingly; the owner felt the old hero overused it.
 - **Appturnity has no build page:** `/builds/appturnity` redirects to appturnity.com, and the site never links Appturnity's GitHub repo.
