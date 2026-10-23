@@ -43,13 +43,14 @@ const featured: FeaturedProject[] = [
     title: 'Solara',
     subtitle: 'Personal UV & Sun-Exposure Dashboard',
     description:
-      'The UV index is a number, not an answer. Solara turns live UV data, your skin type, and your plans into safe sun windows for today and tomorrow, including exactly when you can skip sunscreen. Works without an account; sign in only to sync.',
+      'The UV index is a number, not an answer. Solara turns live UV data, your skin type, sunscreen and activities into safe sun windows for today and the days ahead, with calendar scheduling and push reminders.',
     image: '/builds/solara/og-image.png',
     imageAlt: 'Solara: know your sun window',
     // A wide social card: anchor left so the cover crop keeps the sun.
     imagePosition: 'object-left',
     tags: ['Next.js', 'Firebase', 'Open-Meteo'],
     github: 'https://github.com/n8watkins/solara',
+    liveSite: 'https://uv-activity-planner.web.app',
     buildSlug: 'solara',
   },
 ]

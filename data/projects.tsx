@@ -180,37 +180,40 @@ export const projects = [
     subTitle: 'Developer Portfolio Ranker',
     des: 'Ranks 1,700+ developer portfolios by what is actually good — head-to-head voting, AI scoring, plus lists, saving, and likes.',
     images: ['/projects/PortfolioRank-1.png'],
-    // NOTE: backend stack below is a best-guess (Drizzle/AI) — swap for the real one.
     technologies: {
       Frontend: {
         descriptionParts: [
           {
-            text: 'Responsive UI with head-to-head voting and a live leaderboard',
-            icons: [{ icon: 're.svg' }, { icon: 'next.svg' }, { icon: 'tail.svg' }],
-          },
-          {
-            text: 'Type-safe throughout',
-            icons: [{ icon: 'ts.svg' }],
+            text: 'Face-off voting, a live leaderboard, and a searchable card grid of every portfolio',
+            icons: [{ icon: 're.svg' }, { icon: 'next.svg' }, { icon: 'ts.svg' }, { icon: 'tail.svg' }],
           },
         ],
       },
       Backend: {
         descriptionParts: [
           {
-            text: 'AI scoring ranks portfolios on what actually makes them good',
-            icons: [{ icon: 'gpt.png' }],
+            text: 'GitHub sign-in so each person gets one vote per matchup',
+            icons: [{ icon: 'nextAuth.png' }, { icon: 'github.png' }],
           },
           {
-            text: 'Catalog, votes, lists, saves, and likes stored with a type-safe ORM',
-            icons: [{ icon: 'drizzle.png' }],
+            text: 'Gemini judges portfolios head to head and grades each on a 6-axis rubric',
+            icons: [{ icon: 'gemini.svg' }],
+          },
+          {
+            text: 'Votes, ELO scores and the catalog in a Turso (libSQL) database',
+            icons: [{ icon: 'turso.svg' }],
           },
         ],
       },
       Cloud: {
         descriptionParts: [
           {
-            text: 'Deployed on Vercel with auto-deploy on push',
+            text: 'Vercel hosting; daily GitHub Actions sync the list, judge, and refresh screenshots',
             icons: [{ icon: 'vercel.png' }, { icon: 'github.png' }],
+          },
+          {
+            text: 'Portfolio screenshots stored in Cloudflare R2',
+            icons: [{ icon: 'cloudflare.svg' }],
           },
         ],
       },
@@ -228,29 +231,34 @@ export const projects = [
       Frontend: {
         descriptionParts: [
           {
-            text: 'Static-exported Next.js; every calculation runs in the browser',
-            icons: [{ icon: 'next.svg' }],
+            text: 'Static-exported Next.js app with personalized safe-sun windows, installable as a PWA',
+            icons: [{ icon: 're.svg' }, { icon: 'next.svg' }, { icon: 'ts.svg' }, { icon: 'tail.svg' }],
           },
         ],
       },
       Backend: {
         descriptionParts: [
           {
-            text: 'Live UV from the free Open-Meteo API; Firebase Auth and Firestore sync once you sign in',
+            text: 'Google sign-in, Firestore sync, push notifications and Functions on Firebase',
             icons: [{ icon: 'firebase.png' }],
+          },
+          {
+            text: 'Stripe-backed Pro plan; live UV and weather from Open-Meteo',
+            icons: [{ icon: 'stripe.png' }],
           },
         ],
       },
       Cloud: {
         descriptionParts: [
           {
-            text: 'Firebase Hosting, deployed by GitHub Actions',
+            text: 'Firebase Hosting, deployed by GitHub Actions after the quality gates pass',
             icons: [{ icon: 'firebase.png' }, { icon: 'github.png' }],
           },
         ],
       },
     },
     github: 'https://github.com/n8watkins/solara',
+    liveSite: 'https://uv-activity-planner.web.app',
   },
 ]
 
@@ -309,6 +317,9 @@ export const techNameMapping = {
   'render.png': 'Render',
   'railway.png': 'Railway',
   'drizzle.png': 'Drizzle ORM',
+  'turso.svg': 'Turso',
+  'gemini.svg': 'Gemini',
+  'cloudflare.svg': 'Cloudflare R2',
   'express.svg': 'Express.js',
   'axios.svg': 'Axios',
   'sentry.png': 'Sentry',
