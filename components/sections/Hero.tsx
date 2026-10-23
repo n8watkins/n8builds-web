@@ -23,14 +23,14 @@ function random(seed: number) {
   }
 }
 
-/** Lit cells spread over the whole hero: mostly deep blue, a few cyan accents. */
+/** Lit cells spread over the whole hero, in the original deep blues. */
 const litCells = (() => {
   const rand = random(8)
   const cells: { x: number; y: number; tone: number }[] = []
   for (let y = 0; y < ROWS; y++) {
     for (let x = 0; x < COLS; x++) {
       const r = rand()
-      if (r < 0.1) cells.push({ x, y, tone: r < 0.012 ? 4 : (x + y) % 3 + 1 })
+      if (r < 0.08) cells.push({ x, y, tone: (x + y) % 3 + 1 })
     }
   }
   return cells
@@ -50,32 +50,27 @@ const AnimatedGrid = () => {
             <path
               d={`M.5 ${CELL}V.5H${CELL}`}
               fill="none"
-              stroke="rgba(255,255,255,0.08)"
+              stroke="rgba(255,255,255,0.06)"
               strokeWidth="1"
             />
           </pattern>
 
           <style>{`
             @keyframes n8pulse1 {
-              0%, 100% { fill: #0f1f45; opacity: 0.75; }
-              50%       { fill: #1b3470; opacity: 1; }
+              0%, 100% { fill: #0c1836; opacity: 0.7; }
+              50%       { fill: #172b5c; opacity: 1; }
             }
             @keyframes n8pulse2 {
-              0%, 100% { fill: #13224a; opacity: 0.65; }
-              50%       { fill: #12307e; opacity: 1; }
+              0%, 100% { fill: #141e38; opacity: 0.6; }
+              50%       { fill: #0e2264; opacity: 0.9; }
             }
             @keyframes n8pulse3 {
-              0%, 100% { fill: #172c66; opacity: 0.55; }
-              50%       { fill: #1f3d8a; opacity: 0.95; }
-            }
-            @keyframes n8pulse4 {
-              0%, 100% { fill: #0e4a5c; opacity: 0.45; }
-              50%       { fill: #22d3ee; opacity: 0.55; }
+              0%, 100% { fill: #14275e; opacity: 0.5; }
+              50%       { fill: #1b3274; opacity: 0.85; }
             }
             .n8sq1 { animation: n8pulse1 3.2s ease-in-out infinite; }
             .n8sq2 { animation: n8pulse2 3.8s ease-in-out infinite 0.6s; }
             .n8sq3 { animation: n8pulse3 4.1s ease-in-out infinite 1.2s; }
-            .n8sq4 { animation: n8pulse4 5.3s ease-in-out infinite 0.3s; }
           `}</style>
         </defs>
 
@@ -93,10 +88,9 @@ const AnimatedGrid = () => {
         ))}
       </svg>
 
-      {/* Keep the copy readable: a soft dark pool behind the text column, and a
-          light fade at the far edges. */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_45%_55%_at_28%_55%,rgba(5,8,18,0.82),transparent_75%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_80%_at_50%_45%,transparent_55%,#050812_100%)]" />
+      {/* Fade the grid out toward the edges so it stays a quiet backdrop. */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_58%_60%_at_50%_48%,transparent_0%,#050812_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_66%_60%_at_50%_50%,transparent_36%,#050812_82%)]" />
     </div>
   )
 }
