@@ -195,12 +195,14 @@ const Hero = () => {
   useWireLength(chainRef)
   return (
     <div
-      className="relative flex flex-col min-h-[90vh] md:portrait:min-h-[min(90vh,720px)] items-center justify-center bg-linear-to-b from-darkBlue from-70% to-transparent overflow-hidden select-none"
+      className="relative flex flex-col min-h-[min(90vh,800px)] md:portrait:min-h-[min(90vh,720px)] items-center bg-linear-to-b from-darkBlue from-70% to-transparent overflow-hidden select-none"
       id="home"
     >
       <AnimatedGrid />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 w-full flex flex-col items-center justify-center pt-28 pb-16">
+      {/* Top-aligned, not centered: a slow device paints the hero while it is
+          still streaming in, and re-centering a growing column shifted it up. */}
+      <div className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 w-full flex flex-col items-center pt-28 lg:pt-40 pb-16">
 
 
         <div className="flex flex-col md:flex-row items-center justify-between w-full gap-10 md:gap-8">
