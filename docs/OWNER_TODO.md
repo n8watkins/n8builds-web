@@ -34,16 +34,20 @@ Nothing changes on the site until you hit Publish on each one.
 "Why I Build in Public" already had an unfinished Studio draft (an empty image block and a topic change); the new draft replaced it and kept the topic change.
 Your four other unpublished drafts (Claude Code + MCP, giant list, terminal IDE, 8 agents) were not touched.
 
-## 5. Decisions for you (from the 2026-10-22 review)
+## 5. Contact-form firewall rule (pending your approval)
 
-- **Orphan build pages:** `/builds/appturnity` and `/builds/portfolio-rank` are in the sitemap but nothing on the site links to them (the homepage cards for both link off-site).
-  `/builds/appturnity` also competes with appturnity.com in search.
-  Options: link the homepage cards to their build pages, drop the two from the sitemap, or point `/builds/appturnity`'s canonical at appturnity.com.
-- **`.local-ops.yaml`:** the tracked file describes "Portfolio 2.0" (name, slug and a local path), not this repo.
-  If your local-ops tooling reads it, correct it; otherwise delete it.
-- **Optional, Vercel WAF:** a rate-limit rule on `POST /api/contact` (for example 20/minute per IP) would stop request floods before they reach the function.
-  Junk requests no longer touch Upstash, so this only saves function invocations.
-- **After deploying:** paste a blog post and a build page into a share-card checker (for example opengraph.xyz) to see the new preview images as X, LinkedIn and Facebook will.
+Vercel WAF rate limiting is free on Hobby (1 rule per project, 1M allowed requests, hard cap with no overage billing).
+The planned rule: `POST /api/contact`, 10 requests per 60 seconds per IP, then 429, in front of the app's own limits.
+Add it in Vercel → Project `n8builds-web` → Firewall → Configure → New Rule (Path equals `/api/contact`, Method equals `POST`, Rate Limit, Fixed Window, 60s, 10 requests, key IP, action 429), then Review Changes → Publish.
+
+## 5b. After the review (docs/prompts/review-2026-10-22-changes.md)
+
+Paste a blog post and a build page into a share-card checker (for example opengraph.xyz) to see the preview images as X, LinkedIn and Facebook will.
+
+## Resolved 2026-10-22
+
+- **Orphan build pages:** Appturnity, Portfolio Rank and Solara now have "Build log" buttons on the homepage, so every build page in the sitemap is linked (a test enforces it).
+- **`.local-ops.yaml`:** rewritten for this repo; it had been copied from Portfolio 2.0 (including its `local_ops_id`).
 
 ## 6. Optional
 

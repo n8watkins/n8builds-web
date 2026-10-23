@@ -1,36 +1,46 @@
-local_ops_id: locops_portfolio_2_2026_06
-name: Portfolio 2.0
-slug: portfolio-2
+local_ops_id: locops_n8builds_web_2026_06
+name: n8builds
+slug: n8builds-web
 type: web-app
 status: active
-priority: medium
+priority: high
 project_kind: single
 
 local:
-  path: /home/natkins/personal/portfolio/Portfolio2.0
+  path: /home/natkins/n8builds/n8builds-web
   dev_command: npm run dev
   build_command: npm run build
-  test_command: npm run type-check
+  test_command: npm test
   package_manager: npm
+
+links:
+  - label: Live site
+    type: site
+    url: https://n8builds.dev
+  - label: GitHub
+    type: repo
+    url: https://github.com/n8watkins/n8builds-web
+  - label: Local Folder
+    type: local
+    url: /home/natkins/n8builds/n8builds-web
 
 deployments:
   - provider: vercel
-    production_url:
+    production_url: https://n8builds.dev
 
 docs:
   readme: README.md
-  status: docs/status.md
-  roadmap: docs/roadmap.md
-  decisions: docs/decisions.md
-  links: docs/links.md
-  onboarding: docs/onboarding.md
+  status: docs/HANDOFF.md
+  roadmap: docs/N8BUILDS_PLAN.md
+  decisions: docs/HANDOFF.md
+  links: docs/OWNER_TODO.md
 
 agent:
   agents_md: AGENTS.md
-  claude_md: CLAUDE.md
   update_protocol: false
 
 tags:
-  - portfolio
-  - next
   - personal-site
+  - build-in-public
+  - next
+  - blog
