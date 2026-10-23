@@ -2,7 +2,7 @@
 import React, { useEffect, useId, useRef } from 'react'
 import Image from 'next/image'
 import { motion } from 'motion/react'
-import { FiGithub } from 'react-icons/fi'
+import { FiArrowDown, FiGithub } from 'react-icons/fi'
 import { CiLinkedin } from 'react-icons/ci'
 import { FaXTwitter } from 'react-icons/fa6'
 import WhoamiTerminal from '@/components/features/WhoamiTerminal'
@@ -27,7 +27,12 @@ function random(seed: number) {
 const TONES = ['#0c1836', '#13234d', '#0f1f52', '#16285a']
 // How many cells are lit at once. Each one wanders: it fades out, jumps to a
 // random free cell, and fades back in, all on its own random clock.
-const LIT = 46
+const LIT = 34
+// Where lit cells may appear: a band below the navbar, narrower than the full
+// grid, so the effect sits low and central rather than filling the screen.
+const SPAWN = { minX: 9, maxX: 31, minY: 3, maxY: 13 }
+const spawnX = (r: number) => SPAWN.minX + Math.floor(r * (SPAWN.maxX - SPAWN.minX + 1))
+const spawnY = (r: number) => SPAWN.minY + Math.floor(r * (SPAWN.maxY - SPAWN.minY + 1))
 
 type Cell = { x: number; y: number; fill: string; peak: number }
 
@@ -41,8 +46,8 @@ const initialCells: Cell[] = (() => {
   const used = new Set<string>()
   const cells: Cell[] = []
   while (cells.length < LIT) {
-    const x = Math.floor(rand() * COLS)
-    const y = Math.floor(rand() * ROWS)
+    const x = spawnX(rand())
+    const y = spawnY(rand())
     if (used.has(`${x},${y}`)) continue
     used.add(`${x},${y}`)
     cells.push({ x, y, fill: TONES[Math.floor(rand() * TONES.length)], peak: 0.45 + rand() * 0.4 })
@@ -83,7 +88,7 @@ const AnimatedGrid = () => {
         occupied.delete(`${current.x},${current.y}`)
         let next = current
         for (let tries = 0; tries < 20; tries++) {
-          const candidate = { x: Math.floor(Math.random() * COLS), y: Math.floor(Math.random() * ROWS) }
+          const candidate = { x: spawnX(Math.random()), y: spawnY(Math.random()) }
           if (!occupied.has(`${candidate.x},${candidate.y}`)) {
             next = candidate
             break
@@ -198,7 +203,7 @@ const Hero = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.45 }}
-              className="relative w-fit font-mono text-[0.7rem] select-none"
+              className="relative w-fit font-mono text-[0.72rem] sm:text-[0.85rem] select-none [--n8wire:360px] sm:[--n8wire:430px]"
             >
               <style>{`
                 @property --n8ang {
@@ -244,15 +249,15 @@ const Hero = () => {
                    chips). Tight hand-off both ends: starts ~78%, right as ship's comet
                    lands on the 4:30 corner (no lead-in gap), travels the WHOLE wire, and
                    reaches the idea corner ~99%, right before the loop restarts and idea
-                   lights (no trailing gap). The -280 offset ~ the wire's on-screen pixel
-                   length, since non-scaling-stroke makes the dash use px, ignoring
-                   pathLength. (If it still stops short, raise -280; if it vanishes early
-                   before idea, lower it.) */
+                   lights (no trailing gap). --n8wire ~ the wire's on-screen pixel length
+                   (set per breakpoint on the wrapper), since non-scaling-stroke makes
+                   the dash use px, ignoring pathLength. Re-measure it whenever the
+                   chips change size. */
                 @keyframes n8loopComet {
                   0%, 75%  { stroke-dashoffset: 0;    opacity: 0; }
                   77%      { stroke-dashoffset: 0;    opacity: 1; }
-                  99%      { stroke-dashoffset: -280; opacity: 1; }
-                  100%     { stroke-dashoffset: -300; opacity: 0; }
+                  99%      { stroke-dashoffset: calc(var(--n8wire) * -1); opacity: 1; }
+                  100%     { stroke-dashoffset: calc(var(--n8wire) * -1 - 20px); opacity: 0; }
                 }
 
                 .n8-cnode {
@@ -352,10 +357,10 @@ const Hero = () => {
                 }
               `}</style>
               <div className="flex items-center gap-1.5">
-                {['idea', 'prompt', 'build', 'stream', 'ship'].map((w, i, arr) => (
+                {['idea', 'prompt', 'build', 'ship', 'repeat'].map((w, i, arr) => (
                   <React.Fragment key={w}>
                     <span
-                      className={`n8-cnode rounded-md border px-2 py-1 lowercase tracking-wide${
+                      className={`n8-cnode rounded-md border px-2 py-1 sm:px-3 sm:py-1.5 lowercase tracking-wide${
                         i > 0 && i < arr.length - 1 ? ' n8-split' : ''
                       }`}
                       style={{
@@ -412,11 +417,12 @@ const Hero = () => {
             >
               <a
                 href="#now"
-                className="relative inline-flex h-10 overflow-hidden rounded-xl p-px transition-all duration-200 hover:scale-[1.02]"
+                className="group relative inline-flex h-12 overflow-hidden rounded-xl p-px transition-all duration-200 hover:scale-[1.02]"
               >
                 <span className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#22d3ee_0%,#2563eb_50%,#22d3ee_100%)]" />
-                <span className="inline-flex h-full w-full items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-bold text-slate-100 backdrop-blur-3xl">
+                <span className="inline-flex h-full w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-6 text-base font-bold text-slate-100 backdrop-blur-3xl">
                   See what I&apos;m building
+                  <FiArrowDown aria-hidden className="h-4 w-4 transition-transform duration-200 group-hover:translate-y-0.5" />
                 </span>
               </a>
             </motion.div>
@@ -430,12 +436,12 @@ const Hero = () => {
               className="flex items-center gap-0.5 -ml-2"
             >
               {[
-                { href: 'https://github.com/n8watkins', label: 'GitHub', icon: <FiGithub className="w-[1.35rem] h-[1.35rem]" /> },
-                { href: 'https://linkedin.com/in/n8watkins', label: 'LinkedIn', icon: <CiLinkedin className="w-7 h-7" /> },
-                { href: 'https://x.com/n8watkins', label: 'X', icon: <FaXTwitter className="w-[1.2rem] h-[1.2rem]" /> },
+                { href: 'https://github.com/n8watkins', label: 'GitHub', icon: <FiGithub className="w-[1.6rem] h-[1.6rem]" /> },
+                { href: 'https://linkedin.com/in/n8watkins', label: 'LinkedIn', icon: <CiLinkedin className="w-8 h-8" /> },
+                { href: 'https://x.com/n8watkins', label: 'X', icon: <FaXTwitter className="w-[1.4rem] h-[1.4rem]" /> },
               ].map(s => (
                 <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label}
-                  className="w-11 h-11 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/8 transition-all duration-150">
+                  className="w-12 h-12 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/8 transition-all duration-150">
                   {s.icon}
                 </a>
               ))}
@@ -449,7 +455,7 @@ const Hero = () => {
             initial={{ scale: 0.95 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.6, delay: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
-            className="w-56 h-56 sm:w-68 sm:h-68 md:w-76 md:h-76 relative shrink-0"
+            className="w-64 h-64 sm:w-76 sm:h-76 md:w-84 md:h-84 lg:w-96 lg:h-96 relative shrink-0"
           >
             <div className="absolute inset-0 rounded-full bg-linear-to-br from-cyan-500/20 to-blue-600/20 blur-xl scale-110" />
             <div className="relative w-full h-full">
@@ -461,7 +467,7 @@ const Hero = () => {
                 priority
                 placeholder="blur"
                 blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-                sizes="(max-width: 640px) 14rem, (max-width: 768px) 17rem, 19rem"
+                sizes="(max-width: 640px) 16rem, (max-width: 768px) 19rem, (max-width: 1024px) 21rem, 24rem"
                 alt="Nathan Watkins — builder based in Los Angeles"
               />
             </div>
