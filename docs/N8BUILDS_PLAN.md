@@ -1,6 +1,6 @@
 # n8builds — The Big Plan
 
-> Status: SHIPPED to prod (n8builds.dev) — Loadout, shelves, homepage redesign (extensions showcase, Projects+Lab merge, free-tools trio, Currently-Building section, galleries, tech-stack bento), N8 Notions blog, hero electrified-circuit animation. Remaining: `/builds` Log index page, live-status layer, real screenshots for TL;DW/LocalDictate.
+> Status: SHIPPED to prod (n8builds.dev) — Loadout, shelves, homepage redesign (extensions showcase, Projects+Lab merge, free-tools trio, Currently-Building section, galleries, tech-stack bento), N8 Notions blog, hero electrified-circuit animation. Remaining: `/builds` Log index page, live-status layer, real screenshots for TL;DW/Scribe.
 > Last updated: 2026-06-21 (hero `whoami` terminal + "build philosophy" electrified-circuit animation are SHIPPED on `main` — the `feat/hero-terminal-circuit` branch was merged and deleted; everything is on `main`)
 > Site: n8builds.dev — the public workshop (Next.js 16 + React 19, on Vercel, Cloudflare DNS)
 
@@ -69,7 +69,7 @@ what I was last doing.
 2. **Lab** (`/lab`) — the filterable grid of everything I'm building. Projects + experiments were MERGED into one Lab shelf; there is no separate `/projects` route. Proof-of-work spine.
 3. **Extensions** (`/extensions`) — the Chrome extensions; own shelf, github/live "Install" links.
 4. **Loadout** (`/loadout`) — Tech Loadout + The Rig + Desk. (replaces the dry "/uses" idea)
-5. **Tools** (`/tools`) — dev tools and free utilities I made (Scribe/LocalDictate, the free-tools trio).
+5. **Tools** (`/tools`) — dev tools and free utilities I made (Scribe, the free-tools trio).
 
 **SHIPPED SINCE**
 - **N8 Notions** (`/blog`) — the Sanity-backed blog (nav label "Notions") + homepage `NotionsStrip`. Live. See `docs/N8_NOTIONS_BLOG_IMPLEMENTATION.md`.
@@ -196,7 +196,7 @@ Suggestion Box *(in the lab)*, Portfolio Rank.
 **Chrome extensions (own shelf):** Piper TTS, TL;DW, TubeVault. Plus the Chrome Extension
 Launch Kit (a starter template) and JobSignal's Mark-Applied extension.
 **Streaming tool:** VibeLog (the OBS/telemetry tool behind the planned "LIVE on VibeLog" badge).
-**Desktop app / Tools:** LocalDictate (a.k.a. Scribe) — local speech-to-text (Tauri + whisper.cpp).
+**Desktop app / Tools:** Scribe — local speech-to-text (Tauri + whisper.cpp).
 **GitHub Actions bot:** Repo Steward.
 
 (Removed from this list: items that were never in the data — cutelyask.me, FitFlow 7,

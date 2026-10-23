@@ -5,7 +5,7 @@ It reviews everything shipped on 2026-10-22: the review-and-improve pass, the ma
 It is read-only until it reports, and it never publishes Sanity drafts or changes Vercel or Cloudflare settings.
 
 Written 2026-10-22.
-The commit range is pinned: `4737d9e` is the last commit before this work, so later commits are out of scope.
+The commit range is pinned: it starts after `4737d9e` (the last commit before this work) and ends at the commit that last edited this prompt, so later commits are out of scope.
 
 ## The prompt
 
@@ -14,12 +14,12 @@ Read docs/HANDOFF.md, docs/OWNER_TODO.md and README.md for context on n8builds-w
 
 ## Scope
 
-1. Code: every commit in `git log 4737d9e..49e146d` (run `git diff 4737d9e..49e146d --stat` first). Main areas:
+1. Code: every commit from `4737d9e` to the commit that last edited this prompt. Find it with `END=$(git log -1 --format=%h -- docs/prompts/review-2026-10-22-changes.md)`, then run `git log 4737d9e..$END` and `git diff 4737d9e..$END --stat` first. Main areas:
    - SEO: lib/seo.ts (pageMetadata, JSON-LD), lib/og-card.tsx and the og.png routes for blog posts and builds, app/sitemap.ts, not-found metadata, permanent redirects in next.config.mjs.
    - Security: the contact route's check order (all free checks before Upstash), the per-recipient auto-reply limit, IPv6 /64 keys, the 415 for non-JSON, greetingName, the name regex, the image optimizer's exact sources, the custom Sentry tunnel at app/monitoring/route.ts, lib/sentry-scrub.ts.
    - UX: Navbar (lg breakpoint, overlay menu with scroll lock, backdrop, Escape), NowBuilding (stacked cards, pause rules, made the main section), contact form (submit on Enter, aria-invalid/describedby, success focus, focusFirstError), marquee fix in app/globals.css (@theme inline), small touch-target and wrapping fixes.
-   - Content: LocalDictate renamed Scribe (/builds/scribe, redirect from /builds/localdictate), four builds removed with redirects, Solara featured, VibeLog spelling, Asset Arsenal out of the carousel.
-2. Live site: after confirming the deploy of 49e146d is live, check https://n8builds.dev with read-only GET requests: share cards and og.png images, canonicals, sitemap.xml (every URL returns 200, no redirects), the redirects (www and n8builds-web.vercel.app to apex, /builds/localdictate, removed builds, /lab and friends), security headers, and the homepage on a phone-sized and a tablet-sized viewport.
+   - Content: the dictation app is Scribe at /builds/scribe (the old name is fully retired, with no redirect), four builds removed with redirects, Solara featured, VibeLog spelling, Asset Arsenal out of the carousel.
+2. Live site: after confirming the deploy of $END is live, check https://n8builds.dev with read-only GET requests: share cards and og.png images, canonicals, sitemap.xml (every URL returns 200, no redirects), the redirects (www and n8builds-web.vercel.app to apex, removed builds, /lab and friends), security headers, and the homepage on a phone-sized and a tablet-sized viewport.
 3. Sanity drafts (read only): drafts.sample-welcome, drafts.sample-build-in-public, drafts.sample-distribution and drafts.sample-speed-beats-mastery in project abgyc32w. Use the Sanity CLI login token from ~/.config/sanity/config.json for read access, and never print it. For each post:
    - verify every factual claim against the linked source (numbers, dates, who said what, what a study actually measured)
    - check that each graphic matches the text and its source, and that alt text describes it

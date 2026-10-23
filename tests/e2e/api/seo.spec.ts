@@ -139,9 +139,3 @@ test('retired routes redirect permanently', async ({ request }) => {
     expect(response.status(), path).toBe(308)
   }
 })
-
-test('the old LocalDictate page redirects to Scribe', async ({ request }) => {
-  const response = await request.get('/builds/localdictate', { maxRedirects: 0 })
-  expect(response.status()).toBe(308)
-  expect(response.headers().location).toBe('/builds/scribe')
-})
