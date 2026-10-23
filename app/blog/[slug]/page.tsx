@@ -10,7 +10,7 @@ import { PortableTextRenderer } from '@/components/blog/portable-text'
 import { formatPostDate } from '@/lib/blog-utils'
 import JsonLd from '@/components/JsonLd'
 import { getAllPosts, getPostBySlug, getRelatedPosts, type Post } from '@/lib/sanity'
-import { blogPostingJsonLd, pageMetadata, summarize, type PreviewImage } from '@/lib/seo'
+import { blogPostingJsonLd, pageMetadata, shareSummary, summarize, type PreviewImage } from '@/lib/seo'
 
 export const revalidate = 3600
 
@@ -23,20 +23,12 @@ export async function generateStaticParams() {
   return posts.map((p) => ({ slug: p.slug.current }))
 }
 
-const postDescription = (post: Post) => summarize(post.seoDescription || post.excerpt || 'A note from N8 Notions.')
+const postSummary = (post: Post) => post.seoDescription || post.excerpt || 'A note from N8 Notions.'
+const postDescription = (post: Post) => summarize(postSummary(post))
 
-/**
- * The post's share image: an uploaded SEO image or cover (cropped to card size
- * by Sanity's CDN), otherwise its generated card (og.png/route.tsx).
- */
+/** The post's share image: its titled card (og.png/route.tsx) over its cover. */
 function postPreview(post: Post): PreviewImage {
-  const uploaded = post.seoOgUrl || post.coverUrl
-  return {
-    url: uploaded ? `${uploaded}?w=1200&h=630&fit=crop&fm=jpg` : `/blog/${post.slug.current}/og.png`,
-    width: 1200,
-    height: 630,
-    alt: post.coverAlt || post.title,
-  }
+  return { url: `/blog/${post.slug.current}/og.png`, width: 1200, height: 630, alt: post.title }
 }
 
 export async function generateMetadata({ params }: PostPageProps): Promise<Metadata> {
@@ -47,6 +39,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
   return pageMetadata({
     title: `${post.title} | n8builds`,
     description: postDescription(post),
+    shareDescription: post.seoShareDescription || shareSummary(postSummary(post)),
     path: `/blog/${slug}`,
     image: postPreview(post),
     article: { publishedTime: post.publishedAt, authors: post.author ? [post.author] : undefined },

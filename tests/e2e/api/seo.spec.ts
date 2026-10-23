@@ -71,7 +71,7 @@ test('every sitemap page has a canonical URL and a working preview image', async
   }
 })
 
-test("a post's share card is its uploaded cover sized 1200x630, or its generated card", async ({ request }) => {
+test("a post's share card is its titled og.png card, with a short description", async ({ request }) => {
   const post = (await sitemapUrls(request)).find((url) => url.includes('/blog/'))
   expect(post, 'sitemap lists at least one post').toBeTruthy()
 
@@ -80,12 +80,11 @@ test("a post's share card is its uploaded cover sized 1200x630, or its generated
   expect(meta(html, 'property', 'og:image:width')).toBe('1200')
   expect(meta(html, 'property', 'og:image:height')).toBe('630')
   expect(meta(html, 'property', 'og:type')).toBe('article')
-  // Which one depends on the post's content in Sanity, so accept either.
-  expect(
-    ogImage === `${post}/og.png` ||
-      /^https:\/\/cdn\.sanity\.io\/images\/abgyc32w\/production\/.+\?w=1200&h=630&fit=crop&fm=jpg$/.test(ogImage),
-    ogImage
-  ).toBe(true)
+  expect(ogImage).toBe(`${post}/og.png`)
+  // Previews show about 120 characters, and the card never ends mid-thought.
+  const description = meta(html, 'property', 'og:description')!
+  expect(description.length, description).toBeLessThanOrEqual(120)
+  expect(description, description).not.toMatch(/…$/)
 })
 
 test('the generated share card route renders a 1200x630 PNG for any post', async ({ request }) => {

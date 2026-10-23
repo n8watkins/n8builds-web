@@ -31,6 +31,7 @@ export type Post = {
   coverAlt?: string
   gallery?: { url: string; alt?: string }[]
   seoDescription?: string
+  seoShareDescription?: string
   seoOgUrl?: string
   body?: any[]
 }
@@ -60,6 +61,7 @@ export const getPostBySlug = cache((slug: string) =>
       tags,
       "gallery": gallery[]{ "url": asset->url, "alt": alt },
       "seoDescription": seo.metaDescription,
+      "seoShareDescription": seo.shareDescription,
       "seoOgUrl": seo.ogImage.asset->url,
       body[]{
         ...,

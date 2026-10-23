@@ -5,9 +5,9 @@ import { coverAccent, coverSvg } from '@/lib/blog-cover'
 
 /**
  * Social share cards (Open Graph and Twitter, 1200x630 PNG) for pages with
- * their own preview: blog posts and build pages. The background is the same
- * generated "signal" art as the blog covers (lib/blog-cover.ts), so a post's
- * card matches its cover: same waveform, same topic colour.
+ * their own preview: blog posts and build pages. The background is the post's
+ * uploaded cover when it has one, otherwise the same generated "signal" art as
+ * the blog covers (lib/blog-cover.ts), so a card always matches its cover.
  */
 
 export const CARD_SIZE = { width: 1200, height: 630 }
@@ -33,6 +33,7 @@ export async function shareCard({
   title,
   subtitle,
   footer,
+  background,
 }: {
   /** Seeds the waveform (the post or build slug). */
   seed: string
@@ -42,17 +43,19 @@ export async function shareCard({
   title: string
   subtitle?: string
   footer: string
+  /** A 1200x630 image (data URL) to draw instead of the generated art. */
+  background?: string
 }) {
   const [medium, extraBold, icon] = await assets
   const accent = coverAccent(topic, seed)
-  const art = `data:image/svg+xml;base64,${Buffer.from(coverSvg(topic, seed)).toString('base64')}`
+  const art = background ?? `data:image/svg+xml;base64,${Buffer.from(coverSvg(topic, seed)).toString('base64')}`
 
   return new ImageResponse(
     (
       <div style={{ display: 'flex', width: '100%', height: '100%', background: '#050812', fontFamily: 'Inter' }}>
         {/* eslint-disable-next-line @next/next/no-img-element -- rendered by Satori, not the browser */}
         <img src={art} width={CARD_SIZE.width} height={CARD_SIZE.height} alt="" style={{ position: 'absolute', top: 0, left: 0 }} />
-        {/* Darken the left side so the text always reads over the waveform. */}
+        {/* Darken the left side so the text always reads over the art. */}
         <div
           style={{
             position: 'absolute',
@@ -60,7 +63,11 @@ export async function shareCard({
             left: 0,
             width: '100%',
             height: '100%',
-            backgroundImage: 'linear-gradient(90deg, rgba(5,8,18,0.9) 0%, rgba(5,8,18,0.7) 45%, rgba(5,8,18,0) 85%)',
+            // Uploaded covers are busier than the waveform (text, UI mockups), so
+            // they get dimmed across the whole card as well.
+            backgroundImage: background
+              ? 'linear-gradient(90deg, rgba(5,8,18,0.92) 0%, rgba(5,8,18,0.8) 50%, rgba(5,8,18,0.55) 100%)'
+              : 'linear-gradient(90deg, rgba(5,8,18,0.9) 0%, rgba(5,8,18,0.7) 45%, rgba(5,8,18,0) 85%)',
           }}
         />
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '64px 72px', width: '100%' }}>
@@ -81,6 +88,7 @@ export async function shareCard({
                 lineHeight: 1.08,
                 letterSpacing: -1.5,
                 color: '#f8fafc',
+                textShadow: '0 2px 24px rgba(5,8,18,0.9)',
                 lineClamp: 3,
               }}
             >

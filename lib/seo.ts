@@ -69,6 +69,24 @@ export function summarize(text: string, max = 155): string {
   return `${cut.slice(0, cut.lastIndexOf(' ')).replace(/[\s,;:.—-]+$/, '')}…`
 }
 
+/**
+ * Shorten text for a share card (previews show about 120 characters): whole
+ * sentences while they fit, so the card never ends mid-thought. Falls back to
+ * a word-boundary cut when even the first sentence is too long.
+ */
+export function shareSummary(text: string, max = 120): string {
+  const clean = text.replace(/\s+/g, ' ').trim()
+  if (clean.length <= max) return clean
+  // A sentence ends at . ! or ? followed by a space, so "n8builds.dev" stays whole.
+  let out = ''
+  for (const sentence of clean.split(/(?<=[.!?])\s+/)) {
+    const next = out ? `${out} ${sentence}` : sentence
+    if (next.length > max) break
+    out = next
+  }
+  return out || summarize(clean, max)
+}
+
 /** Absolute URL for a site-relative path. */
 export const absoluteUrl = (path: string) => new URL(path, SITE_URL).toString()
 
