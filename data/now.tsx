@@ -17,6 +17,8 @@ export interface NowState {
   goal: string
   stack: string[]
   links?: { github?: string; live?: string }
+  /** Its page on this site (/builds/<slug>), from data/builds.tsx. */
+  buildSlug?: string
   /** recent build-log lines, newest first */
   updates: NowUpdate[]
 }
@@ -31,6 +33,7 @@ export const nowItems: NowState[] = [
     goal: 'A consulting front door that scopes, prices, and kicks off real software for clients.',
     stack: ['React', 'TypeScript', 'Tailwind', 'Express'],
     links: { github: 'https://github.com/n8watkins/appturnity', live: 'https://appturnity.com' },
+    buildSlug: 'appturnity',
     updates: [
       { date: 'Jun 18', text: 'Live at appturnity.com — scoping new client builds.' },
       { date: 'Jun 12', text: 'Refined the on-site services and pricing breakdown.' },
@@ -44,6 +47,7 @@ export const nowItems: NowState[] = [
     goal: 'Turn any coding session into a watchable story — live stats now, recap after.',
     stack: ['Node.js', 'TypeScript', 'OBS'],
     links: { github: 'https://github.com/n8watkins' },
+    buildSlug: 'vibelog',
     updates: [
       { date: 'Jun 11', text: 'Markers ("vibe mark feature/bug") now annotate the session live.' },
       { date: 'Jun 09', text: 'Overlay served as an OBS browser source at localhost:4545/overlay.' },

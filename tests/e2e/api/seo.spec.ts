@@ -139,3 +139,13 @@ test('retired routes redirect permanently', async ({ request }) => {
     expect(response.status(), path).toBe(308)
   }
 })
+
+// A page that is only in the sitemap, with no link from the site, is an
+// orphan: crawlers rank it poorly and visitors can never reach it.
+test('every build page in the sitemap is linked from the homepage', async ({ request }) => {
+  const builds = (await sitemapUrls(request)).filter((url) => url.includes('/builds/')).map(local)
+  const html = await (await request.get('/')).text()
+  const linked = new Set([...html.matchAll(/href="(\/builds\/[^"#?]+)"/g)].map((m) => m[1]))
+  expect(builds.length).toBeGreaterThan(5)
+  expect(builds.filter((path) => !linked.has(path)), 'build pages with no homepage link').toEqual([])
+})

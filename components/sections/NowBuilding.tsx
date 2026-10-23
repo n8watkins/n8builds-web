@@ -1,5 +1,6 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
 import {
   FiGithub,
   FiExternalLink,
@@ -8,6 +9,7 @@ import {
   FiChevronRight,
   FiArrowUpRight,
   FiPause,
+  FiFileText,
   FiPlay,
 } from 'react-icons/fi'
 import { MdRadioButtonChecked } from 'react-icons/md'
@@ -57,7 +59,7 @@ const Card = ({ now }: { now: NowState }) => (
         ))}
       </div>
 
-      {(now.links?.github || now.links?.live) && (
+      {(now.links?.github || now.links?.live || now.buildSlug) && (
         <div className="mt-1 flex flex-wrap gap-3">
           {now.links?.live && (
             <a href={now.links.live} target="_blank" rel="noopener noreferrer"
@@ -70,6 +72,12 @@ const Card = ({ now }: { now: NowState }) => (
               className="flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8">
               <FiGithub className="h-3.5 w-3.5" /> GitHub
             </a>
+          )}
+          {now.buildSlug && (
+            <Link href={`/builds/${now.buildSlug}`}
+              className="flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8">
+              <FiFileText className="h-3.5 w-3.5" /> Build log
+            </Link>
           )}
         </div>
       )}

@@ -1,8 +1,9 @@
 'use client'
 import React, { useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { motion } from 'motion/react'
-import { FiGithub, FiExternalLink } from 'react-icons/fi'
+import { FiGithub, FiExternalLink, FiFileText } from 'react-icons/fi'
 import { defaultAnimationConfig } from '@/lib/animations'
 import TechStackCycle from '@/components/Projects/TechStackCycle'
 import { projects } from '@/data/projects'
@@ -16,6 +17,8 @@ interface FeaturedProject {
   tags: string[]
   github?: string
   liveSite?: string
+  /** Its page on this site (/builds/<slug>), from data/builds.tsx. */
+  buildSlug: string
   imageAlt: string
   /** object-position for the main image, when the top-centre crop cuts the art. */
   imagePosition?: string
@@ -33,6 +36,7 @@ const featured: FeaturedProject[] = [
     tags: ['Next.js', 'TypeScript', 'Vercel'],
     github: 'https://github.com/n8watkins/portfolio-rank',
     liveSite: 'https://portfoliorank.vercel.app/',
+    buildSlug: 'portfolio-rank',
   },
   {
     title: 'Solara',
@@ -45,6 +49,7 @@ const featured: FeaturedProject[] = [
     imagePosition: 'object-left',
     tags: ['Next.js', 'Firebase', 'Open-Meteo'],
     github: 'https://github.com/n8watkins/solara',
+    buildSlug: 'solara',
   },
 ]
 
@@ -117,7 +122,7 @@ const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: b
       )}
 
       {/* Links */}
-      <div className="flex items-center gap-3 pt-1">
+      <div className="flex flex-wrap items-center gap-3 pt-1">
         {project.liveSite && (
           <a href={project.liveSite} target="_blank" rel="noopener noreferrer"
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold text-sm transition-all duration-200 hover:scale-[1.02]">
@@ -132,6 +137,10 @@ const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: b
             GitHub
           </a>
         )}
+        <Link href={`/builds/${project.buildSlug}`} className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/12 bg-white/4 hover:bg-white/8 text-slate-300 font-semibold text-sm transition-all duration-200 hover:scale-[1.02]">
+          <FiFileText className="w-3.5 h-3.5" />
+          Build log
+        </Link>
       </div>
     </div>
   </motion.div>
