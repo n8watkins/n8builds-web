@@ -175,107 +175,6 @@ export const projects = [
     liveSite: 'https://net-trailers.vercel.app/',
   },
   {
-    id: 4,
-    title: 'Quizmatic',
-    subTitle: 'AI Quiz Generation',
-    des: `An AI application that leverages OpenAI\'s ChatGPT to generate tailored quizzes on various topics.`,
-    images: [
-      '/projects/quizmatic.webp',
-      '/projects/quizmatic1.webp',
-      '/projects/quizmatic2.webp',
-      '/projects/quizmatic3.webp',
-    ],
-    technologies: {
-      Frontend: {
-        descriptionParts: [
-          {
-            text: 'A responsive design with modern UI components',
-            icons: [{ icon: 're.svg' }, { icon: 'shadcn.png' }, { icon: 'tail.svg' }],
-          },
-          {
-            text: 'Leveraging Next.js for SSR, SSG, and efficient routing',
-            icons: [{ icon: 'next.svg' }],
-          },
-          {
-            text: 'Enhancing reliability with type safety',
-            icons: [{ icon: 'ts.svg' }],
-          },
-        ],
-      },
-      Backend: {
-        descriptionParts: [
-          {
-            text: 'Server-side validation and type checking',
-            icons: [{ icon: 'zod.png' }],
-          },
-          {
-            text: 'ORM managed database with type-saftey schema validation',
-            icons: [{ icon: 'prisma.png' }, { icon: 'PostgreSQL.png' }],
-          },
-          {
-            text: 'Integrated ChatGPT for user tailored quiz generation ',
-            icons: [{ icon: 'gpt.png' }],
-          },
-        ],
-      },
-      Cloud: {
-        descriptionParts: [
-          {
-            text: 'Deployed with modern hosting and version control',
-            icons: [{ icon: 'vercel.png' }, { icon: 'github.png' }],
-          },
-          {
-            text: 'Utilized Supabase for real-time database functionality, authentication, and serverless APIs',
-            icons: [{ icon: 'supabase.png' }],
-          },
-        ],
-      },
-    },
-    github: 'https://github.com/n8watkins/Quizmatic',
-    liveSite: 'https://quizmatic.vercel.app/',
-  },
-  {
-    id: 5,
-    title: 'Sprite Arsenal',
-    subTitle: 'Free Browser Tool',
-    des: 'Slice a sprite sheet, preview the animation live, and export an animated GIF or frames as a zip. Zero server, $0.',
-    images: [
-      'https://sprite-bench.vercel.app/opengraph-image',
-    ],
-    technologies: {
-      Frontend: {
-        descriptionParts: [
-          {
-            text: 'Fully client-side — no server, no API calls, nothing leaves the browser',
-            icons: [{ icon: 're.svg' }, { icon: 'next.svg' }, { icon: 'tail.svg' }],
-          },
-          {
-            text: 'Custom GIF encoder and ZIP writer, hand-rolled with no runtime dependencies',
-            icons: [{ icon: 'ts.svg' }],
-          },
-        ],
-      },
-      Backend: {
-        descriptionParts: [
-          {
-            text: 'No backend — all encoding, slicing, and export logic runs in the browser',
-            icons: [{ icon: 'ts.svg' }],
-          },
-        ],
-      },
-      Cloud: {
-        descriptionParts: [
-          {
-            text: 'Deployed on Vercel with auto-deploy on push',
-            icons: [{ icon: 'vercel.png' }, { icon: 'github.png' }],
-          },
-        ],
-      },
-    },
-    github: 'https://github.com/n8watkins/sprite-bench',
-    liveSite: 'https://sprite-bench.vercel.app',
-  },
-  {
     id: 6,
     title: 'Portfolio Rank',
     subTitle: 'Developer Portfolio Ranker',
@@ -318,6 +217,40 @@ export const projects = [
     },
     github: 'https://github.com/n8watkins/portfolio-rank',
     liveSite: 'https://portfoliorank.vercel.app/',
+  },
+  {
+    id: 7,
+    title: 'Solara',
+    subTitle: 'Personal UV & Sun-Exposure Dashboard',
+    des: 'Personalized safe sun windows from live UV data, your skin type, and your plans.',
+    images: ['/builds/solara/og-image.png'],
+    technologies: {
+      Frontend: {
+        descriptionParts: [
+          {
+            text: 'Static-exported Next.js; every calculation runs in the browser',
+            icons: [{ icon: 'next.svg' }],
+          },
+        ],
+      },
+      Backend: {
+        descriptionParts: [
+          {
+            text: 'Live UV from the free Open-Meteo API; Firebase Auth and Firestore sync once you sign in',
+            icons: [{ icon: 'firebase.png' }],
+          },
+        ],
+      },
+      Cloud: {
+        descriptionParts: [
+          {
+            text: 'Firebase Hosting, deployed by GitHub Actions',
+            icons: [{ icon: 'firebase.png' }, { icon: 'github.png' }],
+          },
+        ],
+      },
+    },
+    github: 'https://github.com/n8watkins/solara',
   },
 ]
 

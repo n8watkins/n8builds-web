@@ -10,16 +10,10 @@ const withBundleAnalyzer = bundleAnalyzer({
 const nextConfig = {
   images: {
     // Every source the optimizer accepts is one more image (and transformation)
-    // anyone can make it fetch, so these are exact: no query strings, only our
-    // own Sanity project, and only the one remote image we show.
+    // anyone can make it fetch, so these are exact: no query strings, and only
+    // our own Sanity project.
     localPatterns: [{ pathname: '/**', search: '' }],
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'sprite-bench.vercel.app',
-        pathname: '/opengraph-image',
-        search: '',
-      },
       {
         protocol: 'https',
         hostname: 'cdn.sanity.io',
@@ -51,11 +45,6 @@ const nextConfig = {
         destination: 'https://appturnity.com',
         permanent: false,
       },
-      {
-        source: '/sprite-bench',
-        destination: 'https://sprite-bench.vercel.app',
-        permanent: false,
-      },
       // The shelf pages were folded into the homepage Lab section — redirect the
       // old routes to their on-page anchors so existing links/bookmarks still land.
       // Permanent (308), so search engines move these URLs over instead of keeping them.
@@ -64,8 +53,12 @@ const nextConfig = {
       { source: '/tools', destination: '/#tools', permanent: true },
       // The Resources section was dropped; send old links to the Lab.
       { source: '/resources', destination: '/#lab', permanent: true },
-      // Builds dropped from the site on 2026-10-21; their old detail pages were in the sitemap.
-      { source: '/builds/:slug(canihost|freestack|apiscout)', destination: '/#lab', permanent: true },
+      // Builds dropped from the site (2026-10-21 and 2026-10-22); their old detail pages were in the sitemap.
+      {
+        source: '/builds/:slug(canihost|freestack|apiscout|suggestion-box|repo-steward|sprite-arsenal)',
+        destination: '/#lab',
+        permanent: true,
+      },
       // LocalDictate was renamed Scribe on 2026-10-22.
       { source: '/builds/localdictate', destination: '/builds/scribe', permanent: true },
       // RFC 9116: canonical lives at /.well-known/security.txt; redirect the

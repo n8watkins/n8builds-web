@@ -302,53 +302,6 @@ export const builds: Build[] = [
     github: 'https://github.com/n8watkins/solara',
   },
   {
-    slug: 'suggestion-box',
-    name: 'Suggestion Box',
-    tagline: 'Community feedback tool',
-    category: 'Web app',
-    status: 'in the lab',
-    tags: ['Next.js', 'Postgres', 'TypeScript'],
-    color: 'from-cyan-500/20 to-blue-600/20',
-    problem:
-      'Feedback from a community — stream viewers, beta users, friends kicking the tires — arrives scattered across Discord messages and chat scroll, then evaporates. The good ideas are gone by next session.',
-    solution:
-      'A small, self-hosted suggestion box: one place to drop ideas and one place to review them. Deliberately lightweight — the kind of tool that should take minutes to use and zero accounts to contribute to.',
-    stack: [
-      { name: 'Next.js · TypeScript', detail: 'App and API in one deployable' },
-      { name: 'PostgreSQL', detail: 'Suggestions live in a real database from day one' },
-    ],
-    process: [
-      'Early-stage lab build — the scope is intentionally tiny, and this page will grow as it does.',
-      'Built in public: progress lands on stream first.',
-    ],
-    images: [],
-  },
-  {
-    slug: 'repo-steward',
-    name: 'Repo Steward',
-    tagline: 'Deterministic repo-health bot',
-    category: 'GitHub Actions bot',
-    tags: ['Node.js', 'GitHub Actions', 'Bot'],
-    color: 'from-blue-500/20 to-indigo-600/20',
-    problem:
-      'Repo hygiene decays silently: env vars used in code but missing from .env.example, docs drifting from the code they describe, API routes without validation, TODO debt piling up. AI review bots can catch this — at a per-call price, forever.',
-    solution:
-      'A free, deterministic GitHub Actions maintenance bot. No LLM calls at all: TypeScript scanner scripts compare changed files, check patterns, and post findings as a markdown report or PR comment — env drift, doc drift, missing validation keywords, AI usage without cost guardrails, risky files touched, large files creeping in.',
-    stack: [
-      { name: 'GitHub Actions', detail: 'Two workflows: scheduled repo health plus per-PR checks' },
-      { name: 'TypeScript · Node.js', detail: 'Deterministic scanner scripts — the entire analysis engine' },
-      { name: 'maintainer.config.json', detail: 'Per-repo tuning of which checks run and how strict' },
-    ],
-    process: [
-      'V1 is intentionally boring: useful with zero model usage and zero API credits, which also makes every finding reproducible.',
-      'Install is copy-paste — two workflow files, the scanner source, and a config — no hosted service to trust.',
-      'One check watches for AI-provider usage missing cost guardrails (timeouts, rate limits, max input length) — a lesson from the AI builds, encoded as a lint.',
-      'V2 may add AI strictly as an explanation layer on top of deterministic findings, never as the detector.',
-    ],
-    images: [],
-    github: 'https://github.com/n8watkins/repo-steward',
-  },
-  {
     slug: 'portfolio-rank',
     name: 'Portfolio Rank',
     tagline: 'The best developer portfolios, ranked',
@@ -372,30 +325,6 @@ export const builds: Build[] = [
     images: [],
     github: 'https://github.com/n8watkins/portfolio-rank',
     liveSite: 'https://portfoliorank.vercel.app',
-  },
-  {
-    slug: 'sprite-arsenal',
-    name: 'Sprite Arsenal',
-    tagline: 'Sprite sheet → animated GIF, in your browser',
-    category: 'Web tool',
-    tags: ['Next.js', 'Canvas', 'Open source'],
-    color: 'from-teal-500/20 to-cyan-600/20',
-    problem:
-      'Turning a sprite sheet into a usable animated GIF means firing up heavy software or sketchy online converters that upload your art to someone else\'s server.',
-    solution:
-      'Drop in a sprite sheet, slice it, preview the animation live, and export a GIF or individual frames — entirely in your browser. Free, no sign-up, nothing uploaded.',
-    stack: [
-      { name: 'Next.js · TypeScript', detail: 'App Router with all processing client-side' },
-      { name: 'Canvas + GIF encoding', detail: 'Slicing, live preview, and GIF export in the browser' },
-      { name: 'Vercel', detail: 'Hosting' },
-    ],
-    process: [
-      'Runs 100% in the browser — no backend, no uploads, your art never leaves your machine.',
-      'Free forever with a Ko-fi link; part of the Asset Arsenal line of tools.',
-    ],
-    images: [{ src: '/builds/sprite-arsenal/og-image.png', alt: 'Sprite Arsenal — sprite sheet to GIF' }],
-    github: 'https://github.com/n8watkins/sprite-bench',
-    liveSite: 'https://sprite-bench.vercel.app',
   },
 ]
 

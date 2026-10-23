@@ -134,7 +134,7 @@ test('a blog post is a BlogPosting with its share image', async ({ request }) =>
 })
 
 test('retired routes redirect permanently', async ({ request }) => {
-  for (const path of ['/lab', '/extensions', '/tools', '/resources', '/builds/canihost']) {
+  for (const path of ['/lab', '/extensions', '/tools', '/resources', '/builds/canihost', '/builds/repo-steward']) {
     const response = await request.get(path, { maxRedirects: 0 })
     expect(response.status(), path).toBe(308)
   }

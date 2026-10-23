@@ -22,7 +22,8 @@ test("rejects another Sanity project's images", async ({ request }) => {
 })
 
 test('rejects query strings on remote images', async ({ request }) => {
-  expect((await request.get(optimize('https://sprite-bench.vercel.app/opengraph-image?a=2'))).status()).toBe(400)
+  const own = 'https://cdn.sanity.io/images/abgyc32w/production/abc-100x100.png?a=2'
+  expect((await request.get(optimize(own))).status()).toBe(400)
 })
 
 test('rejects hosts that are not allowlisted', async ({ request }) => {

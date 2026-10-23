@@ -17,6 +17,8 @@ interface FeaturedProject {
   github?: string
   liveSite?: string
   imageAlt: string
+  /** object-position for the main image, when the top-centre crop cuts the art. */
+  imagePosition?: string
 }
 
 const featured: FeaturedProject[] = [
@@ -33,21 +35,16 @@ const featured: FeaturedProject[] = [
     liveSite: 'https://portfoliorank.vercel.app/',
   },
   {
-    title: 'Quizmatic',
-    subtitle: 'AI Quiz Generation',
+    title: 'Solara',
+    subtitle: 'Personal UV & Sun-Exposure Dashboard',
     description:
-      'AI-powered quiz generator built on OpenAI. Users get personalized quizzes on any topic with adaptive difficulty. Postgres-backed, Vercel-deployed.',
-    image: '/projects/quizmatic.webp',
-    images: [
-      '/projects/quizmatic.webp',
-      '/projects/quizmatic1.webp',
-      '/projects/quizmatic2.webp',
-      '/projects/quizmatic3.webp',
-    ],
-    imageAlt: 'Quizmatic AI quiz generator screenshot',
-    tags: ['Next.js', 'OpenAI', 'Prisma', 'Postgres'],
-    github: 'https://github.com/n8watkins/Quizmatic',
-    liveSite: 'https://quizmatic.vercel.app/',
+      'The UV index is a number, not an answer. Solara turns live UV data, your skin type, and your plans into safe sun windows for today and tomorrow, including exactly when you can skip sunscreen. Works without an account; sign in only to sync.',
+    image: '/builds/solara/og-image.png',
+    imageAlt: 'Solara: know your sun window',
+    // A wide social card: anchor left so the cover crop keeps the sun.
+    imagePosition: 'object-left',
+    tags: ['Next.js', 'Firebase', 'Open-Meteo'],
+    github: 'https://github.com/n8watkins/solara',
   },
 ]
 
@@ -69,7 +66,7 @@ const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: b
           src={current}
           alt={project.imageAlt}
           fill
-          className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.02]"
+          className={`object-cover ${project.imagePosition ?? 'object-top'} transition-transform duration-500 group-hover:scale-[1.02]`}
           sizes="(max-width: 768px) 100vw, 50vw"
         />
         {/* Subtle overlay */}
