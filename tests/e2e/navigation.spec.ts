@@ -8,6 +8,15 @@ test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
 const menuButton = (page: Page) => page.getByRole('button', { name: 'Menu' })
 
+/** Open the mobile menu, retrying a click that lands before hydration. */
+async function openMenu(page: Page) {
+  const button = menuButton(page)
+  await expect(async () => {
+    if ((await button.getAttribute('aria-expanded')) !== 'true') await button.click()
+    await expect(button).toHaveAttribute('aria-expanded', 'true', { timeout: 500 })
+  }).toPass()
+}
+
 test('the logo goes home from any page', async ({ page }) => {
   await page.goto('/loadout')
   await page.getByRole('link', { name: 'n8builds.dev home' }).click()
@@ -34,8 +43,7 @@ test.describe('mobile menu', () => {
     const button = menuButton(page)
     await expect(button).toHaveAttribute('aria-expanded', 'false')
 
-    await button.click()
-    await expect(button).toHaveAttribute('aria-expanded', 'true')
+    await openMenu(page)
     await expect(page.locator('#mobile-menu')).toBeVisible()
     expect(await page.evaluate(() => getComputedStyle(document.body).overflow)).toBe('hidden')
 
@@ -45,7 +53,7 @@ test.describe('mobile menu', () => {
     expect(await page.evaluate(() => document.body.style.overflow)).toBe('')
 
     // A tap outside the panel closes it rather than activating what's behind.
-    await button.click()
+    await openMenu(page)
     const url = page.url()
     await page.mouse.click(195, 820)
     await expect(page.locator('#mobile-menu')).toBeHidden()
@@ -58,7 +66,7 @@ test.describe('mobile menu on a landscape phone', () => {
 
   test('scrolls, so every link can be reached', async ({ page }) => {
     await page.goto('/')
-    await menuButton(page).click()
+    await openMenu(page)
     const menu = page.locator('#mobile-menu')
     const last = menu.getByRole('link', { name: /Portfolio/ })
 
