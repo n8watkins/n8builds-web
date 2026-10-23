@@ -1,6 +1,6 @@
 # HANDOFF - n8builds (n8builds-web)
 
-_Last updated: 2026-10-22._
+_Last updated: 2026-10-23._
 This file describes the current state only.
 Session-by-session history up to 2026-06-25 lives in `docs/archive/HANDOFF-2026-06.md`.
 Manual steps that need the owner (logins, dashboards) live in `docs/OWNER_TODO.md`.
@@ -22,10 +22,10 @@ Strategy and IA: `docs/N8BUILDS_PLAN.md`.
 
 - Live at https://n8builds.dev on Vercel (project `n8builds-web`, team natkins23s-projects), auto-deploying from `main`.
 - Stack: Next.js 16 (App Router, webpack build), React 19, TypeScript, Tailwind 4 (configured in `app/globals.css`; there is no `tailwind.config`), Motion (`motion/react`; not framer-motion), Sanity (blog), Nodemailer + Gmail SMTP, Cloudflare Turnstile, Upstash Redis (rate limits), Sentry, GA4, Vercel Speed Insights.
-- Pages: `/` (hero, the Lab, notions, stack, work-with-me, contact, each in its own full-width band), `/blog` + `/blog/[slug]` (N8 Notions, ISR hourly), `/builds/[slug]`, `/loadout`, `/privacy`.
-- **Status (2026-10-22):** everything is pushed and live, including the review-and-improve pass, the marquee fix, the content changes (Scribe, removed builds, Solara featured, VibeLog), and the contact-form edge rate limit.
-- **Next session:** run `docs/prompts/review-2026-10-22-changes.md`.
-  The four rewritten blog posts were published on 2026-10-22 (the review fact-checks them live); after the review the owner checks share cards (`docs/OWNER_TODO.md` 5b).
+- Pages: `/` (hero, "What I'm working on", the Lab, notions, stack, work-with-me, contact, each in its own full-width band), `/blog` + `/blog/[slug]` (N8 Notions, ISR hourly), `/builds/[slug]`, `/loadout`, `/privacy`.
+- **Status (2026-10-23):** everything is pushed and live, including the 2026-10-23 homepage rework.
+  The review of the 2026-10-22/23 work (`docs/prompts/review-2026-10-22-changes.md`) ran on 2026-10-23; its fixes (Solara's private-repo link, 320px hero, modal mobile menu, em-dash sweep, blog fact fixes) are shipped.
+- **Next session:** the share-card check (`docs/OWNER_TODO.md` 5b), the Nightly Lighthouse CLS failure on `/` (0.29 in CI, about 0.006 locally) and a mobile-Safari contact-form flake, then the backlog below.
 - SEO: every page builds its metadata with `pageMetadata()` (`lib/seo.ts`), which sets the canonical URL, og:url and both share cards with a preview image.
   Next.js merges metadata shallowly, so a page that sets its own `openGraph` without the helper loses the image.
   Blog posts and builds get generated 1200x630 PNG cards (`/blog/<slug>/og.png`, `/builds/<slug>/og.png`, drawn by `lib/og-card.tsx` with `next/og` over the blog-cover art, Inter from `assets/fonts/`).
@@ -59,7 +59,7 @@ E2E details:
 CI (`.github/workflows/`):
 
 - `ci.yml` on every push to `main` and every PR: lint, type-check, unit tests, then E2E (API + Chromium).
-- `nightly.yml` at 09:00 UTC and on demand: E2E on every browser project.
+- `nightly.yml` at 09:00 UTC and on demand: E2E on every browser project, and Lighthouse budgets (`npm run lighthouse`).
 
 ## Contact form
 
@@ -111,7 +111,8 @@ Every free check runs before the first Upstash call, so requests without a solve
   The loop-back light measures its wire at runtime (`useWireLength` in `Hero.tsx`), so chip size changes need no manual re-measuring.
 - **Appturnity has no build page:** `/builds/appturnity` redirects to appturnity.com, and the site never links Appturnity's GitHub repo.
 - **Hidden builds:** `hiddenBuilds` in `data/builds.tsx` keeps builds that are paused but not dead, with no page, card, sitemap entry or nav link.
-  VibeLog is there (hidden 2026-10-22, also removed from the loadout and navbar); move it back into `builds` to show it again.
+  **VibeLog is on hiatus** (hidden 2026-10-22, also removed from the loadout, the navbar and the Welcome post on 2026-10-23).
+  Keep its record (it has no images yet); the owner wants it back once it's ready, by moving its record from `hiddenBuilds` into `builds` (backlog item 4).
 - **`data/builds.tsx` is the single source of truth** for every build; `data/shelves.ts` routes each one to its section by `category`.
   Never create a parallel dataset.
 - **Don't list the same build twice.**
@@ -188,7 +189,7 @@ Every free check runs before the first Upstash call, so requests without a solve
 - `app/page.tsx`: homepage metadata and JSON-LD; the page itself is the client component `components/HomePage.tsx`, whose sections load via `next/dynamic` and are wrapped in `SectionErrorBoundary`.
 - `app/layout.tsx`: site-wide metadata defaults, GA (gated on `NEXT_PUBLIC_GA_ID`), Speed Insights (Vercel only), providers.
 - `app/api/contact/route.ts`, `app/api/health/route.ts` (liveness ping), `app/api/notions/recent/route.ts` (homepage blog strip; keeps `@sanity/client` out of the client bundle).
-- `components/sections/`: `Hero`, `FeaturedProjects`, `ShelfSection`, `LabSubheader`, `ExtensionsShowcase`, `HomeStack`, `NotionsStrip`, `WorkWithMe`, `Loadout`, `BuildStacks`, `TechStackBento`, `BuildCard`.
+- `components/sections/`: `Hero`, `NowBuilding`, `FeaturedProjects`, `ShelfSection`, `LabSubheader`, `ExtensionsShowcase`, `HomeStack`, `NotionsStrip`, `WorkWithMe`, `Loadout`, `BuildStacks`, `TechStackBento`, `BuildCard`.
 - `components/layout/`: `Navbar` (`labMenu[]` drives the Lab dropdown), `Footer` (contact card and form).
 - `components/ContactForm/`: form UI and `useContactFormSubmit` (submission and Turnstile handling).
 - `components/blog/`, `lib/sanity.ts`, `lib/blog-utils.ts`: N8 Notions.
@@ -204,7 +205,8 @@ Every free check runs before the first Upstash call, so requests without a solve
   The server SDK sends no stack-frame locals and drops contact-route request bodies (`lib/sentry-scrub.ts`).
 - `tests/unit/`, `tests/e2e/`, `playwright.config.ts`, `vitest.config.mts`.
 - `public/builds/<slug>/`: build icons and screenshots; `public/tab/`: favicons and OG image.
-- `docs/`: this file, `OWNER_TODO.md`, `prompts/review-and-improve.md` (ready-to-paste prompt for the next review pass), `prompts/review-2026-10-22-changes.md` (prompt to review the 2026-10-22 work and blog drafts), `N8BUILDS_PLAN.md`, `N8_NOTIONS_BLOG_IMPLEMENTATION.md`, `CLOUDFLARE_SECURITY.md`, `archive/`.
+- `docs/`: this file, `OWNER_TODO.md`, `prompts/review-and-improve.md` (ready-to-paste prompt for the next review pass), `prompts/review-2026-10-22-changes.md` (the 2026-10-22/23 review prompt, already run), `N8BUILDS_PLAN.md` (vision, IA and content inventory), `CLOUDFLARE_SECURITY.md`, `archive/` (old handoffs, the blog implementation record).
+- `WEB_VITALS.md` (repo root): Web Vitals reporting, the dev HUD and GA events.
 
 ## Backlog
 
@@ -213,6 +215,6 @@ Feature work, roughly in priority order:
 1. Real screenshots for TL;DW and Scribe in `public/builds/<slug>/`; a real mark for Portfolio Rank.
 2. A `/builds` log index page (journal "heartbeat") and a "Log" nav item; detail pages already exist.
 3. Keep the loadout data current.
-4. Wire the Hero "Live" pill to real Twitch/YouTube status (it links to GitHub today).
-5. Bring VibeLog back from `hiddenBuilds` when it's ready to show.
+4. Bring VibeLog back from `hiddenBuilds` when it comes off hiatus (see "Hidden builds" above), and mention it again in the Welcome post if it fits.
+5. A live/offline status layer for streams (the hero has no live indicator since its pill was removed on 2026-10-23).
 6. Fire the GA tag from the portfolio subdomain deploy for cross-subdomain tracking.

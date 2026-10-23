@@ -31,6 +31,7 @@ Deployment-specific URLs are unaffected.
 
 The four posts (Welcome, Why I Build in Public, Distribution Is the New Bottleneck, Speed Beats Mastery) were rewritten (about 700 words, two graphics and sources each) and published.
 Your four other unpublished drafts (Claude Code + MCP, giant list, terminal IDE, 8 agents) were not touched.
+Fact-check fixes from the review were applied on 2026-10-23: VibeLog out of the Welcome post (it is on hiatus), the Gollwitzer wording and an unsourced line in Why I Build in Public, the 448K figure and "through early December" in Distribution (chart redrawn), and the METR wording in Speed Beats Mastery.
 Blog pages refresh hourly; after publishing in Studio, expect up to an hour before the live page changes (or redeploy).
 
 ## 5. Contact-form firewall rule (done 2026-10-22)
@@ -39,13 +40,13 @@ Vercel WAF rule "Contact form flood limit": `POST /api/contact`, 10 requests per
 It is free on Hobby (1 rate-limit rule per project, 1M allowed requests, hard cap with no overage billing) and was verified live: the 11th request in a minute got 429 with `x-vercel-mitigated: deny`.
 Change or remove it in Vercel → Project `n8builds-web` → Firewall.
 
-## 5b. After the review (docs/prompts/review-2026-10-22-changes.md)
+## 5b. Share-card check (the review is done, so this is next)
 
 Paste a blog post and a build page into a share-card checker (for example opengraph.xyz) to see the preview images as X, LinkedIn and Facebook will.
 
 ## Resolved 2026-10-22
 
-- **Orphan build pages:** Appturnity, Portfolio Rank and Solara now have "Build log" buttons on the homepage, so every build page in the sitemap is linked (a test enforces it).
+- **Orphan build pages:** Portfolio Rank and Solara have "Build log" buttons on the homepage, so every build page in the sitemap is linked (a test enforces it). Appturnity has no build page; `/builds/appturnity` redirects to appturnity.com.
 - **`.local-ops.yaml`:** rewritten for this repo; it had been copied from Portfolio 2.0 (including its `local_ops_id`).
 
 ## 6. Optional

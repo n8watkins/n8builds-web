@@ -14,7 +14,7 @@ Manual steps that need the owner live in [`docs/OWNER_TODO.md`](docs/OWNER_TODO.
 - React Hook Form + Zod
 - Sanity (read-only CDN client) for the N8 Notions blog
 - Nodemailer + Gmail SMTP, Cloudflare Turnstile, Upstash Redis rate limiting
-- Sentry (inert until `NEXT_PUBLIC_SENTRY_DSN` is set), GA4, Vercel Speed Insights
+- Sentry (on in production; inert without `NEXT_PUBLIC_SENTRY_DSN`), GA4, Vercel Speed Insights
 - Vitest (unit), Playwright + axe (E2E and accessibility), Lighthouse budgets
 
 The site is dark-only and honors `prefers-reduced-motion` everywhere.
@@ -84,18 +84,22 @@ It audits four pages three times each, checks the medians against the budgets in
 Under WSL, set `CHROME_PATH` to a Linux Chrome.
 
 CI runs lint, type-check, unit tests and E2E (API + Chromium) on every push to `main` and every PR.
-A nightly workflow runs E2E on every browser and Lighthouse.
+A nightly workflow runs E2E on every browser and the Lighthouse budgets.
 
 ## Contact form
 
 Request flow in `app/api/contact/route.ts`:
 
-1. Body size cap (10KB).
-2. Per-IP rate limit (5/hour), before any expensive work.
-3. JSON parse and Zod validation, including the honeypot field, which must be empty.
-4. Cloudflare Turnstile verification (`siteverify`), including the hostname the token was issued on.
+1. Body size cap (10KB) and a JSON content type (anything else gets 415).
+2. JSON parse and Zod validation, including the honeypot field, which must be empty.
+3. Cloudflare Turnstile verification (`siteverify`), including the hostname the token was issued on.
+4. Per-IP rate limit (5/hour; IPv6 per /64).
 5. Site-wide daily limit (`CONTACT_DAILY_LIMIT`, default 50), counted only for verified submissions.
-6. Notification email to the owner and an auto-reply to the sender, with all user input HTML-escaped at template time.
+6. Per-recipient auto-reply limit (1/day per address); past it, only the auto-reply is skipped.
+7. Notification email to the owner and an auto-reply to the sender, with all user input HTML-escaped at template time.
+
+Every free check runs before the first Upstash call, so requests without a solved Turnstile challenge never spend the Redis quota.
+In front of all this, a Vercel WAF rule (Firewall tab, not code) answers 429 at the edge after 10 `POST /api/contact` per minute per IP.
 
 Rate-limit counters live in Upstash Redis so every serverless instance shares them.
 Everything fails closed in production: a missing Turnstile secret, a Turnstile error, missing Upstash config, or an Upstash outage or timeout rejects the submission with a message to email directly.

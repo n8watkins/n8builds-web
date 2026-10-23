@@ -5,6 +5,7 @@ It reviews everything shipped on 2026-10-22 and 2026-10-23: the review-and-impro
 It is read-only until it reports, and it never writes to Sanity or changes Vercel or Cloudflare settings.
 
 Written 2026-10-22.
+Run on 2026-10-23 (scope extended to `752bc88`); its fixes shipped the same day, so this prompt is kept only as a template for the next review.
 The commit range is pinned: it starts after `4737d9e` (the last commit before this work) and ends at the commit that last edited this prompt, so later commits are out of scope.
 
 ## The prompt

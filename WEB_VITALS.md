@@ -35,16 +35,12 @@ Web Vitals are Google's metrics for measuring real-world user experience on the 
    - ⚠️ Needs Improvement: 800ms - 1800ms
    - ❌ Poor: > 1800ms
 
-6. **FID (First Input Delay)** - Legacy interactivity metric
-   - ✅ Good: ≤ 100ms
-   - ⚠️ Needs Improvement: 100ms - 300ms
-   - ❌ Poor: > 300ms
 
 ## Features
 
-### 1. Console Logging
+### 1. Console Logging (development only)
 
-All Web Vitals are automatically logged to the browser console with:
+Under `npm run dev`, all Web Vitals are logged to the browser console with:
 - Color-coded output (green for good, yellow for needs improvement, red for poor)
 - Emoji indicators (✅, ⚠️, ❌)
 - Formatted values with appropriate units
@@ -56,7 +52,8 @@ When `NEXT_PUBLIC_GA_ID` is set, all metrics are automatically sent to Google An
 - Event name: `web_vital`
 - Parameters: metric name, value, rating, ID
 
-> **Note:** `NEXT_PUBLIC_GA_ID` is currently unset (blank), so GA is **inactive** — the gtag scripts in `app/layout.tsx` are not loaded and `trackWebVital` (in `lib/analytics.ts`) early-returns without sending anything. Set `NEXT_PUBLIC_GA_ID` to a valid measurement ID (e.g. `G-XXXXXXXXXX`) to enable it.
+> **Note:** `NEXT_PUBLIC_GA_ID` is set in Vercel's Production environment (`G-JZQGKY9Q37`), so production sends these events.
+> Locally and in tests it is blank, the gtag scripts in `app/layout.tsx` are not loaded, and `trackWebVital` (in `lib/analytics.ts`) sends nothing.
 
 ### 3. Visual HUD (Development Only)
 
@@ -104,7 +101,7 @@ Example console output:
 
 ### Viewing in Google Analytics
 
-> Requires `NEXT_PUBLIC_GA_ID` to be set (see the Google Analytics Integration note above). With it unset, no events are sent.
+> Production only: `NEXT_PUBLIC_GA_ID` is set there (see the note above).
 
 1. Go to your Google Analytics dashboard
 2. Navigate to Events

@@ -1,15 +1,16 @@
-# n8builds — The Big Plan
+# n8builds - The Big Plan
 
-> Status: SHIPPED to prod (n8builds.dev) — Loadout, shelves, homepage redesign (extensions showcase, Projects+Lab merge, free-tools trio, Currently-Building section, galleries, tech-stack bento), N8 Notions blog, hero electrified-circuit animation. Remaining: `/builds` Log index page, live-status layer, real screenshots for TL;DW/Scribe.
-> Last updated: 2026-06-21 (hero `whoami` terminal + "build philosophy" electrified-circuit animation are SHIPPED on `main` — the `feat/hero-terminal-circuit` branch was merged and deleted; everything is on `main`)
-> Site: n8builds.dev — the public workshop (Next.js 16 + React 19, on Vercel, Cloudflare DNS)
+> Status: shipped and live at n8builds.dev (Next.js 16 + React 19 on Vercel, Cloudflare DNS).
+> Sections 0-2 are the vision; sections 3 and 5-9 describe the site as it is now.
+> Last updated: 2026-10-23.
+> Current state and decisions in detail: `docs/HANDOFF.md`.
 
 ---
 
 ## 0. North Star
 
-**n8builds is the public workshop.** You watch the *during* — the build happening
-live and unfinished, on purpose — not the polished after.
+**n8builds is the public workshop.** You watch the *during* - the build happening
+live and unfinished, on purpose - not the polished after.
 
 It is NOT a resume, NOT a hire-me page, NOT a linktree. It's a place to share myself
 and my work. It isn't about finding work… but it helps, indirectly, because people see
@@ -28,15 +29,15 @@ Every piece of content answers to exactly one pillar. This is the spine.
 
 | Pillar     | What it covers                                                        |
 | ---------- | -------------------------------------------------------------------- |
-| **BUILD**  | The artifacts — projects, extensions, tools, the rig, experiments    |
-| **STREAM** | The act — building live on camera, the process                       |
-| **SIGNAL** | The takeaways — tools I use + what for, resources, things learned    |
+| **BUILD**  | The artifacts - projects, extensions, tools, the rig, experiments    |
+| **STREAM** | The act - building live on camera, the process                       |
+| **SIGNAL** | The takeaways - tools I use + what for, resources, things learned    |
 
 ---
 
 ## 2. The Loadout (the big idea)
 
-The personal/identity layer is a **Loadout** — gaming-native, full of personality, and
+The personal/identity layer is a **Loadout** - gaming-native, full of personality, and
 the literal answer to "who I am without a resume." You ARE your loadout.
 
 A loadout entry is never just a logo wall. Each item says **what it is + what I use it
@@ -44,16 +45,16 @@ for + my one-line take.** ("I want to say what the tools are AND what I'm using 
 
 Three sub-loadouts:
 
-1. **Tech Loadout** — the software/tools I run.
-   - e.g. *Claude Code — my pair-programmer; I build basically everything here now.*
-   - e.g. *Next.js — every web app. App Router by default.*
-   - e.g. *Tauri — when it needs to be a real desktop app (see Scribe).*
+1. **Tech Loadout** - the software/tools I run.
+   - e.g. *Claude Code - my pair-programmer; I build basically everything here now.*
+   - e.g. *Next.js - every web app. App Router by default.*
+   - e.g. *Tauri - when it needs to be a real desktop app (see Scribe).*
    - e.g. *Cursor / VS Code, Vercel, Supabase/Turso, Firebase, OpenAI/Gemini, OBS…*
-2. **The Rig** (battlestation) — the PC hardware build. This is where "my computer build"
-   lives — a build is literally a loadout. Specs + why each part.
-3. **Desk / Peripherals** — keyboard, mic, cam, monitors. Optional, adds texture.
+2. **The Rig** (battlestation) - the PC hardware build. This is where "my computer build"
+   lives - a build is literally a loadout. Specs + why each part.
+3. **Desk / Peripherals** - keyboard, mic, cam, monitors. Optional, adds texture.
 
-The Loadout is how "who I am" shows up without a bio paragraph — personality is the
+The Loadout is how "who I am" shows up without a bio paragraph - personality is the
 seasoning on every module, never a standalone "About me" dish. Pair it with a terminal
 `whoami` blurb (3 funny first-person lines) and an offline status line that name-drops
 what I was last doing.
@@ -62,29 +63,22 @@ what I was last doing.
 
 ## 3. Information Architecture
 
-### Pages (priority order)
+### Pages (as shipped)
 
-**MUST-HAVE — all SHIPPED**
-1. **Home / The Bench** — bento dashboard that IS the pitch: who I am + live signal + doors to everything.
-2. **Lab** (`/lab`) — the filterable grid of everything I'm building. Projects + experiments were MERGED into one Lab shelf; there is no separate `/projects` route. Proof-of-work spine.
-3. **Extensions** (`/extensions`) — the Chrome extensions; own shelf, github/live "Install" links.
-4. **Loadout** (`/loadout`) — Tech Loadout + The Rig + Desk. (replaces the dry "/uses" idea)
-5. **Tools** (`/tools`) — dev tools and free utilities I made (Scribe, the free-tools trio).
+1. **Home** (`/`): hero, "What I'm working on", the Lab, N8 Notions strip, stack, work-with-me, contact.
+2. **The Lab** (`/#lab`): one homepage section with Featured web apps (`#featured`), Chrome extensions (`#extensions`) and Tools (`#tools`).
+   There are no standalone shelf pages: `/lab`, `/extensions` and `/tools` redirect to the anchors.
+3. **Build pages** (`/builds/[slug]`): one per build in `data/builds.tsx`.
+4. **Loadout** (`/loadout`): Tech Loadout, The Rig and Desk.
+5. **N8 Notions** (`/blog`, `/blog/[slug]`): the Sanity-backed blog (nav label "Notions").
 
-**SHIPPED SINCE**
-- **N8 Notions** (`/blog`) — the Sanity-backed blog (nav label "Notions") + homepage `NotionsStrip`. Live. See `docs/N8_NOTIONS_BLOG_IMPLEMENTATION.md`.
+**Not yet built:** the `/builds` Log index (a newest-first journal of all builds); only the detail pages exist.
 
-**NOT YET BUILT**
-- **Log** ("/builds" Log index) — the build-in-public journal of all builds, newest-first. Only the *detail* route is wired (`app/builds/[slug]`); the **index page is still unbuilt** (Phase 4). (Distinct from the `/blog` N8 Notions writing, which IS live.)
+### Top nav (`components/layout/Navbar.tsx`)
 
-**NICE-TO-LATER**
-- Unified reverse-chron feed across all lanes once volume justifies it.
-
-### Top nav (as shipped — `components/layout/Navbar.tsx`)
-`Lab · Extensions · Tools · Loadout`
-- Logo → Home. After the nav links: Twitch + YouTube + a ViBlog `#contact` link.
-- Right side: a **Portfolio** cross-link and an **Appturnity** button (the two bridge destinations) — not a GitHub icon.
-- Single row, no dropdowns. "Projects" was folded into Lab; "Stack" lives inside Loadout / the homepage tech-stack bento.
+- Logo to home; a "Lab" dropdown (Featured, Chrome Extensions, Tools); Notions; Loadout; Twitch and YouTube.
+- Right side: a **Portfolio** cross-link and an **Appturnity** button (the two bridge destinations).
+- Desktop links from `lg` (1024px) up; below that, a menu button opens a modal overlay menu.
 
 ---
 
@@ -94,8 +88,8 @@ The one move that lets me "share everything" forever without ever redesigning.
 **One schema powers every grid.** Adding new work = add a record + a tag. NEVER a new page.
 
 Two axes, applied relentlessly:
-- **tier** — `shipped` vs `experiment`. Only `shipped` surfaces on the homepage. *(credibility firewall)*
-- **date** — within every lane, newest-first. Momentum comes from time, not category sprawl.
+- **tier** - `shipped` vs `experiment`. Only `shipped` surfaces on the homepage. *(credibility firewall)*
+- **date** - within every lane, newest-first. Momentum comes from time, not category sprawl.
 
 ```ts
 type Item = {
@@ -115,101 +109,62 @@ type Item = {
 ```
 
 Note: `data/builds.tsx` already has a `Build` interface with
-`status?: 'shipped' | 'in the lab'` — formalize that into this single shared shape and
+`status?: 'shipped' | 'in the lab'` - formalize that into this single shared shape and
 have projects/extensions/tools/experiments all derive from it.
 
 ---
 
 ## 5. Homepage Section Order (as shipped)
 
-The shipped sequence in `app/page.tsx` (each section wrapped in a `SectionErrorBoundary`,
-most lazy-loaded via `next/dynamic`):
+`components/HomePage.tsx`, each section in a full-width band and a `SectionErrorBoundary`, most lazy-loaded via `next/dynamic`:
 
-1. **Hero** (`components/sections/Hero.tsx`) — identity + a "Live on GitHub" pill that links
-   github.com/n8watkins and name-drops the first Currently-Building item (rendered dynamically
-   from `nowItems[0]` in `data/now.tsx` — currently **Appturnity**). A "Watch Live" CTA links
-   Twitch. The Hero also renders the shared `whoami` terminal (`WhoamiTerminal`) and the
-   "build philosophy" electrified-circuit animation — both **shipped to `main`** (the
-   `feat/hero-terminal-circuit` branch was merged and deleted). *(The hero offline status line is still TODO.)*
-2. **NowBuilding / Currently Building** (`components/sections/NowBuilding.tsx`, data in
-   `data/now.tsx`) — the in-public hook right under the hero.
-3. **FeaturedProjects** (`components/sections/FeaturedProjects.tsx`) — hand-picked builds in
-   alternating image rows.
-4. **The Lab** — `ShelfSection shelf="lab"`: everything I'm building (the merged projects + lab grid).
-5. **ExtensionsShowcase** (`components/sections/ExtensionsShowcase.tsx`).
-6. **ToolsSection** (`components/sections/ToolsSection.tsx`).
-7. **TechStackBento** (`components/sections/TechStackBento.tsx`) — tech-stack bento marquee → /loadout.
-8. **Footer / Contact** (`components/layout/Footer.tsx`, in a `#contact` section) — with the
-   Appturnity cross-link, not a hire-me CTA.
-
-Note: the old standalone "Projects marquee" was removed entirely; shelf content is surfaced
-inline via `ShelfSection` instead. The "Latest from the Log" strip is not on the homepage yet
-(the Log index doesn't exist).
+1. **Hero** (`Hero.tsx`): "n8builds", "Spending tokens, shipping features.", the `whoami` terminal, the idea -> prompt -> build -> ship -> repeat circuit, a "See what I'm building" button, socials, and a background grid that warms up and wanders.
+2. **What I'm working on** (`NowBuilding.tsx`, data in `data/now.tsx`): Appturnity only, linking appturnity.com.
+3. **The Lab**: Featured web apps (`FeaturedProjects.tsx`: Portfolio Rank, Solara), Chrome extensions (`ExtensionsShowcase.tsx`) and Tools (`ShelfSection shelf="tool"`).
+4. **N8 Notions strip** (`NotionsStrip.tsx`).
+5. **Stack** (`HomeStack.tsx`), linking to /loadout.
+6. **Work with me** (`WorkWithMe.tsx`): bridges to the portfolio and Appturnity.
+7. **Contact** (`Footer.tsx`, `#contact`).
 
 ---
 
 ## 6. Cleanup / Remove
 
-- **Delete testimonials** (`data/testimonials.tsx` + section) — read fake here; that's Portfolio/Appturnity's job. ✅ done.
-- No "Hire Me" CTA, rate cards, skills bars, "X yrs experience," generic SaaS gradient hero.
-- No purple — blue/cyan HUD only (purple is the agency lane).
-- ⬜ **STILL OPEN:** `app/api/sentry-example-api/route.ts` is still present — Sentry was never integrated (no `@sentry` runtime dep, only stub/scaffolding), so this example route should be deleted.
+- Testimonials: deleted.
+- No "Hire Me" CTA, rate cards, skills bars, "X yrs experience", or generic SaaS gradient hero.
+- No purple: blue/cyan HUD only (purple is the agency lane).
 
 ---
 
-## 7. Implementation Roadmap (phased)
+## 7. Implementation Roadmap
 
-**Phase 1 — Foundation** ✅ DONE
-- [x] Single source of truth: `data/builds.tsx` (17 build records) + `data/shelves.ts` classifier (chose to derive from the existing rich builds.tsx rather than refactor to a new `Item` schema — same outcome, less churn).
-- [x] Real data populated (the 17 builds; loadout/now content is representative pending Nate's real values).
-- [x] Nav updated (`components/layout/Navbar.tsx`): Lab · Extensions · Tools · Loadout (Projects merged into Lab; Twitch/YouTube + Portfolio/Appturnity cross-links alongside).
+**Done:** single source of truth (`data/builds.tsx` + `data/shelves.ts`), homepage reorder, the Lab, the Loadout, N8 Notions, contact form hardening, SEO and share cards.
 
-**Phase 2 — Homepage reorder** ✅ DONE
-- [x] Added **NowBuilding** ("Currently Building") section (`data/now.tsx`).
-- [x] Reordered; marquee REMOVED entirely (replaced by inline shelf sections).
-- [x] `whoami` block — extracted to a shared `components/features/WhoamiTerminal.tsx` and now rendered on BOTH the /loadout page and the homepage hero. Hero offline-status line still TODO.
-- [x] Removed testimonials.
+**Next** (the backlog in `docs/HANDOFF.md` is authoritative):
 
-**Phase 3 — The shelves** ✅ DONE
-- [x] `/lab` filterable grid (tag filter) — this absorbed the planned `/projects` page; there is no separate `/projects` route.
-- [x] `/extensions` shelf. (Install actions = the github/live links; dedicated Web Store buttons still optional.)
-- [x] `/loadout` — Tech Loadout + The Rig + Desk.
-- [x] `/tools` + `/lab`.
-- [x] BONUS: shelf content also surfaced inline on the homepage via `ShelfSection`.
-
-**Phase 4 — Live layer** ⬜ NOT STARTED (next session)
-- [ ] Wire real live/offline status (manual flag first, stream API later).
-- [ ] Stream/VOD embed (assumed Twitch — Nate to confirm).
-- [ ] **`/builds` Log index page** + journal authoring flow (top remaining must-have).
+- [ ] `/builds` Log index page and a "Log" nav item.
+- [ ] Real screenshots for TL;DW and Scribe; a real mark for Portfolio Rank.
+- [ ] Bring VibeLog back from `hiddenBuilds` when it comes off hiatus.
+- [ ] A live/offline status layer (manual flag first, stream API later).
 
 ---
 
-## 8. Content Inventory (from `data/builds.tsx` — 17 records)
+## 8. Content Inventory (`data/builds.tsx`)
 
-All 14 builds, by their `category` in the data file. Only **Suggestion Box** carries
-`status: 'in the lab'`; the rest have no status flag (treated as shipped/active).
+**Featured web apps:** Solara, Portfolio Rank.
+**Chrome extensions:** Piper TTS, TL;DW, TubeVault, plus the Chrome Extension Launch Kit (a starter template, shown as a banner).
+**Tools:** Scribe, a local Windows dictation app (Tauri + whisper.cpp).
+**Hidden (on hiatus, files kept):** VibeLog, the OBS/telemetry streaming tool, in `hiddenBuilds`.
+**Not a build page:** Appturnity is the "What I'm working on" card; `/builds/appturnity` redirects to appturnity.com.
 
-**Web apps:** Asset Arsenal, Appturnity, JobSignal (web app + extension), Solara,
-Suggestion Box *(in the lab)*, Portfolio Rank.
-**Web tools:** Sprite Arsenal.
-(CanIHost, FreeStack and APIScout were dropped from the site on 2026-10-21; their repos still exist.)
-**Chrome extensions (own shelf):** Piper TTS, TL;DW, TubeVault. Plus the Chrome Extension
-Launch Kit (a starter template) and JobSignal's Mark-Applied extension.
-**Streaming tool:** VibeLog (the OBS/telemetry tool behind the planned "LIVE on VibeLog" badge).
-**Desktop app / Tools:** Scribe — local speech-to-text (Tauri + whisper.cpp).
-**GitHub Actions bot:** Repo Steward.
-
-(Removed from this list: items that were never in the data — cutelyask.me, FitFlow 7,
-TL;DR Comments, Terminal Invaders, Local Ops, BF6 Field Intel. If any of those ship later,
-they get added to `data/builds.tsx`, not pages.)
+Dropped from the site (repos still exist, do not re-add unless asked): CanIHost, FreeStack, APIScout (2026-10-21); Suggestion Box, Repo Steward, Sprite Arsenal, Quizmatic, Asset Arsenal, JobSignal (2026-10-22).
+Their old `/builds/<slug>` URLs redirect to `/#lab`.
 
 ---
 
 ## 9. Open Questions (need Nate)
 
-- **Stream platform** — both **Twitch** and **YouTube** are already linked in the Navbar, and the Hero "Watch Live" CTA points at Twitch. Confirm which is the primary stream home.
-- **Live status source** — currently a static "Live on GitHub" pill in the Hero (links github.com/n8watkins); auto-from-stream-API is a Phase 4 option.
-- **Loadout content** — `data/loadout.tsx` has representative content; replace The Rig specs + Desk gear with real values.
-- **"Log" definition** — is the `/builds` Log index a journal of written posts (~weekly) or just an index of all builds? Decides the Phase 4 build (the index page doesn't exist yet — only `app/builds/[slug]`).
-- **Bot protection is LIVE via Cloudflare Turnstile** (replaced reCAPTCHA entirely, 2026-06-21). `lib/security/turnstile.ts → verifyTurnstile()` gates the form; `NEXT_PUBLIC_TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY` are set on Vercel. Honeypot + an in-memory (per-serverless-instance) rate limiter back it up. GA4 (`G-JZQGKY9Q37`) and `NEXT_PUBLIC_SITE_URL` are also now set in Vercel — no env items pending.
-- **Log cadence** — how often will journal entries get written? Affects how prominent the Log is.
+- **Stream platform:** Twitch and YouTube are both in the navbar; which is the primary stream home?
+- **Live status source:** manual flag or a stream API, once the live layer is built.
+- **Loadout content:** keep `data/loadout.tsx` current.
+- **"Log" definition:** is the `/builds` Log a journal of written entries, or an index of all builds? Decides how it gets built, and how often it needs updating.
