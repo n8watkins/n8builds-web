@@ -30,7 +30,9 @@ async function fillForm(page: Page) {
 }
 
 async function waitForTurnstileToken(page: Page) {
-  await expect(page.locator('#contact input[name="cf-turnstile-response"]')).toHaveValue(/.+/)
+  // The token comes from Cloudflare's real script, loaded after hydration, so
+  // it gets the same budget as a send (5s was flaky in WebKit under load).
+  await expect(page.locator('#contact input[name="cf-turnstile-response"]')).toHaveValue(/.+/, { timeout: SEND_TIMEOUT })
 }
 
 async function openContactForm(page: Page) {
@@ -255,4 +257,23 @@ test('validation errors are tied to their fields for screen readers', async ({ p
   const navBottom = await page.locator('nav[aria-label="Primary"]').evaluate((el) => el.getBoundingClientRect().bottom)
   const labelTop = await form.locator('label[for="name"]').evaluate((el) => el.getBoundingClientRect().top)
   expect(labelTop).toBeGreaterThanOrEqual(navBottom)
+})
+
+test("Vercel's firewall 429 gets a readable message, not the raw error object", async ({ page }) => {
+  // The WAF rate limit answers before the app does, with its own JSON shape.
+  await page.route('/api/contact', (route) =>
+    route.fulfill({
+      status: 429,
+      json: { error: { code: '429', message: 'Too Many Requests', id: 'sfo1::test' } },
+    })
+  )
+
+  await openContactForm(page)
+  await waitForTurnstileToken(page)
+  await fillForm(page)
+  await page.getByRole('button', { name: /Send Message/ }).click()
+
+  const form = page.locator('#contact form')
+  await expect(form.getByText(/too many messages/i)).toBeVisible()
+  await expect(form.getByText('[object Object]')).toHaveCount(0)
 })

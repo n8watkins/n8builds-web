@@ -9,6 +9,11 @@ export type SubmissionState = 'idle' | 'submitting' | 'success' | 'error'
 
 const DEFAULT_ERROR_MESSAGE = 'Oops! Something went wrong. Please try again or email me directly.'
 
+// Vercel's firewall rate limit answers before the app does, with its own JSON
+// body ({ error: { code, message } }), so a 429 without our message gets this.
+const RATE_LIMITED_MESSAGE =
+  'Too many messages from your connection in the last minute. Please wait a minute and try again, or email me directly at nathancwatkins23@gmail.com.'
+
 // How long to wait for Turnstile to issue a token after the visitor clicks Send.
 const TURNSTILE_WAIT_MS = 15_000
 
@@ -131,7 +136,12 @@ export function useContactFormSubmit(): UseContactFormSubmitReturn {
         if (!isMountedRef.current) return
 
         logger.error('Form submission error:', errorData)
-        throw new SubmissionError(errorData.error || DEFAULT_ERROR_MESSAGE)
+        // Only our API's own messages are text; anything else (an edge error
+        // object, an empty body) gets a fixed message instead of being shown raw.
+        const serverMessage = typeof errorData.error === 'string' ? errorData.error : ''
+        throw new SubmissionError(
+          serverMessage || (response.status === 429 ? RATE_LIMITED_MESSAGE : DEFAULT_ERROR_MESSAGE)
+        )
       }
 
       // Check before success state updates
