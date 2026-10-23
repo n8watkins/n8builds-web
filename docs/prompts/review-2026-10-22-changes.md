@@ -1,7 +1,7 @@
 # Prompt: review the 2026-10-22 changes
 
 A ready-to-paste prompt for a fresh Claude Code session in this repo.
-It reviews everything shipped on 2026-10-22: the review-and-improve pass, the marquee fix, the content changes, the Vercel host redirects, and the four rewritten blog posts (published that day).
+It reviews everything shipped on 2026-10-22 and 2026-10-23: the review-and-improve pass, the marquee fix, the content changes, the Vercel host redirects, and the four rewritten blog posts (published that day).
 It is read-only until it reports, and it never writes to Sanity or changes Vercel or Cloudflare settings.
 
 Written 2026-10-22.
@@ -19,6 +19,8 @@ Read docs/HANDOFF.md, docs/OWNER_TODO.md and README.md for context on n8builds-w
    - Security: the contact route's check order (all free checks before Upstash), the per-recipient auto-reply limit, IPv6 /64 keys, the 415 for non-JSON, greetingName, the name regex, the image optimizer's exact sources, the custom Sentry tunnel at app/monitoring/route.ts, lib/sentry-scrub.ts.
    - UX: Navbar (lg breakpoint, overlay menu with scroll lock, backdrop, Escape), NowBuilding (stacked cards, pause rules, made the main section), contact form (submit on Enter, aria-invalid/describedby, success focus, focusFirstError), marquee fix in app/globals.css (@theme inline), small touch-target and wrapping fixes.
    - Content: the dictation app is Scribe at /builds/scribe (the old name is fully retired, with no redirect), four builds removed with redirects, Solara featured, VibeLog spelling, Asset Arsenal out of the carousel.
+   - 2026-10-23 homepage rework: the hero (heading "n8builds", subheader, one-line whoami, no pill; a grid that warms up and then wanders at random, with a fading transition into the next section), "What I'm working on" (Appturnity only), one Lab section (Featured, Chrome extensions, Tools; LabSubheader), full-width section bands, Asset Arsenal and JobSignal removed, VibeLog moved to hiddenBuilds, /builds/appturnity redirecting to appturnity.com, Build log buttons, the blog link underline fix, and the contact form's message for the edge 429.
+   - Outside the repo: the Vercel WAF rule on POST /api/contact (Firewall tab; read it with `vercel api`, do not change it) and the topic cover images on the four posts in Sanity.
 2. Live site: after confirming the deploy of $END is live, check https://n8builds.dev with read-only GET requests: share cards and og.png images, canonicals, sitemap.xml (every URL returns 200, no redirects), the redirects (www and n8builds-web.vercel.app to apex, removed builds, /lab and friends), security headers, and the homepage on a phone-sized and a tablet-sized viewport.
 3. Blog posts (read only): the four rewritten posts, live at https://n8builds.dev/blog/welcome-to-n8-notions, /blog/why-i-build-in-public, /blog/distribution-is-the-new-bottleneck and /blog/speed-beats-mastery (Sanity documents sample-welcome, sample-build-in-public, sample-distribution and sample-speed-beats-mastery in project abgyc32w). For each post:
    - verify every factual claim against the linked source (numbers, dates, who said what, what a study actually measured)
