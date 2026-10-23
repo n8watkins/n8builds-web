@@ -22,7 +22,7 @@ Strategy and IA: `docs/N8BUILDS_PLAN.md`.
 
 - Live at https://n8builds.dev on Vercel (project `n8builds-web`, team natkins23s-projects), auto-deploying from `main`.
 - Stack: Next.js 16 (App Router, webpack build), React 19, TypeScript, Tailwind 4 (configured in `app/globals.css`; there is no `tailwind.config`), Motion (`motion/react`; not framer-motion), Sanity (blog), Nodemailer + Gmail SMTP, Cloudflare Turnstile, Upstash Redis (rate limits), Sentry, GA4, Vercel Speed Insights.
-- Pages: `/` (hero, lab sections, work-with-me, contact), `/blog` + `/blog/[slug]` (N8 Notions, ISR hourly), `/builds/[slug]`, `/loadout`, `/privacy`.
+- Pages: `/` (hero, the Lab, notions, stack, work-with-me, contact, each in its own full-width band), `/blog` + `/blog/[slug]` (N8 Notions, ISR hourly), `/builds/[slug]`, `/loadout`, `/privacy`.
 - **Status (2026-10-22):** everything is pushed and live, including the review-and-improve pass, the marquee fix, the content changes (Scribe, removed builds, Solara featured, VibeLog), and the contact-form edge rate limit.
 - **Next session:** run `docs/prompts/review-2026-10-22-changes.md`.
   The four rewritten blog posts were published on 2026-10-22 (the review fact-checks them live); after the review the owner checks share cards (`docs/OWNER_TODO.md` 5b).
@@ -95,13 +95,20 @@ Every free check runs before the first Upstash call, so requests without a solve
 - The site is a **build-in-public workshop, not a portfolio**.
   The hire-me lane is portfolio.n8builds.dev; client work is appturnity.com.
 - **Projects and Lab are one.**
-  The Lab is one homepage section with anchored sub-sections: web apps and experiments (`#lab`), Chrome extensions (`#extensions`), tools (`#tools`).
+  The Lab (`#lab`) is one homepage section with three parts: Featured web apps (`#featured`, the big alternating rows), Chrome extensions (`#extensions`), and Tools (`#tools`).
+  There is no "web apps and experiments" shelf (removed 2026-10-22); web apps are featured rows.
   There are no standalone shelf pages; `/lab`, `/extensions` and `/tools` redirect to the anchors, and the retired `/resources` redirects to `#lab` (`next.config.mjs`).
   The navbar "Lab" dropdown scrolls to them.
+- **No "Currently building" section** (removed 2026-10-22, owner's call); the hero pill links to github.com/n8watkins instead.
+  Hero copy (2026-10-22): "Spending tokens, shipping features." with the subline "Apps, Chrome extensions and tools I wish existed, built by Nathan Watkins with AI agents doing the heavy lifting."
+  Say "in public" sparingly; the owner felt the old hero overused it.
+- **Appturnity has no build page:** `/builds/appturnity` redirects to appturnity.com, and the site never links Appturnity's GitHub repo.
+- **Hidden builds:** `hiddenBuilds` in `data/builds.tsx` keeps builds that are paused but not dead, with no page, card, sitemap entry or nav link.
+  VibeLog is there (hidden 2026-10-22, also removed from the loadout and navbar); move it back into `builds` to show it again.
 - **`data/builds.tsx` is the single source of truth** for every build; `data/shelves.ts` routes each one to its section by `category`.
   Never create a parallel dataset.
 - **Don't list the same build twice.**
-  Chrome extensions appear only in the extensions showcase; Appturnity is featured and excluded from the Lab list.
+  Chrome extensions appear only in the extensions showcase; featured web apps appear only as featured rows.
 - Extensions and featured projects **auto-cycle with hover-to-expand** on desktop, tap or stacked on mobile.
   Not click-only.
 - The Chrome Extension Launch Kit is a banner under the extensions, not a main card.
@@ -174,13 +181,13 @@ Every free check runs before the first Upstash call, so requests without a solve
 - `app/page.tsx`: homepage metadata and JSON-LD; the page itself is the client component `components/HomePage.tsx`, whose sections load via `next/dynamic` and are wrapped in `SectionErrorBoundary`.
 - `app/layout.tsx`: site-wide metadata defaults, GA (gated on `NEXT_PUBLIC_GA_ID`), Speed Insights (Vercel only), providers.
 - `app/api/contact/route.ts`, `app/api/health/route.ts` (liveness ping), `app/api/notions/recent/route.ts` (homepage blog strip; keeps `@sanity/client` out of the client bundle).
-- `components/sections/`: `Hero`, `NowBuilding` (+ `data/now.tsx`), `FeaturedProjects`, `ShelfSection`, `ExtensionsShowcase`, `HomeStack`, `NotionsStrip`, `WorkWithMe`, `Loadout`, `BuildStacks`, `TechStackBento`, `BuildCard`.
+- `components/sections/`: `Hero`, `FeaturedProjects`, `ShelfSection`, `LabSubheader`, `ExtensionsShowcase`, `HomeStack`, `NotionsStrip`, `WorkWithMe`, `Loadout`, `BuildStacks`, `TechStackBento`, `BuildCard`.
 - `components/layout/`: `Navbar` (`labMenu[]` drives the Lab dropdown), `Footer` (contact card and form).
 - `components/ContactForm/`: form UI and `useContactFormSubmit` (submission and Turnstile handling).
 - `components/blog/`, `lib/sanity.ts`, `lib/blog-utils.ts`: N8 Notions.
   Posts without a cover image get a generated "signal" cover: `lib/blog-cover.ts` (art and topic colours), served as cached SVG files by `app/notions-cover/[version]/[topic]/[file]/route.ts`.
   The files are cached forever, so bump `COVER_VERSION` whenever the drawing changes.
-- `data/`: `builds.tsx` (source of truth), `shelves.ts`, `loadout.tsx`, `aiStack.tsx`, `buildStacks.tsx`, `techStack.tsx`, `projects.tsx`, `now.tsx`.
+- `data/`: `builds.tsx` (source of truth), `shelves.ts`, `loadout.tsx`, `aiStack.tsx`, `buildStacks.tsx`, `techStack.tsx`, `projects.tsx`.
 - `lib/security/`: `rateLimiter.ts`, `turnstile.ts`, `validation.ts`, `testMode.ts`.
 - `lib/email/`: `smtp.ts` (transport + `EMAIL_CONFIG`), `sender.ts`, `templates.ts`, `icons.ts` (generated).
 - `lib/seo.ts`: `pageMetadata()`, `summarize()`, JSON-LD builders; `lib/og-card.tsx`: share-card renderer.
@@ -196,9 +203,9 @@ Every free check runs before the first Upstash call, so requests without a solve
 
 Feature work, roughly in priority order:
 
-1. Real screenshots for TL;DW and Scribe (ideally Asset Arsenal and VibeLog too) in `public/builds/<slug>/`; a real mark for Portfolio Rank.
+1. Real screenshots for TL;DW and Scribe in `public/builds/<slug>/`; a real mark for Portfolio Rank.
 2. A `/builds` log index page (journal "heartbeat") and a "Log" nav item; detail pages already exist.
-3. Keep `data/now.tsx` and the loadout data current.
-4. Wire the Hero "Live" pill to real Twitch/YouTube status (manual today).
-5. Hero: "LIVE on VibeLog" badge.
+3. Keep the loadout data current.
+4. Wire the Hero "Live" pill to real Twitch/YouTube status (it links to GitHub today).
+5. Bring VibeLog back from `hiddenBuilds` when it's ready to show.
 6. Fire the GA tag from the portfolio subdomain deploy for cross-subdomain tracking.
