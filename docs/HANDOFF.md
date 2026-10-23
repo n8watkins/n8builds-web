@@ -25,7 +25,8 @@ Strategy and IA: `docs/N8BUILDS_PLAN.md`.
 - Pages: `/` (hero, "What I'm working on", the Lab, notions, stack, work-with-me, contact, each in its own full-width band), `/blog` + `/blog/[slug]` (N8 Notions, ISR hourly), `/builds/[slug]`, `/loadout`, `/privacy`.
 - **Status (2026-10-23):** everything is pushed and live, including the 2026-10-23 homepage rework.
   The review of the 2026-10-22/23 work (`docs/prompts/review-2026-10-22-changes.md`) ran on 2026-10-23; its fixes (Solara's private-repo link, 320px hero, modal mobile menu, em-dash sweep, blog fact fixes) are shipped.
-- **Next session:** the share-card check (`docs/OWNER_TODO.md` 5b), the Nightly Lighthouse CLS failure on `/` (0.29 in CI, about 0.006 locally) and a mobile-Safari contact-form flake, then the backlog below.
+- **Next session:** the share-card check (`docs/OWNER_TODO.md` 5b), then the backlog below.
+- **Hero layout:** the hero content is top-aligned, not vertically centered, and the ambient glows mount after hydration: both caused layout shift on slow devices (Nightly Lighthouse CLS 0.29). Keep it that way.
 - SEO: every page builds its metadata with `pageMetadata()` (`lib/seo.ts`), which sets the canonical URL, og:url and both share cards with a preview image.
   Next.js merges metadata shallowly, so a page that sets its own `openGraph` without the helper loses the image.
   Blog posts and builds get generated 1200x630 PNG cards (`/blog/<slug>/og.png`, `/builds/<slug>/og.png`, drawn by `lib/og-card.tsx` with `next/og` over the blog-cover art, Inter from `assets/fonts/`).
