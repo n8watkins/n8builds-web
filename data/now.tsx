@@ -37,21 +37,7 @@ export const nowItems: NowState[] = [
     ],
   },
   {
-    project: 'Asset Arsenal',
-    tagline: 'AI icon extraction workbench',
-    status: 'prototype',
-    focus: 'Wiring the icon-extraction pipeline up to a real download-the-pack flow.',
-    goal: 'Drop in one design image, get back a full set of matching, production-ready icons.',
-    stack: ['Next.js', 'OpenAI', 'Turso', 'Cloudflare R2', 'Stripe'],
-    links: { github: 'https://github.com/n8watkins' },
-    updates: [
-      { date: 'Jun 12', text: 'Improved icon-style detection so generated icons match the source set.' },
-      { date: 'Jun 10', text: 'Stubbed the Stripe checkout + R2 storage for downloadable packs.' },
-      { date: 'Jun 08', text: 'Split the 6-step generation pipeline into a clean workbench UI.' },
-    ],
-  },
-  {
-    project: 'VibeLoge',
+    project: 'VibeLog',
     tagline: 'Live coding telemetry & OBS overlay',
     status: 'active',
     focus: 'Tightening the live HUD and the auto end-of-stream recap.',

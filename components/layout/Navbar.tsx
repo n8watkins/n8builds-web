@@ -87,7 +87,7 @@ const Navbar = () => {
       icon: <SiYoutube className="w-4 h-4" />,
       hoverColor: 'hover:text-red-400',
     },
-    { label: 'VibeLoge', href: '/builds/vibelog', icon: null, hoverColor: 'hover:text-cyan-400' },
+    { label: 'VibeLog', href: '/builds/vibelog', icon: null, hoverColor: 'hover:text-cyan-400' },
   ]
 
   return (
