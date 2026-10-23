@@ -37,7 +37,7 @@ const Footer = () => {
       </div>
 
       <div className="flex flex-col items-center pt-14">
-        {/* Contact card — branded panel + form, with decorative artifacts */}
+        {/* Contact card - branded panel + form, with decorative artifacts */}
         <motion.div
           variants={fadeInVariants}
           {...defaultAnimationConfig}
@@ -53,7 +53,7 @@ const Footer = () => {
             <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-cyan-400 via-blue-500 to-cyan-400" />
 
             <div className="relative grid gap-8 p-5 sm:p-7 md:grid-cols-[0.9fr_1.1fr] md:p-10">
-              {/* Left — branded panel */}
+              {/* Left - branded panel */}
               <div className="flex flex-col gap-5">
                 <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/12 bg-white/4 px-3 py-1 text-xs font-semibold text-slate-300">
                   <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" /> Building in public
@@ -109,7 +109,7 @@ const Footer = () => {
                 </div>
               </div>
 
-              {/* Right — form */}
+              {/* Right - form */}
               <div className="relative rounded-2xl border border-white/10 bg-[#050c18]/60 p-4 backdrop-blur-xs sm:p-6">
                 <ContactFormErrorBoundary>
                   <ContactForm />

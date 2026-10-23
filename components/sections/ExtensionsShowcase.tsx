@@ -16,7 +16,7 @@ interface Ext {
   blurb: string
 }
 
-// The 3 extensions to push (open source — ask for stars). Details derive from builds.tsx.
+// The 3 extensions to push (open source - ask for stars). Details derive from builds.tsx.
 const exts: Ext[] = [
   {
     slug: 'piper-tts',
@@ -37,7 +37,7 @@ const exts: Ext[] = [
     icon: '/builds/tldw/icon.png',
     shot: null,
     oss: true,
-    blurb: 'On any YouTube video, hit Alt+G — it opens Gemini with a saved prompt and the video, and submits. Too Long; Didn\'t Watch.',
+    blurb: 'On any YouTube video, hit Alt+G - it opens Gemini with a saved prompt and the video, and submits. Too Long; Didn\'t Watch.',
   },
 ]
 
@@ -143,7 +143,7 @@ const ExtensionsShowcase = () => {
         eyebrow="Browser tools"
         eyebrowClass="text-indigo-400"
         title="Chrome extensions"
-        blurb={<>Small, local-first tools I built and actually use. All open source — if one&apos;s useful, a star helps a ton.</>}
+        blurb={<>Small, local-first tools I built and actually use. All open source - if one&apos;s useful, a star helps a ton.</>}
       />
 
       {/* ===== Desktop: 3 side-by-side + auto-cycle detail ===== */}
@@ -194,7 +194,7 @@ const ExtensionsShowcase = () => {
           })}
         </div>
 
-        {/* Detail panel — carousels as active changes */}
+        {/* Detail panel - carousels as active changes */}
         <div className="mt-6 rounded-3xl border border-white/8 bg-white/2 p-6 md:p-8">
           <AnimatePresence mode="wait">
             <motion.div
@@ -228,7 +228,7 @@ const ExtensionsShowcase = () => {
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-400/10 font-mono text-cyan-400">{'</>'}</span>
           <div>
             <p className="font-bold text-slate-100">Chrome Extension Launch Kit</p>
-            <p className="text-sm text-slate-450">The MV3 starter all three of these are built on — clone it and ship your own.</p>
+            <p className="text-sm text-slate-450">The MV3 starter all three of these are built on - clone it and ship your own.</p>
           </div>
         </div>
         <span className="flex items-center gap-1 font-mono text-sm text-slate-450 transition-colors group-hover:text-cyan-400">

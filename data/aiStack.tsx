@@ -19,16 +19,16 @@ export interface AIStackItem {
 
 const ICON = 'w-7 h-7'
 
-// Row 1 — agents & models (the heavy lifters)
+// Row 1 - agents & models (the heavy lifters)
 export const ai_agents: AIStackItem[] = [
-  { name: 'Claude Code', icon: <SiClaude className={ICON} style={{ color: '#D97757' }} />, description: 'My pair-programmer — I build most things here now.' },
+  { name: 'Claude Code', icon: <SiClaude className={ICON} style={{ color: '#D97757' }} />, description: 'My pair-programmer - I build most things here now.' },
   { name: 'Cursor', icon: <FiEdit3 className={ICON} style={{ color: '#38bdf8' }} />, description: 'Inline, context-aware edits when my hands are on the keys.' },
   { name: 'OpenAI', icon: <BsOpenai className={ICON} style={{ color: '#10A37F' }} />, description: 'Generation pipelines and structured outputs.' },
   { name: 'Gemini', icon: <SiGooglegemini className={ICON} style={{ color: '#4285F4' }} />, description: 'Long-context summarization in my extensions.' },
   { name: 'Perplexity', icon: <SiPerplexity className={ICON} style={{ color: '#20B8CD' }} />, description: 'Fast research with sources.' },
 ]
 
-// Row 2 — local-first & tooling
+// Row 2 - local-first & tooling
 export const ai_tools: AIStackItem[] = [
   { name: 'Ollama', icon: <SiOllama className={ICON} style={{ color: '#e5e7eb' }} />, description: 'Runs local models on my own machine.' },
   { name: 'whisper.cpp', icon: <FiMic className={ICON} style={{ color: '#22d3ee' }} />, description: 'Local speech-to-text (powers Scribe).' },

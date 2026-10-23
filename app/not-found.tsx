@@ -3,7 +3,7 @@ import Link from 'next/link'
 import Navbar from '@/components/layout/Navbar'
 
 export const metadata: Metadata = {
-  title: 'Not found — n8builds',
+  title: 'Not found | n8builds',
   description: 'Nothing in the lab at this address.',
 }
 

@@ -2,7 +2,7 @@ import { PortableText } from '@portabletext/react'
 
 // Renders Sanity Portable Text in the n8builds.dev dark theme. Matches the post
 // schema: block styles normal/h1-h4/blockquote, bullet lists, strong/em/link
-// marks, and inline images. No `prose` plugin — every element is hand-styled.
+// marks, and inline images. No `prose` plugin - every element is hand-styled.
 const components = {
   types: {
     image: ({ value }: any) =>
@@ -15,8 +15,9 @@ const components = {
             loading="lazy"
             className="w-full"
           />
+          {/* The caption repeats the alt text, so screen readers skip it. */}
           {value.alt && (
-            <figcaption className="bg-white/2 px-4 py-2 text-center text-xs text-slate-450">
+            <figcaption aria-hidden="true" className="bg-white/2 px-4 py-2 text-center text-xs text-slate-450">
               {value.alt}
             </figcaption>
           )}

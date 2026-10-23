@@ -17,14 +17,14 @@ const inter = Inter({
   fallback: ['system-ui', 'arial']
 })
 
-const description = 'Apps, AI tools, Chrome extensions, local utilities, and build logs — all in public.'
+const description = 'Spending tokens, shipping features. Apps, AI tools, Chrome extensions, local utilities, and the build logs behind them.'
 
 // Site-wide defaults. Each page replaces title, description, canonical, and the
 // share cards through pageMetadata() (lib/seo.ts); these cover anything else,
 // such as the 404 page, without claiming the homepage's URL.
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: `${SITE_NAME} — Public Builder Lab`,
+  title: `${SITE_NAME} | Public Builder Lab`,
   description,
   keywords: ['Nathan Watkins', 'n8builds', 'Public Builder', 'Next.js', 'AI Tools', 'Chrome Extensions'],
   openGraph: {

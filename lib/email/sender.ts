@@ -55,7 +55,7 @@ export async function sendContactEmails(
       from: EMAIL_CONFIG.from,
       to: EMAIL_CONFIG.to,
       replyTo: data.email,
-      subject: `${subjectLabel} — ${data.name}`,
+      subject: `${subjectLabel} - ${data.name}`,
       html: contactEmailHtml,
       text: `
 New contact form submission:
@@ -105,7 +105,7 @@ Sent from your portfolio contact form at ${new Date().toLocaleString()}
       text: `
 Hey ${greetingName(data.name)},
 
-Appreciate you reaching out — I normally reply within 24 hours. Excited to hear more.
+Appreciate you reaching out - I normally reply within 24 hours. Excited to hear more.
 
 ${getSubjectSpecificLine(data.subject).text}
 

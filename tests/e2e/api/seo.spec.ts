@@ -108,7 +108,7 @@ test('404 pages are noindex only, with their own title', async ({ request }) => 
     const html = await response.text()
     const robots = [...html.matchAll(/<meta name="robots" content="([^"]*)"/g)].map((m) => m[1])
     expect(robots, `${path} robots`).toEqual(['noindex'])
-    expect(html, `${path} title`).toContain('<title>Not found — n8builds</title>')
+    expect(html, `${path} title`).toContain('<title>Not found | n8builds</title>')
   }
 })
 

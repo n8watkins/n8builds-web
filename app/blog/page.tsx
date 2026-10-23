@@ -6,8 +6,8 @@ import { pageMetadata } from '@/lib/seo'
 export const revalidate = 3600
 
 export const metadata = pageMetadata({
-  title: 'N8 Notions — n8builds',
-  description: 'Notes, essays, and build logs from n8 — building software in public.',
+  title: 'N8 Notions | n8builds',
+  description: 'Notes, essays, and build logs from n8 on building software with AI.',
   path: '/blog',
 })
 

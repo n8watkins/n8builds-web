@@ -24,7 +24,7 @@ export const shelfMeta: Record<Shelf, ShelfMeta> = {
     label: 'Extensions',
     eyebrow: 'Browser tools',
     heading: 'Chrome Extensions',
-    blurb: 'Small browser tools that do one useful thing well — mostly local-first, zero-account, low-surface.',
+    blurb: 'Small browser tools that do one useful thing well - mostly local-first, zero-account, low-surface.',
   },
   tool: {
     id: 'tool',

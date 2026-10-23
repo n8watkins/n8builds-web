@@ -31,7 +31,7 @@ const bridges: Bridge[] = [
     eyebrow: 'Hiring',
     title: 'Need a developer?',
     blurb:
-      "Looking for someone to build, ship, and own real features? My portfolio is the resume — case studies, the stack, and the proof I can do the job.",
+      "Looking for someone to build, ship, and own real features? My portfolio is the resume - case studies, the stack, and the proof I can do the job.",
     points: ['Full-stack + AI-assisted', 'Case studies & real work', 'Available for roles'],
     cta: 'See the portfolio',
     href: 'https://portfolio.n8builds.dev',
@@ -50,7 +50,7 @@ const bridges: Bridge[] = [
     eyebrow: 'Project work',
     title: 'Need a website or business system?',
     blurb:
-      "Have an idea, a business to put online, or an internal tool that should already exist? That's Appturnity — I take it from a conversation to something live you can use.",
+      "Have an idea, a business to put online, or an internal tool that should already exist? That's Appturnity - I take it from a conversation to something live you can use.",
     points: ['Websites & web apps', 'Custom business systems', 'From idea to shipped'],
     cta: 'Start a project',
     href: 'https://appturnity.com',
@@ -82,7 +82,7 @@ const BridgeCard = ({ bridge, index }: { bridge: Bridge; index: number }) => (
     <div className="relative aspect-video overflow-hidden border-b border-white/6 bg-[#0a1322]">
       <Image
         src={bridge.image}
-        alt={`${bridge.title} — site preview`}
+        alt={`${bridge.title} - site preview`}
         fill
         className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
         sizes="(max-width: 768px) 100vw, 50vw"
@@ -142,7 +142,7 @@ const WorkWithMe = () => {
           Two ways to put me to work
         </h2>
         <p className="mt-2 text-[#9cadc5]">
-          This is where I build in public. If you like what you see, here&apos;s where it goes next —
+          This is where I build in public. If you like what you see, here&apos;s where it goes next -
           hire me, or have me build the thing.
         </p>
       </div>

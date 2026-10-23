@@ -14,7 +14,7 @@ const TechStackBento = ({ showLink = true }: { showLink?: boolean }) => {
           <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-cyan-400">The loadout</p>
           <h2 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">My tech stack</h2>
           <p className="mt-2 max-w-[480px] text-[#9cadc5]">
-            What I build with. Hover or tap any tile for what it&apos;s for — or see the full loadout, rig, and AI kit.
+            What I build with. Hover or tap any tile for what it&apos;s for - or see the full loadout, rig, and AI kit.
           </p>
         </div>
         {showLink && (

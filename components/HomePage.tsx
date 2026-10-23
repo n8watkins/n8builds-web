@@ -60,7 +60,7 @@ export default function HomePage() {
         tabIndex={-1}
         className="relative w-full min-h-screen bg-linear-to-b from-darkBlue via-[#06101f] to-darkBlue focus:outline-none"
       >
-        {/* Ambient color shift — soft glows so the page isn't one flat color */}
+        {/* Ambient color shift - soft glows so the page isn't one flat color */}
         <div aria-hidden className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
           <div className="absolute left-[-10%] top-[6%] h-160 w-160 rounded-full bg-cyan-500/10 blur-[150px]" />
           <div className="absolute right-[-12%] top-[26%] h-152 w-152 rounded-full bg-blue-600/11 blur-[150px]" />

@@ -1,6 +1,6 @@
-// The Loadout — "who I am" without a resume. You ARE your loadout.
+// The Loadout - "who I am" without a resume. You ARE your loadout.
 // Each item: what it is + what I use it for + my one-line take.
-// Content is curated/representative — edit freely as the kit changes.
+// Content is curated/representative - edit freely as the kit changes.
 
 export interface LoadoutItem {
   name: string
@@ -39,7 +39,7 @@ export const loadout: LoadoutGroup[] = [
     items: [
       {
         name: 'Claude Code',
-        whatFor: 'My main pair-programmer. I build basically everything here now — features, refactors, whole projects.',
+        whatFor: 'My main pair-programmer. I build basically everything here now - features, refactors, whole projects.',
         take: 'Closest thing to having a senior dev who never gets tired. Agent-native is the whole workflow.',
         tag: 'daily driver',
       },
@@ -50,7 +50,7 @@ export const loadout: LoadoutGroup[] = [
       },
       {
         name: 'OpenAI API',
-        whatFor: 'Generation pipelines — icon extraction in Asset Arsenal, structured outputs, embeddings.',
+        whatFor: 'Generation pipelines - icon extraction in Asset Arsenal, structured outputs, embeddings.',
         take: 'Still my default when I need reliable structured JSON out of a model.',
       },
       {
@@ -60,7 +60,7 @@ export const loadout: LoadoutGroup[] = [
       },
       {
         name: 'Ollama + whisper.cpp + Piper',
-        whatFor: 'Local inference — offline transcription (Scribe), local TTS, private experiments.',
+        whatFor: 'Local inference - offline transcription (Scribe), local TTS, private experiments.',
         take: 'Local-first is underrated. No API bill, no data leaving the machine.',
         tag: 'local-first',
       },
@@ -81,7 +81,7 @@ export const loadout: LoadoutGroup[] = [
       },
       {
         name: 'TypeScript',
-        whatFor: 'Non-negotiable across everything — web, extensions, CLIs.',
+        whatFor: 'Non-negotiable across everything - web, extensions, CLIs.',
         take: 'If it compiles, half my bugs never happened. Strict mode or bust.',
       },
       {
@@ -96,7 +96,7 @@ export const loadout: LoadoutGroup[] = [
       },
       {
         name: 'WXT',
-        whatFor: 'My Chrome extension framework — MV3, React, fast HMR (the whole extensions shelf).',
+        whatFor: 'My Chrome extension framework - MV3, React, fast HMR (the whole extensions shelf).',
         take: 'Makes MV3 extensions feel like building a normal app instead of fighting the manifest.',
       },
     ],
@@ -150,7 +150,7 @@ export const loadout: LoadoutGroup[] = [
       },
       {
         name: 'Scribe',
-        whatFor: 'Hold a hotkey, talk, it types — local Whisper transcription at the cursor.',
+        whatFor: 'Hold a hotkey, talk, it types - local Whisper transcription at the cursor.',
         take: 'Also mine. Faster than typing for notes, prompts, and commit messages.',
         tag: 'built it myself',
       },
@@ -166,17 +166,17 @@ export const loadout: LoadoutGroup[] = [
       {
         name: 'AMD Ryzen 7 9700X',
         whatFor: '8 Zen 5 cores / 16 threads for compiling, local models, and three dev servers at once.',
-        take: 'Zen 5 runs cool and fast — efficient enough that the fans stay quiet under a full build.',
+        take: 'Zen 5 runs cool and fast - efficient enough that the fans stay quiet under a full build.',
       },
       {
         name: 'Radeon RX 7800 XT (16GB)',
         whatFor: 'Local inference, encoding the stream without dropping frames, and the occasional game.',
-        take: '16GB of VRAM is the sweet spot — room for decent local models and still stream clean.',
+        take: '16GB of VRAM is the sweet spot - room for decent local models and still stream clean.',
       },
       {
         name: '32GB DDR5-6000 (CL32)',
         whatFor: 'Chrome, Docker, a local LLM, and OBS all wanting to be friends at the same time.',
-        take: 'G.Skill DDR5 — RAM is cheap, closing tabs is expensive. Easy call.',
+        take: 'G.Skill DDR5 - RAM is cheap, closing tabs is expensive. Easy call.',
       },
       {
         name: 'Samsung 990 PRO 2TB',
@@ -185,7 +185,7 @@ export const loadout: LoadoutGroup[] = [
       },
       {
         name: 'Gigabyte B650 Gaming X AX V2',
-        whatFor: 'The board it all bolts to — AM5, PCIe Gen4, Wi-Fi 6E for when ethernet isn\'t handy.',
+        whatFor: 'The board it all bolts to - AM5, PCIe Gen4, Wi-Fi 6E for when ethernet isn\'t handy.',
         take: 'B650 is the value-sane AM5 pick: everything I need, nothing I\'m paying to never use.',
       },
     ],
@@ -198,25 +198,25 @@ export const loadout: LoadoutGroup[] = [
     path: '~/loadout/desk',
     items: [
       {
-        name: 'Acer XV272U V3 — 27" 1440p 180Hz',
+        name: 'Acer XV272U V3 - 27" 1440p 180Hz',
         whatFor: 'The main code and stream surface. High-refresh 1440p IPS, with a second screen off to the side for reference.',
-        take: 'A fast, sharp panel is the one screen upgrade I feel every single day — 180Hz spoils you.',
+        take: 'A fast, sharp panel is the one screen upgrade I feel every single day - 180Hz spoils you.',
       },
       {
         name: 'Leopold mechanical',
-        whatFor: 'All day every day — code, prompts, commit messages.',
+        whatFor: 'All day every day - code, prompts, commit messages.',
         take: 'Thick PBT caps and a rock-solid case. The one piece of gear I\'m genuinely picky about.',
         tag: 'daily driver',
       },
       {
         name: 'Razer Cobra',
-        whatFor: 'Pointer duty — light enough that long sessions don\'t wear on the wrist.',
+        whatFor: 'Pointer duty - light enough that long sessions don\'t wear on the wrist.',
         take: 'Light, simple, accurate. I don\'t want my mouse to have opinions.',
       },
       {
         name: 'Fifine USB mic',
         whatFor: 'Stream and recording audio that doesn\'t make people leave.',
-        take: 'Good audio is the cheapest upgrade to sounding like you know what you\'re doing — no interface needed.',
+        take: 'Good audio is the cheapest upgrade to sounding like you know what you\'re doing - no interface needed.',
       },
     ],
   },

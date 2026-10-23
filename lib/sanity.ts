@@ -3,7 +3,7 @@ import { createClient } from '@sanity/client'
 
 // Read-only client for the N8 Notions blog. Reads the shared Sanity dataset
 // (project abgyc32w / production) that the Sanity Studio (n8builds.sanity.studio)
-// writes to. Public CDN read — no token needed. Server-only: do not import this
+// writes to. Public CDN read - no token needed. Server-only: do not import this
 // into client components (keeps @sanity/client out of the browser bundle).
 if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) {
   throw new Error('NEXT_PUBLIC_SANITY_PROJECT_ID is not set')

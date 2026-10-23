@@ -2,7 +2,7 @@ import { ContactFormData } from '@/lib/validations/contact'
 import { subjectOptions } from '@/lib/validations/contact'
 import { EMAIL_CONFIG } from '@/lib/email/smtp'
 // Security: escape ALL markup in user input. Stricter than the previous
-// DOMPurify allowlist (which permitted bare <br>), and avoids jsdom —
+// DOMPurify allowlist (which permitted bare <br>), and avoids jsdom -
 // whose dependency chain breaks Vercel's serverless runtime
 // (ERR_REQUIRE_ESM in html-encoding-sniffer). Newlines in the message
 // still render via `white-space: pre-wrap` on the message box.
@@ -130,8 +130,8 @@ export function getSubjectSpecificLine(subject: string): { html: string; text: s
       }
     case 'consulting':
       return {
-        html: `A quick note on your goals and timeline helps me show up prepared — and if you want a feel for how I work, check out <a href="${EMAIL_CONFIG.appturnityUrl}" style="color:#2563eb;">appturnity.com</a>.`,
-        text: `A quick note on your goals and timeline helps me show up prepared — and if you want a feel for how I work, check out appturnity.com.`,
+        html: `A quick note on your goals and timeline helps me show up prepared - and if you want a feel for how I work, check out <a href="${EMAIL_CONFIG.appturnityUrl}" style="color:#2563eb;">appturnity.com</a>.`,
+        text: `A quick note on your goals and timeline helps me show up prepared - and if you want a feel for how I work, check out appturnity.com.`,
       }
     case 'networking':
       return {
@@ -175,7 +175,7 @@ export function createAutoReplyHtml(data: ContactFormData): string {
 <body style="margin:0;padding:0;background:#f6f7fb;font-family:Segoe UI,Arial,sans-serif;">
   <!-- Preheader (hidden) -->
   <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
-    Appreciate you reaching out — I normally reply within 24 hours.
+    Appreciate you reaching out - I normally reply within 24 hours.
   </div>
 
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f6f7fb;">
@@ -197,7 +197,7 @@ export function createAutoReplyHtml(data: ContactFormData): string {
               <p style="margin:0 0 12px;font-size:16px;color:#111827;">Hey ${sanitizeHtml(firstName)},</p>
 
               <p style="margin:0 0 12px;font-size:15px;color:#374151;">
-                Appreciate you reaching out — I normally reply within <strong>24 hours</strong>. Excited to hear more.
+                Appreciate you reaching out - I normally reply within <strong>24 hours</strong>. Excited to hear more.
               </p>
 
               ${subjectLine.html ? `<p style="margin:0 0 12px;font-size:15px;color:#374151;">${subjectLine.html}</p>` : ''}
@@ -243,7 +243,7 @@ export function createAutoReplyHtml(data: ContactFormData): string {
           <tr>
             <td style="padding:0 24px 16px;">
               <p style="margin:0;font-size:11px;color:#9aa3af;">
-                One-time email — you submitted the contact form on <a href="${EMAIL_CONFIG.siteUrl}" style="color:#9aa3af;">${EMAIL_CONFIG.siteDomain}</a>. Not a subscription.
+                One-time email - you submitted the contact form on <a href="${EMAIL_CONFIG.siteUrl}" style="color:#9aa3af;">${EMAIL_CONFIG.siteDomain}</a>. Not a subscription.
               </p>
             </td>
           </tr>

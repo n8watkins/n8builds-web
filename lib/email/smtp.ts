@@ -9,7 +9,7 @@ const publicEmail = process.env.CONTACT_EMAIL_FROM || 'contact@n8builds.dev'
 
 export const EMAIL_CONFIG = {
   // IMPORTANT: notifications must go straight to the Gmail inbox, NOT to
-  // contact@n8builds.dev — that address forwards back to this same Gmail
+  // contact@n8builds.dev - that address forwards back to this same Gmail
   // account, and Gmail dedupes mail it already has in Sent, so submissions
   // would never surface in the inbox.
   to: process.env.CONTACT_EMAIL_TO || 'nathancwatkins23@gmail.com',
@@ -28,7 +28,7 @@ let transporter: Transporter | null = null
 
 /**
  * Lazily create the Gmail SMTP transport so importing this module (e.g.
- * during `next build`) doesn't require credentials — only sending does.
+ * during `next build`) doesn't require credentials - only sending does.
  * Auth uses a Gmail app password (myaccount.google.com/apppasswords).
  * In CONTACT_TEST_MODE, messages are rendered to JSON and never sent.
  */

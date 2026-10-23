@@ -27,7 +27,7 @@ const StackCard = ({ stack, index }: { stack: BuildStack; index: number }) => {
         <p className={`mt-0.5 text-sm font-semibold ${a.text}`}>{stack.tagline}</p>
       </div>
 
-      {/* The combo — tools chained together */}
+      {/* The combo - tools chained together */}
       <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
         {stack.tools.map((tool, i) => (
           // Each "+" stays with the tool after it, so a wrapped row starts with

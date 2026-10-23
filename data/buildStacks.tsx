@@ -1,4 +1,4 @@
-// "Stacks I build with" — named combos, not a flat tool list. Each stack is a
+// "Stacks I build with" - named combos, not a flat tool list. Each stack is a
 // recipe of tools that go together for a kind of project. Edit freely.
 
 export interface BuildStack {
@@ -21,7 +21,7 @@ export const buildStacks: BuildStack[] = [
     name: 'The Firebase Stack',
     tagline: 'When I want batteries included',
     tools: ['Next.js', 'Firebase Auth', 'Firestore', 'Vercel'],
-    note: 'Auth + realtime without the setup. I prefer Firebase here — I avoid Supabase.',
+    note: 'Auth + realtime without the setup. I prefer Firebase here - I avoid Supabase.',
     accent: 'blue',
   },
   {

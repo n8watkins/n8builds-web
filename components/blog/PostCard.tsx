@@ -4,7 +4,7 @@ import CoverBanner from '@/components/blog/CoverBanner'
 import { formatPostDate } from '@/lib/blog-utils'
 import type { Post } from '@/lib/sanity'
 
-// Blog post card — cover banner on top (real image or themed fallback), then
+// Blog post card - cover banner on top (real image or themed fallback), then
 // date / title / excerpt / topics. Matches the BuildCard visual language.
 export default function PostCard({ post }: { post: Post }) {
   return (

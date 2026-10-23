@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
   if (!post) notFound()
 
   return pageMetadata({
-    title: `${post.title} — n8builds`,
+    title: `${post.title} | n8builds`,
     description: postDescription(post),
     path: `/blog/${slug}`,
     image: postPreview(post),

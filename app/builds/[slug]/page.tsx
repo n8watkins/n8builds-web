@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: BuildPageProps): Promise<Meta
   if (!build) notFound()
 
   return pageMetadata({
-    title: `${build.name} — n8builds`,
+    title: `${build.name} | n8builds`,
     description: summarize(build.solution),
     shareDescription: build.tagline,
     path: `/builds/${slug}`,
