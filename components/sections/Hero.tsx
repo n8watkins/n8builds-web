@@ -6,77 +6,97 @@ import { FiGithub } from 'react-icons/fi'
 import { CiLinkedin } from 'react-icons/ci'
 import { FaXTwitter } from 'react-icons/fa6'
 import { MdRadioButtonChecked } from 'react-icons/md'
-import { coloredSquares } from '@/data/grid'
 import WhoamiTerminal from '@/components/features/WhoamiTerminal'
-import { nowItems } from '@/data/now'
 
 const CELL = 52
+const COLS = 40 // 2080px: covers the widest common screens
+const ROWS = 20
+
+/** Small deterministic PRNG (mulberry32), so the lit cells match on server and client. */
+function random(seed: number) {
+  return () => {
+    seed = (seed + 0x6d2b79f5) >>> 0
+    let t = seed
+    t = Math.imul(t ^ (t >>> 15), t | 1)
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+/** Lit cells spread over the whole hero: mostly deep blue, a few cyan accents. */
+const litCells = (() => {
+  const rand = random(8)
+  const cells: { x: number; y: number; tone: number }[] = []
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      const r = rand()
+      if (r < 0.1) cells.push({ x, y, tone: r < 0.012 ? 4 : (x + y) % 3 + 1 })
+    }
+  }
+  return cells
+})()
 
 const AnimatedGrid = () => {
   const id = useId()
-  const gradId = useId()
 
   return (
     <div
-      className="absolute inset-0 overflow-hidden pointer-events-none mask-[linear-gradient(to_bottom,black_70%,transparent)]"
+      className="absolute inset-0 overflow-hidden pointer-events-none mask-[linear-gradient(to_bottom,transparent,black_120px,black_75%,transparent)]"
       aria-hidden="true"
     >
-      <svg
-        className="absolute inset-0 w-full h-full opacity-100"
-        xmlns="http://www.w3.org/2000/svg"
-      >
+      <svg className="absolute left-1/2 top-0 h-full -translate-x-1/2" width={COLS * CELL} xmlns="http://www.w3.org/2000/svg">
         <defs>
           <pattern id={id} width={CELL} height={CELL} patternUnits="userSpaceOnUse">
             <path
               d={`M.5 ${CELL}V.5H${CELL}`}
               fill="none"
-              stroke="rgba(255,255,255,0.055)"
+              stroke="rgba(255,255,255,0.08)"
               strokeWidth="1"
             />
           </pattern>
-          <radialGradient id={gradId} cx="50%" cy="48%" r="52%">
-            <stop offset="0%" stopColor="transparent" stopOpacity={0} />
-            <stop offset="100%" stopColor="#050812" stopOpacity={1} />
-          </radialGradient>
 
           <style>{`
             @keyframes n8pulse1 {
-              0%, 100% { fill: #0c1836; opacity: 0.7; }
-              50%       { fill: #162957; opacity: 1; }
+              0%, 100% { fill: #0f1f45; opacity: 0.75; }
+              50%       { fill: #1b3470; opacity: 1; }
             }
             @keyframes n8pulse2 {
-              0%, 100% { fill: #141e38; opacity: 0.6; }
-              50%       { fill: #0d2060; opacity: 0.9; }
+              0%, 100% { fill: #13224a; opacity: 0.65; }
+              50%       { fill: #12307e; opacity: 1; }
             }
             @keyframes n8pulse3 {
-              0%, 100% { fill: #14275e; opacity: 0.5; }
-              50%       { fill: #1a3070; opacity: 0.85; }
+              0%, 100% { fill: #172c66; opacity: 0.55; }
+              50%       { fill: #1f3d8a; opacity: 0.95; }
+            }
+            @keyframes n8pulse4 {
+              0%, 100% { fill: #0e4a5c; opacity: 0.45; }
+              50%       { fill: #22d3ee; opacity: 0.55; }
             }
             .n8sq1 { animation: n8pulse1 3.2s ease-in-out infinite; }
             .n8sq2 { animation: n8pulse2 3.8s ease-in-out infinite 0.6s; }
             .n8sq3 { animation: n8pulse3 4.1s ease-in-out infinite 1.2s; }
+            .n8sq4 { animation: n8pulse4 5.3s ease-in-out infinite 0.3s; }
           `}</style>
         </defs>
 
         <rect width="100%" height="100%" fill={`url(#${id})`} />
 
-        {coloredSquares.map(([x, y], i) => (
+        {litCells.map(({ x, y, tone }) => (
           <rect
-            key={`${x}-${y}-${i}`}
-            className={`n8sq${(i % 3) + 1}`}
+            key={`${x}-${y}`}
+            className={`n8sq${tone}`}
             x={x * CELL + 1}
             y={y * CELL + 1}
             width={CELL - 1}
             height={CELL - 1}
           />
         ))}
-
-        {/* Vignette */}
-        <rect width="100%" height="100%" fill={`url(#${gradId})`} />
       </svg>
 
-      {/* Extra radial fade at top */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_55%_at_50%_50%,transparent_30%,#050812_80%)]" />
+      {/* Keep the copy readable: a soft dark pool behind the text column, and a
+          light fade at the far edges. */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_45%_55%_at_28%_55%,rgba(5,8,18,0.82),transparent_75%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_80%_at_50%_45%,transparent_55%,#050812_100%)]" />
     </div>
   )
 }
@@ -106,7 +126,7 @@ const Hero = () => {
             <span className="whitespace-nowrap text-[0.72rem] font-bold tracking-widest uppercase">Live on GitHub</span>
           </span>
           <span className="text-white/20">·</span>
-          <span className="whitespace-nowrap text-slate-400 text-[0.82rem]"><span className="hidden sm:inline">Currently </span>Building: <span className="text-cyan-400 font-semibold">{nowItems[0]?.project}</span></span>
+          <span className="whitespace-nowrap text-slate-400 text-[0.82rem]"><span className="hidden sm:inline">See what </span>I&apos;m <span className="text-cyan-400 font-semibold">shipping</span></span>
           <span className="text-slate-475 text-xs group-hover:translate-x-0.5 transition-transform">→</span>
         </motion.a>
 
@@ -114,26 +134,26 @@ const Hero = () => {
           {/* Text */}
           <div className="flex-1 flex flex-col items-start gap-5 min-w-0">
 
-            <motion.p
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.08 }}
-              className="font-mono text-[0.78rem] tracking-wide text-slate-450 lowercase"
-            >
-              building software in public
-            </motion.p>
-
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55, delay: 0.12, ease: [0.25, 0.1, 0.25, 1] }}
-              className="text-[2.8rem] sm:text-5xl/none lg:text-6xl/none xl:text-[4.2rem] font-extrabold leading-[1.04] tracking-tight text-slate-50 lowercase"
+              transition={{ duration: 0.55, delay: 0.08, ease: [0.25, 0.1, 0.25, 1] }}
+              className="text-[2.6rem] sm:text-5xl/none lg:text-6xl/none xl:text-[4.1rem] font-extrabold leading-[1.04] tracking-tight text-slate-50"
             >
-              n8builds{' '}
+              Spending tokens,{' '}
               <span className="bg-linear-to-r from-cyan-400 via-blue-400 to-blue-600 bg-clip-text text-transparent">
-                in public
+                shipping features.
               </span>
             </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, delay: 0.16 }}
+              className="max-w-[520px] text-lg leading-relaxed text-[#9cadc5]"
+            >
+              Apps, Chrome extensions and tools I wish existed, built by Nathan Watkins with AI agents doing the heavy lifting.
+            </motion.p>
 
             {/* whoami terminal = the description (blended copy) */}
             <WhoamiTerminal className="w-full max-w-[520px]" />
@@ -358,7 +378,7 @@ const Hero = () => {
               className="flex items-center gap-3 flex-wrap"
             >
               <a
-                href="#now"
+                href="#lab"
                 className="relative inline-flex h-10 overflow-hidden rounded-xl p-px transition-all duration-200 hover:scale-[1.02]"
               >
                 <span className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#22d3ee_0%,#2563eb_50%,#22d3ee_100%)]" />

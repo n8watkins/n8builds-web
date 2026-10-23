@@ -2,7 +2,7 @@ import { chromium } from '@playwright/test'
 
 const shots = [
   { url: 'http://localhost:3737/builds/piper-tts', out: '/tmp/shot-piper.png', full: true },
-  { url: 'http://localhost:3737/builds/appturnity', out: '/tmp/shot-appturnity.png', full: true },
+  { url: 'http://localhost:3737/builds/solara', out: '/tmp/shot-solara.png', full: true },
   { url: 'http://localhost:3737/builds/scribe', out: '/tmp/shot-scribe.png', full: true },
   { url: 'http://localhost:3737/#builds', out: '/tmp/shot-marquee.png', full: false },
 ]

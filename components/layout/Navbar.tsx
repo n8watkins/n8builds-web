@@ -6,12 +6,12 @@ import { SiTwitch, SiYoutube } from 'react-icons/si'
 import { FiExternalLink, FiMenu, FiX, FiChevronDown } from 'react-icons/fi'
 import { motion, AnimatePresence } from 'motion/react'
 
-// The Lab is the umbrella — its sub-shelves live in a hover dropdown so the top
-// nav stays short. Each item routes to its existing shelf page.
+// The Lab is one homepage section; its parts live in a hover dropdown so the
+// top nav stays short. Each item scrolls to its anchor on the homepage.
 const labMenu = [
-  { label: 'The Lab', href: '/#lab', desc: "Everything I'm building" },
+  { label: 'Featured', href: '/#featured', desc: 'The web apps I am proudest of' },
   { label: 'Chrome Extensions', href: '/#extensions', desc: 'Browser tools, local-first' },
-  { label: 'Tools', href: '/#tools', desc: 'Desktop apps, bots & utilities' },
+  { label: 'Tools', href: '/#tools', desc: 'Desktop apps and utilities' },
 ]
 
 const Navbar = () => {
@@ -87,7 +87,6 @@ const Navbar = () => {
       icon: <SiYoutube className="w-4 h-4" />,
       hoverColor: 'hover:text-red-400',
     },
-    { label: 'VibeLog', href: '/builds/vibelog', icon: null, hoverColor: 'hover:text-cyan-400' },
   ]
 
   return (

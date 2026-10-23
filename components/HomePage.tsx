@@ -7,7 +7,6 @@ import { useScrollTracking } from '@/hooks/useScrollTracking'
 import SectionErrorBoundary from '@/components/SectionErrorBoundary'
 import dynamic from 'next/dynamic'
 
-const NowBuilding = dynamic(() => import('@/components/sections/NowBuilding'))
 const FeaturedProjects = dynamic(() => import('@/components/sections/FeaturedProjects'))
 const ShelfSection = dynamic(() => import('@/components/sections/ShelfSection'))
 const NotionsStrip = dynamic(() => import('@/components/sections/NotionsStrip'))
@@ -16,6 +15,31 @@ const HomeStack = dynamic(() => import('@/components/sections/HomeStack'))
 const WorkWithMe = dynamic(() => import('@/components/sections/WorkWithMe'))
 const Footer = dynamic(() => import('@/components/layout/Footer'))
 const ScrollToTop = dynamic(() => import('@/components/ui/ScrollToTop'), { ssr: false })
+
+/**
+ * A full-width homepage band. Alternating tones and a hairline between bands
+ * separate the sections, which otherwise ran together on one flat background.
+ */
+function Band({
+  id,
+  tone = 'base',
+  as: Tag = 'div',
+  children,
+}: {
+  id?: string
+  tone?: 'base' | 'raised'
+  as?: 'div' | 'section'
+  children: React.ReactNode
+}) {
+  return (
+    <Tag
+      id={id}
+      className={`relative z-10 border-t border-white/[0.06] ${tone === 'raised' ? 'bg-white/[0.022]' : ''}`}
+    >
+      <div className="mx-auto max-w-6xl px-5 py-6 sm:px-8">{children}</div>
+    </Tag>
+  )
+}
 
 export default function HomePage() {
   useSectionTracking()
@@ -42,33 +66,20 @@ export default function HomePage() {
           <Hero />
         </SectionErrorBoundary>
 
-        <div className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8">
-          {/* The in-public hook — what I'm building right now */}
-          <SectionErrorBoundary sectionName="Currently Building">
-            <NowBuilding />
-          </SectionErrorBoundary>
-
-          {/* Featured showcase — alternating image rows */}
-          <SectionErrorBoundary sectionName="Featured Projects">
-            <FeaturedProjects />
-          </SectionErrorBoundary>
-
-          {/* ===== THE LAB — one big section: web apps, extensions, tools.
-               The navbar "Lab" dropdown scrolls to these anchors (#lab/#extensions/
-               #tools). No separate shelf pages. ===== */}
-
-          {/* Lab lead-in + in-page jump nav */}
-          <div id="lab" className="pt-16">
+        {/* ===== THE LAB: one section. Featured web apps, then the Chrome
+             extensions, then tools. The navbar "Lab" menu scrolls to #lab,
+             #featured, #extensions and #tools. ===== */}
+        <Band id="lab" tone="raised">
+          <div className="pt-6">
             <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-teal-400">The bench</p>
             <h2 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">The Lab</h2>
             <p className="mt-2 max-w-[560px] text-[#9cadc5]">
-              Everything I&apos;m building, in one place — web apps and experiments, Chrome extensions,
-              and dev tools.
+              Everything I&apos;ve built and still use: web apps, Chrome extensions, and tools.
             </p>
             <nav aria-label="Lab sections" className="mt-5 flex flex-wrap gap-2">
               {[
-                { label: 'Web apps', href: '#lab' },
-                { label: 'Chrome Extensions', href: '#extensions' },
+                { label: 'Featured', href: '#featured' },
+                { label: 'Chrome extensions', href: '#extensions' },
                 { label: 'Tools', href: '#tools' },
               ].map((c) => (
                 <a
@@ -82,9 +93,8 @@ export default function HomePage() {
             </nav>
           </div>
 
-          {/* Web apps & experiments (the lead-in div above owns the #lab anchor) */}
-          <SectionErrorBoundary sectionName="The Lab">
-            <ShelfSection shelf="lab" anchorId={null} />
+          <SectionErrorBoundary sectionName="Featured Projects">
+            <FeaturedProjects />
           </SectionErrorBoundary>
 
           <SectionErrorBoundary sectionName="Extensions">
@@ -94,30 +104,34 @@ export default function HomePage() {
           <SectionErrorBoundary sectionName="Tools">
             <ShelfSection shelf="tool" />
           </SectionErrorBoundary>
+        </Band>
 
-          {/* ===== end THE LAB ===== */}
-
-          {/* N8 Notions — latest blog posts */}
+        {/* N8 Notions: latest blog posts */}
+        <Band>
           <SectionErrorBoundary sectionName="N8 Notions">
             <NotionsStrip />
           </SectionErrorBoundary>
+        </Band>
 
-          {/* Homepage stack — AI marquee + Turso TL;DR → /loadout */}
+        {/* Homepage stack: AI marquee + Turso TL;DR -> /loadout */}
+        <Band tone="raised">
           <SectionErrorBoundary sectionName="My Stack">
             <HomeStack />
           </SectionErrorBoundary>
+        </Band>
 
-          {/* Bridge — feeds the portfolio (hire me) + Appturnity (client work) */}
+        {/* Bridge: the portfolio (hire me) + Appturnity (client work) */}
+        <Band>
           <SectionErrorBoundary sectionName="Work With Me">
             <WorkWithMe />
           </SectionErrorBoundary>
+        </Band>
 
-          <section id="contact">
-            <SectionErrorBoundary sectionName="Contact Section">
-              <Footer />
-            </SectionErrorBoundary>
-          </section>
-        </div>
+        <Band tone="raised" id="contact" as="section">
+          <SectionErrorBoundary sectionName="Contact Section">
+            <Footer />
+          </SectionErrorBoundary>
+        </Band>
 
         <ScrollToTop />
       </main>

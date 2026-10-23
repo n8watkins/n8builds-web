@@ -1,1 +1,0 @@
-export { coloredSquares } from './coloredSquares'

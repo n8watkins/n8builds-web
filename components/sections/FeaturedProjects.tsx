@@ -7,6 +7,7 @@ import { FiGithub, FiExternalLink, FiFileText } from 'react-icons/fi'
 import { defaultAnimationConfig } from '@/lib/animations'
 import TechStackCycle from '@/components/Projects/TechStackCycle'
 import { projects } from '@/data/projects'
+import LabSubheader from '@/components/sections/LabSubheader'
 
 interface FeaturedProject {
   title: string
@@ -148,13 +149,8 @@ const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: b
 }
 
 const FeaturedProjects = () => (
-  <section id="builds" aria-label="Featured builds" className="py-16">
-    <div className="mb-10">
-      <p className="text-[0.7rem] font-bold tracking-[0.16em] uppercase text-blue-400 mb-2">Featured</p>
-      <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-50">
-        Recent builds
-      </h2>
-    </div>
+  <section id="featured" aria-label="Featured builds" className="py-10">
+    <LabSubheader eyebrow="Featured" eyebrowClass="text-blue-400" title="Recent builds" />
 
     <div className="flex flex-col gap-16 md:gap-20">
       {featured.map((p, i) => (

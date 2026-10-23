@@ -134,7 +134,7 @@ test('a blog post is a BlogPosting with its share image', async ({ request }) =>
 })
 
 test('retired routes redirect permanently', async ({ request }) => {
-  for (const path of ['/lab', '/extensions', '/tools', '/resources', '/builds/canihost', '/builds/repo-steward']) {
+  for (const path of ['/lab', '/extensions', '/tools', '/resources', '/builds/canihost', '/builds/repo-steward', '/builds/asset-arsenal', '/builds/jobsignal']) {
     const response = await request.get(path, { maxRedirects: 0 })
     expect(response.status(), path).toBe(308)
   }
@@ -148,4 +148,10 @@ test('every build page in the sitemap is linked from the homepage', async ({ req
   const linked = new Set([...html.matchAll(/href="(\/builds\/[^"#?]+)"/g)].map((m) => m[1]))
   expect(builds.length).toBeGreaterThan(5)
   expect(builds.filter((path) => !linked.has(path)), 'build pages with no homepage link').toEqual([])
+})
+
+test("Appturnity's old build page goes to appturnity.com", async ({ request }) => {
+  const response = await request.get('/builds/appturnity', { maxRedirects: 0 })
+  expect(response.status()).toBe(308)
+  expect(response.headers().location).toBe('https://appturnity.com/')
 })

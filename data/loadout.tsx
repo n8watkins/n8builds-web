@@ -26,9 +26,8 @@ export interface LoadoutGroup {
 // First-person intro, no resume energy. Shown as a terminal block (homepage hero + /loadout).
 export const whoami: string[] = [
   '$ whoami',
-  'Nathan — an AI-first software developer in LA, shipping in public.',
+  'Nathan Watkins, an AI-first software developer in LA.',
   'all in on AI and agentic coding, building everything I can.',
-  'follow the journey, watch the process, ship with me.',
 ]
 
 export const loadout: LoadoutGroup[] = [
@@ -149,12 +148,6 @@ export const loadout: LoadoutGroup[] = [
         name: 'OBS Studio',
         whatFor: 'Capturing and streaming the builds. Scenes for code, cam, and overlays.',
         take: 'Free, infinitely tweakable, runs everything. The backbone of streaming.',
-      },
-      {
-        name: 'VibeLog',
-        whatFor: 'My own build-telemetry overlay — git activity, Claude tokens, session stats live on stream.',
-        take: 'I built the thing I wanted: a HUD that turns a coding session into a watchable story.',
-        tag: 'built it myself',
       },
       {
         name: 'Scribe',

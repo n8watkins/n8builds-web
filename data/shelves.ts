@@ -4,7 +4,9 @@ import { builds, type Build } from './builds'
 // source of truth (data/builds.tsx) so adding a build = it shows up on the right shelf.
 // No parallel dataset, no duplicated links.
 
-export type Shelf = 'extension' | 'tool' | 'lab'
+// Every build sits in one part of the homepage Lab: web apps are the featured
+// rows, extensions have their showcase, and tools get a card grid.
+export type Shelf = 'featured' | 'extension' | 'tool'
 
 export interface ShelfMeta {
   id: Shelf
@@ -14,10 +16,6 @@ export interface ShelfMeta {
   heading: string
   blurb: string
 }
-
-// Slugs featured prominently elsewhere on the page (so they don't double-list in the Lab).
-// appturnity -> Currently Building carousel; portfolio-rank and solara -> Recent builds (FeaturedProjects).
-const featuredElsewhere = ['appturnity', 'portfolio-rank', 'solara']
 
 export const shelfMeta: Record<Shelf, ShelfMeta> = {
   extension: {
@@ -34,20 +32,20 @@ export const shelfMeta: Record<Shelf, ShelfMeta> = {
     label: 'Tools',
     eyebrow: 'Dev tools',
     heading: 'Tools',
-    blurb: 'Desktop apps, bots, and dev utilities I made because I wanted them to exist.',
+    blurb: 'Desktop apps and utilities I made because I wanted them to exist.',
   },
-  lab: {
-    id: 'lab',
-    slug: 'lab',
-    label: 'Lab',
-    eyebrow: 'Apps & experiments',
-    heading: 'Web apps & experiments',
-    blurb: 'Shipped apps, ongoing projects, and half-built experiments — the web side of the bench.',
+  featured: {
+    id: 'featured',
+    slug: 'featured',
+    label: 'Featured',
+    eyebrow: 'Featured',
+    heading: 'Featured builds',
+    blurb: 'The apps I am proudest of right now.',
   },
 }
 
-// Classify a build onto a shelf. Extensions and tools get their own
-// shelves; everything else (web apps, experiments, "in the lab") lands in the Lab.
+// Classify a build onto a shelf. Extensions and tools get their own sections;
+// everything else (web apps) is a featured row.
 export function getShelf(build: Build): Shelf {
   switch (build.category) {
     case 'Chrome extension':
@@ -59,19 +57,10 @@ export function getShelf(build: Build): Shelf {
     case 'Web tool':
       return 'tool'
     default:
-      return 'lab'
+      return 'featured'
   }
 }
 
 export function buildsForShelf(shelf: Shelf): Build[] {
-  return builds.filter(
-    (b) => getShelf(b) === shelf && !(shelf === 'lab' && featuredElsewhere.includes(b.slug))
-  )
-}
-
-// All distinct tags present on a shelf, for the filter row.
-export function tagsForShelf(shelf: Shelf): string[] {
-  const set = new Set<string>()
-  for (const b of buildsForShelf(shelf)) b.tags.forEach((t) => set.add(t))
-  return Array.from(set).sort()
+  return builds.filter((b) => getShelf(b) === shelf)
 }

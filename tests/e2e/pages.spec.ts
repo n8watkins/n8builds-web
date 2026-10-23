@@ -5,7 +5,7 @@ import AxeBuilder from '@axe-core/playwright'
  * Every page renders without errors and has no serious accessibility issues.
  */
 
-const STATIC_PAGES = ['/', '/blog', '/loadout', '/privacy', '/builds/asset-arsenal']
+const STATIC_PAGES = ['/', '/blog', '/loadout', '/privacy', '/builds/solara']
 
 /**
  * How long to keep watching for errors after the load event. The homepage never

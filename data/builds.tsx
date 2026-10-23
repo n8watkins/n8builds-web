@@ -1,5 +1,3 @@
-import { projects, techNameMapping } from './projects'
-
 export interface BuildStackItem {
   name: string
   detail: string
@@ -27,72 +25,7 @@ export interface Build {
   liveSite?: string
 }
 
-// Appturnity already has full data in data/projects.tsx — derive instead of duplicating.
-const appturnityProject = projects.find(p => p.title === 'Appturnity')
-const appturnityImages: BuildImage[] = (appturnityProject?.images ?? []).map((src, i) => ({
-  src,
-  alt: `Appturnity screenshot ${i + 1}`,
-}))
-const appturnityStack: BuildStackItem[] = Object.values(appturnityProject?.technologies ?? {}).flatMap(group =>
-  group.descriptionParts.map(part => ({
-    name: part.icons
-      .map(({ icon }) => techNameMapping[icon as keyof typeof techNameMapping] ?? icon)
-      .join(' · '),
-    detail: part.text,
-  }))
-)
-
 export const builds: Build[] = [
-  {
-    slug: 'asset-arsenal',
-    name: 'Asset Arsenal',
-    tagline: 'AI icon extraction workbench',
-    category: 'Web app',
-    tags: ['Next.js', 'AI', 'TypeScript'],
-    color: 'from-cyan-500/20 to-blue-600/20',
-    problem:
-      'Pulling a matching icon set out of a single reference image — a brand sheet, a screenshot, a mockup — is slow manual work, and one-shot AI generation loses style consistency across the set: every icon comes back looking like it belongs to a different family.',
-    solution:
-      'A six-step OpenAI pipeline: a vision model detects the icons, a collection image is generated as the visual style anchor, then each icon is regenerated as a clean, transparent standalone asset using that anchor as a reference image. It is a workbench, not a black box — every step is an independent, rerunnable breakpoint with full JSON visibility.',
-    stack: [
-      { name: 'Next.js · TypeScript', detail: 'App Router frontend and the six pipeline API routes' },
-      { name: 'OpenAI API', detail: 'Vision analysis, prompt composition, and image generation via images.edit with reference images' },
-      { name: 'Tailwind CSS', detail: 'Workbench UI with per-step sections' },
-      { name: 'Zod', detail: 'Schema validation across every pipeline payload' },
-      { name: 'IndexedDB', detail: 'Local gallery of source images and generated icons' },
-    ],
-    process: [
-      'The key insight: images.edit accepts a reference image, images.generate does not — so the collection image becomes the style anchor that steps 4 and 5 pass back to the model.',
-      'Each pipeline step shows its resolved prompt before running and feeds its output into the next, so any stage can be tuned and rerun in isolation.',
-      'All per-step prompts live in one file (lib/icon/prompts.ts) and model roles plus cost guardrails in another — tuning the pipeline never means hunting through routes.',
-      'The API key stays server-side only; the UI renders fine without one, failing loudly only on actual OpenAI calls.',
-    ],
-    images: [],
-  },
-  {
-    slug: 'vibelog',
-    name: 'VibeLog',
-    tagline: 'Live coding telemetry & OBS overlay',
-    category: 'Streaming tool',
-    tags: ['Node.js', 'OBS', 'TypeScript'],
-    color: 'from-blue-500/20 to-cyan-600/20',
-    problem:
-      'Streaming "building in public" gives viewers no live signal of what is actually happening: git activity, Claude token spend, and session time all live in different tools, and the post-stream recap is a manual chore.',
-    solution:
-      'One local Node process that tracks git activity, AI token spend, stream time, and channel growth — and serves a live HUD as an OBS browser source, a private dashboard, a public /live page, and shareable /share cards. Local-first, no accounts, $0.',
-    stack: [
-      { name: 'Node.js · TypeScript', detail: 'Single local agent process that watches git and session state' },
-      { name: 'OBS Browser Source', detail: 'Transparent 1920×1080 HUD served at localhost:4545/overlay' },
-      { name: 'CLI', detail: 'vibe start / mark / status / report — drive the overlay from a second terminal while coding' },
-    ],
-    process: [
-      'Markers are first-class: "vibe mark feature/bug" annotates the session live, and the end-of-day report is built entirely from the local log — no AI, no network.',
-      'A demo mode seeds fake data so the whole overlay can be previewed without a real git repo or session.',
-      'Direction lives in a canonical VISION.md; earlier spec docs are kept but explicitly marked historical.',
-      'This is the tool behind the "LIVE on VibeLog" badge planned for this site\'s hero.',
-    ],
-    images: [],
-  },
   {
     slug: 'chrome-extension-kit',
     name: 'Chrome Extension Launch Kit',
@@ -204,52 +137,6 @@ export const builds: Build[] = [
     github: 'https://github.com/n8watkins/tube-vault',
   },
   {
-    slug: 'appturnity',
-    name: 'Appturnity',
-    tagline: 'Software consulting platform',
-    category: 'Web app',
-    tags: ['Vite', 'Express', 'TypeScript'],
-    color: 'from-sky-500/20 to-indigo-600/20',
-    problem:
-      'Small businesses with a genuine software idea face agency-sized quotes and a scoping process built for enterprises. Most walk away — or overpay for something simpler than they needed.',
-    solution:
-      'A consulting funnel that helps clients validate and scope new software ideas in a clear, modern layout: what the build actually requires, what it costs, and a direct line to start the conversation. This is the client-work arm of the three-brand ecosystem.',
-    stack: appturnityStack,
-    process: [
-      'Built and deployed on Replit for the fastest possible idea-to-live loop, then iterated against real client conversations.',
-      'The intake flow is the product: the site\'s job is to turn "I have an app idea" into a scoped, honest conversation.',
-      'Lives at appturnity.com and is one of the two bridge destinations this site funnels into (the other being the developer portfolio).',
-    ],
-    images: appturnityImages,
-    github: appturnityProject?.github,
-    liveSite: appturnityProject?.liveSite,
-  },
-  {
-    slug: 'jobsignal',
-    name: 'JobSignal',
-    tagline: 'AI-powered job application tracker',
-    category: 'Web app + extension',
-    tags: ['Next.js', 'Prisma', 'Chrome'],
-    color: 'from-emerald-500/20 to-cyan-600/20',
-    problem:
-      'Job hunting scatters across tabs and spreadsheets: which roles you applied to, what the job description said, when to follow up. By application #40, the tracking overhead competes with the applying.',
-    solution:
-      'Everything hangs off one core action — Mark Applied: capture the job, create the application, store the JD, queue AI analysis, and add a timeline event, in one click from a Chrome extension with a LinkedIn extractor. A Next.js dashboard holds the pipeline and per-application timelines.',
-    stack: [
-      { name: 'Next.js · TypeScript', detail: 'App Router dashboard and API routes' },
-      { name: 'Prisma', detail: 'Application, job, and timeline data model' },
-      { name: 'Chrome MV3', detail: 'Mark Applied extension with LinkedIn and generic extractors' },
-      { name: 'Zod', detail: 'Shared schemas package keeping web, extension, and API in lockstep' },
-    ],
-    process: [
-      'Monorepo with apps/web, apps/extension, and packages/shared — one set of Zod schemas is the contract between all three.',
-      'V1 deliberately stubs the expensive parts (Gmail OAuth, real AI calls, production auth) so the core loop could be proven first.',
-      'Security posture written down before code: no Gmail send/delete scopes, archive only on explicit confirmation, encrypt tokens before production.',
-    ],
-    images: [],
-    github: 'https://github.com/n8watkins/jobsignal',
-  },
-  {
     slug: 'scribe',
     name: 'Scribe',
     tagline: 'Privacy-first local speech-to-text',
@@ -325,6 +212,38 @@ export const builds: Build[] = [
     images: [],
     github: 'https://github.com/n8watkins/portfolio-rank',
     liveSite: 'https://portfoliorank.vercel.app',
+  },
+]
+
+/**
+ * Builds kept for later but not shown anywhere on the site: no page, no card,
+ * no sitemap entry. To bring one back, move it into `builds` above.
+ * - VibeLog: paused 2026-10-22 until it's ready to show again.
+ */
+export const hiddenBuilds: Build[] = [
+  {
+    slug: 'vibelog',
+    name: 'VibeLog',
+    tagline: 'Live coding telemetry & OBS overlay',
+    category: 'Streaming tool',
+    tags: ['Node.js', 'OBS', 'TypeScript'],
+    color: 'from-blue-500/20 to-cyan-600/20',
+    problem:
+      'Streaming "building in public" gives viewers no live signal of what is actually happening: git activity, Claude token spend, and session time all live in different tools, and the post-stream recap is a manual chore.',
+    solution:
+      'One local Node process that tracks git activity, AI token spend, stream time, and channel growth — and serves a live HUD as an OBS browser source, a private dashboard, a public /live page, and shareable /share cards. Local-first, no accounts, $0.',
+    stack: [
+      { name: 'Node.js · TypeScript', detail: 'Single local agent process that watches git and session state' },
+      { name: 'OBS Browser Source', detail: 'Transparent 1920×1080 HUD served at localhost:4545/overlay' },
+      { name: 'CLI', detail: 'vibe start / mark / status / report — drive the overlay from a second terminal while coding' },
+    ],
+    process: [
+      'Markers are first-class: "vibe mark feature/bug" annotates the session live, and the end-of-day report is built entirely from the local log — no AI, no network.',
+      'A demo mode seeds fake data so the whole overlay can be previewed without a real git repo or session.',
+      'Direction lives in a canonical VISION.md; earlier spec docs are kept but explicitly marked historical.',
+      'This is the tool behind the "LIVE on VibeLog" badge planned for this site\'s hero.',
+    ],
+    images: [],
   },
 ]
 

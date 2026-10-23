@@ -55,10 +55,12 @@ const nextConfig = {
       { source: '/resources', destination: '/#lab', permanent: true },
       // Builds dropped from the site (2026-10-21 and 2026-10-22); their old detail pages were in the sitemap.
       {
-        source: '/builds/:slug(canihost|freestack|apiscout|suggestion-box|repo-steward|sprite-arsenal)',
+        source: '/builds/:slug(canihost|freestack|apiscout|suggestion-box|repo-steward|sprite-arsenal|asset-arsenal|jobsignal)',
         destination: '/#lab',
         permanent: true,
       },
+      // Appturnity's home is its own site, not a build page here.
+      { source: '/builds/appturnity', destination: 'https://appturnity.com', permanent: true },
       // RFC 9116: canonical lives at /.well-known/security.txt; redirect the
       // legacy root path some scanners still probe.
       { source: '/security.txt', destination: '/.well-known/security.txt', permanent: true },

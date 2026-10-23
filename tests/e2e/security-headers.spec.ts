@@ -9,7 +9,7 @@ import { SEND_TIMEOUT } from '../e2e-env'
 
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
-const PAGES = ['/', '/blog', '/loadout', '/privacy', '/builds/asset-arsenal']
+const PAGES = ['/', '/blog', '/loadout', '/privacy', '/builds/solara']
 const SETTLE_MS = 2000
 
 /** Record CSP violations from the page itself and CSP errors from any frame. */

@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import { FiGithub, FiStar, FiArrowUpRight } from 'react-icons/fi'
 import { getBuild } from '@/data/builds'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
+import LabSubheader from '@/components/sections/LabSubheader'
 
 interface Ext {
   slug: string
@@ -137,14 +138,13 @@ const ExtensionsShowcase = () => {
   }
 
   return (
-    <section id="extensions" aria-label="Chrome extensions" className="py-16">
-      <div className="mb-8">
-        <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-indigo-400">Browser tools</p>
-        <h2 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">Chrome extensions</h2>
-        <p className="mt-2 max-w-[520px] text-[#9cadc5]">
-          Small, local-first tools I built and actually use. All open source — if one&apos;s useful, a star helps a ton.
-        </p>
-      </div>
+    <section id="extensions" aria-label="Chrome extensions" className="py-10">
+      <LabSubheader
+        eyebrow="Browser tools"
+        eyebrowClass="text-indigo-400"
+        title="Chrome extensions"
+        blurb={<>Small, local-first tools I built and actually use. All open source — if one&apos;s useful, a star helps a ton.</>}
+      />
 
       {/* ===== Desktop: 3 side-by-side + auto-cycle detail ===== */}
       <div className="hidden md:block">
