@@ -8,6 +8,7 @@ import SectionErrorBoundary from '@/components/SectionErrorBoundary'
 import dynamic from 'next/dynamic'
 import { motion } from 'motion/react'
 import { useHydrated } from '@/hooks/useHydrated'
+import Reveal from '@/components/ui/Reveal'
 
 const NowBuilding = dynamic(() => import('@/components/sections/NowBuilding'))
 const FeaturedProjects = dynamic(() => import('@/components/sections/FeaturedProjects'))
@@ -23,18 +24,22 @@ const ScrollToTop = dynamic(() => import('@/components/ui/ScrollToTop'), { ssr: 
  * A full-width homepage band. Alternating tones and a hairline between bands
  * separate the sections, which otherwise ran together on one flat background.
  * The band right under the hero uses `fadeIn` instead: no hairline, and its
- * tone eases in, so the hero flows into it.
+ * tone eases in, so the hero flows into it. Its content fades up as it scrolls
+ * into view; a tall band (the Lab) passes `reveal={false}` and reveals its
+ * parts one by one instead.
  */
 function Band({
   id,
   tone = 'base',
   fadeIn = false,
+  reveal = true,
   as: Tag = 'div',
   children,
 }: {
   id?: string
   tone?: 'base' | 'raised'
   fadeIn?: boolean
+  reveal?: boolean
   as?: 'div' | 'section'
   children: React.ReactNode
 }) {
@@ -45,7 +50,7 @@ function Band({
       : 'border-t border-white/[0.06]'
   return (
     <Tag id={id} className={`relative z-10 ${background}`}>
-      <div className="mx-auto max-w-6xl px-5 py-6 sm:px-8">{children}</div>
+      <div className="mx-auto max-w-6xl px-5 py-6 sm:px-8">{reveal ? <Reveal>{children}</Reveal> : children}</div>
     </Tag>
   )
 }
@@ -97,8 +102,8 @@ export default function HomePage() {
         {/* ===== THE LAB: one section. Featured web apps, then the Chrome
              extensions, then tools. The navbar "Lab" menu scrolls to #lab,
              #featured, #extensions and #tools. ===== */}
-        <Band id="lab">
-          <div className="pt-6">
+        <Band id="lab" reveal={false}>
+          <Reveal className="pt-6">
             <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-teal-400">The bench</p>
             <h2 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">The Lab</h2>
             <p className="mt-2 max-w-[560px] text-[#9cadc5]">
@@ -119,18 +124,22 @@ export default function HomePage() {
                 </a>
               ))}
             </nav>
-          </div>
+          </Reveal>
 
           <SectionErrorBoundary sectionName="Featured Projects">
             <FeaturedProjects />
           </SectionErrorBoundary>
 
           <SectionErrorBoundary sectionName="Extensions">
-            <ExtensionsShowcase />
+            <Reveal>
+              <ExtensionsShowcase />
+            </Reveal>
           </SectionErrorBoundary>
 
           <SectionErrorBoundary sectionName="Tools">
-            <ShelfSection shelf="tool" />
+            <Reveal>
+              <ShelfSection shelf="tool" />
+            </Reveal>
           </SectionErrorBoundary>
         </Band>
 
@@ -155,7 +164,8 @@ export default function HomePage() {
           </SectionErrorBoundary>
         </Band>
 
-        <Band id="contact" as="section">
+        {/* The contact form animates its own fields in. */}
+        <Band id="contact" as="section" reveal={false}>
           <SectionErrorBoundary sectionName="Contact Section">
             <Footer />
           </SectionErrorBoundary>

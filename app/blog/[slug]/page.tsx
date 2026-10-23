@@ -11,6 +11,7 @@ import { formatPostDate } from '@/lib/blog-utils'
 import JsonLd from '@/components/JsonLd'
 import { getAllPosts, getPostBySlug, getRelatedPosts, type Post } from '@/lib/sanity'
 import { blogPostingJsonLd, pageMetadata, shareSummary, summarize, type PreviewImage } from '@/lib/seo'
+import Reveal from '@/components/ui/Reveal'
 
 export const revalidate = 3600
 
@@ -129,41 +130,45 @@ export default async function PostPage({ params }: PostPageProps) {
           <div className="mt-10">{post.body && <PortableTextRenderer value={post.body} />}</div>
 
           {post.gallery && post.gallery.length > 0 && (
-            <section className="mt-12" aria-label="Gallery">
-              <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-slate-450">
-                Gallery
-              </h2>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {post.gallery.map((img, i) => (
-                  <div
-                    key={i}
-                    className="relative aspect-4/3 overflow-hidden rounded-xl border border-white/8 bg-white/3"
-                  >
-                    <Image
-                      src={img.url}
-                      alt={img.alt || ''}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 600px"
-                      className="object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-            </section>
+            <Reveal>
+              <section className="mt-12" aria-label="Gallery">
+                <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-slate-450">
+                  Gallery
+                </h2>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {post.gallery.map((img, i) => (
+                    <div
+                      key={i}
+                      className="relative aspect-4/3 overflow-hidden rounded-xl border border-white/8 bg-white/3"
+                    >
+                      <Image
+                        src={img.url}
+                        alt={img.alt || ''}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 600px"
+                        className="object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </Reveal>
           )}
         </article>
 
         {related.length > 0 && (
-          <section className="mx-auto max-w-5xl px-5 pb-24 sm:px-8" aria-label="More notes">
-            <h2 className="text-sm font-bold uppercase tracking-widest text-slate-450">
-              More notes
-            </h2>
-            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {related.map((p) => (
-                <PostCard key={p._id} post={p} />
-              ))}
-            </div>
-          </section>
+          <Reveal>
+            <section className="mx-auto max-w-5xl px-5 pb-24 sm:px-8" aria-label="More notes">
+              <h2 className="text-sm font-bold uppercase tracking-widest text-slate-450">
+                More notes
+              </h2>
+              <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {related.map((p) => (
+                  <PostCard key={p._id} post={p} />
+                ))}
+              </div>
+            </section>
+          </Reveal>
         )}
       </main>
     </>

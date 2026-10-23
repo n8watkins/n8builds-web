@@ -26,11 +26,14 @@ Strategy and IA: `docs/N8BUILDS_PLAN.md`.
 - **Status (2026-10-23):** everything is pushed and live, including the 2026-10-23 homepage rework.
   The review of the 2026-10-22/23 work (`docs/prompts/review-2026-10-22-changes.md`) ran on 2026-10-23; its fixes (Solara's private-repo link, 320px hero, modal mobile menu, em-dash sweep, blog fact fixes) are shipped.
 - **Next session:** the share-card check (`docs/OWNER_TODO.md` 5b), then the backlog below.
+- **Scroll reveals:** sections below the fold fade up once as they scroll in (`components/ui/Reveal.tsx`, preset `reveal` in `lib/animations.ts`; homepage bands, Lab parts, build-page sections, blog gallery and related posts, loadout sections).
+  Never wrap the hero or anything above the fold: an element at opacity 0 can't be the LCP, so it delays it (the /blog grid is left out for that reason).
 - **Hero layout:** the hero content is top-aligned, not vertically centered, and the ambient glows mount after hydration: both caused layout shift on slow devices (Nightly Lighthouse CLS 0.29). Keep it that way.
 - SEO: every page builds its metadata with `pageMetadata()` (`lib/seo.ts`), which sets the canonical URL, og:url and both share cards with a preview image.
   Next.js merges metadata shallowly, so a page that sets its own `openGraph` without the helper loses the image.
   Blog posts and builds get generated 1200x630 PNG cards (`/blog/<slug>/og.png`, `/builds/<slug>/og.png`, drawn by `lib/og-card.tsx` with `next/og` over the blog-cover art, Inter from `assets/fonts/`).
-  Posts with an uploaded cover or SEO image use that instead.
+  A post's card draws its uploaded SEO image or cover (dimmed) behind the title, falling back to the generated art; posts always share their og.png, because a bare illustration in a feed doesn't say what the post is.
+  The share description is the post's Sanity "Share description" (`seo.shareDescription`, max 120 characters), else whole sentences of the excerpt that fit in 120 (`shareSummary()`).
   JSON-LD: WebSite and Person on the homepage, BlogPosting on posts (`components/JsonLd.tsx`).
   The sitemap revalidates hourly.
 

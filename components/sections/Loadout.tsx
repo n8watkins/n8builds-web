@@ -8,6 +8,7 @@ import AITechStack from '@/components/features/AITechStack'
 import BuildStacks from '@/components/sections/BuildStacks'
 import WhoamiTerminal from '@/components/features/WhoamiTerminal'
 import TechStackBento from '@/components/sections/TechStackBento'
+import Reveal from '@/components/ui/Reveal'
 
 // Static class maps so Tailwind keeps these in the build.
 const accentMap: Record<LoadoutGroup['accent'], { text: string; dot: string; ring: string; glow: string }> = {
@@ -106,30 +107,34 @@ const Loadout = () => {
         <WhoamiTerminal className="mt-8" />
 
         {/* AI tech stack - hover-reveal marquee (ported from the portfolio bento) */}
-        <section id="ai" className="mt-14 scroll-mt-24">
-          <div className="mb-5 flex flex-col gap-1.5">
-            <span className="font-mono text-xs text-slate-475">~/loadout/ai</span>
-            <div className="flex items-center gap-2.5">
-              <span className="h-2 w-2 rounded-full bg-cyan-400" />
-              <h2 className="text-2xl font-extrabold tracking-tight text-slate-50">AI & Agents</h2>
+        <Reveal>
+          <section id="ai" className="mt-14 scroll-mt-24">
+            <div className="mb-5 flex flex-col gap-1.5">
+              <span className="font-mono text-xs text-slate-475">~/loadout/ai</span>
+              <div className="flex items-center gap-2.5">
+                <span className="h-2 w-2 rounded-full bg-cyan-400" />
+                <h2 className="text-2xl font-extrabold tracking-tight text-slate-50">AI & Agents</h2>
+              </div>
+              <p className="text-sm text-[#9cadc5]">The part of the kit that does the heavy lifting now - hover or tap a tile for what I use it for.</p>
             </div>
-            <p className="text-sm text-[#9cadc5]">The part of the kit that does the heavy lifting now - hover or tap a tile for what I use it for.</p>
-          </div>
-          <AITechStack />
-        </section>
+            <AITechStack />
+          </section>
+        </Reveal>
 
         {/* Stacks I build with - named combos */}
-        <section id="stacks" className="mt-16 scroll-mt-24">
-          <div className="mb-5 flex flex-col gap-1.5">
-            <span className="font-mono text-xs text-slate-475">~/loadout/stacks</span>
-            <div className="flex items-center gap-2.5">
-              <span className="h-2 w-2 rounded-full bg-blue-400" />
-              <h2 className="text-2xl font-extrabold tracking-tight text-slate-50">Stacks I build with</h2>
+        <Reveal>
+          <section id="stacks" className="mt-16 scroll-mt-24">
+            <div className="mb-5 flex flex-col gap-1.5">
+              <span className="font-mono text-xs text-slate-475">~/loadout/stacks</span>
+              <div className="flex items-center gap-2.5">
+                <span className="h-2 w-2 rounded-full bg-blue-400" />
+                <h2 className="text-2xl font-extrabold tracking-tight text-slate-50">Stacks I build with</h2>
+              </div>
+              <p className="text-sm text-[#9cadc5]">Not a flat tool list - the combos that go together for each kind of project.</p>
             </div>
-            <p className="text-sm text-[#9cadc5]">Not a flat tool list - the combos that go together for each kind of project.</p>
-          </div>
-          <BuildStacks />
-        </section>
+            <BuildStacks />
+          </section>
+        </Reveal>
 
         {/* Generic tech marquee - the full stack lives here (moved off the homepage) */}
         <TechStackBento showLink={false} />

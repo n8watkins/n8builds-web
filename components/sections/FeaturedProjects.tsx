@@ -4,7 +4,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'motion/react'
 import { FiGithub, FiExternalLink, FiFileText } from 'react-icons/fi'
-import { defaultAnimationConfig } from '@/lib/animations'
+import { reveal } from '@/lib/animations'
+import Reveal from '@/components/ui/Reveal'
 import TechStackCycle from '@/components/Projects/TechStackCycle'
 import { projects } from '@/data/projects'
 import LabSubheader from '@/components/sections/LabSubheader'
@@ -61,7 +62,7 @@ const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: b
   const current = gallery[Math.min(active, gallery.length - 1)]
   return (
   <motion.div
-    {...defaultAnimationConfig}
+    {...reveal}
     className={`flex flex-col ${flipped ? 'md:flex-row-reverse' : 'md:flex-row'} gap-10 md:gap-14 items-center`}
   >
     {/* Image + gallery */}
@@ -150,7 +151,9 @@ const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: b
 
 const FeaturedProjects = () => (
   <section id="featured" aria-label="Featured builds" className="py-10">
-    <LabSubheader eyebrow="Featured" eyebrowClass="text-blue-400" title="Recent builds" />
+    <Reveal>
+      <LabSubheader eyebrow="Featured" eyebrowClass="text-blue-400" title="Recent builds" />
+    </Reveal>
 
     <div className="flex flex-col gap-16 md:gap-20">
       {featured.map((p, i) => (

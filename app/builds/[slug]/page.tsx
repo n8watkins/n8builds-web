@@ -7,6 +7,7 @@ import Navbar from '@/components/layout/Navbar'
 import { builds, getBuild } from '@/data/builds'
 import { shelfMeta, getShelf } from '@/data/shelves'
 import { pageMetadata, summarize } from '@/lib/seo'
+import Reveal from '@/components/ui/Reveal'
 
 interface BuildPageProps {
   params: Promise<{ slug: string }>
@@ -146,54 +147,60 @@ export default async function BuildPage({ params }: BuildPageProps) {
           )}
 
           {/* Problem / Solution */}
-          <section className="mt-12 grid md:grid-cols-2 gap-5" aria-label="Problem and solution">
-            <div className="rounded-2xl border border-white/8 bg-white/3 p-6">
-              <h2 className="text-sm font-bold uppercase tracking-widest text-slate-450">The problem</h2>
-              <p className="mt-3 text-slate-300 leading-relaxed">{build.problem}</p>
-            </div>
-            <div className="rounded-2xl border border-cyan-400/15 bg-linear-to-br from-cyan-500/[0.07] to-blue-600/[0.07] p-6">
-              <h2 className="text-sm font-bold uppercase tracking-widest text-cyan-400">The build</h2>
-              <p className="mt-3 text-slate-300 leading-relaxed">{build.solution}</p>
-            </div>
-          </section>
+          <Reveal>
+            <section className="mt-12 grid md:grid-cols-2 gap-5" aria-label="Problem and solution">
+              <div className="rounded-2xl border border-white/8 bg-white/3 p-6">
+                <h2 className="text-sm font-bold uppercase tracking-widest text-slate-450">The problem</h2>
+                <p className="mt-3 text-slate-300 leading-relaxed">{build.problem}</p>
+              </div>
+              <div className="rounded-2xl border border-cyan-400/15 bg-linear-to-br from-cyan-500/[0.07] to-blue-600/[0.07] p-6">
+                <h2 className="text-sm font-bold uppercase tracking-widest text-cyan-400">The build</h2>
+                <p className="mt-3 text-slate-300 leading-relaxed">{build.solution}</p>
+              </div>
+            </section>
+          </Reveal>
 
           {/* Stack */}
-          <section className="mt-12" aria-label="Tech stack">
-            <h2 className="text-2xl font-bold tracking-tight">
-              Stack{' '}
-              <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                &amp; choices
-              </span>
-            </h2>
-            <ul className="mt-5 grid sm:grid-cols-2 gap-3">
-              {build.stack.map(item => (
-                <li key={item.name} className="rounded-xl border border-white/8 bg-white/3 p-4">
-                  <span className="block text-sm font-bold text-slate-100">{item.name}</span>
-                  <span className="mt-1 block text-sm text-slate-400 leading-relaxed">{item.detail}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
+          <Reveal>
+            <section className="mt-12" aria-label="Tech stack">
+              <h2 className="text-2xl font-bold tracking-tight">
+                Stack{' '}
+                <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                  &amp; choices
+                </span>
+              </h2>
+              <ul className="mt-5 grid sm:grid-cols-2 gap-3">
+                {build.stack.map(item => (
+                  <li key={item.name} className="rounded-xl border border-white/8 bg-white/3 p-4">
+                    <span className="block text-sm font-bold text-slate-100">{item.name}</span>
+                    <span className="mt-1 block text-sm text-slate-400 leading-relaxed">{item.detail}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </Reveal>
 
           {/* Process notes */}
-          <section className="mt-12" aria-label="Process notes">
-            <h2 className="text-2xl font-bold tracking-tight">
-              Process{' '}
-              <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                notes
-              </span>
-            </h2>
-            <ol className="mt-5 space-y-4">
-              {build.process.map((note, i) => (
-                <li key={i} className="flex gap-4">
-                  <span className="shrink-0 flex items-center justify-center w-7 h-7 rounded-full border border-cyan-400/20 bg-cyan-400/10 text-cyan-300 text-xs font-bold mt-0.5">
-                    {i + 1}
-                  </span>
-                  <p className="text-slate-300 leading-relaxed">{note}</p>
-                </li>
-              ))}
-            </ol>
-          </section>
+          <Reveal>
+            <section className="mt-12" aria-label="Process notes">
+              <h2 className="text-2xl font-bold tracking-tight">
+                Process{' '}
+                <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                  notes
+                </span>
+              </h2>
+              <ol className="mt-5 space-y-4">
+                {build.process.map((note, i) => (
+                  <li key={i} className="flex gap-4">
+                    <span className="shrink-0 flex items-center justify-center w-7 h-7 rounded-full border border-cyan-400/20 bg-cyan-400/10 text-cyan-300 text-xs font-bold mt-0.5">
+                      {i + 1}
+                    </span>
+                    <p className="text-slate-300 leading-relaxed">{note}</p>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          </Reveal>
 
           {/* Footer nav */}
           <footer className="mt-16 pt-8 border-t border-white/8 flex flex-wrap items-center justify-between gap-4">
