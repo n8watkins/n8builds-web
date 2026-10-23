@@ -12,9 +12,13 @@ const SITE = 'https://n8builds.dev'
 /** Map an absolute production URL onto the local test server. */
 const local = (url: string) => url.replace(SITE, '')
 
+/** Decode the HTML entities React writes into attribute values. */
+const decode = (value: string) =>
+  value.replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
+
 function meta(html: string, attr: 'property' | 'name', key: string): string | undefined {
   const tag = html.match(new RegExp(`<meta ${attr}="${key}" content="([^"]*)"`))
-  return tag?.[1]
+  return tag?.[1] && decode(tag[1])
 }
 
 function canonical(html: string): string | undefined {
