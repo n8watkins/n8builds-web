@@ -167,7 +167,7 @@ const TechStackCycle: React.FC<TechStackCycleProps> = ({ technologies }) => {
                   opacity: index === highlightedPart ? 1 : 0.65,
                 }}
                 transition={{ duration: 0.2 }}
-                className={`flex items-start gap-2 text-sm text-[#9cadc5] cursor-pointer rounded-lg px-2 py-1 w-fit ${
+                className={`flex items-start gap-2 text-sm text-[#9cadc5] cursor-pointer rounded-lg px-2 py-1 w-fit max-w-[calc(100%-0.5rem)] ${
                   index === highlightedPart ? 'bg-blue-500/10 text-slate-200' : ''
                 }`}
               >

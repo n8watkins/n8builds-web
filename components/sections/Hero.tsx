@@ -159,10 +159,43 @@ const AnimatedGrid = () => {
   )
 }
 
+// Sets --n8wire on the chip chain to the loop-back wire's on-screen length.
+// The SVG stretches with preserveAspectRatio="none", so the path is sampled in
+// viewBox units and scaled to pixels on each axis; re-measured on every resize.
+function useWireLength(ref: React.RefObject<HTMLDivElement | null>) {
+  useEffect(() => {
+    const el = ref.current
+    const svg = el?.querySelector<SVGSVGElement>('.n8-loop')
+    const path = svg?.querySelector<SVGPathElement>('.n8-loop-base')
+    if (!el || !svg || !path || typeof ResizeObserver === 'undefined') return
+    const measure = () => {
+      const { width, height } = svg.getBoundingClientRect()
+      const { width: vw, height: vh } = svg.viewBox.baseVal
+      const sx = width / vw
+      const sy = height / vh
+      const total = path.getTotalLength()
+      let length = 0
+      let prev = path.getPointAtLength(0)
+      for (let i = 1; i <= 64; i++) {
+        const pt = path.getPointAtLength((total * i) / 64)
+        length += Math.hypot((pt.x - prev.x) * sx, (pt.y - prev.y) * sy)
+        prev = pt
+      }
+      el.style.setProperty('--n8wire', `${length.toFixed(1)}px`)
+    }
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(svg)
+    return () => ro.disconnect()
+  }, [ref])
+}
+
 const Hero = () => {
+  const chainRef = useRef<HTMLDivElement>(null)
+  useWireLength(chainRef)
   return (
     <div
-      className="relative flex flex-col min-h-[90vh] items-center justify-center bg-linear-to-b from-darkBlue from-70% to-transparent overflow-hidden select-none"
+      className="relative flex flex-col min-h-[90vh] md:portrait:min-h-[min(90vh,720px)] items-center justify-center bg-linear-to-b from-darkBlue from-70% to-transparent overflow-hidden select-none"
       id="home"
     >
       <AnimatedGrid />
@@ -172,7 +205,7 @@ const Hero = () => {
 
         <div className="flex flex-col md:flex-row items-center justify-between w-full gap-10 md:gap-8">
           {/* Text */}
-          <div className="flex-1 flex flex-col items-start gap-5 min-w-0">
+          <div className="flex-1 flex flex-col items-start gap-5 min-w-0 w-full md:w-auto">
 
             <div>
               <motion.h1
@@ -196,14 +229,15 @@ const Hero = () => {
             {/* whoami terminal = the description (blended copy) */}
             <WhoamiTerminal className="w-full max-w-[520px]" />
 
-            {/* Build philosophy — electrified circuit: a comet traces each chip's
-                outline left -> right, then runs the loop-back line from ship under the
-                whole chain back into idea, and repeats (the "repeat" chip is now the line). */}
+            {/* Build philosophy - electrified circuit: a comet traces each chip's
+                outline left -> right, then runs the loop-back line from repeat under the
+                whole chain back into idea, and the loop starts again. */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.45 }}
-              className="relative w-fit font-mono text-[0.72rem] sm:text-[0.85rem] select-none [--n8wire:360px] sm:[--n8wire:430px]"
+              ref={chainRef}
+              className="relative w-fit font-mono text-[0.6rem] min-[360px]:text-[0.72rem] sm:text-[0.85rem] select-none [--n8wire:340px] sm:[--n8wire:410px]"
             >
               <style>{`
                 @property --n8ang {
@@ -212,9 +246,9 @@ const Hero = () => {
                   inherits: false;
                 }
 
-                /* Shared 11s loop. Chips fire on a 2.0s stagger (left -> right); each comet
+                /* Shared 11s loop. Chips fire on a 1.8s stagger (left -> right); each comet
                    sweeps its perimeter, then the loop-back line carries a fast pulse from
-                   ship back under the chain into idea (~3x quicker than the chip sweeps),
+                   repeat back under the chain into idea (~3x quicker than the chip sweeps),
                    landing right as idea relights, and it repeats. */
                 @keyframes n8cometSweep {
                   0%          { --n8ang: 0deg;   opacity: 0; }
@@ -246,13 +280,12 @@ const Hero = () => {
                   13%, 100% { color: rgb(100,116,139); text-shadow: none; }
                 }
                 /* loop-back connector: dim wire + ONE blue pulse (#22d3ee, same as the
-                   chips). Tight hand-off both ends: starts ~78%, right as ship's comet
+                   chips). Tight hand-off both ends: starts ~78%, right as repeat's comet
                    lands on the 4:30 corner (no lead-in gap), travels the WHOLE wire, and
                    reaches the idea corner ~99%, right before the loop restarts and idea
-                   lights (no trailing gap). --n8wire ~ the wire's on-screen pixel length
-                   (set per breakpoint on the wrapper), since non-scaling-stroke makes
-                   the dash use px, ignoring pathLength. Re-measure it whenever the
-                   chips change size. */
+                   lights (no trailing gap). --n8wire is the wire's on-screen pixel
+                   length, measured by useWireLength (non-scaling-stroke makes the dash
+                   use px, ignoring pathLength); the class values are only the fallback. */
                 @keyframes n8loopComet {
                   0%, 75%  { stroke-dashoffset: 0;    opacity: 0; }
                   77%      { stroke-dashoffset: 0;    opacity: 1; }
@@ -331,6 +364,10 @@ const Hero = () => {
                   font-size: 0.85rem;
                   animation: n8arrowGlow 11s linear infinite;
                 }
+                /* below 360px (iPhone SE 1st gen) the chain shrinks to fit the screen */
+                @media (max-width: 359px) {
+                  .n8-carrow { font-size: 0.7rem; }
+                }
                 .n8-loop {
                   position: absolute;
                   left: 0;
@@ -356,18 +393,18 @@ const Hero = () => {
                   .n8-cnode { border-color: rgba(34,211,238,0.3); }
                 }
               `}</style>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1 min-[360px]:gap-1.5">
                 {['idea', 'prompt', 'build', 'ship', 'repeat'].map((w, i, arr) => (
                   <React.Fragment key={w}>
                     <span
-                      className={`n8-cnode rounded-md border px-2 py-1 sm:px-3 sm:py-1.5 lowercase tracking-wide${
+                      className={`n8-cnode rounded-md border px-1.5 min-[360px]:px-2 py-1 sm:px-3 sm:py-1.5 lowercase tracking-wide${
                         i > 0 && i < arr.length - 1 ? ' n8-split' : ''
                       }`}
                       style={{
                         // 11s loop, 1.8s chip spacing, phase-shifted -10s so the page loads
                         // pulse-mid-wire; idea fires ~0.45s early so it lights as the wire lands.
                         ['--n8delay' as string]: `${(i === 0 ? -0.45 : i * 1.8) - 10}s`,
-                        // idea starts bottom-left (~7:30), ship at 9 o'clock; the split
+                        // idea starts bottom-left (~7:30), repeat at 9 o'clock; the split
                         // chips ignore --n8start (they sweep from 270deg +/- the angle).
                         ['--n8start' as string]:
                           i === 0 ? '135deg' : i === arr.length - 1 ? '172deg' : '0deg',
@@ -375,7 +412,7 @@ const Hero = () => {
                     >
                       {w}
                     </span>
-                    {/* middle chips (prompt/build/stream) carry a second light via
+                    {/* middle chips (prompt/build/ship) carry a second light via
                         ::after, so the two halves meet at the 3 o'clock arrow */}
                     {i < arr.length - 1 && (
                       // arrow lights at the hand-off as the comet leaves chip i
@@ -384,7 +421,7 @@ const Hero = () => {
                   </React.Fragment>
                 ))}
               </div>
-              {/* loop-back circuit line: ship (right) -> down -> under the chain ->
+              {/* loop-back circuit line: repeat (right) -> down -> under the chain ->
                   up into idea (left). preserveAspectRatio=none stretches it to the
                   chain width; non-scaling-stroke keeps the line crisp. */}
               <svg className="n8-loop" viewBox="0 0 100 16" preserveAspectRatio="none" aria-hidden="true">
@@ -468,7 +505,7 @@ const Hero = () => {
                 placeholder="blur"
                 blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
                 sizes="(max-width: 640px) 16rem, (max-width: 768px) 19rem, (max-width: 1024px) 21rem, 24rem"
-                alt="Nathan Watkins — builder based in Los Angeles"
+                alt="Nathan Watkins - builder based in Los Angeles"
               />
             </div>
           </motion.div>
