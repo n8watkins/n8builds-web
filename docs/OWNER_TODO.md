@@ -21,13 +21,11 @@ Pushed, deployed and redeployed with Upstash. What's left is a real end-to-end s
 Both `n8builds.dev` and `www.n8builds.dev` are authorized on the widget: in a browser on either host, Turnstile reports error 600010 (challenge failed for an automated browser), not 110200 (domain not allowed).
 If you ever want the form to work on Vercel preview URLs, add those hostnames to the widget **and** set `TURNSTILE_ALLOWED_HOSTNAMES` in Vercel's Preview environment.
 
-## 4. Duplicate hosts (from the 2026-10-22 review)
+## 4. Duplicate hosts (done 2026-10-22)
 
-`www.n8builds.dev` and `n8builds-web.vercel.app` both serve a full, indexable copy of the site (200, `index, follow`).
-Every page now has an absolute canonical URL pointing at https://n8builds.dev, which softens this, but a redirect is the real fix.
-Fix: in Vercel, Project `n8builds-web` → Settings → Domains → `www.n8builds.dev` → Edit → "Redirect to" `n8builds.dev`, status 308.
-Do the same for `n8builds-web.vercel.app` if Vercel offers it, or ask Claude to add a host redirect for it in `next.config.mjs`.
-Turnstile keeps working: the widget still authorizes both hostnames.
+`www.n8builds.dev` and `n8builds-web.vercel.app` served full, indexable copies of the site.
+Both are now Vercel domain redirects (Project `n8builds-web` → Settings → Domains) to `n8builds.dev`, status 308, keeping the path and query.
+Deployment-specific URLs are unaffected.
 
 ## 5. Decisions for you (from the 2026-10-22 review)
 

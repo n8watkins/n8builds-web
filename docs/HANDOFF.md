@@ -151,6 +151,7 @@ Every free check runs before the first Upstash call, so requests without a solve
   Add any new remote image host there.
 - Unknown `/blog/<slug>` URLs return a 404 status with `noindex`, but Next 16 renders the 404 body client-side (it does this for any `notFound()` thrown from a page).
   `/builds/<slug>` uses `dynamicParams = false`, so its 404 is fully server-rendered; the blog can't, since new posts must work without a deploy.
+- `www.n8builds.dev` and `n8builds-web.vercel.app` redirect (308) to `n8builds.dev` through Vercel domain settings, not code.
 - The navbar shows the desktop links from `lg` (1024px) up; below that, the menu button and overlay menu (scroll lock, backdrop, Escape).
   Between 768px and ~1000px the desktop row didn't fit and pushed the Appturnity CTA off-screen.
 - One build or Playwright run per checkout at a time: they share `.next/` and `test-results/`, and a second one breaks the first (a running `next start` serves mismatched chunks; Playwright wipes `test-results/` mid-run).
