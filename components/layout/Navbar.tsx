@@ -22,6 +22,7 @@ const Navbar = () => {
   const skipFocusOpen = useRef(false)
 
   const menuButton = useRef<HTMLButtonElement>(null)
+  const navRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
@@ -29,13 +30,26 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // The open mobile menu is an overlay: the page behind it doesn't scroll,
-  // Escape closes it (focus returns to the toggle), and so does widening the
-  // window past the breakpoint where the menu stops existing.
+  // The open mobile menu is an overlay: the page behind it doesn't scroll or
+  // take focus (everything but the navbar and the menu is inert), Escape closes
+  // it (focus returns to the toggle), and so does widening the window past the
+  // breakpoint where the menu stops existing.
   useEffect(() => {
     if (!mobileOpen) return
     const { overflow } = document.body.style
     document.body.style.overflow = 'hidden'
+    const keep = [navRef.current, document.getElementById('mobile-menu'), document.getElementById('mobile-menu-backdrop')].filter(
+      (el): el is HTMLElement => el !== null,
+    )
+    const inerted: Element[] = []
+    for (let node = keep[0]; node && node !== document.body; node = node.parentElement!) {
+      for (const sibling of Array.from(node.parentElement?.children ?? [])) {
+        if (keep.some((k) => sibling.contains(k)) || sibling.hasAttribute('inert')) continue
+        if (sibling.tagName === 'SCRIPT' || sibling.tagName === 'STYLE') continue
+        sibling.setAttribute('inert', '')
+        inerted.push(sibling)
+      }
+    }
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return
       setMobileOpen(false)
@@ -47,6 +61,7 @@ const Navbar = () => {
     desktop.addEventListener('change', onWiden)
     return () => {
       document.body.style.overflow = overflow
+      inerted.forEach((el) => el.removeAttribute('inert'))
       window.removeEventListener('keydown', onKey)
       desktop.removeEventListener('change', onWiden)
     }
@@ -69,7 +84,7 @@ const Navbar = () => {
     window.history.replaceState(null, '', href)
   }
 
-  // Top-level items besides the Lab dropdown — each scrolls to its homepage section.
+  // Top-level items besides the Lab dropdown - each scrolls to its homepage section.
   const navLinks = [
     { label: 'Notions', href: '/#notions' },
     { label: 'Loadout', href: '/#loadout' },
@@ -92,6 +107,7 @@ const Navbar = () => {
   return (
     <>
       <nav
+        ref={navRef}
         aria-label="Primary"
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
@@ -246,6 +262,7 @@ const Navbar = () => {
         {mobileOpen && (
           <motion.div
             key="backdrop"
+            id="mobile-menu-backdrop"
             aria-hidden
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

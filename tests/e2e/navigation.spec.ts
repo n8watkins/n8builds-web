@@ -59,6 +59,27 @@ test.describe('mobile menu', () => {
     await expect(page.locator('#mobile-menu')).toBeHidden()
     expect(page.url()).toBe(url)
   })
+
+  test('is modal: Tab stays in the navbar and menu, and the page behind is inert until it closes', async ({ page }) => {
+    await page.goto('/')
+    await openMenu(page)
+    const main = page.locator('#main-content')
+    await expect(main).toHaveAttribute('inert', '')
+
+    await page.locator('#mobile-menu').getByRole('link').last().focus()
+    for (let i = 0; i < 4; i++) {
+      await page.keyboard.press('Tab')
+      const inside = await page.evaluate(
+        () =>
+          !!document.activeElement?.closest('nav[aria-label="Primary"], #mobile-menu') ||
+          document.activeElement === document.body,
+      )
+      expect(inside, `Tab ${i + 1} left the menu`).toBe(true)
+    }
+
+    await page.keyboard.press('Escape')
+    await expect(main).not.toHaveAttribute('inert')
+  })
 })
 
 test.describe('mobile menu on a landscape phone', () => {
