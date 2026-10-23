@@ -27,12 +27,11 @@ If you ever want the form to work on Vercel preview URLs, add those hostnames to
 Both are now Vercel domain redirects (Project `n8builds-web` → Settings → Domains) to `n8builds.dev`, status 308, keeping the path and query.
 Deployment-specific URLs are unaffected.
 
-## 4b. Review the rewritten blog posts (2026-10-22)
+## 4b. Rewritten blog posts (published 2026-10-22)
 
-The four published posts (Welcome, Why I Build in Public, Distribution Is the New Bottleneck, Speed Beats Mastery) have expanded rewrites waiting as **drafts** in Sanity Studio: about 700 words each, two custom graphics each, and a sourced facts list.
-Nothing changes on the site until you hit Publish on each one.
-"Why I Build in Public" already had an unfinished Studio draft (an empty image block and a topic change); the new draft replaced it and kept the topic change.
+The four posts (Welcome, Why I Build in Public, Distribution Is the New Bottleneck, Speed Beats Mastery) were rewritten (about 700 words, two graphics and sources each) and published.
 Your four other unpublished drafts (Claude Code + MCP, giant list, terminal IDE, 8 agents) were not touched.
+Blog pages refresh hourly; after publishing in Studio, expect up to an hour before the live page changes (or redeploy).
 
 ## 5. Contact-form firewall rule (done 2026-10-22)
 

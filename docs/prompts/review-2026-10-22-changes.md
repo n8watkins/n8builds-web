@@ -1,8 +1,8 @@
 # Prompt: review the 2026-10-22 changes
 
 A ready-to-paste prompt for a fresh Claude Code session in this repo.
-It reviews everything shipped on 2026-10-22: the review-and-improve pass, the marquee fix, the content changes, the Vercel host redirects, and the blog rewrites waiting as Sanity drafts.
-It is read-only until it reports, and it never publishes Sanity drafts or changes Vercel or Cloudflare settings.
+It reviews everything shipped on 2026-10-22: the review-and-improve pass, the marquee fix, the content changes, the Vercel host redirects, and the four rewritten blog posts (published that day).
+It is read-only until it reports, and it never writes to Sanity or changes Vercel or Cloudflare settings.
 
 Written 2026-10-22.
 The commit range is pinned: it starts after `4737d9e` (the last commit before this work) and ends at the commit that last edited this prompt, so later commits are out of scope.
@@ -20,13 +20,13 @@ Read docs/HANDOFF.md, docs/OWNER_TODO.md and README.md for context on n8builds-w
    - UX: Navbar (lg breakpoint, overlay menu with scroll lock, backdrop, Escape), NowBuilding (stacked cards, pause rules, made the main section), contact form (submit on Enter, aria-invalid/describedby, success focus, focusFirstError), marquee fix in app/globals.css (@theme inline), small touch-target and wrapping fixes.
    - Content: the dictation app is Scribe at /builds/scribe (the old name is fully retired, with no redirect), four builds removed with redirects, Solara featured, VibeLog spelling, Asset Arsenal out of the carousel.
 2. Live site: after confirming the deploy of $END is live, check https://n8builds.dev with read-only GET requests: share cards and og.png images, canonicals, sitemap.xml (every URL returns 200, no redirects), the redirects (www and n8builds-web.vercel.app to apex, removed builds, /lab and friends), security headers, and the homepage on a phone-sized and a tablet-sized viewport.
-3. Sanity drafts (read only): drafts.sample-welcome, drafts.sample-build-in-public, drafts.sample-distribution and drafts.sample-speed-beats-mastery in project abgyc32w. Use the Sanity CLI login token from ~/.config/sanity/config.json for read access, and never print it. For each post:
+3. Blog posts (read only): the four rewritten posts, live at https://n8builds.dev/blog/welcome-to-n8-notions, /blog/why-i-build-in-public, /blog/distribution-is-the-new-bottleneck and /blog/speed-beats-mastery (Sanity documents sample-welcome, sample-build-in-public, sample-distribution and sample-speed-beats-mastery in project abgyc32w). For each post:
    - verify every factual claim against the linked source (numbers, dates, who said what, what a study actually measured)
    - check that each graphic matches the text and its source, and that alt text describes it
    - check that every link resolves
    - judge voice and quality: does it sound like a person who builds in public, is it interesting, is anything padded, overstated or wrong
    - check that no em dash crept in
-   Do not touch the four other drafts (Claude Code + MCP, giant list, terminal IDE, 8 agents).
+   Do not touch the four unpublished drafts (Claude Code + MCP, giant list, terminal IDE, 8 agents).
 
 ## How to review
 
@@ -40,7 +40,7 @@ Read docs/HANDOFF.md, docs/OWNER_TODO.md and README.md for context on n8builds-w
 
 Rank findings by severity. For each: file:line or URL, what is wrong, how you verified it (reproduced, with the command and output, or code read), and the fix you suggest. Separately list:
 - what you checked and found sound
-- blog fact-check results per post (claim, source, verdict)
+- blog fact-check results per post (claim, source, verdict); fixes to published posts need my go-ahead
 - anything that needs me (dashboards, credentials, taste decisions)
 Then stop and wait for me to choose which fixes to make.
 ````
