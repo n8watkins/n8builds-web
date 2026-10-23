@@ -24,9 +24,21 @@ test('the heading, subheader and idea -> repeat chips all fit on a 320px screen'
     expect(box!.x + box!.width, `${target} right edge`).toBeLessThanOrEqual(320)
   }
   // Nothing on the page scrolls sideways (clientWidth excludes a desktop scrollbar).
-  const { scroll, client } = await page.evaluate(() => ({
-    scroll: document.documentElement.scrollWidth,
-    client: document.documentElement.clientWidth,
-  }))
-  expect(scroll).toBeLessThanOrEqual(client)
+  // On failure, name the elements that stick out past the edge.
+  const { scroll, client, culprits } = await page.evaluate(() => {
+    const client = document.documentElement.clientWidth
+    const culprits = [...document.querySelectorAll('body *')]
+      .filter((el) => {
+        if (el.getBoundingClientRect().right <= client + 0.5) return false
+        // Skip anything inside a box that clips it.
+        for (let p = el.parentElement; p; p = p.parentElement) {
+          if (getComputedStyle(p).overflowX !== 'visible') return false
+        }
+        return true
+      })
+      .slice(0, 5)
+      .map((el) => `${el.tagName.toLowerCase()}.${String(el.getAttribute('class')).slice(0, 80)}`)
+    return { scroll: document.documentElement.scrollWidth, client, culprits }
+  })
+  expect(scroll, `overflowing: ${culprits.join(' | ')}`).toBeLessThanOrEqual(client)
 })

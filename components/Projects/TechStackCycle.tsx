@@ -147,8 +147,11 @@ const TechStackCycle: React.FC<TechStackCycleProps> = ({ technologies }) => {
       </div>
 
       {/* Description bullets */}
-      <div className="min-h-22">
-        <AnimatePresence mode="wait">
+      {/* The list slides in from the right when the category changes. Clip it
+          sideways so the slide can't widen the page, and skip the slide on the
+          first render, where the server HTML would hold the offset until hydration. */}
+      <div className="min-h-22 overflow-x-clip">
+        <AnimatePresence mode="wait" initial={false}>
           <motion.ul
             key={currentCategory}
             initial={{ opacity: 0, x: 24 }}
