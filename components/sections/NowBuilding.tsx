@@ -27,25 +27,25 @@ const arrowClass =
   'flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/4 text-slate-400 transition-colors hover:bg-white/8 hover:text-slate-100'
 
 const Card = ({ now }: { now: NowState }) => (
-  <div className="grid gap-6 md:grid-cols-[1.2fr_1fr]">
+  <div className="grid gap-8 md:grid-cols-[1.3fr_1fr] md:gap-10">
     {/* Left: the build */}
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center gap-3">
-        <h3 className="text-2xl font-extrabold tracking-tight text-slate-50">{now.project}</h3>
+        <h3 className="text-3xl font-extrabold tracking-tight text-slate-50 md:text-4xl">{now.project}</h3>
         <span className={`rounded-full border px-2.5 py-0.5 text-[0.62rem] font-bold uppercase tracking-wider ${statusStyles[now.status]}`}>
           {now.status}
         </span>
       </div>
-      <p className="font-mono text-sm text-slate-450">{now.tagline}</p>
+      <p className="font-mono text-sm text-slate-450 md:text-base">{now.tagline}</p>
 
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-4">
         <div>
-          <p className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-475">Right now</p>
-          <p className="mt-1 text-[#9cadc5]">{now.focus}</p>
+          <p className="text-[0.7rem] font-bold uppercase tracking-wider text-cyan-400">Right now</p>
+          <p className="mt-1 text-lg leading-relaxed text-slate-200">{now.focus}</p>
         </div>
         <div>
-          <p className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-475">The goal</p>
-          <p className="mt-1 text-[#9cadc5]">{now.goal}</p>
+          <p className="text-[0.7rem] font-bold uppercase tracking-wider text-slate-475">The goal</p>
+          <p className="mt-1 text-lg leading-relaxed text-[#9cadc5]">{now.goal}</p>
         </div>
       </div>
 
@@ -76,7 +76,7 @@ const Card = ({ now }: { now: NowState }) => (
     </div>
 
     {/* Right: recent activity feed */}
-    <div className="rounded-2xl border border-white/6 bg-black/20 p-5">
+    <div className="self-start rounded-2xl border border-white/6 bg-black/25 p-5 md:p-6">
       <p className="mb-4 flex items-center gap-2 font-mono text-xs text-slate-450">
         <FiActivity className="h-3.5 w-3.5 text-cyan-400" /> recent activity
       </p>
@@ -85,7 +85,7 @@ const Card = ({ now }: { now: NowState }) => (
           <li key={i} className="relative">
             <span className="absolute left-[-1.42rem] top-1.5 h-2 w-2 rounded-full bg-cyan-400/80 ring-4 ring-darkBlue" />
             <p className="font-mono text-[0.68rem] uppercase tracking-wider text-slate-475">{u.date}</p>
-            <p className="mt-0.5 text-sm leading-relaxed text-[#9cadc5]">{u.text}</p>
+            <p className="mt-0.5 leading-relaxed text-[#9cadc5]">{u.text}</p>
           </li>
         ))}
       </ol>
@@ -126,13 +126,16 @@ const NowBuilding = () => {
   }, [cycling, count])
 
   return (
-    <section id="now" aria-label="Currently building" className="py-16">
+    <section id="now" aria-label="Currently building" className="py-20 md:py-24">
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="mb-2 flex items-center gap-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-cyan-400">
             <MdRadioButtonChecked className="h-3 w-3 animate-pulse text-green-400" /> Currently building
           </p>
-          <h2 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">What I&apos;m working on right now</h2>
+          <h2 className="text-4xl font-extrabold tracking-tight text-slate-50 sm:text-5xl/tight">What I&apos;m working on right now</h2>
+          <p className="mt-3 max-w-2xl text-lg text-[#9cadc5]">
+            The builds getting my hours this week, with the latest from each build log.
+          </p>
         </div>
         <a href="#lab" className="group flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8">
           Check out the lab
@@ -142,7 +145,7 @@ const NowBuilding = () => {
 
       <div
         ref={card}
-        className="relative overflow-hidden rounded-3xl border border-white/8 bg-white/2 p-6 md:p-8"
+        className="relative overflow-hidden rounded-3xl border border-cyan-400/20 bg-linear-to-br from-cyan-500/6 via-white/2 to-blue-600/5 p-6 shadow-2xl shadow-cyan-950/40 md:p-10"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         onFocus={() => setFocused(true)}
@@ -153,6 +156,8 @@ const NowBuilding = () => {
           if (e.pointerType === 'touch') setStopped(true)
         }}
       >
+        <div aria-hidden className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-cyan-400 via-blue-500 to-cyan-400" />
+
         {/* Every card sits in the same grid cell, so the box is always as tall
             as the tallest one and the page never jumps when they swap. Only
             the current one is visible; the rest are inert. */}
