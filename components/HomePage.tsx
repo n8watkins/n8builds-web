@@ -7,6 +7,7 @@ import { useScrollTracking } from '@/hooks/useScrollTracking'
 import SectionErrorBoundary from '@/components/SectionErrorBoundary'
 import dynamic from 'next/dynamic'
 
+const NowBuilding = dynamic(() => import('@/components/sections/NowBuilding'))
 const FeaturedProjects = dynamic(() => import('@/components/sections/FeaturedProjects'))
 const ShelfSection = dynamic(() => import('@/components/sections/ShelfSection'))
 const NotionsStrip = dynamic(() => import('@/components/sections/NotionsStrip'))
@@ -19,23 +20,29 @@ const ScrollToTop = dynamic(() => import('@/components/ui/ScrollToTop'), { ssr: 
 /**
  * A full-width homepage band. Alternating tones and a hairline between bands
  * separate the sections, which otherwise ran together on one flat background.
+ * The band right under the hero uses `fadeIn` instead: no hairline, and its
+ * tone eases in, so the hero flows into it.
  */
 function Band({
   id,
   tone = 'base',
+  fadeIn = false,
   as: Tag = 'div',
   children,
 }: {
   id?: string
   tone?: 'base' | 'raised'
+  fadeIn?: boolean
   as?: 'div' | 'section'
   children: React.ReactNode
 }) {
+  const background = fadeIn
+    ? 'bg-linear-to-b from-transparent to-white/[0.022] to-[260px]'
+    : tone === 'raised'
+      ? 'border-t border-white/[0.06] bg-white/[0.022]'
+      : 'border-t border-white/[0.06]'
   return (
-    <Tag
-      id={id}
-      className={`relative z-10 border-t border-white/[0.06] ${tone === 'raised' ? 'bg-white/[0.022]' : ''}`}
-    >
+    <Tag id={id} className={`relative z-10 ${background}`}>
       <div className="mx-auto max-w-6xl px-5 py-6 sm:px-8">{children}</div>
     </Tag>
   )
@@ -66,10 +73,17 @@ export default function HomePage() {
           <Hero />
         </SectionErrorBoundary>
 
+        {/* What I'm working on: flows straight out of the hero. */}
+        <Band fadeIn>
+          <SectionErrorBoundary sectionName="Currently Building">
+            <NowBuilding />
+          </SectionErrorBoundary>
+        </Band>
+
         {/* ===== THE LAB: one section. Featured web apps, then the Chrome
              extensions, then tools. The navbar "Lab" menu scrolls to #lab,
              #featured, #extensions and #tools. ===== */}
-        <Band id="lab" tone="raised">
+        <Band id="lab">
           <div className="pt-6">
             <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-teal-400">The bench</p>
             <h2 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">The Lab</h2>
@@ -107,27 +121,27 @@ export default function HomePage() {
         </Band>
 
         {/* N8 Notions: latest blog posts */}
-        <Band>
+        <Band tone="raised">
           <SectionErrorBoundary sectionName="N8 Notions">
             <NotionsStrip />
           </SectionErrorBoundary>
         </Band>
 
         {/* Homepage stack: AI marquee + Turso TL;DR -> /loadout */}
-        <Band tone="raised">
+        <Band>
           <SectionErrorBoundary sectionName="My Stack">
             <HomeStack />
           </SectionErrorBoundary>
         </Band>
 
         {/* Bridge: the portfolio (hire me) + Appturnity (client work) */}
-        <Band>
+        <Band tone="raised">
           <SectionErrorBoundary sectionName="Work With Me">
             <WorkWithMe />
           </SectionErrorBoundary>
         </Band>
 
-        <Band tone="raised" id="contact" as="section">
+        <Band id="contact" as="section">
           <SectionErrorBoundary sectionName="Contact Section">
             <Footer />
           </SectionErrorBoundary>
