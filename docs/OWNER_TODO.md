@@ -27,6 +27,13 @@ If you ever want the form to work on Vercel preview URLs, add those hostnames to
 Both are now Vercel domain redirects (Project `n8builds-web` → Settings → Domains) to `n8builds.dev`, status 308, keeping the path and query.
 Deployment-specific URLs are unaffected.
 
+## 4b. Review the rewritten blog posts (2026-10-22)
+
+The four published posts (Welcome, Why I Build in Public, Distribution Is the New Bottleneck, Speed Beats Mastery) have expanded rewrites waiting as **drafts** in Sanity Studio: about 700 words each, two custom graphics each, and a sourced facts list.
+Nothing changes on the site until you hit Publish on each one.
+"Why I Build in Public" already had an unfinished Studio draft (an empty image block and a topic change); the new draft replaced it and kept the topic change.
+Your four other unpublished drafts (Claude Code + MCP, giant list, terminal IDE, 8 agents) were not touched.
+
 ## 5. Decisions for you (from the 2026-10-22 review)
 
 - **Orphan build pages:** `/builds/appturnity` and `/builds/portfolio-rank` are in the sitemap but nothing on the site links to them (the homepage cards for both link off-site).
