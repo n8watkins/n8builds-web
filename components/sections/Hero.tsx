@@ -1,5 +1,5 @@
 'use client'
-import React, { useId } from 'react'
+import React, { useEffect, useId, useRef } from 'react'
 import Image from 'next/image'
 import { motion } from 'motion/react'
 import { FiGithub } from 'react-icons/fi'
@@ -7,6 +7,7 @@ import { CiLinkedin } from 'react-icons/ci'
 import { FaXTwitter } from 'react-icons/fa6'
 import { MdRadioButtonChecked } from 'react-icons/md'
 import WhoamiTerminal from '@/components/features/WhoamiTerminal'
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 
 const CELL = 52
 const COLS = 40 // 2080px: covers the widest common screens
@@ -23,25 +24,81 @@ function random(seed: number) {
   }
 }
 
-/** Lit cells spread over the whole hero, in the original deep blues. */
-const litCells = (() => {
+// Deep blues for the lit cells: dim enough to stay a backdrop.
+const TONES = ['#0c1836', '#13234d', '#0f1f52', '#16285a']
+// How many cells are lit at once. Each one wanders: it fades out, jumps to a
+// random free cell, and fades back in, all on its own random clock.
+const LIT = 46
+
+type Cell = { x: number; y: number; fill: string; peak: number }
+
+/**
+ * The cells lit in the server-rendered HTML (a fixed seed, so server and client
+ * match before hydration). After that every cell moves at random.
+ */
+const initialCells: Cell[] = (() => {
   const rand = random(8)
-  const cells: { x: number; y: number; tone: number }[] = []
-  for (let y = 0; y < ROWS; y++) {
-    for (let x = 0; x < COLS; x++) {
-      const r = rand()
-      if (r < 0.08) cells.push({ x, y, tone: (x + y) % 3 + 1 })
-    }
+  const used = new Set<string>()
+  const cells: Cell[] = []
+  while (cells.length < LIT) {
+    const x = Math.floor(rand() * COLS)
+    const y = Math.floor(rand() * ROWS)
+    if (used.has(`${x},${y}`)) continue
+    used.add(`${x},${y}`)
+    cells.push({ x, y, fill: TONES[Math.floor(rand() * TONES.length)], peak: 0.45 + rand() * 0.4 })
   }
   return cells
 })()
 
 const AnimatedGrid = () => {
   const id = useId()
+  const rects = useRef<(SVGRectElement | null)[]>([])
+  const reduceMotion = usePrefersReducedMotion()
+
+  // Wander: each cell runs its own loop of fade out, move, fade in, hold, with
+  // random durations, so the pattern never repeats. Only opacity transitions
+  // (cheap to composite), and the DOM is touched a few times per second.
+  useEffect(() => {
+    if (reduceMotion) return
+    const timers: ReturnType<typeof setTimeout>[] = []
+    const occupied = new Set(initialCells.map((c) => `${c.x},${c.y}`))
+    const later = (fn: () => void, ms: number) => timers.push(setTimeout(fn, ms))
+    const between = (min: number, max: number) => min + Math.random() * (max - min)
+
+    const cycle = (i: number, current: { x: number; y: number }) => {
+      const rect = rects.current[i]
+      if (!rect) return
+      const fadeOut = between(1800, 3200)
+      rect.style.transition = `opacity ${fadeOut}ms ease-in-out`
+      rect.style.opacity = '0'
+      later(() => {
+        occupied.delete(`${current.x},${current.y}`)
+        let next = current
+        for (let tries = 0; tries < 20; tries++) {
+          const candidate = { x: Math.floor(Math.random() * COLS), y: Math.floor(Math.random() * ROWS) }
+          if (!occupied.has(`${candidate.x},${candidate.y}`)) {
+            next = candidate
+            break
+          }
+        }
+        occupied.add(`${next.x},${next.y}`)
+        rect.setAttribute('x', String(next.x * CELL + 1))
+        rect.setAttribute('y', String(next.y * CELL + 1))
+        rect.setAttribute('fill', TONES[Math.floor(Math.random() * TONES.length)])
+        const fadeIn = between(1800, 3600)
+        rect.style.transition = `opacity ${fadeIn}ms ease-in-out`
+        rect.style.opacity = String(between(0.45, 0.85).toFixed(2))
+        later(() => cycle(i, next), fadeIn + between(1500, 7000))
+      }, fadeOut + between(200, 1500))
+    }
+
+    initialCells.forEach((cell, i) => later(() => cycle(i, cell), between(0, 9000)))
+    return () => timers.forEach(clearTimeout)
+  }, [reduceMotion])
 
   return (
     <div
-      className="absolute inset-0 overflow-hidden pointer-events-none mask-[linear-gradient(to_bottom,transparent,black_120px,black_75%,transparent)]"
+      className="absolute inset-0 overflow-hidden pointer-events-none mask-[linear-gradient(to_bottom,transparent,black_120px,black_62%,transparent)]"
       aria-hidden="true"
     >
       <svg className="absolute left-1/2 top-0 h-full -translate-x-1/2" width={COLS * CELL} xmlns="http://www.w3.org/2000/svg">
@@ -50,36 +107,22 @@ const AnimatedGrid = () => {
             <path
               d={`M.5 ${CELL}V.5H${CELL}`}
               fill="none"
-              stroke="rgba(255,255,255,0.06)"
+              stroke="rgba(255,255,255,0.055)"
               strokeWidth="1"
             />
           </pattern>
-
-          <style>{`
-            @keyframes n8pulse1 {
-              0%, 100% { fill: #0c1836; opacity: 0.7; }
-              50%       { fill: #172b5c; opacity: 1; }
-            }
-            @keyframes n8pulse2 {
-              0%, 100% { fill: #141e38; opacity: 0.6; }
-              50%       { fill: #0e2264; opacity: 0.9; }
-            }
-            @keyframes n8pulse3 {
-              0%, 100% { fill: #14275e; opacity: 0.5; }
-              50%       { fill: #1b3274; opacity: 0.85; }
-            }
-            .n8sq1 { animation: n8pulse1 3.2s ease-in-out infinite; }
-            .n8sq2 { animation: n8pulse2 3.8s ease-in-out infinite 0.6s; }
-            .n8sq3 { animation: n8pulse3 4.1s ease-in-out infinite 1.2s; }
-          `}</style>
         </defs>
 
         <rect width="100%" height="100%" fill={`url(#${id})`} />
 
-        {litCells.map(({ x, y, tone }) => (
+        {initialCells.map(({ x, y, fill, peak }, i) => (
           <rect
-            key={`${x}-${y}`}
-            className={`n8sq${tone}`}
+            key={i}
+            ref={(el) => {
+              rects.current[i] = el
+            }}
+            fill={fill}
+            style={{ opacity: peak }}
             x={x * CELL + 1}
             y={y * CELL + 1}
             width={CELL - 1}
@@ -88,9 +131,8 @@ const AnimatedGrid = () => {
         ))}
       </svg>
 
-      {/* Fade the grid out toward the edges so it stays a quiet backdrop. */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_58%_60%_at_50%_48%,transparent_0%,#050812_100%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_66%_60%_at_50%_50%,transparent_36%,#050812_82%)]" />
+      {/* Fade the grid out toward the far edges so it stays a quiet backdrop. */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_75%_75%_at_50%_45%,transparent_40%,#050812_100%)]" />
     </div>
   )
 }
@@ -372,7 +414,7 @@ const Hero = () => {
               className="flex items-center gap-3 flex-wrap"
             >
               <a
-                href="#lab"
+                href="#now"
                 className="relative inline-flex h-10 overflow-hidden rounded-xl p-px transition-all duration-200 hover:scale-[1.02]"
               >
                 <span className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#22d3ee_0%,#2563eb_50%,#22d3ee_100%)]" />
