@@ -102,7 +102,7 @@ Every free check runs before the first Upstash call, so requests without a solve
 - Extensions and featured projects **auto-cycle with hover-to-expand** on desktop, tap or stacked on mobile.
   Not click-only.
 - The Chrome Extension Launch Kit is a banner under the extensions, not a main card.
-- Open-source builds (Piper, TubeVault, TL;DW, Sprite Arsenal, Portfolio Rank, LocalDictate) get prominent Star-on-GitHub CTAs.
+- Open-source builds (Piper, TubeVault, TL;DW, Sprite Arsenal, Portfolio Rank, Scribe) get prominent Star-on-GitHub CTAs.
 - CanIHost, FreeStack and APIScout (the "free tools trio") were dropped from the site on 2026-10-21.
   Their repos and Vercel projects still exist; do not re-add them unless asked.
 - The **Loadout** is the identity device ("who I am without a resume"); PC hardware lives there as "The Rig".
@@ -193,7 +193,7 @@ Every free check runs before the first Upstash call, so requests without a solve
 
 Feature work, roughly in priority order:
 
-1. Real screenshots for TL;DW and LocalDictate (ideally Asset Arsenal and VibeLog too) in `public/builds/<slug>/`; real marks for Sprite Arsenal and Portfolio Rank.
+1. Real screenshots for TL;DW and Scribe (ideally Asset Arsenal and VibeLog too) in `public/builds/<slug>/`; real marks for Sprite Arsenal and Portfolio Rank.
 2. A `/builds` log index page (journal "heartbeat") and a "Log" nav item; detail pages already exist.
 3. Keep `data/now.tsx` and the loadout data current.
 4. Wire the Hero "Live" pill to real Twitch/YouTube status (manual today).

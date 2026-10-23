@@ -250,8 +250,8 @@ export const builds: Build[] = [
     github: 'https://github.com/n8watkins/jobsignal',
   },
   {
-    slug: 'localdictate',
-    name: 'LocalDictate',
+    slug: 'scribe',
+    name: 'Scribe',
     tagline: 'Privacy-first local speech-to-text',
     category: 'Desktop app',
     tags: ['Tauri', 'Rust', 'Whisper'],
@@ -273,7 +273,8 @@ export const builds: Build[] = [
       'Privacy is mechanical, not a promise: temp audio is deleted after transcription, and the only network access is the one-time model download you trigger yourself.',
     ],
     images: [],
-    github: 'https://github.com/n8watkins/localdictate',
+    github: 'https://github.com/n8watkins/scribe',
+    liveSite: 'https://scribe.n8builds.dev',
   },
   {
     slug: 'solara',

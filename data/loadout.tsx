@@ -93,7 +93,7 @@ export const loadout: LoadoutGroup[] = [
       },
       {
         name: 'Tauri + Rust',
-        whatFor: 'When it has to be a real native desktop app (Scribe / LocalDictate).',
+        whatFor: 'When it has to be a real native desktop app (Scribe).',
         take: 'Tiny binaries, native speed, and I get to write a little Rust without committing my life to it.',
       },
       {
@@ -157,7 +157,7 @@ export const loadout: LoadoutGroup[] = [
         tag: 'built it myself',
       },
       {
-        name: 'Scribe (LocalDictate)',
+        name: 'Scribe',
         whatFor: 'Hold a hotkey, talk, it types — local Whisper transcription at the cursor.',
         take: 'Also mine. Faster than typing for notes, prompts, and commit messages.',
         tag: 'built it myself',

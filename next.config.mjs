@@ -66,6 +66,8 @@ const nextConfig = {
       { source: '/resources', destination: '/#lab', permanent: true },
       // Builds dropped from the site on 2026-10-21; their old detail pages were in the sitemap.
       { source: '/builds/:slug(canihost|freestack|apiscout)', destination: '/#lab', permanent: true },
+      // LocalDictate was renamed Scribe on 2026-10-22.
+      { source: '/builds/localdictate', destination: '/builds/scribe', permanent: true },
       // RFC 9116: canonical lives at /.well-known/security.txt; redirect the
       // legacy root path some scanners still probe.
       { source: '/security.txt', destination: '/.well-known/security.txt', permanent: true },
