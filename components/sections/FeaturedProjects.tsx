@@ -30,10 +30,10 @@ const featured: FeaturedProject[] = [
     title: 'Portfolio Rank',
     subtitle: 'Developer Portfolio Ranker',
     description:
-      "Ranks 1,700+ developer portfolios by what's actually good — head-to-head voting + AI scoring, not alphabetical. Build lists, save the ones you love, and like the best.",
+      "Ranks 1,700+ developer portfolios by what's actually good - head-to-head voting + AI scoring, not alphabetical. Build lists, save the ones you love, and like the best.",
     image: '/projects/PortfolioRank-1.png',
     images: ['/projects/PortfolioRank-1.png'],
-    imageAlt: 'Portfolio Rank — developer portfolio ranker screenshot',
+    imageAlt: 'Portfolio Rank - developer portfolio ranker screenshot',
     tags: ['Next.js', 'TypeScript', 'Vercel'],
     github: 'https://github.com/n8watkins/portfolio-rank',
     liveSite: 'https://portfoliorank.vercel.app/',
@@ -48,8 +48,7 @@ const featured: FeaturedProject[] = [
     imageAlt: 'Solara: know your sun window',
     // A wide social card: anchor left so the cover crop keeps the sun.
     imagePosition: 'object-left',
-    tags: ['Next.js', 'Firebase', 'Open-Meteo'],
-    github: 'https://github.com/n8watkins/solara',
+    tags: ['Next.js', 'Firebase', 'Stripe'],
     liveSite: 'https://uv-activity-planner.web.app',
     buildSlug: 'solara',
   },
@@ -109,7 +108,7 @@ const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: b
         <p className="text-[#9cadc5] text-sm sm:text-base/6 leading-relaxed">{project.description}</p>
       </div>
 
-      {/* Tech stack — interactive icon dock, falls back to flat tags */}
+      {/* Tech stack - interactive icon dock, falls back to flat tags */}
       {technologies ? (
         <TechStackCycle technologies={technologies} />
       ) : (

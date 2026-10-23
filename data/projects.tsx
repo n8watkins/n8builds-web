@@ -46,7 +46,6 @@ export const projects = [
           ],
         },
       },
-      github: 'https://github.com/n8watkins/appturnity',
       liveSite: 'https://appturnity.com/',
     },
     {
@@ -178,7 +177,7 @@ export const projects = [
     id: 6,
     title: 'Portfolio Rank',
     subTitle: 'Developer Portfolio Ranker',
-    des: 'Ranks 1,700+ developer portfolios by what is actually good — head-to-head voting, AI scoring, plus lists, saving, and likes.',
+    des: 'Ranks 1,700+ developer portfolios by what is actually good - head-to-head voting, AI scoring, plus lists, saving, and likes.',
     images: ['/projects/PortfolioRank-1.png'],
     technologies: {
       Frontend: {
@@ -257,7 +256,6 @@ export const projects = [
         ],
       },
     },
-    github: 'https://github.com/n8watkins/solara',
     liveSite: 'https://uv-activity-planner.web.app',
   },
 ]
