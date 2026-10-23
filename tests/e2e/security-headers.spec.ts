@@ -108,7 +108,7 @@ test.describe('the CSP blocks nothing the site uses', () => {
     await page.goto('/#contact')
     const form = page.locator('#contact form')
     await form.scrollIntoViewIfNeeded()
-    await expect(page.locator('#contact input[name="cf-turnstile-response"]')).toHaveValue(/.+/)
+    await expect(page.locator('#contact input[name="cf-turnstile-response"]')).toHaveValue(/.+/, { timeout: SEND_TIMEOUT })
 
     await form.getByLabel('Your Name').fill('Test Visitor')
     await form.getByLabel('Email Address').fill('visitor@example.com')

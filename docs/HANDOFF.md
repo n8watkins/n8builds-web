@@ -69,6 +69,7 @@ Every free check runs before the first Upstash call, so requests without a solve
   The auto-reply greets by first name only when it is a plain word, otherwise "Hey there", so the form can't carry a linked domain to a third party.
   Keys outside Vercel production are namespaced by `VERCEL_ENV` (`contact:preview:*`, `contact:development:*` with a pulled env, `contact:local:*` otherwise), so one database serves every environment without previews or local runs touching production's counters.
   `CONTACT_TEST_MODE` always uses an in-memory store, as does `next dev` without Upstash configured.
+- **Edge rate limit:** a Vercel WAF rule (Firewall tab, not code) allows 10 `POST /api/contact` per minute per IP and answers 429 itself; the client shows its own message for a 429 without our JSON.
 - **Fail closed:** in production, a missing Turnstile secret, a Turnstile error, missing Upstash config, or an Upstash outage or timeout all reject the submission, with a message telling the visitor to email directly.
 - **Turnstile** (`lib/security/turnstile.ts`): tokens must be issued on `n8builds.dev` or `www.n8builds.dev` (`TURNSTILE_ALLOWED_HOSTNAMES` overrides).
   Verification is skipped only under `next dev`.

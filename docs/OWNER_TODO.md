@@ -34,11 +34,11 @@ Nothing changes on the site until you hit Publish on each one.
 "Why I Build in Public" already had an unfinished Studio draft (an empty image block and a topic change); the new draft replaced it and kept the topic change.
 Your four other unpublished drafts (Claude Code + MCP, giant list, terminal IDE, 8 agents) were not touched.
 
-## 5. Contact-form firewall rule (pending your approval)
+## 5. Contact-form firewall rule (done 2026-10-22)
 
-Vercel WAF rate limiting is free on Hobby (1 rule per project, 1M allowed requests, hard cap with no overage billing).
-The planned rule: `POST /api/contact`, 10 requests per 60 seconds per IP, then 429, in front of the app's own limits.
-Add it in Vercel → Project `n8builds-web` → Firewall → Configure → New Rule (Path equals `/api/contact`, Method equals `POST`, Rate Limit, Fixed Window, 60s, 10 requests, key IP, action 429), then Review Changes → Publish.
+Vercel WAF rule "Contact form flood limit": `POST /api/contact`, 10 requests per 60 seconds per IP, then 429 at the edge, before the function runs.
+It is free on Hobby (1 rate-limit rule per project, 1M allowed requests, hard cap with no overage billing) and was verified live: the 11th request in a minute got 429 with `x-vercel-mitigated: deny`.
+Change or remove it in Vercel → Project `n8builds-web` → Firewall.
 
 ## 5b. After the review (docs/prompts/review-2026-10-22-changes.md)
 
