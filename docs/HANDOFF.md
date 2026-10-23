@@ -187,7 +187,7 @@ Every free check runs before the first Upstash call, so requests without a solve
   The server SDK sends no stack-frame locals and drops contact-route request bodies (`lib/sentry-scrub.ts`).
 - `tests/unit/`, `tests/e2e/`, `playwright.config.ts`, `vitest.config.mts`.
 - `public/builds/<slug>/`: build icons and screenshots; `public/tab/`: favicons and OG image.
-- `docs/`: this file, `OWNER_TODO.md`, `prompts/review-and-improve.md` (ready-to-paste prompt for the next review pass), `N8BUILDS_PLAN.md`, `N8_NOTIONS_BLOG_IMPLEMENTATION.md`, `CLOUDFLARE_SECURITY.md`, `archive/`.
+- `docs/`: this file, `OWNER_TODO.md`, `prompts/review-and-improve.md` (ready-to-paste prompt for the next review pass), `prompts/review-2026-10-22-changes.md` (prompt to review the 2026-10-22 work and blog drafts), `N8BUILDS_PLAN.md`, `N8_NOTIONS_BLOG_IMPLEMENTATION.md`, `CLOUDFLARE_SECURITY.md`, `archive/`.
 
 ## Backlog
 
