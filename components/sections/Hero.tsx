@@ -5,7 +5,6 @@ import { motion } from 'motion/react'
 import { FiGithub } from 'react-icons/fi'
 import { CiLinkedin } from 'react-icons/ci'
 import { FaXTwitter } from 'react-icons/fa6'
-import { MdRadioButtonChecked } from 'react-icons/md'
 import WhoamiTerminal from '@/components/features/WhoamiTerminal'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 
@@ -33,8 +32,9 @@ const LIT = 46
 type Cell = { x: number; y: number; fill: string; peak: number }
 
 /**
- * The cells lit in the server-rendered HTML (a fixed seed, so server and client
- * match before hydration). After that every cell moves at random.
+ * Starting spots for the lit cells (a fixed seed, so server and client match).
+ * They render unlit; once the page is running they warm up one by one, then
+ * wander at random.
  */
 const initialCells: Cell[] = (() => {
   const rand = random(8)
@@ -55,11 +55,19 @@ const AnimatedGrid = () => {
   const rects = useRef<(SVGRectElement | null)[]>([])
   const reduceMotion = usePrefersReducedMotion()
 
-  // Wander: each cell runs its own loop of fade out, move, fade in, hold, with
-  // random durations, so the pattern never repeats. Only opacity transitions
-  // (cheap to composite), and the DOM is touched a few times per second.
+  // Warm-up, then wander. The grid starts dark; each cell first fades in at a
+  // random moment over the first few seconds, then loops (fade out, move, fade
+  // in, hold) with random durations, so the pattern never repeats. Only
+  // opacity transitions (cheap to composite), and the DOM is touched a few
+  // times per second. Reduced motion shows the full set, still.
   useEffect(() => {
-    if (reduceMotion) return
+    if (reduceMotion) {
+      initialCells.forEach((cell, i) => {
+        const rect = rects.current[i]
+        if (rect) rect.style.opacity = String(cell.peak)
+      })
+      return
+    }
     const timers: ReturnType<typeof setTimeout>[] = []
     const occupied = new Set(initialCells.map((c) => `${c.x},${c.y}`))
     const later = (fn: () => void, ms: number) => timers.push(setTimeout(fn, ms))
@@ -92,7 +100,16 @@ const AnimatedGrid = () => {
       }, fadeOut + between(200, 1500))
     }
 
-    initialCells.forEach((cell, i) => later(() => cycle(i, cell), between(0, 9000)))
+    initialCells.forEach((cell, i) =>
+      later(() => {
+        const rect = rects.current[i]
+        if (!rect) return
+        const fadeIn = between(1600, 3000)
+        rect.style.transition = `opacity ${fadeIn}ms ease-in-out`
+        rect.style.opacity = String(cell.peak)
+        later(() => cycle(i, cell), fadeIn + between(1500, 6000))
+      }, between(300, 7000))
+    )
     return () => timers.forEach(clearTimeout)
   }, [reduceMotion])
 
@@ -115,14 +132,14 @@ const AnimatedGrid = () => {
 
         <rect width="100%" height="100%" fill={`url(#${id})`} />
 
-        {initialCells.map(({ x, y, fill, peak }, i) => (
+        {initialCells.map(({ x, y, fill }, i) => (
           <rect
             key={i}
             ref={(el) => {
               rects.current[i] = el
             }}
             fill={fill}
-            style={{ opacity: peak }}
+            style={{ opacity: 0 }}
             x={x * CELL + 1}
             y={y * CELL + 1}
             width={CELL - 1}
@@ -147,49 +164,29 @@ const Hero = () => {
 
       <div className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 w-full flex flex-col items-center justify-center pt-28 pb-16">
 
-        {/* Live pill */}
-        <motion.a
-          href="https://github.com/n8watkins"
-          target="_blank"
-          rel="noopener noreferrer"
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-          className="mb-8 inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-white/12 bg-white/4 backdrop-blur-xs hover:bg-white/[0.07] transition-all duration-200 text-sm font-medium text-slate-300 cursor-pointer group"
-        >
-          <span className="flex items-center gap-1.5 text-green-400">
-            <MdRadioButtonChecked className="w-3 h-3 animate-pulse" />
-            <span className="whitespace-nowrap text-[0.72rem] font-bold tracking-widest uppercase">Live on GitHub</span>
-          </span>
-          <span className="text-white/20">·</span>
-          <span className="whitespace-nowrap text-slate-400 text-[0.82rem]"><span className="hidden sm:inline">See what </span>I&apos;m <span className="text-cyan-400 font-semibold">shipping</span></span>
-          <span className="text-slate-475 text-xs group-hover:translate-x-0.5 transition-transform">→</span>
-        </motion.a>
 
         <div className="flex flex-col md:flex-row items-center justify-between w-full gap-10 md:gap-8">
           {/* Text */}
           <div className="flex-1 flex flex-col items-start gap-5 min-w-0">
 
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55, delay: 0.08, ease: [0.25, 0.1, 0.25, 1] }}
-              className="text-[2.6rem] sm:text-5xl/none lg:text-6xl/none xl:text-[4.1rem] font-extrabold leading-[1.04] tracking-tight text-slate-50"
-            >
-              Spending tokens,{' '}
-              <span className="bg-linear-to-r from-cyan-400 via-blue-400 to-blue-600 bg-clip-text text-transparent">
-                shipping features.
-              </span>
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45, delay: 0.16 }}
-              className="max-w-[520px] text-lg leading-relaxed text-[#9cadc5]"
-            >
-              Apps, Chrome extensions and tools I wish existed, built by Nathan Watkins with AI agents doing the heavy lifting.
-            </motion.p>
+            <div>
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55, delay: 0.08, ease: [0.25, 0.1, 0.25, 1] }}
+                className="text-[3.2rem] sm:text-6xl/none lg:text-7xl/none xl:text-[5rem] font-extrabold leading-none tracking-tight text-slate-50"
+              >
+                n8builds
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.16 }}
+                className="mt-3 text-2xl sm:text-3xl font-bold tracking-tight bg-linear-to-r from-cyan-400 via-blue-400 to-blue-600 bg-clip-text text-transparent"
+              >
+                Spending tokens, shipping features.
+              </motion.p>
+            </div>
 
             {/* whoami terminal = the description (blended copy) */}
             <WhoamiTerminal className="w-full max-w-[520px]" />

@@ -26,8 +26,7 @@ export interface LoadoutGroup {
 // First-person intro, no resume energy. Shown as a terminal block (homepage hero + /loadout).
 export const whoami: string[] = [
   '$ whoami',
-  'Nathan Watkins, an AI-first software developer in LA.',
-  'all in on AI and agentic coding, building everything I can.',
+  'Nathan Watkins, AI-first software developer in LA, building apps, Chrome extensions and tools I wish existed, with AI agents doing the heavy lifting.',
 ]
 
 export const loadout: LoadoutGroup[] = [
