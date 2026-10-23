@@ -105,6 +105,10 @@ Every free check runs before the first Upstash call, so requests without a solve
 - **Blog covers:** each post has its own topic illustration uploaded as its Sanity cover (2026-10-23); the generated "signal" cover is the fallback for posts without one.
   Hero copy (2026-10-23): heading "n8builds", subheader "Spending tokens, shipping features.", and the whoami line "Nathan Watkins, AI-first software developer in LA, building apps, Chrome extensions and tools I wish existed, with AI agents doing the heavy lifting." No pill above the heading.
   Say "in public" sparingly; the owner felt the old hero overused it.
+- **Page titles use " | " as the separator** ("Speed Beats Mastery | n8builds"), and no visible copy uses the em dash (swept 2026-10-23).
+- **Private repos get no GitHub link:** Solara's repo is private, so it shows Live and Build log only; add `github` back if the repo goes public.
+- **Hero chips at 320px:** below 360px the idea -> repeat chain shrinks so it fits an iPhone SE (1st gen); `tests/e2e/hero.spec.ts` guards it.
+  The loop-back light measures its wire at runtime (`useWireLength` in `Hero.tsx`), so chip size changes need no manual re-measuring.
 - **Appturnity has no build page:** `/builds/appturnity` redirects to appturnity.com, and the site never links Appturnity's GitHub repo.
 - **Hidden builds:** `hiddenBuilds` in `data/builds.tsx` keeps builds that are paused but not dead, with no page, card, sitemap entry or nav link.
   VibeLog is there (hidden 2026-10-22, also removed from the loadout and navbar); move it back into `builds` to show it again.
