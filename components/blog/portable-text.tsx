@@ -58,16 +58,21 @@ const components = {
       <strong className="font-semibold text-slate-100">{children}</strong>
     ),
     em: ({ children }: any) => <em className="italic">{children}</em>,
-    link: ({ children, value }: any) => (
-      <a
-        href={value?.href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-cyan-300 underline-offset-4 hover:underline"
-      >
-        {children}
-      </a>
-    ),
+    // Always underlined, so a link isn't told apart from body text by colour
+    // alone (WCAG 1.4.1). Links to this site stay in the same tab.
+    link: ({ children, value }: any) => {
+      const href: string = value?.href ?? ''
+      const external = /^https?:\/\//.test(href)
+      return (
+        <a
+          href={href}
+          {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+          className="text-cyan-300 underline decoration-cyan-300/40 underline-offset-4 transition-colors hover:decoration-cyan-300"
+        >
+          {children}
+        </a>
+      )
+    },
   },
 }
 
