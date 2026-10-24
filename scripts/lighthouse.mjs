@@ -16,7 +16,7 @@ import lighthouse, { desktopConfig } from 'lighthouse'
 
 const PORT = Number(process.env.LIGHTHOUSE_PORT) || 3747
 const BASE = `http://localhost:${PORT}`
-const PAGES = ['/', '/blog', '/builds/solara', '/loadout']
+const PAGES = ['/', '/blog', '/builds', '/builds/solara', '/loadout']
 const RUNS = 3
 const REPORT_DIR = '.lighthouse'
 
