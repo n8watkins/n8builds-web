@@ -110,11 +110,15 @@ Every free check runs before the first Upstash call, so requests without a solve
   Hero copy (2026-10-23): heading "n8builds", subheader "Spending tokens, shipping features.", and the whoami line "Nathan Watkins, AI-first software developer in LA, building apps, Chrome extensions and tools I wish existed, with AI agents doing the heavy lifting." No pill above the heading.
   Say "in public" sparingly; the owner felt the old hero overused it.
 - **Page titles use " | " as the separator** ("Speed Beats Mastery | n8builds"), and no visible copy uses the em dash (swept 2026-10-23).
+- **Streaming:** the owner plans to start streaming on Twitch in the coming weeks.
+  The navbar keeps Twitch; **YouTube was removed on 2026-10-23** (its `@n8watkins` handle was a 404) and goes back in the same spot, after Twitch, once the channel is live (also add it back to `sameAs` in `lib/seo.ts`).
+  A live embed is planned: see Backlog.
 - **Private repos get no GitHub link:** Solara's repo is private, so it shows Live and Build log only; add `github` back if the repo goes public.
 - **Hero chips at 320px:** below 360px the idea -> repeat chain shrinks so it fits an iPhone SE (1st gen); `tests/e2e/hero.spec.ts` guards it.
   The loop-back light measures its wire at runtime (`useWireLength` in `Hero.tsx`), so chip size changes need no manual re-measuring.
 - **Appturnity has no build page:** `/builds/appturnity` redirects to appturnity.com, and the site never links Appturnity's GitHub repo.
-- **Hidden builds:** `hiddenBuilds` in `data/builds.tsx` keeps builds that are paused but not dead, with no page, card, sitemap entry or nav link.
+- **Hidden builds:** `hiddenBuilds` in `data/builds.tsx` keeps builds that are paused but not dead, with no page, card, sitemap entry or nav link; their old URLs redirect temporarily (307) so they can come back at the same address.
+  **The Chrome Extension Launch Kit is on hold** (2026-10-23): the owner is deciding what to do with it (its repo is private, and the homepage banner's claim that the extensions are built on it wasn't accurate). Banner removed; `/builds/chrome-extension-kit` redirects to `/#extensions`.
   **VibeLog is on hiatus** (hidden 2026-10-22, also removed from the loadout, the navbar and the Welcome post on 2026-10-23).
   Keep its record (it has no images yet); the owner wants it back once it's ready, by moving its record from `hiddenBuilds` into `builds` (backlog item 4).
 - **`data/builds.tsx` is the single source of truth** for every build; `data/shelves.ts` routes each one to its section by `category`.
@@ -123,7 +127,7 @@ Every free check runs before the first Upstash call, so requests without a solve
   Chrome extensions appear only in the extensions showcase; featured web apps appear only as featured rows.
 - Extensions and featured projects **auto-cycle with hover-to-expand** on desktop, tap or stacked on mobile.
   Not click-only.
-- The Chrome Extension Launch Kit is a banner under the extensions, not a main card.
+- If the Chrome Extension Launch Kit comes back, it is a banner under the extensions, not a main card.
 - Open-source builds (Piper, TubeVault, TL;DW, Portfolio Rank, Scribe) get prominent Star-on-GitHub CTAs.
 - CanIHost, FreeStack and APIScout (the "free tools trio") were dropped from the site on 2026-10-21, and Suggestion Box, Repo Steward, Sprite Arsenal and Quizmatic on 2026-10-22 (Solara took Quizmatic's featured slot).
   Their repos and Vercel projects still exist; do not re-add them unless asked.
@@ -210,7 +214,7 @@ Every free check runs before the first Upstash call, so requests without a solve
 - `tests/unit/`, `tests/e2e/`, `playwright.config.ts`, `vitest.config.mts`.
 - `public/builds/<slug>/`: build icons and screenshots; `public/tab/`: favicons and OG image.
 - `docs/`: this file, `OWNER_TODO.md`, `prompts/review-and-improve.md` (ready-to-paste prompt for the next review pass), `prompts/review-2026-10-22-changes.md` (the 2026-10-22/23 review prompt, already run), `N8BUILDS_PLAN.md` (vision, IA and content inventory), `CLOUDFLARE_SECURITY.md`, `archive/` (old handoffs, the blog implementation record).
-- `WEB_VITALS.md` (repo root): Web Vitals reporting, the dev HUD and GA events.
+- `docs/WEB_VITALS.md`: Web Vitals reporting, the dev HUD and GA events.
 
 ## Backlog
 
@@ -220,5 +224,5 @@ Feature work, roughly in priority order:
 2. A `/builds` log index page (journal "heartbeat") and a "Log" nav item; detail pages already exist.
 3. Keep the loadout data current.
 4. Bring VibeLog back from `hiddenBuilds` when it comes off hiatus (see "Hidden builds" above), and mention it again in the Welcome post if it fits.
-5. A live/offline status layer for streams (the hero has no live indicator since its pill was removed on 2026-10-23).
+5. Live streams on the site: when the Twitch channel is live, show a "Live" badge in the navbar and an embedded player on the homepage (Twitch embed with `parent=n8builds.dev`, live status from the Twitch Helix API, cached about a minute; needs a Twitch app client ID and secret in Vercel, and `player.twitch.tv` in the CSP frame-src). Re-add YouTube when its channel is live.
 6. Fire the GA tag from the portfolio subdomain deploy for cross-subdomain tracking.

@@ -26,6 +26,18 @@ What this means for the design:
 - Only Scribe has GitHub releases (TubeVault marks versions in commits), so releases alone would leave five builds empty.
 - Four of the seven builds were last touched in June or July, so the page must not shout "updated 4 months ago".
 
+## Releases: the standard the log relies on
+
+The tracked repos adopt the n8 release standard (`~/n8builds/release-kit`, see its STANDARD.md): Conventional Commits enforced by a hook and CI, `vX.Y.Z` tags cut with `npm run release`, and GitHub Releases published by a workflow with notes generated from the commits.
+Once a repo adopts it, its GitHub Releases are the log's primary signal, and its commits are clean enough to show between releases.
+Until then the commit filters below carry the load.
+
+Monitoring the tracked repos (part of this work):
+
+- `data/builds.tsx` gets a `repo` per build; that list is the single list of tracked repos.
+- `scripts/check-build-repos.mjs` reports, per tracked repo: its latest release and date, whether it has adopted release-kit (and which kit version, from `scripts/release-kit/VERSION`), and whether its newest commits pass the commit check.
+- The nightly workflow runs it and prints the report; it fails only when a repo can't be read (a revoked or expired token), so a token problem is caught before the log goes stale.
+
 ## Design
 
 ### Data
@@ -90,14 +102,9 @@ Estimated effort: one working session.
 
 ## What the owner needs to do
 
-1. **Create a GitHub token** (needed for a reliable rate limit on Vercel):
-   - GitHub, Settings, Developer settings, Fine-grained personal access tokens, Generate new token.
-   - Name it `n8builds-web build log`, expiry one year, resource owner `n8watkins`.
-   - Repository access: "Only select repositories": `scribe`, `solara`, `portfolio-rank`, `tl-dw`, `tube-vault`, `piper-tts`.
-   - Permissions: Repository permissions, **Contents: Read-only** (Metadata: Read-only is added automatically). Nothing else.
-2. **Give it to Claude or add it yourself:** either paste it into a local terminal with `! vercel env add GITHUB_TOKEN production` (then preview), or add `GITHUB_TOKEN` in Vercel, Project `n8builds-web`, Settings, Environment Variables, for Production and Preview.
-   Never paste it into chat.
-3. **Two decisions:**
-   - Solara's repo is public again (it was private on 2026-10-22, which is why its GitHub link was removed). Should the link come back?
-   - **On hold (2026-10-23):** the Chrome Extension Launch Kit stays out of the log for now; the owner is deciding what to do with it (its repo is private, and the homepage banner's claim that the three extensions are built on it may not be accurate).
+1. **GitHub token: done 2026-10-23.**
+   A fine-grained token (`n8builds-web build log`, read-only Contents on `scribe`, `solara`, `portfolio-rank`, `tl-dw`, `tube-vault`, `piper-tts`) is set as `GITHUB_TOKEN` in Vercel (Production and Preview) and in the local `.env.local`.
+   It expires in a year; regenerate it then (same name and access) and update both places.
+2. **Decide:** Solara's repo is public again (it was private on 2026-10-22, which is why its GitHub link was removed). Should the link come back?
+3. **On hold (2026-10-23):** the Chrome Extension Launch Kit is off the site and out of the log while the owner decides what to do with it.
 4. **Optional:** post one highlight in the Studio after launch, so the feed has a hand-written entry to show the style.
