@@ -47,6 +47,32 @@ async function waitForServer(server) {
   throw new Error(`Server did not start on ${BASE}`)
 }
 
+/**
+ * Start headless Chrome, retrying a launch that never reports its debugging
+ * port: on a busy CI runner Chrome occasionally starts too slowly for
+ * chrome-launcher ("waiting for dynamic debugging port"), which is the runner,
+ * not the site.
+ */
+async function launchChrome(profile, attempts = 3) {
+  for (let attempt = 1; ; attempt++) {
+    // A fresh profile per attempt: a Chrome that failed to start can still hold the last one's lock.
+    const dir = join(profile, `attempt-${attempt}`)
+    mkdirSync(dir)
+    try {
+      return await chromeLauncher.launch({
+        userDataDir: dir,
+        chromeFlags: ['--headless=new', `--user-data-dir=${dir}`, ...(process.env.CI ? ['--no-sandbox'] : [])],
+        // 60 polls of 500ms: 30s for Chrome to come up.
+        maxConnectionRetries: 60,
+      })
+    } catch (error) {
+      if (attempt >= attempts) throw error
+      console.warn(`Chrome did not start (attempt ${attempt} of ${attempts}): ${error.message}; retrying`)
+      await new Promise((resolve) => setTimeout(resolve, 2000))
+    }
+  }
+}
+
 async function main() {
   // Own process group, so cleanup stops next-server itself and not just a wrapper.
   const server = spawn('node_modules/.bin/next', ['start', '-p', String(PORT)], {
@@ -62,10 +88,7 @@ async function main() {
 
   try {
     await waitForServer(server)
-    chrome = await chromeLauncher.launch({
-      userDataDir: profile,
-      chromeFlags: ['--headless=new', `--user-data-dir=${profile}`, ...(process.env.CI ? ['--no-sandbox'] : [])],
-    })
+    chrome = await launchChrome(profile)
     mkdirSync(REPORT_DIR, { recursive: true })
 
     for (const path of PAGES) {
