@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { SiTwitch } from 'react-icons/si'
 import { FiExternalLink, FiMenu, FiX, FiChevronDown } from 'react-icons/fi'
 import { motion, AnimatePresence } from 'motion/react'
@@ -18,6 +19,7 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [labOpen, setLabOpen] = useState(false)
+  const pathname = usePathname()
   // Set while Escape returns focus to the Lab link, so that focus doesn't reopen it.
   const skipFocusOpen = useRef(false)
 
@@ -26,6 +28,8 @@ const Navbar = () => {
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
+    // A page can load already scrolled (a #anchor link, a reload mid-page).
+    onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
@@ -84,8 +88,10 @@ const Navbar = () => {
     window.history.replaceState(null, '', href)
   }
 
-  // Top-level items besides the Lab dropdown - each scrolls to its homepage section.
+  // Top-level items besides the Lab dropdown: the build log page, then links
+  // that scroll to their homepage section.
   const navLinks = [
+    { label: 'Log', href: '/builds' },
     { label: 'Notions', href: '/#notions' },
     { label: 'Loadout', href: '/#loadout' },
   ]
@@ -197,7 +203,8 @@ const Navbar = () => {
                 key={l.label}
                 href={l.href}
                 onClick={(e) => goToSection(e, l.href)}
-                className="px-3 py-2 text-sm text-slate-400 hover:text-slate-100 rounded-lg hover:bg-white/5 transition-all duration-150"
+                aria-current={pathname === l.href ? 'page' : undefined}
+                className="px-3 py-2 text-sm text-slate-400 hover:text-slate-100 aria-[current=page]:text-slate-100 rounded-lg hover:bg-white/5 transition-all duration-150"
               >
                 {l.label}
               </Link>
@@ -297,7 +304,8 @@ const Navbar = () => {
                 key={l.label}
                 href={l.href}
                 onClick={(e) => goToSection(e, l.href)}
-                className="px-3 py-2.5 text-sm text-slate-300 hover:text-slate-100 rounded-lg hover:bg-white/5 transition-colors"
+                aria-current={pathname === l.href ? 'page' : undefined}
+                className="px-3 py-2.5 text-sm text-slate-300 hover:text-slate-100 aria-[current=page]:text-cyan-300 rounded-lg hover:bg-white/5 transition-colors"
               >
                 {l.label}
               </Link>

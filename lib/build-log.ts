@@ -147,7 +147,7 @@ const KEEP_TYPES: Record<string, number> = { feat: 3, perf: 2, security: 2, fix:
 const VERBS: Record<string, number> = {
   add: 3, ship: 3, launch: 3, introduce: 3, support: 3, enable: 3, implement: 3, create: 3,
   allow: 3, let: 3, show: 3, surface: 3, build: 3, wire: 3, publish: 3, release: 3,
-  redesign: 3, rebuild: 3, track: 3, offer: 3,
+  redesign: 3, rebuild: 3, offer: 3,
   make: 2, improve: 2, speed: 2, lower: 2, reduce: 2, cut: 2, polish: 2, simplify: 2, rework: 2,
   replace: 2, restyle: 2, move: 2, share: 2, hide: 2, use: 2, run: 2, verify: 2, protect: 2,
   harden: 2, handle: 2, restore: 2, prevent: 2, stop: 2, detect: 2, redirect: 2, cache: 2,

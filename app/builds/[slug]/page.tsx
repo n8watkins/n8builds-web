@@ -2,12 +2,14 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { FiArrowLeft, FiArrowUpRight, FiGithub } from 'react-icons/fi'
+import { FiArrowLeft, FiArrowRight, FiArrowUpRight, FiGithub } from 'react-icons/fi'
 import Navbar from '@/components/layout/Navbar'
 import { builds, getBuild } from '@/data/builds'
 import { shelfMeta, getShelf } from '@/data/shelves'
 import { pageMetadata, summarize } from '@/lib/seo'
 import Reveal from '@/components/ui/Reveal'
+import LogEntryItem, { Timeline } from '@/components/log/LogEntryItem'
+import { getRecentActivity } from '@/lib/build-log'
 
 interface BuildPageProps {
   params: Promise<{ slug: string }>
@@ -15,6 +17,9 @@ interface BuildPageProps {
 
 // The builds list is static: any other slug is a plain 404.
 export const dynamicParams = false
+
+// "Recent activity" comes from the build log (GitHub), refreshed hourly.
+export const revalidate = 3600
 
 export function generateStaticParams() {
   return builds.map(b => ({ slug: b.slug }))
@@ -40,6 +45,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
   if (!build) notFound()
 
   const shelf = shelfMeta[getShelf(build)]
+  const activity = await getRecentActivity(slug)
 
   return (
     <>
@@ -201,6 +207,34 @@ export default async function BuildPage({ params }: BuildPageProps) {
               </ol>
             </section>
           </Reveal>
+
+          {/* Recent activity, from the build log */}
+          {activity.length > 0 && (
+            <Reveal>
+              <section className="mt-12" aria-labelledby="activity-heading">
+                <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+                  <h2 id="activity-heading" className="text-2xl font-bold tracking-tight">
+                    Recent{' '}
+                    <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                      activity
+                    </span>
+                  </h2>
+                  <Link
+                    href={`/builds?build=${build.slug}#activity`}
+                    className="-my-2.5 inline-flex items-center gap-1.5 py-2.5 text-sm font-semibold text-slate-400 transition-colors hover:text-cyan-300"
+                  >
+                    Full log for {build.name}
+                    <FiArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+                <Timeline className="mt-6">
+                  {activity.map((entry) => (
+                    <LogEntryItem key={entry.id} entry={entry} buildName={build.name} showBuild={false} />
+                  ))}
+                </Timeline>
+              </section>
+            </Reveal>
+          )}
 
           {/* Footer nav */}
           <footer className="mt-16 pt-8 border-t border-white/8 flex flex-wrap items-center justify-between gap-4">
