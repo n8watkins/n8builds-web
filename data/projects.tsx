@@ -258,6 +258,57 @@ export const projects = [
     },
     liveSite: 'https://uv-activity-planner.web.app',
   },
+  {
+    id: 8,
+    title: 'n8builds.dev',
+    subTitle: 'This Site, Tested Like a Product',
+    des: 'This site: builds, the N8 Notions blog and the Loadout, with every pull request tested on five browsers.',
+    images: ['/builds/n8builds/home-hero.webp'],
+    technologies: {
+      Frontend: {
+        descriptionParts: [
+          {
+            text: 'App Router in strict TypeScript: static build pages, an hourly-revalidated blog',
+            icons: [{ icon: 're.svg' }, { icon: 'next.svg' }, { icon: 'ts.svg' }],
+          },
+          {
+            text: 'Tailwind 4 styling, with reduced motion honored everywhere',
+            icons: [{ icon: 'tail.svg' }],
+          },
+        ],
+      },
+      Backend: {
+        descriptionParts: [
+          {
+            text: 'Blog posts from Sanity, published without a deploy',
+            icons: [{ icon: 'sanity.svg' }],
+          },
+          {
+            text: 'Contact form behind Turnstile and Upstash rate limits, failing closed',
+            icons: [{ icon: 'turnstile.svg' }, { icon: 'upstash.svg' }],
+          },
+          {
+            text: 'Errors and CSP violation reports in Sentry',
+            icons: [{ icon: 'sentry.svg' }],
+          },
+        ],
+      },
+      Cloud: {
+        descriptionParts: [
+          {
+            text: 'Vercel hosting, deployed from main',
+            icons: [{ icon: 'vercel.png' }],
+          },
+          {
+            text: 'Unit, E2E and Lighthouse checks in GitHub Actions on every pull request',
+            icons: [{ icon: 'vitest.svg' }, { icon: 'github.png' }],
+          },
+        ],
+      },
+    },
+    github: 'https://github.com/n8watkins/n8builds-web',
+    liveSite: 'https://n8builds.dev',
+  },
 ]
 
 export const techNameMapping = {
@@ -318,6 +369,11 @@ export const techNameMapping = {
   'turso.svg': 'Turso',
   'gemini.svg': 'Gemini',
   'cloudflare.svg': 'Cloudflare R2',
+  'turnstile.svg': 'Cloudflare Turnstile',
+  'sanity.svg': 'Sanity',
+  'upstash.svg': 'Upstash Redis',
+  'sentry.svg': 'Sentry',
+  'vitest.svg': 'Vitest',
   'express.svg': 'Express.js',
   'axios.svg': 'Axios',
   'sentry.png': 'Sentry',
