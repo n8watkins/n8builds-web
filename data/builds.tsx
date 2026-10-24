@@ -27,30 +27,6 @@ export interface Build {
 
 export const builds: Build[] = [
   {
-    slug: 'chrome-extension-kit',
-    name: 'Chrome Extension Launch Kit',
-    tagline: 'Config-driven Manifest V3 starter',
-    category: 'Starter template',
-    tags: ['WXT', 'React', 'MV3'],
-    color: 'from-blue-500/20 to-cyan-600/20',
-    problem:
-      'Every new Chrome extension restarts from the same boilerplate: popup and options scaffolding, a settings system, a permissions story, a data inventory, and a release-readiness checklist - rebuilt slightly worse each time.',
-    solution:
-      'A config-driven Manifest V3 starter built on WXT, React, and TypeScript. Clone it, run setup, and edit one file - extension.config.ts - which controls project metadata, tier, links, permissions, capabilities, data inventory, and developer panels.',
-    stack: [
-      { name: 'WXT', detail: 'MV3 build tooling, dev server, and zip packaging' },
-      { name: 'React · TypeScript', detail: 'Structured popup and options pages' },
-      { name: 'extension.config.ts', detail: 'Single config file driving the whole template' },
-    ],
-    process: [
-      'Three deliberate quality tiers - Internal, Public Source, Public Product - so a weekend tool and a Web Store release have different (documented) bars.',
-      'V1 is intentionally a template, not a builder: no analytics, no feedback backend, no store automation. Boundaries are written down in the PRD.',
-      'A check:extension health command verifies the config and release readiness before shipping.',
-      'Born from the patterns repeated across Piper TTS, TL;DW, and TubeVault - this kit is those lessons, extracted.',
-    ],
-    images: [],
-  },
-  {
     slug: 'piper-tts',
     name: 'Piper TTS',
     tagline: 'Fully local read-aloud for Chrome',
@@ -229,6 +205,31 @@ export const builds: Build[] = [
  * - VibeLog: paused 2026-10-22 until it's ready to show again.
  */
 export const hiddenBuilds: Build[] = [
+  // On hold (2026-10-23): the owner is deciding what to do with it; its repo is private.
+  {
+    slug: 'chrome-extension-kit',
+    name: 'Chrome Extension Launch Kit',
+    tagline: 'Config-driven Manifest V3 starter',
+    category: 'Starter template',
+    tags: ['WXT', 'React', 'MV3'],
+    color: 'from-blue-500/20 to-cyan-600/20',
+    problem:
+      'Every new Chrome extension restarts from the same boilerplate: popup and options scaffolding, a settings system, a permissions story, a data inventory, and a release-readiness checklist - rebuilt slightly worse each time.',
+    solution:
+      'A config-driven Manifest V3 starter built on WXT, React, and TypeScript. Clone it, run setup, and edit one file - extension.config.ts - which controls project metadata, tier, links, permissions, capabilities, data inventory, and developer panels.',
+    stack: [
+      { name: 'WXT', detail: 'MV3 build tooling, dev server, and zip packaging' },
+      { name: 'React · TypeScript', detail: 'Structured popup and options pages' },
+      { name: 'extension.config.ts', detail: 'Single config file driving the whole template' },
+    ],
+    process: [
+      'Three deliberate quality tiers - Internal, Public Source, Public Product - so a weekend tool and a Web Store release have different (documented) bars.',
+      'V1 is intentionally a template, not a builder: no analytics, no feedback backend, no store automation. Boundaries are written down in the PRD.',
+      'A check:extension health command verifies the config and release readiness before shipping.',
+      'Born from the patterns repeated across Piper TTS, TL;DW, and TubeVault - this kit is those lessons, extracted.',
+    ],
+    images: [],
+  },
   {
     slug: 'vibelog',
     name: 'VibeLog',

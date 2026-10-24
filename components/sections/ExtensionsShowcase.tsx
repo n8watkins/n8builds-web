@@ -219,22 +219,6 @@ const ExtensionsShowcase = () => {
         ))}
       </div>
 
-      {/* Launch Kit banner */}
-      <Link
-        href="/builds/chrome-extension-kit"
-        className="group mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/8 bg-white/2 px-5 py-4 transition-all duration-200 hover:border-cyan-400/30 hover:bg-white/4"
-      >
-        <div className="flex items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-400/10 font-mono text-cyan-400">{'</>'}</span>
-          <div>
-            <p className="font-bold text-slate-100">Chrome Extension Launch Kit</p>
-            <p className="text-sm text-slate-450">The MV3 starter all three of these are built on - clone it and ship your own.</p>
-          </div>
-        </div>
-        <span className="flex items-center gap-1 font-mono text-sm text-slate-450 transition-colors group-hover:text-cyan-400">
-          view <FiArrowUpRight className="h-4 w-4" />
-        </span>
-      </Link>
     </section>
   )
 }

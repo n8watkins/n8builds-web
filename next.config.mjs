@@ -61,6 +61,9 @@ const nextConfig = {
       },
       // Appturnity's home is its own site, not a build page here.
       { source: '/builds/appturnity', destination: 'https://appturnity.com', permanent: true },
+      // On hold, not retired: temporary, so it can come back at the same URL.
+      { source: '/builds/chrome-extension-kit', destination: '/#extensions', permanent: false },
+      { source: '/builds/vibelog', destination: '/#lab', permanent: false },
       // RFC 9116: canonical lives at /.well-known/security.txt; redirect the
       // legacy root path some scanners still probe.
       { source: '/security.txt', destination: '/.well-known/security.txt', permanent: true },

@@ -151,6 +151,14 @@ test('retired routes redirect permanently', async ({ request }) => {
   }
 })
 
+test('builds on hold redirect temporarily, so they can come back at the same URL', async ({ request }) => {
+  for (const [path, target] of [['/builds/chrome-extension-kit', '/#extensions'], ['/builds/vibelog', '/#lab']]) {
+    const response = await request.get(path, { maxRedirects: 0 })
+    expect(response.status(), path).toBe(307)
+    expect(response.headers().location, path).toBe(target)
+  }
+})
+
 // A page that is only in the sitemap, with no link from the site, is an
 // orphan: crawlers rank it poorly and visitors can never reach it.
 test('every build page in the sitemap is linked from the homepage', async ({ request }) => {
