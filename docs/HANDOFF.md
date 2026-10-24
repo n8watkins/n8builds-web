@@ -213,7 +213,7 @@ Every free check runs before the first Upstash call, so requests without a solve
   The server SDK sends no stack-frame locals and drops contact-route request bodies (`lib/sentry-scrub.ts`).
 - `tests/unit/`, `tests/e2e/`, `playwright.config.ts`, `vitest.config.mts`.
 - `public/builds/<slug>/`: build icons and screenshots; `public/tab/`: favicons and OG image.
-- `docs/`: this file, `OWNER_TODO.md`, `prompts/review-and-improve.md` (ready-to-paste prompt for the next review pass), `prompts/review-2026-10-22-changes.md` (the 2026-10-22/23 review prompt, already run), `N8BUILDS_PLAN.md` (vision, IA and content inventory), `NEXT_STEPS.md` (the checklist), `BUILDS_LOG_PLAN.md`, `LIVE_STREAM_PLAN.md`, `CLOUDFLARE_SECURITY.md`, `archive/` (old handoffs, the blog implementation record).
+- `docs/`: this file, `OWNER_TODO.md`, `prompts/review-and-improve.md` (ready-to-paste prompt for the next review pass), `prompts/review-2026-10-22-changes.md` (the 2026-10-22/23 review prompt, already run), `N8BUILDS_PLAN.md` (vision, IA and content inventory), `NEXT_STEPS.md` (the checklist), `BUILDS_LOG_PLAN.md`, `LIVE_STREAM_PLAN.md`, `X_ARTICLES_PLAN.md`, `CLOUDFLARE_SECURITY.md`, `archive/` (old handoffs, the blog implementation record).
 - `docs/WEB_VITALS.md`: Web Vitals reporting, the dev HUD and GA events.
 
 ## Backlog

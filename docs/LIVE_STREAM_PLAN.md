@@ -1,4 +1,4 @@
-# Plan: live streams on n8builds.dev (Twitch and YouTube)
+# Plan: live streams on n8builds.dev (Twitch, YouTube and X)
 
 Written 2026-10-23, revised 2026-10-24.
 Status: planned; build it about a week before the first stream, so it can be tested against a real live session.
@@ -60,7 +60,25 @@ The player's code and the platform iframes load only when `/api/live` says you'r
 | iPhone fullscreen | Expanding the YouTube player on iOS opens the native fullscreen player | Expected iOS behavior |
 | API keys can be abused if exposed | Someone could burn your YouTube quota | Keys stay server-side in Vercel and are restricted to the YouTube Data API; the 60-second cache caps usage |
 
+## X (streaming on X)
+
+X is different from Twitch and YouTube, so it gets a different approach.
+
+- **No free way to detect it.** The X API has no free tier for new developers in 2026; it's pay-per-use (about $0.005 per post read, per third-party pricing write-ups; confirm on docs.x.com). Checking every minute would cost several dollars a day.
+- **No documented live embed.** X has no player embed like Twitch's or YouTube's; a live broadcast is a post, and X's post embed may or may not play it inline (to be tested during the build).
+
+The recommendation: **a "Go live" switch in the Sanity Studio**, which works for any platform, X included.
+
+- A single "Live status" document in the Studio: live on/off, platform (X, Twitch, YouTube, other), the link to the stream or post, and an optional title.
+- You flip it from the Sanity app on your phone when you go live on X; flipping it off ends it. It switches itself off after 12 hours in case you forget.
+- While it's on, the corner player shows an X card: the stream title, a "Watch on X" button, and the post embedded if X's embed plays it.
+- `n8builds.dev/live` and the navbar's X link follow it too.
+- The same switch works as a manual override for Twitch and YouTube if their automatic checks ever miss.
+- Cost: free (Sanity's free plan).
+
 ## Options considered and not recommended (for now)
+
+- **Detecting X streams with the paid X API:** works, but it costs money every minute of every day for something you flip twice per stream.
 
 - **YouTube detection with a Google sign-in (`liveBroadcasts.list`):** 1 unit a check, but it needs an OAuth app, and in Google's "testing" mode its refresh token expires every 7 days. The API-key method above avoids all of that for 1 extra unit.
 - **YouTube push notifications (WebSub):** near-instant, but it needs a public callback, a subscription that renews every few days, and storage; worth it only if the minute of delay ever matters.
@@ -75,16 +93,18 @@ The player's code and the platform iframes load only when `/api/live` says you'r
 2. **YouTube channel:** the channel you'll stream from (its handle or URL), with live streaming enabled in YouTube Studio (enabling it can take up to 24 hours the first time) and embedding left on for your streams.
 3. **YouTube API key** (about 5 minutes): console.cloud.google.com, create a project `n8builds-live`, enable "YouTube Data API v3", Credentials, Create credentials, API key, then restrict it to the YouTube Data API v3.
    Add it in Vercel as `YOUTUBE_API_KEY`.
-4. **Choices** (defaults in brackets): the default corner [bottom-right]; the preferred platform when live on both [Twitch]; player on every page or the homepage only [every page].
+4. **X:** confirm you stream from @n8watkins (already linked in the hero), and when you go live on X, flip the "Live status" switch in the Studio.
+5. **Choices** (defaults in brackets): the default corner [bottom-right]; the preferred platform when live on both [Twitch]; player on every page or the homepage only [every page].
 
 ## Build steps (Claude)
 
 1. `/api/live`: Twitch and YouTube checks, the 60-second cache, a test mode with fake live and offline answers.
 2. The floating player: tabs, controls, remembered choices, the phone pill, the "Watch on" buttons, the fallback card when an embed can't play.
 3. `/live` redirect page; navbar live dots; the YouTube link back in the navbar and `sameAs`.
-4. CSP (allow the two players as frames), privacy page paragraph.
-5. Tests: live on Twitch, on YouTube, on both, on neither; embed refused; phone; keyboard; reduced motion; Lighthouse on an offline page load stays unchanged.
-6. With you: a real test stream on each platform before the first public stream.
+4. The Sanity "Live status" switch (schema, Studio deploy, 12-hour auto-off) and the X card in the player.
+5. CSP (allow the players as frames), privacy page paragraph.
+6. Tests: live on Twitch, on YouTube, on both, on neither; embed refused; phone; keyboard; reduced motion; Lighthouse on an offline page load stays unchanged.
+7. With you: a real test stream on each platform before the first public stream.
    An API key only sees public videos, so for an unlisted YouTube test, `/api/live` accepts a temporary `LIVE_YOUTUBE_VIDEO_ID` override in Vercel; Twitch tests work as they are.
 
 Estimated effort: one working session once the credentials are in.
