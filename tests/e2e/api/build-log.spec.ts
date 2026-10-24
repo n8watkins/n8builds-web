@@ -39,7 +39,8 @@ test('the build log shares its own 1200x630 card', async ({ request }) => {
 
 test('the build log is server-rendered: the index and the feed are in the HTML', async ({ request }) => {
   const html = await (await request.get('/builds')).text()
-  expect(html).toContain('Last shipped Oct 2026')
+  // "Last shipped <span>Oct 2026</span>" on the most recently active card.
+  expect(html).toMatch(/Last shipped <span[^>]*>Oct 2026<\/span>/)
   expect(html).toContain('TL;DW 1.0 is packaged for the Chrome Web Store')
   expect(html).not.toContain('sync portfolios from upstream')
 })
