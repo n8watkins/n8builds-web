@@ -18,7 +18,7 @@ The owner will post rarely, so the page fills itself from GitHub activity, and h
 | TL;DW | `tl-dw` | public | 2026-07-21 | 0 | about 95% conventional (`feat:`, `fix:`, `docs:`) |
 | TubeVault | `tube-vault` | public | 2026-07-22 | 0 | about 98% conventional; versions are commits like `build(tube-vault): v0.3.80` |
 | Piper TTS | `piper-tts` | public | 2026-06-07 | 0 | plain sentences ("Lower first-sentence latency: ...") |
-| Chrome Extension Launch Kit | `chrome-extension-launch-kit` | private | 2026-06-06 | 0 | plain sentences |
+| Chrome Extension Launch Kit | `chrome-extension-launch-kit` | private | 2026-06-06 | 0 | plain sentences; **on hold** (see below) |
 
 What this means for the design:
 
@@ -90,14 +90,14 @@ Estimated effort: one working session.
 
 ## What the owner needs to do
 
-1. **Create a GitHub token** (needed for the private Launch Kit repo and for a reliable rate limit on Vercel):
+1. **Create a GitHub token** (needed for a reliable rate limit on Vercel):
    - GitHub, Settings, Developer settings, Fine-grained personal access tokens, Generate new token.
    - Name it `n8builds-web build log`, expiry one year, resource owner `n8watkins`.
-   - Repository access: "Only select repositories": `scribe`, `solara`, `portfolio-rank`, `tl-dw`, `tube-vault`, `piper-tts`, `chrome-extension-launch-kit`.
+   - Repository access: "Only select repositories": `scribe`, `solara`, `portfolio-rank`, `tl-dw`, `tube-vault`, `piper-tts`.
    - Permissions: Repository permissions, **Contents: Read-only** (Metadata: Read-only is added automatically). Nothing else.
 2. **Give it to Claude or add it yourself:** either paste it into a local terminal with `! vercel env add GITHUB_TOKEN production` (then preview), or add `GITHUB_TOKEN` in Vercel, Project `n8builds-web`, Settings, Environment Variables, for Production and Preview.
    Never paste it into chat.
 3. **Two decisions:**
    - Solara's repo is public again (it was private on 2026-10-22, which is why its GitHub link was removed). Should the link come back?
-   - Should the private Launch Kit's commit messages appear on the public log? They would be visible even though the repo isn't. The default is releases and dates only for private repos.
+   - **On hold (2026-10-23):** the Chrome Extension Launch Kit stays out of the log for now; the owner is deciding what to do with it (its repo is private, and the homepage banner's claim that the three extensions are built on it may not be accurate).
 4. **Optional:** post one highlight in the Studio after launch, so the feed has a hand-written entry to show the style.
