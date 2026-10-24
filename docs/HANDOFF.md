@@ -26,6 +26,8 @@ Strategy and IA: `docs/N8BUILDS_PLAN.md`.
 - **Status (2026-10-23):** everything is pushed and live, including the 2026-10-23 homepage rework.
   The review of the 2026-10-22/23 work (`docs/prompts/review-2026-10-22-changes.md`) ran on 2026-10-23; its fixes (Solara's private-repo link, 320px hero, modal mobile menu, em-dash sweep, blog fact fixes) are shipped.
 - **Next session:** work through `docs/NEXT_STEPS.md`, the step-by-step checklist of what's left and what's needed from the owner.
+- **Sharing posts:** every post ends with "Share this note": "Share on X" opens X compose with the title, the canonical link and `via=n8watkins` (free; no X API), and "Copy link" copies the canonical URL (`components/blog/ShareBar.tsx`).
+  Automatic posting to X is a separate, paid option (`docs/X_ARTICLES_PLAN.md`).
 - **Scroll reveals:** sections below the fold fade up once as they scroll in (`components/ui/Reveal.tsx`, preset `reveal` in `lib/animations.ts`; homepage bands, Lab parts, build-page sections, blog gallery and related posts, loadout sections).
   Never wrap the hero or anything above the fold: an element at opacity 0 can't be the LCP, so it delays it (the /blog grid is left out for that reason).
 - **Hero layout:** the hero content is top-aligned, not vertically centered, and the ambient glows mount after hydration: both caused layout shift on slow devices (Nightly Lighthouse CLS 0.29). Keep it that way.
