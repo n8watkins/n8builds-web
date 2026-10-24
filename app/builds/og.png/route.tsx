@@ -8,9 +8,11 @@ export const dynamic = 'force-static'
 export async function GET() {
   return shareCard({
     seed: 'build-log',
-    eyebrow: 'Build log',
-    title: 'What shipped, month by month',
-    subtitle: 'Releases and changes across every n8builds project, straight from GitHub.',
+    // The cyan accent of the site, as on "building in public" posts.
+    topic: 'building-in-public',
+    eyebrow: 'Shipping, from GitHub',
+    title: 'The build log',
+    subtitle: 'What shipped across every n8builds project, month by month, straight from GitHub.',
     footer: 'n8builds.dev/builds',
   })
 }
