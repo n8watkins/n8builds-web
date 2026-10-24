@@ -83,8 +83,8 @@ Lighthouse: `npm run build && npm run lighthouse` (`LIGHTHOUSE_PORT`, default 37
 It audits four pages three times each, checks the medians against the budgets in `scripts/lighthouse.mjs`, and writes HTML reports to `.lighthouse/`.
 Under WSL, set `CHROME_PATH` to a Linux Chrome.
 
-CI runs lint, type-check, unit tests and E2E (API + Chromium) on every push to `main` and every PR.
-A nightly workflow runs E2E on every browser and the Lighthouse budgets.
+CI (GitHub Actions) runs on every push to `main` and every pull request: lint, type-check and unit tests, the E2E suite on all six Playwright projects as parallel jobs, and the Lighthouse budgets.
+A nightly workflow reruns the full suite against `main`, since blog content in Sanity changes without a commit.
 
 ## Contact form
 

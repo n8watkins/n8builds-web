@@ -62,7 +62,8 @@ E2E details:
 
 CI (`.github/workflows/`):
 
-- `ci.yml` on every push to `main` and every PR: lint, type-check, unit tests, then E2E (API + Chromium).
+- `ci.yml` on every push to `main` and every PR: lint, type-check, unit tests; E2E on all six Playwright projects as parallel jobs (each builds the app in test mode); Lighthouse budgets.
+- Work goes through pull requests (see `docs/BUILD_PLAN.md`); full browser runs happen in Actions, not on the dev machine.
 - `nightly.yml` at 09:00 UTC and on demand: E2E on every browser project, and Lighthouse budgets (`npm run lighthouse`).
 
 ## Contact form
