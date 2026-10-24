@@ -52,6 +52,9 @@ export default defineConfig({
       TURNSTILE_SECRET_KEY: '1x0000000000000000000000000000000AA',
       NEXT_PUBLIC_SITE_URL: 'https://n8builds.dev',
       NEXT_PUBLIC_SANITY_PROJECT_ID: 'abgyc32w',
+      // The build log reads its recorded GitHub fixture, never live GitHub.
+      BUILD_LOG_FIXTURE: '1',
+      GITHUB_TOKEN: '',
       // Explicitly blank so values in .env.local can't leak into test builds.
       NEXT_PUBLIC_GA_ID: '',
       NEXT_PUBLIC_SENTRY_DSN: '',

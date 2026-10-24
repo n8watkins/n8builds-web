@@ -23,6 +23,18 @@ export interface Build {
   images: BuildImage[]
   github?: string
   liveSite?: string
+  /**
+   * The GitHub repo (`owner/name`) that feeds this build's entries in the
+   * /builds log. The builds with a `repo` are the single list of tracked repos
+   * (scripts/check-build-repos.mjs reads it too).
+   */
+  repo?: string
+  /**
+   * What the log shows from `repo`: `commits` (the default) shows releases and
+   * the filtered commits between them, `releases` only releases (GitHub
+   * Releases and version-bump commits), `off` nothing.
+   */
+  log?: 'releases' | 'commits' | 'off'
 }
 
 export const builds: Build[] = [
@@ -56,6 +68,7 @@ export const builds: Build[] = [
       { src: '/builds/piper-tts/options-settings.png', alt: 'Piper TTS options - settings tab with fallback and shortcuts' },
     ],
     github: 'https://github.com/n8watkins/piper-tts',
+    repo: 'n8watkins/piper-tts',
   },
   {
     slug: 'tldw',
@@ -80,6 +93,7 @@ export const builds: Build[] = [
     ],
     images: [],
     github: 'https://github.com/n8watkins/tl-dw',
+    repo: 'n8watkins/tl-dw',
   },
   {
     slug: 'tubevault',
@@ -111,6 +125,7 @@ export const builds: Build[] = [
       { src: '/builds/tubevault/tubevault-options-setup.png', alt: 'TubeVault options - setup checklist' },
     ],
     github: 'https://github.com/n8watkins/tube-vault',
+    repo: 'n8watkins/tube-vault',
   },
   {
     slug: 'scribe',
@@ -138,6 +153,9 @@ export const builds: Build[] = [
     images: [],
     github: 'https://github.com/n8watkins/scribe',
     liveSite: 'https://scribe.n8builds.dev',
+    repo: 'n8watkins/scribe',
+    // Scribe publishes a GitHub Release for every version; those tell its story.
+    log: 'releases',
   },
   {
     slug: 'solara',
@@ -166,6 +184,7 @@ export const builds: Build[] = [
     ],
     images: [{ src: '/builds/solara/og-image.png', alt: 'Solara - know your sun window' }],
     liveSite: 'https://uv-activity-planner.web.app',
+    repo: 'n8watkins/solara',
   },
   {
     slug: 'portfolio-rank',
@@ -196,6 +215,7 @@ export const builds: Build[] = [
     images: [],
     github: 'https://github.com/n8watkins/portfolio-rank',
     liveSite: 'https://portfoliorank.vercel.app',
+    repo: 'n8watkins/portfolio-rank',
   },
   {
     // This site. Every claim here is checked against the repo (tests, CI, headers,

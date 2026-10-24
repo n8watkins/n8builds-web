@@ -45,7 +45,7 @@ Ordered by value.
 
 | # | Build | Ready now? | Waits on | Plan |
 |---|---|---|---|---|
-| 1 | **The build log** (`/builds`): builds index sorted by activity, monthly feed from GitHub releases and commits, build-page "Recent activity", navbar "Log" link, nightly check of the tracked repos | Yes (the GitHub token is set) | Nothing | [BUILDS_LOG_PLAN.md](BUILDS_LOG_PLAN.md) |
+| 1 | **The build log** (`/builds`): builds index sorted by activity, monthly feed from GitHub releases and commits, build-page "Recent activity", navbar "Log" link, nightly check of the tracked repos | Built; in review on `feat/build-log` | Merge; then the Studio's `logEntry` schema for highlights | [BUILDS_LOG_PLAN.md](BUILDS_LOG_PLAN.md) |
 | 2 | **Live streams, part 1:** the floating corner player (tabs, unmute, expand, move, minimize, close, phone pill), "Watch on Twitch / YouTube / X" buttons, the `n8builds.dev/live` share link, navbar live dots, and the Sanity "Live status" switch (works for X and as a manual override) | Yes, against fake live data and the Studio switch | Nothing to build; Twitch and YouTube detection switch on when their keys arrive | [LIVE_STREAM_PLAN.md](LIVE_STREAM_PLAN.md) |
 | 3 | **Live streams, part 2:** automatic Twitch and YouTube detection, the YouTube link back in the navbar | No | Twitch app, YouTube channel and API key (B) | [LIVE_STREAM_PLAN.md](LIVE_STREAM_PLAN.md) |
 | 4 | **Done (#12):** **a build page for n8builds itself:** tests on five browsers, security headers and CSP, near-perfect Lighthouse scores, the agent-driven workflow, the release standard | Yes | Nothing | - |

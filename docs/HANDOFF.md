@@ -22,7 +22,7 @@ Strategy and IA: `docs/N8BUILDS_PLAN.md`.
 
 - Live at https://n8builds.dev on Vercel (project `n8builds-web`, team natkins23s-projects), auto-deploying from `main`.
 - Stack: Next.js 16 (App Router, webpack build), React 19, TypeScript, Tailwind 4 (configured in `app/globals.css`; there is no `tailwind.config`), Motion (`motion/react`; not framer-motion), Sanity (blog), Nodemailer + Gmail SMTP, Cloudflare Turnstile, Upstash Redis (rate limits), Sentry, GA4, Vercel Speed Insights.
-- Pages: `/` (hero, "What I'm working on", the Lab, notions, stack, work-with-me, contact, each in its own full-width band), `/blog` + `/blog/[slug]` (N8 Notions, ISR hourly), `/builds/[slug]`, `/loadout`, `/privacy`.
+- Pages: `/` (hero, "What I'm working on", the Lab, notions, stack, work-with-me, contact, each in its own full-width band), `/blog` + `/blog/[slug]` (N8 Notions, ISR hourly), `/builds` (the build log, ISR hourly), `/builds/[slug]`, `/loadout`, `/privacy`.
 - **Status (2026-10-23):** everything is pushed and live, including the 2026-10-23 homepage rework.
   The review of the 2026-10-22/23 work (`docs/prompts/review-2026-10-22-changes.md`) ran on 2026-10-23; its fixes (Solara's private-repo link, 320px hero, modal mobile menu, em-dash sweep, blog fact fixes) are shipped.
 - **Next session:** work through `docs/NEXT_STEPS.md`, the step-by-step checklist of what's left and what's needed from the owner.
@@ -66,7 +66,42 @@ CI (`.github/workflows/`):
 
 - `ci.yml` on every push to `main` and every PR: lint, type-check, unit tests; E2E on all six Playwright projects as parallel jobs (each builds the app in test mode); Lighthouse budgets.
 - Work goes through pull requests (see `docs/BUILD_PLAN.md`); full browser runs happen in Actions, not on the dev machine.
-- `nightly.yml` at 09:00 UTC and on demand: E2E on every browser project, and Lighthouse budgets (`npm run lighthouse`).
+- `nightly.yml` at 09:00 UTC and on demand: E2E on every browser project, Lighthouse budgets (`npm run lighthouse`), and the build log's repo check (`scripts/check-build-repos.mjs`, see "Build log").
+
+## Build log (`/builds`)
+
+The page shows what shipped across the builds without anyone posting: it fills itself from GitHub, and hand-written Sanity highlights are an occasional extra.
+Plan and rationale: `docs/BUILDS_LOG_PLAN.md`.
+
+- **Where it comes from:** every build in `data/builds.tsx` with a `repo` (`owner/name`) is tracked; that list is the single list of tracked repos.
+  `lib/build-log.ts` fetches each repo's releases and the owner's last 100 commits on the default branch (asking for the owner's commits keeps Portfolio Rank visible: its newest 100 commits are all daily bot syncs).
+  It uses `GITHUB_TOKEN` (a fine-grained read-only token, set in Vercel and `.env.local`); without one it makes anonymous requests under `next dev` only.
+- **Freshness and failures:** `/builds`, the build pages and the sitemap revalidate hourly, and the GitHub fetches sit in Next's fetch cache for an hour.
+  Only successful responses are cached, so a GitHub error never replaces good data.
+  A repo that fails with nothing cached is left out; if every repo fails on a revalidation, the render throws and ISR keeps serving the last good page.
+  A build never fails because of GitHub (it renders what it has).
+- **Filter rules** (`classifyCommit` in `lib/build-log.ts`):
+  - Dropped: bot authors (`[bot]`), merge commits, Conventional Commit types other than `feat`, `fix`, `perf` and `security` (so `docs`, `chore`, `test`, `ci`, `build`, `style`, `refactor`, `release`...), and anything mentioning repo upkeep (HANDOFF, README, CHANGELOG, LICENSE, docs, tests, e2e, lint, CI, code-review findings, the privacy policy).
+  - Kept: `feat`, `fix`, `perf` and `security` commits, plain sentences that start with a verb from the `VERBS` list (Add, Ship, Launch, Support, Make, Fix...; upkeep verbs like Update, Upgrade, Bump, Remove are not on it), and "Feature area: what changed" headers with a capitalised area.
+  - Cleaned: the type prefix, trailing PR numbers and work-item codes (`(#69)`, `(W4-E)`) are stripped, the first letter is capitalised, em dashes become plain dashes, and long messages are cut at 110 characters.
+  - Collapsed: one entry per build per day (Los Angeles time), showing the strongest message (feat and plain "Add"-style verbs beat fixes; the newest wins a tie) plus "and N more changes".
+  - Releases: GitHub Releases (not drafts or prereleases) and version-bump commits (`build(tube-vault): v0.3.80`, `chore(release): v1.2.0`, `v1.0.6: notes`) become "Shipped vX.Y.Z", one per day (the highest version), detailed by the version's notes or the day's strongest change.
+    A release always outranks that day's commits, and a GitHub Release and its release commit count once.
+- **Per-build switch:** `log: 'releases'` on a build shows only its releases (Scribe uses it: its GitHub Releases tell the story); `log: 'off'` hides it from the log; the default is `'commits'`.
+  To switch a repo to releases-only, set `log: 'releases'` on its entry in `data/builds.tsx`.
+  A build without a `repo` (n8builds itself) or with `log: 'off'` is left out of the log entirely, index and feed, rather than shown as "nothing logged".
+  Builds without a public `github` link (Solara today) get no links into their repo.
+- **Highlights:** a Sanity `logEntry` document (date, build slug, title up to 90 characters, optional note, link and image, kind: shipped / fixed / learned / next) is pinned above the automatic entries of its month and styled as featured.
+  **The Studio does not have the `logEntry` schema yet**; until it does there are simply no highlights (the page handles zero).
+  To post one once the schema exists: Studio, Log entry, fill it in, publish; it appears within the hour.
+- **Page:** a builds index (most recently active first; "Last shipped Oct 2026", never "N months ago", so quiet builds read as finished) and a month-by-month feed with a build filter kept in the URL (`/builds?build=scribe#activity`), opening on the 12 months up to the newest entry with "Show older entries" for the rest.
+  Each build page has "Recent activity" (its newest five entries) linking to its filtered log.
+  The feed is a client component under `Suspense` (it reads `useSearchParams`), so the prerendered HTML carries the unfiltered feed and the filter applies on hydration.
+- **Tests:** `BUILD_LOG_FIXTURE=1` swaps both fetchers for `tests/fixtures/build-log-github.json`, real commits and releases recorded from the six repos plus one sample highlight; Playwright and the Lighthouse jobs set it, so tests never call GitHub.
+  Refresh the fixture with `GITHUB_TOKEN=... node scripts/build-log-fixture.mjs` (then update the expectations in `tests/unit/build-log.test.ts` and `tests/e2e/build-log.spec.ts`).
+- **Monitoring:** the nightly `Build log repos` job runs `scripts/check-build-repos.mjs`: per repo, the latest release, release-kit adoption (`scripts/release-kit/VERSION`) and how many of the newest 20 commits pass the release-kit commit check.
+  It fails only when a repo can't be read.
+  It uses the `BUILD_LOG_GITHUB_TOKEN` repo secret if set (to also catch the site's token expiring), else the workflow's own token.
 
 ## Contact form
 
@@ -215,6 +250,7 @@ Every free check runs before the first Upstash call, so requests without a solve
 - `lib/security/`: `rateLimiter.ts`, `turnstile.ts`, `validation.ts`, `testMode.ts`.
 - `lib/email/`: `smtp.ts` (transport + `EMAIL_CONFIG`), `sender.ts`, `templates.ts`, `icons.ts` (generated).
 - `lib/seo.ts`: `pageMetadata()`, `summarize()`, JSON-LD builders; `lib/og-card.tsx`: share-card renderer.
+- `lib/build-log.ts`, `components/log/`, `app/builds/page.tsx`, `app/builds/og.png/`: the build log; `scripts/check-build-repos.mjs` (nightly repo check) and `scripts/build-log-fixture.mjs` (records the test fixture).
 - `next.config.mjs`: redirects (permanent 308s for retired routes), image sources, Sentry wrapper; headers come from `lib/security/headers.mjs` (enforced CSP: add any new third-party origin there).
 - `instrumentation*.ts`, `sentry.*.config.ts`: Sentry (inert without a DSN).
   The browser SDK posts to `/monitoring` (`app/monitoring/route.ts`), which forwards only envelopes for our own DSN; the SDK's `tunnelRoute` rewrite was an open relay to any Sentry project.
@@ -229,7 +265,7 @@ Every free check runs before the first Upstash call, so requests without a solve
 Feature work, roughly in priority order:
 
 1. Real screenshots for TL;DW and Scribe in `public/builds/<slug>/`; a real mark for Portfolio Rank.
-2. A `/builds` log index page (journal "heartbeat") and a "Log" nav item; detail pages already exist.
+2. The Studio's `logEntry` schema for build log highlights (see "Build log"), then `npx sanity deploy`.
 3. Keep the loadout data current.
 4. Bring VibeLog back from `hiddenBuilds` when it comes off hiatus (see "Hidden builds" above), and mention it again in the Welcome post if it fits.
 5. Live streams on the site: a floating corner player for Twitch and YouTube that appears only while live, plus navbar live dots; plan in `docs/LIVE_STREAM_PLAN.md`. Re-add YouTube when its channel is live.

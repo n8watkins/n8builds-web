@@ -76,6 +76,8 @@ jobs:
       TURNSTILE_SECRET_KEY: 1x0000000000000000000000000000000AA
       NEXT_PUBLIC_SITE_URL: https://n8builds.dev
       NEXT_PUBLIC_SANITY_PROJECT_ID: abgyc32w
+      # The build log audits against its recorded GitHub fixture.
+      BUILD_LOG_FIXTURE: '1'
       LIGHTHOUSE_PORT: '3747'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

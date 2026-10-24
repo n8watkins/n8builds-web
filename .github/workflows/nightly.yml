@@ -9,6 +9,23 @@ permissions:
   contents: read
 
 jobs:
+  build-repos:
+    name: Build log repos
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      # Reports each tracked repo's latest release, release-kit adoption and
+      # commit-check pass rate; fails only when a repo can't be read. With the
+      # BUILD_LOG_GITHUB_TOKEN secret set (the same token as Vercel's
+      # GITHUB_TOKEN), it also catches that token expiring.
+      - run: node scripts/check-build-repos.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.BUILD_LOG_GITHUB_TOKEN || github.token }}
+
   e2e-all-browsers:
     name: E2E (all browsers)
     runs-on: ubuntu-latest
@@ -42,6 +59,8 @@ jobs:
       TURNSTILE_SECRET_KEY: 1x0000000000000000000000000000000AA
       NEXT_PUBLIC_SITE_URL: https://n8builds.dev
       NEXT_PUBLIC_SANITY_PROJECT_ID: abgyc32w
+      # The build log audits against its recorded GitHub fixture.
+      BUILD_LOG_FIXTURE: '1'
       LIGHTHOUSE_PORT: '3747'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

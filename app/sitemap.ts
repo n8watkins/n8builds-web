@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { builds } from '@/data/builds'
+import { getBuildLog } from '@/lib/build-log'
 import { getAllPosts } from '@/lib/sanity'
 import { SITE_URL } from '@/lib/seo'
 
@@ -9,8 +10,9 @@ import { SITE_URL } from '@/lib/seo'
 export const revalidate = 3600
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const posts = await getAllPosts()
+  const [posts, log] = await Promise.all([getAllPosts(), getBuildLog()])
   const latestPostEdit = posts.map((p) => p._updatedAt).sort().at(-1)
+  const latestLogEntry = log.entries.map((e) => e.date).sort().at(-1)
 
   // Pages without a real modification date leave lastModified out rather
   // than claiming the build time, which teaches crawlers to ignore it.
@@ -21,6 +23,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${SITE_URL}/blog`,
       lastModified: latestPostEdit ? new Date(latestPostEdit) : undefined,
       changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      url: `${SITE_URL}/builds`,
+      lastModified: latestLogEntry ? new Date(latestLogEntry) : undefined,
+      changeFrequency: 'daily',
       priority: 0.8,
     },
     ...builds.map((build) => ({

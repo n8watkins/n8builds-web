@@ -117,12 +117,12 @@ test('an unknown build is a server-rendered 404, not an empty shell', async ({ r
   expect(html).toContain('Nothing in the lab at this address')
 })
 
-test('the sitemap dates only posts, by their last edit', async ({ request }) => {
+test('the sitemap dates only pages with a real last edit', async ({ request }) => {
   const xml = await (await request.get('/sitemap.xml')).text()
-  // Only posts (and the blog index) carry a real modification date.
+  // Only posts, the blog index and the build log (its newest entry) carry a real modification date.
   const dated = [...xml.matchAll(/<url>\s*<loc>([^<]+)<\/loc>\s*<lastmod>/g)].map((m) => m[1])
   expect(dated.length).toBeGreaterThan(1)
-  for (const url of dated) expect(url, 'only blog URLs have lastmod').toMatch(/\/blog(\/|$)/)
+  for (const url of dated) expect(url, 'only blog URLs and the build log have lastmod').toMatch(/\/blog(\/|$)|\/builds$/)
 })
 
 function jsonLd(html: string): Record<string, unknown>[] {
