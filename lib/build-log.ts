@@ -395,13 +395,20 @@ export function buildActivity(builds: Build[], entries: LogEntry[], pushedAt: Re
   return rows.sort((a, b) => b.sortKey.localeCompare(a.sortKey) || a.index - b.index).map((r) => r.row)
 }
 
+/** Whether the log follows a build: it has a repo and its log isn't off. */
+export const isTracked = (build: Pick<Build, 'repo' | 'log'>) => !!build.repo && build.log !== 'off'
+
 /** Put the whole log together from what the fetchers returned. */
 export function assembleLog(builds: Build[], snapshots: RepoSnapshot[], highlights: Highlight[]): BuildLog {
   const byRepo = new Map(snapshots.map((s) => [s.repo, s]))
-  const slugs = builds.map((b) => b.slug)
+  // Only tracked builds appear: one without a repo (or with its log off) would
+  // only ever say "nothing logged", which reads as abandoned, and its
+  // highlights would have no chip or name in the feed.
+  const tracked = builds.filter(isTracked)
+  const slugs = tracked.map((b) => b.slug)
 
-  const automatic = builds.flatMap((build) => {
-    const snapshot = build.repo ? byRepo.get(build.repo) : undefined
+  const automatic = tracked.flatMap((build) => {
+    const snapshot = byRepo.get(build.repo!)
     return snapshot ? entriesForBuild(build, snapshot) : []
   })
   const pinned = highlights.filter((h) => slugs.includes(h.build)).map(highlightEntry)
@@ -409,7 +416,7 @@ export function assembleLog(builds: Build[], snapshots: RepoSnapshot[], highligh
 
   return {
     entries,
-    activity: buildActivity(builds, entries, Object.fromEntries(snapshots.map((s) => [s.repo, s.pushedAt]))),
+    activity: buildActivity(tracked, entries, Object.fromEntries(snapshots.map((s) => [s.repo, s.pushedAt]))),
     months: Object.fromEntries([...new Set(entries.map((e) => e.month))].map((m) => [m, monthLabel(m)])),
     recentFrom: recentFrom(entries),
   }
@@ -540,7 +547,7 @@ function fetchers() {
  */
 export const getBuildLog = cache(async (): Promise<BuildLog> => {
   const source = fetchers()
-  const tracked = allBuilds.filter((b) => b.repo && b.log !== 'off')
+  const tracked = allBuilds.filter(isTracked)
   const [results, highlights] = await Promise.all([
     Promise.allSettled(tracked.map((b) => source.snapshot(b.repo!))),
     source.highlights(),

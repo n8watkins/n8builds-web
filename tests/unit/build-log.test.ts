@@ -250,10 +250,23 @@ describe('entries for a build', () => {
 describe('merging, sorting and the builds index', () => {
   const log = assembleLog(builds, snapshots, highlights)
 
-  it('tracks every visible build and none of the hidden ones', () => {
-    expect(builds.map((b) => b.repo)).toEqual(builds.map((b) => expect.stringMatching(/^n8watkins\/[\w-]+$/)))
+  it('tracks the visible builds with a repo, and none of the hidden ones', () => {
+    const tracked = builds.filter((b) => b.repo)
+    expect(tracked.map((b) => b.slug)).toEqual(['piper-tts', 'tldw', 'tubevault', 'scribe', 'solara', 'portfolio-rank'])
+    expect(tracked.every((b) => /^n8watkins\/[\w-]+$/.test(b.repo!))).toBe(true)
     expect(hiddenBuilds.every((b) => !b.repo)).toBe(true)
-    expect(new Set(log.entries.map((e) => e.build))).toEqual(new Set(builds.map((b) => b.slug)))
+    expect(new Set(log.entries.map((e) => e.build))).toEqual(new Set(tracked.map((b) => b.slug)))
+  })
+
+  it('leaves untracked builds out of the index, rather than showing them as empty', () => {
+    // n8builds itself is a build page, not a tracked repo.
+    expect(build('n8builds').repo).toBeUndefined()
+    expect(log.activity.map((a) => a.slug)).not.toContain('n8builds')
+    const off = { ...build('tldw'), log: 'off' as const }
+    const without = assembleLog([...builds.filter((b) => b.slug !== 'tldw'), off], snapshots, highlights)
+    expect(without.activity.map((a) => a.slug)).not.toContain('tldw')
+    // Nor its highlights: the feed has no chip or name for it.
+    expect(without.entries.some((e) => e.build === 'tldw')).toBe(false)
   })
 
   it('pins highlights above the automatic entries of their month', () => {
@@ -292,7 +305,7 @@ describe('merging, sorting and the builds index', () => {
 
   it('sorts a build with no entries by its last push, after the active ones', () => {
     const quiet = { ...build('piper-tts'), slug: 'quiet', repo: 'n8watkins/quiet' }
-    const rows = buildActivity([quiet, ...builds], log.entries, { 'n8watkins/quiet': '2026-01-01T00:00:00Z' })
+    const rows = buildActivity([quiet, ...builds.filter((b) => b.repo)], log.entries, { 'n8watkins/quiet': '2026-01-01T00:00:00Z' })
     expect(rows.at(-1)).toMatchObject({ slug: 'quiet', lastShipped: null, lastShippedLabel: null, latest: [] })
   })
 
@@ -373,7 +386,7 @@ describe('getBuildLog', () => {
     vi.stubEnv('NEXT_PHASE', 'phase-production-build')
     const log = await getBuildLog()
     expect(log.entries).toEqual([])
-    expect(log.activity).toHaveLength(builds.length)
+    expect(log.activity).toHaveLength(builds.filter((b) => b.repo).length)
   })
 
   it('throws on a revalidation where GitHub serves nothing, so ISR keeps the last good page', async () => {
