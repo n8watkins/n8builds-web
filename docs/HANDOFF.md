@@ -92,7 +92,7 @@ Plan and rationale: `docs/BUILDS_LOG_PLAN.md`.
   A build without a `repo` (n8builds itself) or with `log: 'off'` is left out of the log entirely, index and feed, rather than shown as "nothing logged".
   Builds without a public `github` link (Solara today) get no links into their repo.
 - **Highlights:** a Sanity `logEntry` document (date, build slug, title up to 90 characters, optional note, link and image, kind: shipped / fixed / learned / next) is pinned above the automatic entries of its month and styled as featured.
-  **The Studio does not have the `logEntry` schema yet**; until it does there are simply no highlights (the page handles zero).
+  The Studio has the `logEntry` schema ("Build log highlight", deployed 2026-10-24); with none posted, the log simply has no highlights.
   To post one once the schema exists: Studio, Log entry, fill it in, publish; it appears within the hour.
 - **Page:** a builds index (most recently active first; "Last shipped Oct 2026", never "N months ago", so quiet builds read as finished) and a month-by-month feed with a build filter kept in the URL (`/builds?build=scribe#activity`), opening on the 12 months up to the newest entry with "Show older entries" for the rest.
   Each build page has "Recent activity" (its newest five entries) linking to its filtered log.
@@ -296,8 +296,7 @@ Every free check runs before the first Upstash call, so requests without a solve
 Feature work, roughly in priority order:
 
 1. Real screenshots for TL;DW and Scribe in `public/builds/<slug>/`; a real mark for Portfolio Rank.
-2. The Studio's `logEntry` schema for build log highlights (see "Build log"), then `npx sanity deploy`.
-3. Keep the loadout data current.
-4. Bring VibeLog back from `hiddenBuilds` when it comes off hiatus (see "Hidden builds" above), and mention it again in the Welcome post if it fits.
-5. Live streams, part 2: add the Twitch and YouTube credentials in Vercel, test with a real stream on each platform, then re-add YouTube to the navbar and `sameAs` once its channel is live (part 1 is built; see "Live streams").
-6. Fire the GA tag from the portfolio subdomain deploy for cross-subdomain tracking.
+2. Keep the loadout data current.
+3. Bring VibeLog back from `hiddenBuilds` when it comes off hiatus (see "Hidden builds" above), and mention it again in the Welcome post if it fits.
+4. Live streams, part 2: add the Twitch and YouTube credentials in Vercel, test with a real stream on each platform, then re-add YouTube to the navbar and `sameAs` once its channel is live (part 1 is built; see "Live streams").
+5. Fire the GA tag from the portfolio subdomain deploy for cross-subdomain tracking.

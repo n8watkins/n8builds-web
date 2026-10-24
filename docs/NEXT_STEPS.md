@@ -45,17 +45,23 @@ Ordered by value.
 
 | # | Build | Ready now? | Waits on | Plan |
 |---|---|---|---|---|
-| 1 | **The build log** (`/builds`): builds index sorted by activity, monthly feed from GitHub releases and commits, build-page "Recent activity", navbar "Log" link, nightly check of the tracked repos | Built; in review on `feat/build-log` | Merge; then the Studio's `logEntry` schema for highlights | [BUILDS_LOG_PLAN.md](BUILDS_LOG_PLAN.md) |
-| 2 | **Live streams, part 1:** the floating corner player (tabs, unmute, expand, move, minimize, close, phone pill), "Watch on Twitch / YouTube / X" buttons, the `n8builds.dev/live` share link, navbar live dots, and the Sanity "Live status" switch (works for X and as a manual override) | Yes, against fake live data and the Studio switch | Nothing to build; Twitch and YouTube detection switch on when their keys arrive | [LIVE_STREAM_PLAN.md](LIVE_STREAM_PLAN.md) |
+| 1 | **Done (#14):** **the build log** (`/builds`): builds index sorted by activity, monthly feed from GitHub releases and commits, build-page "Recent activity", navbar "Log" link, nightly check of the tracked repos | Built; in review on `feat/build-log` | Merge; then the Studio's `logEntry` schema for highlights | [BUILDS_LOG_PLAN.md](BUILDS_LOG_PLAN.md) |
+| 2 | **Done (#13):** **live streams, part 1:** the floating corner player (tabs, unmute, expand, move, minimize, close, phone pill), "Watch on Twitch / YouTube / X" buttons, the `n8builds.dev/live` share link, navbar live dots, and the Sanity "Live status" switch (works for X and as a manual override) | Yes, against fake live data and the Studio switch | Nothing to build; Twitch and YouTube detection switch on when their keys arrive | [LIVE_STREAM_PLAN.md](LIVE_STREAM_PLAN.md) |
 | 3 | **Live streams, part 2:** automatic Twitch and YouTube detection, the YouTube link back in the navbar | No | Twitch app, YouTube channel and API key (B) | [LIVE_STREAM_PLAN.md](LIVE_STREAM_PLAN.md) |
 | 4 | **Done (#12):** **a build page for n8builds itself:** tests on five browsers, security headers and CSP, near-perfect Lighthouse scores, the agent-driven workflow, the release standard | Yes | Nothing | - |
-| 5 | **X sharing:** "Share on X" on every post and in the Studio, "Copy for X", and "On X" entries in N8 Notions | Mostly (the free parts) | Your choice of site-first or X-first; keys only for automatic posting | [X_ARTICLES_PLAN.md](X_ARTICLES_PLAN.md) |
+| 5 | **Partly done (#11: Share on X and Copy link on posts):** **X sharing:** "Share on X" on every post and in the Studio, "Copy for X", and "On X" entries in N8 Notions | Mostly (the free parts) | Your choice of site-first or X-first; keys only for automatic posting | [X_ARTICLES_PLAN.md](X_ARTICLES_PLAN.md) |
 | 6 | **Dependency updates:** review and merge the Dependabot PRs; the four major upgrades one at a time with the full test suite | No | Your OK (A) | - |
 | 7 | **Release standard rollout:** apply release-kit to five repos, baseline tags, propose milestone backfills for your approval | No | Your OK (A) | `~/n8builds/release-kit` |
 | 8 | **Quick fixes from your decisions:** Appturnity card, Solara link, GitHub settings, front-door redirect | No | Your answers (A) | - |
 | 9 | **Proof updates:** add your screenshots and numbers to the build pages | No | Your content (C) | - |
 
 Suggested order: 1 and 2 now (they need nothing), 4 next, then 6-9 as your answers come in, and 3 a week before your first stream.
+
+## How to use what's live now
+
+- **Going live on X (or anywhere the site can't detect):** open the Sanity Studio (the app works on a phone), tap "Live status", switch "Live now" on, pick the platform, paste the stream or post link, add a title, Publish. The corner player, the navbar dot and n8builds.dev/live switch on within a minute. Switch it off and Publish when you're done; it also turns itself off after 12 hours.
+- **A build log highlight:** in the Studio, "Build log highlight", pick the build, write one line, Publish. It's pinned at the top of its month on n8builds.dev/builds within the hour.
+- **Twitch and YouTube** are detected automatically once their keys are in Vercel (Part 1 B); until then, use the switch for them too.
 
 ## On hold
 
