@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { SiTwitch, SiYoutube } from 'react-icons/si'
+import { SiTwitch } from 'react-icons/si'
 import { FiExternalLink, FiMenu, FiX, FiChevronDown } from 'react-icons/fi'
 import { motion, AnimatePresence } from 'motion/react'
 
@@ -96,12 +96,7 @@ const Navbar = () => {
       icon: <SiTwitch className="w-3.5 h-3.5" />,
       hoverColor: 'hover:text-purple-400',
     },
-    {
-      label: 'YouTube',
-      href: 'https://youtube.com/@n8watkins',
-      icon: <SiYoutube className="w-4 h-4" />,
-      hoverColor: 'hover:text-red-400',
-    },
+    // YouTube goes back here, after Twitch, once the channel is live (see HANDOFF).
   ]
 
   return (

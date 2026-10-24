@@ -119,7 +119,6 @@ export const siteJsonLd = {
         'https://github.com/n8watkins',
         'https://x.com/n8watkins',
         'https://www.linkedin.com/in/n8watkins',
-        'https://youtube.com/@n8watkins',
         'https://twitch.tv/n8watkins',
         'https://portfolio.n8builds.dev',
         'https://appturnity.com',
