@@ -50,6 +50,14 @@ Paste a blog post and a build page into a share-card checker (for example opengr
 - **Orphan build pages:** Portfolio Rank and Solara have "Build log" buttons on the homepage, so every build page in the sitemap is linked (a test enforces it). Appturnity has no build page; `/builds/appturnity` redirects to appturnity.com.
 - **`.local-ops.yaml`:** rewritten for this repo; it had been copied from Portfolio 2.0 (including its `local_ops_id`).
 
+## 5c. Build log token (set 2026-10-23)
+
+The build log reads GitHub with a fine-grained token, `n8builds-web build log` (read-only Contents on `scribe`, `solara`, `portfolio-rank`, `tl-dw`, `tube-vault`, `piper-tts`), stored as `GITHUB_TOKEN` in Vercel (Production and Preview) and in `.env.local`.
+
+- **Rotate it before it expires (about 2027-10-23):** on GitHub, Settings, Developer settings, Fine-grained tokens, regenerate `n8builds-web build log` with the same access, then in the project folder run `! vercel env rm GITHUB_TOKEN production`, `! vercel env add GITHUB_TOKEN production` (and the same for `preview`), update `.env.local`, and redeploy.
+- **Optional:** add the same token as a repository secret named `BUILD_LOG_GITHUB_TOKEN` (GitHub, n8builds-web, Settings, Secrets and variables, Actions). The nightly "Build log repos" check then fails as soon as that token stops working, instead of when the live page goes stale.
+- **A new tracked repo** needs adding to the token's repository list, or the log leaves it out.
+
 ## 6. Optional
 
 - **Gmail connector for Claude:** it needs re-authenticating (`/mcp`) if you want Claude to check inboxes during end-to-end email tests.

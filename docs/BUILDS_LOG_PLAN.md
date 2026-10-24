@@ -1,7 +1,8 @@
 # Plan: the `/builds` log (auto-fed from GitHub)
 
 Written 2026-10-23.
-Status: planned, not started.
+Status: built on `feat/build-log` (steps 1-3 and 5-8; see HANDOFF "Build log" for how it works).
+Step 4, the Studio's `logEntry` schema, is still to do; until then the log runs without highlights.
 
 ## Goal
 
