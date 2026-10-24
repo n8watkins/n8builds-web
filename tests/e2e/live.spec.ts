@@ -265,16 +265,16 @@ test.describe('phone', () => {
     await page.getByRole('button', { name: /open the live player/ }).click()
     const region = page.getByRole('region', { name: 'Live stream player' })
     await expect(region).toBeVisible()
-    // Full width, with the same small margin on each side.
-    const box = (await region.boundingBox())!
-    // The visual viewport: Playwright's Linux WebKit reserves a scrollbar
-    // from fixed elements (the navbar too) that iOS doesn't have.
-    const pageWidth = await page.evaluate(() => window.visualViewport?.width ?? document.documentElement.clientWidth)
-    const right = pageWidth - (box.x + box.width)
-    expect(box.width).toBeGreaterThanOrEqual(pageWidth - 24)
-    expect(box.x).toBeGreaterThanOrEqual(0)
-    expect(right).toBeGreaterThanOrEqual(0)
-    expect(Math.abs(box.x - right)).toBeLessThan(1)
+    // Full width, with a small margin on each side of the area fixed elements
+    // use: the navbar's (left-0 right-0). Desktop browsers and Playwright's
+    // Linux WebKit take a scrollbar out of it that phones don't have.
+    const margins = () =>
+      page.evaluate(() => {
+        const box = document.querySelector('[aria-label="Live stream player"]')!.getBoundingClientRect()
+        const area = document.querySelector('nav[aria-label="Primary"]')!.getBoundingClientRect()
+        return [box.left - area.left, area.right - box.right].map((m) => Math.round(m))
+      })
+    await expect.poll(margins).toEqual([8, 8])
     // No corner moving or expanding on a phone.
     await expect(page.getByRole('button', { name: /Move player|Expand player/ })).toHaveCount(0)
 
