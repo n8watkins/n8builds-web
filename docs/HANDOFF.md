@@ -22,7 +22,7 @@ Strategy and IA: `docs/N8BUILDS_PLAN.md`.
 
 - Live at https://n8builds.dev on Vercel (project `n8builds-web`, team natkins23s-projects), auto-deploying from `main`.
 - Stack: Next.js 16 (App Router, webpack build), React 19, TypeScript, Tailwind 4 (configured in `app/globals.css`; there is no `tailwind.config`), Motion (`motion/react`; not framer-motion), Sanity (blog), Nodemailer + Gmail SMTP, Cloudflare Turnstile, Upstash Redis (rate limits), Sentry, GA4, Vercel Speed Insights.
-- Pages: `/` (hero, "What I'm working on", the Lab, notions, stack, work-with-me, contact, each in its own full-width band), `/blog` + `/blog/[slug]` (N8 Notions, ISR hourly), `/builds` (the build log, ISR hourly), `/builds/[slug]`, `/loadout`, `/privacy`.
+- Pages: `/` (hero, "What I'm working on", the Lab, notions, stack, work-with-me, contact, each in its own full-width band), `/blog` + `/blog/[slug]` (N8 Notions, ISR hourly), `/builds` (the build log, ISR hourly), `/builds/[slug]`, `/loadout`, `/privacy`, `/live` (redirects to the live stream, else lists the channels).
 - **Status (2026-10-23):** everything is pushed and live, including the 2026-10-23 homepage rework.
   The review of the 2026-10-22/23 work (`docs/prompts/review-2026-10-22-changes.md`) ran on 2026-10-23; its fixes (Solara's private-repo link, 320px hero, modal mobile menu, em-dash sweep, blog fact fixes) are shipped.
 - **Next session:** work through `docs/NEXT_STEPS.md`, the step-by-step checklist of what's left and what's needed from the owner.
@@ -103,6 +103,36 @@ Plan and rationale: `docs/BUILDS_LOG_PLAN.md`.
   It fails only when a repo can't be read.
   It uses the `BUILD_LOG_GITHUB_TOKEN` repo secret if set (to also catch the site's token expiring), else the workflow's own token.
 
+## Live streams
+
+While Nathan is live, every page shows a floating corner player, the navbar's Twitch link gets a live dot, and `n8builds.dev/live` redirects to the stream (plan: `docs/LIVE_STREAM_PLAN.md`).
+
+- **Detection** (`lib/live.ts`, served by `app/api/live/route.ts`): three sources, asked in parallel and merged per platform.
+  - The Sanity **Live status** switch (document id `liveStatus`, read from the public CDN, published changes only): the only source for X, and a manual override for Twitch and YouTube.
+    It counts as off 12 hours after its `startedAt` (stamped by the Studio when switched on; `_updatedAt` is the fallback).
+  - Twitch Helix `GET /streams?user_login=n8watkins` with an app token, only when `TWITCH_CLIENT_ID` and `TWITCH_CLIENT_SECRET` are set.
+  - YouTube Data API, only when `YOUTUBE_API_KEY` and `YOUTUBE_CHANNEL_ID` (the `UC...` ID) are set: the newest 10 uploads (`playlistItems.list`), then `videos.list` for `liveBroadcastContent` (2 quota units a check).
+    A stream with embedding off, made for kids or age-restricted gets the "Watch on YouTube" card instead of the embed.
+  - `LIVE_YOUTUBE_VIDEO_ID` adds one video (an unlisted test stream); without an API key it is taken as live unchecked, so remove it after testing.
+  - When live on several platforms the order is Twitch, YouTube, X, other; `LIVE_PREFERRED_PLATFORM` (default Twitch) picks where `/live` goes and which tab opens.
+- **Caching:** 60 seconds per server instance (concurrent requests share one check), and `s-maxage=60` on `/api/live` for the CDN.
+  Any failure counts as offline; a source that errors is skipped and logged, and `/api/live` always answers 200.
+- **Player** (`components/live/`): `LiveLoader` (mounted in `app/layout.tsx`) checks `/api/live` after the load event, then once a minute while the tab is visible, into a small store the navbar reads too.
+  `LivePlayer` and the platform iframes load only while live (`next/dynamic`), so offline page loads fetch one small JSON answer and nothing else.
+  Twitch embeds need a listed `parent` host: n8builds.dev and localhost play, Vercel previews show the "Watch on Twitch" card.
+  YouTube uses `www.youtube-nocookie.com` and unmutes over postMessage; Twitch reloads its player with `muted=false`.
+  X has no live player embed (and X's post embed would need its script in the CSP), so X streams get a card with "Watch on X".
+  The corner and minimized choices and closed streams are kept in localStorage (`n8-live:prefs`, `n8-live:closed`), each access in try/catch.
+  Phones (below 640px) always start as the pill at the bottom left.
+  While the player covers the bottom-right corner it sets `--live-dock-br`, which lifts the homepage scroll-to-top button above it.
+- **Going live on X (or overriding a check):** in the Studio, open **Live status** (first item), switch **Live now** on, pick the platform, optionally add the link and a title, and **Publish**; switch it off and publish when done.
+  The site shows it within about a minute (the CDN and server caches).
+  The Studio must be deployed (`npx sanity deploy` in `n8builds-studio`) before the switch exists there.
+- **Tests:** `LIVE_TEST_MODE=1` (set in `playwright.config.ts`, ignored when `VERCEL` is set) swaps every source for fake answers.
+  The scenario comes from the `n8-live-test` cookie (`none`, `twitch`, `youtube`, `both`, `x`, `all`, `youtube-no-embed`, `other`), else `LIVE_TEST_SCENARIO`, else offline, so the rest of the suite sees no player.
+  `tests/e2e/live.spec.ts` stubs the Twitch and YouTube players with `context.route` (after the browser's CSP check); `tests/e2e/api/live.spec.ts` covers `/api/live` and the `/live` redirects; `tests/unit/live.test.ts` covers the resolver.
+  To look at the player locally: `LIVE_TEST_MODE=1 npm run dev`, then set the `n8-live-test` cookie to a scenario in the browser's devtools.
+
 ## Contact form
 
 Flow (`app/api/contact/route.ts`): size check (10KB) and a JSON content type (else 415), JSON + Zod validation, honeypot, Turnstile, per-IP rate limit, site-wide daily limit, per-recipient auto-reply limit, then the notification email and the auto-reply.
@@ -150,7 +180,7 @@ Every free check runs before the first Upstash call, so requests without a solve
 - **Page titles use " | " as the separator** ("Speed Beats Mastery | n8builds"), and no visible copy uses the em dash (swept 2026-10-23).
 - **Streaming:** the owner plans to start streaming on Twitch in the coming weeks.
   The navbar keeps Twitch; **YouTube was removed on 2026-10-23** (its `@n8watkins` handle was a 404) and goes back in the same spot, after Twitch, once the channel is live (also add it back to `sameAs` in `lib/seo.ts`).
-  A live embed is planned: see Backlog.
+  The live player is built (see "Live streams"); Twitch and YouTube detection switch on once their credentials are in Vercel.
 - **n8builds.dev has its own build page** (`/builds/n8builds`, added 2026-10-24), the third featured row: the site as a case study.
   Every number on it was checked against the repo or a CI run: the test counts (94 unit, 337 Playwright across the six projects), the Lighthouse scores (0.98-1.00 performance, 1.00 elsewhere), the CLS story (0.29 nightly, 0.91 at 6x CPU, 0.000 after), and the contact-form limits.
   Refresh the test counts in its `solution` when the suites grow, and keep its featured row (`components/sections/FeaturedProjects.tsx`, tech dock in `data/projects.tsx`) in step with the build entry.
@@ -239,7 +269,8 @@ Every free check runs before the first Upstash call, so requests without a solve
 
 - `app/page.tsx`: homepage metadata and JSON-LD; the page itself is the client component `components/HomePage.tsx`, whose sections load via `next/dynamic` and are wrapped in `SectionErrorBoundary`.
 - `app/layout.tsx`: site-wide metadata defaults, GA (gated on `NEXT_PUBLIC_GA_ID`), Speed Insights (Vercel only), providers.
-- `app/api/contact/route.ts`, `app/api/health/route.ts` (liveness ping), `app/api/notions/recent/route.ts` (homepage blog strip; keeps `@sanity/client` out of the client bundle).
+- `app/api/contact/route.ts`, `app/api/health/route.ts` (liveness ping), `app/api/notions/recent/route.ts` (homepage blog strip; keeps `@sanity/client` out of the client bundle), `app/api/live/route.ts` (live status).
+- `lib/live.ts`, `lib/live-shared.ts`, `components/live/`, `app/live/page.tsx`: live streams (see "Live streams").
 - `components/sections/`: `Hero`, `NowBuilding`, `FeaturedProjects`, `ShelfSection`, `LabSubheader`, `ExtensionsShowcase`, `HomeStack`, `NotionsStrip`, `WorkWithMe`, `Loadout`, `BuildStacks`, `TechStackBento`, `BuildCard`.
 - `components/layout/`: `Navbar` (`labMenu[]` drives the Lab dropdown), `Footer` (contact card and form).
 - `components/ContactForm/`: form UI and `useContactFormSubmit` (submission and Turnstile handling).
@@ -268,5 +299,5 @@ Feature work, roughly in priority order:
 2. The Studio's `logEntry` schema for build log highlights (see "Build log"), then `npx sanity deploy`.
 3. Keep the loadout data current.
 4. Bring VibeLog back from `hiddenBuilds` when it comes off hiatus (see "Hidden builds" above), and mention it again in the Welcome post if it fits.
-5. Live streams on the site: a floating corner player for Twitch and YouTube that appears only while live, plus navbar live dots; plan in `docs/LIVE_STREAM_PLAN.md`. Re-add YouTube when its channel is live.
+5. Live streams, part 2: add the Twitch and YouTube credentials in Vercel, test with a real stream on each platform, then re-add YouTube to the navbar and `sameAs` once its channel is live (part 1 is built; see "Live streams").
 6. Fire the GA tag from the portfolio subdomain deploy for cross-subdomain tracking.

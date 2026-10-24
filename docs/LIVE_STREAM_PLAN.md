@@ -1,7 +1,7 @@
 # Plan: live streams on n8builds.dev (Twitch, YouTube and X)
 
 Written 2026-10-23, revised 2026-10-24.
-Status: planned; build it about a week before the first stream, so it can be tested against a real live session.
+Status: part 1 built (2026-10-23): the player, `/live`, the navbar dot, the Studio switch and the test mode; Twitch and YouTube detection are in the code and switch on once their credentials are in Vercel (see HANDOFF, "Live streams").
 
 ## Recommendation in one paragraph
 
