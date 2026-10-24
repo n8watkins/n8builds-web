@@ -1,6 +1,6 @@
 'use client'
 import { motion } from 'motion/react'
-import { reveal } from '@/lib/animations'
+import { useReveal } from '@/hooks/useReveal'
 
 /**
  * Fades its content up as it scrolls into view (once). Use it for sections
@@ -16,7 +16,7 @@ export default function Reveal({
   delay?: number
 }) {
   return (
-    <motion.div {...reveal} transition={{ ...reveal.transition, delay }} className={className}>
+    <motion.div {...useReveal(delay)} className={className}>
       {children}
     </motion.div>
   )

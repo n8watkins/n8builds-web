@@ -48,7 +48,7 @@ export const staggerItemVariants: Variants = {
 /**
  * The site's scroll reveal: fade up once as it enters the viewport, with the
  * hero's easing curve. Opacity and transform only, so it never shifts layout.
- * Under reduced motion, MotionConfig (app/provider.tsx) drops the movement.
+ * Use it through useReveal() (hooks/useReveal.ts), which handles reduced motion.
  */
 export const reveal = {
   initial: { opacity: 0, y: 24 },

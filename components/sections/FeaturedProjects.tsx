@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'motion/react'
 import { FiGithub, FiExternalLink, FiFileText } from 'react-icons/fi'
-import { reveal } from '@/lib/animations'
+import { useReveal } from '@/hooks/useReveal'
 import Reveal from '@/components/ui/Reveal'
 import TechStackCycle from '@/components/Projects/TechStackCycle'
 import { projects } from '@/data/projects'
@@ -59,10 +59,11 @@ const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: b
   const technologies = projects.find((p) => p.title === project.title)?.technologies
   const gallery = project.images && project.images.length > 1 ? project.images : [project.image]
   const [active, setActive] = useState(0)
+  const revealProps = useReveal()
   const current = gallery[Math.min(active, gallery.length - 1)]
   return (
   <motion.div
-    {...reveal}
+    {...revealProps}
     className={`flex flex-col ${flipped ? 'md:flex-row-reverse' : 'md:flex-row'} gap-10 md:gap-14 items-center`}
   >
     {/* Image + gallery */}
