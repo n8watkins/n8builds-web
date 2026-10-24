@@ -2,6 +2,7 @@
 
 Things only you can do, because they need an interactive login, a terms acceptance, or a dashboard.
 Do them in order.
+For what's left overall, step by step, see [NEXT_STEPS.md](NEXT_STEPS.md).
 
 ## 1. Link Upstash Redis to Vercel (done 2026-10-22)
 

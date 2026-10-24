@@ -25,7 +25,7 @@ Strategy and IA: `docs/N8BUILDS_PLAN.md`.
 - Pages: `/` (hero, "What I'm working on", the Lab, notions, stack, work-with-me, contact, each in its own full-width band), `/blog` + `/blog/[slug]` (N8 Notions, ISR hourly), `/builds/[slug]`, `/loadout`, `/privacy`.
 - **Status (2026-10-23):** everything is pushed and live, including the 2026-10-23 homepage rework.
   The review of the 2026-10-22/23 work (`docs/prompts/review-2026-10-22-changes.md`) ran on 2026-10-23; its fixes (Solara's private-repo link, 320px hero, modal mobile menu, em-dash sweep, blog fact fixes) are shipped.
-- **Next session:** the share-card check (`docs/OWNER_TODO.md` 5b), then the backlog below.
+- **Next session:** work through `docs/NEXT_STEPS.md`, the step-by-step checklist of what's left and what's needed from the owner.
 - **Scroll reveals:** sections below the fold fade up once as they scroll in (`components/ui/Reveal.tsx`, preset `reveal` in `lib/animations.ts`; homepage bands, Lab parts, build-page sections, blog gallery and related posts, loadout sections).
   Never wrap the hero or anything above the fold: an element at opacity 0 can't be the LCP, so it delays it (the /blog grid is left out for that reason).
 - **Hero layout:** the hero content is top-aligned, not vertically centered, and the ambient glows mount after hydration: both caused layout shift on slow devices (Nightly Lighthouse CLS 0.29). Keep it that way.
@@ -213,7 +213,7 @@ Every free check runs before the first Upstash call, so requests without a solve
   The server SDK sends no stack-frame locals and drops contact-route request bodies (`lib/sentry-scrub.ts`).
 - `tests/unit/`, `tests/e2e/`, `playwright.config.ts`, `vitest.config.mts`.
 - `public/builds/<slug>/`: build icons and screenshots; `public/tab/`: favicons and OG image.
-- `docs/`: this file, `OWNER_TODO.md`, `prompts/review-and-improve.md` (ready-to-paste prompt for the next review pass), `prompts/review-2026-10-22-changes.md` (the 2026-10-22/23 review prompt, already run), `N8BUILDS_PLAN.md` (vision, IA and content inventory), `CLOUDFLARE_SECURITY.md`, `archive/` (old handoffs, the blog implementation record).
+- `docs/`: this file, `OWNER_TODO.md`, `prompts/review-and-improve.md` (ready-to-paste prompt for the next review pass), `prompts/review-2026-10-22-changes.md` (the 2026-10-22/23 review prompt, already run), `N8BUILDS_PLAN.md` (vision, IA and content inventory), `NEXT_STEPS.md` (the checklist), `BUILDS_LOG_PLAN.md`, `LIVE_STREAM_PLAN.md`, `CLOUDFLARE_SECURITY.md`, `archive/` (old handoffs, the blog implementation record).
 - `docs/WEB_VITALS.md`: Web Vitals reporting, the dev HUD and GA events.
 
 ## Backlog
@@ -224,5 +224,5 @@ Feature work, roughly in priority order:
 2. A `/builds` log index page (journal "heartbeat") and a "Log" nav item; detail pages already exist.
 3. Keep the loadout data current.
 4. Bring VibeLog back from `hiddenBuilds` when it comes off hiatus (see "Hidden builds" above), and mention it again in the Welcome post if it fits.
-5. Live streams on the site: when the Twitch channel is live, show a "Live" badge in the navbar and an embedded player on the homepage (Twitch embed with `parent=n8builds.dev`, live status from the Twitch Helix API, cached about a minute; needs a Twitch app client ID and secret in Vercel, and `player.twitch.tv` in the CSP frame-src). Re-add YouTube when its channel is live.
+5. Live streams on the site: a floating corner player for Twitch and YouTube that appears only while live, plus navbar live dots; plan in `docs/LIVE_STREAM_PLAN.md`. Re-add YouTube when its channel is live.
 6. Fire the GA tag from the portfolio subdomain deploy for cross-subdomain tracking.
