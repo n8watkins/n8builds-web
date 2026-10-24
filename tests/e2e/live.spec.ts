@@ -265,9 +265,16 @@ test.describe('phone', () => {
     await page.getByRole('button', { name: /open the live player/ }).click()
     const region = page.getByRole('region', { name: 'Live stream player' })
     await expect(region).toBeVisible()
+    // Full width, with the same small margin on each side.
     const box = (await region.boundingBox())!
-    expect(box.width).toBeGreaterThan(PHONE.width - 24)
-    expect(box.x + box.width).toBeLessThanOrEqual(PHONE.width)
+    // The visual viewport: Playwright's Linux WebKit reserves a scrollbar
+    // from fixed elements (the navbar too) that iOS doesn't have.
+    const pageWidth = await page.evaluate(() => window.visualViewport?.width ?? document.documentElement.clientWidth)
+    const right = pageWidth - (box.x + box.width)
+    expect(box.width).toBeGreaterThanOrEqual(pageWidth - 24)
+    expect(box.x).toBeGreaterThanOrEqual(0)
+    expect(right).toBeGreaterThanOrEqual(0)
+    expect(Math.abs(box.x - right)).toBeLessThan(1)
     // No corner moving or expanding on a phone.
     await expect(page.getByRole('button', { name: /Move player|Expand player/ })).toHaveCount(0)
 
