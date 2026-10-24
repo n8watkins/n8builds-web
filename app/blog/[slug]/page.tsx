@@ -10,8 +10,9 @@ import { PortableTextRenderer } from '@/components/blog/portable-text'
 import { formatPostDate } from '@/lib/blog-utils'
 import JsonLd from '@/components/JsonLd'
 import { getAllPosts, getPostBySlug, getRelatedPosts, type Post } from '@/lib/sanity'
-import { blogPostingJsonLd, pageMetadata, shareSummary, summarize, type PreviewImage } from '@/lib/seo'
+import { absoluteUrl, blogPostingJsonLd, pageMetadata, shareSummary, summarize, type PreviewImage } from '@/lib/seo'
 import Reveal from '@/components/ui/Reveal'
+import ShareBar from '@/components/blog/ShareBar'
 
 export const revalidate = 3600
 
@@ -154,6 +155,8 @@ export default async function PostPage({ params }: PostPageProps) {
               </section>
             </Reveal>
           )}
+
+          <ShareBar title={post.title} url={absoluteUrl(`/blog/${slug}`)} />
         </article>
 
         {related.length > 0 && (
