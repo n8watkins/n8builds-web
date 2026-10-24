@@ -49,6 +49,14 @@ describe('buildContentSecurityPolicy', () => {
     expect(directive(csp, 'img-src')).toContain('https://cdn.sanity.io')
   })
 
+  it('allows the live players as frames, and nothing else from Twitch or YouTube', () => {
+    const frames = directive(buildContentSecurityPolicy(), 'frame-src')
+    expect(frames).toContain('https://player.twitch.tv')
+    expect(frames).toContain('https://www.youtube-nocookie.com')
+    expect(frames).not.toContain('https://www.youtube.com')
+    expect(directive(buildContentSecurityPolicy(), 'script-src')).not.toMatch(/twitch|youtube/)
+  })
+
   it('adds reporting only when given an endpoint', () => {
     expect(directive(buildContentSecurityPolicy(), 'report-uri')).toBeUndefined()
     const csp = buildContentSecurityPolicy({ reportUri: 'https://example.com/report' })

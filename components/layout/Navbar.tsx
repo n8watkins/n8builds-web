@@ -6,6 +6,8 @@ import { usePathname } from 'next/navigation'
 import { SiTwitch } from 'react-icons/si'
 import { FiExternalLink, FiMenu, FiX, FiChevronDown } from 'react-icons/fi'
 import { motion, AnimatePresence } from 'motion/react'
+import { useLiveStatus } from '@/components/live/liveStore'
+import NavLiveDot from '@/components/live/NavLiveDot'
 
 // The Lab is one homepage section; its parts live in a hover dropdown so the
 // top nav stays short. Each item scrolls to its anchor on the homepage.
@@ -95,10 +97,13 @@ const Navbar = () => {
     { label: 'Notions', href: '/#notions' },
     { label: 'Loadout', href: '/#loadout' },
   ]
+  // While live on Twitch, the link gets a live dot and points at the stream.
+  const twitchLive = useLiveStatus()?.streams.find((s) => s.platform === 'twitch')
   const socialLinks = [
     {
       label: 'Twitch',
-      href: 'https://twitch.tv/n8watkins',
+      href: twitchLive?.url ?? 'https://twitch.tv/n8watkins',
+      live: Boolean(twitchLive),
       icon: <SiTwitch className="w-3.5 h-3.5" />,
       hoverColor: 'hover:text-purple-400',
     },
@@ -220,6 +225,7 @@ const Navbar = () => {
               >
                 {l.icon}
                 {l.label}
+                {l.live && <NavLiveDot />}
               </a>
             ))}
           </div>
@@ -321,6 +327,7 @@ const Navbar = () => {
               >
                 {l.icon}
                 {l.label}
+                {l.live && <NavLiveDot />}
               </a>
             ))}
             <hr className="border-white/8 my-1" />
