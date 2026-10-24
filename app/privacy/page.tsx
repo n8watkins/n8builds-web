@@ -7,7 +7,7 @@ export const metadata = pageMetadata({
   path: '/privacy',
 })
 
-const UPDATED = 'June 25, 2026'
+const UPDATED = 'October 23, 2026'
 
 export default function PrivacyPolicy() {
   return (
@@ -125,6 +125,35 @@ export default function PrivacyPolicy() {
               <p>
                 Google Analytics sets cookies to measure usage. You can block or delete these via your
                 browser settings or a browser extension without affecting the rest of the site.
+              </p>
+            </section>
+
+            <section className="space-y-3">
+              <h2 className="text-xl font-bold text-slate-100">Live streams</h2>
+              <p>
+                While I&rsquo;m streaming, a small player in the corner of the page shows the stream from
+                Twitch or YouTube. Those players are loaded from Twitch and YouTube only while I&rsquo;m live,
+                and they may set their own cookies and collect viewing data under the{' '}
+                <a
+                  href="https://www.twitch.tv/p/legal/privacy-notice/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
+                >
+                  Twitch Privacy Notice
+                </a>{' '}
+                and the{' '}
+                <a
+                  href="https://policies.google.com/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
+                >
+                  Google Privacy Policy
+                </a>
+                . YouTube streams use YouTube&rsquo;s privacy-enhanced (no-cookie) player. X streams are only
+                linked, never embedded. Closing or minimizing the player is remembered in your browser&rsquo;s
+                local storage, which never leaves your device.
               </p>
             </section>
 

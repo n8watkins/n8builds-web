@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { FiCheck, FiLink } from 'react-icons/fi'
 import { FaXTwitter } from 'react-icons/fa6'
+import { useHydrated } from '@/hooks/useHydrated'
 
 /** The X compose link for a post: its title, its link and a credit to @n8watkins. */
 export function xShareUrl(title: string, url: string) {
@@ -16,6 +17,9 @@ export function xShareUrl(title: string, url: string) {
  */
 export default function ShareBar({ title, url }: { title: string; url: string }) {
   const [copied, setCopied] = useState(false)
+  // The button is server-rendered: a click before hydration would do nothing,
+  // so it stays disabled until its handler exists (as the contact form's Send).
+  const hydrated = useHydrated()
 
   const copy = async () => {
     try {
@@ -45,7 +49,7 @@ export default function ShareBar({ title, url }: { title: string; url: string })
         <FaXTwitter className="h-4 w-4" />
         Share on X
       </a>
-      <button type="button" onClick={copy} className={button}>
+      <button type="button" onClick={copy} disabled={!hydrated} className={`${button} disabled:cursor-wait`}>
         {copied ? <FiCheck className="h-4 w-4 text-emerald-400" /> : <FiLink className="h-4 w-4" />}
         <span aria-live="polite">{copied ? 'Link copied' : 'Copy link'}</span>
       </button>

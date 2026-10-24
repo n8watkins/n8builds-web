@@ -6,6 +6,7 @@ import Script from 'next/script'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { WebVitals } from './web-vitals'
 import { WebVitalsHUD } from '@/components/WebVitalsHUD'
+import LiveLoader from '@/components/live/LiveLoader'
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { DEFAULT_PREVIEW, SITE_NAME, SITE_URL } from '@/lib/seo'
 
@@ -94,6 +95,8 @@ export default function RootLayout({
           <ErrorBoundary>
             {children}
           </ErrorBoundary>
+          {/* Checks /api/live after load; the corner player loads only while live. */}
+          <LiveLoader />
           <WebVitals />
           <WebVitalsHUD />
           {/* The script is served only by Vercel's edge; elsewhere it 404s. */}

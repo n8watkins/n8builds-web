@@ -45,6 +45,9 @@ export default defineConfig({
     timeout: 300_000,
     env: {
       CONTACT_TEST_MODE: '1',
+      // Fake live answers (lib/live.ts): offline unless a test picks a
+      // scenario with the n8-live-test cookie.
+      LIVE_TEST_MODE: '1',
       // High enough that the suite never trips the site-wide cap; the cap
       // itself is covered by unit tests.
       CONTACT_DAILY_LIMIT: '100000',
@@ -60,6 +63,10 @@ export default defineConfig({
       NEXT_PUBLIC_SENTRY_DSN: '',
       SENTRY_DSN: '',
       SENTRY_AUTH_TOKEN: '',
+      TWITCH_CLIENT_ID: '',
+      TWITCH_CLIENT_SECRET: '',
+      YOUTUBE_API_KEY: '',
+      LIVE_YOUTUBE_VIDEO_ID: '',
       KV_REST_API_URL: '',
       KV_REST_API_TOKEN: '',
       UPSTASH_REDIS_REST_URL: '',
