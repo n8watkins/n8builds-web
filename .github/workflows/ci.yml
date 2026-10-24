@@ -29,10 +29,23 @@ jobs:
       - run: npm run type-check
       - run: npm run test:unit
 
+  # Every Playwright project as its own parallel job. Each job builds the app
+  # itself in test mode (playwright.config.ts webServer), so the test env is
+  # defined in one place. The repo is public, so these minutes are free.
   e2e:
-    name: E2E (API + Chromium)
+    name: E2E (${{ matrix.project }})
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { project: api, browser: '' }
+          - { project: chromium, browser: chromium }
+          - { project: firefox, browser: firefox }
+          - { project: webkit, browser: webkit }
+          - { project: mobile-chrome, browser: chromium }
+          - { project: mobile-safari, browser: webkit }
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -40,15 +53,45 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
-      # Playwright's webServer builds and starts the app in test mode
-      # (see playwright.config.ts), so the test env is defined in one place.
-      - run: npm run test:e2e
+      - if: matrix.browser != ''
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+      - run: npx playwright test --project=${{ matrix.project }}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.project }}
           path: |
             playwright-report/
             test-results/
           retention-days: 7
+
+  lighthouse:
+    name: Lighthouse
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Same test-mode build as the E2E suite: no email, analytics or Sentry.
+      CONTACT_TEST_MODE: '1'
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
+      TURNSTILE_SECRET_KEY: 1x0000000000000000000000000000000AA
+      NEXT_PUBLIC_SITE_URL: https://n8builds.dev
+      NEXT_PUBLIC_SANITY_PROJECT_ID: abgyc32w
+      LIGHTHOUSE_PORT: '3747'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      # 3 runs per page; fails on the median against the budgets in
+      # scripts/lighthouse.mjs.
+      - run: npm run lighthouse
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: lighthouse-reports
+          path: .lighthouse/
+          include-hidden-files: true
+          retention-days: 14
