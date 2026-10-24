@@ -45,13 +45,14 @@ The GitHub token is already set up.
 ## Step 5: Live streams (a week or so before your first stream)
 
 Plan: [LIVE_STREAM_PLAN.md](LIVE_STREAM_PLAN.md).
-A floating corner player for Twitch and YouTube that appears only while you're live; all free.
+A floating corner player for Twitch and YouTube that appears only while you're live, buttons to watch on the real platform, and one `n8builds.dev/live` link that goes wherever you're live; all free.
 
 - [ ] **You:** create the Twitch developer app and add its ID and secret to Vercel (2 minutes, steps in the plan).
 - [ ] **You:** tell Claude your YouTube channel, and make sure live streaming is enabled on it (can take 24 hours the first time).
-- [ ] **You + Claude:** set up YouTube API access together (10 minutes, one Google sign-in).
-- [ ] **Claude:** builds the player, the live checks, the navbar live dots, and brings the YouTube link back.
-- [ ] **You + Claude:** a test with a real unlisted stream on each platform.
+- [ ] **You:** create a YouTube Data API key in Google Cloud and add it to Vercel (5 minutes, steps in the plan; no Google sign-in flow needed).
+- [ ] **You:** pick the defaults, or keep them: bottom-right corner, Twitch first when live on both, player on every page.
+- [ ] **Claude:** builds the corner player with "Watch on Twitch / YouTube" buttons, the `n8builds.dev/live` share link, the navbar live dots, and brings the YouTube link back.
+- [ ] **You + Claude:** a test stream on each platform before the first public one.
 
 ## Step 6: Proof on the build pages (ongoing, mostly you)
 
