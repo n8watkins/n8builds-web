@@ -1,6 +1,14 @@
 {
   "name": "n8builds-web",
   "version": "1.0.0",
+  "description": "Nathan Watkins' site: apps, AI tools, Chrome extensions and the N8 Notions blog (n8builds.dev).",
+  "homepage": "https://n8builds.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/n8watkins/n8builds-web.git"
+  },
+  "license": "MIT",
+  "author": "Nathan Watkins",
   "private": true,
   "engines": {
     "node": ">=22.19.0"
