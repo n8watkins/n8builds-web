@@ -197,6 +197,46 @@ export const builds: Build[] = [
     github: 'https://github.com/n8watkins/portfolio-rank',
     liveSite: 'https://portfoliorank.vercel.app',
   },
+  {
+    // This site. Every claim here is checked against the repo (tests, CI, headers,
+    // Lighthouse runs); refresh the test counts when the suites grow.
+    slug: 'n8builds',
+    name: 'n8builds.dev',
+    tagline: 'This site, tested like a product',
+    category: 'Website',
+    tags: ['Next.js', 'Playwright', 'Open source'],
+    color: 'from-blue-500/20 to-cyan-600/20',
+    problem:
+      'A personal site is usually the least-tested thing a developer ships: no tests, no performance budget, and a contact form any bot can flood. Visitors judge the work by it anyway, and the engineering behind it stays invisible.',
+    solution:
+      'n8builds.dev holds my builds, the N8 Notions blog and the Loadout, and it is run like a product. Every pull request runs lint, type checks and 94 unit tests, then 337 Playwright tests in six parallel jobs (the APIs, plus Chromium, Firefox, WebKit, a Pixel 7 and an iPhone 14), then Lighthouse budgets on four pages. Nothing merges until all of it is green, and the source is public.',
+    stack: [
+      { name: 'Next.js 16 · React 19 · TypeScript', detail: 'App Router in strict mode; build pages are static, and blog posts revalidate hourly' },
+      { name: 'Tailwind CSS 4 · Motion', detail: 'Theme tokens in CSS, scroll reveals, and reduced motion honored on every animation' },
+      { name: 'Sanity', detail: 'N8 Notions posts, read through the CDN client, so a new post needs no deploy' },
+      { name: 'Vercel · Cloudflare', detail: 'Auto-deploys from main and an edge rate limit on Vercel; DNS, email routing and Turnstile on Cloudflare' },
+      { name: 'Upstash Redis', detail: 'Contact-form rate limits shared by every serverless instance, failing closed when unreachable' },
+      { name: 'Sentry', detail: 'Errors and CSP violation reports, through a same-origin tunnel that forwards only this project' },
+      { name: 'Playwright · Vitest', detail: 'Browser, accessibility (axe), security-header and API tests, plus unit tests, on every pull request' },
+      { name: 'Lighthouse 13', detail: 'Three runs per page; CI fails if the median misses a performance, accessibility, FCP, LCP or CLS budget' },
+    ],
+    process: [
+      'The nightly Lighthouse run failed the homepage on layout shift (CLS 0.29). Slowing the CPU 6x reproduced it at 0.91: the browser painted the vertically centered hero before the page finished streaming in, and the hero re-centered as it grew. The hero is now top-aligned and its glows mount after hydration, and CLS measures 0.000 at 1x, 4x and 6x slowdown.',
+      'Lighthouse budgets run in CI on the home, blog, loadout and Solara pages. Recent runs scored 0.98 to 1.00 for performance and 1.00 for accessibility, best practices and SEO; the homepage report pictured here has a 0.9s LCP and zero layout shift.',
+      'An enforced Content-Security-Policy lists every third-party origin, next to X-Frame-Options, nosniff, a strict referrer policy, COOP and a Permissions-Policy that turns off the camera, microphone and location. An E2E test checks the headers on every page and fails on any CSP violation, including a full contact-form submission through Turnstile.',
+      'The contact form checks size, content type, a Zod schema, a honeypot and a Turnstile token issued for this hostname, then allows 5 messages an hour per IP and a daily cap for the whole site. A Vercel WAF rule answers floods at the edge. In production, if Turnstile or Redis is unreachable, it rejects the message and asks the visitor to email instead.',
+      'Every build page and blog post has its own 1200x630 share card, drawn with next/og over the same generated art as the blog covers. An API test walks the sitemap and checks each page for a canonical URL, a unique title and a preview image that loads.',
+      'Built with Claude Code as the pair programmer: features are planned in docs in the repo, built in parallel git worktrees, and land as pull requests that merge only when CI is green. This page was one of them.',
+    ],
+    images: [
+      { src: '/builds/n8builds/home-hero.webp', alt: 'The n8builds.dev homepage hero at desktop width' },
+      { src: '/builds/n8builds/lighthouse.webp', alt: 'Lighthouse report for the homepage from CI: performance 99, accessibility, best practices and SEO 100, LCP 0.9s, CLS 0' },
+      { src: '/builds/n8builds/ci-checks.webp', alt: 'A GitHub Actions run: lint, types and unit tests, six E2E jobs and Lighthouse, all passing' },
+      { src: '/builds/n8builds/share-card.webp', alt: 'The generated share card for this page' },
+    ],
+    github: 'https://github.com/n8watkins/n8builds-web',
+    liveSite: 'https://n8builds.dev',
+  },
 ]
 
 /**

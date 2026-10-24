@@ -1,6 +1,6 @@
 # HANDOFF - n8builds (n8builds-web)
 
-_Last updated: 2026-10-23._
+_Last updated: 2026-10-24._
 This file describes the current state only.
 Session-by-session history up to 2026-06-25 lives in `docs/archive/HANDOFF-2026-06.md`.
 Manual steps that need the owner (logins, dashboards) live in `docs/OWNER_TODO.md`.
@@ -116,6 +116,11 @@ Every free check runs before the first Upstash call, so requests without a solve
 - **Streaming:** the owner plans to start streaming on Twitch in the coming weeks.
   The navbar keeps Twitch; **YouTube was removed on 2026-10-23** (its `@n8watkins` handle was a 404) and goes back in the same spot, after Twitch, once the channel is live (also add it back to `sameAs` in `lib/seo.ts`).
   A live embed is planned: see Backlog.
+- **n8builds.dev has its own build page** (`/builds/n8builds`, added 2026-10-24), the third featured row: the site as a case study.
+  Every number on it was checked against the repo or a CI run: the test counts (94 unit, 337 Playwright across the six projects), the Lighthouse scores (0.98-1.00 performance, 1.00 elsewhere), the CLS story (0.29 nightly, 0.91 at 6x CPU, 0.000 after), and the contact-form limits.
+  Refresh the test counts in its `solution` when the suites grow, and keep its featured row (`components/sections/FeaturedProjects.tsx`, tech dock in `data/projects.tsx`) in step with the build entry.
+  Its screenshots in `public/builds/n8builds/` are real: the live homepage hero, the CI Lighthouse report for `/` (summary only), the GitHub Actions run of PR #10, and its own generated share card; `tests/e2e/n8builds-build.spec.ts` and `tests/e2e/api/n8builds-build.spec.ts` guard them.
+  The featured row has no Live Site button, since the visitor is already on it.
 - **Private repos get no GitHub link:** Solara's repo is private, so it shows Live and Build log only; add `github` back if the repo goes public.
 - **Hero chips at 320px:** below 360px the idea -> repeat chain shrinks so it fits an iPhone SE (1st gen); `tests/e2e/hero.spec.ts` guards it.
   The loop-back light measures its wire at runtime (`useWireLength` in `Hero.tsx`), so chip size changes need no manual re-measuring.
@@ -215,7 +220,7 @@ Every free check runs before the first Upstash call, so requests without a solve
   The browser SDK posts to `/monitoring` (`app/monitoring/route.ts`), which forwards only envelopes for our own DSN; the SDK's `tunnelRoute` rewrite was an open relay to any Sentry project.
   The server SDK sends no stack-frame locals and drops contact-route request bodies (`lib/sentry-scrub.ts`).
 - `tests/unit/`, `tests/e2e/`, `playwright.config.ts`, `vitest.config.mts`.
-- `public/builds/<slug>/`: build icons and screenshots; `public/tab/`: favicons and OG image.
+- `public/builds/<slug>/`: build icons and screenshots (`n8builds/` holds this site's own); `public/tab/`: favicons and OG image.
 - `docs/`: this file, `OWNER_TODO.md`, `prompts/review-and-improve.md` (ready-to-paste prompt for the next review pass), `prompts/review-2026-10-22-changes.md` (the 2026-10-22/23 review prompt, already run), `N8BUILDS_PLAN.md` (vision, IA and content inventory), `NEXT_STEPS.md` (the checklist), `BUILDS_LOG_PLAN.md`, `LIVE_STREAM_PLAN.md`, `X_ARTICLES_PLAN.md`, `CLOUDFLARE_SECURITY.md`, `archive/` (old handoffs, the blog implementation record).
 - `docs/WEB_VITALS.md`: Web Vitals reporting, the dev HUD and GA events.
 

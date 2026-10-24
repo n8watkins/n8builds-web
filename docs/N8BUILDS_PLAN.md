@@ -151,7 +151,7 @@ have projects/extensions/tools/experiments all derive from it.
 
 ## 8. Content Inventory (`data/builds.tsx`)
 
-**Featured web apps:** Solara, Portfolio Rank.
+**Featured web apps:** Portfolio Rank, Solara, and n8builds.dev itself (`/builds/n8builds`, the site as a case study: CI, Lighthouse, security headers, the contact-form defenses, the CLS fix).
 **Chrome extensions:** Piper TTS, TL;DW, TubeVault.
 **Tools:** Scribe, a local Windows dictation app (Tauri + whisper.cpp).
 **Hidden (on hold, records kept):** VibeLog, the OBS/telemetry streaming tool, and the Chrome Extension Launch Kit, in `hiddenBuilds`.

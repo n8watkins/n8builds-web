@@ -53,6 +53,18 @@ const featured: FeaturedProject[] = [
     liveSite: 'https://uv-activity-planner.web.app',
     buildSlug: 'solara',
   },
+  {
+    title: 'n8builds.dev',
+    subtitle: 'This Site, Tested Like a Product',
+    description:
+      'The site you are on is a build too. Every pull request runs the Playwright suite on five browsers and the APIs, plus Lighthouse budgets, before anything merges; the contact form fails closed behind Turnstile and rate limits.',
+    image: '/builds/n8builds/home-hero.webp',
+    images: ['/builds/n8builds/home-hero.webp', '/builds/n8builds/lighthouse.webp', '/builds/n8builds/ci-checks.webp'],
+    imageAlt: 'n8builds.dev: the homepage, its Lighthouse report, and its CI run',
+    tags: ['Next.js', 'Playwright', 'Vercel'],
+    github: 'https://github.com/n8watkins/n8builds-web',
+    buildSlug: 'n8builds',
+  },
 ]
 
 const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: boolean }) => {
