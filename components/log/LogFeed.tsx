@@ -39,8 +39,10 @@ function setFilter(slug: string | null) {
   const url = new URL(window.location.href)
   if (slug) url.searchParams.set('build', slug)
   else url.searchParams.delete('build')
-  // Next.js syncs useSearchParams with the native history API.
-  window.history.replaceState(window.history.state, '', `${url.pathname}${url.search}${url.hash}`)
+  // Next.js syncs useSearchParams with the native history API, but only for a
+  // null (or app-owned) state: a state carrying Next's own router internals is
+  // taken as Next's own call and not synced, and the filter would never apply.
+  window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`)
 }
 
 function Feed({ entries, builds, months, recentFrom, active }: FeedProps & { active: string | null }) {
