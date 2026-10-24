@@ -66,7 +66,7 @@
     "@types/react-lottie": "^1.2.10",
     "chrome-launcher": "^1.2.2",
     "dotenv": "^17.2.2",
-    "eslint": "^9",
+    "eslint": "^10",
     "eslint-config-next": "^16.2.7",
     "husky": "^9.1.7",
     "lighthouse": "^13.5.0",
