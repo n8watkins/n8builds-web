@@ -20,7 +20,7 @@ test('the build log describes its builds as an ItemList, most recently active fi
     .filter((data) => data['@type'] === 'ItemList')
   expect(lists).toHaveLength(1)
   const items = lists[0].itemListElement as { position: number; name: string; url: string }[]
-  expect(items.map((i) => i.position)).toEqual([1, 2, 3, 4, 5, 6])
+  expect(items.map((i) => i.position)).toEqual([1, 2, 3, 4, 5, 6, 7])
   expect(items[0]).toMatchObject({ name: 'Solara', url: 'https://n8builds.dev/builds/solara' })
   expect(items.map((i) => i.url)).not.toContain('https://n8builds.dev/builds/vibelog')
 })

@@ -3351,6 +3351,813 @@
    ]
   },
   {
+   "repo": "n8watkins/open-ping",
+   "pushedAt": "2026-07-16T07:10:18Z",
+   "releases": [],
+   "commits": [
+    {
+     "sha": "b6191cf34f4f3118f6238c5a34c50b5742612c60",
+     "message": "Merge pull request #5 from n8watkins/review/post-merge-audit",
+     "date": "2026-07-16T07:10:16Z",
+     "author": "n8watkins",
+     "parents": 2,
+     "url": "https://github.com/n8watkins/open-ping/commit/b6191cf34f4f3118f6238c5a34c50b5742612c60"
+    },
+    {
+     "sha": "769c2bb6697b94a04f7aebef02fbe9c79f3c9a14",
+     "message": "docs: centralize deferred operator inputs",
+     "date": "2026-07-16T07:09:09Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/769c2bb6697b94a04f7aebef02fbe9c79f3c9a14"
+    },
+    {
+     "sha": "366ddacdf0759bfde2c4180cc2a84186c5824035",
+     "message": "docs: use stable deferred-input link",
+     "date": "2026-07-16T06:57:34Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/366ddacdf0759bfde2c4180cc2a84186c5824035"
+    },
+    {
+     "sha": "cc6191d4eb3f43e61583bd69c57bf4b46d7de8ad",
+     "message": "docs: document notification fail-closed behavior",
+     "date": "2026-07-16T06:56:14Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/cc6191d4eb3f43e61583bd69c57bf4b46d7de8ad"
+    },
+    {
+     "sha": "2b9bca62643878a1682d15839279b9809c80ddb8",
+     "message": "docs: record deferred operator inputs",
+     "date": "2026-07-16T06:55:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/2b9bca62643878a1682d15839279b9809c80ddb8"
+    },
+    {
+     "sha": "1e41ddb03f6ef7058177eaa191bf4d412d9ea730",
+     "message": "fix(notifications): reject malformed outbox payloads",
+     "date": "2026-07-16T06:53:15Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/1e41ddb03f6ef7058177eaa191bf4d412d9ea730"
+    },
+    {
+     "sha": "6dec5d804183aafce118c6a1b45ce3a2508ca149",
+     "message": "Merge pull request #4 from n8watkins/docs/final-verification-state",
+     "date": "2026-07-16T06:21:37Z",
+     "author": "n8watkins",
+     "parents": 2,
+     "url": "https://github.com/n8watkins/open-ping/commit/6dec5d804183aafce118c6a1b45ce3a2508ca149"
+    },
+    {
+     "sha": "79f77da997542729f04a443e1b77dc7ec75e3c79",
+     "message": "docs: record final verification state",
+     "date": "2026-07-16T06:15:02Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/79f77da997542729f04a443e1b77dc7ec75e3c79"
+    },
+    {
+     "sha": "22b19ee3fd384cedd7953b3bd8388fbe50b8370f",
+     "message": "Merge pull request #3 from n8watkins/test/d1-success-paths",
+     "date": "2026-07-16T06:09:59Z",
+     "author": "n8watkins",
+     "parents": 2,
+     "url": "https://github.com/n8watkins/open-ping/commit/22b19ee3fd384cedd7953b3bd8388fbe50b8370f"
+    },
+    {
+     "sha": "dcc90be77fe30568fa388d011c8602793d9c9b86",
+     "message": "docs: align encrypted storage guidance",
+     "date": "2026-07-16T06:08:27Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/dcc90be77fe30568fa388d011c8602793d9c9b86"
+    },
+    {
+     "sha": "c1d5f02e80b16c1867fa1fe8cb746adce3952ca8",
+     "message": "test(worker): preserve redacted webhook edits",
+     "date": "2026-07-16T06:03:09Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/c1d5f02e80b16c1867fa1fe8cb746adce3952ca8"
+    },
+    {
+     "sha": "41368e6c3f556a8a500923a4e1b058240a9a0fa3",
+     "message": "Prevent channel upgrade lost updates",
+     "date": "2026-07-16T05:58:15Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/41368e6c3f556a8a500923a4e1b058240a9a0fa3"
+    },
+    {
+     "sha": "46c8ef87c6e0cbf1984a355736d27a91b311da00",
+     "message": "docs: refresh security and verification handoff",
+     "date": "2026-07-16T05:54:25Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/46c8ef87c6e0cbf1984a355736d27a91b311da00"
+    },
+    {
+     "sha": "4da7174d6cad6135058dc9f7f53449ac1dc518a4",
+     "message": "fix(security): protect notification capabilities",
+     "date": "2026-07-16T05:48:29Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/4da7174d6cad6135058dc9f7f53449ac1dc518a4"
+    },
+    {
+     "sha": "62ca537e0c8e2aad574804231866cde4229cefbe",
+     "message": "test(worker): cover successful outbound paths",
+     "date": "2026-07-16T05:37:45Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/62ca537e0c8e2aad574804231866cde4229cefbe"
+    },
+    {
+     "sha": "7bb287a746410fff9ce90694943c53f71e0c26f5",
+     "message": "Merge pull request #2 from n8watkins/docs/final-handoff-cleanup",
+     "date": "2026-07-16T04:38:31Z",
+     "author": "n8watkins",
+     "parents": 2,
+     "url": "https://github.com/n8watkins/open-ping/commit/7bb287a746410fff9ce90694943c53f71e0c26f5"
+    },
+    {
+     "sha": "73d92b94b8baa417d6c23f6d38cb977af2a4d77b",
+     "message": "docs: finalize merged project handoff",
+     "date": "2026-07-16T04:30:37Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/73d92b94b8baa417d6c23f6d38cb977af2a4d77b"
+    },
+    {
+     "sha": "cbf8db42028a72e9e241e37dac36fa5d595aeef9",
+     "message": "Merge pull request #1 from n8watkins/test/d1-notification-dispatcher",
+     "date": "2026-07-16T04:14:59Z",
+     "author": "n8watkins",
+     "parents": 2,
+     "url": "https://github.com/n8watkins/open-ping/commit/cbf8db42028a72e9e241e37dac36fa5d595aeef9"
+    },
+    {
+     "sha": "47645475efa09d47ad050df162ddaaa4ad4e733e",
+     "message": "test(notifications): exercise removed channel lifecycle",
+     "date": "2026-07-16T03:18:53Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/47645475efa09d47ad050df162ddaaa4ad4e733e"
+    },
+    {
+     "sha": "a83e08d0d3022021f8947324c4eeeeddb1fe68da",
+     "message": "test(notifications): cover removed-channel dispatch",
+     "date": "2026-07-16T03:13:42Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/a83e08d0d3022021f8947324c4eeeeddb1fe68da"
+    },
+    {
+     "sha": "a9d5f68b48a55c7405146990a6065cc51cee2724",
+     "message": "docs: record scheduler integration coverage",
+     "date": "2026-07-15T21:57:34Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/a9d5f68b48a55c7405146990a6065cc51cee2724"
+    },
+    {
+     "sha": "0b5f847aa25e7e03eff271fbbf9d7d7e41b1bfde",
+     "message": "test(scheduler): cover missed heartbeat transactions",
+     "date": "2026-07-15T21:57:17Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/0b5f847aa25e7e03eff271fbbf9d7d7e41b1bfde"
+    },
+    {
+     "sha": "e9fbf1ab25f9c42244888882675aaaf5d0166d52",
+     "message": "docs: record D1 restore integration coverage",
+     "date": "2026-07-15T21:55:51Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/e9fbf1ab25f9c42244888882675aaaf5d0166d52"
+    },
+    {
+     "sha": "c18b7b1ae14333c7fe4034a2eafb353476db5bf3",
+     "message": "test(backup): cover D1 restore relationships",
+     "date": "2026-07-15T21:55:39Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/c18b7b1ae14333c7fe4034a2eafb353476db5bf3"
+    },
+    {
+     "sha": "82ba12e2ddcc20ee2df7a19a9d65c8535565904d",
+     "message": "docs: record deployed integration-tested state",
+     "date": "2026-07-15T21:54:27Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/82ba12e2ddcc20ee2df7a19a9d65c8535565904d"
+    },
+    {
+     "sha": "aa2cb166f097d34aeffbe8efbdfb8ad4409ddf9a",
+     "message": "test(worker): add D1 route integration coverage",
+     "date": "2026-07-15T21:53:34Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/aa2cb166f097d34aeffbe8efbdfb8ad4409ddf9a"
+    },
+    {
+     "sha": "abb370ba6cd98a92025e7733cacc4d06c4282fd3",
+     "message": "docs: record streamlined setup flow",
+     "date": "2026-07-15T20:41:07Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/abb370ba6cd98a92025e7733cacc4d06c4282fd3"
+    },
+    {
+     "sha": "70a05b9ef72faa9805b3ecf9e442489286b1aa66",
+     "message": "fix(setup): streamline prerequisite wizard",
+     "date": "2026-07-15T20:40:48Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/70a05b9ef72faa9805b3ecf9e442489286b1aa66"
+    },
+    {
+     "sha": "e3fede2546f4511ac3bdbe22a82627ac48428b21",
+     "message": "docs: record completed monitor workspace pass",
+     "date": "2026-07-15T20:35:47Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/e3fede2546f4511ac3bdbe22a82627ac48428b21"
+    },
+    {
+     "sha": "192de3dcfbfae8cb4a354472f937a340e443178e",
+     "message": "fix(security): restrict generated secret artifacts",
+     "date": "2026-07-15T20:35:34Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/192de3dcfbfae8cb4a354472f937a340e443178e"
+    },
+    {
+     "sha": "65c96d5dc3a31b1abd6fbbbc8c6fc9959a3bf3fc",
+     "message": "feat(monitors): complete list workspace actions",
+     "date": "2026-07-15T20:33:29Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/65c96d5dc3a31b1abd6fbbbc8c6fc9959a3bf3fc"
+    },
+    {
+     "sha": "62ac3117d93a4980ad3c67016ace7cc4bb6c6c79",
+     "message": "docs: refresh project handoff",
+     "date": "2026-07-15T20:22:15Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/62ac3117d93a4980ad3c67016ace7cc4bb6c6c79"
+    },
+    {
+     "sha": "991eada04cbe5ca16dcddedfab0c94e33f6736df",
+     "message": "docs(security): note local build secret artifacts",
+     "date": "2026-07-15T20:21:24Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/991eada04cbe5ca16dcddedfab0c94e33f6736df"
+    },
+    {
+     "sha": "e35b5fa1292844c3e3cb482f135a24d24a8fc495",
+     "message": "fix(backups): drop unportable category references",
+     "date": "2026-07-15T20:19:46Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/e35b5fa1292844c3e3cb482f135a24d24a8fc495"
+    },
+    {
+     "sha": "3882beb400bd6ca072f0ef8e7bb5ef1c081bfae2",
+     "message": "docs: update secure backup and heartbeat workflows",
+     "date": "2026-07-15T20:18:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/3882beb400bd6ca072f0ef8e7bb5ef1c081bfae2"
+    },
+    {
+     "sha": "ce97a1709c1aeb13b9df2ca05041f24e4820395b",
+     "message": "docs(security): document secret storage boundaries",
+     "date": "2026-07-15T20:17:49Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/ce97a1709c1aeb13b9df2ca05041f24e4820395b"
+    },
+    {
+     "sha": "763cb64b2b886ceae93419530947531f0ae10456",
+     "message": "docs: refresh setup and operator guidance",
+     "date": "2026-07-15T20:17:27Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/763cb64b2b886ceae93419530947531f0ae10456"
+    },
+    {
+     "sha": "cd381cbfdf35feeb46ecbca5b2567eeb5552dff0",
+     "message": "fix(backups): preserve restored monitor relationships",
+     "date": "2026-07-15T20:14:56Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/cd381cbfdf35feeb46ecbca5b2567eeb5552dff0"
+    },
+    {
+     "sha": "0f36f4f2ffe85095f8514cf7a9f13814cfbf2f75",
+     "message": "fix(security): hash heartbeat ingestion tokens",
+     "date": "2026-07-15T19:46:08Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/0f36f4f2ffe85095f8514cf7a9f13814cfbf2f75"
+    },
+    {
+     "sha": "0c8ded61cbc052e65af1d19c75b0264d25ab5fcc",
+     "message": "fix(security): encrypt push subscription secrets",
+     "date": "2026-07-15T19:45:04Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/0c8ded61cbc052e65af1d19c75b0264d25ab5fcc"
+    },
+    {
+     "sha": "079af6f3227002962d5e38693da4c464623f2b3d",
+     "message": "fix(security): seal complete monitor configs",
+     "date": "2026-07-15T19:44:48Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/079af6f3227002962d5e38693da4c464623f2b3d"
+    },
+    {
+     "sha": "79eef110177824c39336d8d0967b2e37b0d46eac",
+     "message": "docs(security): clarify encryption requirement",
+     "date": "2026-07-15T19:42:58Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/79eef110177824c39336d8d0967b2e37b0d46eac"
+    },
+    {
+     "sha": "ae29ba4059481ad66aad46304cc0bf6ceb8581a6",
+     "message": "fix(security): require encryption for setup",
+     "date": "2026-07-15T19:41:38Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/ae29ba4059481ad66aad46304cc0bf6ceb8581a6"
+    },
+    {
+     "sha": "6418a1197a84f69ad319088ff0b8aad493a447c4",
+     "message": "feat(monitors): show real uptime analytics",
+     "date": "2026-07-15T19:34:13Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/6418a1197a84f69ad319088ff0b8aad493a447c4"
+    },
+    {
+     "sha": "91c8cb459c13c52f337a2657109348f433c01c31",
+     "message": "feat(setup): support email administrators",
+     "date": "2026-07-15T19:31:30Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/91c8cb459c13c52f337a2657109348f433c01c31"
+    },
+    {
+     "sha": "350d3793f243208bb727d9fc8bc21c5e665de9aa",
+     "message": "fix(security): rate limit public auth flows",
+     "date": "2026-07-15T11:47:53Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/350d3793f243208bb727d9fc8bc21c5e665de9aa"
+    },
+    {
+     "sha": "1bab1eccf79822173b675c78830ec886577ad773",
+     "message": "fix(security): harden untrusted input boundaries",
+     "date": "2026-07-15T11:45:38Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/1bab1eccf79822173b675c78830ec886577ad773"
+    },
+    {
+     "sha": "2635b228cb0b58273e846428fdab97d9cf27ebd4",
+     "message": "fix(security): protect first-run setup from takeover",
+     "date": "2026-07-15T11:39:28Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/2635b228cb0b58273e846428fdab97d9cf27ebd4"
+    },
+    {
+     "sha": "71c8cdd2426ea160e20bd7c60e0348464c743f51",
+     "message": "chore(security): upgrade Vitest past known advisories",
+     "date": "2026-07-15T11:25:43Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/71c8cdd2426ea160e20bd7c60e0348464c743f51"
+    },
+    {
+     "sha": "caf06a078760c99372dc6cb01025b96feffcf155",
+     "message": "feat(ui): refresh monitoring workspace",
+     "date": "2026-07-15T11:24:23Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/caf06a078760c99372dc6cb01025b96feffcf155"
+    },
+    {
+     "sha": "c0c75ddd25531d63913a94dc172326838688f6d3",
+     "message": "fix(dev): load nested SPA routes with React preamble",
+     "date": "2026-07-15T11:18:21Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/c0c75ddd25531d63913a94dc172326838688f6d3"
+    },
+    {
+     "sha": "5cdc0c66a3a6058eca0413bab61f497294bd85ba",
+     "message": "fix(status-pages): stop reserving the \"default\" slug so the default page is editable",
+     "date": "2026-07-01T23:08:20Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/5cdc0c66a3a6058eca0413bab61f497294bd85ba"
+    },
+    {
+     "sha": "2cd3215ed3fd3da482c15a2c1d4219f5a7753733",
+     "message": "feat(widget): brandable accent for the embed widget + badge label color",
+     "date": "2026-07-01T23:06:41Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/2cd3215ed3fd3da482c15a2c1d4219f5a7753733"
+    },
+    {
+     "sha": "e6b6a11f2e0778ece779163794b417578bb3cb99",
+     "message": "fix(tools): correct the \"runs entirely in your browser\" claim",
+     "date": "2026-07-01T21:56:47Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/e6b6a11f2e0778ece779163794b417578bb3cb99"
+    },
+    {
+     "sha": "5165afffe4fb3420af2f5d61b83af897bc3997a5",
+     "message": "docs: refresh for the current feature set + remove em dashes",
+     "date": "2026-07-01T21:56:47Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/5165afffe4fb3420af2f5d61b83af897bc3997a5"
+    },
+    {
+     "sha": "a1281f20c1d92c06aa4019a182ec46daba37cb3e",
+     "message": "fix: address adversarial review findings (is-it-down abuse + robustness)",
+     "date": "2026-07-01T21:50:37Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/a1281f20c1d92c06aa4019a182ec46daba37cb3e"
+    },
+    {
+     "sha": "0d3dd0d126a45a693e5b2c8240b4784aa041bfd4",
+     "message": "feat(tools): \"Is it down?\" public checker (SSRF-guarded + rate-limited)",
+     "date": "2026-07-01T08:13:24Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/0d3dd0d126a45a693e5b2c8240b4784aa041bfd4"
+    },
+    {
+     "sha": "335416628b9a625d01374cf1371f3c8222696134",
+     "message": "fix(ui): app-wide mobile/responsive pass",
+     "date": "2026-07-01T08:13:24Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/335416628b9a625d01374cf1371f3c8222696134"
+    },
+    {
+     "sha": "ce2bd34399164393ec923e574bf28026a29e99a9",
+     "message": "fix(monitors): send RDAP Accept + User-Agent; document .dev/.app 403",
+     "date": "2026-07-01T07:17:06Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/ce2bd34399164393ec923e574bf28026a29e99a9"
+    },
+    {
+     "sha": "d1d0fb5dd9db4858e118f0e7b85a34579c8adc15",
+     "message": "feat(monitors): UI for DNS, TCP-port, and domain-expiry monitor types",
+     "date": "2026-07-01T07:12:41Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/d1d0fb5dd9db4858e118f0e7b85a34579c8adc15"
+    },
+    {
+     "sha": "950a8a883d4c8b600b36a422baaa07d86d30ae77",
+     "message": "docs: monitor types guide (DNS/TCP/domain) + honest unsupported list",
+     "date": "2026-07-01T07:06:38Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/950a8a883d4c8b600b36a422baaa07d86d30ae77"
+    },
+    {
+     "sha": "7b6fe4b6950927ceb57fee9db313268e910da166",
+     "message": "feat(monitors): DNS, TCP-port, and domain-expiry monitor types (backend)",
+     "date": "2026-07-01T07:03:14Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/7b6fe4b6950927ceb57fee9db313268e910da166"
+    },
+    {
+     "sha": "5f785b2bbe087fd654ad62491b75a4430dab5989",
+     "message": "chore(landing): set real Ko-fi URL (ko-fi.com/n8watkins)",
+     "date": "2026-07-01T06:47:40Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/5f785b2bbe087fd654ad62491b75a4430dab5989"
+    },
+    {
+     "sha": "210773f6d7fafb3c28645aaededc24aae8e20c59",
+     "message": "feat(categories): admin UI + slug-aware public pages for categories",
+     "date": "2026-07-01T01:02:31Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/210773f6d7fafb3c28645aaededc24aae8e20c59"
+    },
+    {
+     "sha": "51e3a62220056c97f68d7a321b1797074c1e198f",
+     "message": "feat(categories): slug-aware public API with per-page scoping",
+     "date": "2026-07-01T00:54:03Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/51e3a62220056c97f68d7a321b1797074c1e198f"
+    },
+    {
+     "sha": "03f4a45fb9f9166834f331eeceb24eab124f080f",
+     "message": "feat(categories): categories & status-pages CRUD APIs",
+     "date": "2026-07-01T00:44:14Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/03f4a45fb9f9166834f331eeceb24eab124f080f"
+    },
+    {
+     "sha": "11befd24213a536a263ffe0f4a428d10d8c2a5e1",
+     "message": "feat(categories): schema + DB foundation for categories & status pages",
+     "date": "2026-07-01T00:38:25Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/11befd24213a536a263ffe0f4a428d10d8c2a5e1"
+    },
+    {
+     "sha": "f61b0f13358379eb4e0c6fb2cd1c6581fae077b8",
+     "message": "feat: landing page overhaul — animations, comparison, modal sign-in, tools link",
+     "date": "2026-06-30T21:32:57Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/f61b0f13358379eb4e0c6fb2cd1c6581fae077b8"
+    },
+    {
+     "sha": "d928abfafbb566e634c562175d6d8e34a919ad08",
+     "message": "feat: free public utility tools at /tools",
+     "date": "2026-06-30T21:32:57Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/d928abfafbb566e634c562175d6d8e34a919ad08"
+    },
+    {
+     "sha": "774fd9626b3bb6f7d578a7d02272037dbb909aba",
+     "message": "feat: branded, email-client-safe HTML template for all outgoing emails",
+     "date": "2026-06-30T21:22:28Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/774fd9626b3bb6f7d578a7d02272037dbb909aba"
+    },
+    {
+     "sha": "e9d874d5022a94c0829743274a6097a1e29da052",
+     "message": "docs: rewrite INSTALL as a step-by-step \"deploy your own\" walkthrough",
+     "date": "2026-06-30T21:19:10Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/e9d874d5022a94c0829743274a6097a1e29da052"
+    },
+    {
+     "sha": "19dfae11f3fe3e69ff08c951e0bc36f7031270d9",
+     "message": "fix(a11y): WCAG 2.1 AA contrast, form labels, landmarks, light-mode status page",
+     "date": "2026-06-30T20:42:56Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/19dfae11f3fe3e69ff08c951e0bc36f7031270d9"
+    },
+    {
+     "sha": "c1fa2dae5f338a8617e67c920cb8a22a9d2ffb6a",
+     "message": "feat: embeddable status widget (/embed) + SVG status badge",
+     "date": "2026-06-30T20:42:56Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/c1fa2dae5f338a8617e67c920cb8a22a9d2ffb6a"
+    },
+    {
+     "sha": "1afb2e07b7855babe3b8926137461ad1133eb09d",
+     "message": "feat: public marketing landing page at /",
+     "date": "2026-06-30T20:27:25Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/1afb2e07b7855babe3b8926137461ad1133eb09d"
+    },
+    {
+     "sha": "9905fdfa57c1c0441b573a25e97a16ef815d5569",
+     "message": "chore: upgrade wrangler v3 -> v4 (silence dev warning, dedupe toolchain)",
+     "date": "2026-06-30T20:16:26Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/9905fdfa57c1c0441b573a25e97a16ef815d5569"
+    },
+    {
+     "sha": "99d9cdf40d35ad5e3ddb38013fd27b6622d79803",
+     "message": "fix(auth): disambiguate OAuth state_invalid + add login retry link",
+     "date": "2026-06-30T20:13:55Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/99d9cdf40d35ad5e3ddb38013fd27b6622d79803"
+    },
+    {
+     "sha": "4c65986a2c92f41739f997bbf053bbc2acff5f1f",
+     "message": "docs: refresh for deployed state + CLI/Suspended; drop unused SESSION_SECRET",
+     "date": "2026-06-30T19:58:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/4c65986a2c92f41739f997bbf053bbc2acff5f1f"
+    },
+    {
+     "sha": "dda89b8aedcd744059ae65b9022e94326edd0684",
+     "message": "feat: distinct \"Suspended\" monitor status (detects Render free-tier suspension)",
+     "date": "2026-06-30T06:44:24Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/dda89b8aedcd744059ae65b9022e94326edd0684"
+    },
+    {
+     "sha": "5a7f8c968f2bd4db847fdb79f96dedce2ccf440a",
+     "message": "feat(cli): add `monitors update` command (PUT /api/monitors/:id)",
+     "date": "2026-06-30T06:20:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/5a7f8c968f2bd4db847fdb79f96dedce2ccf440a"
+    },
+    {
+     "sha": "f9270df623e4888b5f93db2215c2d04b80d094d2",
+     "message": "feat: admin CLI with Bearer API-token auth (scripts/op.mjs)",
+     "date": "2026-06-30T06:15:52Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/f9270df623e4888b5f93db2215c2d04b80d094d2"
+    },
+    {
+     "sha": "b2259cfe8254fcb6d1a14ed5f390e351e870b641",
+     "message": "feat: header shows the signed-in identity + a Sign out button",
+     "date": "2026-06-30T05:11:03Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/b2259cfe8254fcb6d1a14ed5f390e351e870b641"
+    },
+    {
+     "sha": "a6923beeb67819f8ecd4c39a9b8ae4c200c9e23b",
+     "message": "fix: use c.redirect so OAuth/magic-link cookies survive the redirect (login broken)",
+     "date": "2026-06-30T05:02:49Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/a6923beeb67819f8ecd4c39a9b8ae4c200c9e23b"
+    },
+    {
+     "sha": "938d7cc5941b6bb97fc94369e3c22ed4fccb8358",
+     "message": "fix: don't trap a pre-configured-admin install in the locked setup wizard",
+     "date": "2026-06-30T04:37:47Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/938d7cc5941b6bb97fc94369e3c22ed4fccb8358"
+    },
+    {
+     "sha": "284bb18d9f45ba0b0eaffd0415ea7177b16488da",
+     "message": "fix: apply secureHeaders to ALL responses incl. immutable redirects (login 500)",
+     "date": "2026-06-30T04:24:32Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/284bb18d9f45ba0b0eaffd0415ea7177b16488da"
+    },
+    {
+     "sha": "e47515855369057bedf9003b56cd354aa5da3d3c",
+     "message": "fix: 500 on direct-loaded client routes (immutable ASSETS headers vs secureHeaders)",
+     "date": "2026-06-30T03:49:12Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/e47515855369057bedf9003b56cd354aa5da3d3c"
+    },
+    {
+     "sha": "afd1d9665112bd090f5395b260780149f36ac5f7",
+     "message": "docs: mark the 11 Pass-2 deferred items resolved in CODE_REVIEW.md",
+     "date": "2026-06-29T23:20:05Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/afd1d9665112bd090f5395b260780149f36ac5f7"
+    },
+    {
+     "sha": "a0878f2e50d4bebd0a0ec16d945aa302f5287b59",
+     "message": "Deferred: enforce incidents.status enum via triggers (backstop the unique index)",
+     "date": "2026-06-29T23:18:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/a0878f2e50d4bebd0a0ec16d945aa302f5287b59"
+    },
+    {
+     "sha": "5b679bef96e86fef866b2bec84367c5ece7a4229",
+     "message": "Deferred: make placeholder D1 database_id an obvious sentinel",
+     "date": "2026-06-29T23:16:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/5b679bef96e86fef866b2bec84367c5ece7a4229"
+    },
+    {
+     "sha": "835988cd0e8947108845a1d00899ca5470a21a56",
+     "message": "Deferred: code-split admin pages off the public status-page bundle",
+     "date": "2026-06-29T23:15:08Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/835988cd0e8947108845a1d00899ca5470a21a56"
+    },
+    {
+     "sha": "93f4e49a199c1f4bea0aedf3a135a0156e3bd214",
+     "message": "Deferred: track current @cloudflare/workers-types (drop stale 2023-07-01 pin)",
+     "date": "2026-06-29T23:14:00Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/93f4e49a199c1f4bea0aedf3a135a0156e3bd214"
+    },
+    {
+     "sha": "dfb3ff73e6cf45a381dacb180182a1c117b91e71",
+     "message": "Deferred: enable noUncheckedIndexedAccess + fix 27 resulting errors",
+     "date": "2026-06-29T23:13:31Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/dfb3ff73e6cf45a381dacb180182a1c117b91e71"
+    },
+    {
+     "sha": "c81572ff2abe3f9f5047a6f6e2bc9f688e6467ae",
+     "message": "Deferred: per-token heartbeat rate-limiting (min-interval throttle)",
+     "date": "2026-06-29T23:07:45Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/c81572ff2abe3f9f5047a6f6e2bc9f688e6467ae"
+    },
+    {
+     "sha": "b8d08a519a1c3a76b193b3717aaed50f8ecd43c7",
+     "message": "Deferred: surface recurring maintenance windows in public \"upcoming\"",
+     "date": "2026-06-29T23:06:09Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/b8d08a519a1c3a76b193b3717aaed50f8ecd43c7"
+    },
+    {
+     "sha": "996a64e40c6b49bd99120adaa47df2dc1c5b7e64",
+     "message": "Deferred: purge notification_outbox on monitor delete (add monitor_id column)",
+     "date": "2026-06-29T23:02:53Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/996a64e40c6b49bd99120adaa47df2dc1c5b7e64"
+    },
+    {
+     "sha": "f93dfdb6613e7576b235e11a739ad7e5074e3819",
+     "message": "Deferred: auth hardening (constant-time compare, OAuth state binding, session revocation)",
+     "date": "2026-06-29T22:59:39Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/f93dfdb6613e7576b235e11a739ad7e5074e3819"
+    },
+    {
+     "sha": "01cdff472d0a422416d4374763889472c426a32b",
+     "message": "Code review pass 2: fix 4 High + ~13 Medium + ~24 Low findings",
+     "date": "2026-06-29T21:54:52Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/01cdff472d0a422416d4374763889472c426a32b"
+    },
+    {
+     "sha": "e154410f5e9a51c3c030e4990076da20011328ba",
+     "message": "docs: add security review writeup, refresh stale docs, ignore tsbuildinfo",
+     "date": "2026-06-29T20:39:10Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/e154410f5e9a51c3c030e4990076da20011328ba"
+    },
+    {
+     "sha": "f1dc987ebdc55d503d4dedb79e9213b3e3858b3f",
+     "message": "Security & coding review: fix 21 verified findings",
+     "date": "2026-06-29T20:38:58Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/f1dc987ebdc55d503d4dedb79e9213b3e3858b3f"
+    },
+    {
+     "sha": "98b9f6ed2d57f9ad3d7a6ae3d43aec78ba9978e2",
+     "message": "Post-build review: fix defects found across all 6 PRD domains",
+     "date": "2026-06-29T10:56:19Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/98b9f6ed2d57f9ad3d7a6ae3d43aec78ba9978e2"
+    },
+    {
+     "sha": "755f59de910129063d6b007d826597305db5356b",
+     "message": "docs: add zero-context session handoff (docs/HANDOFF.md)",
+     "date": "2026-06-29T10:00:21Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/open-ping/commit/755f59de910129063d6b007d826597305db5356b"
+    }
+   ]
+  },
+  {
    "repo": "n8watkins/solara",
    "pushedAt": "2026-10-24T05:57:03Z",
    "releases": [],

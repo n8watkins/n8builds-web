@@ -164,6 +164,38 @@ export const builds: Build[] = [
     log: 'releases',
   },
   {
+    slug: 'openping',
+    name: 'OpenPing',
+    tagline: 'Uptime monitoring that runs in your own Cloudflare account',
+    category: 'Web tool',
+    tags: ['Cloudflare Workers', 'D1', 'React'],
+    color: 'from-sky-500/20 to-blue-600/20',
+    problem:
+      'Uptime monitors are subscriptions that keep your data on someone else\'s servers, and they count every hour an app is meant to be asleep as downtime. Free hosting like Render sleeps by design, so a plain monitor either reports a fake outage every night or keeps the app awake around the clock.',
+    solution:
+      'OpenPing deploys into your own Cloudflare account. A Worker runs HTTP, heartbeat, DNS, TCP and domain-expiry checks on a 12-minute schedule, D1 keeps compact uptime history, and public status pages, an embeddable widget and an SVG badge show the results. Checks are schedule-aware: an app is watched (and kept awake) only during its operating hours, and outside them it shows as "Scheduled off" without costing uptime. Anyone can use its free tools without signing up: "Is it down?", uptime and subnet calculators, a cron tester, and DNS and MX lookups.',
+    stack: [
+      { name: 'Cloudflare Workers · Hono · Zod', detail: 'The API, the scheduled checks and the public status feed' },
+      { name: 'Cloudflare D1', detail: 'Monitors, incidents and uptime history, rolled up from samples to daily and monthly' },
+      { name: 'React 19 · Vite · Tailwind v4', detail: 'The admin app (an installable PWA), status pages and free tools' },
+      { name: 'Resend · Web Push · Discord', detail: 'Alerts by email, phone notification, Discord or signed webhook' },
+    ],
+    process: [
+      'Schedule-aware checking is the idea the rest follows: Render\'s free tier sleeps between visits, so OpenPing keeps the apps awake only when they matter and never counts the off-hours as an outage.',
+      'It runs live at openping.n8builds.dev, watching the Render demos on the developer portfolio (Echo, Scout and GeminiGPT); the portfolio\'s status pills read its public feed.',
+      'Secrets are handled like a product: monitor settings are encrypted with AES-GCM, heartbeat tokens are stored only as hashes, and first-run setup needs a one-time setup token.',
+      'It stays inside Cloudflare\'s free plan: one scheduled run every 12 minutes, at most 200 checks per run.',
+    ],
+    images: [
+      { src: '/builds/openping/landing.webp', alt: 'OpenPing landing page: uptime monitoring that runs in your own Cloudflare account' },
+      { src: '/builds/openping/status.webp', alt: 'The live n8 status page: Echo, GeminiGPT and Scout with 90 days of uptime bars' },
+      { src: '/builds/openping/tools.webp', alt: 'OpenPing free tools: Is it down?, uptime and subnet calculators, cron tester, DNS and MX lookup' },
+    ],
+    github: 'https://github.com/n8watkins/open-ping',
+    liveSite: 'https://openping.n8builds.dev',
+    repo: 'n8watkins/open-ping',
+  },
+  {
     slug: 'solara',
     name: 'Solara',
     tagline: 'Know your sun window',
