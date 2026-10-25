@@ -29,7 +29,9 @@
     "test:report": "playwright show-report",
     "lighthouse": "node scripts/lighthouse.mjs",
     "analyze": "ANALYZE=true npm run build",
-    "prepare": "husky"
+    "prepare": "husky",
+    "release": "node scripts/release-kit/release.mjs",
+    "release:check": "npm run lint && npm run type-check && npm run test:unit"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

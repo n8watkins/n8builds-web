@@ -133,6 +133,14 @@ While Nathan is live, every page shows a floating corner player, the navbar's Tw
   `tests/e2e/live.spec.ts` stubs the Twitch and YouTube players with `context.route` (after the browser's CSP check); `tests/e2e/api/live.spec.ts` covers `/api/live` and the `/live` redirects; `tests/unit/live.test.ts` covers the resolver.
   To look at the player locally: `LIVE_TEST_MODE=1 npm run dev`, then set the `n8-live-test` cookie to a scenario in the browser's devtools.
 
+## Releases
+
+This repo follows the n8 release standard (`RELEASING.md`; the kit is public at https://github.com/n8watkins/release-kit, adopted 2026-10-25 at kit 1.0.3).
+- Commit messages are Conventional Commits, checked by `.husky/commit-msg` and the "Commit messages" workflow on every push and PR.
+- Every merge to `main` deploys; a release is a milestone on top of that: `npm run release -- --push` from a clean `main` bumps `package.json`, writes the `CHANGELOG.md` section from the commits, tags `vX.Y.Z`, and the Release workflow publishes the GitHub Release.
+- `release:check` is lint, types and unit tests; the browser suite already gates every PR.
+- Don't edit `CHANGELOG.md` or versions by hand.
+
 ## Contact form
 
 Flow (`app/api/contact/route.ts`): size check (10KB) and a JSON content type (else 415), JSON + Zod validation, honeypot, Turnstile, per-IP rate limit, site-wide daily limit, per-recipient auto-reply limit, then the notification email and the auto-reply.
