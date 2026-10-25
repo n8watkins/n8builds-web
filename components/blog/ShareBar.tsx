@@ -16,12 +16,13 @@ export function xShareUrl(title: string, url: string) {
  * isn't available (an insecure context or an old browser).
  */
 export default function ShareBar({ title, url }: { title: string; url: string }) {
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied] = useState<'idle' | 'copied' | 'failed'>('idle')
   // The button is server-rendered: a click before hydration would do nothing,
   // so it stays disabled until its handler exists (as the contact form's Send).
   const hydrated = useHydrated()
 
   const copy = async () => {
+    let ok = true
     try {
       await navigator.clipboard.writeText(url)
     } catch {
@@ -32,11 +33,12 @@ export default function ShareBar({ title, url }: { title: string; url: string })
       field.style.opacity = '0'
       document.body.appendChild(field)
       field.select()
-      document.execCommand('copy')
+      ok = document.execCommand('copy')
       field.remove()
     }
-    setCopied(true)
-    window.setTimeout(() => setCopied(false), 2000)
+    // Only claim success when a copy actually happened.
+    setCopied(ok ? 'copied' : 'failed')
+    window.setTimeout(() => setCopied('idle'), 2500)
   }
 
   const button =
@@ -48,10 +50,11 @@ export default function ShareBar({ title, url }: { title: string; url: string })
       <a href={xShareUrl(title, url)} target="_blank" rel="noopener noreferrer" className={button}>
         <FaXTwitter className="h-4 w-4" />
         Share on X
+        <span className="sr-only"> (opens in a new tab)</span>
       </a>
       <button type="button" onClick={copy} disabled={!hydrated} className={`${button} disabled:cursor-wait`}>
-        {copied ? <FiCheck className="h-4 w-4 text-emerald-400" /> : <FiLink className="h-4 w-4" />}
-        <span aria-live="polite">{copied ? 'Link copied' : 'Copy link'}</span>
+        {copied === 'copied' ? <FiCheck className="h-4 w-4 text-emerald-400" /> : <FiLink className="h-4 w-4" />}
+        <span aria-live="polite">{copied === 'copied' ? 'Link copied' : copied === 'failed' ? "Couldn't copy" : 'Copy link'}</span>
       </button>
     </section>
   )

@@ -50,7 +50,8 @@ const featured: FeaturedProject[] = [
     // A wide social card: anchor left so the cover crop keeps the sun.
     imagePosition: 'object-left',
     tags: ['Next.js', 'Firebase', 'Stripe'],
-    liveSite: 'https://uv-activity-planner.web.app',
+    github: 'https://github.com/n8watkins/solara',
+    liveSite: 'https://solara-uv.web.app',
     buildSlug: 'solara',
   },
   {

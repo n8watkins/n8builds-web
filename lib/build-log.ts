@@ -162,6 +162,16 @@ const VERBS: Record<string, number> = {
 const NOISE =
   /\b(HANDOFF|README|CHANGELOG|LICENSE|AGENTS\.md|CLAUDE\.md|[\w-]+\.md|\.?gitignore|docs?|roadmap|runbook|privacy policy|e2e|tests?|harness|lint(?:ing)?|CI|pre-commit|dependabot|typos?|flak(?:e|es|y)|code[- ]?review|review findings?|adversarial[- ]review)\b/i
 
+/**
+ * Internal work that reads as process, not news: sprints, audits, batches,
+ * coverage numbers and phase codes ("V2 P7a: ..."). Checked after the noise
+ * filter, on the cleaned title.
+ */
+const INTERNAL = /\b(sprints?|audits?|batch(?:es)?|coverage|compliance|backlog|tickets?|P\d+[a-z]?)\b/i
+
+/** Three or more separate numbers ("1692 live, 44 dead, 43 error") read as an operations log. */
+const NUMBER_HEAVY = (text: string) => (text.match(/\b\d+\b/g) ?? []).length >= 3
+
 /** `type(scope)!: subject`. */
 const CONVENTIONAL = /^([a-z]+)(?:\(([^()]*)\))?!?:\s*(\S.*)$/
 
@@ -217,6 +227,8 @@ export function classifyCommit(commit: Pick<SnapshotCommit, 'message' | 'author'
 
   if (NOISE.test(subject)) return { kind: 'drop', reason: 'upkeep' }
   const title = cleanTitle(subject)
+  // On the cleaned title, so stripped work codes ("(W4-A)", "(#67)") don't count.
+  if (INTERNAL.test(title) || NUMBER_HEAVY(title)) return { kind: 'drop', reason: 'internal' }
   if (title.length < 8) return { kind: 'drop', reason: 'too short' }
   return { kind: 'change', title, score }
 }
@@ -261,11 +273,14 @@ type Change = { title: string; score: number; date: string; url: string }
  * commits) whose detail is that version's notes or the day's strongest change;
  * any other day is its strongest change, plus "and N more changes".
  */
-export function entriesForBuild(build: Pick<Build, 'slug' | 'log' | 'github'>, snapshot: RepoSnapshot): LogEntry[] {
+export function entriesForBuild(build: Pick<Build, 'slug' | 'log' | 'github' | 'logHide'>, snapshot: RepoSnapshot): LogEntry[] {
   const mode = build.log ?? 'commits'
   if (mode === 'off') return []
   // Builds without a public GitHub link (a private repo) get no links into it.
   const link = (url: string) => (build.github ? url : undefined)
+  // The owner's escape hatch: hide any entry whose title contains one of these.
+  const hide = (build.logHide ?? []).map((h) => h.toLowerCase())
+  const hidden = (title: string) => hide.some((h) => title.toLowerCase().includes(h))
 
   const versions: Version[] = snapshot.releases
     .filter((r) => !r.draft && !r.prerelease)
@@ -278,7 +293,7 @@ export function entriesForBuild(build: Pick<Build, 'slug' | 'log' | 'github'>, s
     if (verdict.kind === 'version') {
       // A repo with GitHub Releases also has a release commit per tag; count it once.
       if (!released.has(verdict.version)) versions.push({ version: verdict.version, date: commit.date, url: commit.url, notes: verdict.notes })
-    } else if (verdict.kind === 'change' && mode === 'commits') {
+    } else if (verdict.kind === 'change' && mode === 'commits' && !hidden(verdict.title)) {
       changes.push({ title: verdict.title, score: verdict.score, date: commit.date, url: commit.url })
     }
   }

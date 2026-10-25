@@ -7,7 +7,9 @@ import type { LiveStatus } from '@/lib/live-shared'
  * layout, after the page has finished loading, so it never competes with it.
  */
 
-export const LIVE_POLL_MS = 60_000
+// The CDN answers most polls, so 30s is cheap; it keeps the worst-case lag
+// (server cache + CDN + poll) to about two minutes.
+export const LIVE_POLL_MS = 30_000
 
 let status: LiveStatus | null = null
 let lastChecked = 0

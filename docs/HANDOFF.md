@@ -91,6 +91,9 @@ Plan and rationale: `docs/BUILDS_LOG_PLAN.md`.
     A release always outranks that day's commits, and a GitHub Release and its release commit count once.
 - **Per-build switch:** `log: 'releases'` on a build shows only its releases (Scribe uses it: its GitHub Releases tell the story); `log: 'off'` hides it from the log; the default is `'commits'`.
   To switch a repo to releases-only, set `log: 'releases'` on its entry in `data/builds.tsx`.
+- **Internal work stays out:** commits about sprints, audits, batches, coverage, compliance or phase codes (P7a), and number-heavy operations logs, are dropped (`INTERNAL` and `NUMBER_HEAVY` in `lib/build-log.ts`).
+- **Hiding one entry:** add a phrase from its title to `logHide` on the build in `data/builds.tsx`; any commit-based entry containing it (case-insensitive) disappears on the next hourly refresh.
+- **Filtered links:** `/builds?build=x` hides the prerendered, unfiltered feed until the filter applies (an inline script in `components/log/LogFeed.tsx`), so a slow phone never flashes every build.
   A build without a `repo` (n8builds itself) or with `log: 'off'` is left out of the log entirely, index and feed, rather than shown as "nothing logged".
   Builds without a public `github` link (Solara today) get no links into their repo.
 - **Highlights:** a Sanity `logEntry` document (date, build slug, title up to 90 characters, optional note, link and image, kind: shipped / fixed / learned / next) is pinned above the automatic entries of its month and styled as featured.
@@ -128,7 +131,7 @@ While Nathan is live, every page shows a floating corner player, the navbar's Tw
   Phones (below 640px) always start as the pill at the bottom left.
   While the player covers the bottom-right corner it sets `--live-dock-br`, which lifts the homepage scroll-to-top button above it.
 - **Going live on X (or overriding a check):** in the Studio, open **Live status** (first item), switch **Live now** on, pick the platform, optionally add the link and a title, and **Publish**; switch it off and publish when done.
-  The site shows it within about a minute (the CDN and server caches).
+  The site shows it within a minute or two: the server caches each check for 60 seconds, the CDN for 30, and open pages poll every 30.
   The Studio must be deployed (`npx sanity deploy` in `n8builds-studio`) before the switch exists there.
 - **Tests:** `LIVE_TEST_MODE=1` (set in `playwright.config.ts`, ignored when `VERCEL` is set) swaps every source for fake answers.
   The scenario comes from the `n8-live-test` cookie (`none`, `twitch`, `youtube`, `both`, `x`, `all`, `youtube-no-embed`, `other`), else `LIVE_TEST_SCENARIO`, else offline, so the rest of the suite sees no player.
@@ -192,11 +195,11 @@ Every free check runs before the first Upstash call, so requests without a solve
   The navbar keeps Twitch; **YouTube was removed on 2026-10-23** (its `@n8watkins` handle was a 404) and goes back in the same spot, after Twitch, once the channel is live (also add it back to `sameAs` in `lib/seo.ts`).
   The live player is built (see "Live streams"); Twitch and YouTube detection switch on once their credentials are in Vercel.
 - **n8builds.dev has its own build page** (`/builds/n8builds`, added 2026-10-24), the third featured row: the site as a case study.
-  Every number on it was checked against the repo or a CI run: the test counts (94 unit, 337 Playwright across the six projects), the Lighthouse scores (0.98-1.00 performance, 1.00 elsewhere), the CLS story (0.29 nightly, 0.91 at 6x CPU, 0.000 after), and the contact-form limits.
+  Every number on it was checked against the repo or a CI run: the test counts (stated as "more than 200" unit and "more than 450" Playwright tests, so they don't go stale with every new test; recheck them if the suites shrink), the Lighthouse scores (0.98-1.00 performance, 1.00 elsewhere), the CLS story (0.29 nightly, 0.91 at 6x CPU, 0.000 after), and the contact-form limits.
   Refresh the test counts in its `solution` when the suites grow, and keep its featured row (`components/sections/FeaturedProjects.tsx`, tech dock in `data/projects.tsx`) in step with the build entry.
   Its screenshots in `public/builds/n8builds/` are real: the live homepage hero, the CI Lighthouse report for `/` (summary only), the GitHub Actions run of PR #10, and its own generated share card; `tests/e2e/n8builds-build.spec.ts` and `tests/e2e/api/n8builds-build.spec.ts` guard them.
   The featured row has no Live Site button, since the visitor is already on it.
-- **Private repos get no GitHub link:** Solara's repo is private, so it shows Live and Build log only; add `github` back if the repo goes public.
+- **Private repos get no GitHub link:** a build links its repo only while the repo is public (the build log also links commits and releases only then). Solara went public on 2026-10-24 and has its link; its live site moved to https://solara-uv.web.app (the old uv-activity-planner.web.app redirects there).
 - **Hero chips at 320px:** below 360px the idea -> repeat chain shrinks so it fits an iPhone SE (1st gen); `tests/e2e/hero.spec.ts` guards it.
   The loop-back light measures its wire at runtime (`useWireLength` in `Hero.tsx`), so chip size changes need no manual re-measuring.
 - **Appturnity has no build page:** `/builds/appturnity` redirects to appturnity.com, and the site never links Appturnity's GitHub repo.

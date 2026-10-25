@@ -236,9 +236,35 @@ describe('entries for a build', () => {
     })
   })
 
+  it('drops internal work: sprints, audits, batches, phase codes and number-heavy logs', () => {
+    for (const message of [
+      'feat: tag type + tag storage keys for the feature sprint',
+      'Capture batch complete: 1692 live, 44 dead, 43 error (full 1779 coverage)',
+      'fix: apply pre-submission hardenings from the compliance audit',
+      'V2 P7a: client-side ICS export',
+      'Wire P7b live calendar-feed client side',
+    ]) {
+      expect(classifyCommit({ message, author: 'n8watkins', parents: 1 }), message).toMatchObject({ kind: 'drop', reason: 'internal' })
+    }
+    // Real features still pass, including ones with a single number.
+    expect(classifyCommit({ message: 'feat: add a 30-day history', author: 'n8watkins', parents: 1 })).toMatchObject({ kind: 'change' })
+    expect(classifyCommit({ message: 'Scheduled activities: see, open and move calendar events', author: 'n8watkins', parents: 1 })).toMatchObject({ kind: 'change' })
+  })
+
+  it('hides entries the owner lists in logHide', () => {
+    const all = entriesForBuild(build('tldw'), snapshot('tl-dw'))
+    const target = all.find((e) => e.kind === 'change')!
+    const hiddenTitle = target.title.slice(0, 20)
+    const filtered = entriesForBuild({ ...build('tldw'), logHide: [hiddenTitle.toUpperCase()] }, snapshot('tl-dw'))
+    expect(filtered.some((e) => e.title.includes(hiddenTitle))).toBe(false)
+    expect(filtered.length).toBeGreaterThan(0)
+  })
+
   it('never links into a repo the build has no public GitHub link for', () => {
-    expect(build('solara').github).toBeUndefined()
-    expect(entriesForBuild(build('solara'), snapshot('solara')).every((e) => e.url === undefined)).toBe(true)
+    const privateRepo = { ...build('solara'), github: undefined }
+    expect(entriesForBuild(privateRepo, snapshot('solara')).every((e) => e.url === undefined)).toBe(true)
+    // Solara's repo went public, so its entries now link into it.
+    expect(entriesForBuild(build('solara'), snapshot('solara')).some((e) => e.url?.startsWith('https://github.com/n8watkins/solara/'))).toBe(true)
     expect(entriesForBuild(build('tldw'), snapshot('tl-dw')).every((e) => e.url?.startsWith('https://github.com/n8watkins/tl-dw/commit/'))).toBe(true)
   })
 

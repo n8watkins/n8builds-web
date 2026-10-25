@@ -19,11 +19,26 @@ type FeedProps = {
   recentFrom: string | null
 }
 
+// Runs while the page parses: a shared filtered link (?build=x) hides the
+// prerendered, unfiltered feed until hydration swaps in the filtered one, so a
+// slow phone never shows every build and then collapses. It marks <html>,
+// which suppresses hydration warnings for exactly this kind of attribute.
+const HIDE_UNFILTERED = `if(new URLSearchParams(location.search).get('build'))document.documentElement.dataset.logFiltered=''`
+
 export default function LogFeed(props: FeedProps) {
   // useSearchParams opts its subtree out of prerendering, so the server HTML
   // carries the unfiltered feed and the URL's filter applies on hydration.
   return (
-    <Suspense fallback={<Feed {...props} active={null} />}>
+    <Suspense
+      fallback={
+        <>
+          <script dangerouslySetInnerHTML={{ __html: HIDE_UNFILTERED }} />
+          <div className="[[data-log-filtered]_&]:invisible">
+            <Feed {...props} active={null} />
+          </div>
+        </>
+      }
+    >
       <FeedFromUrl {...props} />
     </Suspense>
   )

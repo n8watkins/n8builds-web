@@ -37,3 +37,19 @@ test('Copy link copies the canonical URL and says so', async ({ page, request, b
   // It resets, so a second copy confirms again.
   await expect(bar.getByRole('button', { name: 'Copy link' })).toBeVisible({ timeout: 5000 })
 })
+
+test("Copy link says so when the browser won't copy, instead of claiming it did", async ({ page, request }) => {
+  const path = await firstBlogPostPath(request)
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText: () => Promise.reject(new Error('denied')) },
+      configurable: true,
+    })
+    document.execCommand = () => false
+  })
+  await page.goto(path)
+  const bar = page.getByRole('region', { name: 'Share this note' })
+  await bar.getByRole('button', { name: 'Copy link' }).click()
+  await expect(bar.getByRole('button', { name: "Couldn't copy" })).toBeVisible()
+  await expect(bar.getByRole('button', { name: 'Link copied' })).toHaveCount(0)
+})

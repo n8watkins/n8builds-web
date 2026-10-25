@@ -12,7 +12,7 @@ Detailed plans: [BUILDS_LOG_PLAN.md](BUILDS_LOG_PLAN.md), [LIVE_STREAM_PLAN.md](
 ### A. Decisions (one-line answers to Claude; about 10 minutes in total)
 
 - [ ] **Appturnity card** ("What I'm working on", the first section under the hero): 2-3 real, current lines about Appturnity, or "make it evergreen".
-- [ ] **Solara's GitHub link:** its repo is public again; bring the link back? (yes / no)
+- [x] **Solara's GitHub link:** back (the repo is public).
 - [ ] **One front door:** keep portfolio.n8builds.dev as a separate site, or make n8builds the portfolio and redirect or slim down the old one?
 - [ ] **GitHub repo settings for n8builds-web:** OK for Claude to fix the description, homepage URL and topics, and switch off the empty Wiki and Projects tabs? (yes / no)
 - [ ] **Dependency updates:** OK for Claude to work through the 6 Dependabot pull requests? (yes / no)
@@ -23,7 +23,7 @@ Detailed plans: [BUILDS_LOG_PLAN.md](BUILDS_LOG_PLAN.md), [LIVE_STREAM_PLAN.md](
 
 ### B. Accounts and keys (do these yourself; never paste secrets in chat)
 
-- [ ] **Check Solara's live-site link:** the site points to uv-activity-planner.web.app; its commits mention solara-uv.web.app. Which is current?
+- [x] **Solara's live-site link:** now https://solara-uv.web.app (the old address redirects there), and its GitHub link is back since the repo is public (2026-10-24).
 - [ ] **Delete the old reCAPTCHA key** at https://www.google.com/recaptcha/admin (the old portfolio site entry). It leaked in git history in 2025; it's unused, and deleting it makes the leak worthless. 1 minute.
 - [ ] **Twitch developer app** (for live detection; 2 minutes): dev.twitch.tv, Your Console, Register Your Application. Name `n8builds.dev`, OAuth Redirect URL `http://localhost`, category Website Integration, client type Confidential. In the project folder run `! vercel env add TWITCH_CLIENT_ID production` and `! vercel env add TWITCH_CLIENT_SECRET production` and paste the values at the prompts.
 - [ ] **YouTube channel:** tell Claude its handle or URL; in YouTube Studio, enable live streaming (can take 24 hours the first time) and leave embedding on for your streams.

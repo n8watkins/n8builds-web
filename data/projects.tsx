@@ -256,7 +256,8 @@ export const projects = [
         ],
       },
     },
-    liveSite: 'https://uv-activity-planner.web.app',
+    github: 'https://github.com/n8watkins/solara',
+    liveSite: 'https://solara-uv.web.app',
   },
   {
     id: 8,
