@@ -61,3 +61,32 @@ test('the page ends with "Use this as a template": both repos, their licenses, a
   })
   expect(order).toEqual(['template', 'contact'])
 })
+
+test('Portfolio Rank credits the list it is built on and invites visitors to add their portfolio', async ({ page }) => {
+  // The featured row: a linked credit, and the invitation out to the live site.
+  await page.goto('/')
+  const featured = page.locator('#featured')
+  const credit = featured.getByRole('link', { name: "Emma Bostian's developer-portfolios list" })
+  await credit.scrollIntoViewIfNeeded()
+  await expect(credit).toHaveAttribute('href', 'https://github.com/emmabostian/developer-portfolios')
+  await expect(featured.getByRole('link', { name: /Have a portfolio\? Add yours to Portfolio Rank/ })).toHaveAttribute(
+    'href',
+    'https://portfoliorank.vercel.app/',
+  )
+
+  // The build page: the invitation, and credits for the list and the tweet that started it.
+  await page.goto('/builds/portfolio-rank')
+  await expect(page.getByRole('heading', { name: 'Have a portfolio?' })).toBeVisible()
+  await expect(page.getByRole('link', { name: /Add yours on Portfolio Rank/ })).toHaveAttribute('href', 'https://portfoliorank.vercel.app/')
+  const credits = page.getByRole('region', { name: 'Credits' })
+  await expect(credits.getByRole('link', { name: 'Emma Bostian, developer-portfolios' })).toHaveAttribute(
+    'href',
+    'https://github.com/emmabostian/developer-portfolios',
+  )
+  await expect(credits.getByRole('link', { name: 'Ali Spittel' })).toHaveAttribute('href', /twitter\.com\/ASpittel\/status\/1171604728951779328/)
+
+  // Builds without them show neither.
+  await page.goto('/builds/scribe')
+  await expect(page.getByRole('region', { name: 'Credits' })).toHaveCount(0)
+  await expect(page.locator('#cta-heading')).toHaveCount(0)
+})
