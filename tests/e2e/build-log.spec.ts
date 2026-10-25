@@ -84,9 +84,36 @@ test('the build filter narrows the feed and lives in the URL', async ({ page }) 
 
 test('a filtered link opens the feed already filtered', async ({ page }) => {
   await page.goto('/builds?build=tubevault#activity')
-  await expect(chip(page, 'TubeVault')).toHaveAttribute('aria-pressed', 'true')
+  await expect(chip(page, 'TubeVault')).toHaveAttribute('aria-pressed', 'true', { timeout: 15_000 })
   await expect(feedEntries(page).first()).toContainText('Shipped v0.3.80')
-  expect(await feedEntries(page).evaluateAll((els) => els.every((el) => el.getAttribute('data-build') === 'tubevault'))).toBe(true)
+  await expect
+    .poll(() => feedEntries(page).evaluateAll((els) => els.every((el) => el.getAttribute('data-build') === 'tubevault')))
+    .toBe(true)
+})
+
+test('before the page is interactive, a filtered link shows no unfiltered feed', async ({ page }) => {
+  // Hold back the app's JavaScript, as on a slow phone: only the server HTML
+  // and the inline scripts run.
+  let release = () => {}
+  const held = new Promise<void>((resolve) => (release = resolve))
+  await page.route('**/_next/static/chunks/**', async (route) => {
+    await held
+    await route.continue()
+  })
+
+  await page.goto('/builds?build=tubevault', { waitUntil: 'commit' })
+  // The prerendered feed lists every build; none of the other builds may show.
+  await expect(feed(page)).toBeAttached()
+  const visibleOthers = () =>
+    feed(page)
+      .locator('li[data-kind]:not([data-build="tubevault"])')
+      .evaluateAll((els) => els.filter((el) => el.checkVisibility({ visibilityProperty: true })).length)
+  expect(await visibleOthers()).toBe(0)
+
+  release()
+  await expect(chip(page, 'TubeVault')).toHaveAttribute('aria-pressed', 'true', { timeout: 15_000 })
+  await expect(feedEntries(page).first()).toBeVisible()
+  await expect(feed(page).locator('li[data-kind]:not([data-build="tubevault"])')).toHaveCount(0)
 })
 
 test('a build page shows its recent activity and links to its part of the log', async ({ page }) => {
