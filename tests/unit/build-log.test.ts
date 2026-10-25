@@ -237,8 +237,10 @@ describe('entries for a build', () => {
   })
 
   it('never links into a repo the build has no public GitHub link for', () => {
-    expect(build('solara').github).toBeUndefined()
-    expect(entriesForBuild(build('solara'), snapshot('solara')).every((e) => e.url === undefined)).toBe(true)
+    const privateRepo = { ...build('solara'), github: undefined }
+    expect(entriesForBuild(privateRepo, snapshot('solara')).every((e) => e.url === undefined)).toBe(true)
+    // Solara's repo went public, so its entries now link into it.
+    expect(entriesForBuild(build('solara'), snapshot('solara')).some((e) => e.url?.startsWith('https://github.com/n8watkins/solara/'))).toBe(true)
     expect(entriesForBuild(build('tldw'), snapshot('tl-dw')).every((e) => e.url?.startsWith('https://github.com/n8watkins/tl-dw/commit/'))).toBe(true)
   })
 

@@ -192,11 +192,11 @@ Every free check runs before the first Upstash call, so requests without a solve
   The navbar keeps Twitch; **YouTube was removed on 2026-10-23** (its `@n8watkins` handle was a 404) and goes back in the same spot, after Twitch, once the channel is live (also add it back to `sameAs` in `lib/seo.ts`).
   The live player is built (see "Live streams"); Twitch and YouTube detection switch on once their credentials are in Vercel.
 - **n8builds.dev has its own build page** (`/builds/n8builds`, added 2026-10-24), the third featured row: the site as a case study.
-  Every number on it was checked against the repo or a CI run: the test counts (94 unit, 337 Playwright across the six projects), the Lighthouse scores (0.98-1.00 performance, 1.00 elsewhere), the CLS story (0.29 nightly, 0.91 at 6x CPU, 0.000 after), and the contact-form limits.
+  Every number on it was checked against the repo or a CI run: the test counts (stated as "more than 200" unit and "more than 450" Playwright tests, so they don't go stale with every new test; recheck them if the suites shrink), the Lighthouse scores (0.98-1.00 performance, 1.00 elsewhere), the CLS story (0.29 nightly, 0.91 at 6x CPU, 0.000 after), and the contact-form limits.
   Refresh the test counts in its `solution` when the suites grow, and keep its featured row (`components/sections/FeaturedProjects.tsx`, tech dock in `data/projects.tsx`) in step with the build entry.
   Its screenshots in `public/builds/n8builds/` are real: the live homepage hero, the CI Lighthouse report for `/` (summary only), the GitHub Actions run of PR #10, and its own generated share card; `tests/e2e/n8builds-build.spec.ts` and `tests/e2e/api/n8builds-build.spec.ts` guard them.
   The featured row has no Live Site button, since the visitor is already on it.
-- **Private repos get no GitHub link:** Solara's repo is private, so it shows Live and Build log only; add `github` back if the repo goes public.
+- **Private repos get no GitHub link:** a build links its repo only while the repo is public (the build log also links commits and releases only then). Solara went public on 2026-10-24 and has its link; its live site moved to https://solara-uv.web.app (the old uv-activity-planner.web.app redirects there).
 - **Hero chips at 320px:** below 360px the idea -> repeat chain shrinks so it fits an iPhone SE (1st gen); `tests/e2e/hero.spec.ts` guards it.
   The loop-back light measures its wire at runtime (`useWireLength` in `Hero.tsx`), so chip size changes need no manual re-measuring.
 - **Appturnity has no build page:** `/builds/appturnity` redirects to appturnity.com, and the site never links Appturnity's GitHub repo.
