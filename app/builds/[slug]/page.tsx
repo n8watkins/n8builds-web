@@ -166,6 +166,55 @@ export default async function BuildPage({ params }: BuildPageProps) {
             </section>
           </Reveal>
 
+          {/* An invitation to the visitor, when the build has one */}
+          {build.cta && (
+            <Reveal>
+              <section
+                aria-labelledby="cta-heading"
+                className="mt-6 flex flex-col gap-4 rounded-2xl border border-cyan-400/25 bg-cyan-400/[0.06] p-6 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <h2 id="cta-heading" className="text-lg font-bold text-slate-50">{build.cta.heading}</h2>
+                  <p className="mt-1 text-slate-300">{build.cta.body}</p>
+                </div>
+                <a
+                  href={build.cta.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:scale-[1.02] hover:from-blue-500 hover:to-cyan-400"
+                >
+                  {build.cta.label}
+                  <FiArrowUpRight className="h-4 w-4" />
+                  <span className="sr-only"> (opens in a new tab)</span>
+                </a>
+              </section>
+            </Reveal>
+          )}
+
+          {/* Who the build stands on */}
+          {build.credits && build.credits.length > 0 && (
+            <Reveal>
+              <section className="mt-6 rounded-2xl border border-white/8 bg-white/3 p-6" aria-labelledby="credits-heading">
+                <h2 id="credits-heading" className="text-sm font-bold uppercase tracking-widest text-slate-450">Credits</h2>
+                <ul className="mt-3 space-y-2">
+                  {build.credits.map((credit) => (
+                    <li key={credit.href} className="text-slate-300 leading-relaxed">
+                      <a
+                        href={credit.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 hover:text-cyan-200"
+                      >
+                        {credit.name}
+                      </a>
+                      : {credit.note}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            </Reveal>
+          )}
+
           {/* Stack */}
           <Reveal>
             <section className="mt-12" aria-label="Tech stack">

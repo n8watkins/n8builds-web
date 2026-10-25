@@ -26,6 +26,10 @@ export interface Build {
   stack: BuildStackItem[]
   process: string[]
   images: BuildImage[]
+  /** People and projects the build stands on, credited with links on its page. */
+  credits?: { name: string; href: string; note: string }[]
+  /** An invitation to the visitor on the build's page (Portfolio Rank: add your portfolio). */
+  cta?: { heading: string; body: string; label: string; href: string }
   github?: string
   liveSite?: string
   /**
@@ -262,6 +266,24 @@ export const builds: Build[] = [
       'Free, with a Ko-fi support link - stars and contributions welcome.',
     ],
     images: [],
+    credits: [
+      {
+        name: 'Emma Bostian, developer-portfolios',
+        href: 'https://github.com/emmabostian/developer-portfolios',
+        note: 'The community list every portfolio here comes from, curated by Emma and thousands of contributors since 2019. Go star it.',
+      },
+      {
+        name: 'Ali Spittel',
+        href: 'https://twitter.com/ASpittel/status/1171604728951779328',
+        note: 'Her 2019 tweet asking developers to share their portfolios is what started the list.',
+      },
+    ],
+    cta: {
+      heading: 'Have a portfolio?',
+      body: 'Add it to Portfolio Rank: it gets a screenshot, Lighthouse scores and an AI review, and joins the head-to-head rankings.',
+      label: 'Add yours on Portfolio Rank',
+      href: 'https://portfoliorank.vercel.app/',
+    },
     github: 'https://github.com/n8watkins/portfolio-rank',
     liveSite: 'https://portfoliorank.vercel.app',
     repo: 'n8watkins/portfolio-rank',

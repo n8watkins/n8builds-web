@@ -75,6 +75,7 @@ When the owner decides something new, add it here (with the date) in the same ch
 - **portfolio.n8builds.dev stays a separate site and a separate repo:** it is the developer-portfolio (hire-me) segment, a repo the owner can share on its own (renamed from Portfolio2.0 to `dev-portfolio` on 2026-10-25); n8builds.dev is the build-in-public workshop. Not a page of n8builds.dev.
 - **The portfolio features Echo, Scout, GeminiGPT and Net-Trailer, not Scribe or Solara** (2026-10-25). It shows more builds as links to their n8builds.dev pages, and the Render demos' live status from OpenPing.
 - **OpenPing and Scribe are featured rows** (2026-10-25): the owner uses both daily.
+- **Portfolio Rank credits its origins and invites submissions** (2026-10-25): its featured row and build page link Emma Bostian's developer-portfolios list (and, on the page, Ali Spittel's tweet that started it), and invite visitors to add their portfolio by sending them to the Portfolio Rank site. n8builds only links there; submissions are Portfolio Rank's business, not this site's. Builds can carry `credits` and a `cta` in `data/builds.tsx`.
 - **A direct route to the portfolio:** "Hiring? See my developer portfolio" under the hero, and `n8builds.dev/portfolio` redirects to portfolio.n8builds.dev (2026-10-25).
 
 ## Operations

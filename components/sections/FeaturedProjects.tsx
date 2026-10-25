@@ -24,6 +24,10 @@ interface FeaturedProject {
   imageAlt: string
   /** object-position for the main image, when the top-centre crop cuts the art. */
   imagePosition?: string
+  /** Who the build stands on, credited under the description. */
+  credit?: { before: string; name: string; href: string; after?: string }
+  /** An invitation to the visitor, linking out (Portfolio Rank: add your portfolio). */
+  cta?: { label: string; href: string }
 }
 
 // The owner's daily drivers first (Scribe and OpenPing run every day), then
@@ -82,6 +86,13 @@ const featured: FeaturedProject[] = [
     github: 'https://github.com/n8watkins/portfolio-rank',
     liveSite: 'https://portfoliorank.vercel.app/',
     buildSlug: 'portfolio-rank',
+    credit: {
+      before: 'Built on',
+      name: "Emma Bostian's developer-portfolios list",
+      href: 'https://github.com/emmabostian/developer-portfolios',
+      after: ', curated by thousands of contributors.',
+    },
+    cta: { label: 'Have a portfolio? Add yours to Portfolio Rank', href: 'https://portfoliorank.vercel.app/' },
   },
 ]
 
@@ -138,6 +149,32 @@ const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: b
         <p className="text-[0.7rem] font-bold tracking-[0.16em] uppercase text-blue-400 mb-2">{project.subtitle}</p>
         <h3 className="text-2xl sm:text-3xl font-bold text-slate-50 tracking-tight mb-3">{project.title}</h3>
         <p className="text-[#9cadc5] text-sm sm:text-base/6 leading-relaxed">{project.description}</p>
+        {project.credit && (
+          <p className="mt-2 text-sm text-slate-450">
+            {project.credit.before}{' '}
+            <a
+              href={project.credit.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-slate-300 underline decoration-white/25 underline-offset-4 hover:text-cyan-200"
+            >
+              {project.credit.name}
+            </a>
+            {project.credit.after}
+          </p>
+        )}
+        {project.cta && (
+          <a
+            href={project.cta.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-cyan-300 hover:text-cyan-200"
+          >
+            {project.cta.label}
+            <FiExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+            <span className="sr-only"> (opens in a new tab)</span>
+          </a>
+        )}
       </div>
 
       {/* Tech stack - interactive icon dock, falls back to flat tags */}
