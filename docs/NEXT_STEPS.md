@@ -16,8 +16,8 @@ Detailed plans: [BUILDS_LOG_PLAN.md](BUILDS_LOG_PLAN.md), [LIVE_STREAM_PLAN.md](
 - [ ] **One front door:** keep portfolio.n8builds.dev as a separate site, or make n8builds the portfolio and redirect or slim down the old one?
 - [ ] **GitHub repo settings for n8builds-web:** OK for Claude to fix the description, homepage URL and topics, and switch off the empty Wiki and Projects tabs? (yes / no)
 - [ ] **Dependency updates:** OK for Claude to work through the 6 Dependabot pull requests? (yes / no)
-- [ ] **Release standard:** OK for Claude to apply release-kit to TL;DW, TubeVault, Piper TTS, Solara and Portfolio Rank? (yes / no)
-- [ ] **Release-kit on GitHub:** it exists only on this machine, with no backup. Private or public repo (`n8watkins/release-kit`)? Public doubles as a portfolio piece.
+- [ ] **Release standard:** n8builds-web adopted it (#17) and shipped its first release, v1.1.0. OK for Claude to apply it to TL;DW, TubeVault, Piper TTS, Solara and Portfolio Rank? (yes / no)
+- [x] **Release-kit on GitHub:** public at https://github.com/n8watkins/release-kit (2026-10-25), released through its own workflow (v1.0.0 to v1.0.3).
 - [ ] **Articles and X:** write on the site first and share to X (recommended), or write on X first? Automatic posting to X costs about $0.20 a post; the free option is a one-click "Share on X". See [X_ARTICLES_PLAN.md](X_ARTICLES_PLAN.md).
 - [ ] **Live player defaults** (or keep these): bottom-right corner, Twitch first when live on several platforms, player on every page.
 
@@ -52,7 +52,7 @@ Ordered by value.
 | 4 | **Done (#12):** **a build page for n8builds itself:** tests on five browsers, security headers and CSP, near-perfect Lighthouse scores, the agent-driven workflow, the release standard | Yes | Nothing | - |
 | 5 | **Partly done (#11: Share on X and Copy link on posts):** **X sharing:** "Share on X" on every post and in the Studio, "Copy for X", and "On X" entries in N8 Notions | Mostly (the free parts) | Your choice of site-first or X-first; keys only for automatic posting | [X_ARTICLES_PLAN.md](X_ARTICLES_PLAN.md) |
 | 6 | **Dependency updates:** review and merge the Dependabot PRs; the four major upgrades one at a time with the full test suite | No | Your OK (A) | - |
-| 7 | **Release standard rollout:** apply release-kit to five repos, baseline tags, propose milestone backfills for your approval | No | Your OK (A) | `~/n8builds/release-kit` |
+| 7 | **Started (n8builds-web adopted it, #17; v1.1.0 released):** **release standard rollout:** apply release-kit to five repos, baseline tags, propose milestone backfills for your approval | No | Your OK (A) | `~/n8builds/release-kit` |
 | 8 | **Quick fixes from your decisions:** Appturnity card, Solara link, GitHub settings, front-door redirect | No | Your answers (A) | - |
 | 9 | **Proof updates:** add your screenshots and numbers to the build pages | No | Your content (C) | - |
 
@@ -86,11 +86,16 @@ To review it later, paste [prompts/review-2026-10-24-changes.md](prompts/review-
 | #13 | Live streams part 1: corner player, `/live`, navbar live dot, the Studio "Live status" switch | `/api/live`, `components/live/`, `lib/live.ts` |
 | #15 | Checklist and HANDOFF updated | `docs/` |
 
+**2026-10-25:**
+
+- release-kit published (public, v1.0.0 to v1.0.3), with fixes found while dogfooding it: notes through a symlinked folder, atomic branch-and-tag push, husky repos, npm 12's `--allow-git`.
+- n8builds-web adopted it (#17): commit messages checked on every push and PR; first release v1.1.0 (https://github.com/n8watkins/n8builds-web/releases/tag/v1.1.0) covers the 2026-10-23/24 work; `CHANGELOG.md` is generated.
+
 **Outside this repo:**
 
 - Sanity Studio (`n8builds-studio`): "Live status" (merged as its PR #1) and "Build log highlight" schemas, deployed to https://n8builds.sanity.studio; the "Live status" document created, switched off.
 - Vercel: `GITHUB_TOKEN` for the build log (Production and Preview).
-- `~/n8builds/release-kit`: the release standard, built and tested, **local only** (see Part 1 A: it needs a GitHub home).
+- `~/n8builds/release-kit` is now public at https://github.com/n8watkins/release-kit.
 
 **Earlier (2026-10-22/23, commits on `main` before the PR workflow):**
 
