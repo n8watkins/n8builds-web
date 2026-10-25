@@ -41,9 +41,9 @@ Vercel WAF rule "Contact form flood limit": `POST /api/contact`, 10 requests per
 It is free on Hobby (1 rate-limit rule per project, 1M allowed requests, hard cap with no overage billing) and was verified live: the 11th request in a minute got 429 with `x-vercel-mitigated: deny`.
 Change or remove it in Vercel → Project `n8builds-web` → Firewall.
 
-## 5b. Share-card check (the review is done, so this is next)
+## 5b. Share-card check (done 2026-10-24)
 
-Paste a blog post and a build page into a share-card checker (for example opengraph.xyz) to see the preview images as X, LinkedIn and Facebook will.
+Checked in Discord and opengraph.xyz; its feedback led to titled post cards and 120-character share descriptions (now live).
 
 ## Resolved 2026-10-22
 
