@@ -121,7 +121,8 @@ test('unknown routes return the 404 page', async ({ page }) => {
 test('legacy shelf routes redirect to homepage anchors', async ({ page }) => {
   for (const [from, anchor] of [
     ['/lab', '#lab'],
-    ['/tools', '#tools'],
+    // Tools is gone (Scribe and OpenPing are featured rows now).
+    ['/tools', '#featured'],
     ['/resources', '#lab'],
     ['/builds/canihost', '#lab'],
   ]) {

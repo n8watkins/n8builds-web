@@ -145,14 +145,21 @@ test('a blog post is a BlogPosting with its share image', async ({ request }) =>
 })
 
 test('retired routes redirect permanently', async ({ request }) => {
-  for (const path of ['/lab', '/extensions', '/tools', '/resources', '/builds/canihost', '/builds/repo-steward', '/builds/asset-arsenal', '/builds/jobsignal']) {
+  for (const path of ['/lab', '/extensions', '/resources', '/builds/canihost', '/builds/repo-steward', '/builds/asset-arsenal', '/builds/jobsignal']) {
     const response = await request.get(path, { maxRedirects: 0 })
     expect(response.status(), path).toBe(308)
   }
 })
 
-test('builds on hold redirect temporarily, so they can come back at the same URL', async ({ request }) => {
-  for (const [path, target] of [['/builds/chrome-extension-kit', '/#extensions'], ['/builds/vibelog', '/#lab']]) {
+test('temporary redirects: builds on hold (so they can come back at the same URL), Tools, and the portfolio shortcut', async ({ request }) => {
+  for (const [path, target] of [
+    ['/builds/chrome-extension-kit', '/#extensions'],
+    ['/builds/vibelog', '/#lab'],
+    // Tools may come back if a build lands there; for now its builds are featured.
+    ['/tools', '/#featured'],
+    // The short address for the developer portfolio.
+    ['/portfolio', 'https://portfolio.n8builds.dev/'],
+  ]) {
     const response = await request.get(path, { maxRedirects: 0 })
     expect(response.status(), path).toBe(307)
     expect(response.headers().location, path).toBe(target)

@@ -260,6 +260,80 @@ export const projects = [
     liveSite: 'https://solara-uv.web.app',
   },
   {
+    id: 9,
+    title: 'Scribe',
+    subTitle: 'Private Local Dictation for Windows',
+    des: 'Hold a hotkey, talk, release: transcribed on your own PC and typed at your cursor.',
+    images: ['/builds/scribe/landing.webp'],
+    technologies: {
+      Frontend: {
+        descriptionParts: [
+          {
+            text: 'A Windows app with global hotkeys, a tray icon and a floating status pill',
+            icons: [{ icon: 'tauri.svg' }],
+          },
+        ],
+      },
+      Backend: {
+        descriptionParts: [
+          {
+            text: 'Rust captures audio and types the text wherever the cursor is',
+            icons: [{ icon: 'rust.svg' }],
+          },
+          {
+            text: 'Transcript history and stats in a local SQLite database',
+            icons: [{ icon: 'sqlite.svg' }],
+          },
+        ],
+      },
+      Cloud: {
+        descriptionParts: [
+          {
+            text: 'No cloud at all: Whisper runs on the PC; the site and releases live on GitHub',
+            icons: [{ icon: 'github.png' }],
+          },
+        ],
+      },
+    },
+    github: 'https://github.com/n8watkins/scribe',
+    liveSite: 'https://scribe.n8builds.dev',
+  },
+  {
+    id: 10,
+    title: 'OpenPing',
+    subTitle: 'Uptime Monitoring in Your Own Cloudflare',
+    des: 'Schedule-aware uptime checks and public status pages, deployed to your own Cloudflare account.',
+    images: ['/builds/openping/landing.webp'],
+    technologies: {
+      Frontend: {
+        descriptionParts: [
+          {
+            text: 'The admin app, status pages and free tools: an installable React app',
+            icons: [{ icon: 're.svg' }, { icon: 'vite.svg' }, { icon: 'tail.svg' }, { icon: 'ts.svg' }],
+          },
+        ],
+      },
+      Backend: {
+        descriptionParts: [
+          {
+            text: 'A Worker API with Hono and Zod, and a scheduled run every 12 minutes',
+            icons: [{ icon: 'hono.svg' }, { icon: 'zod.png' }],
+          },
+        ],
+      },
+      Cloud: {
+        descriptionParts: [
+          {
+            text: 'Cloudflare Workers and D1, inside the free plan',
+            icons: [{ icon: 'cf-workers.svg' }],
+          },
+        ],
+      },
+    },
+    github: 'https://github.com/n8watkins/open-ping',
+    liveSite: 'https://openping.n8builds.dev',
+  },
+  {
     id: 8,
     title: 'n8builds.dev',
     subTitle: 'This Site, Tested Like a Product',
@@ -370,6 +444,11 @@ export const techNameMapping = {
   'turso.svg': 'Turso',
   'gemini.svg': 'Gemini',
   'cloudflare.svg': 'Cloudflare R2',
+  'cf-workers.svg': 'Cloudflare Workers + D1',
+  'tauri.svg': 'Tauri',
+  'rust.svg': 'Rust',
+  'sqlite.svg': 'SQLite',
+  'hono.svg': 'Hono',
   'turnstile.svg': 'Cloudflare Turnstile',
   'sanity.svg': 'Sanity',
   'upstash.svg': 'Upstash Redis',

@@ -26,19 +26,35 @@ interface FeaturedProject {
   imagePosition?: string
 }
 
+// The owner's daily drivers first (Scribe and OpenPing run every day), then
+// the showcase apps. n8builds itself is not a row: how it is built and tested
+// is the "Use this as a template" section at the end of the homepage.
 const featured: FeaturedProject[] = [
   {
-    title: 'Portfolio Rank',
-    subtitle: 'Developer Portfolio Ranker',
+    title: 'Scribe',
+    subtitle: 'Private Local Dictation for Windows',
     description:
-      "Ranks 1,700+ developer portfolios by what's actually good - head-to-head voting + AI scoring, not alphabetical. Build lists, save the ones you love, and like the best.",
-    image: '/projects/PortfolioRank-1.png',
-    images: ['/projects/PortfolioRank-1.png'],
-    imageAlt: 'Portfolio Rank - developer portfolio ranker screenshot',
-    tags: ['Next.js', 'TypeScript', 'Vercel'],
-    github: 'https://github.com/n8watkins/portfolio-rank',
-    liveSite: 'https://portfoliorank.vercel.app/',
-    buildSlug: 'portfolio-rank',
+      'Hold a hotkey, talk, release: whisper.cpp transcribes on your own PC and the words land at your cursor, in any app. No cloud, no account, no subscription. I dictate with it every day.',
+    image: '/builds/scribe/landing.webp',
+    images: ['/builds/scribe/landing.webp', '/builds/scribe/features.webp'],
+    imageAlt: 'Scribe: talk, it types. Private local dictation for Windows',
+    tags: ['Tauri', 'Rust', 'Whisper'],
+    github: 'https://github.com/n8watkins/scribe',
+    liveSite: 'https://scribe.n8builds.dev',
+    buildSlug: 'scribe',
+  },
+  {
+    title: 'OpenPing',
+    subtitle: 'Uptime Monitoring in Your Own Cloudflare',
+    description:
+      'Uptime checks, incidents and public status pages that deploy into your own Cloudflare account, on the free plan. Schedule-aware: apps are watched only when they matter, and off-hours never count as downtime. I use it daily to watch my live demos, and its free tools need no sign-up.',
+    image: '/builds/openping/landing.webp',
+    images: ['/builds/openping/landing.webp', '/builds/openping/status.webp', '/builds/openping/tools.webp'],
+    imageAlt: 'OpenPing: uptime monitoring that runs entirely in your own cloud',
+    tags: ['Cloudflare Workers', 'D1', 'React'],
+    github: 'https://github.com/n8watkins/open-ping',
+    liveSite: 'https://openping.n8builds.dev',
+    buildSlug: 'openping',
   },
   {
     title: 'Solara',
@@ -55,16 +71,17 @@ const featured: FeaturedProject[] = [
     buildSlug: 'solara',
   },
   {
-    title: 'n8builds.dev',
-    subtitle: 'This Site, Tested Like a Product',
+    title: 'Portfolio Rank',
+    subtitle: 'Developer Portfolio Ranker',
     description:
-      'The site you are on is a build too. Every pull request runs the Playwright suite on five browsers and the APIs, plus Lighthouse budgets, before anything merges; the contact form fails closed behind Turnstile and rate limits.',
-    image: '/builds/n8builds/home-hero.webp',
-    images: ['/builds/n8builds/home-hero.webp', '/builds/n8builds/lighthouse.webp', '/builds/n8builds/ci-checks.webp'],
-    imageAlt: 'n8builds.dev: the homepage, its Lighthouse report, and its CI run',
-    tags: ['Next.js', 'Playwright', 'Vercel'],
-    github: 'https://github.com/n8watkins/n8builds-web',
-    buildSlug: 'n8builds',
+      "Ranks 1,700+ developer portfolios by what's actually good - head-to-head voting + AI scoring, not alphabetical. Build lists, save the ones you love, and like the best.",
+    image: '/projects/PortfolioRank-1.png',
+    images: ['/projects/PortfolioRank-1.png'],
+    imageAlt: 'Portfolio Rank - developer portfolio ranker screenshot',
+    tags: ['Next.js', 'TypeScript', 'Vercel'],
+    github: 'https://github.com/n8watkins/portfolio-rank',
+    liveSite: 'https://portfoliorank.vercel.app/',
+    buildSlug: 'portfolio-rank',
   },
 ]
 
@@ -166,7 +183,7 @@ const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: b
 const FeaturedProjects = () => (
   <section id="featured" aria-label="Featured builds" className="py-10">
     <Reveal>
-      <LabSubheader eyebrow="Featured" eyebrowClass="text-blue-400" title="Recent builds" />
+      <LabSubheader eyebrow="Featured" eyebrowClass="text-blue-400" title="Featured builds" />
     </Reveal>
 
     <div className="flex flex-col gap-16 md:gap-20">
