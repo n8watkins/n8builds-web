@@ -47,6 +47,7 @@ export const shelfMeta: Record<Shelf, ShelfMeta> = {
 // Classify a build onto a shelf. Extensions and tools get their own sections;
 // everything else (web apps) is a featured row.
 export function getShelf(build: Build): Shelf {
+  if (build.featured) return 'featured'
   switch (build.category) {
     case 'Chrome extension':
     case 'Starter template':

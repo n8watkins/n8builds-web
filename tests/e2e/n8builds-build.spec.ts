@@ -3,8 +3,8 @@ import AxeBuilder from '@axe-core/playwright'
 import { getBuild } from '../../data/builds'
 
 /**
- * The build page for this site itself (/builds/n8builds), and the featured row
- * on the homepage that links to it.
+ * The build page for this site itself (/builds/n8builds), and the homepage's
+ * "Use this as a template" section that links to it.
  */
 
 const PATH = '/builds/n8builds'
@@ -55,18 +55,13 @@ test('the n8builds build page has no serious accessibility violations', async ({
   expect(serious.map((v) => `${v.id}: ${v.help}`)).toEqual([])
 })
 
-test('the homepage features n8builds with its gallery and a link to the build page', async ({ page }) => {
+test('the homepage points to the n8builds build page from "Use this as a template", not a featured row', async ({ page }) => {
   await page.goto('/')
-  const featured = page.locator('#featured')
-  const link = featured.locator(`a[href="${PATH}"]`)
+  await expect(page.locator('#featured').locator(`a[href="${PATH}"]`)).toHaveCount(0)
+  const template = page.locator('#template')
+  const link = template.getByRole('link', { name: 'How it is built and tested' })
   await link.scrollIntoViewIfNeeded()
-  await expect(link).toBeVisible()
-
-  // The row's gallery switches the main image to the Lighthouse report.
-  const row = featured.locator('div.items-center', { has: page.locator('h3', { hasText: 'n8builds.dev' }) })
-  const main = row.getByRole('img', { name: /n8builds\.dev: the homepage/ })
-  await expect(main).toHaveAttribute('src', /home-hero/)
-  await row.getByRole('button', { name: 'n8builds.dev image 2' }).click()
-  await expect(main).toHaveAttribute('src', /lighthouse/)
-  await expectImagesLoaded(page, '#featured img[src*="n8builds"]')
+  await link.click()
+  await expect(page).toHaveURL(new RegExp(`${PATH}$`))
+  await expect(page.locator('h1')).toHaveText('n8builds.dev')
 })

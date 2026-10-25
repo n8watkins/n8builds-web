@@ -22,12 +22,19 @@ const seenOpacity = (locator: Locator) =>
 
 test('a section below the fold is hidden until scrolled to, then fades in', async ({ page }) => {
   await page.goto('/')
-  const tools = page.locator('#tools')
-  await expect(tools).toBeAttached()
-  expect(await seenOpacity(tools)).toBe(0)
+  const section = page.locator('#template')
+  await expect(section).toBeAttached()
+  expect(await seenOpacity(section)).toBe(0)
 
-  await tools.scrollIntoViewIfNeeded()
-  await expect.poll(() => seenOpacity(tools), FADE).toBe(1)
+  // Scroll to it the way a reader keeps scrolling: the lazily loaded sections
+  // above can still grow after the first scroll (on a busy CI runner), pushing
+  // it back below the fold before it ever entered the viewport.
+  await expect
+    .poll(async () => {
+      await section.scrollIntoViewIfNeeded()
+      return seenOpacity(section)
+    }, FADE)
+    .toBe(1)
 })
 
 test.describe('with reduced motion', () => {
@@ -35,11 +42,15 @@ test.describe('with reduced motion', () => {
 
   test('sections are simply shown: no fade, no rise, nothing to wait for', async ({ page }) => {
     await page.goto('/')
-    const tools = page.locator('#tools')
-    await tools.scrollIntoViewIfNeeded()
+    const section = page.locator('#template')
     // Hydration applies it (FADE also covers a slow hydration on a loaded machine).
-    await expect.poll(() => seenOpacity(tools), FADE).toBe(1)
-    const transform = await tools.evaluate((el) => getComputedStyle(el.parentElement!).transform)
+    await expect
+      .poll(async () => {
+        await section.scrollIntoViewIfNeeded()
+        return seenOpacity(section)
+      }, FADE)
+      .toBe(1)
+    const transform = await section.evaluate((el) => getComputedStyle(el.parentElement!).transform)
     expect(['none', 'matrix(1, 0, 0, 1, 0, 0)']).toContain(transform)
   })
 })

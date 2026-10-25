@@ -14,6 +14,11 @@ export interface Build {
   tagline: string
   category: string
   status?: 'shipped' | 'in the lab'
+  /**
+   * A featured row in the Lab whatever its category: the owner's daily
+   * drivers (Scribe, OpenPing) sit with the web apps, not in a card grid.
+   */
+  featured?: boolean
   tags: string[]
   color: string
   problem: string
@@ -138,6 +143,7 @@ export const builds: Build[] = [
     name: 'Scribe',
     tagline: 'Privacy-first local speech-to-text',
     category: 'Desktop app',
+    featured: true,
     tags: ['Tauri', 'Rust', 'Whisper'],
     color: 'from-slate-500/20 to-blue-600/20',
     problem:
@@ -156,7 +162,10 @@ export const builds: Build[] = [
       'Deliberately Windows x64 only - written into the README as a non-goal rather than over-building for platforms nobody asked for.',
       'Privacy is mechanical, not a promise: temp audio is deleted after transcription, and the only network access is the one-time model download you trigger yourself.',
     ],
-    images: [],
+    images: [
+      { src: '/builds/scribe/landing.webp', alt: 'Scribe: talk, it types. Private local dictation for Windows' },
+      { src: '/builds/scribe/features.webp', alt: 'Scribe features: 100% local, model picker, paste anywhere, rebindable hotkeys' },
+    ],
     github: 'https://github.com/n8watkins/scribe',
     liveSite: 'https://scribe.n8builds.dev',
     repo: 'n8watkins/scribe',
@@ -168,6 +177,7 @@ export const builds: Build[] = [
     name: 'OpenPing',
     tagline: 'Uptime monitoring that runs in your own Cloudflare account',
     category: 'Web tool',
+    featured: true,
     tags: ['Cloudflare Workers', 'D1', 'React'],
     color: 'from-sky-500/20 to-blue-600/20',
     problem:

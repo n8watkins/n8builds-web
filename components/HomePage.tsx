@@ -13,6 +13,7 @@ import Reveal from '@/components/ui/Reveal'
 const NowBuilding = dynamic(() => import('@/components/sections/NowBuilding'))
 const FeaturedProjects = dynamic(() => import('@/components/sections/FeaturedProjects'))
 const ShelfSection = dynamic(() => import('@/components/sections/ShelfSection'))
+const UseAsTemplate = dynamic(() => import('@/components/sections/UseAsTemplate'))
 const NotionsStrip = dynamic(() => import('@/components/sections/NotionsStrip'))
 const ExtensionsShowcase = dynamic(() => import('@/components/sections/ExtensionsShowcase'))
 const HomeStack = dynamic(() => import('@/components/sections/HomeStack'))
@@ -99,21 +100,20 @@ export default function HomePage() {
           </SectionErrorBoundary>
         </Band>
 
-        {/* ===== THE LAB: one section. Featured web apps, then the Chrome
-             extensions, then tools. The navbar "Lab" menu scrolls to #lab,
-             #featured, #extensions and #tools. ===== */}
+        {/* ===== THE LAB: one section. Featured builds, then the Chrome
+             extensions (and a Tools grid, only if a build ever lands there).
+             The navbar "Lab" menu scrolls to #lab, #featured and #extensions. ===== */}
         <Band id="lab" reveal={false}>
           <Reveal className="pt-6">
             <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-teal-400">The bench</p>
             <h2 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">The Lab</h2>
             <p className="mt-2 max-w-[560px] text-[#9cadc5]">
-              Everything I&apos;ve built and still use: web apps, Chrome extensions, and tools.
+              Everything I&apos;ve built and still use: the apps I run every day, and Chrome extensions.
             </p>
             <nav aria-label="Lab sections" className="mt-5 flex flex-wrap gap-2">
               {[
                 { label: 'Featured', href: '#featured' },
                 { label: 'Chrome extensions', href: '#extensions' },
-                { label: 'Tools', href: '#tools' },
               ].map((c) => (
                 <a
                   key={c.href}
@@ -165,6 +165,14 @@ export default function HomePage() {
         </Band>
 
         {/* The contact form animates its own fields in. */}
+        {/* ===== USE THIS AS A TEMPLATE: both sites are public; how n8builds
+             is built and tested lives here, not in a featured row. ===== */}
+        <Band>
+          <SectionErrorBoundary sectionName="Use as Template">
+            <UseAsTemplate />
+          </SectionErrorBoundary>
+        </Band>
+
         <Band id="contact" as="section" reveal={false}>
           <SectionErrorBoundary sectionName="Contact Section">
             <Footer />

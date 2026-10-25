@@ -50,7 +50,10 @@ const nextConfig = {
       // Permanent (308), so search engines move these URLs over instead of keeping them.
       { source: '/lab', destination: '/#lab', permanent: true },
       { source: '/extensions', destination: '/#extensions', permanent: true },
-      { source: '/tools', destination: '/#tools', permanent: true },
+      // The Tools part of the Lab is gone: Scribe and OpenPing are featured rows now.
+      { source: '/tools', destination: '/#featured', permanent: false },
+      // A short, sayable address for the developer portfolio.
+      { source: '/portfolio', destination: 'https://portfolio.n8builds.dev/', permanent: false },
       // The Resources section was dropped; send old links to the Lab.
       { source: '/resources', destination: '/#lab', permanent: true },
       // Builds dropped from the site (2026-10-21 and 2026-10-22); their old detail pages were in the sitemap.

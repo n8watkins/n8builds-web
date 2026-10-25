@@ -485,6 +485,22 @@ const Hero = () => {
                 </a>
               ))}
             </motion.nav>
+
+            {/* The direct route for someone hiring: the developer portfolio. */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.8 }}
+              className="text-sm text-slate-400"
+            >
+              Hiring?{' '}
+              <a
+                href="https://portfolio.n8builds.dev"
+                className="font-semibold text-cyan-300 underline decoration-cyan-300/40 underline-offset-4 transition-colors hover:text-cyan-200 hover:decoration-cyan-200"
+              >
+                See my developer portfolio
+              </a>
+            </motion.p>
           </div>
 
           {/* Portrait */}

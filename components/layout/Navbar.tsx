@@ -12,9 +12,8 @@ import NavLiveDot from '@/components/live/NavLiveDot'
 // The Lab is one homepage section; its parts live in a hover dropdown so the
 // top nav stays short. Each item scrolls to its anchor on the homepage.
 const labMenu = [
-  { label: 'Featured', href: '/#featured', desc: 'The web apps I am proudest of' },
+  { label: 'Featured', href: '/#featured', desc: 'The builds I use every day' },
   { label: 'Chrome Extensions', href: '/#extensions', desc: 'Browser tools, local-first' },
-  { label: 'Tools', href: '/#tools', desc: 'Desktop apps and utilities' },
 ]
 
 const Navbar = () => {

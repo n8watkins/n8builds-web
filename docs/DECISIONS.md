@@ -12,7 +12,9 @@ When the owner decides something new, add it here (with the date) in the same ch
 - The site is a **build-in-public workshop, not a portfolio**.
   The hire-me lane is portfolio.n8builds.dev; client work is appturnity.com.
 - **Projects and Lab are one.**
-  The Lab (`#lab`) is one homepage section with three parts: Featured web apps (`#featured`, the big alternating rows), Chrome extensions (`#extensions`), and Tools (`#tools`).
+  The Lab (`#lab`) is one homepage section with two parts: Featured builds (`#featured`, the big alternating rows) and Chrome extensions (`#extensions`).
+  The featured rows lead with the owner's daily drivers: Scribe, OpenPing, Solara, Portfolio Rank (2026-10-25); a build joins them with `featured: true` in `data/builds.tsx` whatever its category.
+  A Tools grid (`#tools`) renders only if a non-featured tool build exists (none today); `/tools` redirects to `#featured` temporarily.
   There is no "web apps and experiments" shelf (removed 2026-10-22); web apps are featured rows.
   There are no standalone shelf pages; `/lab`, `/extensions` and `/tools` redirect to the anchors, and the retired `/resources` redirects to `#lab` (`next.config.mjs`).
   The navbar "Lab" dropdown scrolls to them.
@@ -26,11 +28,11 @@ When the owner decides something new, add it here (with the date) in the same ch
 - **Streaming:** the owner plans to start streaming on Twitch in the coming weeks.
   The navbar keeps Twitch; **YouTube was removed on 2026-10-23** (its `@n8watkins` handle was a 404) and goes back in the same spot, after Twitch, once the channel is live (also add it back to `sameAs` in `lib/seo.ts`).
   The live player is built (see "Live streams"); Twitch and YouTube detection switch on once their credentials are in Vercel.
-- **n8builds.dev has its own build page** (`/builds/n8builds`, added 2026-10-24), the third featured row: the site as a case study.
+- **n8builds.dev has its own build page** (`/builds/n8builds`, added 2026-10-24): the site as a case study.
+  It is not a featured row (since 2026-10-25): the homepage ends with "Use this as a template" (`#template`, before the contact form), offering n8builds-web and dev-portfolio as public templates with their licenses and linking to the case study.
   Every number on it was checked against the repo or a CI run: the test counts (stated as "more than 200" unit and "more than 450" Playwright tests, so they don't go stale with every new test; recheck them if the suites shrink), the Lighthouse scores (0.98-1.00 performance, 1.00 elsewhere), the CLS story (0.29 nightly, 0.91 at 6x CPU, 0.000 after), and the contact-form limits.
-  Refresh the test counts in its `solution` when the suites grow, and keep its featured row (`components/sections/FeaturedProjects.tsx`, tech dock in `data/projects.tsx`) in step with the build entry.
+  Refresh the test counts in its `solution` (and the template section's summary in `components/sections/UseAsTemplate.tsx`) when the suites grow.
   Its screenshots in `public/builds/n8builds/` are real: the live homepage hero, the CI Lighthouse report for `/` (summary only), the GitHub Actions run of PR #10, and its own generated share card; `tests/e2e/n8builds-build.spec.ts` and `tests/e2e/api/n8builds-build.spec.ts` guard them.
-  The featured row has no Live Site button, since the visitor is already on it.
 - **Private repos get no GitHub link:** a build links its repo only while the repo is public (the build log also links commits and releases only then). Solara went public on 2026-10-24 and has its link; its live site moved to https://solara-uv.web.app (the old uv-activity-planner.web.app redirects there).
 - **Hero chips at 320px:** below 360px the idea -> repeat chain shrinks so it fits an iPhone SE (1st gen); `tests/e2e/hero.spec.ts` guards it.
   The loop-back light measures its wire at runtime (`useWireLength` in `Hero.tsx`), so chip size changes need no manual re-measuring.
@@ -72,7 +74,8 @@ When the owner decides something new, add it here (with the date) in the same ch
 - **The owner applies release-kit to the other projects** (TL;DW, TubeVault, Piper TTS, Solara, Portfolio Rank, OpenPing and dev-portfolio) themselves, later. Agents don't, unless asked.
 - **portfolio.n8builds.dev stays a separate site and a separate repo:** it is the developer-portfolio (hire-me) segment, a repo the owner can share on its own (renamed from Portfolio2.0 to `dev-portfolio` on 2026-10-25); n8builds.dev is the build-in-public workshop. Not a page of n8builds.dev.
 - **The portfolio features Echo, Scout, GeminiGPT and Net-Trailer, not Scribe or Solara** (2026-10-25). It shows more builds as links to their n8builds.dev pages, and the Render demos' live status from OpenPing.
-- **OpenPing is a Tools build on n8builds.dev** (2026-10-25): something visitors can use (its free tools, the live status page), not a featured row.
+- **OpenPing and Scribe are featured rows** (2026-10-25): the owner uses both daily.
+- **A direct route to the portfolio:** "Hiring? See my developer portfolio" under the hero, and `n8builds.dev/portfolio` redirects to portfolio.n8builds.dev (2026-10-25).
 
 ## Operations
 
