@@ -1,0 +1,1 @@
+node scripts/release-kit/commit-msg.mjs "$1"
