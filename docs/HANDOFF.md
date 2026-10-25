@@ -128,7 +128,7 @@ While Nathan is live, every page shows a floating corner player, the navbar's Tw
   Phones (below 640px) always start as the pill at the bottom left.
   While the player covers the bottom-right corner it sets `--live-dock-br`, which lifts the homepage scroll-to-top button above it.
 - **Going live on X (or overriding a check):** in the Studio, open **Live status** (first item), switch **Live now** on, pick the platform, optionally add the link and a title, and **Publish**; switch it off and publish when done.
-  The site shows it within about a minute (the CDN and server caches).
+  The site shows it within a minute or two: the server caches each check for 60 seconds, the CDN for 30, and open pages poll every 30.
   The Studio must be deployed (`npx sanity deploy` in `n8builds-studio`) before the switch exists there.
 - **Tests:** `LIVE_TEST_MODE=1` (set in `playwright.config.ts`, ignored when `VERCEL` is set) swaps every source for fake answers.
   The scenario comes from the `n8-live-test` cookie (`none`, `twitch`, `youtube`, `both`, `x`, `all`, `youtube-no-embed`, `other`), else `LIVE_TEST_SCENARIO`, else offline, so the rest of the suite sees no player.

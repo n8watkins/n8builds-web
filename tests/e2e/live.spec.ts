@@ -83,7 +83,7 @@ test.describe('desktop', () => {
 
     await region.getByRole('button', { name: 'Unmute' }).click()
     await expect(frame(page)).toHaveAttribute('src', /muted=false/)
-    await expect(region.getByRole('button', { name: 'Mute' })).toHaveAttribute('aria-pressed', 'true')
+    await expect(region.getByRole('button', { name: 'Mute' })).toBeVisible()
 
     const watch = region.getByRole('link', { name: /Watch on Twitch/ })
     await expect(watch).toHaveAttribute('href', 'https://twitch.tv/n8watkins')
@@ -201,6 +201,12 @@ test.describe('desktop', () => {
     await context.addCookies([{ name: 'n8-live-test', value: 'both', url: E2E_BASE_URL }])
     await openHome(page)
     await waitForPlayer(page)
+    // Only the new stream: the closed Twitch stream stays closed, so there is
+    // no Twitch tab and YouTube is the one playing.
+    const region = page.getByRole('region', { name: 'Live stream player' })
+    await expect(region.getByRole('tab', { name: 'Twitch' })).toHaveCount(0)
+    await expect(region.getByRole('link', { name: /Watch on YouTube/ })).toBeVisible()
+    await expect(region.getByRole('link', { name: /Watch on Twitch/ })).toHaveCount(0)
   })
 
   test('keyboard: every control is reachable, Escape minimizes, focus follows', async ({ page, context }) => {

@@ -49,7 +49,7 @@ The player's code and the platform iframes load only when `/api/live` says you'r
 | Limitation | Effect | Handling |
 |---|---|---|
 | Browsers only autoplay muted video | The player starts silent | A clear "Unmute" button; that's normal for embedded streams |
-| Detection is polled | The player appears up to about a minute after you go live, and lingers up to a minute after you stop | 60-second cache; good enough for streams that last hours |
+| Detection is polled | The player appears up to about two minutes after you go live (usually within one), and lingers up to two minutes after you stop | 60-second cache; good enough for streams that last hours |
 | YouTube can lag in listing a new live stream | The YouTube side may take a few extra minutes to appear | Accept it; Twitch shows immediately, and /live falls back to your channel's live page |
 | A YouTube stream must allow embedding | If embedding is off, or the stream is age-restricted or "made for kids", YouTube refuses to play it on other sites | Keep embedding on in YouTube Studio; if the embed fails, the player shows a "Watch on YouTube" card instead |
 | Twitch embeds only work on listed domains | Preview deployments (`*.vercel.app`) won't play Twitch | Production and localhost are listed; previews show the "Watch on Twitch" card |

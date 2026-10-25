@@ -1,5 +1,8 @@
 import { connection, type NextRequest } from 'next/server'
-import { LIVE_CACHE_SECONDS, LIVE_TEST_COOKIE, getLiveStatus, isLiveTestMode, offlineStatus } from '@/lib/live'
+import { LIVE_TEST_COOKIE, getLiveStatus, isLiveTestMode, offlineStatus } from '@/lib/live'
+
+/** How long the CDN may serve one answer (the server also caches for LIVE_CACHE_SECONDS). */
+const LIVE_CDN_SECONDS = 30
 
 /**
  * Which platforms are live right now (Twitch, YouTube, X), for the corner
@@ -19,7 +22,9 @@ export async function GET(request: NextRequest) {
       headers: {
         'Cache-Control': testMode
           ? 'no-store'
-          : `public, max-age=0, s-maxage=${LIVE_CACHE_SECONDS}, stale-while-revalidate=${LIVE_CACHE_SECONDS}`,
+          : // No stale-while-revalidate: it stacked another minute of lag on top of
+            // the server cache and the client poll.
+            `public, max-age=0, s-maxage=${LIVE_CDN_SECONDS}`,
       },
     })
   } catch {

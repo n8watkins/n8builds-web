@@ -193,9 +193,13 @@ export default function LivePlayer({ status }: { status: LiveStatus }) {
   const minimizeButton = useRef<HTMLButtonElement>(null)
   const moveFocus = useRef<'pill' | 'panel' | null>(null)
 
-  const streams = status.streams
+  // Streams the visitor closed stay closed: when another goes live, the player
+  // comes back showing only the new one (falling back to all of them only to
+  // keep `active` defined while the player is hidden).
+  const open = status.streams.filter((s) => !closed.includes(s.id))
+  const visible = open.length > 0
+  const streams = visible ? open : status.streams
   const active = streams.find((s) => s.id === chosenId) ?? streams.find((s) => s.platform === status.preferred) ?? streams[0]
-  const visible = streams.some((s) => !closed.includes(s.id))
   const minimized = phone ? !phoneOpen : prefs.minimized
   const muted = !unmuted[active.id]
   const embedded = cardNote(active) === null && active.embed !== null
@@ -215,7 +219,7 @@ export default function LivePlayer({ status }: { status: LiveStatus }) {
   }
 
   const close = () => {
-    const ids = streams.map((s) => s.id)
+    const ids = status.streams.map((s) => s.id)
     addClosed(ids)
     setClosed((current) => [...current, ...ids])
   }
@@ -395,7 +399,6 @@ export default function LivePlayer({ status }: { status: LiveStatus }) {
                   <button
                     type="button"
                     onClick={() => setUnmuted((current) => ({ ...current, [active.id]: muted }))}
-                    aria-pressed={!muted}
                     className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-white/12 bg-white/6 px-2.5 py-1.5 text-xs font-semibold text-slate-100 transition-colors hover:border-cyan-300/40 hover:bg-cyan-400/10 hover:text-cyan-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
                   >
                     {muted ? <FiVolumeX className="size-3.5" /> : <FiVolume2 className="size-3.5" />}
