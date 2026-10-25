@@ -65,7 +65,12 @@ export const getPostBySlug = cache((slug: string) =>
       "seoOgUrl": seo.ogImage.asset->url,
       body[]{
         ...,
-        _type == "image" => { "url": asset->url, "alt": alt }
+        _type == "image" => {
+          "url": asset->url,
+          "alt": alt,
+          "width": asset->metadata.dimensions.width,
+          "height": asset->metadata.dimensions.height
+        }
       }
     }`,
     { slug }

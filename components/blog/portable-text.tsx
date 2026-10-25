@@ -12,8 +12,12 @@ const components = {
           <img
             src={`${value.url}?w=1400&q=80&auto=format`}
             alt={value.alt || ''}
+            // The image's own size reserves its space, so the page doesn't
+            // jump as lazy images load while the reader scrolls.
+            width={value.width}
+            height={value.height}
             loading="lazy"
-            className="w-full"
+            className="h-auto w-full"
           />
           {/* The caption repeats the alt text, so screen readers skip it. */}
           {value.alt && (
