@@ -96,8 +96,19 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - if: matrix.browser != ''
-        run: npx playwright install --with-deps ${{ matrix.browser }}
+      # Usually under a minute, but an apt mirror sometimes stalls it for good
+      # (a mobile-safari shard sat 20 minutes on #24): cut a stalled try off and retry.
+      - name: Install the browser
+        if: matrix.browser != ''
+        timeout-minutes: 13
+        env:
+          BROWSER: ${{ matrix.browser }}
+        run: |
+          for try in 1 2 3; do
+            timeout 240 npx playwright install --with-deps "$BROWSER" && exit 0
+            echo "::warning::playwright install try $try failed or stalled; retrying"
+          done
+          exit 1
       - run: npx playwright test --project=${{ matrix.project }} ${{ matrix.shard && format('--shard={0}', matrix.shard) || '' }} ${{ matrix.workers && format('--workers={0}', matrix.workers) || '' }}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
