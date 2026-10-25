@@ -26,6 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       code: ${{ steps.diff.outputs.code }}
+      playwright: ${{ steps.playwright.outputs.version }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -48,6 +49,10 @@ jobs:
             echo "code=false" >> "$GITHUB_OUTPUT"
             echo "::notice::Docs-only change: browser tests and Lighthouse skipped."
           fi
+      # The E2E container must match the installed Playwright exactly, so a
+      # Playwright upgrade moves CI to its image by itself.
+      - id: playwright
+        run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")" >> "$GITHUB_OUTPUT"
 
   checks:
     name: Lint, types, unit tests
@@ -73,22 +78,31 @@ jobs:
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    # Playwright's image has every browser and the libraries they need, so no
+    # job waits on Ubuntu's package mirrors (on 2026-10-25 they crawled at
+    # about 100 KB/s and held installs for 10 to 20 minutes).
+    container:
+      image: mcr.microsoft.com/playwright:v${{ needs.changes.outputs.playwright }}-noble
+      options: --ipc=host
+    env:
+      # Firefox refuses to start when HOME belongs to another user (the container runs as root).
+      HOME: /root
     strategy:
       fail-fast: false
       matrix:
         include:
-          - { project: api, browser: '' }
-          - { project: chromium, browser: chromium }
-          - { project: firefox, browser: firefox }
+          - { project: api }
+          - { project: chromium }
+          - { project: firefox }
           # The WebKit projects are the slowest, and with two workers they
           # overloaded the runner and timed out at random on main. Each runs
           # as two parallel halves with one worker, so it stays as fast and
           # stops competing with itself for CPU.
-          - { project: webkit, browser: webkit, shard: 1/2, workers: 1 }
-          - { project: webkit, browser: webkit, shard: 2/2, workers: 1 }
-          - { project: mobile-chrome, browser: chromium }
-          - { project: mobile-safari, browser: webkit, shard: 1/2, workers: 1 }
-          - { project: mobile-safari, browser: webkit, shard: 2/2, workers: 1 }
+          - { project: webkit, shard: 1/2, workers: 1 }
+          - { project: webkit, shard: 2/2, workers: 1 }
+          - { project: mobile-chrome }
+          - { project: mobile-safari, shard: 1/2, workers: 1 }
+          - { project: mobile-safari, shard: 2/2, workers: 1 }
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -96,26 +110,6 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      # Usually under a minute, but an apt mirror sometimes stalls it for good
-      # (a mobile-safari shard sat 20 minutes on #24): cut a stalled try off and retry.
-      - name: Install the browser
-        if: matrix.browser != ''
-        timeout-minutes: 13
-        env:
-          BROWSER: ${{ matrix.browser }}
-        run: |
-          # apt waits out slow mirrors and a lock left by a killed try.
-          sudo tee /etc/apt/apt.conf.d/80-ci-retries > /dev/null <<'EOF'
-          Acquire::Retries "5";
-          Acquire::http::Timeout "30";
-          Acquire::https::Timeout "30";
-          DPkg::Lock::Timeout "180";
-          EOF
-          for try in 1 2 3; do
-            timeout 240 npx playwright install --with-deps "$BROWSER" && exit 0
-            echo "::warning::playwright install try $try failed or stalled; retrying"
-          done
-          exit 1
       - run: npx playwright test --project=${{ matrix.project }} ${{ matrix.shard && format('--shard={0}', matrix.shard) || '' }} ${{ matrix.workers && format('--workers={0}', matrix.workers) || '' }}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
