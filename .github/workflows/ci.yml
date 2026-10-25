@@ -104,6 +104,13 @@ jobs:
         env:
           BROWSER: ${{ matrix.browser }}
         run: |
+          # apt waits out slow mirrors and a lock left by a killed try.
+          sudo tee /etc/apt/apt.conf.d/80-ci-retries > /dev/null <<'EOF'
+          Acquire::Retries "5";
+          Acquire::http::Timeout "30";
+          Acquire::https::Timeout "30";
+          DPkg::Lock::Timeout "180";
+          EOF
           for try in 1 2 3; do
             timeout 240 npx playwright install --with-deps "$BROWSER" && exit 0
             echo "::warning::playwright install try $try failed or stalled; retrying"
