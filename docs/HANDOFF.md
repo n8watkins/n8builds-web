@@ -91,6 +91,9 @@ Plan and rationale: `docs/BUILDS_LOG_PLAN.md`.
     A release always outranks that day's commits, and a GitHub Release and its release commit count once.
 - **Per-build switch:** `log: 'releases'` on a build shows only its releases (Scribe uses it: its GitHub Releases tell the story); `log: 'off'` hides it from the log; the default is `'commits'`.
   To switch a repo to releases-only, set `log: 'releases'` on its entry in `data/builds.tsx`.
+- **Internal work stays out:** commits about sprints, audits, batches, coverage, compliance or phase codes (P7a), and number-heavy operations logs, are dropped (`INTERNAL` and `NUMBER_HEAVY` in `lib/build-log.ts`).
+- **Hiding one entry:** add a phrase from its title to `logHide` on the build in `data/builds.tsx`; any commit-based entry containing it (case-insensitive) disappears on the next hourly refresh.
+- **Filtered links:** `/builds?build=x` hides the prerendered, unfiltered feed until the filter applies (an inline script in `components/log/LogFeed.tsx`), so a slow phone never flashes every build.
   A build without a `repo` (n8builds itself) or with `log: 'off'` is left out of the log entirely, index and feed, rather than shown as "nothing logged".
   Builds without a public `github` link (Solara today) get no links into their repo.
 - **Highlights:** a Sanity `logEntry` document (date, build slug, title up to 90 characters, optional note, link and image, kind: shipped / fixed / learned / next) is pinned above the automatic entries of its month and styled as featured.
