@@ -11,13 +11,17 @@ const feed = (page: Page) => page.locator('#activity')
 const feedEntries = (page: Page) => feed(page).locator('li[data-kind]')
 const chip = (page: Page, name: string) => feed(page).getByRole('group', { name: 'Filter by build' }).getByRole('button', { name })
 
-/** Click a filter chip, retrying a click that lands before hydration. */
+/**
+ * Click a filter chip, retrying a click that lands before hydration. The inner
+ * wait is generous because a busy CI runner can take seconds per step (a 500ms
+ * wait failed at random on WebKit).
+ */
 async function pick(page: Page, name: string) {
   const button = chip(page, name)
   await expect(async () => {
     if ((await button.getAttribute('aria-pressed')) !== 'true') await button.click()
-    await expect(button).toHaveAttribute('aria-pressed', 'true', { timeout: 500 })
-  }).toPass()
+    await expect(button).toHaveAttribute('aria-pressed', 'true', { timeout: 3000 })
+  }).toPass({ timeout: 20_000 })
 }
 
 test('the build log leads with the builds, most recently active first', async ({ page }) => {
