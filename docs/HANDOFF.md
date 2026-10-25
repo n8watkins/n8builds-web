@@ -66,7 +66,11 @@ CI (`.github/workflows/`):
 
 - `ci.yml` on every push to `main` and every PR: lint, type-check, unit tests; E2E on all six Playwright projects as parallel jobs (each builds the app in test mode; WebKit and mobile Safari, the slowest, run as two shards each); Lighthouse budgets. About 6 minutes end to end.
 - **Docs-only changes skip the browser suite and Lighthouse** (only Markdown, `docs/` or `LICENSE` changed; the "What changed" job decides). Lint, types, unit tests and the commit check still run. `vercel.json`'s `ignoreCommand` skips Vercel builds for the same changes, so a docs-only merge doesn't redeploy.
-- **Branch protection on `main`** requires two checks: "CI result" (a summary job that passes when every CI job passed or was skipped on purpose) and "check" (commit messages). Docs-only PRs pass in about a minute. Admins can still push directly, which `npm run release -- --push` relies on.
+- **Branch protection on `main`** is the ruleset "release-kit: protect main" (Settings, Rules; made by `scripts/release-kit/protect.mjs`, replacing classic protection on 2026-10-25).
+  It requires two checks: "CI result" (a summary job that passes when every CI job passed or was skipped on purpose) and "check" (commit messages), and blocks deletion and force pushes.
+  Docs-only PRs pass in about a minute.
+  Two actors may bypass it: repository admins (so `npm run release -- --push` works by hand) and the deploy key "release-kit train", whose private half is only in the Actions secret `RELEASE_TRAIN_KEY`.
+  Rotate the key by running `node scripts/release-kit/protect.mjs` again.
 - Work goes through pull requests (see `docs/BUILD_PLAN.md`); full browser runs happen in Actions, not on the dev machine.
 - `nightly.yml` at 09:00 UTC and on demand: E2E on every browser project, Lighthouse budgets (`npm run lighthouse`), and the build log's repo check (`scripts/check-build-repos.mjs`, see "Build log").
 
@@ -140,13 +144,14 @@ While Nathan is live, every page shows a floating corner player, the navbar's Tw
 
 ## Releases
 
-This repo follows the n8 release standard (`RELEASING.md`; the kit is public at https://github.com/n8watkins/release-kit, adopted 2026-10-25 at kit 1.0.3; the release train and the other changes in `scripts/release-kit/VERSION` "1.0.3+<sha>" are vendored from the kit's `feat/improvements` branch until kit 1.1.0 is released, then re-applied from it).
+This repo follows the n8 release standard (`RELEASING.md`; the kit is public at https://github.com/n8watkins/release-kit, adopted 2026-10-25; vendored at the version in `scripts/release-kit/VERSION`, now 1.2.0; upgrade with `node ../release-kit/apply.mjs .`).
 - Commit messages are Conventional Commits, checked by `.husky/commit-msg` and the "Commit messages" workflow on every push and PR.
 - Every merge to `main` deploys; a release is a milestone on top of that, and the **release train** cuts it so nobody has to remember.
 - **Release train** (`.github/workflows/release-train.yml`, settings in `.release.json` `train`): every Monday at 16:00 UTC (9:00 in Los Angeles in summer, 8:00 in winter) it looks at the commits since the last tag.
   With no `feat`, `fix`, `perf` or `security` commit (or revert or breaking change) it releases nothing.
   Otherwise it runs `release:check` on that commit, makes the `chore(release): vX.Y.Z` commit and tag (bump from the commits), pushes that commit to a temporary `release-train/vX.Y.Z` branch, runs `ci.yml` and `commits.yml` there (the workflows behind the required "CI result" and "check"), and only when both pass pushes `main` and the tag together and starts the Release workflow on the tag.
-  No secret: it uses the workflow's own token, which branch protection accepts because the commit already carries passing required checks.
+  The push uses the deploy key: GitHub doesn't count checks from runs the train starts with `workflow_dispatch`, so the workflow's own token is rejected by the ruleset (the first train run, 40182908803, failed exactly that way).
+  The tag pushed with the key starts the Release workflow by itself, and the push to `main` runs CI there as usual.
   If `main` moves while it runs or a check fails, nothing is released and the temporary branch is deleted.
 - "Run workflow" on the Release train releases now; pick a bump to force one, or tick "dry run" to see the plan and notes only. `npm run release -- --plan` shows the same plan locally (on `main`).
 - By hand: `npm run release -- --push` from a clean, up-to-date `main` still works (admin bypass of the protection); it runs `release:check` first and undoes the commit and tag if the push is rejected.

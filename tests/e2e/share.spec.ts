@@ -46,10 +46,20 @@ test("Copy link says so when the browser won't copy, instead of claiming it did"
       configurable: true,
     })
     document.execCommand = () => false
+    // Every label the button shows: its message lasts 2.5 seconds, which a busy
+    // CI browser can miss between polls (WebKit on #24).
+    const seen: string[] = ((window as unknown as { __labels: string[] }).__labels = [])
+    new MutationObserver(() => {
+      const label = document.querySelector('[aria-label="Share this note"] button')?.textContent?.trim()
+      if (label && seen.at(-1) !== label) seen.push(label)
+    }).observe(document, { subtree: true, childList: true, characterData: true })
   })
   await page.goto(path)
   const bar = page.getByRole('region', { name: 'Share this note' })
   await bar.getByRole('button', { name: 'Copy link' }).click()
-  await expect(bar.getByRole('button', { name: "Couldn't copy" })).toBeVisible()
-  await expect(bar.getByRole('button', { name: 'Link copied' })).toHaveCount(0)
+  const labels = () => page.evaluate(() => (window as unknown as { __labels: string[] }).__labels)
+  await expect.poll(labels).toContain("Couldn't copy")
+  expect(await labels()).not.toContain('Link copied')
+  // It resets, so another try is possible.
+  await expect(bar.getByRole('button', { name: 'Copy link' })).toBeVisible({ timeout: 5000 })
 })

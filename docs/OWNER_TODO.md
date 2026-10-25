@@ -76,5 +76,5 @@ The build repos don't yet, so the build log still shows filtered commits for mos
 - **Upstash plan:** confirmed Free (500,000 commands/month, no payment method).
 - **Daily cap:** stays at the default 50 verified submissions/day (100 emails, well under Gmail's ~500/day). Change with `CONTACT_DAILY_LIMIT` in Vercel if ever needed.
 - **HSTS preload:** not adding it. Vercel already sends `max-age=63072000`; preload would force HTTPS on every subdomain and is slow to undo.
-- **Branch protection:** not enabling it. Work goes straight to `main`, which required checks would block; CI runs on every push anyway.
+- **Branch protection:** reversed (with #20): `main` now requires CI through pull requests (see HANDOFF, "Branch protection on `main`"). Docs-only changes skip the browser suite.
 - **Indigo accents:** kept. Tailwind 4 kept the original (approved) hue; it is only slightly more saturated.
