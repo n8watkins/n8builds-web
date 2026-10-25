@@ -138,3 +138,24 @@ jobs:
           path: .lighthouse/
           include-hidden-files: true
           retention-days: 14
+
+  # The one check branch protection requires. It passes when every job above
+  # passed or was skipped on purpose (a docs-only change), and fails if any
+  # failed or was cancelled. Requiring the matrix jobs by name instead would
+  # block docs-only PRs forever, because skipped matrix jobs never report.
+  result:
+    name: CI result
+    if: always()
+    needs: [changes, checks, e2e, lighthouse]
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Job results: $RESULTS"
+          for result in $RESULTS; do
+            case "$result" in
+              success|skipped) ;;
+              *) echo "::error::a CI job ended as $result"; exit 1 ;;
+            esac
+          done
