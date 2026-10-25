@@ -58,6 +58,15 @@ The build log reads GitHub with a fine-grained token, `n8builds-web build log` (
 - **Optional:** add the same token as a repository secret named `BUILD_LOG_GITHUB_TOKEN` (GitHub, n8builds-web, Settings, Secrets and variables, Actions). The nightly "Build log repos" check then fails as soon as that token stops working, instead of when the live page goes stale.
 - **A new tracked repo** needs adding to the token's repository list, or the log leaves it out.
 
+## 5d. Roll the release standard out to the build repos (when you're ready)
+
+n8builds-web follows the release standard (https://github.com/n8watkins/release-kit) since 2026-10-25 and shipped v1.1.0 with it.
+The build repos don't yet, so the build log still shows filtered commits for most of them instead of "Shipped vX" releases.
+
+- Tell Claude "roll out the release kit". Claude applies it to TL;DW, TubeVault, Piper TTS, Solara and Portfolio Rank (one commit each, a baseline tag, workflows checked on GitHub). Scribe already meets the standard.
+- Claude then proposes a few past milestones to backfill as releases (for example TL;DW 1.0.0); you approve the list before anything is tagged.
+- About an hour in total; nothing is needed from you beyond the go-ahead and the milestone list.
+
 ## 6. Optional
 
 - **Gmail connector for Claude:** it needs re-authenticating (`/mcp`) if you want Claude to check inboxes during end-to-end email tests.
