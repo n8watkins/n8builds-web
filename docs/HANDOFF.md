@@ -135,7 +135,7 @@ While Nathan is live, every page shows a floating corner player, the navbar's Tw
 
 ## Releases
 
-This repo follows the n8 release standard (`RELEASING.md`; the kit is public at https://github.com/n8watkins/release-kit, adopted 2026-10-25 at kit 1.0.2).
+This repo follows the n8 release standard (`RELEASING.md`; the kit is public at https://github.com/n8watkins/release-kit, adopted 2026-10-25 at kit 1.0.3).
 - Commit messages are Conventional Commits, checked by `.husky/commit-msg` and the "Commit messages" workflow on every push and PR.
 - Every merge to `main` deploys; a release is a milestone on top of that: `npm run release -- --push` from a clean `main` bumps `package.json`, writes the `CHANGELOG.md` section from the commits, tags `vX.Y.Z`, and the Release workflow publishes the GitHub Release.
 - `release:check` is lint, types and unit tests; the browser suite already gates every PR.
