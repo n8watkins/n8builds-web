@@ -278,7 +278,7 @@ describe('merging, sorting and the builds index', () => {
 
   it('tracks the visible builds with a repo, and none of the hidden ones', () => {
     const tracked = builds.filter((b) => b.repo)
-    expect(tracked.map((b) => b.slug)).toEqual(['piper-tts', 'tldw', 'tubevault', 'scribe', 'solara', 'portfolio-rank'])
+    expect(tracked.map((b) => b.slug)).toEqual(['piper-tts', 'tldw', 'tubevault', 'scribe', 'openping', 'solara', 'portfolio-rank'])
     expect(tracked.every((b) => /^n8watkins\/[\w-]+$/.test(b.repo!))).toBe(true)
     expect(hiddenBuilds.every((b) => !b.repo)).toBe(true)
     expect(new Set(log.entries.map((e) => e.build))).toEqual(new Set(tracked.map((b) => b.slug)))
@@ -324,8 +324,8 @@ describe('merging, sorting and the builds index', () => {
   })
 
   it('sorts builds by their latest activity and labels it as a month, never "ago"', () => {
-    expect(log.activity.map((a) => a.slug)).toEqual(['solara', 'tldw', 'scribe', 'portfolio-rank', 'tubevault', 'piper-tts'])
-    expect(log.activity.map((a) => a.lastShippedLabel)).toEqual(['Oct 2026', 'Jul 2026', 'Jul 2026', 'Jun 2026', 'Jun 2026', 'Jun 2026'])
+    expect(log.activity.map((a) => a.slug)).toEqual(['solara', 'tldw', 'openping', 'scribe', 'portfolio-rank', 'tubevault', 'piper-tts'])
+    expect(log.activity.map((a) => a.lastShippedLabel)).toEqual(['Oct 2026', 'Jul 2026', 'Jul 2026', 'Jul 2026', 'Jun 2026', 'Jun 2026', 'Jun 2026'])
     expect(log.activity.every((a) => a.latest.length === 2)).toBe(true)
   })
 

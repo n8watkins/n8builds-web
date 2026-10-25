@@ -29,10 +29,11 @@ test('the build log leads with the builds, most recently active first', async ({
   await expect(page.getByRole('heading', { level: 1, name: 'The build log' })).toBeVisible()
 
   const cards = page.getByRole('list', { name: 'Builds by latest activity' }).locator(':scope > li')
-  await expect(cards).toHaveCount(6)
+  await expect(cards).toHaveCount(7)
   expect(await cards.evaluateAll((els) => els.map((el) => el.getAttribute('data-build')))).toEqual([
     'solara',
     'tldw',
+    'openping',
     'scribe',
     'portfolio-rank',
     'tubevault',
@@ -43,7 +44,8 @@ test('the build log leads with the builds, most recently active first', async ({
   await expect(page.getByRole('list', { name: 'Builds by latest activity' })).not.toContainText(/\bago\b/)
 
   // A card opens its build page.
-  await cards.nth(2).getByRole('link', { name: 'Scribe' }).click()
+  // Found by its build, not its position, so a new build doesn't move it.
+  await cards.and(page.locator('[data-build="scribe"]')).getByRole('link', { name: 'Scribe' }).click()
   await expect(page).toHaveURL(/\/builds\/scribe$/)
 })
 

@@ -69,8 +69,10 @@ When the owner decides something new, add it here (with the date) in the same ch
 
 - **Articles are always site first.** Every article is written and published on n8builds.dev (N8 Notions, in Sanity); posting or reposting it on X is a separate, later step, never the primary copy.
 - **The release train runs Mondays at 16:00 UTC** (confirmed 2026-10-25). It releases only when a `feat` or `fix` landed since the last release.
-- **The owner applies release-kit to the other projects** (TL;DW, TubeVault, Piper TTS, Solara, Portfolio Rank) themselves, later. Agents don't, unless asked.
-- **portfolio.n8builds.dev stays a separate site:** it is the developer-portfolio (hire-me) segment; n8builds.dev is the build-in-public workshop. Confirmed again 2026-10-25.
+- **The owner applies release-kit to the other projects** (TL;DW, TubeVault, Piper TTS, Solara, Portfolio Rank, OpenPing and dev-portfolio) themselves, later. Agents don't, unless asked.
+- **portfolio.n8builds.dev stays a separate site and a separate repo:** it is the developer-portfolio (hire-me) segment, a repo the owner can share on its own (renamed from Portfolio2.0 to `dev-portfolio` on 2026-10-25); n8builds.dev is the build-in-public workshop. Not a page of n8builds.dev.
+- **The portfolio features Echo, Scout, GeminiGPT and Net-Trailer, not Scribe or Solara** (2026-10-25). It shows more builds as links to their n8builds.dev pages, and the Render demos' live status from OpenPing.
+- **OpenPing is a Tools build on n8builds.dev** (2026-10-25): something visitors can use (its free tools, the live status page), not a featured row.
 
 ## Operations
 
