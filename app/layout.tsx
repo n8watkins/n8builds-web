@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import localFont from 'next/font/local'
 import './globals.css'
 import { ThemeProvider } from './provider'
 import Script from 'next/script'
@@ -10,12 +10,15 @@ import LiveLoader from '@/components/live/LiveLoader'
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { DEFAULT_PREVIEW, SITE_NAME, SITE_URL } from '@/lib/seo'
 
-const inter = Inter({
-  subsets: ['latin'],
+// Inter, bundled (variable weight, Latin subset, from @fontsource-variable/inter
+// 5.3.0; OFL, see app/fonts/Inter-OFL.txt) instead of next/font/google: a
+// build fetching from Google Fonts failed whenever Google didn't answer.
+const inter = localFont({
+  src: './fonts/inter-latin-wght-normal.woff2',
+  weight: '100 900',
   display: 'swap',
   preload: true,
-  weight: ['400', '500', '600', '700'],
-  fallback: ['system-ui', 'arial']
+  fallback: ['system-ui', 'arial'],
 })
 
 const description = 'Spending tokens, shipping features. Apps, AI tools, Chrome extensions, local utilities, and the build logs behind them.'
