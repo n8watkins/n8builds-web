@@ -4,7 +4,8 @@ The working checklist for n8builds.dev.
 Part 1 is everything only you can do; Part 2 is everything Claude can build, and which of it can start right now.
 Tick an item off by changing `[ ]` to `[x]`.
 
-Written 2026-10-23, revised 2026-10-24.
+Written 2026-10-23, revised 2026-10-25.
+The owner's standing decisions are in [DECISIONS.md](DECISIONS.md).
 Detailed plans: [BUILDS_LOG_PLAN.md](BUILDS_LOG_PLAN.md), [LIVE_STREAM_PLAN.md](LIVE_STREAM_PLAN.md), [X_ARTICLES_PLAN.md](X_ARTICLES_PLAN.md), and the release standard in `~/n8builds/release-kit` (STANDARD.md).
 
 ## Part 1: Your to-do list
@@ -13,13 +14,13 @@ Detailed plans: [BUILDS_LOG_PLAN.md](BUILDS_LOG_PLAN.md), [LIVE_STREAM_PLAN.md](
 
 - [ ] **Appturnity card** ("What I'm working on", the first section under the hero): 2-3 real, current lines about Appturnity, or "make it evergreen".
 - [x] **Solara's GitHub link:** back (the repo is public).
-- [ ] **One front door:** keep portfolio.n8builds.dev as a separate site, or make n8builds the portfolio and redirect or slim down the old one?
-- [ ] **GitHub repo settings for n8builds-web:** OK for Claude to fix the description, homepage URL and topics, and switch off the empty Wiki and Projects tabs? (yes / no)
-- [ ] **Dependency updates:** OK for Claude to work through the 6 Dependabot pull requests? (yes / no)
+- [x] **One front door:** portfolio.n8builds.dev stays separate, as the dev-portfolio segment (2026-10-25). Was: keep portfolio.n8builds.dev as a separate site, or make n8builds the portfolio and redirect or slim down the old one?
+- [x] **GitHub repo settings for n8builds-web:** done 2026-10-25 (description, homepage, topics, Wiki and Projects off, branches deleted on merge). Was: OK for Claude to fix the description, homepage URL and topics, and switch off the empty Wiki and Projects tabs? (yes / no)
+- [x] **Dependency updates:** yes (2026-10-25); Claude is working through them. Was: OK for Claude to work through the 6 Dependabot pull requests? (yes / no)
 - [x] **Release standard for the other projects:** the owner will apply release-kit to TL;DW, TubeVault, Piper TTS, Solara and Portfolio Rank themselves, later (2026-10-25). Claude doesn't.
 - [x] **Release-kit on GitHub:** public at https://github.com/n8watkins/release-kit (2026-10-25), released through its own workflow (v1.0.0 to v1.0.3).
 - [x] **Release train:** Mondays 16:00 UTC confirmed (2026-10-25).
-- [ ] **Articles and X:** write on the site first and share to X (recommended), or write on X first? Automatic posting to X costs about $0.20 a post; the free option is a one-click "Share on X". See [X_ARTICLES_PLAN.md](X_ARTICLES_PLAN.md).
+- [x] **Articles and X:** always site first; reposting to X is separate (2026-10-25, in [DECISIONS.md](DECISIONS.md)).
 - [ ] **Live player defaults** (or keep these): bottom-right corner, Twitch first when live on several platforms, player on every page.
 
 ### B. Accounts and keys (do these yourself; never paste secrets in chat)

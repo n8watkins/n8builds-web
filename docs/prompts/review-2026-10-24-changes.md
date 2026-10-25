@@ -26,7 +26,7 @@ Read docs/HANDOFF.md, docs/NEXT_STEPS.md, docs/BUILD_PLAN.md and README.md for c
 ## How to review
 
 - GitHub Actions is the CI. Read the CI results of PRs #10 to #15 and the latest nightly run (`gh run list`), rather than running the full browser suite locally. Locally, run only `npm run lint`, `rm -rf .next/types .next/dev && npm run type-check`, `npm run test:unit`, and `next dev` for screenshots.
-- Read the diff adversarially: correctness bugs, regressions, missing or weak tests (a test that would still pass if the feature were removed), accessibility, performance (the live player must add nothing to offline page loads), security (the CSP, server-side keys, the GitHub token's scope), and anything that contradicts "Decisions already made" in HANDOFF.
+- Read the diff adversarially: correctness bugs, regressions, missing or weak tests (a test that would still pass if the feature were removed), accessibility, performance (the live player must add nothing to offline page loads), security (the CSP, server-side keys, the GitHub token's scope), and anything that contradicts docs/DECISIONS.md.
 - Be picky about UI: misaligned, cramped, clipped or janky at 320px, 390px, 810px and 1440px, with and without reduced motion.
 
 ## Report

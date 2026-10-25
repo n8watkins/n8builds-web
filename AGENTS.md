@@ -15,3 +15,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Use `feat` and `fix` only for changes a user would notice: they become the release notes and the public build log.
 - Don't bump versions, edit CHANGELOG.md or create tags by hand: `npm run release` does all three.
 <!-- /release-kit -->
+
+## Owner decisions
+
+- The owner's standing rules (brand, content, publishing, releases, operations) are in `docs/DECISIONS.md`. Read it before changing content, design or workflow; never re-ask a settled question.
+- Record every new owner decision there, with its date, in the same change.
