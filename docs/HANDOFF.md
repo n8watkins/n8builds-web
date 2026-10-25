@@ -140,10 +140,19 @@ While Nathan is live, every page shows a floating corner player, the navbar's Tw
 
 ## Releases
 
-This repo follows the n8 release standard (`RELEASING.md`; the kit is public at https://github.com/n8watkins/release-kit, adopted 2026-10-25 at kit 1.0.3).
+This repo follows the n8 release standard (`RELEASING.md`; the kit is public at https://github.com/n8watkins/release-kit, adopted 2026-10-25 at kit 1.0.3; the release train and the other changes in `scripts/release-kit/VERSION` "1.0.3+<sha>" are vendored from the kit's `feat/improvements` branch until kit 1.1.0 is released, then re-applied from it).
 - Commit messages are Conventional Commits, checked by `.husky/commit-msg` and the "Commit messages" workflow on every push and PR.
-- Every merge to `main` deploys; a release is a milestone on top of that: `npm run release -- --push` from a clean `main` bumps `package.json`, writes the `CHANGELOG.md` section from the commits, tags `vX.Y.Z`, and the Release workflow publishes the GitHub Release.
-- `release:check` is lint, types and unit tests; the browser suite already gates every PR.
+- Every merge to `main` deploys; a release is a milestone on top of that, and the **release train** cuts it so nobody has to remember.
+- **Release train** (`.github/workflows/release-train.yml`, settings in `.release.json` `train`): every Monday at 16:00 UTC (9:00 in Los Angeles in summer, 8:00 in winter) it looks at the commits since the last tag.
+  With no `feat`, `fix`, `perf` or `security` commit (or revert or breaking change) it releases nothing.
+  Otherwise it runs `release:check` on that commit, makes the `chore(release): vX.Y.Z` commit and tag (bump from the commits), pushes that commit to a temporary `release-train/vX.Y.Z` branch, runs `ci.yml` and `commits.yml` there (the workflows behind the required "CI result" and "check"), and only when both pass pushes `main` and the tag together and starts the Release workflow on the tag.
+  No secret: it uses the workflow's own token, which branch protection accepts because the commit already carries passing required checks.
+  If `main` moves while it runs or a check fails, nothing is released and the temporary branch is deleted.
+- "Run workflow" on the Release train releases now; pick a bump to force one, or tick "dry run" to see the plan and notes only. `npm run release -- --plan` shows the same plan locally (on `main`).
+- By hand: `npm run release -- --push` from a clean, up-to-date `main` still works (admin bypass of the protection); it runs `release:check` first and undoes the commit and tag if the push is rejected.
+- A failed Release run: fix the cause, then run the Release workflow on the tag (Run workflow, "Use workflow from" the tag). Never move or re-push a pushed tag.
+- `release:check` is lint, types and unit tests; the browser suite already gates every PR, and the train runs all of CI on the release commit.
+- Changelog dates are in Los Angeles (`.release.json` `timeZone`); the workflows use Node 24 (`.release.json` `node`), like CI.
 - Don't edit `CHANGELOG.md` or versions by hand.
 
 ## Contact form

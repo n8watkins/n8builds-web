@@ -18,6 +18,8 @@ Detailed plans: [BUILDS_LOG_PLAN.md](BUILDS_LOG_PLAN.md), [LIVE_STREAM_PLAN.md](
 - [ ] **Dependency updates:** OK for Claude to work through the 6 Dependabot pull requests? (yes / no)
 - [ ] **Release standard:** n8builds-web adopted it (#17) and shipped its first release, v1.1.0. OK for Claude to apply it to TL;DW, TubeVault, Piper TTS, Solara and Portfolio Rank? (yes / no)
 - [x] **Release-kit on GitHub:** public at https://github.com/n8watkins/release-kit (2026-10-25), released through its own workflow (v1.0.0 to v1.0.3).
+- [ ] **Release train** (weekly automatic releases, Mondays 16:00 UTC, only when a feature or fix landed): OK with the day and time? (yes / another day and time)
+  It needs `workflow_dispatch:` added to the `on:` of `.github/workflows/ci.yml` (the train starts CI on its release commit; that file is being changed in #20), and kit 1.1.0 released, after which Claude re-applies the kit here.
 - [ ] **Articles and X:** write on the site first and share to X (recommended), or write on X first? Automatic posting to X costs about $0.20 a post; the free option is a one-click "Share on X". See [X_ARTICLES_PLAN.md](X_ARTICLES_PLAN.md).
 - [ ] **Live player defaults** (or keep these): bottom-right corner, Twitch first when live on several platforms, player on every page.
 
@@ -90,6 +92,7 @@ To review it later, paste [prompts/review-2026-10-24-changes.md](prompts/review-
 
 - release-kit published (public, v1.0.0 to v1.0.3), with fixes found while dogfooding it: notes through a symlinked folder, atomic branch-and-tag push, husky repos, npm 12's `--allow-git`.
 - n8builds-web adopted it (#17): commit messages checked on every push and PR; first release v1.1.0 (https://github.com/n8watkins/n8builds-web/releases/tag/v1.1.0) covers the 2026-10-23/24 work; `CHANGELOG.md` is generated.
+- Release schedule: a weekly release train that releases only user-facing work, runs the required checks on its own release commit so it works with branch protection, and needs no secret (kit PR n8watkins/release-kit#1, adopted here in the release-schedule PR).
 
 **Outside this repo:**
 
