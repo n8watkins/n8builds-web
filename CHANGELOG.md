@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.1.1 - 2026-10-25
+
+### Fixes
+
+- **content:** Current case-study numbers; Solara's GitHub link and live URL
+- **build-log:** Keep internal work out of the public log; let the owner hide entries
+- **fonts:** Bundle Inter instead of fetching it from Google at build time
+- **build-log:** A shared filtered link no longer flashes the whole feed
+- **live:** Closed streams stay closed; live status lags two minutes, not four
+- **share:** Copy link reports a failed copy; Share on X says it opens a new tab
+
 ## 1.1.0 - 2026-10-25
 
 ### Features
