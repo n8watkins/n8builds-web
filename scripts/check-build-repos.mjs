@@ -11,21 +11,13 @@
 
 import { appendFileSync } from 'node:fs'
 import { trackedRepos } from './build-log-fixture.mjs'
+import { lint } from './release-kit/conventional.mjs'
 
 const RECENT = 20
 
-// The release-kit commit check (release-kit/template/scripts/release-kit/conventional.mjs).
-const TYPES = ['feat', 'fix', 'perf', 'refactor', 'docs', 'test', 'build', 'ci', 'chore', 'style', 'revert']
-const HEADER = /^([a-z]+)(?:\(([^()\s][^()]*)\))?(!)?: (\S.*)$/
-const isExempt = (header) => /^(Merge |Revert "|fixup! |squash! |amend! )/.test(header) || /^Initial commit\b/.test(header)
-export function passesCommitCheck(message) {
-  const header = message.replace(/\r/g, '').split('\n')[0].trim()
-  if (!header) return false
-  if (isExempt(header)) return true
-  if (header.length > 100) return false
-  const match = HEADER.exec(header)
-  return !!match && TYPES.includes(match[1])
-}
+// The release-kit commit check itself, from the copy this repo runs, so the
+// report can't drift from the check.
+export const passesCommitCheck = (message) => lint(message) === null
 
 async function gh(path, { optional = false } = {}) {
   const token = process.env.GITHUB_TOKEN

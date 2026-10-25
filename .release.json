@@ -1,3 +1,12 @@
 {
-  "versionFiles": []
+  "versionFiles": [],
+  "train": {
+    "schedule": "0 16 * * 1",
+    "checks": [
+      "ci.yml",
+      "commits.yml"
+    ]
+  },
+  "node": "24",
+  "timeZone": "America/Los_Angeles"
 }

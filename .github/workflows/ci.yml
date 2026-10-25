@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
   pull_request:
+  # The release train starts CI on its release commit this way (pushes made
+  # with GITHUB_TOKEN start no workflows). With no base to diff against, the
+  # "What changed" job runs everything.
+  workflow_dispatch:
 
 permissions:
   contents: read
