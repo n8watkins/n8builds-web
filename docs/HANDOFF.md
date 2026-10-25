@@ -12,7 +12,7 @@ Manual steps that need the owner (logins, dashboards) live in `docs/OWNER_TODO.m
 | Brand | Job | Where |
 |---|---|---|
 | **n8builds** (this repo) | audience and attention ("building software in public") | https://n8builds.dev, github.com/n8watkins/n8builds-web (public) |
-| Portfolio 2.0 | developer credibility | portfolio.n8builds.dev, `/home/natkins/portfolio/portfolio2.0` |
+| dev-portfolio | developer credibility | https://portfolio.n8builds.dev, github.com/n8watkins/dev-portfolio (public), `~/n8builds/dev-portfolio` |
 | Appturnity | client work and consulting | https://appturnity.com |
 
 n8builds feeds the other two through bridge links and never replaces them.

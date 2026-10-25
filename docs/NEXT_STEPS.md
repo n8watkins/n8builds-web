@@ -41,6 +41,8 @@ Detailed plans: [BUILDS_LOG_PLAN.md](BUILDS_LOG_PLAN.md), [LIVE_STREAM_PLAN.md](
 - [ ] **A blog post every quarter or so,** or publish one of the four drafts.
 - [ ] **After the build log launches:** look it over; optionally post one hand-written highlight in the Studio.
 - [ ] **Before the first public stream:** a short test stream on each platform with Claude.
+- [ ] **Release-kit for OpenPing and dev-portfolio** (along with the other build repos, when you roll it out): `node ~/n8builds/release-kit/apply.mjs <repo>`.
+- [ ] **Streaming links on the portfolio:** it links `twitch.tv/n8builds` and `youtube.com/@n8builds` (that channel is titled "flipbits"), n8builds.dev links `twitch.tv/n8watkins`; settle them when streaming starts.
 
 ## Part 2: What Claude builds
 
@@ -96,6 +98,10 @@ To review it later, paste [prompts/review-2026-10-24-changes.md](prompts/review-
 - Release schedule: a weekly release train that releases only user-facing work and runs the required checks on its own release commit (kit 1.1.0, n8watkins/release-kit#1; adopted here in #21).
 - Review fixes (#22): case-study numbers, Solara's GitHub link and live URL, internal work kept out of the build log, bundled Inter font, no flash on a filtered log link, closed live streams stay closed, honest "Copy link". CI skips the browser suite for docs-only changes (#20), and branch protection requires "CI result" and "check".
 - v1.1.1 released (https://github.com/n8watkins/n8builds-web/releases/tag/v1.1.1), cut by hand after the first train run was rejected by branch protection.
+- Dependabot updates #4-#9 applied together (#26); repo settings tidied (description, homepage, topics, Wiki and Projects off).
+- One home for owner decisions: [DECISIONS.md](DECISIONS.md) (#25).
+- dev-portfolio (renamed from Portfolio2.0): generated share card and one title, Scribe in place of LocalDictate, no em dashes, the Sentry wizard's example routes removed, GitHub Actions CI, honest README and a current HANDOFF (dev-portfolio#1); live-demo status from OpenPing and a "More builds" strip linking here (dev-portfolio#2).
+- OpenPing added as a Tools build, with its build page and build log (this repo), and to the Studio's highlight build list (n8builds-studio#2).
 - Train fix (#24, kit 1.2.0, n8watkins/release-kit#2): GitHub doesn't count checks from `workflow_dispatch` runs, so `main` moved to a ruleset that the train's deploy key (secret `RELEASE_TRAIN_KEY`) may bypass; the train still pushes only after CI passes on the release commit.
 
 **Outside this repo:**
