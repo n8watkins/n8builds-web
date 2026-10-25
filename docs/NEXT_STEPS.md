@@ -16,9 +16,9 @@ Detailed plans: [BUILDS_LOG_PLAN.md](BUILDS_LOG_PLAN.md), [LIVE_STREAM_PLAN.md](
 - [ ] **One front door:** keep portfolio.n8builds.dev as a separate site, or make n8builds the portfolio and redirect or slim down the old one?
 - [ ] **GitHub repo settings for n8builds-web:** OK for Claude to fix the description, homepage URL and topics, and switch off the empty Wiki and Projects tabs? (yes / no)
 - [ ] **Dependency updates:** OK for Claude to work through the 6 Dependabot pull requests? (yes / no)
-- [ ] **Release standard:** n8builds-web adopted it (#17) and shipped its first release, v1.1.0. OK for Claude to apply it to TL;DW, TubeVault, Piper TTS, Solara and Portfolio Rank? (yes / no)
+- [x] **Release standard for the other projects:** the owner will apply release-kit to TL;DW, TubeVault, Piper TTS, Solara and Portfolio Rank themselves, later (2026-10-25). Claude doesn't.
 - [x] **Release-kit on GitHub:** public at https://github.com/n8watkins/release-kit (2026-10-25), released through its own workflow (v1.0.0 to v1.0.3).
-- [ ] **Release train** (weekly automatic releases, Mondays 16:00 UTC, only when a feature or fix landed): it's on. OK with the day and time? (yes / another day and time)
+- [x] **Release train:** Mondays 16:00 UTC confirmed (2026-10-25).
 - [ ] **Articles and X:** write on the site first and share to X (recommended), or write on X first? Automatic posting to X costs about $0.20 a post; the free option is a one-click "Share on X". See [X_ARTICLES_PLAN.md](X_ARTICLES_PLAN.md).
 - [ ] **Live player defaults** (or keep these): bottom-right corner, Twitch first when live on several platforms, player on every page.
 
@@ -26,6 +26,7 @@ Detailed plans: [BUILDS_LOG_PLAN.md](BUILDS_LOG_PLAN.md), [LIVE_STREAM_PLAN.md](
 
 - [x] **Solara's live-site link:** now https://solara-uv.web.app (the old address redirects there), and its GitHub link is back since the repo is public (2026-10-24).
 - [ ] **Delete the old reCAPTCHA key** at https://www.google.com/recaptcha/admin (the old portfolio site entry). It leaked in git history in 2025; it's unused, and deleting it makes the leak worthless. 1 minute.
+  Only the owner can do it (it's in their Google account). No replacement is needed: the contact form uses Cloudflare Turnstile, not reCAPTCHA.
 - [ ] **Twitch developer app** (for live detection; 2 minutes): dev.twitch.tv, Your Console, Register Your Application. Name `n8builds.dev`, OAuth Redirect URL `http://localhost`, category Website Integration, client type Confidential. In the project folder run `! vercel env add TWITCH_CLIENT_ID production` and `! vercel env add TWITCH_CLIENT_SECRET production` and paste the values at the prompts.
 - [ ] **YouTube channel:** tell Claude its handle or URL; in YouTube Studio, enable live streaming (can take 24 hours the first time) and leave embedding on for your streams.
 - [ ] **YouTube Data API key** (5 minutes): console.cloud.google.com, new project `n8builds-live`, enable "YouTube Data API v3", Credentials, Create credentials, API key, restrict it to YouTube Data API v3. Then `! vercel env add YOUTUBE_API_KEY production`.
