@@ -89,3 +89,26 @@ test.describe('the hero portrait', () => {
     })
   })
 })
+
+/**
+ * The hero's text column (2026-10-26): no CTA button, and the route for
+ * someone hiring sits above the social icons.
+ */
+test.describe('the hero text column', () => {
+  test.use({ viewport: { width: 1280, height: 800 }, hasTouch: false })
+
+  test('has no "See what I\'m building" button', async ({ page }) => {
+    await page.goto('/')
+    const hero = page.locator('#home')
+    await expect(hero.getByRole('heading', { level: 1, name: 'n8builds' })).toBeVisible()
+    await expect(hero.getByText(/See what I.m building/)).toHaveCount(0)
+  })
+
+  test('shows "Hiring? See my developer portfolio" above the social links', async ({ page }) => {
+    await page.goto('/')
+    const hero = page.locator('#home')
+    const hiring = await hero.getByRole('link', { name: 'See my developer portfolio' }).boundingBox()
+    const socials = await hero.getByRole('navigation', { name: 'Social links' }).boundingBox()
+    expect(hiring!.y + hiring!.height).toBeLessThanOrEqual(socials!.y)
+  })
+})

@@ -1,6 +1,6 @@
 import React from 'react'
 import Image from 'next/image'
-import { FiArrowDown, FiGithub } from 'react-icons/fi'
+import { FiGithub } from 'react-icons/fi'
 import { CiLinkedin } from 'react-icons/ci'
 import { FaXTwitter } from 'react-icons/fa6'
 import WhoamiTerminal from '@/components/features/WhoamiTerminal'
@@ -114,22 +114,19 @@ const Hero = () => {
               </svg>
             </FadeIn>
 
-            {/* CTAs */}
-            <FadeIn delay={0.55} className="flex items-center gap-3 flex-wrap">
+            {/* The direct route for someone hiring: the developer portfolio. */}
+            <FadeIn as="p" effect="in" delay={0.55} className="text-sm text-slate-400">
+              Hiring?{' '}
               <a
-                href="#now"
-                className="group relative inline-flex h-12 overflow-hidden rounded-xl p-px transition-all duration-200 hover:scale-[1.02]"
+                href="https://portfolio.n8builds.dev"
+                className="font-semibold text-cyan-300 underline decoration-cyan-300/40 underline-offset-4 transition-colors hover:text-cyan-200 hover:decoration-cyan-200"
               >
-                <span className="hero-cta-spin absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#22d3ee_0%,#2563eb_50%,#22d3ee_100%)]" />
-                <span className="inline-flex h-full w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-6 text-base font-bold text-slate-100 backdrop-blur-3xl">
-                  See what I&apos;m building
-                  <FiArrowDown aria-hidden className="h-4 w-4 transition-transform duration-200 group-hover:translate-y-0.5" />
-                </span>
+                See my developer portfolio
               </a>
             </FadeIn>
 
             {/* Socials */}
-            <FadeIn effect="in" delay={0.72} as="nav" aria-label="Social links" className="flex items-center gap-0.5 -ml-2">
+            <FadeIn effect="in" delay={0.65} as="nav" aria-label="Social links" className="flex items-center gap-0.5 -ml-2">
               {[
                 { href: 'https://github.com/n8watkins', label: 'GitHub', icon: <FiGithub className="w-[1.6rem] h-[1.6rem]" /> },
                 { href: 'https://linkedin.com/in/n8watkins', label: 'LinkedIn', icon: <CiLinkedin className="w-8 h-8" /> },
@@ -140,17 +137,6 @@ const Hero = () => {
                   {s.icon}
                 </a>
               ))}
-            </FadeIn>
-
-            {/* The direct route for someone hiring: the developer portfolio. */}
-            <FadeIn as="p" effect="in" delay={0.8} className="text-sm text-slate-400">
-              Hiring?{' '}
-              <a
-                href="https://portfolio.n8builds.dev"
-                className="font-semibold text-cyan-300 underline decoration-cyan-300/40 underline-offset-4 transition-colors hover:text-cyan-200 hover:decoration-cyan-200"
-              >
-                See my developer portfolio
-              </a>
             </FadeIn>
           </div>
 

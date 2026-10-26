@@ -436,7 +436,6 @@
 #home[data-offscreen] .n8-cnode::before,
 #home[data-offscreen] .n8-cnode::after,
 #home[data-offscreen] .n8-carrow,
-#home[data-offscreen] .n8-loop-comet,
-#home[data-offscreen] .hero-cta-spin {
+#home[data-offscreen] .n8-loop-comet {
   animation-play-state: paused;
 }

@@ -9,8 +9,8 @@ import { useEffect, useRef } from 'react'
  * SVG stretches with preserveAspectRatio="none", so the path is sampled in
  * viewBox units and scaled to pixels on each axis; re-measured on every resize.
  *
- * And it pauses the hero's endless CSS animations (the chain's comets and the
- * CTA's spinning border) while the hero is off screen: they restyle and
+ * And it pauses the hero's endless animations (the chain's comets and the
+ * background grid's wandering cells) while the hero is off screen: they restyle and
  * repaint every frame, which costs a phone something even where no one sees it.
  */
 export default function HeroChainMeter() {
