@@ -77,7 +77,7 @@ const Showcase = ({ desktop, phone }: { desktop: NowShot; phone: NowShot }) => (
 
 const DetailsHeader = ({ now }: { now: NowState }) => (
   <>
-    {now.logo && <Image src={now.logo} alt="" width={40} height={46} className="h-9 w-auto shrink-0 sm:h-11" />}
+    {now.logo && <Image src={now.logo} alt="" width={152} height={177} className="h-9 w-auto shrink-0 sm:h-11" />}
     <div className="min-w-0 flex-1">
       <h4 id={`${slugOf(now)}-now-title`} className="text-xl font-bold sm:text-2xl tracking-tight text-slate-50">
         What&apos;s new at {now.project}
@@ -141,7 +141,7 @@ const Card = ({ now }: { now: NowState }) => (
   <div>
     <div className="grid content-start gap-5 lg:grid-cols-[1.1fr_1fr] lg:gap-x-12">
       <div className="flex flex-wrap items-center gap-3 lg:col-start-1">
-        {now.logo && <Image src={now.logo} alt="" width={40} height={46} className="h-8 w-auto shrink-0 sm:h-9" />}
+        {now.logo && <Image src={now.logo} alt="" width={152} height={177} className="h-8 w-auto shrink-0 sm:h-9" />}
         <h3 className="text-[1.4rem] font-extrabold sm:text-2xl tracking-tight text-slate-50">{now.project}</h3>
         <span className={`rounded-full border px-2.5 py-0.5 text-[0.62rem] font-bold uppercase tracking-wider ${statusStyles[now.status]}`}>
           {now.status}
@@ -195,7 +195,7 @@ const Card = ({ now }: { now: NowState }) => (
             rel="noopener noreferrer"
             className={
               i === 0
-                ? 'flex items-center justify-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 px-4 sm:px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-cyan-950/50 transition-all duration-200 hover:scale-[1.02] hover:from-blue-500 hover:to-cyan-400 motion-reduce:hover:scale-100'
+                ? 'flex items-center justify-center gap-2 rounded-xl border border-transparent bg-origin-border bg-linear-to-r from-blue-600 to-cyan-500 px-4 sm:px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-cyan-950/50 transition-all duration-200 hover:scale-[1.02] hover:from-blue-500 hover:to-cyan-400 motion-reduce:hover:scale-100'
                 : 'flex items-center justify-center gap-2 rounded-xl border border-white/12 bg-white/4 px-5 py-2.5 text-sm font-semibold text-slate-200 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8 motion-reduce:hover:scale-100'
             }
           >

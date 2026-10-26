@@ -181,19 +181,23 @@ test.describe('the hero grid', () => {
     test.use({ contextOptions: { reducedMotion: 'no-preference' } })
 
     test('lights many cells, and no two lit cells ever touch', async ({ page }) => {
-      test.setTimeout(30_000)
+      test.setTimeout(45_000)
       await page.goto('/')
-      expect(await page.locator('#home svg rect[data-cell]').count()).toBeGreaterThanOrEqual(45)
+      expect(await page.locator('#home svg rect[data-cell]').count()).toBeGreaterThanOrEqual(30)
       let most = 0
       const moved = new Set<string>()
-      for (let i = 0; i < 70; i++) {
+      // ~17s: the warm-up, then long enough for the (fewer) cells to wander.
+      for (let i = 0; i < 110; i++) {
         const cells = await litCells(page)
         most = Math.max(most, cells.length)
         cells.forEach((c) => moved.add(String(c)))
         expect(touching(cells), `sample ${i}`).toEqual([])
         await page.waitForTimeout(150)
       }
-      expect(most, 'cells lit at once').toBeGreaterThanOrEqual(14)
+      // Sparse (2026-10-26): enough to read as a pattern, noticeably fewer
+      // than the 25-30 there used to be at this size.
+      expect(most, 'cells lit at once').toBeGreaterThanOrEqual(7)
+      expect(most, 'cells lit at once').toBeLessThanOrEqual(18)
       // They wander: more distinct spots were lit than cells at once.
       expect(moved.size).toBeGreaterThan(most + 3)
     })
@@ -202,8 +206,8 @@ test.describe('the hero grid', () => {
     // (bright enough, on screen, inside the fade mask, not under the
     // portrait) at every sample.
     for (const [w, h, min] of [
-      [1280, 800, 14],
-      [375, 812, 5],
+      [1280, 800, 6],
+      [375, 812, 4],
     ] as const) {
       test(`always has cells lit on screen at ${w}x${h}`, async ({ page }) => {
         test.setTimeout(40_000)
@@ -232,6 +236,39 @@ test.describe('the hero grid', () => {
       })
     }
 
+    test('on a wide screen, lights cells across the full width, which fades out at the sides', async ({ page }) => {
+      test.setTimeout(30_000)
+      await page.setViewportSize({ width: 1920, height: 1080 })
+      await page.goto('/')
+      // Where lit cells sit, as a share of the screen's width, over a while.
+      const xs: number[] = []
+      for (let i = 0; i < 30; i++) {
+        xs.push(
+          ...(await page.locator('#home svg rect[data-cell]').evaluateAll((rects) =>
+            rects
+              .filter((r) => Number(getComputedStyle(r).opacity) > 0.05)
+              .map((r) => {
+                const b = r.getBoundingClientRect()
+                return (b.left + b.width / 2) / document.documentElement.clientWidth
+              })
+          ))
+        )
+        await page.waitForTimeout(300)
+      }
+      // The old central band ended ~17% in from each side at this width.
+      expect(xs.some((x) => x < 0.15), 'a lit cell near the left edge').toBe(true)
+      expect(xs.some((x) => x > 0.85), 'a lit cell near the right edge').toBe(true)
+      expect(xs.every((x) => x > 0 && x < 1), 'all on screen').toBe(true)
+      // The grid's mask fades it out toward the left and right, not just the top and bottom.
+      const mask = await page.locator('#home .hero-grid-mask').evaluate((el) => {
+        const style = getComputedStyle(el)
+        return style.maskImage || style.webkitMaskImage
+      })
+      // Two gradients, intersected: top to bottom (the default direction) and left to right (90deg).
+      expect(mask.match(/linear-gradient/g)).toHaveLength(2)
+      expect(mask).toContain('linear-gradient(90deg')
+    })
+
     test('holds still while the hero is scrolled off screen', async ({ page }) => {
       await page.goto('/')
       await page.waitForTimeout(2000)
@@ -254,7 +291,7 @@ test.describe('the hero grid', () => {
       await page.goto('/')
       await page.waitForTimeout(500)
       const first = await litCells(page)
-      expect(first.length).toBeGreaterThanOrEqual(14)
+      expect(first.length).toBeGreaterThanOrEqual(7)
       expect(touching(first)).toEqual([])
       await page.waitForTimeout(3000)
       expect(await litCells(page)).toEqual(first)
@@ -324,6 +361,24 @@ test.describe('the whoami terminal', () => {
     expect(first, 'first sentence fits one line').toBe(1)
   })
 
+  test('has no "$ whoami" line (the title bar says it), and each line fits on one line at 320px', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 568 })
+    await page.goto('/')
+    const terminal = page.locator('#home [data-terminal]')
+    await expect(terminal).not.toContainText('$ whoami')
+    for (const line of await terminal.locator('.whoami-type').all()) {
+      const rows = await line.evaluate((el) => {
+        const range = document.createRange()
+        range.selectNodeContents(el)
+        return new Set([...range.getClientRects()].map((r) => Math.round(r.top))).size
+      })
+      expect(rows, (await line.textContent()) ?? '').toBe(1)
+      const box = (await line.boundingBox())!
+      const term = (await terminal.boundingBox())!
+      expect(box.x + box.width, 'inside the terminal').toBeLessThanOrEqual(term.x + term.width - 8)
+    }
+  })
+
   test('the title bar fits a 320px screen', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 568 })
     await page.goto('/')
@@ -361,6 +416,24 @@ test.describe('the portrait swap', () => {
       await expect.poll(() => shown(page), { timeout: 8_000 }).toBe('0')
     })
 
+    test('the watercolor never becomes a later LCP than the photo', async ({ page }) => {
+      test.setTimeout(30_000)
+      await page.addInitScript(() => {
+        const w = window as unknown as { __lcp: string[] }
+        w.__lcp = []
+        new PerformanceObserver((list) => {
+          for (const e of list.getEntries() as (PerformanceEntry & { element?: Element })[])
+            w.__lcp.push(e.element?.getAttribute('src') ?? e.element?.tagName ?? '?')
+        }).observe({ type: 'largest-contentful-paint', buffered: true })
+      })
+      await page.goto('/')
+      // Long enough for the watercolor's first fade in.
+      await page.waitForTimeout(7000)
+      const lcp = await page.evaluate(() => (window as unknown as { __lcp: string[] }).__lcp)
+      expect(lcp.length).toBeGreaterThan(0)
+      expect(lcp.at(-1), lcp.join(' > ')).not.toContain('watercolor')
+    })
+
     test('holds still while the hero is off screen', async ({ page }) => {
       test.setTimeout(30_000)
       await page.goto('/')
@@ -385,3 +458,120 @@ test.describe('the portrait swap', () => {
     })
   })
 })
+
+/**
+ * The whoami lines type out on load (2026-10-26), in CSS only: the text is in
+ * the server HTML at full size (so it reads without JavaScript and holds its
+ * space), a clip-path steps across it, then the prompt returns with a blinking
+ * cursor. Reduced motion shows it all at once.
+ */
+test.describe('the whoami typing', () => {
+  test.use({ viewport: { width: 1280, height: 800 }, hasTouch: false })
+
+  const lines = (page: import('@playwright/test').Page) => page.locator('#home [data-terminal] .whoami-type > span')
+  const prompt = (page: import('@playwright/test').Page) => page.locator('#home [data-terminal] .whoami-prompt')
+
+  test.describe('with motion', () => {
+    test.use({ contextOptions: { reducedMotion: 'no-preference' } })
+
+    test('types each line out from the server HTML, without JavaScript, then shows the prompt', async ({ page }) => {
+      await page.context().route('**/*.js', (route) => route.abort())
+      await page.goto('/')
+      await expect(lines(page)).toHaveText(['AI-first software developer.', 'I build apps and tools I wish existed.'])
+      // Pause every animation early on: line 1 part typed, line 2 and the prompt not yet.
+      await page.evaluate(() => {
+        for (const a of document.getAnimations()) {
+          a.pause()
+          a.currentTime = 900
+        }
+      })
+      const clips = await lines(page).evaluateAll((els) => els.map((el) => getComputedStyle(el).clipPath))
+      expect(clips[0]).toMatch(/^inset\(0(px)? [1-9]/) // partly hidden
+      expect(clips[1]).toMatch(/^inset\(0(px)? 100%/) // not started
+      expect(await prompt(page).evaluate((el) => getComputedStyle(el).opacity)).toBe('0')
+      // The lines' space is reserved from the start: typing never moves the layout.
+      const height = await page.locator('#home [data-terminal]').evaluate((el) => el.getBoundingClientRect().height)
+      // Then let it finish.
+      await page.evaluate(() => {
+        for (const a of document.getAnimations()) {
+          a.currentTime = 10_000
+        }
+      })
+      for (const clip of await lines(page).evaluateAll((els) => els.map((el) => getComputedStyle(el).clipPath)))
+        expect(clip).toMatch(/^(none|inset\(0(px)?( 0(px|%)?)*\))$/)
+      expect(await prompt(page).evaluate((el) => getComputedStyle(el).opacity)).toBe('1')
+      expect(await page.locator('#home [data-terminal]').evaluate((el) => el.getBoundingClientRect().height)).toBe(height)
+    })
+  })
+
+  test.describe('with reduced motion', () => {
+    test.use({ contextOptions: { reducedMotion: 'reduce' } })
+
+    test('shows the whole text and the prompt at once', async ({ page }) => {
+      await page.goto('/', { waitUntil: 'domcontentloaded' })
+      for (const style of await lines(page).evaluateAll((els) => els.map((el) => [getComputedStyle(el).animationName, getComputedStyle(el).clipPath])))
+        expect(style).toEqual(['none', 'none'])
+      expect(await prompt(page).evaluate((el) => getComputedStyle(el).opacity)).toBe('1')
+      await expect(lines(page).first()).toBeVisible()
+    })
+  })
+})
+
+/**
+ * The prompt chip's comet (2026-10-26) starts exactly where the loop-back
+ * wire lands on the chip, near its bottom-left corner, at every width
+ * (HeroChainMeter measures it), and still ends at 3 o'clock by the arrow.
+ */
+for (const width of [1280, 375, 320]) {
+  test(`the prompt comet starts where the wire lands, at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 800 })
+    await page.goto('/')
+    const chip = page.locator('#home .n8-cnode').first()
+    await expect(chip).toHaveText('prompt')
+    await expect.poll(() => chip.evaluate((el) => el.style.getPropertyValue('--n8start'))).not.toBe('')
+    const { gap, end } = await chip.evaluate((el) => {
+      const start = parseFloat(el.style.getPropertyValue('--n8start'))
+      const k = parseFloat(el.style.getPropertyValue('--n8k'))
+      // The comet's head is 90deg ahead of the gradient's start, clockwise from 12 o'clock.
+      const head = ((start + 90) * Math.PI) / 180
+      const box = el.getBoundingClientRect()
+      const cx = box.left + box.width / 2
+      const cy = box.top + box.height / 2
+      const dx = Math.sin(head)
+      const dy = -Math.cos(head)
+      // Where that ray leaves the chip's box.
+      const t = Math.min(dx ? Math.abs(box.width / 2 / dx) : Infinity, dy ? Math.abs(box.height / 2 / dy) : Infinity)
+      const hit = { x: cx + dx * t, y: cy + dy * t }
+      const svg = el.closest('.fade-in')!.querySelector<SVGSVGElement>('.n8-loop')!
+      const path = svg.querySelector<SVGPathElement>('.n8-loop-base')!
+      const p = path.getPointAtLength(path.getTotalLength())
+      const sb = svg.getBoundingClientRect()
+      const land = { x: sb.left + (p.x * sb.width) / svg.viewBox.baseVal.width, y: sb.top + (p.y * sb.height) / svg.viewBox.baseVal.height }
+      return { gap: Math.hypot(hit.x - land.x, hit.y - land.y), end: (start + 90 + 225 * k) % 360 }
+    })
+    expect(gap, 'px between the comet start and the wire landing').toBeLessThanOrEqual(1.5)
+    expect(Math.abs(end - 90), 'ends at 3 o\'clock').toBeLessThanOrEqual(0.5)
+  })
+}
+
+/**
+ * Big screens (2026-10-26): the hero text sits a little low, so the gap down
+ * to "What I'm working on" is no bigger than the gap above the text.
+ */
+for (const [width, height] of [
+  [1440, 900],
+  [1920, 1080],
+]) {
+  test(`at ${width}x${height} the gap under the hero text is smaller than the gap above it`, async ({ page }) => {
+    await page.setViewportSize({ width, height })
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await page.goto('/')
+    const heading = (await page.locator('#home h1').boundingBox())!
+    const socials = (await page.locator('#home nav[aria-label="Social links"]').boundingBox())!
+    const eyebrow = (await page.locator('#now').getByText('Currently building').boundingBox())!
+    const above = heading.y - 68 // under the navbar
+    const below = eyebrow.y - (socials.y + socials.height)
+    expect(below).toBeLessThan(above)
+    expect(below).toBeGreaterThan(40)
+  })
+}

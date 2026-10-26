@@ -54,7 +54,7 @@ const bridges: Bridge[] = [
     cta: 'Claim your free website',
     href: 'https://appturnity.com/#free-website',
     image: '/bridge/appturnity-2026-10.webp',
-    icon: <Image src="/brands/appturnity.png" alt="" width={20} height={23} className="h-5 w-auto" />,
+    icon: <Image src="/brands/appturnity.png" alt="" width={152} height={177} className="h-5 w-auto" />,
     accent: {
       eyebrow: 'text-emerald-400',
       border: 'hover:border-emerald-400/40',

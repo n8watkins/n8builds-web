@@ -71,7 +71,7 @@ const SiteFooter = () => (
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 text-sm text-slate-300 transition-colors hover:text-cyan-200"
                     >
-                      {link.icon && <Image src={link.icon} alt="" width={14} height={16} className="h-4 w-auto" />}
+                      {link.icon && <Image src={link.icon} alt="" width={152} height={177} className="h-4 w-auto" />}
                       {link.label}
                       <span aria-hidden="true" className="text-slate-500">↗</span>
                       <span className="sr-only"> (opens in a new tab)</span>
