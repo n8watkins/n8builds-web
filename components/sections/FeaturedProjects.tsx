@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { motion } from 'motion/react'
 import { FiGithub, FiExternalLink, FiFileText, FiDownload, FiStar, FiLayers, FiX } from 'react-icons/fi'
 import { useReveal } from '@/hooks/useReveal'
+import { useHydrated } from '@/hooks/useHydrated'
 import Reveal from '@/components/ui/Reveal'
 import TechStackCycle from '@/components/Projects/TechStackCycle'
 import { projects } from '@/data/projects'
@@ -242,6 +243,7 @@ const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: b
   const gallery = project.images && project.images.length > 1 ? project.images : [project.image]
   const [active, setActive] = useState(0)
   const [detailsOpen, setDetailsOpen] = useState(false)
+  const hydrated = useHydrated()
   const revealProps = useReveal()
   const current = gallery[Math.min(active, gallery.length - 1)]
   return (
@@ -375,7 +377,10 @@ const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: b
           type="button"
           onClick={() => setDetailsOpen(true)}
           aria-haspopup="dialog"
-          className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/12 bg-white/4 hover:bg-white/8 text-slate-300 font-semibold text-sm transition-all duration-200 hover:scale-[1.02]">
+          // Server-rendered: a click before hydration would be lost, so it stays
+          // disabled until its handler exists (as Copy link and the contact form's Send).
+          disabled={!hydrated}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/12 bg-white/4 hover:bg-white/8 text-slate-300 font-semibold text-sm transition-all duration-200 hover:scale-[1.02] disabled:cursor-wait">
           <FiLayers className="w-3.5 h-3.5" />
           Details
         </button>
