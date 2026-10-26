@@ -126,6 +126,11 @@ export default function HomePage({ posts }: { posts: Post[] }) {
             <FeaturedProjects />
           </SectionErrorBoundary>
 
+          {/* Right after the featured builds: building your own? Use mine as a template. */}
+          <SectionErrorBoundary sectionName="Use as Template">
+            <UseAsTemplate />
+          </SectionErrorBoundary>
+
           <SectionErrorBoundary sectionName="Extensions">
             <Reveal>
               <ExtensionsShowcase />
@@ -150,14 +155,6 @@ export default function HomePage({ posts }: { posts: Post[] }) {
         <Band tone="raised">
           <SectionErrorBoundary sectionName="N8's Notions">
             <NotionsStrip posts={posts} />
-          </SectionErrorBoundary>
-        </Band>
-
-        {/* ===== USE THIS AS A TEMPLATE: both sites are public; how n8builds
-             is built and tested lives here, not in a featured row. ===== */}
-        <Band>
-          <SectionErrorBoundary sectionName="Use as Template">
-            <UseAsTemplate />
           </SectionErrorBoundary>
         </Band>
 
