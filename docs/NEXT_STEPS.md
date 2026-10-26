@@ -4,7 +4,7 @@ The working checklist for n8builds.dev.
 Part 1 is everything only you can do; Part 2 is everything Claude can build, and which of it can start right now.
 Tick an item off by changing `[ ]` to `[x]`.
 
-Written 2026-10-23, revised 2026-10-25.
+Written 2026-10-23, revised 2026-10-25 (evening).
 The owner's standing decisions are in [DECISIONS.md](DECISIONS.md).
 Detailed plans: [BUILDS_LOG_PLAN.md](BUILDS_LOG_PLAN.md), [LIVE_STREAM_PLAN.md](LIVE_STREAM_PLAN.md), [X_ARTICLES_PLAN.md](X_ARTICLES_PLAN.md), and the release standard in `~/n8builds/release-kit` (STANDARD.md).
 
@@ -12,7 +12,7 @@ Detailed plans: [BUILDS_LOG_PLAN.md](BUILDS_LOG_PLAN.md), [LIVE_STREAM_PLAN.md](
 
 ### A. Decisions (one-line answers to Claude; about 10 minutes in total)
 
-- [ ] **Appturnity card** ("What I'm working on", the first section under the hero): 2-3 real, current lines about Appturnity, or "make it evergreen".
+- [x] **Appturnity card:** "What I'm working on" is now the Appturnity ad, written from Appturnity's own repo (2026-10-25); keep its "right now" lines current as Appturnity ships.
 - [x] **Solara's GitHub link:** back (the repo is public).
 - [x] **One front door:** portfolio.n8builds.dev stays separate, as the dev-portfolio segment (2026-10-25). Was: keep portfolio.n8builds.dev as a separate site, or make n8builds the portfolio and redirect or slim down the old one?
 - [x] **GitHub repo settings for n8builds-web:** done 2026-10-25 (description, homepage, topics, Wiki and Projects off, branches deleted on merge). Was: OK for Claude to fix the description, homepage URL and topics, and switch off the empty Wiki and Projects tabs? (yes / no)
@@ -34,6 +34,12 @@ Detailed plans: [BUILDS_LOG_PLAN.md](BUILDS_LOG_PLAN.md), [LIVE_STREAM_PLAN.md](
 - [ ] **X:** confirm you'll stream from @n8watkins.
 - [ ] **X developer account** (only if you choose automatic posting to X): developer.x.com, a small prepaid credit, and its keys added to Vercel the same way.
 
+### B2. Small cleanups only you can do (2026-10-25)
+
+- [ ] **GitGuardian incident 39011681:** mark it a false positive. A local Lighthouse run left a throwaway headless-Chrome profile in a PR #39 commit (its Preferences hold a random value); the files were removed before the squash merge, so main never had them.
+- [ ] **Portfolio Rank issues:** close #3 (the sync failure, fixed in portfolio-rank#5), and add Shubham Sinha's portfolio (#2 and #4, the same submission, waiting since August) or reply. Its "Submit yours" form promises the site adds submissions automatically, but nothing processes them yet; decide whether Claude should build the small approve-by-label bot.
+- [ ] **OpenPing's off-hours bug:** hand `~/projects/public/open-ping/docs/BUG-public-scheduled-off.md` (local branch `docs/public-scheduled-off-bug`, not pushed) to an agent in that repo. The portfolio already works around it.
+
 ### C. Content (ongoing)
 
 - [ ] **Screenshots:** TL;DW, Scribe, and the Solara dashboard (to replace its marketing card). Drop them in the Screenshots folder and tell Claude.
@@ -45,6 +51,9 @@ Detailed plans: [BUILDS_LOG_PLAN.md](BUILDS_LOG_PLAN.md), [LIVE_STREAM_PLAN.md](
 - [ ] **Streaming links on the portfolio:** it links `twitch.tv/n8builds` and `youtube.com/@n8builds` (that channel is titled "flipbits"), n8builds.dev links `twitch.tv/n8watkins`; settle them when streaming starts.
 
 ## Part 2: What Claude builds
+
+**Next session:** paste [prompts/next-session-2026-10-26.md](prompts/next-session-2026-10-26.md): a shallow subagent review of the 2026-10-25 work, then the homepage speed refactor (render the sections on the server, client islands only where they're interactive; the homepage is ~0.83 on phones because it is one client component).
+
 
 Ordered by value.
 "Ready now" means nothing from Part 1 is needed to start.
@@ -102,6 +111,10 @@ To review it later, paste [prompts/review-2026-10-24-changes.md](prompts/review-
 - One home for owner decisions: [DECISIONS.md](DECISIONS.md) (#25).
 - dev-portfolio (renamed from Portfolio2.0): generated share card and one title, Scribe in place of LocalDictate, no em dashes, the Sentry wizard's example routes removed, GitHub Actions CI, honest README and a current HANDOFF (dev-portfolio#1); live-demo status from OpenPing and a "More builds" strip linking here (dev-portfolio#2).
 - OpenPing added as a Tools build, with its build page and build log (this repo), and to the Studio's highlight build list (n8builds-studio#2).
+- The Lab and the homepage, reworked (#27 to #33): OpenPing joins as a build; Scribe and OpenPing lead as "Tools I use every day", then Solara and Portfolio Rank; app icons, Star buttons, a Details dialog for the stack, an ad on every row (Scribe's downloads through n8builds.dev/download/scribe, always the newest installer), Portfolio Rank's credits and invitation, "What I'm working on" as the Appturnity ad, a portfolio ad after the Lab, "Use this as a template", a site-wide footer sitemap (the build log moved there and to the Lab menu), contact@n8builds.dev everywhere, broken Gemini/Turso/Cloudflare icons fixed.
+- Polish (#34 to #38, three agents in parallel for #35 to #37): a new page opens at its top (no more gliding up), N8's Notions (also in Sanity), consistent fade-ins, the hero portrait fades in, the build log hydrates in place (feed visible at ~0.25s instead of ~1.7s, no layout shift), sturdier Lighthouse checks, Details waits for hydration.
+- Speed (#39): lazy Sentry (SDK and Replay load when the page is idle; early errors are queued), LazyMotion, gradient glows instead of blur filters, the first blog cover loads eagerly, and a mobile Lighthouse pass in CI. Mobile: / 0.77 to ~0.83, /blog 0.86 to ~0.95-0.98, /builds 0.87 to ~0.91-0.96; desktop LCP down too.
+- Elsewhere: dev-portfolio#3 (n8builds card, MIT license with a content carve-out) and #4 (Portfolio Rank's real icon); portfolio-rank#5 (the daily sync captures screenshots again); release-kit#3 (merged, unreleased: "1 commit"); n8builds-studio#2 (OpenPing in the highlight list).
 - Train fix (#24, kit 1.2.0, n8watkins/release-kit#2): GitHub doesn't count checks from `workflow_dispatch` runs, so `main` moved to a ruleset that the train's deploy key (secret `RELEASE_TRAIN_KEY`) may bypass; the train still pushes only after CI passes on the release commit.
 
 **Outside this repo:**
