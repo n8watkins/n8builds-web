@@ -20,19 +20,19 @@ export interface Social {
   size: 'sm' | 'md' | 'lg'
 }
 
-const ALL_SOCIALS: Social[] = [
+export const ALL_SOCIALS: Social[] = [
   { label: 'GitHub', href: 'https://github.com/n8watkins', Icon: FiGithub, enabled: true, size: 'md' },
   { label: 'LinkedIn', href: 'https://www.linkedin.com/in/n8watkins/', Icon: CiLinkedin, enabled: true, size: 'lg' },
   { label: 'Email', href: 'mailto:contact@n8builds.dev', Icon: FiMail, enabled: true, size: 'md' },
   { label: 'X (Twitter)', href: 'https://x.com/n8watkins', Icon: FaXTwitter, enabled: true, size: 'sm' },
-  { label: 'Twitch', href: 'https://twitch.tv/n8watkins', Icon: FaTwitch, enabled: true, size: 'sm' },
+  { label: 'Twitch', href: 'https://twitch.tv/n8watkins', Icon: FaTwitch, enabled: false, size: 'sm' },
   // TODO(owner): PLACEHOLDER URL. @n8watkins is not a live channel yet (it
   // 404s); put the real channel URL here before enabling this for good.
-  { label: 'YouTube', href: 'https://www.youtube.com/@n8watkins', Icon: FaYoutube, enabled: true, size: 'md' },
+  { label: 'YouTube', href: 'https://www.youtube.com/@n8watkins', Icon: FaYoutube, enabled: false, size: 'md' },
   { label: 'Ko-fi', href: 'https://ko-fi.com/n8watkins', Icon: SiKofi, enabled: true, size: 'md' },
 ]
 
-/** The links to show. */
+/** The links to show (in ALL_SOCIALS order). */
 export const SOCIALS = ALL_SOCIALS.filter((s) => s.enabled)
 
 export const isExternal = (href: string) => href.startsWith('http')
