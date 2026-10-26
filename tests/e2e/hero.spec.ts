@@ -575,3 +575,18 @@ for (const [width, height] of [
     expect(below).toBeGreaterThan(40)
   })
 }
+
+/**
+ * Tablets: the text column shares the row with the portrait, and the
+ * one-line subheader must not run under it.
+ */
+for (const width of [768, 900, 1023, 1024]) {
+  test(`at ${width}px the subheader stays clear of the portrait`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 1024 })
+    await page.goto('/')
+    const sub = (await page.locator('#home').getByText('Spending tokens, shipping features.').boundingBox())!
+    const portrait = (await page.locator('#home .hero-portrait-in').boundingBox())!
+    expect(sub.height, 'one line').toBeLessThan(50)
+    expect(sub.x + sub.width).toBeLessThanOrEqual(portrait.x)
+  })
+}

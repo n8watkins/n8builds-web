@@ -64,8 +64,9 @@ const Hero = () => {
                 delay={0.16}
                 // One line on every phone: the font scales with the screen
                 // (the line is ~16.75em wide; 100vw less the 2.5rem gutter),
-                // up to the usual 1.5rem.
-                className="mt-3 whitespace-nowrap text-[min(1.5rem,calc((100vw-2.5rem)/17.5))] sm:text-3xl font-bold tracking-tight bg-linear-to-r from-cyan-400 via-blue-400 to-blue-600 bg-clip-text text-transparent"
+                // up to the usual 1.5rem. On tablets (md) the text column
+                // shares the row with the portrait, so it drops to 1.2rem there.
+                className="mt-3 whitespace-nowrap text-[min(1.5rem,calc((100vw-2.5rem)/17.5))] sm:text-3xl md:text-[1.2rem] lg:text-3xl font-bold tracking-tight bg-linear-to-r from-cyan-400 via-blue-400 to-blue-600 bg-clip-text text-transparent"
               >
                 Spending tokens, shipping features.
               </FadeIn>
