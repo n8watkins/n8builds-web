@@ -36,6 +36,13 @@ export default function Marquee({
   // focused item doesn't slide out from under the visitor.
   const [hasFocus, setHasFocus] = useState(false)
   const isPaused = (pauseOnHover && isHovered) || hasFocus
+  // The items are server-rendered, so a visitor can focus one before the page
+  // hydrates, when React isn't listening yet and onFocus never fires. Catch
+  // that once hydrated, or the focused item slides away.
+  const firstCopy = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (firstCopy.current?.contains(document.activeElement)) setHasFocus(true)
+  }, [])
   const reduceMotion = usePrefersReducedMotion()
   // The server sends one copy of the items; the loop's duplicates are added
   // once the page hydrates. They only make the loop seamless, and repeating
@@ -117,6 +124,7 @@ export default function Marquee({
         .map((_, i) => (
           <div
             key={i}
+            ref={i === 0 ? firstCopy : undefined}
             // The copies only make the loop seamless: hide them from assistive
             // tech so each item is announced once (see MarqueeCopyContext).
             aria-hidden={i > 0 || undefined}
