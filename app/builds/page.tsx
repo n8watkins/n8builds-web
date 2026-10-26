@@ -41,10 +41,11 @@ export default async function BuildLogPage() {
       <Navbar />
       <JsonLd data={itemList} />
       <main id="main-content" tabIndex={-1} className="relative min-h-screen bg-darkBlue text-slate-100 focus:outline-none">
-        {/* Ambient glows */}
+        {/* Ambient glows. Placed in rem, not % of <main>: a percentage moves while
+            the long page is still parsing, which counts as a layout shift. */}
         <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute left-[-10%] top-0 h-128 w-lg rounded-full bg-cyan-500/6 blur-[140px]" />
-          <div className="absolute right-[-10%] top-[28%] h-120 w-120 rounded-full bg-blue-600/6 blur-[140px]" />
+          <div className="absolute right-[-10%] top-[120rem] h-120 w-120 rounded-full bg-blue-600/6 blur-[140px] md:top-[99rem] lg:top-[93rem]" />
         </div>
 
         <div className="relative mx-auto max-w-6xl px-5 pb-24 pt-28 sm:px-8 md:pt-36">

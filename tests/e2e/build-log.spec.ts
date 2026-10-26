@@ -118,6 +118,35 @@ test('before the page is interactive, a filtered link shows no unfiltered feed',
   await expect(feed(page).locator('li[data-kind]:not([data-build="tubevault"])')).toHaveCount(0)
 })
 
+test('the feed is in the HTML, visible before any JavaScript, and hydrated in place', async ({ page }) => {
+  // Hold back the app's JavaScript, as on a slow phone.
+  let release = () => {}
+  const held = new Promise<void>((resolve) => (release = resolve))
+  await page.route('**/_next/static/chunks/**', async (route) => {
+    await held
+    await route.continue()
+  })
+
+  await page.goto('/builds#activity', { waitUntil: 'commit' })
+  const first = feedEntries(page).first()
+  await expect(first).toBeAttached()
+  // Readable straight from the HTML: no entry waits for a script to fade it in.
+  expect(await first.evaluate((el) => el.checkVisibility({ opacityProperty: true, visibilityProperty: true }))).toBe(true)
+  await first.evaluate((el) => el.setAttribute('data-prerendered', ''))
+
+  release()
+  // React hydrates the prerendered entries rather than replacing them: the
+  // first entry React owns is still the one the HTML had (a feed rendered again
+  // on the client blanked it and faded every month back in).
+  const owned = () =>
+    page.evaluate(() => {
+      const el = document.querySelector('#activity li[data-kind]')
+      return el && Object.keys(el).some((key) => key.startsWith('__reactFiber')) ? el.hasAttribute('data-prerendered') : null
+    })
+  await expect.poll(owned, { timeout: 15_000 }).not.toBeNull()
+  expect(await owned()).toBe(true)
+})
+
 test('a build page shows its recent activity and links to its part of the log', async ({ page }) => {
   await page.goto('/builds/tubevault')
   const section = page.getByRole('region', { name: 'Recent activity' })
