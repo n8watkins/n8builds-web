@@ -11,7 +11,8 @@ export default function LabSubheader({
   eyebrow?: string
   /** Text colour class for the eyebrow, e.g. 'text-blue-400'. */
   eyebrowClass?: string
-  title: string
+  /** Usually a string; a part may set its own lines (the template part's two-line prompt). */
+  title: React.ReactNode
   blurb?: React.ReactNode
 }) {
   return (
