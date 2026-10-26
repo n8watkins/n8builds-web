@@ -33,7 +33,7 @@ export const FieldWrapper = ({
   maxChars,
 }: FieldWrapperProps) => {
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-2">
       <div className="flex justify-between items-center">
         <label
           htmlFor={id}

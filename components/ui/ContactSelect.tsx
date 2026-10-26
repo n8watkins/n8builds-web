@@ -12,7 +12,7 @@ interface ContactSelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
 export const ContactSelect = forwardRef<HTMLSelectElement, ContactSelectProps>(
   ({ label, error, emoji, options, className, ...props }, ref) => {
     return (
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         <label
           htmlFor={props.id}
           className="text-sm font-medium text-slate-800 dark:text-slate-200 flex items-center gap-1"
