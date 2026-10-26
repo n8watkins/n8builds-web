@@ -112,3 +112,32 @@ test.describe('the hero text column', () => {
     expect(hiring!.y + hiring!.height).toBeLessThanOrEqual(socials!.y)
   })
 })
+
+/**
+ * The first screen (2026-10-26): the "What I'm working on" heading peeks in
+ * under the hero, so the visitor sees there is more, but the card under it
+ * stays below the fold. Laptop sizes; reduced motion so the scroll reveal
+ * doesn't move the heading while it's measured.
+ */
+for (const [width, height] of [
+  [1280, 800],
+  [1440, 900],
+  [1366, 768],
+  [1536, 864],
+  [1920, 1080],
+]) {
+  test.describe(`the first screen at ${width}x${height}`, () => {
+    test.use({ viewport: { width, height }, hasTouch: false, contextOptions: { reducedMotion: 'reduce' } })
+
+    test('shows the top of "What I\'m working on" but not its card', async ({ page }) => {
+      await page.goto('/')
+      const heading = page.locator('#now').getByRole('heading', { level: 2, name: "What I'm working on" })
+      const box = (await heading.boundingBox())!
+      // At least the top third of the heading's line is on screen...
+      expect(box.y + box.height / 3, 'heading peeks in').toBeLessThanOrEqual(height)
+      // ...and the card (everything after the heading block) starts below the fold.
+      const card = await page.locator('#now h2').evaluate((h2) => h2.closest('div.mb-8')!.nextElementSibling!.getBoundingClientRect().top)
+      expect(card, 'card stays below the fold').toBeGreaterThanOrEqual(height)
+    })
+  })
+}

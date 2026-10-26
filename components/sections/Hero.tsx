@@ -16,14 +16,21 @@ import HeroChainMeter from '@/components/sections/HeroChainMeter'
 const Hero = () => {
   return (
     <div
-      className="relative flex flex-col min-h-[min(90vh,800px)] md:portrait:min-h-[min(90vh,720px)] items-center bg-linear-to-b from-darkBlue from-70% to-transparent overflow-hidden select-none"
+      className="relative flex flex-col md:min-h-[min(calc(100svh-180px),1000px)] items-center bg-linear-to-b from-darkBlue from-70% to-transparent overflow-hidden select-none"
       id="home"
     >
       <HeroGrid />
 
       {/* Top-aligned, not centered: a slow device paints the hero while it is
-          still streaming in, and re-centering a growing column shifted it up. */}
-      <div className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 w-full flex flex-col items-center pt-28 lg:pt-40 pb-16">
+          still streaming in, and re-centering a growing column shifted it up.
+          From md up the hero is sized to the screen (svh, so it never changes
+          after load): its min-height leaves room under it for the top of the
+          "What I'm working on" heading (it starts ~113px below the hero and
+          is ~60px tall) but not the card ~32px under it, and the top padding
+          shrinks on short screens so the column still fits. Capped so a very
+          tall screen doesn't get an empty hero. tests/e2e/hero.spec.ts checks
+          the laptop sizes. */}
+      <div className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 w-full flex flex-col items-center pt-28 md:pt-[clamp(5.5rem,12svh,10rem)] pb-16 md:pb-6">
 
 
         <div className="flex flex-col md:flex-row items-center justify-between w-full gap-10 md:gap-8">
