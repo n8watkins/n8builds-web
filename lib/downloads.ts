@@ -18,27 +18,40 @@ export const DOWNLOADS: Record<string, Download> = {
 
 interface Release {
   tag_name: string
-  assets: { name: string; browser_download_url: string }[]
+  assets: { name: string; browser_download_url: string; size: number }[]
 }
 
 // The E2E suite's release (BUILD_LOG_FIXTURE=1), so the tests never call GitHub.
 const FIXTURE: Release = {
   tag_name: 'v0.8.0',
   assets: [
-    { name: 'latest.json', browser_download_url: 'https://github.com/n8watkins/scribe/releases/download/v0.8.0/latest.json' },
+    { name: 'latest.json', browser_download_url: 'https://github.com/n8watkins/scribe/releases/download/v0.8.0/latest.json', size: 667 },
     {
       name: 'Scribe_0.8.0_x64-setup.exe',
       browser_download_url: 'https://github.com/n8watkins/scribe/releases/download/v0.8.0/Scribe_0.8.0_x64-setup.exe',
+      size: 12519464,
     },
-    { name: 'Scribe_0.8.0_x64_en-US.msi', browser_download_url: 'https://github.com/n8watkins/scribe/releases/download/v0.8.0/Scribe_0.8.0_x64_en-US.msi' },
+    {
+      name: 'Scribe_0.8.0_x64_en-US.msi',
+      browser_download_url: 'https://github.com/n8watkins/scribe/releases/download/v0.8.0/Scribe_0.8.0_x64_en-US.msi',
+      size: 30674944,
+    },
   ],
 }
 
 /** The releases page: where a visitor lands when the file can't be found. */
 export const releasesPage = (download: Download) => `https://github.com/${download.repo}/releases/latest`
 
+export interface Asset {
+  url: string
+  /** The release's tag, e.g. "v0.8.0". */
+  version: string
+  /** The file's size in bytes, as GitHub reports it. */
+  size: number
+}
+
 /** The newest release's file for `download`, or null when GitHub can't say. */
-export async function latestAsset(download: Download): Promise<{ url: string; version: string } | null> {
+export async function latestAsset(download: Download): Promise<Asset | null> {
   try {
     let release: Release
     if (process.env.BUILD_LOG_FIXTURE === '1') {
@@ -60,8 +73,14 @@ export async function latestAsset(download: Download): Promise<{ url: string; ve
       release = (await res.json()) as Release
     }
     const file = release.assets.find((a) => download.asset.test(a.name))
-    return file ? { url: file.browser_download_url, version: release.tag_name } : null
+    return file ? { url: file.browser_download_url, version: release.tag_name, size: file.size } : null
   } catch {
     return null
   }
+}
+
+/** A file size the way Windows shows it (binary megabytes), e.g. 12519464 -> "12 MB". */
+export function formatSize(bytes: number): string {
+  const mb = bytes / (1024 * 1024)
+  return mb >= 10 ? `${Math.round(mb)} MB` : `${mb.toFixed(1)} MB`
 }

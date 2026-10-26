@@ -1,7 +1,8 @@
 import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { FiStar, FiArrowUpRight } from 'react-icons/fi'
+import { FiArrowUpRight } from 'react-icons/fi'
+import StarButton from '@/components/ui/StarButton'
 import { getBuild } from '@/data/builds'
 import LabSubheader from '@/components/sections/LabSubheader'
 import ExtensionsCarousel from '@/components/sections/ExtensionsCarousel'
@@ -85,17 +86,7 @@ const Detail = ({ ext }: { ext: Ext }) => {
           ))}
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-3">
-          {build.github && (
-            <a
-              href={build.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-xl bg-linear-to-r from-amber-500/90 to-yellow-500/90 px-4 py-2 text-sm font-bold text-black transition-all duration-200 hover:scale-[1.02]"
-            >
-              <FiStar className="h-4 w-4" />
-              Star on GitHub
-            </a>
-          )}
+          {build.github && <StarButton href={build.github} name={build.name} />}
           <Link
             href={`/builds/${build.slug}`}
             className="flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8"
