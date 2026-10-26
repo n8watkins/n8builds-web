@@ -5,7 +5,7 @@ import { E2E_PROJECTS, FEATURES, SPEED, SPEED_MORE, WORKFLOW } from '../../compo
 
 /**
  * The case study for this site (/builds/n8builds), its CSS animations, and the
- * homepage's "Use this as a template" section that links to it.
+ * Lab's template part ("Use mine as a template") that links to it.
  */
 
 const PATH = '/builds/n8builds'
@@ -123,7 +123,7 @@ test.describe('with reduced motion', () => {
     expect(reached.size).toBe(linkCount)
   })
 
-  test('the homepage points to the case study from "Use this as a template", not a featured row', async ({ page }) => {
+  test('the homepage points to the case study from the Lab template part, not a featured row', async ({ page }) => {
     await page.goto('/')
     await expect(page.locator('#featured').locator(`a[href="${PATH}"]`)).toHaveCount(0)
     const link = page.locator('#template').getByRole('link', { name: 'How it is built and tested' })

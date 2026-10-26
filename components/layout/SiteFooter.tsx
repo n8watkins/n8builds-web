@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import Reveal from '@/components/ui/Reveal'
+import CookieSettingsButton from '@/components/consent/CookieSettingsButton'
 import { SOCIALS, isExternal, type Social } from '@/data/socials'
 
 /**
@@ -9,7 +10,7 @@ import { SOCIALS, isExternal, type Social } from '@/data/socials'
  * The homepage's contact card sits just above it.
  */
 
-const SITEMAP: { heading: string; links: { label: string; href: string; icon?: string }[] }[] = [
+const SITEMAP: { heading: string; links: { label: string; href: string; icon?: string }[]; cookieSettings?: boolean }[] = [
   {
     heading: 'The Lab',
     links: [
@@ -43,6 +44,8 @@ const SITEMAP: { heading: string; links: { label: string; href: string; icon?: s
       { label: 'Source on GitHub', href: 'https://github.com/n8watkins/n8builds-web' },
       { label: 'Privacy', href: '/privacy' },
     ],
+    // Reopens the analytics consent banner (components/consent).
+    cookieSettings: true,
   },
 ]
 const ICON_SIZE: Record<Social['size'], string> = { sm: 'h-4.5 w-4.5', md: 'h-5 w-5', lg: 'h-6 w-6' }
@@ -84,6 +87,11 @@ const SiteFooter = () => (
                   )}
                 </li>
               ))}
+              {group.cookieSettings && (
+                <li>
+                  <CookieSettingsButton className="cursor-pointer text-left text-sm text-slate-300 transition-colors hover:text-cyan-200" />
+                </li>
+              )}
             </ul>
           </div>
         ))}

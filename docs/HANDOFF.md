@@ -59,6 +59,7 @@ E2E details:
 - Playwright builds and starts the app itself (`next build && next start`) on port 3747, or `E2E_PORT`.
   Set `E2E_SKIP_BUILD=1` to reuse an existing build.
 - The test server runs in `CONTACT_TEST_MODE` with Cloudflare's always-pass Turnstile test keys.
+- It is built with a made-up GA ID (`G-E2ETEST000`) so the consent banner and GA loader exist, and browsers run in the America/Los_Angeles time zone so the banner stays away unless a spec asks for it (`tests/e2e/consent.spec.ts` picks Europe/Berlin or America/Toronto and answers gtag.js itself).
   No email is sent (Nodemailer JSON transport), and GA, Sentry and Upstash are forced off.
 - A running server on the port is reused locally; if it serves an old build, kill it first (`ss -ltnp | grep 3747`).
 - After upgrading `@playwright/test`, run `npx playwright install` or every browser test fails instantly.

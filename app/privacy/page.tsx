@@ -2,6 +2,8 @@ import Navbar from '@/components/layout/Navbar'
 import { pageMetadata } from '@/lib/seo'
 import FadeIn from '@/components/ui/FadeIn'
 import Reveal from '@/components/ui/Reveal'
+import CookieSettingsButton from '@/components/consent/CookieSettingsButton'
+import { CONSENT_COOKIE } from '@/lib/consent'
 
 export const metadata = pageMetadata({
   title: 'Privacy Policy | n8builds',
@@ -9,7 +11,7 @@ export const metadata = pageMetadata({
   path: '/privacy',
 })
 
-const UPDATED = 'October 23, 2026'
+const UPDATED = 'October 26, 2026'
 
 export default function PrivacyPolicy() {
   return (
@@ -47,9 +49,15 @@ export default function PrivacyPolicy() {
                     contact form, I collect your name, email address, and message so I can reply.
                   </li>
                   <li>
-                    <span className="text-slate-100">Usage analytics.</span> I use Google Analytics
-                    to understand how the site is used (pages viewed, device type, approximate
-                    location). This data is aggregated and not used to personally identify you.
+                    <span className="text-slate-100">Usage analytics.</span> With your permission
+                    where the law requires it, I use Google Analytics to understand how the site is
+                    used (pages viewed, device type, approximate location). I look at it in
+                    aggregate and don&rsquo;t use it to identify you. The site shows no ads, and
+                    it always tells Google not to use the data for advertising (see{' '}
+                    <a href="#cookies" className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2">
+                      Cookies and your choices
+                    </a>
+                    ).
                   </li>
                   <li>
                     <span className="text-slate-100">Bot protection.</span> The contact form is
@@ -131,12 +139,58 @@ export default function PrivacyPolicy() {
             </FadeIn>
 
             <Reveal>
-              <section className="space-y-3">
-                <h2 className="text-xl font-bold text-slate-100">Cookies</h2>
+              <section id="cookies" className="scroll-mt-24 space-y-3">
+                <h2 className="text-xl font-bold text-slate-100">Cookies and your choices</h2>
                 <p>
-                  Google Analytics sets cookies to measure usage. You can block or delete these via
-                  your browser settings or a browser extension without affecting the rest of the
-                  site.
+                  The analytics cookies on this site are Google Analytics cookies (named{' '}
+                  <code className="font-mono text-[0.85em] text-slate-200">_ga</code> and{' '}
+                  <code className="font-mono text-[0.85em] text-slate-200">_ga_&lt;id&gt;</code>), which tell
+                  repeat visits apart and last up to two years. Whether they are set depends on where you are:
+                </p>
+                <ul className="list-disc pl-5 space-y-2 marker:text-cyan-400/60">
+                  <li>
+                    <span className="text-slate-100">In the EEA, the UK, Switzerland and Quebec</span>, analytics
+                    is off until you say yes. If your browser&rsquo;s time zone is in Europe or covers Quebec
+                    (Eastern Canada, so visitors in Ontario are asked too), a banner asks you first, and Google
+                    Analytics isn&rsquo;t loaded at all until you accept; if you decline, it never loads. As a
+                    backstop, Google&rsquo;s Consent Mode also treats visits from these places as &ldquo;no
+                    analytics cookies&rdquo; unless you have accepted, so if your time zone says otherwise, Google
+                    may receive basic, cookieless signals about the visit (such as the page and time) without any
+                    cookie or identifier being stored.
+                  </li>
+                  <li>
+                    <span className="text-slate-100">Everywhere else</span>, analytics is on by default, and you
+                    can turn it off at any time.
+                  </li>
+                  <li>
+                    <span className="text-slate-100">Global Privacy Control.</span> If your browser sends the{' '}
+                    <a
+                      href="https://globalprivacycontrol.org/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
+                    >
+                      Global Privacy Control
+                    </a>{' '}
+                    signal, wherever you are, I treat it as a decline: Google Analytics isn&rsquo;t loaded unless
+                    you turn it on yourself in the cookie settings.
+                  </li>
+                </ul>
+                <p>
+                  Your choice is saved in a small cookie,{' '}
+                  <code className="font-mono text-[0.85em] text-slate-200">{CONSENT_COOKIE}</code>, which holds
+                  only &ldquo;granted&rdquo; or &ldquo;denied&rdquo; and lasts 12 months. It is set for
+                  n8builds.dev and its subdomains, so the same choice applies on my developer portfolio at
+                  portfolio.n8builds.dev. Because it only records your choice, it is strictly necessary and
+                  doesn&rsquo;t need consent itself, and it is never used to track you. A copy is kept in your
+                  browser&rsquo;s local storage in case cookies are blocked; it never leaves your device.
+                </p>
+                <p>
+                  To change your choice, use{' '}
+                  <CookieSettingsButton className="cursor-pointer text-cyan-400 hover:text-cyan-300 underline underline-offset-2" />{' '}
+                  (also in the footer of every page). Declining removes the Google Analytics cookies already
+                  set. Advertising use is always denied. You can also block or delete cookies in your
+                  browser settings or with an extension without affecting the rest of the site.
                 </p>
               </section>
             </Reveal>
