@@ -46,3 +46,6 @@ next-env.d.ts
 
 # lighthouse reports (scripts/lighthouse.mjs)
 /.lighthouse/
+
+# Chrome profiles that chrome-launcher creates in the working directory under WSL
+/C:*
