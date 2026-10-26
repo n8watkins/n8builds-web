@@ -24,11 +24,11 @@ export const ContactTextarea = forwardRef<HTMLTextAreaElement, ContactTextareaPr
         <textarea
           ref={ref}
           className={cn(
-            'w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600',
+            'w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600',
             'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100',
             'placeholder-slate-500 dark:placeholder-slate-400',
             'focus:ring-2 focus:ring-cyan-500 focus:border-transparent',
-            'transition-all duration-200 resize-y min-h-[120px]',
+            'transition-all duration-200 resize-y min-h-[96px]',
             'hover:border-slate-400 dark:hover:border-slate-500',
             error && 'border-red-500 dark:border-red-400 focus:ring-red-500',
             className

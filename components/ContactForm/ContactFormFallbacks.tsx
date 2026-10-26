@@ -10,7 +10,7 @@ import React, { useEffect, useRef } from 'react'
 
 export function SendingFallback() {
   return (
-    <div role="status" className="fade-in flex min-h-[600px] items-center justify-center text-lg font-semibold text-slate-200">
+    <div role="status" className="fade-in flex min-h-[370px] items-center justify-center text-lg font-semibold text-slate-200">
       Sending your message...
     </div>
   )
@@ -21,7 +21,7 @@ export function SuccessFallback({ onSendAnother }: { onSendAnother: () => void }
   const heading = useRef<HTMLHeadingElement>(null)
   useEffect(() => heading.current?.focus(), [])
   return (
-    <div className="fade-in flex min-h-[600px] flex-col items-center justify-center py-12 text-center">
+    <div className="fade-in flex min-h-[370px] flex-col items-center justify-center py-12 text-center">
       <h3 ref={heading} tabIndex={-1} className="mb-2 text-2xl font-bold text-slate-200 focus:outline-none">
         Message sent successfully!
       </h3>

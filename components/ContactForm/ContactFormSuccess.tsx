@@ -60,7 +60,7 @@ function ContactFormSuccessScreen({ showConfetti, confettiKey, onSendAnother }: 
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="text-center py-12 relative min-h-[600px] flex flex-col items-center justify-center"
+      className="text-center py-12 relative min-h-[370px] flex flex-col items-center justify-center"
     >
       {/* Confetti Animation */}
       {showConfetti && !reduceMotion && (

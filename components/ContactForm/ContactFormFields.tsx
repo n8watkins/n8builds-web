@@ -59,7 +59,7 @@ export function ContactFormFields({
         e.preventDefault()
         if (hydrated && !isBusy) onSubmit()
       }}
-      className="space-y-4 md:space-y-6 pt-4 md:pt-6 min-h-[600px]"
+      className="space-y-4 min-h-[370px]"
     >
       {/* Security: Honeypot field - hidden from users */}
       <div className="hidden">
@@ -74,7 +74,7 @@ export function ContactFormFields({
 
       {/* The fields fade up in a stagger, in CSS (FadeIn), so the form
           needs no animation library. */}
-      <FadeIn delay={0.1} className="grid grid-cols-1 gap-4 md:gap-6">
+      <FadeIn delay={0.1} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <FadeIn delay={0.2}>
           <ContactInput
             {...register('name')}
@@ -128,7 +128,7 @@ export function ContactFormFields({
           label="Message"
           emoji="💬"
           placeholder="What are you building, and where can I help?"
-          rows={5}
+          rows={3}
           maxChars={1000}
           charCount={charCount}
           error={errors.message?.message}
@@ -148,7 +148,7 @@ export function ContactFormFields({
         </div>
       )}
 
-      <FadeIn delay={0.45} className="text-center sm:px-4">
+      <FadeIn delay={0.45} className="flex flex-col items-center gap-x-4 gap-y-3 pt-1 sm:flex-row sm:flex-wrap sm:justify-between">
         {/*
           Invisible Cloudflare Turnstile widget.
           appearance: 'interaction-only' keeps it hidden unless a challenge is
@@ -173,7 +173,7 @@ export function ContactFormFields({
         <button
           type="submit"
           disabled={!hydrated || isBusy}
-          className={`relative inline-flex h-12 w-full md:w-60 overflow-hidden rounded-lg p-px focus:outline-hidden focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 transition-all duration-200 ${
+          className={`relative inline-flex h-11 w-full sm:w-48 shrink-0 overflow-hidden rounded-lg p-px focus:outline-hidden focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 transition-all duration-200 ${
             isBusy ? "opacity-75 cursor-not-allowed" : ""
           }`}
         >
@@ -182,17 +182,17 @@ export function ContactFormFields({
             {isVerifying ? "Verifying... 🛡️" : isSubmitting ? "Sending... 🚀" : "Send Message 🚀"}
           </span>
         </button>
+        <p className="text-center text-sm whitespace-nowrap text-slate-600 dark:text-slate-400">
+          Prefer email?{' '}
+          <a
+            href="mailto:contact@n8builds.dev"
+            className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
+          >
+            contact@n8builds.dev
+          </a>
+        </p>
       </FadeIn>
 
-      <p className="text-center text-sm text-slate-600 dark:text-slate-400 pb-8">
-        Prefer email? Reach me directly at{' '}
-        <a
-          href="mailto:contact@n8builds.dev"
-          className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
-        >
-          contact@n8builds.dev
-        </a>
-      </p>
     </form>
   )
 }
