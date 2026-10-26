@@ -2,12 +2,24 @@ import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import Reveal from '@/components/ui/Reveal'
+import PauseOffscreen from '@/components/ui/PauseOffscreen'
 import { FiArrowUpRight, FiCheck, FiCode } from 'react-icons/fi'
+import styles from './WorkWithMe.module.css'
 
-/** One highlight line: a bold lead-in, then what it is. */
+/** One highlight line: an optional bold lead-in, then what it is. */
 interface Point {
   lead?: string
   text: string
+}
+
+/** A screenshot: when it is taller than its frame it scrolls (see the CSS module). */
+interface Shot {
+  src: string
+  alt: string
+  width: number
+  height: number
+  /** seconds for one pass down (or up) */
+  duration?: number
 }
 
 interface Door {
@@ -22,9 +34,10 @@ interface Door {
   cta: { label: string; href: string }
   secondary?: { label: string; href: string }
   icon: React.ReactNode
-  /** the screenshot side of the card */
-  visual: React.ReactNode
+  desktop: Shot
+  phone: Shot
   accent: {
+    /** eyebrow text gradient */
     eyebrow: string
     check: string
     button: string
@@ -33,26 +46,54 @@ interface Door {
   }
 }
 
-/** A screenshot in a small browser frame. */
-const BrowserFrame = ({ src, alt, width, height, sizes, className = '' }: {
-  src: string
-  alt: string
-  width: number
-  height: number
-  sizes: string
-  className?: string
-}) => (
-  <div className={`overflow-hidden rounded-xl border border-white/10 bg-[#0a1322] shadow-2xl shadow-black/40 ${className}`}>
-    <div aria-hidden className="flex items-center gap-1.5 border-b border-white/8 bg-white/4 px-3 py-2">
-      <span className="h-2 w-2 rounded-full bg-white/20" />
-      <span className="h-2 w-2 rounded-full bg-white/20" />
-      <span className="h-2 w-2 rounded-full bg-white/20" />
-    </div>
-    <Image src={src} alt={alt} width={width} height={height} sizes={sizes} className="block h-auto w-full" />
-  </div>
-)
+const BROWSER_ASPECT = 16 / 10
+const PHONE_ASPECT = 9 / 19.5
 
-const VISUAL_SIZES = '(max-width: 1024px) 92vw, 560px'
+/** The screen inside a frame: a fixed aspect ratio, and a tall shot scrolls in it. */
+const Screen = ({ shot, aspect, sizes }: { shot: Shot; aspect: number; sizes: string }) => {
+  // How much of the image the frame shows, as a share of the image's height.
+  const shown = shot.width / aspect / shot.height
+  const scrolls = shown < 0.98
+  return (
+    <div className="relative overflow-hidden [transform:translateZ(0)]" style={{ aspectRatio: aspect }}>
+      <Image
+        src={shot.src}
+        alt={shot.alt}
+        width={shot.width}
+        height={shot.height}
+        sizes={sizes}
+        className={`block h-auto w-full ${scrolls ? styles.scroll : ''}`}
+        style={
+          scrolls
+            ? {
+                ['--travel' as string]: `${(-(1 - shown) * 100).toFixed(3)}%`,
+                ['--duration' as string]: `${shot.duration ?? 30}s`,
+              }
+            : undefined
+        }
+      />
+    </div>
+  )
+}
+
+/** A browser window and a phone, mostly side by side with a small overlap. */
+const Showcase = ({ desktop, phone }: { desktop: Shot; phone: Shot }) => (
+  <PauseOffscreen className="relative flex items-center">
+    <div className="w-[78%] overflow-hidden rounded-xl border border-white/10 bg-[#0a1322] shadow-2xl shadow-black/40">
+      <div aria-hidden className="flex items-center gap-1.5 border-b border-white/8 bg-white/4 px-3 py-1.5">
+        <span className="h-2 w-2 rounded-full bg-white/20" />
+        <span className="h-2 w-2 rounded-full bg-white/20" />
+        <span className="h-2 w-2 rounded-full bg-white/20" />
+      </div>
+      <Screen shot={desktop} aspect={BROWSER_ASPECT} sizes="(max-width: 1024px) 72vw, 400px" />
+    </div>
+    <div className="relative -ml-[4%] w-[26%] shrink-0 overflow-hidden rounded-[1rem] border-[4px] border-[#0b1220] bg-[#0b1220] shadow-2xl shadow-black/60 ring-1 ring-white/12">
+      <div className="overflow-hidden rounded-[0.7rem]">
+        <Screen shot={phone} aspect={PHONE_ASPECT} sizes="(max-width: 1024px) 26vw, 140px" />
+      </div>
+    </div>
+  </PauseOffscreen>
+)
 
 // Two doors off the workshop. n8builds is the top of the funnel; it feeds the
 // portfolio (developer work) and Appturnity (client work), never replaces
@@ -65,7 +106,7 @@ const doors: Door[] = [
     // seen the builds, so it offers to build theirs.
     id: 'developer',
     eyebrow: 'Need a developer?',
-    title: 'Like the builds? I\u00a0can build yours.',
+    title: 'Like the builds? I can build yours.',
     blurb:
       'Everything on this page I designed, built, tested and shipped myself. If your team needs the same, full-stack with AI where it earns its place, my portfolio has the case studies and my experience.',
     points: [
@@ -77,46 +118,35 @@ const doors: Door[] = [
     cta: { label: 'See my portfolio', href: 'https://portfolio.n8builds.dev' },
     secondary: { label: 'Or send me a message', href: '/#contact' },
     icon: <FiCode className="h-5 w-5" />,
-    visual: (
-      // Two of the portfolio's projects (Echo and GeminiGPT), fanned.
-      <div className="relative pb-[18%]">
-        <BrowserFrame
-          src="/work/geminigpt.webp"
-          alt="GeminiGPT, a Gemini chat platform from my portfolio"
-          width={1120}
-          height={630}
-          sizes={VISUAL_SIZES}
-          className="w-[78%] opacity-90"
-        />
-        <BrowserFrame
-          src="/work/echo.webp"
-          alt="Echo, a realtime voice AI from my portfolio"
-          width={1120}
-          height={700}
-          sizes={VISUAL_SIZES}
-          className="absolute bottom-0 right-0 w-[78%]"
-        />
-      </div>
-    ),
+    // The portfolio's Projects section, captured full length from the live site.
+    desktop: {
+      src: '/work/portfolio-projects-desktop.webp',
+      alt: 'The projects on my developer portfolio',
+      width: 900,
+      height: 1893,
+      duration: 24,
+    },
+    phone: {
+      src: '/work/portfolio-projects-mobile.webp',
+      alt: 'My developer portfolio on a phone',
+      width: 320,
+      height: 3191,
+      duration: 30,
+    },
     accent: {
-      eyebrow: 'text-cyan-400',
-      check: 'text-cyan-400',
+      eyebrow: 'from-emerald-300 to-cyan-300',
+      check: 'text-emerald-400',
       button: 'from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400',
-      glow: 'from-cyan-500/[0.10]',
-      ring: 'hover:border-cyan-400/30',
+      glow: 'from-emerald-500/[0.09]',
+      ring: 'hover:border-emerald-300/25',
     },
   },
   {
     id: 'appturnity',
     eyebrow: 'Appturnity',
     title: 'Run a local service business?',
-    blurb: (
-      <>
-        Appturnity is my company. We build pool, HVAC, landscaping and other local service businesses a
-        modern website and launch it for free. The website is the start: next come the tools that run
-        the rest of the business.
-      </>
-    ),
+    blurb:
+      'Appturnity is my company. We build pool, HVAC, landscaping and other local service businesses a modern website and launch it for free. Next come the tools that run the rest of the business.',
     pointsLabel: 'Today',
     points: [
       { text: 'A website built and launched for you, free' },
@@ -134,33 +164,27 @@ const doors: Door[] = [
     cta: { label: 'Claim your free website', href: 'https://appturnity.com/#free-website' },
     secondary: { label: 'See the plans', href: 'https://appturnity.com/pricing' },
     icon: <Image src="/brands/appturnity.png" alt="" width={20} height={23} className="h-5 w-auto" />,
-    visual: (
-      <div className="relative pb-6 pr-10 sm:pr-14">
-        <BrowserFrame
-          src="/now/pool-clearline-template.webp"
-          alt="Appturnity's pool service website template"
-          width={1200}
-          height={750}
-          sizes={VISUAL_SIZES}
-        />
-        <div className="absolute bottom-0 right-0 w-[22%] min-w-[72px] overflow-hidden rounded-[14px] border-[3px] border-[#1b2638] bg-[#0a1322] shadow-2xl shadow-black/50">
-          <Image
-            src="/now/hvac-template-phone.webp"
-            alt="Appturnity's HVAC website template on a phone"
-            width={440}
-            height={1100}
-            sizes="140px"
-            className="block h-auto w-full"
-          />
-        </div>
-      </div>
-    ),
+    // Appturnity's own template shots (its apps/hub/public/example-shots).
+    desktop: {
+      src: '/work/landscaping-verdant.webp',
+      alt: "Appturnity's landscaping website template",
+      width: 1200,
+      height: 750,
+    },
+    phone: {
+      src: '/work/landscaping-verdant-mobile.webp',
+      alt: "Appturnity's landscaping template on a phone",
+      width: 320,
+      height: 7136,
+      duration: 40,
+    },
     accent: {
-      eyebrow: 'text-emerald-400',
-      check: 'text-emerald-400',
-      button: 'from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400',
-      glow: 'from-emerald-500/[0.10]',
-      ring: 'hover:border-emerald-400/30',
+      // Appturnity's brand: white to light blue, and its own blue (#1066f4) on the button.
+      eyebrow: 'from-white to-sky-300',
+      check: 'text-sky-300',
+      button: 'from-[#1066f4] to-[#1066f4] hover:from-[#3b82f6] hover:to-[#3b82f6]',
+      glow: 'from-sky-400/[0.09]',
+      ring: 'hover:border-sky-300/25',
     },
   },
 ]
@@ -175,22 +199,22 @@ const External = ({ href, className, children }: { href: string; className: stri
   </a>
 )
 
-// Cards stack, and the screenshot alternates sides from lg up: right on the
-// first card, left on the second. On phones it sits above the copy.
+// Cards stack, and the screenshots alternate sides from lg up: right on the
+// first card, left on the second. On phones they sit above the copy.
 const DoorCard = ({ door, index }: { door: Door; index: number }) => {
   const flip = index % 2 === 1
   return (
     <Reveal delay={index * 0.08}>
       <article
         aria-labelledby={`door-${door.id}`}
-        className={`group relative grid items-center gap-8 overflow-hidden rounded-3xl border border-white/8 bg-white/2 p-6 transition-colors duration-200 sm:p-8 lg:grid-cols-2 lg:gap-12 lg:p-12 ${door.accent.ring}`}
+        className={`group relative grid items-center gap-7 overflow-hidden rounded-3xl border border-white/8 bg-white/2 p-5 transition-colors duration-200 sm:p-7 lg:grid-cols-[1.05fr_1fr] lg:gap-10 lg:px-10 lg:py-8 ${door.accent.ring}`}
       >
         <div
           aria-hidden
           className={`pointer-events-none absolute -top-24 h-72 w-72 rounded-full bg-radial ${door.accent.glow} to-transparent to-70% ${flip ? '-right-20' : '-left-20'}`}
         />
 
-        {/* Screenshot */}
+        {/* Screenshots */}
         <a
           href={door.cta.href}
           target="_blank"
@@ -199,29 +223,36 @@ const DoorCard = ({ door, index }: { door: Door; index: number }) => {
           aria-hidden
           className={`relative block transition-transform duration-500 group-hover:-translate-y-1 ${flip ? 'lg:order-first' : 'lg:order-last'}`}
         >
-          {door.visual}
+          <Showcase desktop={door.desktop} phone={door.phone} />
         </a>
 
         {/* Copy */}
         <div className="relative flex flex-col">
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/4 text-slate-200">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/4 text-slate-200">
               {door.icon}
             </span>
-            <p className={`text-[0.7rem] font-bold uppercase tracking-[0.16em] ${door.accent.eyebrow}`}>{door.eyebrow}</p>
+            <p
+              className={`bg-linear-to-r ${door.accent.eyebrow} bg-clip-text text-sm font-bold uppercase tracking-[0.14em] text-transparent sm:text-base`}
+            >
+              {door.eyebrow}
+            </p>
           </div>
 
-          <h3 id={`door-${door.id}`} className="mt-5 text-balance text-3xl font-extrabold leading-tight tracking-tight text-slate-50 sm:text-[2rem]">
+          <h3
+            id={`door-${door.id}`}
+            className="mt-4 text-balance text-2xl font-extrabold leading-tight tracking-tight text-slate-50 sm:text-[1.75rem]"
+          >
             {door.title}
           </h3>
-          <p className="mt-3 text-[15px] leading-relaxed text-[#9cadc5] sm:text-base">{door.blurb}</p>
+          <p className="mt-2.5 text-[15px] leading-relaxed text-[#9cadc5]">{door.blurb}</p>
 
           {door.pointsLabel && (
-            <p className="mt-6 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-slate-450">{door.pointsLabel}</p>
+            <p className="mt-4 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-slate-450">{door.pointsLabel}</p>
           )}
-          <ul className={`${door.pointsLabel ? 'mt-3' : 'mt-5'} flex flex-col gap-2.5`}>
+          <ul className={`${door.pointsLabel ? 'mt-2' : 'mt-4'} flex flex-col gap-1.5`}>
             {door.points.map((p) => (
-              <li key={p.lead ?? p.text} className="flex items-start gap-2.5 text-[15px] leading-snug text-slate-300">
+              <li key={p.lead ?? p.text} className="flex items-start gap-2.5 text-sm leading-snug text-slate-300">
                 <FiCheck aria-hidden className={`mt-0.5 h-4 w-4 shrink-0 ${door.accent.check}`} />
                 <span>
                   {p.lead && <strong className="font-semibold text-slate-100">{p.lead}</strong>}
@@ -234,12 +265,12 @@ const DoorCard = ({ door, index }: { door: Door; index: number }) => {
 
           {door.soon && (
             <>
-              <p className="mt-6 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-slate-450">Coming soon</p>
-              <ul aria-label="Coming soon" className="mt-3 flex flex-wrap gap-2">
+              <p className="mt-4 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-slate-450">Coming soon</p>
+              <ul aria-label="Coming soon" className="mt-2 flex flex-wrap gap-1.5">
                 {door.soon.map((s) => (
                   <li
                     key={s}
-                    className="rounded-full border border-dashed border-white/15 bg-white/3 px-3 py-1 text-xs font-medium text-slate-300"
+                    className="rounded-full border border-dashed border-white/15 bg-white/3 px-2.5 py-0.5 text-xs font-medium text-slate-300"
                   >
                     {s}
                   </li>
@@ -248,10 +279,10 @@ const DoorCard = ({ door, index }: { door: Door; index: number }) => {
             </>
           )}
 
-          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+          <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
             <External
               href={door.cta.href}
-              className={`inline-flex items-center gap-2 rounded-xl bg-linear-to-r ${door.accent.button} px-5 py-3 text-sm font-bold text-white transition-all duration-200 hover:scale-[1.02] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400`}
+              className={`inline-flex items-center gap-2 rounded-xl bg-linear-to-r ${door.accent.button} px-5 py-2.5 text-sm font-bold text-white transition-all duration-200 hover:scale-[1.02] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400`}
             >
               {door.cta.label}
               <FiArrowUpRight aria-hidden className="h-4 w-4" />
@@ -286,7 +317,7 @@ const WorkWithMe = () => {
         </p>
       </div>
 
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-5">
         {doors.map((d, i) => (
           <DoorCard key={d.id} door={d} index={i} />
         ))}
