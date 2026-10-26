@@ -5837,7 +5837,7 @@
   },
   {
    "repo": "n8watkins/n8builds-web",
-   "pushedAt": "2026-10-26T19:43:05Z",
+   "pushedAt": "2026-10-26T20:00:05Z",
    "releases": [
     {
      "tag": "v1.1.1",
@@ -6656,6 +6656,2406 @@
      "author": "n8watkins",
      "parents": 1,
      "url": "https://github.com/n8watkins/n8builds-web/commit/26ea730cd904b739ee461f88d6f87ba6bca5ec80"
+    },
+    {
+     "sha": "bf41c0ef624e3f2313a612b3c73fcffdafb86840",
+     "message": "docs: stale check after the 2026-10-23 work",
+     "date": "2026-10-23T19:05:58Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/bf41c0ef624e3f2313a612b3c73fcffdafb86840"
+    },
+    {
+     "sha": "f1692466f29df6dac78cdb0420e65da2bfaa3968",
+     "message": "docs(handoff): title separator, private repos, 320px hero",
+     "date": "2026-10-23T17:54:31Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/f1692466f29df6dac78cdb0420e65da2bfaa3968"
+    },
+    {
+     "sha": "fc47950e9dd41dfe4d89233e7e330d2e8a6d5ee4",
+     "message": "content: no em dashes anywhere, \" | \" in page titles, fewer \"in public\"",
+     "date": "2026-10-23T17:54:29Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/fc47950e9dd41dfe4d89233e7e330d2e8a6d5ee4"
+    },
+    {
+     "sha": "70b49565ccec54c6917b2b0d8affce936f6ad257",
+     "message": "content: drop the private Solara repo link and the unused Appturnity repo URL",
+     "date": "2026-10-23T17:54:28Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/70b49565ccec54c6917b2b0d8affce936f6ad257"
+    },
+    {
+     "sha": "bee52269c3c7760c5d4fb75f2f5b027e87056b57",
+     "message": "fix(hero): fit the chips on 320px phones, measure the loop wire, trim the iPad gap",
+     "date": "2026-10-23T17:54:26Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/bee52269c3c7760c5d4fb75f2f5b027e87056b57"
+    },
+    {
+     "sha": "d7ff787838bac1ada3b3c008089b5d2ff84adaa7",
+     "message": "fix(nav): make the open mobile menu modal",
+     "date": "2026-10-23T17:54:22Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/d7ff787838bac1ada3b3c008089b5d2ff84adaa7"
+    },
+    {
+     "sha": "752bc88813cfeff4b0902b32929e9a122b61c4f9",
+     "message": "content: real stacks for Portfolio Rank and Solara",
+     "date": "2026-10-23T08:08:50Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/752bc88813cfeff4b0902b32929e9a122b61c4f9"
+    },
+    {
+     "sha": "c781b4cd1fd418addc49a642d264cfb44c81fced",
+     "message": "design(hero): bigger portrait, chips and buttons; a lower, narrower grid",
+     "date": "2026-10-23T08:08:49Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/c781b4cd1fd418addc49a642d264cfb44c81fced"
+    },
+    {
+     "sha": "af90e4092157297062a1b74c1e174a640aacaf70",
+     "message": "docs(prompts): the review covers the 2026-10-23 homepage rework too",
+     "date": "2026-10-23T07:51:31Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/af90e4092157297062a1b74c1e174a640aacaf70"
+    },
+    {
+     "sha": "f072ab3ef39b86793e3aa8a09ad74b00ea1e6892",
+     "message": "docs(handoff): the new hero copy and grid warm-up",
+     "date": "2026-10-23T07:45:57Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/f072ab3ef39b86793e3aa8a09ad74b00ea1e6892"
+    },
+    {
+     "sha": "6aec11c0067301efbb5b2406e538ce4cad22659b",
+     "message": "design(hero): n8builds heading, no pill, and a warm-up for the grid",
+     "date": "2026-10-23T07:45:55Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/6aec11c0067301efbb5b2406e538ce4cad22659b"
+    },
+    {
+     "sha": "ae1702460a218f2ad3ad5892efa160a19f84ca74",
+     "message": "test(seo): decode HTML entities in meta values",
+     "date": "2026-10-23T07:30:15Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/ae1702460a218f2ad3ad5892efa160a19f84ca74"
+    },
+    {
+     "sha": "55cf11636d32b0e032b4bc8e4993e142dc65db86",
+     "message": "docs(handoff): What I'm working on is back; the grid wanders; blog covers",
+     "date": "2026-10-23T07:21:10Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/55cf11636d32b0e032b4bc8e4993e142dc65db86"
+    },
+    {
+     "sha": "c0f83ff6ca35f344c83ffb37ed12852176391933",
+     "message": "test(seo): a post's share card may be its uploaded cover",
+     "date": "2026-10-23T07:21:09Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/c0f83ff6ca35f344c83ffb37ed12852176391933"
+    },
+    {
+     "sha": "50e28bb672e7ab9db5221a7a2b72a153b346e2f0",
+     "message": "feat(home): bring back What I'm working on, flowing out of the hero",
+     "date": "2026-10-23T07:21:08Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/50e28bb672e7ab9db5221a7a2b72a153b346e2f0"
+    },
+    {
+     "sha": "c04de36a77872f0473d3f6bd0dfe4b4285e3e3e0",
+     "message": "design(hero): random, smooth grid squares",
+     "date": "2026-10-23T07:21:06Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/c04de36a77872f0473d3f6bd0dfe4b4285e3e3e0"
+    },
+    {
+     "sha": "375a3937867b6cf828e6238ba45447f45bbca660",
+     "message": "design(hero): tone the grid back down",
+     "date": "2026-10-23T07:01:22Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/375a3937867b6cf828e6238ba45447f45bbca660"
+    },
+    {
+     "sha": "c04c638e054187af2fbaed063278ac69753d918c",
+     "message": "fix(blog): underline links in post text, and keep internal ones in the tab",
+     "date": "2026-10-23T06:40:42Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/c04c638e054187af2fbaed063278ac69753d918c"
+    },
+    {
+     "sha": "7729cb5861710ebaa2e4f374854c2be92e026e4e",
+     "message": "docs(handoff): the new homepage structure, hero copy and hidden builds",
+     "date": "2026-10-23T06:28:29Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/7729cb5861710ebaa2e4f374854c2be92e026e4e"
+    },
+    {
+     "sha": "cae6683458793919ad6a8f222dd6b2757039ec59",
+     "message": "feat(home): one Lab section, banded sections, fewer builds",
+     "date": "2026-10-23T06:28:27Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/cae6683458793919ad6a8f222dd6b2757039ec59"
+    },
+    {
+     "sha": "72188eedeb8fca0d2cde91d620aba0ccb11ced89",
+     "message": "docs: the rewritten blog posts are published",
+     "date": "2026-10-23T06:02:10Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/72188eedeb8fca0d2cde91d620aba0ccb11ced89"
+    },
+    {
+     "sha": "c1292bb95305bccd659e18b29dec8ce7e96a9003",
+     "message": "docs(handoff): everything is pushed; next up is the review",
+     "date": "2026-10-23T05:57:20Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/c1292bb95305bccd659e18b29dec8ce7e96a9003"
+    },
+    {
+     "sha": "5fa9a6ea5e9c75de8420b053394395604818bc4f",
+     "message": "docs: the contact form has an edge rate limit (Vercel WAF)",
+     "date": "2026-10-23T05:34:31Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/5fa9a6ea5e9c75de8420b053394395604818bc4f"
+    },
+    {
+     "sha": "586322dfc4e4234066ac5df9f202b8abaddead24",
+     "message": "fix(contact-form): readable message when the edge rate limit answers",
+     "date": "2026-10-23T05:34:26Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/586322dfc4e4234066ac5df9f202b8abaddead24"
+    },
+    {
+     "sha": "44c9e6d13074ad24439e22b4c465377eff88c433",
+     "message": "chore: point .local-ops.yaml at this repo, and update the owner to-dos",
+     "date": "2026-10-23T05:00:32Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/44c9e6d13074ad24439e22b4c465377eff88c433"
+    },
+    {
+     "sha": "ce8053dcd475cec3ec6deabfc4aa1189d235cdeb",
+     "message": "fix(seo): link every build page from the homepage",
+     "date": "2026-10-23T05:00:21Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/ce8053dcd475cec3ec6deabfc4aa1189d235cdeb"
+    },
+    {
+     "sha": "1ef1cb6fd8af6bbd4f084bae24014e2152131a82",
+     "message": "content: retire the LocalDictate name entirely",
+     "date": "2026-10-23T04:22:12Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/1ef1cb6fd8af6bbd4f084bae24014e2152131a82"
+    },
+    {
+     "sha": "6c01e7579591a332e8802a3e243058cbcb9f8571",
+     "message": "docs: a prompt to review the 2026-10-22 changes",
+     "date": "2026-10-23T03:55:58Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/6c01e7579591a332e8802a3e243058cbcb9f8571"
+    },
+    {
+     "sha": "49e146ddf766f10f4d936eba1a6888d132f1a4a4",
+     "message": "docs(owner-todo): the rewritten blog posts are waiting as Sanity drafts",
+     "date": "2026-10-23T03:06:19Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/49e146ddf766f10f4d936eba1a6888d132f1a4a4"
+    },
+    {
+     "sha": "b93e03c67a8934acb5a6b4e636745e9a8b2cf1e5",
+     "message": "design(now): make What I'm working on the main section",
+     "date": "2026-10-23T02:48:16Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/b93e03c67a8934acb5a6b4e636745e9a8b2cf1e5"
+    },
+    {
+     "sha": "295c8efb8e865340ddb5dda827327b12418dc9d4",
+     "message": "content: drop four builds and feature Solara",
+     "date": "2026-10-23T02:43:27Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/295c8efb8e865340ddb5dda827327b12418dc9d4"
+    },
+    {
+     "sha": "c6c03b39cc69fff9638e16e51b028e56e53b1541",
+     "message": "test(nav): open the mobile menu only once the page can handle the click",
+     "date": "2026-10-23T02:43:25Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/c6c03b39cc69fff9638e16e51b028e56e53b1541"
+    },
+    {
+     "sha": "aa7a726a55fe4ffc4bd68c21204ddb4720d7f183",
+     "message": "content: LocalDictate is now Scribe",
+     "date": "2026-10-23T02:31:39Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/aa7a726a55fe4ffc4bd68c21204ddb4720d7f183"
+    },
+    {
+     "sha": "e109711ff664780c46e42e789f82ec6cf8c91106",
+     "message": "content: VibeLoge is VibeLog, and Asset Arsenal leaves Currently building",
+     "date": "2026-10-23T00:57:47Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/e109711ff664780c46e42e789f82ec6cf8c91106"
+    },
+    {
+     "sha": "3d9a0c343edd41b5fc0fc29fb396f8335b7ca233",
+     "message": "fix(marquee): the tech-stack marquees scroll again",
+     "date": "2026-10-23T00:53:48Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/3d9a0c343edd41b5fc0fc29fb396f8335b7ca233"
+    },
+    {
+     "sha": "d64173aa9454c362991d6c7712bc3ceae58354bc",
+     "message": "docs: www and vercel.app hosts now redirect to n8builds.dev",
+     "date": "2026-10-23T00:22:10Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/d64173aa9454c362991d6c7712bc3ceae58354bc"
+    },
+    {
+     "sha": "5b630a266d71d307ff5ac9ed6a450fdf28e20d69",
+     "message": "docs: record the review-and-improve pass in HANDOFF and OWNER_TODO",
+     "date": "2026-10-22T23:58:22Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/5b630a266d71d307ff5ac9ed6a450fdf28e20d69"
+    },
+    {
+     "sha": "be85f326ada8094b5a4e602b181e40d05637387f",
+     "message": "fix(contact-form): focus the first invalid field clear of the navbar in Safari",
+     "date": "2026-10-22T23:47:01Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/be85f326ada8094b5a4e602b181e40d05637387f"
+    },
+    {
+     "sha": "4baf910b10a9534e4e31ec3a16961b939e6f764a",
+     "message": "fix(ui): small-screen polish from the mobile review",
+     "date": "2026-10-22T23:13:38Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/4baf910b10a9534e4e31ec3a16961b939e6f764a"
+    },
+    {
+     "sha": "5bb0ead2a30551679ee382c3ec5441877a66c0a9",
+     "message": "fix(contact-form): Enter submits, errors are announced, success takes focus",
+     "date": "2026-10-22T23:13:37Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/5bb0ead2a30551679ee382c3ec5441877a66c0a9"
+    },
+    {
+     "sha": "679c706326b39477420145b9689abbcfb81873d7",
+     "message": "fix(now): the Currently building carousel no longer moves the page",
+     "date": "2026-10-22T23:13:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/679c706326b39477420145b9689abbcfb81873d7"
+    },
+    {
+     "sha": "8ae99f31316d65bccf93ae6eef750465f5616742",
+     "message": "fix(nav): tablets get the menu, and the mobile menu acts like an overlay",
+     "date": "2026-10-22T23:13:34Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/8ae99f31316d65bccf93ae6eef750465f5616742"
+    },
+    {
+     "sha": "6d3e5bc33cef9f32247167c88647fc9eecda7311",
+     "message": "perf(blog): one Sanity query per post render",
+     "date": "2026-10-22T23:13:33Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/6d3e5bc33cef9f32247167c88647fc9eecda7311"
+    },
+    {
+     "sha": "1f5649009393dc65ad22f3b8d5a748a64299da2f",
+     "message": "fix(seo): retired routes redirect permanently",
+     "date": "2026-10-22T23:13:10Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/1f5649009393dc65ad22f3b8d5a748a64299da2f"
+    },
+    {
+     "sha": "9f3e410df8a64013c6a96a4294f5d3060192ccee",
+     "message": "fix(sentry): a tunnel that only relays to our project, and less PII",
+     "date": "2026-10-22T23:13:09Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/9f3e410df8a64013c6a96a4294f5d3060192ccee"
+    },
+    {
+     "sha": "c53fb1f9ab4604ffe27d187cdff26fcfb5100f0b",
+     "message": "fix(images): only optimize the image sources the site uses",
+     "date": "2026-10-22T23:13:07Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/c53fb1f9ab4604ffe27d187cdff26fcfb5100f0b"
+    },
+    {
+     "sha": "68428be6c279236abed25870f47714d67e0ddb2b",
+     "message": "fix(contact): keep junk off Redis and the auto-reply off third parties",
+     "date": "2026-10-22T23:12:53Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/68428be6c279236abed25870f47714d67e0ddb2b"
+    },
+    {
+     "sha": "7227ab60d0002b27bf1fdb4f9a6b00f75a1a31cc",
+     "message": "fix(seo): real 404s, a live sitemap, and structured data",
+     "date": "2026-10-22T22:21:13Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/7227ab60d0002b27bf1fdb4f9a6b00f75a1a31cc"
+    },
+    {
+     "sha": "06feefb29652dddca8cbcbd2749f3909b648e7c9",
+     "message": "chore(robots): drop the stale portfolio comment",
+     "date": "2026-10-22T22:06:30Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/06feefb29652dddca8cbcbd2749f3909b648e7c9"
+    },
+    {
+     "sha": "c4f04c0c752c9502212152cee122426d52d2cf93",
+     "message": "fix(seo): canonical URLs and share previews on every page",
+     "date": "2026-10-22T22:06:24Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/c4f04c0c752c9502212152cee122426d52d2cf93"
+    },
+    {
+     "sha": "661b9b6cf436de464a3bf05331fd9113feb5c1ac",
+     "message": "docs: save the review-and-improve prompt for the next session",
+     "date": "2026-10-22T21:52:19Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/661b9b6cf436de464a3bf05331fd9113feb5c1ac"
+    },
+    {
+     "sha": "4eaed4f555f97f04af7f2ff890f2ccad0587c38a",
+     "message": "docs: settle the remaining owner to-dos",
+     "date": "2026-10-22T21:50:01Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/4eaed4f555f97f04af7f2ff890f2ccad0587c38a"
+    },
+    {
+     "sha": "38f16828e2adb58f2aed8d7d1a807788092b34b5",
+     "message": "docs(owner-todo): Upstash is linked and production redeployed",
+     "date": "2026-10-22T21:46:25Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/38f16828e2adb58f2aed8d7d1a807788092b34b5"
+    },
+    {
+     "sha": "4737d9ebf70a50e9850f135851506bc2e0bd86d4",
+     "message": "docs(owner-todo): mark Upstash as urgent now that everything is pushed",
+     "date": "2026-10-22T19:56:24Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/4737d9ebf70a50e9850f135851506bc2e0bd86d4"
+    },
+    {
+     "sha": "0f8810fb5ec1c9b15b4388735361554c9c581405",
+     "message": "fix(ci): type the cover route's params without Next's generated RouteContext",
+     "date": "2026-10-22T19:51:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/0f8810fb5ec1c9b15b4388735361554c9c581405"
+    },
+    {
+     "sha": "951924af527d13efbb6546c84efb23b4f98248bd",
+     "message": "docs(handoff): document generated blog covers, StackTile and marquee copies",
+     "date": "2026-10-22T19:31:47Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/951924af527d13efbb6546c84efb23b4f98248bd"
+    },
+    {
+     "sha": "0faacdea1b3355f7daa97af912d21b0817d13366",
+     "message": "chore: require Node 22.19+, matching the dev tooling",
+     "date": "2026-10-22T19:31:13Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/0faacdea1b3355f7daa97af912d21b0817d13366"
+    },
+    {
+     "sha": "1c7be327149359537e96b3a054a0b3762e2c2b19",
+     "message": "test: give the CSP spec's contact send the same 15s timeout",
+     "date": "2026-10-22T19:30:38Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/1c7be327149359537e96b3a054a0b3762e2c2b19"
+    },
+    {
+     "sha": "16363f0e26a578b248f96fb5aa5e57c58cfd418c",
+     "message": "fix(test): keep test mode on when .env.local comes from vercel env pull",
+     "date": "2026-10-22T19:30:29Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/16363f0e26a578b248f96fb5aa5e57c58cfd418c"
+    },
+    {
+     "sha": "350cd77376573eb244a31260d0dcd9a7c8d5fa65",
+     "message": "fix(contact-form): require a subject instead of silently pre-selecting one",
+     "date": "2026-10-22T19:24:22Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/350cd77376573eb244a31260d0dcd9a7c8d5fa65"
+    },
+    {
+     "sha": "a1a5889669d1409846657119991c03e9ae770bb0",
+     "message": "fix(a11y): skip the success confetti when reduced motion is preferred",
+     "date": "2026-10-22T19:24:22Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/a1a5889669d1409846657119991c03e9ae770bb0"
+    },
+    {
+     "sha": "20d6a8855c7fde907c661bab2a3733ba633ccd1c",
+     "message": "fix(contact-form): don't leave the confetti preload's rejection unhandled",
+     "date": "2026-10-22T19:20:15Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/20d6a8855c7fde907c661bab2a3733ba633ccd1c"
+    },
+    {
+     "sha": "ea7618d138b5089ed1c6053a6c00fe22be2ba808",
+     "message": "fix(a11y): show a focus ring on the contact form's Send button",
+     "date": "2026-10-22T19:17:48Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/ea7618d138b5089ed1c6053a6c00fe22be2ba808"
+    },
+    {
+     "sha": "b80c8be6d452623301f2fc73e6deb0d8689f896a",
+     "message": "fix(a11y): make the skip link skip the navbar on every route",
+     "date": "2026-10-22T19:17:46Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/b80c8be6d452623301f2fc73e6deb0d8689f896a"
+    },
+    {
+     "sha": "71e9b4e523aee10bf4fe1a260a310341a281e833",
+     "message": "fix(ui): stack tile descriptions reveal on tap and keyboard focus",
+     "date": "2026-10-22T19:13:55Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/71e9b4e523aee10bf4fe1a260a310341a281e833"
+    },
+    {
+     "sha": "724a62353ed912fea5cbc2cee94b018690969f93",
+     "message": "fix(a11y): hide marquee loop copies from assistive tech; audit with motion on",
+     "date": "2026-10-22T19:13:54Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/724a62353ed912fea5cbc2cee94b018690969f93"
+    },
+    {
+     "sha": "67ce3adf9d2795516f173d90bddc1f845ced658f",
+     "message": "chore(deps): replace @lhci/cli with a Lighthouse 13 runner; npm audit 41 -> 5",
+     "date": "2026-10-22T19:10:15Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/67ce3adf9d2795516f173d90bddc1f845ced658f"
+    },
+    {
+     "sha": "54e8faf83f8f81739fa100f31b7fad989eff74f9",
+     "message": "feat(blog): generated \"signal\" covers for posts without an image",
+     "date": "2026-10-22T18:54:43Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/54e8faf83f8f81739fa100f31b7fad989eff74f9"
+    },
+    {
+     "sha": "c0300e049396746700d6aea7c08fcefd785f1054",
+     "message": "test(contact-form): hold JS back in one go in the slow-connection test",
+     "date": "2026-10-22T18:12:12Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/c0300e049396746700d6aea7c08fcefd785f1054"
+    },
+    {
+     "sha": "1c0a423bd18eddcb1655931407ec7230658cfeda",
+     "message": "chore: ignore Lighthouse's Windows-named temp folders under WSL",
+     "date": "2026-10-22T17:59:54Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/1c0a423bd18eddcb1655931407ec7230658cfeda"
+    },
+    {
+     "sha": "4a1ce80860c79bbcc3e19fd63e0f847e97c26ead",
+     "message": "test(contact-form): don't wait for the load event when opening the form",
+     "date": "2026-10-22T17:55:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/4a1ce80860c79bbcc3e19fd63e0f847e97c26ead"
+    },
+    {
+     "sha": "ddac6096d9f58c36f86b999ed26cd0e9771107d9",
+     "message": "docs(handoff): record the Tailwind 4 upgrade and review fixes",
+     "date": "2026-10-22T17:38:31Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/ddac6096d9f58c36f86b999ed26cd0e9771107d9"
+    },
+    {
+     "sha": "3971fe6dcba313f74a0047296743647f01e62bce",
+     "message": "refactor: drop unused animation variants and presets",
+     "date": "2026-10-22T17:37:59Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/3971fe6dcba313f74a0047296743647f01e62bce"
+    },
+    {
+     "sha": "fac8aab94a19eecadc1b1c441438a370fea3a670",
+     "message": "fix(a11y): stop smooth scrolling for visitors who prefer reduced motion",
+     "date": "2026-10-22T17:37:58Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/fac8aab94a19eecadc1b1c441438a370fea3a670"
+    },
+    {
+     "sha": "6d85fd1955d1076275a81ccbe29adc95dd34ebec",
+     "message": "chore: clear the Sentry and Vitest config warnings",
+     "date": "2026-10-22T17:13:40Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/6d85fd1955d1076275a81ccbe29adc95dd34ebec"
+    },
+    {
+     "sha": "6a5bdafac3407b9ccb540876908a866e85221cbb",
+     "message": "fix(headers): drop the unrecognized bluetooth Permissions-Policy token",
+     "date": "2026-10-22T17:13:10Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/6a5bdafac3407b9ccb540876908a866e85221cbb"
+    },
+    {
+     "sha": "1583b36a10b8b6dc2e6ff31e7873d141d307b621",
+     "message": "fix(ui): replace purple accents with the site's cyan/blue",
+     "date": "2026-10-22T17:12:59Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/1583b36a10b8b6dc2e6ff31e7873d141d307b621"
+    },
+    {
+     "sha": "667a8720daef805c7fee2e150f15b1f61237ac9e",
+     "message": "chore: redirect dropped build pages, keep CI results on main, remove no-op script",
+     "date": "2026-10-22T17:12:25Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/667a8720daef805c7fee2e150f15b1f61237ac9e"
+    },
+    {
+     "sha": "0d0af8c548677ae063f76f2be9d0028b0d136aea",
+     "message": "docs: rewrite the README to match the current code",
+     "date": "2026-10-22T17:11:45Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/0d0af8c548677ae063f76f2be9d0028b0d136aea"
+    },
+    {
+     "sha": "e0beda041972172aab96be40b963f17c70734490",
+     "message": "fix(rate-limit): keep previews, local runs and tests off production counters",
+     "date": "2026-10-22T17:11:45Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/e0beda041972172aab96be40b963f17c70734490"
+    },
+    {
+     "sha": "318fc003703887d86bf7ef5ca2b02822d8985068",
+     "message": "test(contact): cover the route's fail-closed paths; drop the dead honeypot step",
+     "date": "2026-10-22T17:11:45Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/318fc003703887d86bf7ef5ca2b02822d8985068"
+    },
+    {
+     "sha": "a72c76fddae446138c1e72b6b8acb61145e1a163",
+     "message": "test(contact-form): make the retry test detect a reused Turnstile token",
+     "date": "2026-10-22T17:11:45Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/a72c76fddae446138c1e72b6b8acb61145e1a163"
+    },
+    {
+     "sha": "a18694af371f69a1323a81548ccf431a467dc7f5",
+     "message": "fix(contact-form): disable Send until the form has hydrated",
+     "date": "2026-10-22T16:57:42Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/a18694af371f69a1323a81548ccf431a467dc7f5"
+    },
+    {
+     "sha": "f644848e7f8d580902cb95e3fa4d460a033b381d",
+     "message": "fix(contact-form): keep the success screen if the confetti chunk fails",
+     "date": "2026-10-22T16:50:50Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/f644848e7f8d580902cb95e3fa4d460a033b381d"
+    },
+    {
+     "sha": "d7b03f6477eaa84839b08d382d806481f4054736",
+     "message": "feat: upgrade to Tailwind CSS 4.3",
+     "date": "2026-10-22T16:41:05Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/d7b03f6477eaa84839b08d382d806481f4054736"
+    },
+    {
+     "sha": "cc3599584a3d2612794216ae1e44e3a58cfa16e7",
+     "message": "chore(tailwind): drop unused config before the v4 upgrade",
+     "date": "2026-10-22T16:00:15Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/cc3599584a3d2612794216ae1e44e3a58cfa16e7"
+    },
+    {
+     "sha": "b0c4010e2d55ae6797e3ae94b7f6b6a8a0c67ec8",
+     "message": "docs: lint/Lighthouse/reduced-motion notes; Tailwind 4 brief in HANDOFF",
+     "date": "2026-10-22T15:44:16Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/b0c4010e2d55ae6797e3ae94b7f6b6a8a0c67ec8"
+    },
+    {
+     "sha": "cdc66d1659f233d4dc653b2ff81411f7753df37f",
+     "message": "test: allow 15s for full contact-form sends",
+     "date": "2026-10-22T15:43:39Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/cdc66d1659f233d4dc653b2ff81411f7753df37f"
+    },
+    {
+     "sha": "44479bff9cc6eb1c1f17a41c6bf9b1c4a776e797",
+     "message": "fix(contact-form): no Turnstile widget under next dev; load confetti with React.lazy",
+     "date": "2026-10-22T15:43:38Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/44479bff9cc6eb1c1f17a41c6bf9b1c4a776e797"
+    },
+    {
+     "sha": "4364574079377428472438dce08886fe08593789",
+     "message": "Merge work/w3-quality: lint at zero, visual and a11y fixes, reduced motion, Lighthouse CI",
+     "date": "2026-10-22T15:33:09Z",
+     "author": "n8watkins",
+     "parents": 2,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/4364574079377428472438dce08886fe08593789"
+    },
+    {
+     "sha": "f9205a834b8304d9963b73d6a4af8832bf3b5d01",
+     "message": "test: random client IPs in the contact API tests",
+     "date": "2026-10-22T15:30:00Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/f9205a834b8304d9963b73d6a4af8832bf3b5d01"
+    },
+    {
+     "sha": "946ed029fb0f8faf4ba76bceb716f1d990b5d70e",
+     "message": "test: fix a WebKit flake in the blog post page tests",
+     "date": "2026-10-22T15:27:43Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/946ed029fb0f8faf4ba76bceb716f1d990b5d70e"
+    },
+    {
+     "sha": "38043f3e99b19745bdbfaa72b79a8d641f216f51",
+     "message": "test: carousel timing tests run on WebKit too",
+     "date": "2026-10-22T15:23:09Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/38043f3e99b19745bdbfaa72b79a8d641f216f51"
+    },
+    {
+     "sha": "3084f8865460b0883395252465497cb593ae9974",
+     "message": "a11y: make the reduced-motion marquee row keyboard reachable",
+     "date": "2026-10-22T15:23:08Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/3084f8865460b0883395252465497cb593ae9974"
+    },
+    {
+     "sha": "d9ce12d7bd61b541c7ebf20d9d8c3c2b15d72dfa",
+     "message": "chore: delete ~5 MB of unreferenced portfolio-era assets",
+     "date": "2026-10-22T10:44:54Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/d9ce12d7bd61b541c7ebf20d9d8c3c2b15d72dfa"
+    },
+    {
+     "sha": "b5bfc2c0732fd5bb03695d56855a315a975ab9b9",
+     "message": "docs: Motion replaces framer-motion; Lottie confetti loads on demand",
+     "date": "2026-10-22T10:44:20Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/b5bfc2c0732fd5bb03695d56855a315a975ab9b9"
+    },
+    {
+     "sha": "f2771cf26e43c8d6b2f0f2f1fb41d54f7cc92457",
+     "message": "Merge work/w2-deps: sharp 0.35, framer-motion -> motion, on-demand Lottie, drop react-scroll",
+     "date": "2026-10-22T10:39:21Z",
+     "author": "n8watkins",
+     "parents": 2,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/f2771cf26e43c8d6b2f0f2f1fb41d54f7cc92457"
+    },
+    {
+     "sha": "e6e864a926c492a16a50682703954b7195cfddf6",
+     "message": "perf(contact-form): load the lottie confetti on demand",
+     "date": "2026-10-22T10:38:48Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/e6e864a926c492a16a50682703954b7195cfddf6"
+    },
+    {
+     "sha": "1723fa3fd7bf3b0ae311fab04a568cc1a33de48d",
+     "message": "test: E2E coverage for prefers-reduced-motion",
+     "date": "2026-10-22T10:34:26Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/1723fa3fd7bf3b0ae311fab04a568cc1a33de48d"
+    },
+    {
+     "sha": "c588d2b51a0a2e97bf1031cd47975c0476047edd",
+     "message": "ci: working Lighthouse CI config and a nightly Lighthouse job",
+     "date": "2026-10-22T10:28:19Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/c588d2b51a0a2e97bf1031cd47975c0476047edd"
+    },
+    {
+     "sha": "807a71dca893cee10d7f1a5c81d27b95979b1665",
+     "message": "a11y: descriptive link text, 24px carousel targets, sequential blog headings",
+     "date": "2026-10-22T10:28:17Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/807a71dca893cee10d7f1a5c81d27b95979b1665"
+    },
+    {
+     "sha": "0eb1e7c04b70c1e5e87db67831e8f0ff3ea05566",
+     "message": "perf: paint the hero portrait before hydration; trim unused Sentry code",
+     "date": "2026-10-22T10:28:16Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/0eb1e7c04b70c1e5e87db67831e8f0ff3ea05566"
+    },
+    {
+     "sha": "500d13a88b0ba5c0a01b799a70a25589dac2b104",
+     "message": "refactor: delete unused bento grid items and drop react-scroll",
+     "date": "2026-10-22T10:25:03Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/500d13a88b0ba5c0a01b799a70a25589dac2b104"
+    },
+    {
+     "sha": "5fe36ae52c46d75dc5cfebd02a4a7c5d3e922808",
+     "message": "docs: security headers and new test scripts in README; HSTS preload decision in OWNER_TODO",
+     "date": "2026-10-22T05:40:25Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/5fe36ae52c46d75dc5cfebd02a4a7c5d3e922808"
+    },
+    {
+     "sha": "0b8681ead2cb5db45adbf9f1361e430910f1d41c",
+     "message": "Merge work/w1-headers: enforced CSP and modernized security headers",
+     "date": "2026-10-22T05:40:02Z",
+     "author": "n8watkins",
+     "parents": 2,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/0b8681ead2cb5db45adbf9f1361e430910f1d41c"
+    },
+    {
+     "sha": "d19c03c6ff5543566974e029fb11ac28ef9577d2",
+     "message": "test: wait for hydration before testing client-side validation",
+     "date": "2026-10-22T05:39:35Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/d19c03c6ff5543566974e029fb11ac28ef9577d2"
+    },
+    {
+     "sha": "a93848b1b768d78ea3fb7eaa42e58113946eb0ad",
+     "message": "a11y(nav): close the Lab menu when focus leaves it or on Escape",
+     "date": "2026-10-22T05:34:59Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/a93848b1b768d78ea3fb7eaa42e58113946eb0ad"
+    },
+    {
+     "sha": "db12d52315d98b18ff8a52ecafdffdeaa3eaa5ec",
+     "message": "deps: framer-motion 11 -> motion 14.0.0 (imports from motion/react)",
+     "date": "2026-10-22T05:34:46Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/db12d52315d98b18ff8a52ecafdffdeaa3eaa5ec"
+    },
+    {
+     "sha": "ec0428177e5a8bb022f2ca9e4d2f0072877bdba9",
+     "message": "fix(ui): blend the hero into the page instead of ending on a hard edge",
+     "date": "2026-10-22T05:32:17Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/ec0428177e5a8bb022f2ca9e4d2f0072877bdba9"
+    },
+    {
+     "sha": "3877c38c6e548cf73d4057c25e163ae2d8654f3a",
+     "message": "fix(ui): center the contact/footer block at xl and up",
+     "date": "2026-10-22T05:30:27Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/3877c38c6e548cf73d4057c25e163ae2d8654f3a"
+    },
+    {
+     "sha": "289af60760b85616ef6c81617fb8819d1fdb2538",
+     "message": "a11y: reduced-motion marquees show every item instead of a frozen clipped track",
+     "date": "2026-10-22T05:29:18Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/289af60760b85616ef6c81617fb8819d1fdb2538"
+    },
+    {
+     "sha": "8d1bf21521e26a5478ccf6cfdb6a6e1906503d6a",
+     "message": "fix(ui): mobile contact form and hero pill no longer wrap or truncate",
+     "date": "2026-10-22T05:29:11Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/8d1bf21521e26a5478ccf6cfdb6a6e1906503d6a"
+    },
+    {
+     "sha": "57c415485c48a0fb9ec02bfd77136d062696ee6f",
+     "message": "feat(security): enforce a Content-Security-Policy; modernize headers",
+     "date": "2026-10-22T05:28:53Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/57c415485c48a0fb9ec02bfd77136d062696ee6f"
+    },
+    {
+     "sha": "6570303b7bd67db40f11383292584fdb534c3ca0",
+     "message": "test: fix WebKit flake in the blog post page tests",
+     "date": "2026-10-22T05:28:53Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/6570303b7bd67db40f11383292584fdb534c3ca0"
+    },
+    {
+     "sha": "dfbbdee0e4e73c618d37e00735083051d9ae6dfc",
+     "message": "fix(validation): run Zod in jitless mode",
+     "date": "2026-10-22T05:28:51Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/dfbbdee0e4e73c618d37e00735083051d9ae6dfc"
+    },
+    {
+     "sha": "622acf45171bc8949130b642ec9d6a026889b167",
+     "message": "feat: drop CanIHost, FreeStack and APIScout from the site",
+     "date": "2026-10-22T05:22:28Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/622acf45171bc8949130b642ec9d6a026889b167"
+    },
+    {
+     "sha": "7e8111a2bf6d064339cb071299234f49cd8ac314",
+     "message": "fix(ui): Tailwind classes that silently generated no CSS",
+     "date": "2026-10-22T05:17:48Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/7e8111a2bf6d064339cb071299234f49cd8ac314"
+    },
+    {
+     "sha": "3e05f888ab94fdcb5774f66244e56bb4864fce4d",
+     "message": "a11y: honor prefers-reduced-motion across the site",
+     "date": "2026-10-22T05:17:46Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/3e05f888ab94fdcb5774f66244e56bb4864fce4d"
+    },
+    {
+     "sha": "c0d5055d52f323d24f32b360e712af334e1028c2",
+     "message": "fix(ui): show the site navbar on build pages, /loadout and 404",
+     "date": "2026-10-22T05:17:43Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/c0d5055d52f323d24f32b360e712af334e1028c2"
+    },
+    {
+     "sha": "b9919716b73feed7f037ab0274e6b1c5313c972d",
+     "message": "fix(ui): body background matches the site navy (removes the band under the footer)",
+     "date": "2026-10-22T05:17:42Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/b9919716b73feed7f037ab0274e6b1c5313c972d"
+    },
+    {
+     "sha": "6933ac78ef2705b5291b7f515bc498ee71b2d6c2",
+     "message": "deps: sharp 0.34 -> 0.35.5 (libvips, libheif, librsvg advisories)",
+     "date": "2026-10-22T05:15:56Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/6933ac78ef2705b5291b7f515bc498ee71b2d6c2"
+    },
+    {
+     "sha": "a2a010053d49c77aafba5a2acc386e8577a0d6fe",
+     "message": "ci: fail lint on any warning (eslint --max-warnings 0)",
+     "date": "2026-10-22T05:09:10Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/a2a010053d49c77aafba5a2acc386e8577a0d6fe"
+    },
+    {
+     "sha": "1b8b91ee619f2b47d3a59915efd6cc9ea9f3da84",
+     "message": "docs: replace 700-line HANDOFF with a current-state handoff; archive history",
+     "date": "2026-10-22T05:09:07Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/1b8b91ee619f2b47d3a59915efd6cc9ea9f3da84"
+    },
+    {
+     "sha": "c22d8370382e240c218d7fd3e1969649cc905f47",
+     "message": "refactor: delete the unused bento grid (clears the last 3 lint warnings)",
+     "date": "2026-10-22T05:09:07Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/c22d8370382e240c218d7fd3e1969649cc905f47"
+    },
+    {
+     "sha": "d92fa876be817fc06fced5ca90ddedd0400deb28",
+     "message": "docs: OWNER_TODO with the manual steps (Upstash link, push, Turnstile hostnames)",
+     "date": "2026-10-22T05:06:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/d92fa876be817fc06fced5ca90ddedd0400deb28"
+    },
+    {
+     "sha": "34d33bc9174b0041aedbfc9460979d02a6adb2cb",
+     "message": "test: allow overriding the E2E port with E2E_PORT",
+     "date": "2026-10-22T05:06:24Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/34d33bc9174b0041aedbfc9460979d02a6adb2cb"
+    },
+    {
+     "sha": "aa7f9eb354491fc90d476f847b9043d7ded18ff1",
+     "message": "deps: nodemailer 8 -> 10.0.16 (fixes raw-message file-read/SSRF advisory)",
+     "date": "2026-10-22T05:04:42Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/aa7f9eb354491fc90d476f847b9043d7ded18ff1"
+    },
+    {
+     "sha": "b5e4d07f2df431c17c689f9905f9c8b799c45c3e",
+     "message": "deps: in-range updates, npm audit fix, drop 6 unused packages",
+     "date": "2026-10-22T02:43:53Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/b5e4d07f2df431c17c689f9905f9c8b799c45c3e"
+    },
+    {
+     "sha": "5db6d3bbd344d698730f7527c3bf36dd3d871f2c",
+     "message": "refactor: delete 29 unreachable files (~3,000 lines) from the old portfolio",
+     "date": "2026-10-22T02:30:43Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/5db6d3bbd344d698730f7527c3bf36dd3d871f2c"
+    },
+    {
+     "sha": "c995a518c6c803967076e37f72143377dd757271",
+     "message": "ci: GitHub Actions for checks, E2E, and nightly cross-browser runs",
+     "date": "2026-10-22T02:11:19Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/c995a518c6c803967076e37f72143377dd757271"
+    },
+    {
+     "sha": "0dcd181d7d1c4d5a128da7ecbc8c5d3c85ba0599",
+     "message": "test: Vitest unit tests for contact-form security modules",
+     "date": "2026-10-22T02:04:32Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/0dcd181d7d1c4d5a128da7ecbc8c5d3c85ba0599"
+    },
+    {
+     "sha": "b607d1959820cec2ed1a00c605f45828abf525e6",
+     "message": "fix(email): stop double-escaping the name in the auto-reply",
+     "date": "2026-10-22T02:04:29Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/b607d1959820cec2ed1a00c605f45828abf525e6"
+    },
+    {
+     "sha": "17f47dd052428e4ed27e12b184777540e79e770c",
+     "message": "test: working E2E suite against a production build",
+     "date": "2026-10-22T02:02:28Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/17f47dd052428e4ed27e12b184777540e79e770c"
+    },
+    {
+     "sha": "bdee4d4aec8e88f69ace2cf681be90794f4de605",
+     "message": "fix(layout): render Speed Insights only on Vercel",
+     "date": "2026-10-22T02:02:19Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/bdee4d4aec8e88f69ace2cf681be90794f4de605"
+    },
+    {
+     "sha": "d235dd42d9bd38489e0d8f97cf12c80c4b49b784",
+     "message": "a11y: meet WCAG AA contrast for muted text; hide decorative icons",
+     "date": "2026-10-22T02:02:19Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/d235dd42d9bd38489e0d8f97cf12c80c4b49b784"
+    },
+    {
+     "sha": "f02d5010a0f009dc0a887b276fa040e08e987961",
+     "message": "fix(contact-form): wait for Turnstile instead of silently ignoring Send",
+     "date": "2026-10-22T02:02:19Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/f02d5010a0f009dc0a887b276fa040e08e987961"
+    },
+    {
+     "sha": "dca483460a1977634a3953438a24670dab301b88",
+     "message": "fix(contact-form): show the server's error message; refresh Turnstile after a failure",
+     "date": "2026-10-22T01:24:04Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/dca483460a1977634a3953438a24670dab301b88"
+    },
+    {
+     "sha": "6454417fa3b7e16e902939cfc66d6717e1fbd6b0",
+     "message": "fix(contact): shared Upstash rate limits; Turnstile and limiter fail closed",
+     "date": "2026-10-22T01:11:43Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/6454417fa3b7e16e902939cfc66d6717e1fbd6b0"
+    },
+    {
+     "sha": "c1af12cf33f9588699b2ed90aa9ff10c7bbd7d0a",
+     "message": "chore(api): remove /api/health/error; error boundaries report to Sentry only",
+     "date": "2026-10-22T01:07:29Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/c1af12cf33f9588699b2ed90aa9ff10c7bbd7d0a"
+    },
+    {
+     "sha": "fe1eeeb3f9fce73a7f5be10f8f2e37e61b5dba22",
+     "message": "docs(handoff): Sentry source maps DONE (token in Vercel only, not in repo)",
+     "date": "2026-06-26T05:07:21Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/fe1eeeb3f9fce73a7f5be10f8f2e37e61b5dba22"
+    },
+    {
+     "sha": "20b875e2420c81f010349fc173cd0099d5dc32a2",
+     "message": "chore: rebuild to upload Sentry source maps (SENTRY_AUTH_TOKEN set)",
+     "date": "2026-06-26T04:59:10Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/20b875e2420c81f010349fc173cd0099d5dc32a2"
+    },
+    {
+     "sha": "08387c6c78bc6ffe12cb078b3326e668a25fc1c9",
+     "message": "docs(handoff): refresh — 2026-06-25 session summary (rebrand, Lab, Sentry, security)",
+     "date": "2026-06-26T04:47:22Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/08387c6c78bc6ffe12cb078b3326e668a25fc1c9"
+    },
+    {
+     "sha": "951a136679c1c2895679fe133ef28450a765ce2c",
+     "message": "test(sentry): remove temporary verification route",
+     "date": "2026-06-26T04:44:53Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/951a136679c1c2895679fe133ef28450a765ce2c"
+    },
+    {
+     "sha": "39417be101786f5d323b82bf08b0bac983e87fb4",
+     "message": "test(sentry): temporary throwing route to verify prod capture",
+     "date": "2026-06-26T04:41:56Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/39417be101786f5d323b82bf08b0bac983e87fb4"
+    },
+    {
+     "sha": "94c231cd32d18eff3374ebabfd2f39882cbedccf",
+     "message": "docs: Sentry is live in prod (DSN set + verified); MCP added",
+     "date": "2026-06-26T04:26:35Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/94c231cd32d18eff3374ebabfd2f39882cbedccf"
+    },
+    {
+     "sha": "9661768bd231da705e5080cec10e7d36bbeda6b2",
+     "message": "chore: rebuild to embed NEXT_PUBLIC_SENTRY_DSN (Sentry goes live)",
+     "date": "2026-06-26T04:23:29Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/9661768bd231da705e5080cec10e7d36bbeda6b2"
+    },
+    {
+     "sha": "1ad4028dd0ddaa45078159bb50bf15d25f1f323f",
+     "message": "docs(privacy): disclose Sentry error monitoring (IP + session replay)",
+     "date": "2026-06-26T04:11:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/1ad4028dd0ddaa45078159bb50bf15d25f1f323f"
+    },
+    {
+     "sha": "0e123f782c910b5e0fe176175a107b4071ef5172",
+     "message": "feat(sentry): align config to official skill (PII, replay, logs, tunnel)",
+     "date": "2026-06-26T04:09:28Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/0e123f782c910b5e0fe176175a107b4071ef5172"
+    },
+    {
+     "sha": "2b9accf054b74b04d0027ec6cef5edfe7712ddd1",
+     "message": "feat(sentry): wire up @sentry/nextjs error monitoring (inert until DSN set)",
+     "date": "2026-06-26T03:57:49Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/2b9accf054b74b04d0027ec6cef5edfe7712ddd1"
+    },
+    {
+     "sha": "6711d4aa465a1eb5c23ef86a8c8ccb827853962d",
+     "message": "docs: Cloudflare Security Insights triage + rationale",
+     "date": "2026-06-26T03:34:54Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/6711d4aa465a1eb5c23ef86a8c8ccb827853962d"
+    },
+    {
+     "sha": "456e4e30e30af9c27e7babac9b06136f9e6c6c99",
+     "message": "feat(security): add security.txt (RFC 9116) for vuln disclosure",
+     "date": "2026-06-26T03:23:14Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/456e4e30e30af9c27e7babac9b06136f9e6c6c99"
+    },
+    {
+     "sha": "758de405c5d0ba24df212f48d4e1b9e42ae4688b",
+     "message": "refactor(health): simplify /api/health to a plain liveness ping",
+     "date": "2026-06-26T00:57:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/758de405c5d0ba24df212f48d4e1b9e42ae4688b"
+    },
+    {
+     "sha": "f89b9ec134de9ff4797c8ae47680a34bd7669bd4",
+     "message": "a11y(scroll): respect prefers-reduced-motion for nav smooth-scroll",
+     "date": "2026-06-26T00:47:23Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/f89b9ec134de9ff4797c8ae47680a34bd7669bd4"
+    },
+    {
+     "sha": "c75ba05af0f3ca147ed466b4f69f2a02f4c959db",
+     "message": "feat(work-with-me): lead each bridge card with a live site preview",
+     "date": "2026-06-26T00:46:40Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/c75ba05af0f3ca147ed466b4f69f2a02f4c959db"
+    },
+    {
+     "sha": "3701cb36efea0fd89a4eddd7f94afb1bc57212fa",
+     "message": "feat(nav): every navbar item smooth-scrolls to its homepage section",
+     "date": "2026-06-25T23:54:02Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/3701cb36efea0fd89a4eddd7f94afb1bc57212fa"
+    },
+    {
+     "sha": "7e520d20035aa35a0258d2c95a2e837d3c163176",
+     "message": "docs: HANDOFF — Lab is now homepage sections + anchor scroll (no shelf pages)",
+     "date": "2026-06-25T23:44:17Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/7e520d20035aa35a0258d2c95a2e837d3c163176"
+    },
+    {
+     "sha": "54663dafdf992a827b9031713f19cdb73467b052",
+     "message": "feat(lab): fold shelves into one homepage Lab section; nav scrolls to anchors",
+     "date": "2026-06-25T23:43:16Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/54663dafdf992a827b9031713f19cdb73467b052"
+    },
+    {
+     "sha": "61c99824c6112b81d599da5998b8b13dad9671b1",
+     "message": "tweak(loadout): Desk monitor → Acer XV272U V3 only (180Hz)",
+     "date": "2026-06-25T23:39:16Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/61c99824c6112b81d599da5998b8b13dad9671b1"
+    },
+    {
+     "sha": "19f89db795a9c202f42c4d1f6895bc688a47281c",
+     "message": "docs: HANDOFF reflects Lab umbrella nav + Resources shelf",
+     "date": "2026-06-25T23:11:29Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/19f89db795a9c202f42c4d1f6895bc688a47281c"
+    },
+    {
+     "sha": "b0c15337b2dcf7fba06dab5859452c59b486a2ea",
+     "message": "feat(nav): Lab umbrella dropdown + Resources shelf",
+     "date": "2026-06-25T23:10:34Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/b0c15337b2dcf7fba06dab5859452c59b486a2ea"
+    },
+    {
+     "sha": "7598bf320502cf5fc84d120f8ea518bec92a4bf9",
+     "message": "feat(loadout): real Rig + Desk specs (was placeholder hardware)",
+     "date": "2026-06-25T23:01:39Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/7598bf320502cf5fc84d120f8ea518bec92a4bf9"
+    },
+    {
+     "sha": "70d1299e5fad5ec5ebe488f999c2d6477a03f37a",
+     "message": "docs: audit — brand → n8builds across active docs; rename plan doc",
+     "date": "2026-06-25T22:43:58Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/70d1299e5fad5ec5ebe488f999c2d6477a03f37a"
+    },
+    {
+     "sha": "a1c7a10e3c7580635a297e23b518f205d10ce2c7",
+     "message": "docs(readme): title → n8builds (was 'Nate Builds')",
+     "date": "2026-06-25T22:38:18Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/a1c7a10e3c7580635a297e23b518f205d10ce2c7"
+    },
+    {
+     "sha": "2e12cde084878ed2514c01c791b461fb050f2df9",
+     "message": "refactor(brand): 'Nate Builds' → n8builds site-wide",
+     "date": "2026-06-25T22:37:48Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/2e12cde084878ed2514c01c791b461fb050f2df9"
+    },
+    {
+     "sha": "8d90111977ea8f0e9cce550a80855bed395cb4b3",
+     "message": "fix(footer): brand reads n8builds (was 'Nate Builds')",
+     "date": "2026-06-25T22:35:39Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/8d90111977ea8f0e9cce550a80855bed395cb4b3"
+    },
+    {
+     "sha": "7f2c7217f58b56bef41ad830070bf25c5708e9a4",
+     "message": "chore(dev): move dev/start port 1337 → 3737 (Razer Chroma squats 1337)",
+     "date": "2026-06-25T22:10:37Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/7f2c7217f58b56bef41ad830070bf25c5708e9a4"
+    },
+    {
+     "sha": "8fc829add46d5eed34f188960104575601a66424",
+     "message": "docs: mark /api/health hardened + Work With Me bridge shipped (2026-06-25)",
+     "date": "2026-06-25T19:29:25Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/8fc829add46d5eed34f188960104575601a66424"
+    },
+    {
+     "sha": "1f72d677b98912cee4e6328ad22fa91a6b5d2965",
+     "message": "feat(home): Work With Me bridge section",
+     "date": "2026-06-25T19:28:59Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/1f72d677b98912cee4e6328ad22fa91a6b5d2965"
+    },
+    {
+     "sha": "c89e5680340f7b6def98485f834192e6204a5d5a",
+     "message": "fix(health): fail-safe /api/health — minimal liveness when unauthenticated",
+     "date": "2026-06-25T19:28:51Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/c89e5680340f7b6def98485f834192e6204a5d5a"
+    },
+    {
+     "sha": "df573ee6dfcdde3365ead2704b7e80fd1db32641",
+     "message": "docs: open items — keep Sentry (wire it up), drop done VibeLoge, verify GA item",
+     "date": "2026-06-21T09:25:05Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/df573ee6dfcdde3365ead2704b7e80fd1db32641"
+    },
+    {
+     "sha": "9925bee05e82d5cf5487c8e7eafc847300d2a46e",
+     "message": "docs: refresh for Turnstile/GA/privacy + hero animation shipped (2026-06-21)",
+     "date": "2026-06-21T09:08:14Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/9925bee05e82d5cf5487c8e7eafc847300d2a46e"
+    },
+    {
+     "sha": "41be3ada7acb5b5b169b96f6b86ce8a51e0c8282",
+     "message": "tweak(hero): tighter chain (1.8s spacing), wire follows ship, idea unchanged",
+     "date": "2026-06-21T08:58:20Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/41be3ada7acb5b5b169b96f6b86ce8a51e0c8282"
+    },
+    {
+     "sha": "3fd95d8ec473d4a0ea3b2a1e38bd8c7a7f7d6480",
+     "message": "tweak(hero): idea lights as the wire lands (was a smidge early)",
+     "date": "2026-06-21T08:28:34Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/3fd95d8ec473d4a0ea3b2a1e38bd8c7a7f7d6480"
+    },
+    {
+     "sha": "b446b3ae857146703a46c5479301564623a5e166",
+     "message": "tweak(hero): 3x faster wire on a tighter 11s loop + ship overshoot fix",
+     "date": "2026-06-21T07:55:18Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/b446b3ae857146703a46c5479301564623a5e166"
+    },
+    {
+     "sha": "b19517a0070672b9785f32178f9ac84f6e89840a",
+     "message": "tweak(hero): brighter arrow glow + wire fires after ship lands",
+     "date": "2026-06-21T07:33:52Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/b19517a0070672b9785f32178f9ac84f6e89840a"
+    },
+    {
+     "sha": "741df2d8bfe35dff20fc302517b1348e9072efae",
+     "message": "tweak(hero): drop arrow box, start wire ~2.5s sooner (close ship gap)",
+     "date": "2026-06-21T07:26:02Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/741df2d8bfe35dff20fc302517b1348e9072efae"
+    },
+    {
+     "sha": "646f39d4b1be952ef5594d0be447ebdb2410c153",
+     "message": "tweak(hero): bigger/brighter arrows + tighter chip spacing",
+     "date": "2026-06-21T07:05:03Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/646f39d4b1be952ef5594d0be447ebdb2410c153"
+    },
+    {
+     "sha": "669a83d12bf17218f56d0723adbe55100a8270af",
+     "message": "tweak(hero): load mid-wire, tighter+brighter arrows",
+     "date": "2026-06-21T06:44:39Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/669a83d12bf17218f56d0723adbe55100a8270af"
+    },
+    {
+     "sha": "40813e7f135f079608b4b100938f592927e99ddb",
+     "message": "Merge feat/hero-terminal-circuit -> main",
+     "date": "2026-06-21T06:21:39Z",
+     "author": "n8watkins",
+     "parents": 2,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/40813e7f135f079608b4b100938f592927e99ddb"
+    },
+    {
+     "sha": "ea32deab6bc359d7476556294725d8f9fdaa4d7a",
+     "message": "feat(legal): add privacy policy referencing Cloudflare Turnstile addendum",
+     "date": "2026-06-21T06:20:40Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/ea32deab6bc359d7476556294725d8f9fdaa4d7a"
+    },
+    {
+     "sha": "60641daf898a452bd77277ec68034f2257b1a617",
+     "message": "feat(security): replace reCAPTCHA v3 with invisible Cloudflare Turnstile",
+     "date": "2026-06-21T06:00:50Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/60641daf898a452bd77277ec68034f2257b1a617"
+    },
+    {
+     "sha": "7a267d0e0d6f923f15e7eb2d71a9c7b1110ef9a1",
+     "message": "feat(footer): n8builds logo in footer brand + portfolio = hire-me CTA copy",
+     "date": "2026-06-21T05:38:43Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/7a267d0e0d6f923f15e7eb2d71a9c7b1110ef9a1"
+    },
+    {
+     "sha": "00648ab44452079fdae8d9d1091e335ae161d0ac",
+     "message": "tweak(hero): idea fires ~0.6s sooner + a hair thicker box comets",
+     "date": "2026-06-21T05:16:32Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/00648ab44452079fdae8d9d1091e335ae161d0ac"
+    },
+    {
+     "sha": "99e3af7e722c0d85aac2c4f041266cadf185be5c",
+     "message": "docs: note the Next 16 / Sanity Studio embed blocker (kept standalone)",
+     "date": "2026-06-21T04:57:21Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/99e3af7e722c0d85aac2c4f041266cadf185be5c"
+    },
+    {
+     "sha": "6b0128b051dad63273c4322d255fe367fb36f77e",
+     "message": "tweak(hero): tight wire hand-off both ends — ship->wire->idea seamless",
+     "date": "2026-06-21T04:37:59Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/6b0128b051dad63273c4322d255fe367fb36f77e"
+    },
+    {
+     "sha": "cab506e12abe45773128cfdc36d3bef967a50cad",
+     "message": "fix(hero): wire pulse crosses full wire + matches chip-comet blue",
+     "date": "2026-06-21T04:18:41Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/cab506e12abe45773128cfdc36d3bef967a50cad"
+    },
+    {
+     "sha": "ca3953f406422026171abb9cd02b2c33e52bfc25",
+     "message": "tweak(hero): wire pulse spans full length, thinner + brighter",
+     "date": "2026-06-21T04:05:41Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/ca3953f406422026171abb9cd02b2c33e52bfc25"
+    },
+    {
+     "sha": "b7451309ea4b83614fb7f17369c0ede047fe673d",
+     "message": "tweak(hero): wire pulse starts after ship clears + single dash, goes further",
+     "date": "2026-06-21T04:00:54Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/b7451309ea4b83614fb7f17369c0ede047fe673d"
+    },
+    {
+     "sha": "b43fd4babe15b28d1aafdd744994432a8ec24719",
+     "message": "tweak(hero): wire pulse strictly one-way + flatter wire",
+     "date": "2026-06-21T03:52:00Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/b43fd4babe15b28d1aafdd744994432a8ec24719"
+    },
+    {
+     "sha": "2e80d51a274009f10b6a4834c9c81e10ff48a38a",
+     "message": "tweak(hero): wire pulse = short/bright/fast, single direction",
+     "date": "2026-06-21T03:21:06Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/2e80d51a274009f10b6a4834c9c81e10ff48a38a"
+    },
+    {
+     "sha": "1024203b0bb680935b04c6677d488f6a70199cac",
+     "message": "tweak(hero): faster/longer wire pulse + non-white arrows",
+     "date": "2026-06-21T03:10:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/1024203b0bb680935b04c6677d488f6a70199cac"
+    },
+    {
+     "sha": "e7649ea9d7f3af1cfdd0eb8e8d7b925336576c69",
+     "message": "tweak(hero): wire pulse = one long streak, slower, overlaps ship",
+     "date": "2026-06-20T23:17:59Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/e7649ea9d7f3af1cfdd0eb8e8d7b925336576c69"
+    },
+    {
+     "sha": "698b1f7cbb451afe0471e2102338b9e2ddf58ebd",
+     "message": "docs: drop byn8 reference from the blog implementation plan",
+     "date": "2026-06-20T23:17:54Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/698b1f7cbb451afe0471e2102338b9e2ddf58ebd"
+    },
+    {
+     "sha": "48624aa1daa4581023af7a12e475e5e89c0edefb",
+     "message": "docs: drop byn8 reference from the blog implementation plan",
+     "date": "2026-06-20T23:12:26Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/48624aa1daa4581023af7a12e475e5e89c0edefb"
+    },
+    {
+     "sha": "7bcfbd8c6a5cfbaab30d66912765e7689a368ef2",
+     "message": "fix(hero): restore dim always-on wire for the ship->idea connector",
+     "date": "2026-06-20T22:55:05Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/7bcfbd8c6a5cfbaab30d66912765e7689a368ef2"
+    },
+    {
+     "sha": "3cb5422e6753fb7080ef1fcf3a531c01dfbb3d72",
+     "message": "docs: refresh stale docs from staleness audit (53 findings across 10 files)",
+     "date": "2026-06-20T22:13:59Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/3cb5422e6753fb7080ef1fcf3a531c01dfbb3d72"
+    },
+    {
+     "sha": "f71cb06089ae0ed179f210f60a2934ec91b06e41",
+     "message": "tweak(hero): loop-back = one fast comet, no static track",
+     "date": "2026-06-20T22:00:03Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/f71cb06089ae0ed179f210f60a2934ec91b06e41"
+    },
+    {
+     "sha": "f4dfecae2b1923832c7ad4eac8c853d9855dcc8c",
+     "message": "docs: retire nathansportfolio.vercel.app refs -> portfolio.n8builds.dev",
+     "date": "2026-06-20T21:47:19Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/f4dfecae2b1923832c7ad4eac8c853d9855dcc8c"
+    },
+    {
+     "sha": "2a413f71d761337ff5b4df109fd1a2ed978e568c",
+     "message": "chore: point portfolio links at portfolio.n8builds.dev subdomain",
+     "date": "2026-06-20T21:46:40Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/2a413f71d761337ff5b4df109fd1a2ed978e568c"
+    },
+    {
+     "sha": "538b64777c3473de69de565a2c1811098c41e685",
+     "message": "tweak(hero): faster 15s loop, partial idea/ship arcs, live loop-back comet",
+     "date": "2026-06-20T21:29:04Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/538b64777c3473de69de565a2c1811098c41e685"
+    },
+    {
+     "sha": "e8c3ebe799af794abb05cab6abd42c0f124e7a22",
+     "message": "tweak(hero): slower circuit w/ fade + gaps, full loop-back, idea/ship start angles",
+     "date": "2026-06-20T21:02:22Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/e8c3ebe799af794abb05cab6abd42c0f124e7a22"
+    },
+    {
+     "sha": "3732c5d65a3305b193c30329f16fd6bc8fa2ffa1",
+     "message": "feat(hero): two-light split trace on the middle chips (meet at the arrow)",
+     "date": "2026-06-20T20:50:40Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/3732c5d65a3305b193c30329f16fd6bc8fa2ffa1"
+    },
+    {
+     "sha": "282e122b9a318256aece44b99b4984b71d86c008",
+     "message": "feat(hero): replace \"repeat\" chip with a loop-back circuit line",
+     "date": "2026-06-20T20:12:54Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/282e122b9a318256aece44b99b4984b71d86c008"
+    },
+    {
+     "sha": "dde70589fd90f65905ce14ec9b7245b471e95230",
+     "message": "tweak: nav \"Notions\" label + comet starts/ends at 3 o'clock + flow fade",
+     "date": "2026-06-20T19:56:58Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/dde70589fd90f65905ce14ec9b7245b471e95230"
+    },
+    {
+     "sha": "fb1a23123b161f2a36c19e83c0a778eff7d5a7ad",
+     "message": "fix(hero): circuit comet — left-to-right, single-box, slower, pulse fallback",
+     "date": "2026-06-20T19:50:40Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/fb1a23123b161f2a36c19e83c0a778eff7d5a7ad"
+    },
+    {
+     "sha": "9454473b25781fff1adcaf37c0ec556c5b6ce022",
+     "message": "feat(hero): rewrite whoami intro + comet-trace circuit animation",
+     "date": "2026-06-20T18:49:17Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/9454473b25781fff1adcaf37c0ec556c5b6ce022"
+    },
+    {
+     "sha": "f9f19a63ece35c65a71b8256bcf30cc52058fbf7",
+     "message": "feat: homepage UI pass — hero restructure, builds swap, tech-stack reorg, section color (#3)",
+     "date": "2026-06-20T11:01:39Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/f9f19a63ece35c65a71b8256bcf30cc52058fbf7"
+    },
+    {
+     "sha": "6078dd4ccb95d529118ec6c7035bd00672b7385e",
+     "message": "feat: N8 Notions blog (read-only, Sanity-backed) (#1)",
+     "date": "2026-06-20T10:32:48Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/6078dd4ccb95d529118ec6c7035bd00672b7385e"
+    },
+    {
+     "sha": "a0730db75cb5601efbf4f40593500f81155c1477",
+     "message": "docs: reconcile project docs with shipped state; drop pre-rebrand cruft",
+     "date": "2026-06-20T06:27:33Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/a0730db75cb5601efbf4f40593500f81155c1477"
+    },
+    {
+     "sha": "bf0ab2a77357de3083b7e6c220538c2736f5be72",
+     "message": "docs: update Free Tools Trio handoff — dev-CSP fix, security audit, APIScout proxy hardening",
+     "date": "2026-06-15T01:45:39Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/bf0ab2a77357de3083b7e6c220538c2736f5be72"
+    },
+    {
+     "sha": "753bc3d1b1fabd95d5c5f94fdabfe3377e39c755",
+     "message": "docs: add Free Tools Trio handoff (CanIHost/FreeStack/APIScout + subdomain step)",
+     "date": "2026-06-13T15:51:08Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/753bc3d1b1fabd95d5c5f94fdabfe3377e39c755"
+    },
+    {
+     "sha": "1b6aabbf16dffa63588fb86adf3c2a4b408393ac",
+     "message": "Add CanIHost, FreeStack, APIScout to the Free Tools suite",
+     "date": "2026-06-13T11:27:01Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/1b6aabbf16dffa63588fb86adf3c2a4b408393ac"
+    },
+    {
+     "sha": "0b9b4c7c264a4da25b96681bcd0ecd2fc183a711",
+     "message": "docs: refresh handoff + plan for the 2026-06-13 homepage redesign",
+     "date": "2026-06-13T08:16:05Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/0b9b4c7c264a4da25b96681bcd0ecd2fc183a711"
+    },
+    {
+     "sha": "e68569df5726bb3cb13f8f94924c21e2fcd207ce",
+     "message": "feat: tech-stack bento marquee on homepage (portfolio bento item, AI-adjacent)",
+     "date": "2026-06-13T08:08:34Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/e68569df5726bb3cb13f8f94924c21e2fcd207ce"
+    },
+    {
+     "sha": "24a28bd992ae451638955382ae9ff2dc8682e9a3",
+     "message": "feat: Currently-Building carousel + image galleries for featured projects",
+     "date": "2026-06-13T07:38:07Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/24a28bd992ae451638955382ae9ff2dc8682e9a3"
+    },
+    {
+     "sha": "76f19da0cc552fabe96462031c105644576938e7",
+     "message": "feat: curated 'Free tools I made' section (LocalDictate + Sprite Arsenal)",
+     "date": "2026-06-13T07:18:32Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/76f19da0cc552fabe96462031c105644576938e7"
+    },
+    {
+     "sha": "90253c5a9ed8728a585f61d4f9dfe579007f2cf0",
+     "message": "feat: merge Projects into The Lab; add Portfolio Rank",
+     "date": "2026-06-13T07:15:48Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/90253c5a9ed8728a585f61d4f9dfe579007f2cf0"
+    },
+    {
+     "sha": "2a3ee365564ae676bb91417e2da842aeb6f477a9",
+     "message": "feat: extensions showcase (auto-cycle + hover detail) + real project assets",
+     "date": "2026-06-13T06:51:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/2a3ee365564ae676bb91417e2da842aeb6f477a9"
+    },
+    {
+     "sha": "3a6b01a85f67a6d97b7bfd8b0f1f41c4b62b375b",
+     "message": "feat: redesign contact section + add page-wide color shifts",
+     "date": "2026-06-13T06:34:46Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/3a6b01a85f67a6d97b7bfd8b0f1f41c4b62b375b"
+    },
+    {
+     "sha": "47213d41831484c4a0401e3d13b5a6914ed1872d",
+     "message": "feat: AI hover-marquee + named build stacks on Loadout; restore/expand FeaturedProjects",
+     "date": "2026-06-13T06:31:24Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/47213d41831484c4a0401e3d13b5a6914ed1872d"
+    },
+    {
+     "sha": "468f880709352b27b3167e0b50670081ee479fc3",
+     "message": "docs: handoff + roadmap for IA overhaul session",
+     "date": "2026-06-13T06:10:13Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/468f880709352b27b3167e0b50670081ee479fc3"
+    },
+    {
+     "sha": "d42976b5bf1bec669c015ac2f91c8b52a5304dc3",
+     "message": "feat: surface shelf content on the homepage as inline sections",
+     "date": "2026-06-13T05:59:32Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/d42976b5bf1bec669c015ac2f91c8b52a5304dc3"
+    },
+    {
+     "sha": "08b3a719aeb147775f4ec5a48b1aa1f6d997f705",
+     "message": "feat: build the shelves — /projects, /extensions, /tools, /lab",
+     "date": "2026-06-13T03:35:04Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/08b3a719aeb147775f4ec5a48b1aa1f6d997f705"
+    },
+    {
+     "sha": "61e6674fea82567df974c2605a6389fc382c6ba9",
+     "message": "feat: homepage reorder — add NowBuilding + LoadoutTeaser, demote marquee, drop testimonials",
+     "date": "2026-06-13T03:26:26Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/61e6674fea82567df974c2605a6389fc382c6ba9"
+    },
+    {
+     "sha": "b61b96c90f5de1dafa108ae96c59a2073222b842",
+     "message": "feat: add /loadout page (Tech Loadout, The Rig, The Desk)",
+     "date": "2026-06-13T03:15:46Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/b61b96c90f5de1dafa108ae96c59a2073222b842"
+    },
+    {
+     "sha": "ccace9c407b658c31f60590cfc4f64111b35a730",
+     "message": "docs: add actionable post-launch TODO checklist",
+     "date": "2026-06-13T03:13:02Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/ccace9c407b658c31f60590cfc4f64111b35a730"
+    },
+    {
+     "sha": "4f273b09365d1d1a81ff4ef64bcac393a6f17234",
+     "message": "docs: add Nate Builds big plan (IA, loadout concept, content schema, roadmap)",
+     "date": "2026-06-13T03:10:02Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/4f273b09365d1d1a81ff4ef64bcac393a6f17234"
+    },
+    {
+     "sha": "460154a207d0ff8a90abfef315a37c1861e0b9d6",
+     "message": "docs: record post-launch code-review findings in handoff",
+     "date": "2026-06-13T02:58:09Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/460154a207d0ff8a90abfef315a37c1861e0b9d6"
+    },
+    {
+     "sha": "3f9de012983fe4ccdf3fbb1a4f4e10cce3a49818",
+     "message": "docs: launch complete — Email Routing live, portfolio subdomain up",
+     "date": "2026-06-13T02:13:57Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/3f9de012983fe4ccdf3fbb1a4f4e10cce3a49818"
+    },
+    {
+     "sha": "975b77b33fba3e8fcce47f6bf0aa24301d89bbd9",
+     "message": "docs: n8builds.dev launch verified; Email Routing re-enable still pending",
+     "date": "2026-06-13T01:28:19Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/975b77b33fba3e8fcce47f6bf0aa24301d89bbd9"
+    },
+    {
+     "sha": "c4e14fb18f7774e6c9466167b5a51fef9e3e5408",
+     "message": "docs: record Vercel deploy session; flag missing Cloudflare DNS records",
+     "date": "2026-06-13T00:41:11Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/c4e14fb18f7774e6c9466167b5a51fef9e3e5408"
+    },
+    {
+     "sha": "3673cae1da10c183afea8cf95b0062bc8c9ce856",
+     "message": "Sweep appturnity.web.app -> appturnity.com everywhere",
+     "date": "2026-06-13T00:33:26Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/3673cae1da10c183afea8cf95b0062bc8c9ce856"
+    },
+    {
+     "sha": "5c0d17bcf3c9313547e89ed2b570b4ff40a7b1d6",
+     "message": "Fix prod contact form: allow submissions while reCAPTCHA keys are blank",
+     "date": "2026-06-13T00:32:04Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/5c0d17bcf3c9313547e89ed2b570b4ff40a7b1d6"
+    },
+    {
+     "sha": "376962a5b9506ba397d4f85d855881dd118623b1",
+     "message": "docs: record email pipeline + template polish session in handoff",
+     "date": "2026-06-13T00:25:28Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/376962a5b9506ba397d4f85d855881dd118623b1"
+    },
+    {
+     "sha": "921b4c0b3d5bc769d73a22144906cb7fa46ef4e3",
+     "message": "Drop Gmail deep link from notification; shrink sender email",
+     "date": "2026-06-13T00:21:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/921b4c0b3d5bc769d73a22144906cb7fa46ef4e3"
+    },
+    {
+     "sha": "adfa8838a25a1d682423818077c2411d47805d00",
+     "message": "Tighten notification email; auto-reply links + consulting rework",
+     "date": "2026-06-13T00:10:33Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/adfa8838a25a1d682423818077c2411d47805d00"
+    },
+    {
+     "sha": "dceb15dc816f2f7b42cc618b0596b26821c07383",
+     "message": "Inline signature icons as CID attachments; subject labels in emails",
+     "date": "2026-06-12T23:40:37Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/dceb15dc816f2f7b42cc618b0596b26821c07383"
+    },
+    {
+     "sha": "f38cbc62e64d9042965a04dd8b731fbb4cc2d828",
+     "message": "Restore per-subject middle line in auto-reply",
+     "date": "2026-06-12T23:17:46Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/f38cbc62e64d9042965a04dd8b731fbb4cc2d828"
+    },
+    {
+     "sha": "1c238de916f98163f5870ccac5ceaacaf43fa513",
+     "message": "Rework contact email templates: copy, branding, mobile",
+     "date": "2026-06-12T22:12:06Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/1c238de916f98163f5870ccac5ceaacaf43fa513"
+    },
+    {
+     "sha": "4ee52ed0aed0e28d8b33527a0a988e2678eb83b9",
+     "message": "Rename Sprite Bench → Sprite Arsenal in project card",
+     "date": "2026-06-12T21:41:01Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/4ee52ed0aed0e28d8b33527a0a988e2678eb83b9"
+    },
+    {
+     "sha": "b84108d161113b58e1a5e4a65e8a3fc48446f607",
+     "message": "Replace isomorphic-dompurify with plain HTML escaping in email templates",
+     "date": "2026-06-12T21:01:54Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/b84108d161113b58e1a5e4a65e8a3fc48446f607"
+    },
+    {
+     "sha": "8aedacfd12ed0f921f795c7e34d583caf9404652",
+     "message": "Swap contact-form email from Resend SDK to Nodemailer + Gmail SMTP",
+     "date": "2026-06-12T19:40:24Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/8aedacfd12ed0f921f795c7e34d583caf9404652"
+    },
+    {
+     "sha": "b5e85a919c119d2e425fca2ccf741622d064dd9a",
+     "message": "Add Sprite Bench project card and redirect",
+     "date": "2026-06-12T19:37:48Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/b5e85a919c119d2e425fca2ccf741622d064dd9a"
+    },
+    {
+     "sha": "5a6f7b8403f325ce23127679ce8b372edcfbad39",
+     "message": "docs: record email/deploy planning session in handoff",
+     "date": "2026-06-12T18:44:39Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/5a6f7b8403f325ce23127679ce8b372edcfbad39"
+    },
+    {
+     "sha": "9f01e117aa3eb829f5121c09f55fb43bb01ef192",
+     "message": "docs: record build detail pages session in handoff",
+     "date": "2026-06-12T07:15:35Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/9f01e117aa3eb829f5121c09f55fb43bb01ef192"
+    },
+    {
+     "sha": "2a41780ad8411b0b58050198096bd67d5cbe8d4a",
+     "message": "Link marquee cards to /builds/[slug] detail pages",
+     "date": "2026-06-12T07:14:41Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/2a41780ad8411b0b58050198096bd67d5cbe8d4a"
+    },
+    {
+     "sha": "9552bd7b83cbd0394d6a6c919367c7e9d35b3b3d",
+     "message": "Add /builds/[slug] detail pages",
+     "date": "2026-06-12T07:10:48Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/9552bd7b83cbd0394d6a6c919367c7e9d35b3b3d"
+    },
+    {
+     "sha": "d0f9c709bc495880460cfd19562da6fb7dbb5c94",
+     "message": "Add builds data module + repo screenshots for detail pages",
+     "date": "2026-06-12T07:09:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/d0f9c709bc495880460cfd19562da6fb7dbb5c94"
+    },
+    {
+     "sha": "896c03bbb540fff8c2608c5ed6de395487c5ae7c",
+     "message": "docs: add zero-context handoff doc",
+     "date": "2026-06-12T06:35:14Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/896c03bbb540fff8c2608c5ed6de395487c5ae7c"
+    },
+    {
+     "sha": "1802ae3c59bf6ab7c87d5a635702e924b76551b7",
+     "message": "Separate from Portfolio 2.0: own repo, n8builds.dev URLs, clean env",
+     "date": "2026-06-12T03:27:56Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/1802ae3c59bf6ab7c87d5a635702e924b76551b7"
+    },
+    {
+     "sha": "f3d9fc39ad0de1c77f50868bddea15a124cb010e",
+     "message": "Use new N8 brand icon as favicon, add bridge redirects, AI-flavored copy",
+     "date": "2026-06-12T03:15:25Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/f3d9fc39ad0de1c77f50868bddea15a124cb010e"
+    },
+    {
+     "sha": "60c8a4b3f2845aefcfa24ac014052cb3b95738b5",
+     "message": "Add TechStackCycle to featured builds, re-theme purple to blue, thicken scrollbar",
+     "date": "2026-06-12T03:07:05Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/60c8a4b3f2845aefcfa24ac014052cb3b95738b5"
+    },
+    {
+     "sha": "4d3e730f05fbb2300a15fa7b9ed6f72be23e83fa",
+     "message": "Change dev port to 1337",
+     "date": "2026-06-12T02:48:43Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/4d3e730f05fbb2300a15fa7b9ed6f72be23e83fa"
+    },
+    {
+     "sha": "c96f273198cff9750d11ef6ab82fe4ee7bfcbb79",
+     "message": "Set dev port to 3030 to avoid conflicts with other local projects",
+     "date": "2026-06-12T02:48:23Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/c96f273198cff9750d11ef6ab82fe4ee7bfcbb79"
+    },
+    {
+     "sha": "724a9ce3374d6752af1f4762e768f9913c8e0fe0",
+     "message": "Fix brand name: natebuilds.dev → n8builds.dev",
+     "date": "2026-06-12T02:46:27Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/724a9ce3374d6752af1f4762e768f9913c8e0fe0"
+    },
+    {
+     "sha": "9aa6977799e373283f5ded417aeb076781f0f6b9",
+     "message": "Major redesign: new navbar, hero with animated grid, remove bento, alternating projects",
+     "date": "2026-06-12T02:45:24Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/9aa6977799e373283f5ded417aeb076781f0f6b9"
+    },
+    {
+     "sha": "f849718d4d99159ddb42a67f703453ba2a6c41ac",
+     "message": "Rebrand to Nate Builds hub: hero, bento, marquee, footer",
+     "date": "2026-06-12T02:25:15Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/f849718d4d99159ddb42a67f703453ba2a6c41ac"
+    },
+    {
+     "sha": "4565c8c3101e63f1d1fa648c48435bd91cae02dd",
+     "message": "Initial commit: clone of Portfolio 2.0 with Sentry removed",
+     "date": "2026-06-12T02:09:55Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/4565c8c3101e63f1d1fa648c48435bd91cae02dd"
+    },
+    {
+     "sha": "38a1052c542068a27a56691b5133fc1cb46ad461",
+     "message": "chore: add local-ops project config",
+     "date": "2026-06-04T22:22:19Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/38a1052c542068a27a56691b5133fc1cb46ad461"
+    },
+    {
+     "sha": "15a7723a089dca4d63fcb08bd840ba8f6ce9fd43",
+     "message": "fix(hero): smooth social icon fade-in (scope CSS transition to colors)",
+     "date": "2026-06-04T17:24:51Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/15a7723a089dca4d63fcb08bd840ba8f6ce9fd43"
+    },
+    {
+     "sha": "7e31fe80dde211ee88b9acb3d8b16bf9aea80fe4",
+     "message": "feat(hero): re-choreograph entrance sequence",
+     "date": "2026-06-04T17:22:04Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/7e31fe80dde211ee88b9acb3d8b16bf9aea80fe4"
+    },
+    {
+     "sha": "20edcf2858e22cb322723a64795c7fb63b7bf31d",
+     "message": "feat(hero): restore entrance animations on heading, subtitle, and portrait",
+     "date": "2026-06-04T17:10:54Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/20edcf2858e22cb322723a64795c7fb63b7bf31d"
+    },
+    {
+     "sha": "2a2083b0ad38ad585883a9b6bcb62d89b693c4d3",
+     "message": "feat(hero): restore slide-up motion on heading words and 'See more' button",
+     "date": "2026-06-04T16:45:30Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/2a2083b0ad38ad585883a9b6bcb62d89b693c4d3"
+    },
+    {
+     "sha": "46d44ebfd178db614aea072c54af0bd2f3b3e40b",
+     "message": "chore(deps): upgrade zod 3 -> 4",
+     "date": "2026-06-04T05:39:48Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/46d44ebfd178db614aea072c54af0bd2f3b3e40b"
+    },
+    {
+     "sha": "e916f4d29240be658247fb24f39abc13bc4d3bac",
+     "message": "chore(deps): upgrade @sentry/nextjs 8 -> 10 and migrate config",
+     "date": "2026-06-04T05:36:12Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/e916f4d29240be658247fb24f39abc13bc4d3bac"
+    },
+    {
+     "sha": "01521f3d5ee9991c7a70cfc02a259a3fa8d56595",
+     "message": "fix: stop background gradient animation infinite render loop under React 19",
+     "date": "2026-06-04T05:14:11Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/01521f3d5ee9991c7a70cfc02a259a3fa8d56595"
+    },
+    {
+     "sha": "0e59137fcf01452fa07cf2def58b728504337904",
+     "message": "feat(deps): upgrade to Next 16 + React 19 (and ESLint 9 flat config)",
+     "date": "2026-06-04T05:03:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/0e59137fcf01452fa07cf2def58b728504337904"
+    },
+    {
+     "sha": "1d7c934caea7fe9120a1d571f24c0a23dc88609e",
+     "message": "chore(deps): remove unused @tabler, fix dompurify XSS, safe minor updates",
+     "date": "2026-06-04T04:54:03Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/1d7c934caea7fe9120a1d571f24c0a23dc88609e"
+    },
+    {
+     "sha": "4147ab9dc9ccbc4d1f2bf43f5818a1f93b1bb53a",
+     "message": "fix: correct package version semver and align Next tooling versions",
+     "date": "2026-06-04T04:39:48Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/4147ab9dc9ccbc4d1f2bf43f5818a1f93b1bb53a"
+    },
+    {
+     "sha": "17a014a036943322fb9d0a5113211164072f0a93",
+     "message": "fix: disable web vitals console logging in production",
+     "date": "2025-10-25T03:30:47Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/17a014a036943322fb9d0a5113211164072f0a93"
+    },
+    {
+     "sha": "60de4e4929044e2d05bb83964b196382bd857317",
+     "message": "fix: suppress hydration warning on html element",
+     "date": "2025-10-25T03:23:05Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/60de4e4929044e2d05bb83964b196382bd857317"
+    },
+    {
+     "sha": "13d75a8a516dc42d1f281d75277dd010a83b59b7",
+     "message": "fix: move 'Check it out' button further left",
+     "date": "2025-10-24T20:05:39Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/13d75a8a516dc42d1f281d75277dd010a83b59b7"
+    },
+    {
+     "sha": "7fb22fe7c9ceaa4fc6628b697c8a602dd142d500",
+     "message": "fix: align 'Check it out' button to left side",
+     "date": "2025-10-24T20:04:31Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/7fb22fe7c9ceaa4fc6628b697c8a602dd142d500"
+    },
+    {
+     "sha": "16d5d38351389060687af29c25336815f6a3367d",
+     "message": "fix: reposition 'Check it out' button above text on right side",
+     "date": "2025-10-24T19:41:40Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/16d5d38351389060687af29c25336815f6a3367d"
+    },
+    {
+     "sha": "6c4402cc16aaeaa50201bc2ba866893dcbc7a440",
+     "message": "fix: position text within gradient overlay at bottom",
+     "date": "2025-10-24T19:39:52Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/6c4402cc16aaeaa50201bc2ba866893dcbc7a440"
+    },
+    {
+     "sha": "069075a089092bb69f73ed534adce7fd26172769",
+     "message": "feat: move gradient overlay to bottom in 'The Inside Scoop' bento item",
+     "date": "2025-10-24T19:28:31Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/069075a089092bb69f73ed534adce7fd26172769"
+    },
+    {
+     "sha": "ae345b5619788dbbbefc8651f6c8e8369b2932eb",
+     "message": "feat: remove test button from contact form",
+     "date": "2025-10-24T19:26:59Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/ae345b5619788dbbbefc8651f6c8e8369b2932eb"
+    },
+    {
+     "sha": "c5334a3df68f15c41353a1cf3f082eac73936f6c",
+     "message": "feat: enhance contact form UX with loading state and refined animations",
+     "date": "2025-10-24T19:14:01Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/c5334a3df68f15c41353a1cf3f082eac73936f6c"
+    },
+    {
+     "sha": "c2337e54f3544276932ad5a32545a5c7daf4c589",
+     "message": "feat: improve fireworks spacing and add debug button",
+     "date": "2025-10-24T17:58:32Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/c2337e54f3544276932ad5a32545a5c7daf4c589"
+    },
+    {
+     "sha": "595d6a8842ecc40f4120bacef5e622b227b35ec4",
+     "message": "feat: add double firework effect - BAM BAM!",
+     "date": "2025-10-24T17:50:24Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/595d6a8842ecc40f4120bacef5e622b227b35ec4"
+    },
+    {
+     "sha": "523775d36c83c7fe9ceb43f2cb78c652181220d9",
+     "message": "chore: trigger deployment with updated env vars",
+     "date": "2025-10-21T20:59:44Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/523775d36c83c7fe9ceb43f2cb78c652181220d9"
+    },
+    {
+     "sha": "fb6cfe15d22762eb17a4b54dee8a5df8eb34c9f4",
+     "message": "fix: default to onboarding@resend.dev, allow custom domain override",
+     "date": "2025-10-21T20:47:46Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/fb6cfe15d22762eb17a4b54dee8a5df8eb34c9f4"
+    },
+    {
+     "sha": "fc62679ec6a8dc0f01d89be3ab38597219d5bb22",
+     "message": "fix: ensure emails always send from onboarding@resend.dev",
+     "date": "2025-10-21T19:22:59Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/fc62679ec6a8dc0f01d89be3ab38597219d5bb22"
+    },
+    {
+     "sha": "fdfee0f6160c4c8f61b4657e496c1a0276f794d7",
+     "message": "chore: trigger Vercel deployment",
+     "date": "2025-10-21T16:29:54Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/fdfee0f6160c4c8f61b4657e496c1a0276f794d7"
+    },
+    {
+     "sha": "1788e330f55a525905bb02a730dafe0e4cb33a28",
+     "message": "chore: trigger deployment",
+     "date": "2025-10-20T19:42:38Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/1788e330f55a525905bb02a730dafe0e4cb33a28"
+    },
+    {
+     "sha": "edfc3cec549e31bde89b726462450454cb515eeb",
+     "message": "fix: suppress Sentry build warnings and add auth token handling",
+     "date": "2025-10-20T19:35:17Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/edfc3cec549e31bde89b726462450454cb515eeb"
+    },
+    {
+     "sha": "5ec4b7386c1f73e18dbc70e43b3b29f625a0b27a",
+     "message": "chore: retry deployment after Vercel infrastructure error",
+     "date": "2025-10-20T19:32:03Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/5ec4b7386c1f73e18dbc70e43b3b29f625a0b27a"
+    },
+    {
+     "sha": "24f170cc3978fcffc0b392419f3c40438b21c687",
+     "message": "security: sanitize error logs to prevent API key leakage",
+     "date": "2025-10-20T19:26:49Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/24f170cc3978fcffc0b392419f3c40438b21c687"
+    },
+    {
+     "sha": "cd8c165136cb841d3602f1103ab28d99be68cba7",
+     "message": "fix: use Object.fromEntries to properly filter undefined env vars",
+     "date": "2025-10-20T19:07:20Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/cd8c165136cb841d3602f1103ab28d99be68cba7"
+    },
+    {
+     "sha": "e4a96c53ffd78a2e44f65556019f83458b4559f0",
+     "message": "fix: resolve TypeScript error in playwright config env vars",
+     "date": "2025-10-20T19:01:04Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/e4a96c53ffd78a2e44f65556019f83458b4559f0"
+    },
+    {
+     "sha": "fa80221f5c7f9f214e95cc5a677e7391563f7ce4",
+     "message": "feat: implement rate limiter bypass for tests and fix web vitals compatibility",
+     "date": "2025-10-20T18:46:01Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/fa80221f5c7f9f214e95cc5a677e7391563f7ce4"
+    },
+    {
+     "sha": "fff62711da076cef0742a6363580ff707acac563",
+     "message": "feat: remove company field from contact form",
+     "date": "2025-10-20T16:11:28Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/fff62711da076cef0742a6363580ff707acac563"
+    },
+    {
+     "sha": "d0bfcebd58d4251c38fcb570885a31bfa1f353d1",
+     "message": "feat: update resume links to latest version",
+     "date": "2025-10-20T16:09:31Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/d0bfcebd58d4251c38fcb570885a31bfa1f353d1"
+    },
+    {
+     "sha": "2dbe4c3743d83374034c5bc79e825746aa86f9cc",
+     "message": "fix: increase padding for 'Inside Scoop' text positioning",
+     "date": "2025-10-20T16:08:37Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/2dbe4c3743d83374034c5bc79e825746aa86f9cc"
+    },
+    {
+     "sha": "2a6c47cbb3264efe938bad3e93f22b23cf89d5d1",
+     "message": "fix: add gradual padding progression for 'Inside Scoop' text",
+     "date": "2025-10-20T16:08:25Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/2a6c47cbb3264efe938bad3e93f22b23cf89d5d1"
+    },
+    {
+     "sha": "690f2f4e89278a64c74bebd4af259e763535e306",
+     "message": "fix: move 'Inside Scoop' text lower at lg breakpoint",
+     "date": "2025-10-20T16:07:57Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/690f2f4e89278a64c74bebd4af259e763535e306"
+    },
+    {
+     "sha": "c68d5e63e98722ebc52a5019de09a8269b7737ea",
+     "message": "fix: increase padding-top at lg breakpoint for 'Inside Scoop'",
+     "date": "2025-10-20T16:06:00Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/c68d5e63e98722ebc52a5019de09a8269b7737ea"
+    },
+    {
+     "sha": "4333d33957945a07b478acae4b668bc475f3df69",
+     "message": "fix: reduce height on mobile for 'Inside Scoop' bento grid",
+     "date": "2025-10-20T16:05:19Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/4333d33957945a07b478acae4b668bc475f3df69"
+    },
+    {
+     "sha": "36330153e0722fe784742f37d3d48ce1f603e000",
+     "message": "fix: adjust button positioning in 'Inside Scoop' renderContent",
+     "date": "2025-10-20T16:02:44Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/36330153e0722fe784742f37d3d48ce1f603e000"
+    },
+    {
+     "sha": "97d19ece5b7f5624eebb123e04b2b94aaea580b9",
+     "message": "fix: make text positioning more dramatic in 'Inside Scoop' bento",
+     "date": "2025-10-20T16:01:28Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/97d19ece5b7f5624eebb123e04b2b94aaea580b9"
     }
    ]
   }

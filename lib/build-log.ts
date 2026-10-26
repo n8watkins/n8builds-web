@@ -495,23 +495,81 @@ export function normalizeRelease(r: GitHubRelease): SnapshotRelease {
   }
 }
 
+// How far back the log reads each repo's commits. The feed opens on 12 months
+// (`recentFrom`), so every repo is read back to the start of that window: the
+// newest page always, then older pages while they are full and still inside it.
+export const COMMIT_PAGE_SIZE = 100
+/** Never more than this many pages (1,000 commits) a repo, however busy it is. */
+export const MAX_COMMIT_PAGES = 10
+export const HISTORY_MONTHS = 12
+
 /**
- * A repo's releases and its owner's last 100 commits on the default branch.
- * Asking for the owner's commits (not just the last 100) keeps bot-heavy repos
- * visible: Portfolio Rank's newest 100 commits are all daily bot syncs.
+ * The oldest commit date the log needs: midnight UTC on the first day of the
+ * month `months - 1` before `now`'s. Los Angeles is behind UTC, so this is
+ * never later than the window's first day there.
+ */
+export function historyCutoff(now: Date = new Date(), months = HISTORY_MONTHS): string {
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - (months - 1), 1)).toISOString()
+}
+
+/**
+ * A repo's commits, newest first, read page by page: page 1 always (so a quiet
+ * repo keeps its older history, as before), then the next page only while the
+ * last one was full and its oldest commit is still inside the window, up to
+ * `maxPages`. Commits are deduplicated by sha, since a commit landing between
+ * two page reads shifts the pages by one.
+ */
+export async function collectCommits(
+  fetchPage: (page: number) => Promise<SnapshotCommit[]>,
+  cutoff: string,
+  { pageSize = COMMIT_PAGE_SIZE, maxPages = MAX_COMMIT_PAGES } = {},
+): Promise<{ commits: SnapshotCommit[]; pages: number; truncated: boolean }> {
+  const seen = new Set<string>()
+  const commits: SnapshotCommit[] = []
+  let pages = 0
+  let more = true
+  while (more && pages < maxPages) {
+    const batch = await fetchPage(++pages)
+    for (const c of batch) {
+      if (seen.has(c.sha)) continue
+      seen.add(c.sha)
+      commits.push(c)
+    }
+    // As instants, not strings: GitHub's dates have no milliseconds, the cutoff does.
+    const oldest = Math.min(...batch.map((c) => Date.parse(c.date)).filter((t) => !Number.isNaN(t)))
+    more = batch.length === pageSize && Number.isFinite(oldest) && oldest >= Date.parse(cutoff)
+  }
+  // Still more inside the window when the cap stopped it.
+  return { commits, pages, truncated: more }
+}
+
+/**
+ * A repo's releases and its owner's commits on the default branch, back to the
+ * start of the log's window (see `collectCommits`). Asking for the owner's
+ * commits (not every commit) keeps bot-heavy repos visible: Portfolio Rank's
+ * newest 100 commits are all daily bot syncs.
+ *
+ * Requests per hourly refresh: two (the repo and its releases) plus one per
+ * page of commits. Each URL is its own entry in Next's fetch cache.
  */
 async function fetchRepoSnapshot(repo: string): Promise<RepoSnapshot> {
   const owner = repo.split('/')[0]
-  const [info, releases, commits] = await Promise.all([
+  const [info, releases, history] = await Promise.all([
     github<GitHubRepo>(`/repos/${repo}`),
     github<GitHubRelease[]>(`/repos/${repo}/releases?per_page=100`),
-    github<GitHubCommit[]>(`/repos/${repo}/commits?per_page=100&author=${owner}`),
+    collectCommits(async (page) => {
+      // Page 1 keeps its old URL, so its cache entry carries over.
+      const query = `per_page=${COMMIT_PAGE_SIZE}&author=${owner}${page > 1 ? `&page=${page}` : ''}`
+      const batch = await github<GitHubCommit[]>(`/repos/${repo}/commits?${query}`)
+      return batch.map(normalizeCommit)
+    }, historyCutoff()),
   ])
+  if (history.truncated) logger.warn(`[build-log] ${repo}: stopped at ${MAX_COMMIT_PAGES} pages of commits, short of the log's window`)
   return {
     repo,
     pushedAt: info.pushed_at,
     releases: releases.map(normalizeRelease).filter((r) => r.publishedAt),
-    commits: commits.map(normalizeCommit).filter((c) => c.date),
+    commits: history.commits.filter((c) => c.date),
   }
 }
 
