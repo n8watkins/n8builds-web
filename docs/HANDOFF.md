@@ -28,8 +28,10 @@ Strategy and IA: `docs/N8BUILDS_PLAN.md`.
 - **Next session:** work through `docs/NEXT_STEPS.md`, the step-by-step checklist of what's left and what's needed from the owner.
 - **Sharing posts:** every post ends with "Share this note": "Share on X" opens X compose with the title, the canonical link and `via=n8watkins` (free; no X API), and "Copy link" copies the canonical URL (`components/blog/ShareBar.tsx`).
   Automatic posting to X is a separate, paid option (`docs/X_ARTICLES_PLAN.md`).
-- **Scroll reveals:** sections below the fold fade up once as they scroll in (`components/ui/Reveal.tsx`, preset `reveal` in `lib/animations.ts`; homepage bands, Lab parts, build-page sections, blog gallery and related posts, loadout sections).
-  Never wrap the hero or anything above the fold: an element at opacity 0 can't be the LCP, so it delays it (the /blog grid is left out for that reason).
+- **Scroll reveals:** sections below the fold fade up once as they scroll in (`components/ui/Reveal.tsx`, preset `reveal` in `lib/animations.ts`, motion props from `hooks/useReveal.ts`; homepage bands, Lab parts, build-page sections, blog cards past the first row, related posts, loadout sections, the contact card, the site footer, and /privacy past its first screen).
+  Never wrap the hero or anything above the fold in Reveal: its opacity 0 is in the server HTML until hydration, which holds back the LCP.
+  Above the fold, use the CSS load fade instead (`components/ui/FadeIn.tsx`, the `fade-up` utility in `app/globals.css`): it plays from the server HTML without JavaScript, with no delay on the LCP element (the /blog header and first card row, the post header and cover, the /loadout header and whoami terminal, /live, the top of /privacy).
+  Reduced motion skips both: no fade, no rise. `tests/e2e/reveal.spec.ts` and `tests/e2e/blog-motion.spec.ts` guard them.
 - **Hero layout:** the hero content is top-aligned, not vertically centered, and the ambient glows mount after hydration: both caused layout shift on slow devices (Nightly Lighthouse CLS 0.29). Keep it that way.
 - SEO: every page builds its metadata with `pageMetadata()` (`lib/seo.ts`), which sets the canonical URL, og:url and both share cards with a preview image.
   Next.js merges metadata shallowly, so a page that sets its own `openGraph` without the helper loses the image.

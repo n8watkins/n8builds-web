@@ -1,11 +1,10 @@
 import { FaXTwitter } from 'react-icons/fa6'
-import { motion } from 'motion/react'
 import Image from 'next/image'
 import ContactForm from '@/components/ContactForm'
 import { ContactFormErrorBoundary } from '@/components/ContactFormErrorBoundary'
 import { FiGithub, FiMail } from 'react-icons/fi'
 import { CiLinkedin } from 'react-icons/ci'
-import { fadeInVariants, defaultAnimationConfig } from '@/lib/animations'
+import Reveal from '@/components/ui/Reveal'
 
 const Footer = () => {
   return (
@@ -22,11 +21,9 @@ const Footer = () => {
       </div>
 
       <div className="flex flex-col items-center pt-14">
-        {/* Contact card - branded panel + form, with decorative artifacts */}
-        <motion.div
-          variants={fadeInVariants}
-          {...defaultAnimationConfig}
-          className="w-full max-w-5xl mx-auto mb-12 sm:px-4">
+        {/* Contact card - branded panel + form, with decorative artifacts.
+            The site's scroll reveal; under reduced motion it simply shows. */}
+        <Reveal className="w-full max-w-5xl mx-auto mb-12 sm:px-4">
           <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-linear-to-br from-[#08152a] via-[#0a1a33] to-[#07101f] shadow-2xl">
             {/* decorative glows + grid */}
             <div aria-hidden className="pointer-events-none absolute inset-0">
@@ -106,7 +103,7 @@ const Footer = () => {
               </div>
             </div>
           </div>
-        </motion.div>
+        </Reveal>
 
       </div>
 
