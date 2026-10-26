@@ -7,7 +7,10 @@ import { SiGooglechrome } from 'react-icons/si'
 
 /**
  * The Lab's parts: the nav lists the ones found on the page, in document
- * order. To add a part, add a row here.
+ * order. To add a part, add a row here. Anything between two parts that is not
+ * listed (the "Use mine as a template" offer, #template, after Featured) counts
+ * as the part above it: a part stays current until the next one's top passes
+ * 40% of the window.
  */
 const SECTIONS: readonly LabPart[] = [
   { id: 'my-tools', label: 'My tools', icon: LuWrench },

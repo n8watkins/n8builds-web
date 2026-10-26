@@ -157,6 +157,40 @@ test.describe('placement at 1440px', () => {
     expect(box.y + box.height).toBeLessThanOrEqual(labBottom + 1)
   })
 
+  test('the template offer between Featured and Chrome Extensions counts as Featured', async ({
+    page,
+  }) => {
+    await page.goto('/')
+    const nav = rail(page)
+    const current = nav.locator('[aria-current]')
+    // Scroll so the element's top sits `top` px from the window's top.
+    const place = (id: string, top: number) =>
+      page.evaluate(
+        ([id, top]) => {
+          const el = document.getElementById(id as string)!
+          window.scrollTo({
+            top: el.getBoundingClientRect().top + window.scrollY - (top as number),
+            behavior: 'instant',
+          })
+        },
+        [id, top] as const
+      )
+    // The template offer coming in, filling the window, and leaving until its
+    // foot is just under the 40% line: still Featured.
+    const height = await page
+      .locator('#template')
+      .evaluate((el) => el.getBoundingClientRect().height)
+    for (const top of [500, 100, Math.round(380 - height)]) {
+      await place('template', top)
+      await expect(current, `template at ${top}px`).toHaveAccessibleName('Featured')
+    }
+    // Chrome Extensions takes over only once its own top passes 40% of the window.
+    await place('extensions', 400)
+    await expect(current).toHaveAccessibleName('Featured')
+    await place('extensions', 300)
+    await expect(current).toHaveAccessibleName('Chrome Extensions')
+  })
+
   test('keyboard: Tab reaches each part in order and Enter jumps there', async ({ page }) => {
     await page.goto('/')
     await scrollToPart(page, 'featured')
