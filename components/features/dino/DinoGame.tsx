@@ -153,6 +153,15 @@ const FIRST_LINE_AFTER = 4 // s of walking in view before the first line
 const LINE_GAP = [15, 25] as const // s between lines (walking in view)
 const LINE_FOR = 2.6 // s a line stays up
 const LINE_KEY = 'n8-dino-line' // sessionStorage: the next line to say
+/**
+ * The E2E tests shorten the line waits (tests/e2e/ai-kit.spec.ts sets this
+ * before the page loads) so they don't sit through 4-25s of walking; nothing
+ * on the site sets it.
+ */
+interface DinoTiming {
+  firstLineAfter?: number
+  lineGap?: readonly [number, number]
+}
 // Only the current frame shows (the root's data-frame); spelled out in full so
 // Tailwind's scanner sees each class.
 const FRAME_CLASS: Record<DinoFrame, string> = {
@@ -244,7 +253,9 @@ export default function DinoGame() {
     } catch {
       // Storage blocked: start from the first line on every page view.
     }
-    let lineWait = FIRST_LINE_AFTER
+    const timing = (window as { __n8DinoTiming?: DinoTiming }).__n8DinoTiming
+    const lineGap = timing?.lineGap ?? LINE_GAP
+    let lineWait = timing?.firstLineAfter ?? FIRST_LINE_AFTER
     let line = -1 // the line showing, if any
     let lineLeft = 0
     let flip = { t: 0, h: 0, floor: 0 }
@@ -479,7 +490,7 @@ export default function DinoGame() {
               // Storage blocked: lines may repeat next visit.
             }
           }
-          lineWait = LINE_GAP[0] + Math.random() * (LINE_GAP[1] - LINE_GAP[0])
+          lineWait = lineGap[0] + Math.random() * (lineGap[1] - lineGap[0])
         }
       }
       if (line >= 0) {

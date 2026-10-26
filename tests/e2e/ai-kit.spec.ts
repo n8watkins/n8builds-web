@@ -46,10 +46,43 @@ test.describe('AI kit content', () => {
 const dino = (page: Page) => page.locator('[data-dino]')
 
 // Bring the panel on screen without a smooth scroll still on its way.
+// Jump there, and again if the page moves it away (a reload restores the old
+// scroll position after load, and late content can shift the page).
 const showKit = (page: Page, selector: string) =>
-  page
-    .locator(selector)
-    .evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
+  expect
+    .poll(() =>
+      page.locator(selector).evaluate((el) => {
+        const box = el.getBoundingClientRect()
+        // Centred: it spans the middle of the viewport (it can be taller).
+        if (box.top <= innerHeight / 2 && box.bottom >= innerHeight / 2) return true
+        el.scrollIntoView({ block: 'center', behavior: 'instant' })
+        return false
+      })
+    )
+    .toBe(true)
+
+// Click (or tap) the dino where it is right now. It never holds still, so a
+// pointer aimed at where it was a moment ago can miss: hit-test its centre
+// and click in the same tick. (That its box takes the pointer at all is
+// checked above.)
+const pokeDino = (page: Page) =>
+  expect
+    .poll(() =>
+      dino(page).evaluate((el) => {
+        const box = el.getBoundingClientRect()
+        const hit = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2)
+        if (!hit || !el.contains(hit)) return false
+        ;(el as HTMLElement).click()
+        return true
+      })
+    )
+    .toBe(true)
+
+// The tests shorten the dino's line waits (see DinoTiming in DinoGame.tsx).
+const lineTiming = (page: Page, timing: { firstLineAfter: number; lineGap: [number, number] }) =>
+  page.addInitScript((t) => {
+    ;(window as unknown as { __n8DinoTiming: unknown }).__n8DinoTiming = t
+  }, timing)
 
 test.describe('dino easter egg (motion allowed)', () => {
   test.use({ contextOptions: { reducedMotion: 'no-preference' } })
@@ -63,7 +96,7 @@ test.describe('dino easter egg (motion allowed)', () => {
     await page.waitForTimeout(1000)
     await expect(dino(page)).toHaveCount(0)
 
-    await showKit(page, '#loadout')
+    await showKit(page, '[data-dino-panel]')
     await expect(dino(page)).toHaveCount(1)
     // Decorative: hidden from assistive tech. Clicks pass through its layer;
     // only the dino's own small box takes them (the click easter egg).
@@ -102,7 +135,7 @@ test.describe('dino easter egg (motion allowed)', () => {
 
   const onTopRow = async (page: Page) => {
     await page.goto('/')
-    await showKit(page, '#loadout')
+    await showKit(page, '[data-dino-panel]')
     await expect(dino(page)).toHaveAttribute('data-level', '0', { timeout: 10_000 })
     await expect(dino(page)).toHaveAttribute('data-mode', 'walk')
     await expect(dino(page)).toHaveAttribute('data-dir', 'right')
@@ -149,31 +182,44 @@ test.describe('dino easter egg (motion allowed)', () => {
     expect(log.filter((entry) => entry.startsWith('hop')).length, 'kept hopping').toBeGreaterThan(0)
   })
 
-  test('a tapped or focused tile pauses only its own row for the dino', async ({ page }) => {
+  test('a tapped or focused tile pauses only its own row for the dino', async ({ page, hasTouch }) => {
     await onTopRow(page)
-    // Focus (a keyboard user, or a tap on a touch screen) on a fully visible
-    // tile of the bottom row pauses that row, not the one the dino is on.
-    const focusTile = (index: number) =>
-      page
-        .locator('[data-dino-panel] [data-marquee-row]')
-        .nth(index)
-        .evaluate((row) => {
-          const panel = row.closest('[data-dino-panel]')!.getBoundingClientRect()
-          const tile = [...row.querySelectorAll<HTMLElement>('figure')].find((figure) => {
-            const box = figure.getBoundingClientRect()
-            return box.left >= panel.left + 8 && box.right <= panel.right - 8
-          })!
-          tile.focus({ preventScroll: true })
+    // Focus (a keyboard user) or a tap (a touch screen) on a tile of the
+    // bottom row pauses that row, not the one the dino is on. Wait for a tile
+    // fully on screen (on a phone one is often cut by an edge).
+    const rowsEl = page.locator('[data-dino-panel] [data-marquee-row]')
+    const findTile = (index: number) =>
+      rowsEl.nth(index).evaluate((row) => {
+        const panel = row.closest('[data-dino-panel]')!.getBoundingClientRect()
+        const figures = [...row.querySelectorAll<HTMLElement>('figure')]
+        const at = figures.findIndex((figure) => {
+          const box = figure.getBoundingClientRect()
+          return box.left >= panel.left + 8 && box.right <= panel.right - 8
         })
+        if (at < 0) return null
+        const box = figures[at].getBoundingClientRect()
+        return { at, x: box.x + box.width / 2, y: box.y + box.height / 2 }
+      })
+    const pick = async (index: number) => {
+      await expect.poll(() => findTile(index), { message: 'a tile fully on screen' }).not.toBeNull()
+      const target = (await findTile(index))!
+      if (hasTouch) await page.touchscreen.tap(target.x, target.y)
+      else
+        await rowsEl
+          .nth(index)
+          .locator('figure')
+          .nth(target.at)
+          .evaluate((tile) => tile.focus({ preventScroll: true }))
+    }
     await recordDino(page)
-    await focusTile(1)
+    await pick(1)
     await page.waitForTimeout(5000)
     const log = await dinoLog(page)
     expect(log.filter((entry) => !entry.endsWith('@0')), 'stayed on the top row').toEqual([])
     expect(log.filter((entry) => entry.startsWith('miss')), 'never missed a jump').toEqual([])
 
-    // Focus moving to the top row pauses the dino's own row: it misses.
-    await focusTile(0)
+    // Moving to the top row pauses the dino's own row: it misses.
+    await pick(0)
     await expect(dino(page)).toHaveAttribute('data-level', '1', { timeout: 10_000 })
     await expect(dino(page)).toHaveAttribute('data-dir', 'left')
   })
@@ -184,7 +230,7 @@ test.describe('dino easter egg (motion allowed)', () => {
       dino(page).evaluate((el) => getComputedStyle(el).getPropertyValue('--dino-body').trim())
     const before = await colour()
     // It never holds still, so click it where it is.
-    await dino(page).click({ force: true })
+    await pokeDino(page)
     await expect(dino(page)).toHaveAttribute('data-roars', '1')
     await expect(dino(page)).toHaveAttribute('data-mode', 'flip')
     await expect(page.locator('[data-dino-bubble="roar"]')).toBeVisible()
@@ -192,37 +238,38 @@ test.describe('dino easter egg (motion allowed)', () => {
     // It lands and walks on, the bubble gone.
     await expect(dino(page)).toHaveAttribute('data-mode', 'walk')
     await expect(page.locator('[data-dino-bubble="roar"]')).toBeHidden()
-    await dino(page).click({ force: true })
+    await pokeDino(page)
     await expect(dino(page)).toHaveAttribute('data-roars', '2')
   })
 
   test('says its lines now and then, each once per visit', async ({ page }) => {
-    // A line waits for seconds of walking in plain view: slow on a busy machine.
-    test.slow()
+    // Shortened waits; one line per page view, so each view shows the next.
+    await lineTiming(page, { firstLineAfter: 0.3, lineGap: [600, 600] })
     await page.goto('/')
-    await showKit(page, '#loadout')
-    // The first, a few seconds in, hints at the click; it stops to say it.
-    await expect(dino(page)).toHaveAttribute('data-line', '0', { timeout: 40_000 })
+    await showKit(page, '[data-dino-panel]')
+    // The first hints at the click; it stops to say it.
+    await expect(dino(page)).toHaveAttribute('data-line', '0', { timeout: 15_000 })
     await expect(page.locator('[data-dino-bubble="line-0"]')).toBeVisible()
     await expect(dino(page)).toHaveAttribute('data-mode', 'walk')
-    // Back again in the same visit: it picks up with the next line.
-    await page.reload()
-    await showKit(page, '#loadout')
-    await expect(dino(page)).toHaveAttribute('data-line', '1', { timeout: 40_000 })
+    // Back again in the same visit (same tab): it picks up with the next line.
+    await page.goto('/')
+    await showKit(page, '[data-dino-panel]')
+    await expect(dino(page)).toHaveAttribute('data-line', '1', { timeout: 15_000 })
     await expect(page.locator('[data-dino-bubble="line-1"]')).toBeVisible()
   })
 
   test('skips the click hint once it has been clicked', async ({ page }) => {
-    test.slow()
+    // Long enough a first wait to click before it.
+    await lineTiming(page, { firstLineAfter: 1.5, lineGap: [600, 600] })
     await onTopRow(page)
-    await dino(page).click({ force: true })
+    await pokeDino(page)
     await expect(dino(page)).toHaveAttribute('data-roars', '1')
-    await expect(dino(page)).toHaveAttribute('data-line', '1', { timeout: 40_000 })
+    await expect(dino(page)).toHaveAttribute('data-line', '1', { timeout: 15_000 })
   })
 
   test('the gaps it hops and falls through are clearly wider than it is', async ({ page }) => {
     await page.goto('/')
-    await showKit(page, '#loadout')
+    await showKit(page, '[data-dino-panel]')
     await expect(dino(page)).toHaveCount(1)
     const m = await page.locator('[data-dino-panel]').evaluate((panel) => {
       const rows = [...panel.querySelectorAll('[data-marquee-row]')]
@@ -264,7 +311,7 @@ test.describe('dino easter egg (reduced motion)', () => {
 
   test('is not shown or loaded', async ({ page }) => {
     await page.goto('/')
-    await showKit(page, '#loadout')
+    await showKit(page, '[data-dino-panel]')
     await page.waitForTimeout(1500)
     await expect(dino(page)).toHaveCount(0)
   })
