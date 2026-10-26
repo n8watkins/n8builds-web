@@ -20,9 +20,9 @@ test('"What I\'m working on" advertises Appturnity, with its mark and the free-w
 
 test('the project-work card is Appturnity, by name and mark', async ({ page }) => {
   await page.goto('/')
-  const card = page.locator('#work-with-me').getByRole('link', { name: /Run a local service business/ })
+  const card = page.locator('#work-with-me').getByRole('article', { name: /Run a local service business/ })
   await card.scrollIntoViewIfNeeded()
-  await expect(card).toHaveAttribute('href', 'https://appturnity.com/#free-website')
+  await expect(card.getByRole('link', { name: /Claim your free website/ })).toHaveAttribute('href', 'https://appturnity.com/#free-website')
   await expect(card).toContainText('Appturnity is my company')
   await expect(card.locator('img[src*="appturnity.png"]')).toHaveCount(1)
 })

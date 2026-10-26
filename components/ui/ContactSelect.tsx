@@ -23,7 +23,7 @@ export const ContactSelect = forwardRef<HTMLSelectElement, ContactSelectProps>(
         <select
           ref={ref}
           className={cn(
-            "w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600",
+            "w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600",
             "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100",
             "focus:ring-2 focus:ring-cyan-500 focus:border-transparent",
             "transition-all duration-200",
