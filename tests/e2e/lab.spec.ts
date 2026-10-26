@@ -197,3 +197,20 @@ test('the homepage advertises the developer portfolio right after the Lab', asyn
   })
   expect(order).toBe(true)
 })
+
+test('Details waits for hydration instead of swallowing an early click', async ({ page }) => {
+  // Hold the JS: the server-rendered button must not look ready while it can't respond.
+  let release!: () => void
+  const held = new Promise<void>((resolve) => (release = resolve))
+  await page.route('**/_next/static/chunks/**', async (route) => {
+    await held
+    await route.continue()
+  })
+  await page.goto('/', { waitUntil: 'commit' })
+  const details = page.locator('#my-tools').getByRole('button', { name: 'Details' }).first()
+  await expect(details).toBeDisabled()
+  release()
+  await expect(details).toBeEnabled()
+  await details.click()
+  await expect(page.getByRole('dialog', { name: 'Scribe' })).toBeVisible()
+})
