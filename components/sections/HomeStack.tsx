@@ -27,7 +27,7 @@ export default function HomeStack() {
         </Link>
       </div>
 
-      <AITechStack />
+      <AITechStack dino />
 
       {/* TL;DR - my default stack */}
       <div className="mt-6 rounded-2xl border border-cyan-400/20 bg-linear-to-br from-cyan-500/6 to-transparent p-5 sm:p-6">

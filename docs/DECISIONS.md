@@ -53,6 +53,9 @@ When the owner decides something new, add it here (with the date) in the same ch
 - CanIHost, FreeStack and APIScout (the "free tools trio") were dropped from the site on 2026-10-21, and Suggestion Box, Repo Steward, Sprite Arsenal and Quizmatic on 2026-10-22 (Solara took Quizmatic's featured slot).
   Their repos and Vercel projects still exist; do not re-add them unless asked.
 - The **Loadout** is the identity device ("who I am without a resume"); PC hardware lives there as "The Rig".
+  /loadout has no whoami terminal (2026-10-26); the whoami lives in the homepage hero only.
+- **The AI kit lists only tools in real use** (2026-10-26): LangChain and Ollama were removed (not really used); Perplexity stays. whisper.cpp powers Scribe and Piper powers the Piper TTS extension.
+- **The homepage AI kit has a dino easter egg** (2026-10-26): a pixel dino (our own art, not Google's sprite) hops the gaps along the marquee rows; pausing the marquee makes it miss and fall to the next row, walking the other way, and off the last row it drops back in at the top left. Homepage only, never on /loadout; hidden under reduced motion.
 - Blog name: **N8's Notions** (renamed from "N8 Notions" on 2026-10-25; Sanity project `abgyc32w`, dataset `production`, nav label "Notions").
   Every full mention says "N8's Notions" (capital N, the digit 8, apostrophe s; not "Nate's Notions"); short nav and footer labels stay "Notions".
   URLs and slugs keep their old names (`/blog/welcome-to-n8-notions` stays).

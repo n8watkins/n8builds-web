@@ -30,7 +30,7 @@ Strategy and IA: `docs/N8BUILDS_PLAN.md`.
   Automatic posting to X is a separate, paid option (`docs/X_ARTICLES_PLAN.md`).
 - **Scroll reveals:** sections below the fold fade up once as they scroll in (`components/ui/Reveal.tsx`: a CSS transition, `.reveal` in `app/globals.css`, started by an IntersectionObserver; homepage bands, Lab parts, build-page sections, blog cards past the first row, related posts, loadout sections, the contact card, the site footer, and /privacy past its first screen).
   Never wrap the hero or anything above the fold in Reveal: it starts at opacity 0 until its script runs, which holds back the LCP.
-  Above the fold, use the CSS load fade instead (`components/ui/FadeIn.tsx`, the `fade-up` utility in `app/globals.css`): it plays from the server HTML without JavaScript, with no delay on the LCP element (the /blog header and first card row, the post header and cover, the /loadout header and whoami terminal, /live, the top of /privacy).
+  Above the fold, use the CSS load fade instead (`components/ui/FadeIn.tsx`, the `fade-up` utility in `app/globals.css`): it plays from the server HTML without JavaScript, with no delay on the LCP element (the /blog header and first card row, the post header and cover, the /loadout header, /live, the top of /privacy).
   Reduced motion skips both: no fade, no rise. `tests/e2e/reveal.spec.ts` and `tests/e2e/blog-motion.spec.ts` guard them.
 - **Hero layout:** the hero content is top-aligned, not vertically centered, and the ambient glows mount after hydration: both caused layout shift on slow devices (Nightly Lighthouse CLS 0.29). Keep it that way.
 - SEO: every page builds its metadata with `pageMetadata()` (`lib/seo.ts`), which sets the canonical URL, og:url and both share cards with a preview image.
@@ -210,6 +210,10 @@ The owner's standing decisions live in [DECISIONS.md](DECISIONS.md), the one pla
 - Reduced motion is honored everywhere: CSS animations stop globally, smooth scrolling is enabled only under `prefers-reduced-motion: no-preference`, the few motion animations left use `MotionConfig reducedMotion="user"` (`components/MotionProvider.tsx`), and timer-driven cycles check `usePrefersReducedMotion` (`hooks/`).
   `Marquee` requires a `label` prop (its reduced-motion fallback is a labelled, keyboard-reachable list).
   With motion on, its loop copies are `aria-hidden`; focusable children read `MarqueeCopyContext` to leave the tab order there (see `components/ui/StackTile.tsx`).
+  The copies join after hydration, so `Marquee` sets their animation clocks to the first copy's; without that they drift over each other.
+  `StackTile` centres its name and description as one block (the description's row opens from `grid-rows-[0fr]` to `1fr`), so hovered content stays centred at any length; `tests/e2e/stack-tiles.spec.ts` measures it.
+- The homepage AI kit has an easter egg: a pixel dino that walks the marquee rows and falls a row each time the visitor pauses the marquee (`components/features/dino/`, on `AITechStack` with `dino`, homepage only).
+  Only an empty layer ships up front; the game is a lazy chunk loaded when the panel nears the viewport, runs on requestAnimationFrame, stops off screen and in hidden tabs, and doesn't exist under reduced motion. `tests/e2e/ai-kit.spec.ts` covers it.
 - Tailwind 4 applies `hover:` only on devices that can hover, so anything revealed on hover also needs a focus/tap path (`StackTile` reveals on `focus:` too).
   `tests/e2e/reduced-motion.spec.ts` covers this.
 - Known dev-only noise: `next dev` (Turbopack) logs a 404 for a stale preload hint of the lazily loaded confetti chunk (`ConfettiPlayer`).
