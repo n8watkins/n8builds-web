@@ -22,7 +22,7 @@ test('the card reads like an ad: headline, selling points, both buttons and real
   await expect(section.getByRole('link', { name: /See example sites/ })).toHaveAttribute('href', 'https://appturnity.com/examples')
 
   // Appturnity's own template previews, loaded and laid out in their frames.
-  for (const name of ['pool-clearline-template', 'hvac-template-phone']) {
+  for (const name of ['pool-clearline-template', 'hvac-phone-full']) {
     const img = section.locator(`img[src*="${name}"]`)
     await expect(img, name).toBeVisible()
     await expect(img, name).toHaveAttribute('width')
@@ -169,7 +169,7 @@ test('on a phone What\'s new is a full-width button under the other two', async 
  * holds still under reduced motion. The frame keeps its size meanwhile.
  */
 test.describe('the phone mockup', () => {
-  const phone = (page: Page) => now(page).locator('img[src*="hvac-template-phone"]')
+  const phone = (page: Page) => now(page).locator('img[src*="hvac-phone-full"]')
 
   test.describe('with motion', () => {
     test.use({ contextOptions: { reducedMotion: 'no-preference' } })

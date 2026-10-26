@@ -63,9 +63,12 @@ export const nowItems: NowState[] = [
     // them), copied from apps/hub/public/example-shots in its repo. The phone
     // is the full-length HVAC page (hvac-prism-mobile.webp, resized to 280px
     // wide), scrolling in its frame the way Appturnity's own site shows it.
+    // A new filename, not the old crop's: image caches (next/image's, the
+    // CDN's, browsers') key on the URL, and kept serving the short crop,
+    // squashing the page into the frame.
     showcase: {
       desktop: { src: '/now/pool-clearline-template.webp', width: 1200, height: 750, label: 'Pool template' },
-      phone: { src: '/now/hvac-template-phone.webp', width: 280, height: 7685, frameHeight: 700, label: 'HVAC template' },
+      phone: { src: '/now/hvac-phone-full.webp', width: 280, height: 7685, frameHeight: 700, label: 'HVAC template' },
     },
     focus:
       'Appturnity Booking: online booking with arrival windows and job-specific questions, so a pool, HVAC or landscaping customer can book without a phone call.',
