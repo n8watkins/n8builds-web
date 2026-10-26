@@ -2,6 +2,7 @@ import Navbar from '@/components/layout/Navbar'
 import NotionsList from '@/components/blog/NotionsList'
 import { getAllPosts } from '@/lib/sanity'
 import { pageMetadata } from '@/lib/seo'
+import FadeIn from '@/components/ui/FadeIn'
 
 export const revalidate = 3600
 
@@ -25,7 +26,8 @@ export default async function BlogIndexPage() {
         </div>
 
         <div className="relative mx-auto max-w-6xl px-5 pb-24 pt-28 sm:px-8 md:pt-36">
-          <header>
+          {/* Above the fold: a CSS fade, so the heading never waits on hydration. */}
+          <FadeIn as="header">
             <p className="font-mono text-[0.7rem] font-bold uppercase tracking-[0.22em] text-cyan-400">
               The Build Log
             </p>
@@ -37,7 +39,7 @@ export default async function BlogIndexPage() {
             <p className="mt-4 max-w-[600px] text-base leading-relaxed text-[#9cadc5] sm:text-lg/7">
               Notes, essays, and lessons from building software in public.
             </p>
-          </header>
+          </FadeIn>
 
           <NotionsList posts={posts} />
         </div>
