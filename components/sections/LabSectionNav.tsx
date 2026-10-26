@@ -155,6 +155,8 @@ export default function LabSectionNav() {
       }
     })
     observer.observe(lab)
+    // Hydrated and measuring: the rail can show from here on (tests wait for this).
+    column.dataset.ready = ''
     return () => {
       observer.disconnect()
       resize.disconnect()

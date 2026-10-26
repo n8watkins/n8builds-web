@@ -18,6 +18,18 @@ const PARTS = [
 
 const rail = (page: Page) => page.getByRole('navigation', { name: 'Lab contents' })
 
+/**
+ * Open the homepage and wait until the rail's script is running. The rail is
+ * a progressive enhancement that shows once hydrated, which on a loaded
+ * machine (WebKit, many workers) can take longer than an assertion's timeout.
+ */
+async function openHome(page: Page) {
+  await page.goto('/')
+  await expect(page.getByTestId('lab-section-nav')).toHaveAttribute('data-ready', '', {
+    timeout: 20_000,
+  })
+}
+
 /** Scroll so the part's top sits a little under the navbar. */
 async function scrollToPart(page: Page, id: string) {
   await page.evaluate((id) => {
@@ -33,7 +45,7 @@ test.describe('at 1440px', () => {
   test.use({ viewport: { width: 1440, height: 900 } })
 
   test('shows only while the Lab is on screen, and marks the part being read', async ({ page }) => {
-    await page.goto('/')
+    await openHome(page)
     const nav = rail(page)
     // Above the Lab (the hero) it is hidden.
     await expect(nav).toBeHidden()
@@ -55,7 +67,7 @@ test.describe('at 1440px', () => {
   })
 
   test('a click jumps to the part, below the sticky navbar', async ({ page }) => {
-    await page.goto('/')
+    await openHome(page)
     await scrollToPart(page, 'my-tools')
     const nav = rail(page)
     for (const part of [PARTS[2], PARTS[1], PARTS[0]]) {
@@ -75,7 +87,7 @@ test.describe('at 1440px', () => {
   })
 
   test('the links are focusable and at least 24px on each side', async ({ page }) => {
-    await page.goto('/')
+    await openHome(page)
     await scrollToPart(page, 'featured')
     for (const link of await rail(page).getByRole('link').all()) {
       const box = (await link.boundingBox())!
@@ -110,7 +122,7 @@ test.describe('placement at 1440px', () => {
   test('stays hidden beside the Lab intro and appears level with the first heading', async ({
     page,
   }) => {
-    await page.goto('/')
+    await openHome(page)
     const nav = rail(page)
     // The intro on screen, the first heading still in the lower half: no rail.
     await headingAt(page, 650)
@@ -129,7 +141,7 @@ test.describe('placement at 1440px', () => {
   })
 
   test('holds at the middle of the window through the Lab', async ({ page }) => {
-    await page.goto('/')
+    await openHome(page)
     const nav = rail(page)
     for (const part of PARTS) {
       await page.evaluate((id) => {
@@ -160,7 +172,7 @@ test.describe('placement at 1440px', () => {
   test('the template offer between Featured and Chrome Extensions counts as Featured', async ({
     page,
   }) => {
-    await page.goto('/')
+    await openHome(page)
     const nav = rail(page)
     const current = nav.locator('[aria-current]')
     // Scroll so the element's top sits `top` px from the window's top.
@@ -192,7 +204,7 @@ test.describe('placement at 1440px', () => {
   })
 
   test('keyboard: Tab reaches each part in order and Enter jumps there', async ({ page }) => {
-    await page.goto('/')
+    await openHome(page)
     await scrollToPart(page, 'featured')
     const nav = rail(page)
     await expect(nav).toBeVisible()
@@ -209,7 +221,7 @@ test.describe('placement at 1440px', () => {
   })
 
   test('reduced motion: nothing moves (no comet spin, no sliding)', async ({ page }) => {
-    await page.goto('/')
+    await openHome(page)
     await scrollToPart(page, 'featured')
     const nav = page.locator('nav[aria-label="Lab contents"]')
     await expect(rail(page)).toBeVisible()
@@ -228,10 +240,16 @@ test.describe('placement at 1440px', () => {
 })
 
 test.describe('icons only, 1280-1439px', () => {
-  test.use({ viewport: { width: 1280, height: 900 } })
+  // 1366, not 1280: WebKit's media queries see the window minus its scrollbar,
+  // so a 1280px window there is just under the rail's 1280px breakpoint.
+  test.use({ viewport: { width: 1366, height: 900 } })
 
-  test('each icon names its part in a tooltip on hover and on keyboard focus', async ({ page }) => {
-    await page.goto('/')
+  test('each icon names its part in a tooltip on hover and on keyboard focus', async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, 'Desktop only: a touch screen has no hover, and phones never show the rail')
+    await openHome(page)
     await scrollToPart(page, 'featured')
     const nav = rail(page)
     await expect(nav).toBeVisible()
@@ -270,13 +288,32 @@ test('works without JavaScript: plain links to the three parts', async ({ browse
   await context.close()
 })
 
-for (const width of [1280, 1440, 1536, 1920]) {
+/**
+ * Which shape the rail's breakpoints give this window. Asked of the page, not
+ * worked out from the window width: WebKit's media queries see the window
+ * minus its scrollbar (a 1440px window is 1432px there), so each breakpoint
+ * lands a scrollbar's width later than in Chromium and Firefox.
+ */
+const railShape = (page: Page) =>
+  page.evaluate(() => {
+    const atLeast = (rem: number) => matchMedia(`(min-width: ${rem}rem)`).matches
+    return { rail: atLeast(80), labels: atLeast(90), shortLabel: atLeast(90) && !atLeast(96) }
+  })
+
+for (const width of [1280, 1366, 1440, 1536, 1920]) {
   test(`at ${width}px it sits beside the content without overlapping it or scrolling sideways`, async ({
     page,
   }) => {
     await page.setViewportSize({ width, height: 900 })
-    await page.goto('/')
+    await openHome(page)
     const nav = rail(page)
+    const shape = await railShape(page)
+    if (!shape.rail) {
+      // Just under the breakpoint (WebKit at 1280px): no rail, so nothing to overlap.
+      await scrollToPart(page, 'featured')
+      await expect(page.getByTestId('lab-section-nav')).toBeHidden()
+      return
+    }
     for (const part of PARTS) {
       await scrollToPart(page, part.id)
       await expect(nav).toBeInViewport()
@@ -316,6 +353,9 @@ for (const width of [1280, 1440, 1536, 1920]) {
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
     ).toBe(true)
+    // No heading in the icons-only shape.
+    if (shape.labels) await expect(nav.getByText('In the Lab')).toBeVisible()
+    else await expect(nav.getByText('In the Lab')).toBeHidden()
     // Every label stays on one line (from 1440px; below that it is a one-line tooltip).
     const lines = await nav.getByRole('link').evaluateAll((links) =>
       links.map((a) => {
@@ -341,7 +381,7 @@ for (const width of [1280, 1440, 1536, 1920]) {
     const extensions = nav.getByRole('link', { name: 'Chrome Extensions' })
     await expect(extensions).toHaveAccessibleName('Chrome Extensions')
     const short = extensions.getByText('Extensions', { exact: true })
-    if (width >= 1440 && width < 1536) await expect(short).toBeVisible()
+    if (shape.shortLabel) await expect(short).toBeVisible()
     else await expect(short).toBeHidden()
   })
 }
