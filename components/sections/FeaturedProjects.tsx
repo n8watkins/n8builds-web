@@ -126,7 +126,8 @@ const featured: FeaturedProject[] = [
     actions: [
       { label: 'Download for Windows', href: '/download/scribe', kind: 'primary', download: 'scribe', marks: { Windows: FaWindows } },
       {
-        label: 'Want it on Mac or Linux? Ask for it',
+        // Non-breaking spaces keep "Ask for it" together on the narrowest phones.
+        label: 'Want it on Mac or Linux? Ask\u00a0for\u00a0it',
         marks: { Mac: FaApple, Linux: FaLinux },
         href: 'https://github.com/n8watkins/scribe/issues/new?title=Request%3A%20Scribe%20for%20macOS%20or%20Linux&body=Which%20platform%20would%20you%20use%20Scribe%20on%20(macOS%20or%20Linux%2C%20and%20which%20version)%3F%0A%0AWhat%20would%20you%20use%20it%20for%3F',
         kind: 'link',
@@ -415,7 +416,9 @@ const ProjectRow = ({ project, flipped, facts }: { project: FeaturedProject; fli
             className="h-10 w-10 shrink-0 rounded-xl ring-1 ring-white/10 sm:h-11 sm:w-11"
           />
           <div className="min-w-0">
-            <h3 className="text-2xl font-bold tracking-tight text-slate-50 sm:text-3xl">{project.wordmark ?? project.title}</h3>
+            <h3 id={`${slugOf(project)}-title`} className="text-2xl font-bold tracking-tight text-slate-50 sm:text-3xl">
+              {project.wordmark ?? project.title}
+            </h3>
             <p className="text-sm font-semibold text-blue-300">{project.subtitle}</p>
           </div>
         </div>
@@ -512,14 +515,16 @@ const Rows = ({ group, offset, facts }: { group: FeaturedProject['group']; offse
         // Screenshot right for Scribe (text first), then alternating down the Lab.
         const flipped = (i + offset) % 2 === 0
         return (
-          <div
+          // An article named by its title, so each row is one landmark-like unit for screen readers.
+          <article
             key={p.title}
+            aria-labelledby={`${slugOf(p)}-title`}
             className={`lab-row-wash lab-accent-${p.accent} py-6 md:py-8 ${flipped ? '[--lab-x:100%]' : '[--lab-x:0%]'}`}
           >
             <div className={container}>
               <ProjectRow project={p} flipped={flipped} facts={facts} />
             </div>
-          </div>
+          </article>
         )
       })}
   </div>
