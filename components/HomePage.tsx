@@ -7,6 +7,7 @@ import Reveal from '@/components/ui/Reveal'
 import ScrollToTop from '@/components/ui/ScrollToTop'
 import HomeEffects from '@/components/HomeEffects'
 import NowBuilding from '@/components/sections/NowBuilding'
+import BuildLogStrip from '@/components/sections/BuildLogStrip'
 import FeaturedProjects from '@/components/sections/FeaturedProjects'
 import ShelfSection from '@/components/sections/ShelfSection'
 import UseAsTemplate from '@/components/sections/UseAsTemplate'
@@ -82,6 +83,9 @@ export default function HomePage({ posts }: { posts: Post[] }) {
             <NowBuilding />
           </SectionErrorBoundary>
         </Band>
+
+        {/* The build log, compact: this month across every build (its own band; hidden if the log can't load). */}
+        <BuildLogStrip />
 
         {/* ===== THE LAB: one section. Featured builds, then the Chrome
              extensions (and a Tools grid, only if a build ever lands there).
