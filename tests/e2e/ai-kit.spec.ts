@@ -25,10 +25,10 @@ test.describe('AI kit content', () => {
 
   test('the whoami terminal is in the homepage hero, not on /loadout', async ({ page }) => {
     await page.goto('/')
-    await expect(page.locator('main').getByText('$ whoami')).toBeVisible()
+    await expect(page.locator('main [data-terminal-title]')).toContainText('~/whoami')
     await page.goto('/loadout')
     await expect(page.getByRole('heading', { level: 1, name: /loadout/i })).toBeVisible()
-    await expect(page.getByText('$ whoami')).toHaveCount(0)
+    await expect(page.locator('[data-terminal]')).toHaveCount(0)
   })
 })
 

@@ -258,11 +258,16 @@
    candidates and, for a compositor-run fade, only records the paint when the
    animation ends. From 0, Lighthouse's LCP grew by the whole delay plus
    duration (~0.8s desktop, ~3s simulated mobile); from 0.01 it is unchanged.
-   1% is invisible on the dark hero. */
+   1% is invisible on the dark hero.
+   It settles down from a touch larger (not up from smaller): LCP records the
+   photo at its first-paint size, and from 0.95 that was smaller than the
+   watercolor (HeroPortraitSwap) at full size, so the watercolor's first
+   fade-in, ~5s after load, became a new, late LCP. From 1.03 the photo's
+   entry is the largest and stays the LCP. */
 @keyframes hero-portrait-in {
   from {
     opacity: 0.01;
-    transform: scale(0.95);
+    transform: scale(1.03);
   }
   to {
     opacity: 1;
