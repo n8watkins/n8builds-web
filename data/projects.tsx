@@ -350,7 +350,7 @@ export const projects = [
     title: 'n8builds.dev',
     subTitle: 'This Site, Tested Like a Product',
     des: "This site: builds, the N8's Notions blog and the Loadout, with every pull request tested on five browsers.",
-    images: ['/builds/n8builds/home-hero.webp'],
+    images: ['/builds/n8builds/home-hero-2026-10.webp'],
     technologies: {
       Frontend: {
         descriptionParts: [

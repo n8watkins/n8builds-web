@@ -240,8 +240,8 @@ function SpeedCard({ result, delay }: { result: SpeedResult; delay: number }) {
 export default function CaseStudy({ build, activity }: { build: Build; activity: LogEntry[] }) {
   const repo = build.github ?? 'https://github.com/n8watkins/n8builds-web'
   const [hero, lighthouse, actions] = [
-    build.images.find((i) => i.src.endsWith('home-hero.webp'))!,
-    build.images.find((i) => i.src.endsWith('lighthouse.webp'))!,
+    build.images.find((i) => i.src.endsWith('home-hero-2026-10.webp'))!,
+    build.images.find((i) => i.src.endsWith('lighthouse-2026-10.webp'))!,
     build.images.find((i) => i.src.endsWith('ci-checks.webp'))!,
   ]
 

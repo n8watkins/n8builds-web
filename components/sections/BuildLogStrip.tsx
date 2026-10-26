@@ -22,7 +22,7 @@ const ICONS: Record<string, string> = {
   'piper-tts': '/builds/piper-tts/icon.png',
   tldw: '/builds/tldw/icon.png',
   tubevault: '/builds/tubevault/icon.png',
-  scribe: '/builds/scribe/icon.png',
+  scribe: '/builds/scribe/app-icon.png',
   openping: '/builds/openping/icon.svg',
   solara: '/builds/solara/icon.png',
   'portfolio-rank': '/builds/portfolio-rank/icon.png',

@@ -107,7 +107,7 @@ interface FeaturedProject {
 const featured: FeaturedProject[] = [
   {
     title: 'Scribe',
-    icon: '/builds/scribe/icon.png',
+    icon: '/builds/scribe/app-icon.png',
     group: 'tools',
     subtitle: 'Local dictation for Windows',
     description:
