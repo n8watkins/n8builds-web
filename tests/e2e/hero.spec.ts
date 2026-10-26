@@ -133,6 +133,13 @@ for (const [width, height] of [
 
     test('shows "What I\'m working on" and the top of its card as a sneak peek', async ({ page }) => {
       await page.goto('/')
+      // The site styles its scrollbar (::-webkit-scrollbar), and WebKit then
+      // draws a classic 8px one and measures media queries without it: a
+      // 768px desktop Safari window lays out as 760px, the phone layout. The
+      // sizes here are content widths (a 768 iPad has overlay scrollbars), so
+      // widen the window by the scrollbar, if there is one.
+      const gutter = await page.evaluate(() => window.innerWidth - document.documentElement.clientWidth)
+      if (gutter > 0) await page.setViewportSize({ width: width + gutter, height })
       const heading = page.locator('#now').getByRole('heading', { level: 2, name: "What I'm working on" })
       const box = (await heading.boundingBox())!
       // The whole heading is on screen...
@@ -528,8 +535,10 @@ for (const width of [1280, 375, 320]) {
     await page.goto('/')
     const chip = page.locator('#home .n8-cnode').first()
     await expect(chip).toHaveText('prompt')
-    await expect.poll(() => chip.evaluate((el) => el.style.getPropertyValue('--n8start'))).not.toBe('')
-    const { gap, end } = await chip.evaluate((el) => {
+    // The server HTML carries a fallback angle (153deg, a few px off at some
+    // sizes); HeroChainMeter replaces it with the measured one once hydrated,
+    // which can take a moment (WebKit), so wait for the measured value.
+    const measure = () => chip.evaluate((el) => {
       const start = parseFloat(el.style.getPropertyValue('--n8start'))
       const k = parseFloat(el.style.getPropertyValue('--n8k'))
       // The comet's head is 90deg ahead of the gradient's start, clockwise from 12 o'clock.
@@ -549,7 +558,8 @@ for (const width of [1280, 375, 320]) {
       const land = { x: sb.left + (p.x * sb.width) / svg.viewBox.baseVal.width, y: sb.top + (p.y * sb.height) / svg.viewBox.baseVal.height }
       return { gap: Math.hypot(hit.x - land.x, hit.y - land.y), end: (start + 90 + 225 * k) % 360 }
     })
-    expect(gap, 'px between the comet start and the wire landing').toBeLessThanOrEqual(1.5)
+    await expect.poll(async () => (await measure()).gap, { message: 'px between the comet start and the wire landing' }).toBeLessThanOrEqual(1.5)
+    const { end } = await measure()
     expect(Math.abs(end - 90), 'ends at 3 o\'clock').toBeLessThanOrEqual(0.5)
   })
 }
@@ -584,9 +594,15 @@ for (const width of [768, 900, 1023, 1024]) {
   test(`at ${width}px the subheader stays clear of the portrait`, async ({ page }) => {
     await page.setViewportSize({ width, height: 1024 })
     await page.goto('/')
+    // A content width, as in the first-screen tests above: WebKit leaves the
+    // styled scrollbar out of its media queries.
+    const gutter = await page.evaluate(() => window.innerWidth - document.documentElement.clientWidth)
+    if (gutter > 0) await page.setViewportSize({ width: width + gutter, height: 1024 })
     const sub = (await page.locator('#home').getByText('Spending tokens, shipping features.').boundingBox())!
     const portrait = (await page.locator('#home .hero-portrait-in').boundingBox())!
     expect(sub.height, 'one line').toBeLessThan(50)
+    // Beside the portrait, from md up.
+    expect(sub.y, 'the portrait is beside the text').toBeLessThan(portrait.y + portrait.height)
     expect(sub.x + sub.width).toBeLessThanOrEqual(portrait.x)
   })
 }
