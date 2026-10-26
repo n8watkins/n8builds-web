@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { FiArrowLeft, FiArrowRight, FiArrowUpRight, FiGithub } from 'react-icons/fi'
+import { FiArrowLeft, FiArrowRight, FiArrowUpRight, FiDownload, FiGithub } from 'react-icons/fi'
 import Navbar from '@/components/layout/Navbar'
 import { builds, getBuild } from '@/data/builds'
 import { shelfMeta, getShelf } from '@/data/shelves'
@@ -179,13 +179,19 @@ export default async function BuildPage({ params }: BuildPageProps) {
                 </div>
                 <a
                   href={build.cta.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  // An outside site opens in a new tab; a download (/download/...) starts here.
+                  {...(build.cta.href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                   className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:scale-[1.02] hover:from-blue-500 hover:to-cyan-400"
                 >
                   {build.cta.label}
-                  <FiArrowUpRight className="h-4 w-4" />
-                  <span className="sr-only"> (opens in a new tab)</span>
+                  {build.cta.href.startsWith('http') ? (
+                    <>
+                      <FiArrowUpRight className="h-4 w-4" />
+                      <span className="sr-only"> (opens in a new tab)</span>
+                    </>
+                  ) : (
+                    <FiDownload className="h-4 w-4" />
+                  )}
                 </a>
               </section>
             </Reveal>

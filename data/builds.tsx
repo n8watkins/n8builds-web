@@ -174,7 +174,7 @@ export const builds: Build[] = [
       heading: 'Try Scribe',
       body: 'Free and open source, for Windows. No account and no telemetry: your voice never leaves your PC. I dictate with it every day.',
       label: 'Download for Windows',
-      href: 'https://scribe.n8builds.dev',
+      href: '/download/scribe',
     },
     github: 'https://github.com/n8watkins/scribe',
     liveSite: 'https://scribe.n8builds.dev',

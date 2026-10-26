@@ -69,7 +69,7 @@ test('Portfolio Rank credits the list it is built on and invites visitors to add
   const credit = featured.getByRole('link', { name: "Emma Bostian's developer-portfolios list" })
   await credit.scrollIntoViewIfNeeded()
   await expect(credit).toHaveAttribute('href', 'https://github.com/emmabostian/developer-portfolios')
-  await expect(featured.getByRole('link', { name: /Have a portfolio\? Add yours/ })).toHaveAttribute('href', 'https://portfoliorank.vercel.app/')
+  await expect(featured.getByRole('link', { name: /Add your portfolio/ })).toHaveAttribute('href', 'https://portfoliorank.vercel.app/')
   await expect(featured.getByRole('link', { name: /Vote in a face-off/ })).toHaveAttribute('href', 'https://portfoliorank.vercel.app/rank')
 
   // The build page: the invitation, and credits for the list and the tweet that started it.
@@ -90,15 +90,15 @@ test('Portfolio Rank credits the list it is built on and invites visitors to add
 
 test('every featured row and its build page invite the visitor to try it', async ({ page }) => {
   const tries: [string, string, RegExp, string][] = [
-    ['Scribe', 'scribe', /Download Scribe for Windows, free/, 'https://scribe.n8builds.dev'],
-    ['OpenPing', 'openping', /Try the free tools, no sign-up/, 'https://openping.n8builds.dev/tools'],
-    ['Solara', 'solara', /Find your sun window, free, no sign-up/, 'https://solara-uv.web.app'],
+    ['Scribe', 'scribe', /Download for Windows/, '/download/scribe'],
+    ['OpenPing', 'openping', /Try the free tools/, 'https://openping.n8builds.dev/tools'],
+    ['Solara', 'solara', /Find your sun window/, 'https://solara-uv.web.app'],
     ['Portfolio Rank', 'portfolio-rank', /Vote in a face-off/, 'https://portfoliorank.vercel.app/rank'],
   ]
   await page.goto('/')
   const featured = page.locator('#featured')
-  for (const [, , label, href] of tries) {
-    await expect(featured.getByRole('link', { name: label })).toHaveAttribute('href', href)
+  for (const [name, , label, href] of tries) {
+    await expect(featured.getByRole('group', { name: `Try ${name}` }).getByRole('link', { name: label })).toHaveAttribute('href', href)
   }
   // The two daily drivers say so.
   await expect(featured).toContainText('I dictate with Scribe every day')
@@ -110,4 +110,46 @@ test('every featured row and its build page invite the visitor to try it', async
   // A build without one shows none.
   await page.goto('/builds/tubevault')
   await expect(page.locator('#cta-heading')).toHaveCount(0)
+})
+
+test('the Scribe ad downloads the newest installer through a stable link', async ({ page, request }) => {
+  await page.goto('/')
+  const ad = page.getByRole('group', { name: 'Try Scribe' })
+  await ad.scrollIntoViewIfNeeded()
+  const download = ad.getByRole('link', { name: 'Download for Windows' })
+  await expect(download).toHaveAttribute('href', '/download/scribe')
+  await expect(download).not.toHaveAttribute('target', '_blank')
+
+  // The link resolves to the latest release's installer (a fixed release in tests).
+  const response = await request.get('/download/scribe', { maxRedirects: 0 })
+  expect(response.status()).toBe(307)
+  expect(response.headers().location).toMatch(/^https:\/\/github\.com\/n8watkins\/scribe\/releases\/download\/v[\d.]+\/Scribe_[\d.]+_x64-setup\.exe$/)
+  expect((await request.get('/download/nothing', { maxRedirects: 0 })).status()).toBe(404)
+
+  // The build page offers the same download.
+  await page.goto('/builds/scribe')
+  await expect(page.getByRole('link', { name: 'Download for Windows' })).toHaveAttribute('href', '/download/scribe')
+})
+
+test('every featured row carries an ad for its build', async ({ page }) => {
+  await page.goto('/')
+  for (const name of ['Scribe', 'OpenPing', 'Solara', 'Portfolio Rank']) {
+    const ad = page.getByRole('group', { name: `Try ${name}` })
+    await expect(ad, name).toBeAttached()
+    await expect(ad.getByRole('link').first(), name).toBeAttached()
+  }
+})
+
+test('the homepage advertises the developer portfolio right after the Lab', async ({ page }) => {
+  await page.goto('/')
+  const ad = page.getByRole('region', { name: 'Meet the developer behind the builds' })
+  await ad.scrollIntoViewIfNeeded()
+  await expect(ad.getByRole('link', { name: /See my portfolio/ })).toHaveAttribute('href', 'https://portfolio.n8builds.dev')
+  await expect(ad.getByRole('link', { name: /Jump to the projects/ })).toHaveAttribute('href', 'https://portfolio.n8builds.dev/#projects')
+  const order = await page.evaluate(() => {
+    const lab = document.getElementById('lab')!
+    const adEl = document.getElementById('portfolio-ad-heading')!
+    return Boolean(lab.compareDocumentPosition(adEl) & Node.DOCUMENT_POSITION_FOLLOWING)
+  })
+  expect(order).toBe(true)
 })
