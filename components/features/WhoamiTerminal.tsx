@@ -15,11 +15,12 @@ const typing = (() => {
   const starts: number[] = []
   const holds: number[] = []
   let t = FIRST
-  for (const line of whoami) {
+  whoami.forEach((line, i) => {
     starts.push(+t.toFixed(3))
     t += line.length * CHAR + PAUSE
-    holds.push(+(line.length * CHAR + PAUSE).toFixed(3))
-  }
+    // The last line's cursor goes as the prompt's appears, so there is one cursor.
+    holds.push(+(line.length * CHAR + (i < whoami.length - 1 ? PAUSE : 0)).toFixed(3))
+  })
   return { starts, holds, end: +(t - PAUSE).toFixed(3) }
 })()
 
