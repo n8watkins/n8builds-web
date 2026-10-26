@@ -9,8 +9,8 @@ test('the sitemap lists the build log, dated by its newest entry', async ({ requ
   const xml = await (await request.get('/sitemap.xml')).text()
   const entry = xml.match(/<url>\s*<loc>https:\/\/n8builds\.dev\/builds<\/loc>\s*<lastmod>([^<]+)<\/lastmod>/)
   expect(entry, '/builds in the sitemap with a lastmod').toBeTruthy()
-  // The fixture's newest entry is Solara's work on 2026-10-23 (Los Angeles).
-  expect(entry![1]).toMatch(/^2026-10-2[34]T/)
+  // The fixture's newest entry is this site's own work on 2026-10-26 (Los Angeles).
+  expect(entry![1]).toMatch(/^2026-10-2[67]T/)
 })
 
 test('the build log describes its builds as an ItemList, most recently active first', async ({ request }) => {
@@ -20,8 +20,9 @@ test('the build log describes its builds as an ItemList, most recently active fi
     .filter((data) => data['@type'] === 'ItemList')
   expect(lists).toHaveLength(1)
   const items = lists[0].itemListElement as { position: number; name: string; url: string }[]
-  expect(items.map((i) => i.position)).toEqual([1, 2, 3, 4, 5, 6, 7])
-  expect(items[0]).toMatchObject({ name: 'Solara', url: 'https://n8builds.dev/builds/solara' })
+  expect(items.map((i) => i.position)).toEqual([1, 2, 3, 4, 5, 6, 7, 8])
+  expect(items[0]).toMatchObject({ name: 'n8builds.dev', url: 'https://n8builds.dev/builds/n8builds' })
+  expect(items[1]).toMatchObject({ name: 'Solara', url: 'https://n8builds.dev/builds/solara' })
   expect(items.map((i) => i.url)).not.toContain('https://n8builds.dev/builds/vibelog')
 })
 

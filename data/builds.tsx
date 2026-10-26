@@ -345,6 +345,10 @@ export const builds: Build[] = [
     ],
     github: 'https://github.com/n8watkins/n8builds-web',
     liveSite: 'https://n8builds.dev',
+    // The site's own releases (release-kit) and user-facing feat/fix/perf commits.
+    repo: 'n8watkins/n8builds-web',
+    // CI plumbing the filters let through.
+    logHide: ['debugging port'],
   },
 ]
 

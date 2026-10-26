@@ -29,8 +29,9 @@ test('the build log leads with the builds, most recently active first', async ({
   await expect(page.getByRole('heading', { level: 1, name: 'The build log' })).toBeVisible()
 
   const cards = page.getByRole('list', { name: 'Builds by latest activity' }).locator(':scope > li')
-  await expect(cards).toHaveCount(7)
+  await expect(cards).toHaveCount(8)
   expect(await cards.evaluateAll((els) => els.map((el) => el.getAttribute('data-build')))).toEqual([
+    'n8builds',
     'solara',
     'tldw',
     'openping',

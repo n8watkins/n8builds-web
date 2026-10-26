@@ -57,6 +57,20 @@ export default async function BuildLogPage() {
             <p className="mt-4 max-w-[640px] text-base leading-relaxed text-[#9cadc5] sm:text-lg/7">
               What shipped across every build, pulled from GitHub releases and commits every hour, plus the occasional note from me.
             </p>
+            {/* release-kit makes the releases; this log shows them. Separate projects, linked. */}
+            <p className="mt-3 max-w-[640px] text-sm text-slate-450">
+              Releases follow{' '}
+              <a
+                href="https://github.com/n8watkins/release-kit"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-300 underline decoration-white/20 underline-offset-4 hover:text-cyan-200"
+              >
+                release-kit
+                <span className="sr-only"> (opens in a new tab)</span>
+              </a>
+              , my release standard, as each project adopts it.
+            </p>
           </header>
 
           <section className="mt-12 md:mt-14" aria-labelledby="builds-heading">

@@ -8,6 +8,7 @@ import Reveal from '@/components/ui/Reveal'
 import ScrollToTop from '@/components/ui/ScrollToTop'
 import HomeEffects from '@/components/HomeEffects'
 import NowBuilding from '@/components/sections/NowBuilding'
+import BuildLogStrip from '@/components/sections/BuildLogStrip'
 import FeaturedProjects from '@/components/sections/FeaturedProjects'
 import ShelfSection from '@/components/sections/ShelfSection'
 import UseAsTemplate from '@/components/sections/UseAsTemplate'
@@ -83,6 +84,9 @@ export default function HomePage({ posts }: { posts: Post[] }) {
             <NowBuilding />
           </SectionErrorBoundary>
         </Band>
+
+        {/* The build log, compact: recent shipping across every build (its own band; hidden if the log can't load). */}
+        <BuildLogStrip />
 
         {/* ===== THE LAB: one section in parts, each in its own colour wash
              (app/globals.css, "The Lab's colour washes"): My tools and Featured
