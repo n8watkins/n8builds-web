@@ -65,30 +65,102 @@ test.describe('dino easter egg (motion allowed)', () => {
     await expect.poll(at).not.toBe(first)
   })
 
-  test('pausing the marquee makes it miss a jump and fall to the next row, walking the other way', async ({
-    page,
-  }) => {
+  // Every mode/level the dino passes through, recorded in the page so a brief
+  // miss between two polls can't slip by.
+  const recordDino = (page: Page) =>
+    dino(page).evaluate((el) => {
+      const log: string[] = []
+      ;(window as unknown as { dinoLog: string[] }).dinoLog = log
+      const note = () => log.push(`${el.dataset.mode}@${el.dataset.level}`)
+      note()
+      new MutationObserver(note).observe(el, { attributes: true })
+    })
+  const dinoLog = (page: Page) =>
+    page.evaluate(() => (window as unknown as { dinoLog: string[] }).dinoLog)
+
+  const rowBox = async (page: Page, index: number) =>
+    (await page.locator('[data-dino-panel] [data-marquee-row]').nth(index).boundingBox())!
+  const hoverRow = async (page: Page, index: number) => {
+    const row = await rowBox(page, index)
+    await page.mouse.move(row.x + row.width / 2, row.y + row.height / 2)
+  }
+
+  const onTopRow = async (page: Page) => {
     await page.goto('/')
     await showKit(page, '#loadout')
     await expect(dino(page)).toHaveAttribute('data-level', '0', { timeout: 10_000 })
     await expect(dino(page)).toHaveAttribute('data-mode', 'walk')
     await expect(dino(page)).toHaveAttribute('data-dir', 'right')
+  }
 
-    // Hovering the marquee pauses it (the pointer rests on the panel's bottom
-    // row, away from the dino).
-    const row = (await page.locator('[data-dino-panel] [data-marquee-row]').nth(1).boundingBox())!
-    await page.mouse.move(row.x + row.width / 2, row.y + row.height / 2)
+  test('pausing the row it walks on makes it miss a jump and fall to the next row, walking the other way', async ({
+    page,
+  }) => {
+    await onTopRow(page)
+
+    // Hovering the top row pauses it: the dino misses, lands on the bottom
+    // row and turns around.
+    await hoverRow(page, 0)
     await expect(dino(page)).toHaveAttribute('data-level', '1', { timeout: 10_000 })
     await expect(dino(page)).toHaveAttribute('data-dir', 'left')
     await expect(dino(page)).toHaveAttribute('data-mode', 'walk')
 
-    // Hovering again (leave, come back) makes it miss again: off the last
-    // row, it drops back in at the top left, walking right.
+    // Pausing the bottom row (leave, then hover it) makes it miss again: off
+    // the last row, it drops back in at the top left, walking right.
     await page.mouse.move(5, 5)
     await page.waitForTimeout(300)
-    await page.mouse.move(row.x + row.width / 2, row.y + row.height / 2)
+    await hoverRow(page, 1)
     await expect(dino(page)).toHaveAttribute('data-level', '0', { timeout: 10_000 })
     await expect(dino(page)).toHaveAttribute('data-dir', 'right')
+  })
+
+  test('pausing a row it is not on leaves its jumps alone', async ({ page }) => {
+    await onTopRow(page)
+    await hoverRow(page, 0)
+    await expect(dino(page)).toHaveAttribute('data-level', '1', { timeout: 10_000 })
+    await expect(dino(page)).toHaveAttribute('data-mode', 'walk')
+
+    // Leave, then hover the top row again: it pauses, but the dino is on the
+    // bottom row, still moving at full speed, so it keeps clearing the gaps.
+    await page.mouse.move(5, 5)
+    await page.waitForTimeout(300)
+    await recordDino(page)
+    await hoverRow(page, 0)
+    await page.waitForTimeout(5000)
+    await expect(dino(page)).toHaveAttribute('data-level', '1')
+    const log = await dinoLog(page)
+    expect(log.filter((entry) => !entry.endsWith('@1')), 'stayed on the bottom row').toEqual([])
+    expect(log.filter((entry) => entry.startsWith('miss')), 'never missed a jump').toEqual([])
+    expect(log.filter((entry) => entry.startsWith('hop')).length, 'kept hopping').toBeGreaterThan(0)
+  })
+
+  test('a tapped or focused tile pauses only its own row for the dino', async ({ page }) => {
+    await onTopRow(page)
+    // Focus (a keyboard user, or a tap on a touch screen) on a fully visible
+    // tile of the bottom row pauses that row, not the one the dino is on.
+    const focusTile = (index: number) =>
+      page
+        .locator('[data-dino-panel] [data-marquee-row]')
+        .nth(index)
+        .evaluate((row) => {
+          const panel = row.closest('[data-dino-panel]')!.getBoundingClientRect()
+          const tile = [...row.querySelectorAll<HTMLElement>('figure')].find((figure) => {
+            const box = figure.getBoundingClientRect()
+            return box.left >= panel.left + 8 && box.right <= panel.right - 8
+          })!
+          tile.focus({ preventScroll: true })
+        })
+    await recordDino(page)
+    await focusTile(1)
+    await page.waitForTimeout(5000)
+    const log = await dinoLog(page)
+    expect(log.filter((entry) => !entry.endsWith('@0')), 'stayed on the top row').toEqual([])
+    expect(log.filter((entry) => entry.startsWith('miss')), 'never missed a jump').toEqual([])
+
+    // Focus moving to the top row pauses the dino's own row: it misses.
+    await focusTile(0)
+    await expect(dino(page)).toHaveAttribute('data-level', '1', { timeout: 10_000 })
+    await expect(dino(page)).toHaveAttribute('data-dir', 'left')
   })
 
   test('is not on /loadout', async ({ page }) => {

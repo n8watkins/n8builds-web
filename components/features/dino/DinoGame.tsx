@@ -6,11 +6,12 @@ import { DINO_COLS, DINO_FRAMES, DINO_ROWS, framePaths, type DinoFrame } from '.
 /**
  * The easter egg itself (loaded lazily by DinoEasterEgg.tsx). A pixel dino
  * walks along the top of the first marquee row, hopping each gap between the
- * tiles as they scroll by. When the visitor pauses the marquee (hovering it,
- * or focusing a tile), the dino mistimes its next jump and falls through a gap
- * to the next row, the next level, where it walks the other way. Falling off
- * the last row, it drops back in at the top left and starts over. A panel with
- * a single row gets a solid ground line under it as its second level.
+ * tiles as they scroll by. When the visitor pauses the row it is on (hovering
+ * it, or focusing or tapping a tile), the dino mistimes its next jump and falls
+ * through a gap to the next row, the next level, where it walks the other way.
+ * Falling off the last row, it drops back in at the top left and starts over.
+ * A panel with a single row gets a solid ground line under it as its second
+ * level.
  *
  * It runs on requestAnimationFrame with direct DOM writes (no React renders
  * per frame, no motion library), and stops while the panel is off screen or
@@ -168,20 +169,23 @@ export default function DinoGame() {
       if (!dt) return
       const panelLeft = panel.getBoundingClientRect().left
 
-      // Row speeds, and whether the visitor just paused one.
+      const current = levels[level]
+
+      // Row speeds, and whether the visitor just paused the one the dino is
+      // on. A pause of any other row (hovered, tapped or focused) leaves its
+      // jumps alone: the row under its feet is still moving.
       for (const row of rows) {
         const left = row.tracks[0].getBoundingClientRect().left
         if (row.lastLeft !== null) {
           row.velocity = (left - row.lastLeft) / dt
           const paused = Math.abs(row.velocity) < STILL
-          if (paused && !row.paused && settled > 10) missPending = true
+          if (paused && !row.paused && settled > 10 && row === current?.row) missPending = true
           row.paused = paused
         }
         row.lastLeft = left
       }
       settled++
 
-      const current = levels[level]
       const spans = current?.row ? intervals(current.row, panelLeft) : null
       const foot = x + W / 2
 
@@ -257,6 +261,8 @@ export default function DinoGame() {
         const target = levels[level + 1]
         if (target && y >= target.y) {
           level += 1
+          // A miss meant for the row it left doesn't carry over.
+          missPending = false
           // Every level after the first walks the other way.
           if (level > 0) dir = dir > 0 ? -1 : 1
           land(target, target.row ? intervals(target.row, panelLeft) : null)
