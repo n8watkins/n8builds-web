@@ -9,17 +9,19 @@ import { ai_agents, ai_tools } from '@/data/aiStack'
  * The AI kit marquee. `dino` adds the homepage's easter egg (a pixel dino
  * walking the rows, see components/features/dino/); /loadout leaves it off.
  *
- * The tiles sit well apart (3rem across, 3rem between the rows' tiles) so the gaps
- * read clearly wider than the dino that hops and falls through them; the
- * dino's jumps are sized from the measured gaps.
+ * While the rows move, the tiles sit well apart (2.5rem across and between
+ * the rows' tiles) so the gaps read clearly wider than the dino that hops and
+ * falls through them; the dino's jumps are sized from the measured gaps.
+ * Under reduced motion (no dino, the tiles wrap into a grid) they keep the
+ * tighter default spacing.
  */
 export function AITechStack({ dino = false }: { dino?: boolean }) {
   return (
     <div
       data-dino-panel={dino || undefined}
-      className="relative flex w-full flex-col items-center justify-center gap-8 overflow-hidden rounded-3xl border border-white/6 bg-linear-to-br from-[#081427] via-[#0a1a33] to-[#081427] py-12"
+      className="relative flex w-full flex-col items-center justify-center overflow-hidden motion-safe:gap-6 rounded-3xl border border-white/6 bg-linear-to-br from-[#081427] via-[#0a1a33] to-[#081427] py-8 motion-safe:py-12"
     >
-      <Marquee label="AI agents" reverse pauseOnHover data-marquee-row className="[--duration:45s] [--gap:3rem]">
+      <Marquee label="AI agents" reverse pauseOnHover data-marquee-row className="[--duration:45s] motion-safe:[--gap:2.5rem]">
         {ai_agents.map((tech) => (
           <StackTile
             key={tech.name}
@@ -29,7 +31,7 @@ export function AITechStack({ dino = false }: { dino?: boolean }) {
           />
         ))}
       </Marquee>
-      <Marquee label="AI tools" pauseOnHover data-marquee-row className="[--duration:45s] [--gap:3rem]">
+      <Marquee label="AI tools" pauseOnHover data-marquee-row className="[--duration:45s] motion-safe:[--gap:2.5rem]">
         {ai_tools.map((tech) => (
           <StackTile
             key={tech.name}

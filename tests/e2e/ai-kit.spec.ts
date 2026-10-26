@@ -163,6 +163,27 @@ test.describe('dino easter egg (motion allowed)', () => {
     await expect(dino(page)).toHaveAttribute('data-dir', 'left')
   })
 
+  test('the gaps it hops and falls through are clearly wider than it is', async ({ page }) => {
+    await page.goto('/')
+    await showKit(page, '#loadout')
+    await expect(dino(page)).toHaveCount(1)
+    const m = await page.locator('[data-dino-panel]').evaluate((panel) => {
+      const rows = [...panel.querySelectorAll('[data-marquee-row]')]
+      const tiles = rows.map((row) =>
+        [...row.querySelectorAll('figure')].map((f) => f.getBoundingClientRect())
+      )
+      const dino = panel.querySelector('[data-dino]')!.getBoundingClientRect()
+      return {
+        across: tiles[0][1].left - tiles[0][0].right,
+        between: tiles[1][0].top - tiles[0][0].bottom,
+        width: dino.width,
+        height: dino.height,
+      }
+    })
+    expect(m.across, 'gap between tiles vs the dino').toBeGreaterThanOrEqual(m.width + 6)
+    expect(m.between, 'gap between the rows vs the dino').toBeGreaterThanOrEqual(m.height + 6)
+  })
+
   test('is not on /loadout', async ({ page }) => {
     await page.goto('/loadout')
     await showKit(page, '#ai')
@@ -175,6 +196,14 @@ test.describe('dino easter egg (motion allowed)', () => {
 
 test.describe('dino easter egg (reduced motion)', () => {
   test.use({ contextOptions: { reducedMotion: 'reduce' } })
+
+  test('the wrapped tiles keep the default spacing', async ({ page }) => {
+    await page.goto('/')
+    const gap = await page
+      .getByRole('region', { name: 'AI agents' })
+      .evaluate((row) => getComputedStyle(row).columnGap)
+    expect(gap).toBe('16px')
+  })
 
   test('is not shown or loaded', async ({ page }) => {
     await page.goto('/')

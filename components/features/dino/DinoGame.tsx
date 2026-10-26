@@ -21,9 +21,9 @@ import { DINO_COLS, DINO_FRAMES, DINO_ROWS, framePaths, type DinoFrame } from '.
 const PX = 2 // screen pixels per sprite pixel
 const W = DINO_COLS * PX
 const H = DINO_ROWS * PX
-const SPEED = 110 // walking speed, px/s on screen
-const GRAVITY = 1500 // px/s²
-const STEP_EVERY = 9 // px walked per leg swap
+const SPEED = 165 // walking speed, px/s on screen
+const GRAVITY = 1800 // px/s²
+const STEP_EVERY = 12 // px walked per leg swap
 const STILL = 2 // px/s: a row moving slower than this is paused
 const LANDING = 20 // px past the far edge of a gap that a hop lands
 
@@ -233,7 +233,7 @@ export default function DinoGame() {
                 const v = current.row?.velocity ?? 0
                 const rel = Math.max(SPEED - dir * v, 30)
                 const reach = gap + LANDING
-                const T = Math.min(Math.max(reach / (rel * 1.4), 0.3), 0.7)
+                const T = Math.min(Math.max(reach / (rel * 1.4), 0.26), 0.6)
                 // The top row's arc stays inside the panel (which clips).
                 const h = Math.min(8 + gap * 0.4, current.y - H - 2)
                 hop = { t: 0, T, h, floor: current.y, vx: v + (dir * reach) / T }
