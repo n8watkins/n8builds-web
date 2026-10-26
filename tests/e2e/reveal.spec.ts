@@ -61,7 +61,7 @@ test.describe('above the fold, without JavaScript', () => {
   // components/ui/FadeIn.tsx: a CSS fade from the server HTML, never held back
   // until hydration (which, without JavaScript, never comes).
   for (const [path, text] of [
-    ['/loadout', 'Nathan Watkins, AI-first software developer'],
+    ['/loadout', 'The tools, stack, and rig I actually run'],
     ['/live', 'Not live right now'],
     ['/privacy', 'Information I collect'],
   ]) {

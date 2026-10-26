@@ -2,9 +2,7 @@ import { ReactElement } from 'react'
 import {
   SiClaude,
   SiGooglegemini,
-  SiOllama,
   SiHuggingface,
-  SiLangchain,
   SiPerplexity,
 } from 'react-icons/si'
 import { FiEdit3, FiMic, FiVolume2 } from 'react-icons/fi'
@@ -28,11 +26,9 @@ export const ai_agents: AIStackItem[] = [
   { name: 'Perplexity', icon: <SiPerplexity className={ICON} style={{ color: '#20B8CD' }} />, description: 'Fast research with sources.' },
 ]
 
-// Row 2 - local-first & tooling
+// Row 2 - local-first & tooling (whisper.cpp powers Scribe, Piper powers the Piper TTS extension)
 export const ai_tools: AIStackItem[] = [
-  { name: 'Ollama', icon: <SiOllama className={ICON} style={{ color: '#e5e7eb' }} />, description: 'Runs local models on my own machine.' },
   { name: 'whisper.cpp', icon: <FiMic className={ICON} style={{ color: '#22d3ee' }} />, description: 'Local speech-to-text (powers Scribe).' },
-  { name: 'Piper', icon: <FiVolume2 className={ICON} style={{ color: '#2dd4bf' }} />, description: 'Local text-to-speech, no cloud.' },
+  { name: 'Piper', icon: <FiVolume2 className={ICON} style={{ color: '#2dd4bf' }} />, description: 'Local text-to-speech (powers my Piper TTS extension).' },
   { name: 'Hugging Face', icon: <SiHuggingface className={ICON} style={{ color: '#FFD21E' }} />, description: 'Models and datasets to pull from.' },
-  { name: 'LangChain', icon: <SiLangchain className={ICON} style={{ color: '#5eead4' }} />, description: 'Glue for the occasional agent pipeline.' },
 ]
