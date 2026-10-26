@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import type { IconType } from 'react-icons'
-import { FiBriefcase, FiCheck, FiFileText, FiGithub } from 'react-icons/fi'
+import { FiBriefcase, FiCheck, FiFileText } from 'react-icons/fi'
 import LabSubheader from '@/components/sections/LabSubheader'
 import RepoButtons from '@/components/ui/RepoButtons'
 import Reveal from '@/components/ui/Reveal'
@@ -11,7 +11,7 @@ import Reveal from '@/components/ui/Reveal'
  * building their own site, with both of mine as public templates. Two cards
  * with the anatomy of a Lab row (components/sections/FeaturedProjects.tsx)
  * and no screenshots: what you get if you fork it, what it's built with, how
- * it is built and tested, and the repo. Hiring is the PortfolioAd section's
+ * it is built and tested (this site), and the repo. Hiring is the PortfolioAd section's
  * job, not this one's.
  */
 
@@ -26,10 +26,10 @@ interface Template {
   /** What it's built with. */
   tags: string[]
   /**
-   * How it is built and tested: this site's case study, or (with no build page
-   * for the portfolio) the CI section of its README.
+   * How it is built and tested: a build page on this site. The portfolio has
+   * none, and its repo is already the GitHub half of RepoButtons.
    */
-  howItsBuilt: { href: string; internal?: boolean }
+  howItsBuilt?: string
   repoName: string
   repo: string
 }
@@ -48,7 +48,7 @@ const TEMPLATES: Template[] = [
     description:
       'A server-rendered Next.js 16 site with a Sanity blog, a build log, a contact form behind Turnstile and rate limits, and a speed-first setup tested on five browsers. A clean start for building in public.',
     tags: ['Next.js 16', 'Sanity', 'Tailwind CSS 4', 'Turnstile', 'Upstash', 'Vercel'],
-    howItsBuilt: { href: '/builds/n8builds', internal: true },
+    howItsBuilt: '/builds/n8builds',
     repoName: 'n8builds-web',
     repo: 'https://github.com/n8watkins/n8builds-web',
   },
@@ -59,7 +59,6 @@ const TEMPLATES: Template[] = [
     description:
       'A Next.js 16 portfolio with a page per project, live demo status from OpenPing, room for client work and experience, and generated share cards. A clean start for a portfolio of your own.',
     tags: ['Next.js 16', 'Tailwind CSS', 'Framer Motion', 'Vercel'],
-    howItsBuilt: { href: 'https://github.com/n8watkins/dev-portfolio#ci-and-deploys' },
     repoName: 'dev-portfolio',
     repo: 'https://github.com/n8watkins/dev-portfolio',
   },
@@ -120,17 +119,11 @@ const TemplateCard = ({ t }: { t: Template }) => (
 
     {/* How it's built, then the repo. Pinned to the bottom so the two cards line up. */}
     <div className="mt-auto flex flex-wrap items-center gap-2 pt-5">
-      {t.howItsBuilt.internal ? (
-        <Link href={t.howItsBuilt.href} className={primary}>
+      {t.howItsBuilt && (
+        <Link href={t.howItsBuilt} className={primary}>
           <FiFileText className="h-3.5 w-3.5" aria-hidden="true" />
           How it is built and tested
         </Link>
-      ) : (
-        <a href={t.howItsBuilt.href} target="_blank" rel="noopener noreferrer" className={primary}>
-          <FiGithub className="h-3.5 w-3.5" aria-hidden="true" />
-          How it is built and tested
-          <span className="sr-only"> (its README on GitHub, opens in a new tab)</span>
-        </a>
       )}
       <RepoButtons href={t.repo} name={t.repoName} />
     </div>
