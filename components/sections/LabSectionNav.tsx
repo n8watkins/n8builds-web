@@ -2,13 +2,11 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import type { IconType } from 'react-icons'
-import { LuFlaskConical, LuGitFork, LuPuzzle, LuStar, LuWrench } from 'react-icons/lu'
+import { LuFlaskConical, LuPuzzle, LuStar, LuWrench } from 'react-icons/lu'
 
 /**
- * The Lab's parts, in no particular order: the nav lists the ones on the page
- * in document order. To add a part, add a row here. `optional` parts render
- * only once their element is found (after hydration), so a part another
- * branch adds later can be listed before it ships.
+ * The Lab's parts: the nav lists the ones found on the page, in document
+ * order. To add a part, add a row here.
  */
 const SECTIONS: readonly LabPart[] = [
   { id: 'my-tools', label: 'My tools', icon: LuWrench },
@@ -16,10 +14,9 @@ const SECTIONS: readonly LabPart[] = [
   // Shortened to "Extensions" on screen where the gutter is too narrow for
   // the full label on one line (1440-1535px); its accessible name stays whole.
   { id: 'extensions', label: 'Chrome extensions', short: 'Extensions', icon: LuPuzzle },
-  { id: 'open-source', label: 'Open source', icon: LuGitFork, optional: true },
 ]
 
-type LabPart = { id: string; label: string; short?: string; icon: IconType; optional?: boolean }
+type LabPart = { id: string; label: string; short?: string; icon: IconType }
 
 
 // PREVIEW ONLY: ?navVariant=b shows the "circuit" look; removed once the owner picks.
@@ -50,7 +47,7 @@ type Variant = 'a' | 'b'
  * motion nothing moves (the indicator jumps, the comet is a still ring).
  */
 export default function LabSectionNav() {
-  const [parts, setParts] = useState<readonly LabPart[]>(() => SECTIONS.filter((s) => !s.optional))
+  const [parts, setParts] = useState<readonly LabPart[]>(SECTIONS)
   const [active, setActive] = useState(-1)
   const [inView, setInView] = useState(false)
   const [variant, setVariant] = useState<Variant>('a')
@@ -93,7 +90,7 @@ export default function LabSectionNav() {
     }
 
     const observer = new IntersectionObserver(([entry]) => {
-      // Optional parts join the list here, on the first callback.
+      // Drops any part missing from the page, on the first callback.
       setParts((prev) => (prev.map((p) => p.id).join() === present.map((p) => p.id).join() ? prev : present))
       setInView(entry.isIntersecting)
       if (entry.isIntersecting) {
