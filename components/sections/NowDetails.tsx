@@ -41,7 +41,7 @@ export default function NowDetails({
         // Server-rendered: a click before hydration would be lost, so it stays
         // disabled until its handler exists (as the Lab rows' Details).
         disabled={!hydrated}
-        className="flex shrink-0 items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8 hover:text-slate-100 disabled:cursor-wait motion-reduce:hover:scale-100"
+        className="flex w-full shrink-0 items-center justify-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2.5 text-sm sm:w-auto font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8 hover:text-slate-100 disabled:cursor-wait motion-reduce:hover:scale-100"
       >
         <FiActivity className="h-3.5 w-3.5 text-cyan-400" aria-hidden />
         What&apos;s new<span className="sr-only"> at {project}</span>

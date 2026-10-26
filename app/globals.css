@@ -293,6 +293,18 @@
   13.15%       { --n8ang: 225deg; opacity: 1; }
   16.15%, 100% { --n8ang: 225deg; opacity: 0; }
 }
+/* prompt's comet (.n8-first) picks up the wire's light: it is lit almost at
+   once (90ms), right where the wire lands, instead of fading in over 0.33s
+   while it already moves (by then it was at 9 o'clock, away from the wire). */
+@keyframes n8promptSweep {
+  0%           { --n8ang: 0deg;   opacity: 0; }
+  1%           { opacity: 1; }
+  13.15%       { --n8ang: 225deg; opacity: 1; }
+  16.15%, 100% { --n8ang: 225deg; opacity: 0; }
+}
+.n8-cnode.n8-first:not(.n8-split)::before {
+  animation-name: n8promptSweep;
+}
 /* split trace (middle chips): two lights start at 9 o'clock and sweep
    a half each (one over the top, one under the bottom), meeting at the
    3 o'clock arrow. --n8ang 0 -> 180; the +/- in the conic from-angle sends
@@ -347,11 +359,15 @@
   opacity: 0;
   /* prompt/repeat (single comet): a partial 225deg clockwise arc (up & over).
      prompt 7:30 -> 3:00 (--n8start 135deg); repeat 9:00 -> 4:15 (--n8start 172deg).
-     bright head sits 90deg ahead of the from-angle (the 25% cone stop). */
+     bright head sits 90deg ahead of the from-angle (the 25% cone stop).
+     prompt's start and sweep (--n8k scales the 225deg) are measured by
+     HeroChainMeter so the comet starts right where the wire lands; it gets
+     almost no trail (--n8tail, --n8mid), since behind its start there is no
+     wire for the light to have come along. */
   background: conic-gradient(
-    from calc(var(--n8ang) + var(--n8start, 0deg)),
-    transparent 0 10%,
-    rgba(103,232,249,0.5) 18%,
+    from calc(var(--n8ang) * var(--n8k, 1) + var(--n8start, 0deg)),
+    transparent 0 var(--n8tail, 10%),
+    rgba(103,232,249,0.5) var(--n8mid, 18%),
     #67e8f9 23%,
     #22d3ee 25%,
     transparent 28%
@@ -438,4 +454,107 @@
 #home[data-offscreen] .n8-carrow,
 #home[data-offscreen] .n8-loop-comet {
   animation-play-state: paused;
+}
+
+/* The hero's whoami terminal types itself out on load
+   (components/features/WhoamiTerminal.tsx). Each line is in the HTML at full
+   size; a clip-path steps across it one character per step (font-mono, so a
+   step is exactly 1ch), and a block cursor rides the end of the typed text.
+   --chars, --start and --hold come from the component. The prompt line then
+   appears with a blinking cursor. Clip-path and transform only: no layout
+   shift. Reduced motion skips it all: the text, and the prompt, show at once. */
+.whoami-type {
+  position: relative;
+  display: inline-block;
+}
+.whoami-type::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.2em;
+  width: 0.62em;
+  height: 1.15em;
+  background: rgb(34 211 238 / 0.85);
+  opacity: 0;
+  pointer-events: none;
+}
+.whoami-cursor {
+  display: inline-block;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .whoami-type > span {
+    display: inline-block;
+    animation: whoami-type calc(var(--chars) * 32ms) steps(var(--chars), end) var(--start) both;
+  }
+  .whoami-type::after {
+    animation:
+      whoami-caret-move calc(var(--chars) * 32ms) steps(var(--chars), end) var(--start) both,
+      whoami-caret-on var(--hold) linear var(--start);
+  }
+  .whoami-prompt {
+    animation: whoami-show 1ms linear var(--start) both;
+  }
+  .whoami-cursor {
+    animation: whoami-blink 1.06s step-end var(--start) infinite;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .whoami-cursor {
+    opacity: 0.6;
+  }
+}
+@keyframes whoami-type {
+  from { clip-path: inset(0 100% 0 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+@keyframes whoami-caret-move {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(var(--chars) * 1ch)); }
+}
+@keyframes whoami-caret-on {
+  from, to { opacity: 1; }
+}
+@keyframes whoami-show {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes whoami-blink {
+  0%   { opacity: 1; }
+  50%  { opacity: 0; }
+}
+
+/* The hero grid's fade (components/sections/HeroGrid.tsx): out at the top
+   and bottom, and out toward the left and right edges, the two masks
+   intersected, so on a wide screen the grid (and its lit cells, which use its
+   whole width) melts into the page instead of ending at the screen's edge. */
+.hero-grid-mask {
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent, black 120px, black 80%, transparent),
+    linear-gradient(to right, transparent, black clamp(48px, 16%, 320px), black calc(100% - clamp(48px, 16%, 320px)), transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to bottom, transparent, black 120px, black 80%, transparent),
+    linear-gradient(to right, transparent, black clamp(48px, 16%, 320px), black calc(100% - clamp(48px, 16%, 320px)), transparent);
+  mask-composite: intersect;
+}
+
+/* The "What I'm working on" phone (components/sections/NowBuilding.tsx): a
+   full-length template page scrolls slowly inside the frame, pauses at the
+   bottom, scrolls back up and repeats, as on Appturnity's own site.
+   --travel (from the component) is how far the image moves: all of it but
+   the frame's height. Transform only, on its own layer. It holds still while
+   the card is off screen (NowCarousel sets data-offscreen) and under reduced
+   motion it is the page's top, still. */
+@media (prefers-reduced-motion: no-preference) {
+  .now-phone-scroll {
+    animation: now-phone-scroll 30s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+  [data-offscreen] .now-phone-scroll {
+    animation-play-state: paused;
+  }
+}
+@keyframes now-phone-scroll {
+  0%, 8%    { transform: translateY(0); }
+  92%, 100% { transform: translateY(var(--travel)); }
 }

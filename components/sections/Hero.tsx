@@ -31,13 +31,17 @@ const Hero = () => {
           moves after load). Its min-height (100svh - 250px) leaves room under
           it for a sneak peek of "What I'm working on": the heading (~65px
           below the hero, ~60px tall) and the top of its card down to the
-          logo row (~238px below the hero). The top padding centres the
-          ~472px text column between the navbar (68px) and the hero's bottom,
-          68 + (100svh - 250 - 68 - 472) / 2 = 50svh - 327px, with no bottom
-          padding; short screens keep at least 5.5rem. Capped so a very tall
-          screen doesn't get an empty hero. tests/e2e/hero.spec.ts checks the
-          laptop and tablet sizes. */}
-      <div className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 w-full flex flex-col items-center pt-24 md:pt-[clamp(5.5rem,calc(50svh-327px),14rem)] pb-16 md:pb-0">
+          logo row (~238px below the hero). The ~447px text column sits a
+          little low in the space between the navbar (68px) and the next
+          section's eyebrow (~47px below the hero): 60% of the spare height
+          above it, 40% below, so on a big screen the gap down to "What I'm
+          working on" stays small. Top padding
+          68 + 0.6 * (100svh - 250 + 47 - 68 - 447) = 60svh - 363px, with no
+          bottom padding; short screens keep at least 5.5rem. Capped where
+          the hero's height is (1000px), so a very tall screen doesn't get an
+          empty hero. tests/e2e/hero.spec.ts checks the laptop and tablet
+          sizes. */}
+      <div className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 w-full flex flex-col items-center pt-24 md:pt-[clamp(5.5rem,calc(60svh-363px),24rem)] pb-16 md:pb-0">
 
 
         {/* On phones the portrait comes first (order-first), above the
@@ -85,18 +89,21 @@ const Hero = () => {
                   <React.Fragment key={w}>
                     <span
                       className={`n8-cnode rounded-md border px-1.5 min-[360px]:px-2 py-1 sm:px-3 sm:py-1.5 lowercase tracking-wide${
-                        i > 0 && i < arr.length - 1 ? ' n8-split' : ''
+                        i === 0 ? ' n8-first' : i < arr.length - 1 ? ' n8-split' : ''
                       }`}
                       style={{
                         // 9.2s loop, 1.8s chip spacing, phase-shifted -8.2s so the page loads
-                        // pulse-mid-wire; the first chip (prompt) fires ~0.45s early so it
+                        // pulse-mid-wire; the first chip (prompt) fires ~0.53s early so it
                         // lights as the wire lands.
-                        ['--n8delay' as string]: `${(i === 0 ? -0.45 : i * 1.8) - 8.2}s`,
-                        // prompt starts bottom-left (~7:30), where the wire lands, and repeat
+                        ['--n8delay' as string]: `${(i === 0 ? -0.53 : i * 1.8) - 8.2}s`,
+                        // prompt starts bottom-left (~8 o'clock), where the wire lands, and repeat
                         // at 9 o'clock; the split chips ignore --n8start (they sweep from
                         // 270deg +/- the angle).
                         ['--n8start' as string]:
-                          i === 0 ? '135deg' : i === arr.length - 1 ? '172deg' : '0deg',
+                          i === 0 ? '153deg' : i === arr.length - 1 ? '172deg' : '0deg',
+                        // prompt: sweep 207deg (ends at 3 o'clock) and a short tail;
+                        // HeroChainMeter refines the start and sweep to the measured wire.
+                        ...(i === 0 ? { ['--n8k' as string]: 0.92, ['--n8tail' as string]: '21.5%', ['--n8mid' as string]: '23.5%' } : {}),
                       }}
                     >
                       {w}

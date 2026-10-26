@@ -42,17 +42,31 @@ const Showcase = ({ desktop, phone }: { desktop: NowShot; phone: NowShot }) => (
         className="block h-auto w-full"
       />
     </div>
-    {/* Phone */}
+    {/* Phone: a full-length page scrolling slowly inside the frame (down,
+        a pause, back up), like Appturnity's own site shows it. CSS only
+        (now-phone-scroll in app/globals.css); it pauses while the card is
+        off screen (NowCarousel) and holds still under reduced motion. The
+        frame keeps the screen's aspect ratio, so nothing shifts. */}
     <div className="absolute bottom-0 left-0 w-[24%] rotate-[-4deg]">
       <div className="overflow-hidden rounded-[1.1rem] border-[5px] border-[#0b1220] bg-[#0b1220] shadow-2xl shadow-black/60 ring-1 ring-white/12">
-        <Image
-          src={phone.src}
-          alt={`${phone.label} on a phone`}
-          width={phone.width}
-          height={phone.height}
-          sizes="(min-width: 640px) 140px, 24vw"
-          className="block h-auto w-full rounded-[0.7rem]"
-        />
+        <div
+          className="relative overflow-hidden rounded-[0.7rem] [transform:translateZ(0)]"
+          style={{ aspectRatio: `${phone.width} / ${phone.frameHeight ?? phone.height}` }}
+        >
+          <Image
+            src={phone.src}
+            alt={`${phone.label} on a phone`}
+            width={phone.width}
+            height={phone.height}
+            sizes="(min-width: 640px) 140px, 24vw"
+            className={`block h-auto w-full ${phone.frameHeight ? 'now-phone-scroll' : ''}`}
+            style={
+              phone.frameHeight
+                ? { ['--travel' as string]: `${(-(1 - phone.frameHeight / phone.height) * 100).toFixed(3)}%` }
+                : undefined
+            }
+          />
+        </div>
       </div>
       <span className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-white/12 bg-[#0e192c] px-2 py-0.5 text-[0.6rem] font-medium text-slate-300 shadow-lg shadow-black/40">
         {phone.label}
@@ -119,8 +133,9 @@ const DetailsBody = ({ now }: { now: NowState }) => (
 
 /**
  * One now-item as an ad: brand, headline, pitch, selling points and the two
- * buttons on the left; real template screenshots on the right. The build
- * detail (what is shipping, recent activity) sits behind What's new.
+ * buttons on the left (What's new at the end of their row); real template
+ * screenshots on the right. The build detail (what is shipping, recent
+ * activity) sits behind What's new.
  */
 const Card = ({ now }: { now: NowState }) => (
   <div>
@@ -150,7 +165,7 @@ const Card = ({ now }: { now: NowState }) => (
           // for keyboard and screen-reader users (the buttons say it).
           tabIndex={-1}
           aria-hidden
-          className="group my-2 block lg:col-start-2 lg:row-span-4 lg:row-start-1 lg:my-0 lg:self-center"
+          className="group my-2 block lg:col-start-2 lg:row-span-3 lg:row-start-1 lg:my-0 lg:self-center"
         >
           <div className="transition-transform duration-300 ease-out group-hover:scale-[1.02] motion-reduce:transition-none motion-reduce:group-hover:scale-100">
             <Showcase desktop={now.showcase.desktop} phone={now.showcase.phone} />
@@ -169,43 +184,32 @@ const Card = ({ now }: { now: NowState }) => (
         ))}
       </ul>
 
-      {now.ctas?.length ? (
-        <div className="grid gap-3 sm:flex sm:flex-wrap lg:col-start-1">
-          {now.ctas.map((cta, i) => (
-            <a
-              key={cta.href}
-              href={cta.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={
-                i === 0
-                  ? 'flex items-center justify-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 px-4 sm:px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-cyan-950/50 transition-all duration-200 hover:scale-[1.02] hover:from-blue-500 hover:to-cyan-400 motion-reduce:hover:scale-100'
-                  : 'flex items-center justify-center gap-2 rounded-xl border border-white/12 bg-white/4 px-5 py-2.5 text-sm font-semibold text-slate-200 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8 motion-reduce:hover:scale-100'
-              }
-            >
-              {cta.label}
-              <FiArrowUpRight className="h-4 w-4" aria-hidden />
-              <span className="sr-only"> (opens in a new tab)</span>
-            </a>
-          ))}
+      {/* The two buttons, and What's new (the build detail) at the far
+          right of the same row, which spans the card from lg up. */}
+      <div className="grid gap-3 sm:flex sm:flex-wrap sm:items-center lg:col-span-2 lg:col-start-1">
+        {now.ctas?.map((cta, i) => (
+          <a
+            key={cta.href}
+            href={cta.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={
+              i === 0
+                ? 'flex items-center justify-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 px-4 sm:px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-cyan-950/50 transition-all duration-200 hover:scale-[1.02] hover:from-blue-500 hover:to-cyan-400 motion-reduce:hover:scale-100'
+                : 'flex items-center justify-center gap-2 rounded-xl border border-white/12 bg-white/4 px-5 py-2.5 text-sm font-semibold text-slate-200 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8 motion-reduce:hover:scale-100'
+            }
+          >
+            {cta.label}
+            <FiArrowUpRight className="h-4 w-4" aria-hidden />
+            <span className="sr-only"> (opens in a new tab)</span>
+          </a>
+        ))}
+        <div className="sm:ml-auto">
+          <NowDetails project={now.project} labelledBy={`${slugOf(now)}-now-title`} header={<DetailsHeader now={now} />}>
+            <DetailsBody now={now} />
+          </NowDetails>
         </div>
-      ) : null}
-    </div>
-
-    {/* Footer: the build-in-public line, with the detail behind What's new. */}
-    <div className="mt-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t border-white/8 pt-4">
-      <p className="flex items-center gap-2.5 text-sm text-slate-400">
-        <span aria-hidden className="relative flex h-2 w-2 shrink-0">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400/60 motion-reduce:animate-none" />
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-green-400" />
-        </span>
-        <span>
-          Building now: <span className="font-semibold text-slate-200">{now.building}</span>
-        </span>
-      </p>
-      <NowDetails project={now.project} labelledBy={`${slugOf(now)}-now-title`} header={<DetailsHeader now={now} />}>
-        <DetailsBody now={now} />
-      </NowDetails>
+      </div>
     </div>
   </div>
 )

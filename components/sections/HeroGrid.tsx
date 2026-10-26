@@ -19,13 +19,19 @@ function random(seed: number) {
 
 // Deep blues for the lit cells: dim enough to stay a backdrop.
 const TONES = ['#0c1836', '#13234d', '#0f1f52', '#16285a']
-// At most this many cells are lit at once (fewer on a small screen, see
+// At most this many cells are lit at once (fewer on a smaller screen, see
 // litFor). Each one wanders: it fades out, jumps to a random free cell, and
 // fades back in, all on its own random clock.
-const LIT = 48
-// The server places the cells in this central band (they render unlit);
-// once running, they move to the part of the grid the visitor can see.
-const SPAWN = { minX: 7, maxX: 33, minY: 2, maxY: 13 }
+const LIT = 36
+// Roughly one lit cell per this many cells of the visible band: sparse, so
+// each lit block reads on its own.
+const DENSITY = 12
+// The rows lit cells may use, across the grid's full width (the server
+// places them here, unlit); once running, they keep to the part on screen.
+const SPAWN = { minX: 0, maxX: COLS - 1, minY: 2, maxY: 13 }
+// Lit cells keep this share of the screen's width clear at each side, where
+// the side fade (the mask below) would all but hide them.
+const EDGE = 0.03
 // A soft ease in and out (sine), so a cell neither pops on nor snaps off.
 const EASE = 'cubic-bezier(0.37, 0, 0.63, 1)'
 // Timings (ms): between the original calm pace and a livelier one. Holds are
@@ -65,14 +71,15 @@ const clearSpot = (taken: Set<string>, band: Band, rand: () => number) => {
 
 /**
  * The cells the visitor can actually see: the columns on screen (the grid is
- * wider than most screens and centred) within the central band, and the rows
- * inside the solid part of the fade mask (down to ~80% of the hero).
+ * wider than most screens and centred) bar a sliver at each edge, and the
+ * rows inside the solid part of the fade mask (down to ~80% of the hero).
  */
 function visibleBand(svg: SVGSVGElement): Band {
   const box = svg.getBoundingClientRect()
   const width = document.documentElement.clientWidth
-  const minX = Math.max(SPAWN.minX, Math.ceil(-box.left / CELL))
-  const maxX = Math.min(SPAWN.maxX, Math.floor((width - box.left) / CELL) - 1)
+  const edge = width * EDGE
+  const minX = Math.max(SPAWN.minX, Math.ceil((edge - box.left) / CELL))
+  const maxX = Math.min(SPAWN.maxX, Math.floor((width - edge - box.left) / CELL) - 1)
   const maxY = Math.min(ROWS - 1, Math.max(SPAWN.minY + 2, Math.floor((box.height * 0.8) / CELL) - 1))
   return { minX, maxX: Math.max(minX + 2, maxX), minY: SPAWN.minY, maxY }
 }
@@ -93,9 +100,9 @@ function hiddenCells(svg: SVGSVGElement, band: Band): Set<string> {
     }
   return hidden
 }
-/** How many cells to light in a band: enough to fill it, never crowded. */
+/** How many cells to light in a band: spread over all of it, sparse. */
 const litFor = (band: Band, hidden: number) =>
-  Math.min(LIT, Math.max(6, Math.round(((band.maxX - band.minX + 1) * (band.maxY - band.minY + 1) - hidden) / 5.5)))
+  Math.min(LIT, Math.max(5, Math.round(((band.maxX - band.minX + 1) * (band.maxY - band.minY + 1) - hidden) / DENSITY)))
 
 /**
  * Starting spots for the lit cells (a fixed seed, so server and client match).
@@ -215,7 +222,9 @@ export default function HeroGrid() {
 
   return (
     <div
-      className="absolute inset-0 overflow-hidden pointer-events-none mask-[linear-gradient(to_bottom,transparent,black_120px,black_80%,transparent)]"
+      // Faded out at the top and bottom, and at the left and right edges
+      // (the two masks intersect), so the grid melts into the page.
+      className="hero-grid-mask absolute inset-0 overflow-hidden pointer-events-none"
       aria-hidden="true"
     >
       <svg ref={svgRef} className="absolute left-1/2 top-0 h-full -translate-x-1/2" width={COLS * CELL} xmlns="http://www.w3.org/2000/svg">
