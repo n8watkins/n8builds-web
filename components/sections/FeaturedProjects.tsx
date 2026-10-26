@@ -102,7 +102,7 @@ interface FeaturedProject {
 
 // The owner's daily drivers first (Scribe and OpenPing run every day), then
 // the showcase apps. n8builds itself is not a row: how it is built and tested
-// is the "Use this as a template" section further down the homepage.
+// lives in the Lab's template part, right after these rows (UseAsTemplate.tsx).
 // Features come from each project's README and live site.
 const featured: FeaturedProject[] = [
   {
