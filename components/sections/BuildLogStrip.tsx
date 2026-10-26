@@ -40,14 +40,23 @@ const names = Object.fromEntries(builds.map((b) => [b.slug, b.name]))
 /** How much an entry counts for in the chart: a day's changes, or one highlight. */
 const weight = (e: LogEntry) => (e.kind === 'highlight' ? 1 : 1 + e.more)
 
-/** The rows: each build's newest entry, newest first, so one busy build can't fill the strip. */
-function pickRows(entries: LogEntry[]): LogEntry[] {
-  const seen = new Set<string>()
+/** A month this busy gets a "This month" strip; a quieter one shows the latest from every build. */
+const MONTH_MIN = 3
+/** In "This month", no build takes more than this many rows, so one busy repo can't fill the strip. */
+const PER_BUILD = 3
+
+/**
+ * The rows, newest first. With `perBuild` 1, each build's newest entry (the
+ * latest from every build); otherwise up to `perBuild` entries per build.
+ */
+function pickRows(entries: LogEntry[], perBuild: number): LogEntry[] {
+  const taken = new Map<string, number>()
   const rows: LogEntry[] = []
   for (const e of [...entries].sort((a, b) => b.date.localeCompare(a.date))) {
     if (rows.length === MAX_ROWS) break
-    if (seen.has(e.build)) continue
-    seen.add(e.build)
+    const n = taken.get(e.build) ?? 0
+    if (n >= perBuild) continue
+    taken.set(e.build, n + 1)
     rows.push(e)
   }
   return rows
@@ -187,7 +196,9 @@ export default async function BuildLogStrip() {
   if (entries.length === 0) return null
 
   const current = dayKey(new Date().toISOString()).slice(0, 7)
-  const rows = pickRows(entries)
+  const thisMonth = entries.filter((e) => e.month === current)
+  const isThisMonth = thisMonth.length >= MONTH_MIN
+  const rows = isThisMonth ? pickRows(thisMonth, PER_BUILD) : pickRows(entries, 1)
   // Rows arrive newest first, so each month is one run, as in the full feed.
   const groups: { month: string; rows: LogEntry[] }[] = []
   for (const row of rows) {
@@ -213,7 +224,7 @@ export default async function BuildLogStrip() {
                   Build log · every project
                 </p>
                 <h2 id="build-log-heading" className="text-2xl font-bold tracking-tight text-slate-50 sm:text-3xl">
-                  Recently shipped
+                  {isThisMonth ? 'Shipped this month' : 'Recently shipped'}
                 </h2>
               </div>
               <Link
