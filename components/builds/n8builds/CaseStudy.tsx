@@ -99,12 +99,12 @@ function Shot({ src, alt, label, width, height, sizes, priority, className = '' 
 /* Pipeline                                                            */
 /* ------------------------------------------------------------------ */
 
-/** A connector between pipeline stages: horizontal from lg, vertical below. */
+/** A connector between pipeline stages: horizontal from xl, vertical below. */
 const Line = ({ i }: { i: number }) => (
   <div
     aria-hidden="true"
     style={vars({ '--i': i })}
-    className={`${styles.line} mx-auto h-6 w-px shrink-0 lg:mx-0 lg:h-0.5 lg:w-auto lg:min-w-6 lg:flex-1`}
+    className={`${styles.line} mx-auto h-6 w-px shrink-0 xl:mx-0 xl:h-0.5 xl:w-auto xl:min-w-6 xl:flex-1`}
   />
 )
 
@@ -112,7 +112,7 @@ function Node({ i, icon: Icon, title, note, className = '' }: { i: number; icon:
   return (
     <div
       style={vars({ '--i': i })}
-      className={`${styles.stage} ${className} flex items-center gap-3 rounded-xl border px-4 py-3 lg:w-32 lg:shrink-0 lg:flex-col lg:items-start lg:gap-2 lg:py-4`}
+      className={`${styles.stage} ${className} flex items-center gap-3 rounded-xl border px-4 py-3 xl:w-32 xl:shrink-0 xl:flex-col xl:items-start xl:gap-2 xl:py-4`}
     >
       <Icon className="h-5 w-5 shrink-0 text-cyan-300" aria-hidden="true" />
       <div>
@@ -139,13 +139,13 @@ function Lane({ i, title, note, children }: { i: number; title: string; note: st
 function Pipeline() {
   return (
     <Reveal>
-      <figure aria-label="The CI pipeline every pull request runs" className="rounded-3xl border border-white/8 bg-white/[0.02] p-4 sm:p-6 lg:p-8">
-        <div className="flex flex-col lg:flex-row lg:items-center">
+      <figure aria-label="The CI pipeline every pull request runs" className="rounded-3xl border border-white/8 bg-white/[0.02] p-4 sm:p-6 xl:p-8">
+        <div className="mx-auto flex max-w-2xl flex-col xl:max-w-none xl:flex-row xl:items-center">
           <Node i={0} icon={FiGitPullRequest} title="Pull request" note="Or a push to main" />
           <Line i={1} />
           <Node i={1} icon={FiFilter} title="What changed?" note="Docs only: the browser jobs skip" />
           <Line i={2} />
-          <ol className="flex flex-col gap-3 lg:w-[28rem] lg:shrink-0" aria-label="Jobs that run in parallel">
+          <ol className="flex flex-col gap-3 xl:w-[28rem] xl:shrink-0" aria-label="Jobs that run in parallel">
             <Lane i={2} title="Lint, types, unit tests" note="ESLint at zero warnings, tsc, and 200+ Vitest tests" />
             <Lane i={2.4} title="E2E, one job per project" note="450+ Playwright tests, with axe, security-header and CSP checks">
               <ul className="mt-2.5 flex flex-wrap gap-1.5" aria-label="Playwright projects">
@@ -168,7 +168,7 @@ function Pipeline() {
           <Line i={5.4} />
           <div
             style={vars({ '--i': 5.4 })}
-            className={`${styles.stage} ${styles.merged} flex items-center justify-center gap-2 self-center rounded-full border border-emerald-400/50 px-5 py-2.5 lg:shrink-0`}
+            className={`${styles.stage} ${styles.merged} flex items-center justify-center gap-2 self-center rounded-full border border-emerald-400/50 px-5 py-2.5 xl:shrink-0`}
           >
             <FiGitMerge className="h-4 w-4 text-emerald-300" aria-hidden="true" />
             <span className="text-sm font-bold text-emerald-200">Merged</span>
@@ -266,7 +266,7 @@ export default function CaseStudy({ build, activity }: { build: Build; activity:
         <header className="mt-8 grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-12">
           <div>
             <Eyebrow>Open source · MIT · fork it</Eyebrow>
-            <h1 className="mt-3 text-5xl font-bold tracking-tight md:text-6xl">
+            <h1 className="mt-3 text-[2.6rem] font-bold tracking-tight min-[360px]:text-5xl md:text-6xl">
               <Accent>{build.name}</Accent>
             </h1>
             <p className="mt-3 text-xl font-semibold text-slate-200">{build.tagline}</p>
@@ -311,8 +311,8 @@ export default function CaseStudy({ build, activity }: { build: Build; activity:
               src={hero.src}
               alt={hero.alt}
               label="n8builds.dev"
-              width={1280}
-              height={720}
+              width={1600}
+              height={880}
               priority
               sizes="(max-width: 1024px) 100vw, 600px"
               className={styles.heroShot}
@@ -383,10 +383,10 @@ export default function CaseStudy({ build, activity }: { build: Build; activity:
             <Pipeline />
           </div>
           <div className="mt-6 grid gap-6 md:grid-cols-2">
-            <Reveal>
+            <Reveal className="min-w-0">
               <Shot src={actions.src} alt={actions.alt} label="GitHub Actions: a green run" width={1280} height={720} sizes="(max-width: 768px) 100vw, 540px" />
             </Reveal>
-            <Reveal delay={0.08}>
+            <Reveal delay={0.08} className="min-w-0">
               <Shot src={lighthouse.src} alt={lighthouse.alt} label="Lighthouse: the homepage, from CI" width={1280} height={646} sizes="(max-width: 768px) 100vw, 540px" />
             </Reveal>
           </div>
@@ -437,8 +437,8 @@ export default function CaseStudy({ build, activity }: { build: Build; activity:
                   ))}
                 </ul>
                 <p className="mt-4 text-xs leading-relaxed text-slate-450">
-                  Mobile Lighthouse, run locally in CI&apos;s settings. Desktop stays at 1.00 on all five audited pages. What is left on
-                  phones is mostly downloading React and Next themselves.
+                  Mobile numbers are local Lighthouse runs in CI&apos;s settings. On desktop, recent runs score 0.98 to 1.00 for
+                  performance on all five audited pages. What is left on phones is mostly downloading React and Next themselves.
                 </p>
               </div>
             </Reveal>
@@ -516,7 +516,7 @@ export default function CaseStudy({ build, activity }: { build: Build; activity:
                       <span className="text-cyan-400">$</span> cd n8builds-web && npm install{'\n'}
                       <span className="text-cyan-400">$</span> cp .env.example .env.local{'\n'}
                       <span className="text-cyan-400">$</span> npm run dev{'\n'}
-                      <span className="text-slate-500"># then: npm test, npm run lighthouse</span>
+                      <span className="text-slate-450"># then: npm test, npm run lighthouse</span>
                     </code>
                   </pre>
                 </div>
