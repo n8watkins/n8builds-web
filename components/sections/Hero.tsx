@@ -504,14 +504,12 @@ const Hero = () => {
           </div>
 
           {/* Portrait */}
-          <motion.div
-            // No opacity fade: the server-rendered portrait (the page's LCP
-            // element) must be visible before hydration, not after it.
-            initial={{ scale: 0.95 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
-            className="w-64 h-64 sm:w-76 sm:h-76 md:w-84 md:h-84 lg:w-96 lg:h-96 relative shrink-0"
-          >
+          {/* Fades and scales in with the rest of the hero, but in plain CSS
+              (hero-portrait-in, app/globals.css), not motion: the portrait is
+              the page's LCP element, so its entrance starts on first paint
+              from the server HTML instead of waiting for hydration. Reduced
+              motion skips it, and the portrait shows at once. */}
+          <div className="hero-portrait-in w-64 h-64 sm:w-76 sm:h-76 md:w-84 md:h-84 lg:w-96 lg:h-96 relative shrink-0">
             <div className="absolute inset-0 rounded-full bg-linear-to-br from-cyan-500/20 to-blue-600/20 blur-xl scale-110" />
             <div className="relative w-full h-full">
               <div className="absolute inset-0 dark:bg-black/10 rounded-full z-10" />
@@ -526,7 +524,7 @@ const Hero = () => {
                 alt="Nathan Watkins - builder based in Los Angeles"
               />
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </div>
