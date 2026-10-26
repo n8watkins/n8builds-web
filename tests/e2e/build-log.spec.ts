@@ -199,3 +199,26 @@ test.describe('navigation to the build log', () => {
     })
   })
 })
+
+test('the feed links are big enough to tap (WCAG 2.5.8: at least 24px), and none overlap', async ({ page }) => {
+  // An entry's title link was 19px tall, and Lighthouse's target-size audit
+  // failed /builds on it.
+  await page.goto('/builds')
+  const boxes = await feed(page)
+    .locator('li[data-kind]')
+    .evaluateAll((items) =>
+      items.map((item) =>
+        [...item.querySelectorAll('a')].map((a) => {
+          const r = a.getBoundingClientRect()
+          return { text: a.textContent?.trim().slice(0, 40), top: r.top, bottom: r.bottom, height: r.height }
+        })
+      )
+    )
+  expect(boxes.length).toBeGreaterThan(0)
+  for (const links of boxes) {
+    for (const link of links) expect(link.height, `"${link.text}" height`).toBeGreaterThanOrEqual(24)
+    for (let i = 1; i < links.length; i++) {
+      expect(links[i].top, `"${links[i].text}" overlaps "${links[i - 1].text}"`).toBeGreaterThanOrEqual(links[i - 1].bottom - 0.5)
+    }
+  }
+})
