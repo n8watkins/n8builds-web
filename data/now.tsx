@@ -14,6 +14,11 @@ export interface NowShot {
   height: number
   /** What the frame's label says it is, e.g. "Pool service template". */
   label: string
+  /**
+   * The height the frame shows, in the image's pixels, for a full-page
+   * screenshot taller than the frame: it scrolls slowly inside it.
+   */
+  frameHeight?: number
 }
 
 export interface NowState {
@@ -31,8 +36,6 @@ export interface NowState {
   perks: string[]
   /** Real screenshots for the ad's device frames: a desktop page and a phone page. */
   showcase?: { desktop: NowShot; phone: NowShot }
-  /** What is being built right now, in a few words (the card's footer). */
-  building: string
   /** one sentence: what I'm doing right now (in the What's new dialog) */
   focus: string
   /** the target I'm building toward (in the What's new dialog) */
@@ -57,12 +60,13 @@ export const nowItems: NowState[] = [
       'Websites for local service businesses, like pool, HVAC and landscaping companies. Pick a template made for your trade, and we build and launch it for free.',
     perks: ['Built and launched for free', 'Templates for your trade', 'Review requests add-on'],
     // Appturnity's own template previews (its home page and /examples use
-    // them), copied from apps/hub/public/example-shots in its repo.
+    // them), copied from apps/hub/public/example-shots in its repo. The phone
+    // is the full-length HVAC page (hvac-prism-mobile.webp, resized to 280px
+    // wide), scrolling in its frame the way Appturnity's own site shows it.
     showcase: {
       desktop: { src: '/now/pool-clearline-template.webp', width: 1200, height: 750, label: 'Pool template' },
-      phone: { src: '/now/hvac-template-phone.webp', width: 440, height: 1100, label: 'HVAC template' },
+      phone: { src: '/now/hvac-template-phone.webp', width: 280, height: 7685, frameHeight: 700, label: 'HVAC template' },
     },
-    building: 'Appturnity Booking',
     focus:
       'Appturnity Booking: online booking with arrival windows and job-specific questions, so a pool, HVAC or landscaping customer can book without a phone call.',
     goal:
