@@ -106,13 +106,18 @@ export default function HomePage() {
              The navbar "Lab" menu scrolls to #lab, #featured and #extensions. ===== */}
         <Band id="lab" reveal={false}>
           <Reveal className="pt-6">
-            <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-teal-400">The bench</p>
             <h2 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">The Lab</h2>
             <p className="mt-2 max-w-[560px] text-[#9cadc5]">
-              Everything I&apos;ve built and still use: the apps I run every day, and Chrome extensions.
+              Everything I&apos;ve built and still use: the tools I run every day, the builds I&apos;m proudest of, and
+              Chrome extensions.
+            </p>
+            <p className="mt-2 max-w-[560px] text-sm text-slate-450">
+              All of it is public on GitHub, and most of it is MIT-licensed open source: star it, fork it, or open an
+              issue.
             </p>
             <nav aria-label="Lab sections" className="mt-5 flex flex-wrap gap-2">
               {[
+                { label: 'My tools', href: '#my-tools' },
                 { label: 'Featured', href: '#featured' },
                 { label: 'Chrome extensions', href: '#extensions' },
               ].map((c) => (

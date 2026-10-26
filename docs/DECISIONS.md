@@ -12,9 +12,9 @@ When the owner decides something new, add it here (with the date) in the same ch
 - The site is a **build-in-public workshop, not a portfolio**.
   The hire-me lane is portfolio.n8builds.dev; client work is appturnity.com.
 - **Projects and Lab are one.**
-  The Lab (`#lab`) is one homepage section with two parts: Featured builds (`#featured`, the big alternating rows) and Chrome extensions (`#extensions`).
-  The featured rows lead with the owner's daily drivers: Scribe, OpenPing, Solara, Portfolio Rank (2026-10-25); a build joins them with `featured: true` in `data/builds.tsx` whatever its category.
-  A Tools grid (`#tools`) renders only if a non-featured tool build exists (none today); `/tools` redirects to `#featured` temporarily.
+  The Lab (`#lab`) is one homepage section in three parts (2026-10-25): "Tools I use every day" (`#my-tools`: Scribe and OpenPing, the owner's daily tools, marked `mine: true` in `data/builds.tsx`), "Featured builds" (`#featured`: Solara, Portfolio Rank) and Chrome extensions (`#extensions`). No "The bench" eyebrow; no "Featured" eyebrow over "Featured builds". The intro says everything is public and mostly MIT open source.
+  Each row: the app's icon left of its name, the subtitle under the name (never above), description, ad, then Live Site, GitHub, Star, Details. The tech stack and the build-log link live in the Details dialog, so rows stay short.
+  A Tools grid (`#tools`) renders only if a non-mine tool build exists (none today); `/tools` redirects to `#my-tools` temporarily.
   There is no "web apps and experiments" shelf (removed 2026-10-22); web apps are featured rows.
   There are no standalone shelf pages; `/lab`, `/extensions` and `/tools` redirect to the anchors, and the retired `/resources` redirects to `#lab` (`next.config.mjs`).
   The navbar "Lab" dropdown scrolls to them.

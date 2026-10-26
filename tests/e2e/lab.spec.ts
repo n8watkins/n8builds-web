@@ -8,15 +8,20 @@ import { test, expect } from '@playwright/test'
 
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
-test('the featured rows lead with the daily drivers, each linking to its build page', async ({ page }) => {
+test('the Lab leads with my daily tools, then the featured builds, each with its icon and a way to its build page', async ({ page }) => {
   await page.goto('/')
-  const featured = page.locator('#featured')
-  await featured.scrollIntoViewIfNeeded()
-  const titles = featured.getByRole('heading', { level: 3 })
-  // The section's own heading, then one per row.
-  await expect(titles).toHaveText(['Featured builds', 'Scribe', 'OpenPing', 'Solara', 'Portfolio Rank'])
+  const tools = page.locator('#my-tools')
+  await tools.scrollIntoViewIfNeeded()
+  // The part's own heading, then one per row.
+  await expect(tools.getByRole('heading', { level: 3 })).toHaveText(['Tools I use every day', 'Scribe', 'OpenPing'])
+  await expect(page.locator('#featured').getByRole('heading', { level: 3 })).toHaveText(['Featured builds', 'Solara', 'Portfolio Rank'])
+  // No redundant "Featured" eyebrow over "Featured builds", and no "The bench" over the Lab.
+  await expect(page.locator('#featured')).not.toContainText(/^Featured\s*Featured builds/)
+  await expect(page.locator('#lab')).not.toContainText('The bench')
+  const lab = page.locator('#lab')
   for (const slug of ['scribe', 'openping', 'solara', 'portfolio-rank']) {
-    await expect(featured.locator(`a[href="/builds/${slug}"]`).first(), slug).toBeAttached()
+    await expect(lab.locator(`a[href="/builds/${slug}"]`).first(), slug).toBeAttached()
+    await expect(lab.locator(`img[src*="${slug}"]`).first(), `${slug} icon`).toBeAttached()
   }
   // Their screenshots are real files.
   for (const src of ['/builds/scribe/landing.webp', '/builds/openping/landing.webp']) {
@@ -26,16 +31,55 @@ test('the featured rows lead with the daily drivers, each linking to its build p
 
 test('the Lab has no Tools part any more, in its own links or the navbar menu', async ({ page }) => {
   await page.goto('/')
-  await expect(page.getByRole('navigation', { name: 'Lab sections' }).getByRole('link')).toHaveText(['Featured', 'Chrome extensions'])
+  await expect(page.getByRole('navigation', { name: 'Lab sections' }).getByRole('link')).toHaveText(['My tools', 'Featured', 'Chrome extensions'])
   await expect(page.locator('a[href="/#tools"], a[href="#tools"]')).toHaveCount(0)
   await expect(page.locator('#tools')).toHaveCount(0)
 })
 
-test('Scribe and OpenPing build pages lead back to Featured', async ({ page }) => {
+test('Scribe and OpenPing build pages lead back to My tools; Solara back to Featured', async ({ page }) => {
   for (const slug of ['scribe', 'openping']) {
     await page.goto(`/builds/${slug}`)
-    await expect(page.getByRole('link', { name: /Back to Featured/ })).toBeVisible()
+    await expect(page.getByRole('link', { name: /Back to My tools/ })).toHaveAttribute('href', '/#my-tools')
   }
+  await page.goto('/builds/solara')
+  await expect(page.getByRole('link', { name: /Back to Featured/ })).toHaveAttribute('href', '/#featured')
+})
+
+test('Details opens the stack and the build log in a dialog, and closes with Escape', async ({ page }) => {
+  await page.goto('/')
+  const row = page.locator('#my-tools')
+  await row.getByRole('button', { name: 'Details' }).first().scrollIntoViewIfNeeded()
+  await row.getByRole('button', { name: 'Details' }).first().click()
+  const dialog = page.getByRole('dialog', { name: 'Scribe' })
+  await expect(dialog).toBeVisible()
+  await expect(dialog.getByText("How it's built")).toBeVisible()
+  await expect(dialog.getByRole('link', { name: /Full story and build log/ })).toHaveAttribute('href', '/builds/scribe')
+  await page.keyboard.press('Escape')
+  await expect(dialog).toBeHidden()
+  // The tech stack lives only in the dialog now, not in the row.
+  await expect(row.getByRole('button', { name: 'Frontend' }).filter({ visible: true })).toHaveCount(0)
+})
+
+test('every row can be starred on GitHub, and Scribe takes Mac and Linux requests', async ({ page }) => {
+  await page.goto('/')
+  for (const [name, repo] of [
+    ['Scribe', 'scribe'],
+    ['OpenPing', 'open-ping'],
+    ['Solara', 'solara'],
+    ['Portfolio Rank', 'portfolio-rank'],
+  ]) {
+    await expect(page.getByRole('link', { name: `Star ${name} on GitHub (opens in a new tab)` })).toHaveAttribute(
+      'href',
+      `https://github.com/n8watkins/${repo}`,
+    )
+  }
+  const request = page.getByRole('group', { name: 'Try Scribe' }).getByRole('link', { name: /Mac or Linux/ })
+  await expect(request).toHaveAttribute('href', /^https:\/\/github\.com\/n8watkins\/scribe\/issues\/new\?title=Request/)
+})
+
+test('the Lab says its builds are public and mostly open source', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.locator('#lab')).toContainText('public on GitHub, and most of it is MIT-licensed open source')
 })
 
 test('the hero gives someone hiring a direct link to the developer portfolio', async ({ page }) => {
@@ -65,7 +109,7 @@ test('the page ends with "Use this as a template": both repos, their licenses, a
 test('Portfolio Rank credits the list it is built on and invites visitors to add their portfolio', async ({ page }) => {
   // The featured row: a linked credit, and the invitation out to the live site.
   await page.goto('/')
-  const featured = page.locator('#featured')
+  const featured = page.locator('#lab')
   const credit = featured.getByRole('link', { name: "Emma Bostian's developer-portfolios list" })
   await credit.scrollIntoViewIfNeeded()
   await expect(credit).toHaveAttribute('href', 'https://github.com/emmabostian/developer-portfolios')
@@ -96,7 +140,7 @@ test('every featured row and its build page invite the visitor to try it', async
     ['Portfolio Rank', 'portfolio-rank', /Vote in a face-off/, 'https://portfoliorank.vercel.app/rank'],
   ]
   await page.goto('/')
-  const featured = page.locator('#featured')
+  const featured = page.locator('#lab')
   for (const [name, , label, href] of tries) {
     await expect(featured.getByRole('group', { name: `Try ${name}` }).getByRole('link', { name: label })).toHaveAttribute('href', href)
   }

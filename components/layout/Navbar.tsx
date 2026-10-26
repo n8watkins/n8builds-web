@@ -12,7 +12,8 @@ import NavLiveDot from '@/components/live/NavLiveDot'
 // The Lab is one homepage section; its parts live in a hover dropdown so the
 // top nav stays short. Each item scrolls to its anchor on the homepage.
 const labMenu = [
-  { label: 'Featured', href: '/#featured', desc: 'The builds I use every day' },
+  { label: 'My tools', href: '/#my-tools', desc: 'Scribe and OpenPing: I use them every day' },
+  { label: 'Featured', href: '/#featured', desc: 'Solara and Portfolio Rank' },
   { label: 'Chrome Extensions', href: '/#extensions', desc: 'Browser tools, local-first' },
   // The build log is a page, not a section: it lives here and in the footer, not as its own top-level link.
   { label: 'Build log', href: '/builds', desc: 'What shipped, pulled from GitHub' },
