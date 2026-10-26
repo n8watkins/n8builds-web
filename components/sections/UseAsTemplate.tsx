@@ -132,9 +132,15 @@ const TemplateCard = ({ t }: { t: Template }) => (
 )
 
 const UseAsTemplate = () => (
-  <section id="template" aria-label="Building your own site?" className="py-8">
-    {/* The Lab band doesn't reveal itself, so its parts do. */}
-    <Reveal>
+  // A full-bleed part of the Lab in its own cyan wash (`.lab-part-wash` and
+  // `.lab-accent-template` in app/globals.css), its content at the Lab's width.
+  <section
+    id="template"
+    aria-label="Building your own site?"
+    className="lab-accent-template lab-part-wash py-12"
+  >
+    {/* The Lab doesn't reveal itself, so its parts do. */}
+    <Reveal className="mx-auto max-w-6xl px-5 sm:px-8">
       <LabSubheader
         title="Building your own site?"
         blurb={
