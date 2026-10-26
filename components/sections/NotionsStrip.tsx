@@ -5,7 +5,7 @@ import { FiArrowUpRight } from 'react-icons/fi'
 import PostCard from '@/components/blog/PostCard'
 import type { Post } from '@/lib/sanity'
 
-// Homepage "Latest from Nate's Notions" strip. Lives inside the client home page, so
+// Homepage "Latest from N8's Notions" strip. Lives inside the client home page, so
 // it fetches the 3 newest posts from the server route (keeps the Sanity SDK off
 // the homepage bundle). The canonical, SSR'd content lives at /blog.
 const NotionsStrip = () => {
@@ -27,14 +27,14 @@ const NotionsStrip = () => {
   if (posts.length === 0) return null
 
   return (
-    <section id="notions" aria-label="Nate's Notions" className="py-16">
+    <section id="notions" aria-label="N8's Notions" className="py-16">
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-cyan-400">
             The Log
           </p>
           <h2 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
-            Nate&apos;s Notions
+            N8&apos;s Notions
           </h2>
           <p className="mt-2 max-w-[520px] text-[#9cadc5]">
             Notes, essays, and lessons from building in public.

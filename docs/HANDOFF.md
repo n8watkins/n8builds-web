@@ -22,7 +22,7 @@ Strategy and IA: `docs/N8BUILDS_PLAN.md`.
 
 - Live at https://n8builds.dev on Vercel (project `n8builds-web`, team natkins23s-projects), auto-deploying from `main`.
 - Stack: Next.js 16 (App Router, webpack build), React 19, TypeScript, Tailwind 4 (configured in `app/globals.css`; there is no `tailwind.config`), Motion (`motion/react`; not framer-motion), Sanity (blog), Nodemailer + Gmail SMTP, Cloudflare Turnstile, Upstash Redis (rate limits), Sentry, GA4, Vercel Speed Insights.
-- Pages: `/` (hero, "What I'm working on", the Lab, notions, stack, work-with-me, contact, each in its own full-width band), `/blog` + `/blog/[slug]` (Nate's Notions, ISR hourly), `/builds` (the build log, ISR hourly), `/builds/[slug]`, `/loadout`, `/privacy`, `/live` (redirects to the live stream, else lists the channels).
+- Pages: `/` (hero, "What I'm working on", the Lab, notions, stack, work-with-me, contact, each in its own full-width band), `/blog` + `/blog/[slug]` (N8's Notions, ISR hourly), `/builds` (the build log, ISR hourly), `/builds/[slug]`, `/loadout`, `/privacy`, `/live` (redirects to the live stream, else lists the channels).
 - **Status (2026-10-24):** everything is merged and live, including the build log, the live player and the n8builds case study (PRs #10 to #15). Work now goes through pull requests (`docs/BUILD_PLAN.md`); what's left and what's needed from the owner is in `docs/NEXT_STEPS.md`.
   The review of the 2026-10-22/23 work (`docs/prompts/review-2026-10-22-changes.md`) ran on 2026-10-23; its fixes (Solara's private-repo link, 320px hero, modal mobile menu, em-dash sweep, blog fact fixes) are shipped.
 - **Next session:** work through `docs/NEXT_STEPS.md`, the step-by-step checklist of what's left and what's needed from the owner.
@@ -247,7 +247,7 @@ The owner's standing decisions live in [DECISIONS.md](DECISIONS.md), the one pla
 - `components/sections/`: `Hero`, `NowBuilding`, `FeaturedProjects`, `ShelfSection`, `LabSubheader`, `ExtensionsShowcase`, `HomeStack`, `NotionsStrip`, `WorkWithMe`, `Loadout`, `BuildStacks`, `TechStackBento`, `BuildCard`.
 - `components/layout/`: `Navbar` (`labMenu[]` drives the Lab dropdown), `Footer` (contact card and form).
 - `components/ContactForm/`: form UI and `useContactFormSubmit` (submission and Turnstile handling).
-- `components/blog/`, `lib/sanity.ts`, `lib/blog-utils.ts`: Nate's Notions.
+- `components/blog/`, `lib/sanity.ts`, `lib/blog-utils.ts`: N8's Notions.
   Posts without a cover image get a generated "signal" cover: `lib/blog-cover.ts` (art and topic colours), served as cached SVG files by `app/notions-cover/[version]/[topic]/[file]/route.ts`.
   The files are cached forever, so bump `COVER_VERSION` whenever the drawing changes.
 - `data/`: `builds.tsx` (source of truth), `shelves.ts`, `loadout.tsx`, `aiStack.tsx`, `buildStacks.tsx`, `techStack.tsx`, `projects.tsx`.

@@ -34,7 +34,7 @@ export async function generateStaticParams() {
 }
 
 const postSummary = (post: Post) =>
-  post.seoDescription || post.excerpt || "A note from Nate's Notions."
+  post.seoDescription || post.excerpt || "A note from N8's Notions."
 const postDescription = (post: Post) => summarize(postSummary(post))
 
 /** The post's share image: its titled card (og.png/route.tsx) over its cover. */

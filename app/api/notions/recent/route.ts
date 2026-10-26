@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getRecentPosts } from '@/lib/sanity'
 
-// Feeds the homepage "Nate's Notions" strip. Server-side so @sanity/client stays out
+// Feeds the homepage "N8's Notions" strip. Server-side so @sanity/client stays out
 // of the homepage client bundle. Cached/revalidated hourly.
 export const revalidate = 3600
 

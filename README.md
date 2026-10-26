@@ -1,6 +1,6 @@
 # n8builds - n8builds.dev
 
-The public builder lab of Nathan Watkins: a Next.js site for building software in public (apps, AI tools, Chrome extensions, experiments, and the Nate's Notions blog).
+The public builder lab of Nathan Watkins: a Next.js site for building software in public (apps, AI tools, Chrome extensions, experiments, and the N8's Notions blog).
 
 **Live at [n8builds.dev](https://n8builds.dev)**, deployed on Vercel (auto-deploys from `main`), DNS via Cloudflare.
 
@@ -12,7 +12,7 @@ Manual steps that need the owner live in [`docs/OWNER_TODO.md`](docs/OWNER_TODO.
 - Next.js 16 (App Router, webpack production build), React 19, TypeScript (strict)
 - Tailwind CSS 4 (configured in `app/globals.css`), Motion (`motion/react`)
 - React Hook Form + Zod
-- Sanity (read-only CDN client) for the Nate's Notions blog
+- Sanity (read-only CDN client) for the N8's Notions blog
 - Nodemailer + Gmail SMTP, Cloudflare Turnstile, Upstash Redis rate limiting
 - Sentry (on in production; inert without `NEXT_PUBLIC_SENTRY_DSN`), GA4, Vercel Speed Insights
 - Vitest (unit), Playwright + axe (E2E and accessibility), Lighthouse budgets
@@ -26,7 +26,7 @@ app/
   api/contact/route.ts      Contact form API
   api/health/route.ts       Liveness ping
   api/notions/recent/       Latest posts for the homepage strip
-  blog/, blog/[slug]/       Nate's Notions (ISR, hourly)
+  blog/, blog/[slug]/       N8's Notions (ISR, hourly)
   builds/[slug]/            Build detail pages
   loadout/, privacy/        Static pages
   layout.tsx, page.tsx      Root layout and homepage

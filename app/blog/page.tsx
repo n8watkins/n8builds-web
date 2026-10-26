@@ -7,7 +7,7 @@ import FadeIn from '@/components/ui/FadeIn'
 export const revalidate = 3600
 
 export const metadata = pageMetadata({
-  title: "Nate's Notions | n8builds",
+  title: "N8's Notions | n8builds",
   description: 'Notes, essays, and build logs from n8 on building software with AI.',
   path: '/blog',
 })
@@ -33,7 +33,7 @@ export default async function BlogIndexPage() {
             </p>
             <h1 className="mt-3 text-[2.6rem] font-extrabold leading-[1.03] tracking-tight text-slate-50 sm:text-6xl/none">
               <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                Nate&apos;s Notions
+                N8&apos;s Notions
               </span>
             </h1>
             <p className="mt-4 max-w-[600px] text-base leading-relaxed text-[#9cadc5] sm:text-lg/7">

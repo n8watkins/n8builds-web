@@ -1,7 +1,7 @@
 import { test, expect, type Locator, type Page } from '@playwright/test'
 
 /**
- * Nate's Notions fades in like the rest of the site, without ever holding
+ * N8's Notions fades in like the rest of the site, without ever holding
  * content back: what is on screen at load fades in with CSS (components/ui/FadeIn.tsx),
  * straight from the server HTML, and what is below the fold fades up as it
  * scrolls into view (components/ui/Reveal.tsx). Reduced motion shows it all at once.

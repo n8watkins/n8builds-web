@@ -65,12 +65,12 @@ what I was last doing.
 
 ### Pages (as shipped)
 
-1. **Home** (`/`): hero, "What I'm working on", the Lab, Nate's Notions strip, stack, work-with-me, contact.
+1. **Home** (`/`): hero, "What I'm working on", the Lab, N8's Notions strip, stack, work-with-me, contact.
 2. **The Lab** (`/#lab`): one homepage section with Featured web apps (`#featured`), Chrome extensions (`#extensions`) and Tools (`#tools`).
    There are no standalone shelf pages: `/lab`, `/extensions` and `/tools` redirect to the anchors.
 3. **Build pages** (`/builds/[slug]`): one per build in `data/builds.tsx`.
 4. **Loadout** (`/loadout`): Tech Loadout, The Rig and Desk.
-5. **Nate's Notions** (`/blog`, `/blog/[slug]`): the Sanity-backed blog (nav label "Notions").
+5. **N8's Notions** (`/blog`, `/blog/[slug]`): the Sanity-backed blog (nav label "Notions").
 
 **Not yet built:** the `/builds` Log index (a newest-first journal of all builds); only the detail pages exist.
 
@@ -121,7 +121,7 @@ have projects/extensions/tools/experiments all derive from it.
 1. **Hero** (`Hero.tsx`): "n8builds", "Spending tokens, shipping features.", the `whoami` terminal, the idea -> prompt -> build -> ship -> repeat circuit, a "See what I'm building" button, socials, and a background grid that warms up and wanders.
 2. **What I'm working on** (`NowBuilding.tsx`, data in `data/now.tsx`): Appturnity only, linking appturnity.com.
 3. **The Lab**: Featured web apps (`FeaturedProjects.tsx`: Portfolio Rank, Solara), Chrome extensions (`ExtensionsShowcase.tsx`) and Tools (`ShelfSection shelf="tool"`).
-4. **Nate's Notions strip** (`NotionsStrip.tsx`).
+4. **N8's Notions strip** (`NotionsStrip.tsx`).
 5. **Stack** (`HomeStack.tsx`), linking to /loadout.
 6. **Work with me** (`WorkWithMe.tsx`): bridges to the portfolio and Appturnity.
 7. **Contact** (`Footer.tsx`, `#contact`).
@@ -138,7 +138,7 @@ have projects/extensions/tools/experiments all derive from it.
 
 ## 7. Implementation Roadmap
 
-**Done:** single source of truth (`data/builds.tsx` + `data/shelves.ts`), homepage reorder, the Lab, the Loadout, Nate's Notions, contact form hardening, SEO and share cards.
+**Done:** single source of truth (`data/builds.tsx` + `data/shelves.ts`), homepage reorder, the Lab, the Loadout, N8's Notions, contact form hardening, SEO and share cards.
 
 **Next** (the backlog in `docs/HANDOFF.md` is authoritative):
 
