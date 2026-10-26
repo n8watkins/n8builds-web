@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
 import { ThemeProvider } from './provider'
-import Script from 'next/script'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { WebVitals } from './web-vitals'
 import { WebVitalsHUD } from '@/components/WebVitalsHUD'
@@ -10,6 +9,8 @@ import LiveLoader from '@/components/live/LiveLoader'
 import SiteFooter from '@/components/layout/SiteFooter'
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { DEFAULT_PREVIEW, SITE_NAME, SITE_URL } from '@/lib/seo'
+import { consentBootstrapScript } from '@/lib/consent'
+import ConsentLoader from '@/components/consent/ConsentLoader'
 
 // Inter, bundled (variable weight, Latin subset, from @fontsource-variable/inter
 // 5.3.0; OFL, see app/fonts/Inter-OFL.txt) instead of next/font/google: a
@@ -70,30 +71,19 @@ export default function RootLayout({
       <head>
         <meta name="google-site-verification" content="UaCoLg9YeNobXjRaOb59YzQxzc8RDb1yiOZEKdmNECU" />
 
-        {/* Preconnect and DNS prefetching for external domains */}
-        <link rel="preconnect" href="https://www.googletagmanager.com" />
-        <link rel="dns-prefetch" href="//www.googletagmanager.com" />
-
         {/* Project external links */}
         <link rel="dns-prefetch" href="//github.com" />
         <link rel="dns-prefetch" href="//appturnity.com" />
         <link rel="dns-prefetch" href="//vercel.app" />
 
+        {/* Google Analytics with Consent Mode v2 (lib/consent.ts): the
+            defaults are set before gtag.js can load, European visitors are
+            asked first, and gtag.js loads after the page is loaded and idle. */}
         {process.env.NEXT_PUBLIC_GA_ID && (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
-              strategy="lazyOnload"
-            />
-            <Script id="google-analytics" strategy="lazyOnload">
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}');
-              `}
-            </Script>
-          </>
+          <script
+            id="consent-bootstrap"
+            dangerouslySetInnerHTML={{ __html: consentBootstrapScript(process.env.NEXT_PUBLIC_GA_ID) }}
+          />
         )}
       </head>
       <body className={inter.className}>
@@ -110,6 +100,8 @@ export default function RootLayout({
           <SiteFooter />
           {/* Checks /api/live after load; the corner player loads only while live. */}
           <LiveLoader />
+          {/* Asks European visitors about analytics; the banner itself loads only when needed. */}
+          {process.env.NEXT_PUBLIC_GA_ID && <ConsentLoader />}
           <WebVitals />
           <WebVitalsHUD />
           {/* The script is served only by Vercel's edge; elsewhere it 404s. */}

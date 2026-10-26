@@ -6,11 +6,15 @@ import {
   buildActivity,
   classifyCommit,
   cleanTitle,
+  collectCommits,
+  COMMIT_PAGE_SIZE,
   dayKey,
   entriesForBuild,
   getBuildLog,
   getRecentActivity,
   highlightEntry,
+  historyCutoff,
+  MAX_COMMIT_PAGES,
   monthYearLabel,
   normalizeCommit,
   recentFrom,
@@ -278,16 +282,32 @@ describe('merging, sorting and the builds index', () => {
 
   it('tracks the visible builds with a repo, and none of the hidden ones', () => {
     const tracked = builds.filter((b) => b.repo)
-    expect(tracked.map((b) => b.slug)).toEqual(['piper-tts', 'tldw', 'tubevault', 'scribe', 'openping', 'solara', 'portfolio-rank'])
+    expect(tracked.map((b) => b.slug)).toEqual(['piper-tts', 'tldw', 'tubevault', 'scribe', 'openping', 'solara', 'portfolio-rank', 'n8builds'])
     expect(tracked.every((b) => /^n8watkins\/[\w-]+$/.test(b.repo!))).toBe(true)
     expect(hiddenBuilds.every((b) => !b.repo)).toBe(true)
     expect(new Set(log.entries.map((e) => e.build))).toEqual(new Set(tracked.map((b) => b.slug)))
   })
 
+  it("keeps this site's own busy repo to its releases and user-facing changes", () => {
+    const site = snapshot('n8builds-web')
+    const entries = entriesForBuild(build('n8builds'), site)
+    // One entry a day at most, however many commits landed.
+    expect(new Set(entries.map((e) => e.day)).size).toBe(entries.length)
+    expect(entries.length).toBeLessThan(site.commits.length / 10)
+    expect(entries.filter((e) => e.kind === 'release').map((e) => e.title)).toEqual(['Shipped v1.1.1', 'Shipped v1.1.0'])
+    // Only feat, fix and perf commits (or plain news sentences) reach it: never chores, docs, tests or CI.
+    const kept = site.commits.map(classifyCommit).filter((v) => v.kind === 'change')
+    const keptMessages = site.commits.filter((c) => classifyCommit(c).kind === 'change').map((c) => c.message)
+    expect(kept.length).toBeGreaterThan(0)
+    expect(keptMessages.every((m) => !/^(chore|docs|test|ci|build|refactor|style)(\(|:|!)/.test(m))).toBe(true)
+    // The owner's hide list drops CI plumbing that reads like a fix.
+    expect(entries.some((e) => /debugging port/i.test(e.title))).toBe(false)
+  })
+
   it('leaves untracked builds out of the index, rather than showing them as empty', () => {
-    // n8builds itself is a build page, not a tracked repo.
-    expect(build('n8builds').repo).toBeUndefined()
-    expect(log.activity.map((a) => a.slug)).not.toContain('n8builds')
+    // A build page without a repo (n8builds was one until 2026-10-26).
+    const untracked = { ...build('tldw'), slug: 'untracked', repo: undefined }
+    expect(assembleLog([...builds, untracked], snapshots, highlights).activity.map((a) => a.slug)).not.toContain('untracked')
     const off = { ...build('tldw'), log: 'off' as const }
     const without = assembleLog([...builds.filter((b) => b.slug !== 'tldw'), off], snapshots, highlights)
     expect(without.activity.map((a) => a.slug)).not.toContain('tldw')
@@ -324,8 +344,8 @@ describe('merging, sorting and the builds index', () => {
   })
 
   it('sorts builds by their latest activity and labels it as a month, never "ago"', () => {
-    expect(log.activity.map((a) => a.slug)).toEqual(['solara', 'tldw', 'openping', 'scribe', 'portfolio-rank', 'tubevault', 'piper-tts'])
-    expect(log.activity.map((a) => a.lastShippedLabel)).toEqual(['Oct 2026', 'Jul 2026', 'Jul 2026', 'Jul 2026', 'Jun 2026', 'Jun 2026', 'Jun 2026'])
+    expect(log.activity.map((a) => a.slug)).toEqual(['n8builds', 'solara', 'tldw', 'openping', 'scribe', 'portfolio-rank', 'tubevault', 'piper-tts'])
+    expect(log.activity.map((a) => a.lastShippedLabel)).toEqual(['Oct 2026', 'Oct 2026', 'Jul 2026', 'Jul 2026', 'Jul 2026', 'Jun 2026', 'Jun 2026', 'Jun 2026'])
     expect(log.activity.every((a) => a.latest.length === 2)).toBe(true)
   })
 
@@ -443,5 +463,75 @@ describe('getBuildLog', () => {
     vi.stubEnv('NODE_ENV', 'production')
     await expect(getBuildLog()).rejects.toThrow()
     expect(fetch).not.toHaveBeenCalled()
+  })
+})
+
+describe('reading each repo far enough back', () => {
+  /** A fetcher serving `commits` in pages, counting its requests. */
+  const pager = (commits: SnapshotCommit[], size = COMMIT_PAGE_SIZE) => {
+    const requests: number[] = []
+    const fetchPage = async (page: number) => {
+      requests.push(page)
+      return commits.slice((page - 1) * size, page * size)
+    }
+    return { fetchPage, requests }
+  }
+  const cutoff = '2025-11-01T00:00:00.000Z'
+
+  it('covers the 12 months up to now, from the first of the month', () => {
+    expect(historyCutoff(new Date('2026-10-26T12:00:00Z'))).toBe(cutoff)
+    expect(historyCutoff(new Date('2026-01-01T03:00:00Z'))).toBe('2025-02-01T00:00:00.000Z')
+    // The six-month chart sits well inside it.
+    expect(historyCutoff(new Date('2026-10-26T12:00:00Z'), 6)).toBe('2026-05-01T00:00:00.000Z')
+  })
+
+  it("pages back through this site's busy repo to the start of the window", async () => {
+    const site = snapshot('n8builds-web').commits
+    expect(site.length).toBeGreaterThan(COMMIT_PAGE_SIZE)
+    const { fetchPage, requests } = pager(site)
+    const result = await collectCommits(fetchPage, cutoff)
+    expect(requests).toEqual([1, 2, 3, 4])
+    expect(result).toMatchObject({ pages: 4, truncated: false })
+    expect(result.commits.map((c) => c.sha)).toEqual(site.map((c) => c.sha))
+
+    // Its whole October now reaches the log, not only the newest 100 commits' four days.
+    const days = entriesForBuild(build('n8builds'), { ...snapshot('n8builds-web'), commits: result.commits })
+      .filter((e) => e.month === '2026-10')
+      .map((e) => e.day)
+    const firstPage = entriesForBuild(build('n8builds'), { ...snapshot('n8builds-web'), commits: site.slice(0, COMMIT_PAGE_SIZE) })
+    expect(days.length).toBeGreaterThan(firstPage.filter((e) => e.month === '2026-10').length)
+    expect(days.sort()[0] < '2026-10-23').toBe(true)
+  })
+
+  it('reads a quiet repo in one request, as before', async () => {
+    const quiet = snapshot('piper-tts').commits
+    expect(quiet.length).toBeLessThan(COMMIT_PAGE_SIZE)
+    const { fetchPage, requests } = pager(quiet)
+    expect((await collectCommits(fetchPage, cutoff)).commits).toEqual(quiet)
+    expect(requests).toEqual([1])
+  })
+
+  it('stops once a page reaches back past the window', async () => {
+    const tldw = snapshot('tl-dw').commits.slice(0, COMMIT_PAGE_SIZE)
+    const oldest = tldw.map((c) => c.date).sort()[0]
+    const { fetchPage, requests } = pager([...tldw, ...tldw.map((c) => ({ ...c, sha: `older-${c.sha}` }))])
+    await collectCommits(fetchPage, new Date(Date.parse(oldest) + 1).toISOString())
+    expect(requests).toEqual([1])
+  })
+
+  it('stops at the page cap and says so', async () => {
+    const endless = async (page: number) =>
+      Array.from({ length: COMMIT_PAGE_SIZE }, (_, i) => ({ ...snapshot('tl-dw').commits[0], sha: `${page}-${i}`, date: '2026-10-01T00:00:00Z' }))
+    const result = await collectCommits(endless, cutoff)
+    expect(result).toMatchObject({ pages: MAX_COMMIT_PAGES, truncated: true })
+    expect(result.commits).toHaveLength(MAX_COMMIT_PAGES * COMMIT_PAGE_SIZE)
+  })
+
+  it('counts a commit once when a new one shifts the pages', async () => {
+    const site = snapshot('n8builds-web').commits
+    // Page 2 starts with page 1's last commit, as after a push between the two reads.
+    const pages = [site.slice(0, 100), site.slice(99, 199), site.slice(199, 230)]
+    const result = await collectCommits(async (page) => pages[page - 1] ?? [], cutoff)
+    expect(result.commits.map((c) => c.sha)).toEqual(site.slice(0, 230).map((c) => c.sha))
   })
 })

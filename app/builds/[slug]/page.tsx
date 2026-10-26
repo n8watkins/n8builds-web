@@ -10,6 +10,7 @@ import { pageMetadata, summarize } from '@/lib/seo'
 import Reveal from '@/components/ui/Reveal'
 import LogEntryItem, { Timeline } from '@/components/log/LogEntryItem'
 import { getRecentActivity } from '@/lib/build-log'
+import N8buildsCaseStudy from '@/components/builds/n8builds/CaseStudy'
 
 interface BuildPageProps {
   params: Promise<{ slug: string }>
@@ -46,6 +47,17 @@ export default async function BuildPage({ params }: BuildPageProps) {
 
   const shelf = shelfMeta[getShelf(build)]
   const activity = await getRecentActivity(slug)
+
+  // This site's own page is its own layout: a case study for developers
+  // deciding whether to fork it (linked from the homepage's "Use as a template").
+  if (slug === 'n8builds') {
+    return (
+      <>
+        <Navbar />
+        <N8buildsCaseStudy build={build} activity={activity} />
+      </>
+    )
+  }
 
   return (
     <>

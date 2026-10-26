@@ -16,12 +16,13 @@ export interface Build {
   status?: 'shipped' | 'in the lab'
   /**
    * One of the owner's daily tools (Scribe, OpenPing): a row in the Lab's
-   * "Tools I use every day", whatever its category.
+   * "My daily drivers", whatever its category.
    */
   mine?: boolean
   tags: string[]
   color: string
-  problem: string
+  /** The problem the build solves, shown on its page (the n8builds case study has none). */
+  problem?: string
   solution: string
   stack: BuildStackItem[]
   process: string[]
@@ -315,8 +316,6 @@ export const builds: Build[] = [
     category: 'Website',
     tags: ['Next.js', 'Playwright', 'Open source'],
     color: 'from-blue-500/20 to-cyan-600/20',
-    problem:
-      'A personal site is usually the least-tested thing a developer ships: no tests, no performance budget, and a contact form any bot can flood. Visitors judge the work by it anyway, and the engineering behind it stays invisible.',
     solution:
       "n8builds.dev holds my builds, the N8's Notions blog and the Loadout, and it is run like a product. Every pull request runs lint, type checks and more than 200 unit tests, then more than 450 Playwright tests across six browser projects in parallel (the APIs, plus Chromium, Firefox, WebKit, a Pixel 7 and an iPhone 14), then Lighthouse budgets on five pages. Branch protection holds every merge until it is green (a docs-only change skips the browser suite), and the source is public.",
     stack: [
@@ -338,13 +337,17 @@ export const builds: Build[] = [
       'Built with Claude Code as the pair programmer: features are planned in docs in the repo, built in parallel git worktrees, and land as pull requests that branch protection holds until CI is green. This page was one of them.',
     ],
     images: [
-      { src: '/builds/n8builds/home-hero.webp', alt: 'The n8builds.dev homepage hero at desktop width' },
-      { src: '/builds/n8builds/lighthouse.webp', alt: 'Lighthouse report for the homepage from CI: performance 99, accessibility, best practices and SEO 100, LCP 0.9s, CLS 0' },
+      { src: '/builds/n8builds/home-hero-2026-10.webp', alt: 'The n8builds.dev homepage hero at desktop width: the name, the whoami terminal, the prompt, build, ship, repeat chain and the portrait' },
+      { src: '/builds/n8builds/lighthouse-2026-10.webp', alt: 'Lighthouse report for the homepage from CI: performance 99, accessibility, best practices and SEO 100, LCP 0.9s, CLS 0' },
+      // TODO(owner): retake from a fresh CI run of the combined PR (this one is run #38, before the WebKit shards).
       { src: '/builds/n8builds/ci-checks.webp', alt: 'A GitHub Actions run: lint, types and unit tests, six E2E jobs and Lighthouse, all passing' },
-      { src: '/builds/n8builds/share-card.webp', alt: 'The generated share card for this page' },
     ],
     github: 'https://github.com/n8watkins/n8builds-web',
     liveSite: 'https://n8builds.dev',
+    // The site's own releases (release-kit) and user-facing feat/fix/perf commits.
+    repo: 'n8watkins/n8builds-web',
+    // CI plumbing the filters let through.
+    logHide: ['debugging port'],
   },
 ]
 

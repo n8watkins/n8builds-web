@@ -1,7 +1,8 @@
 import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { FiStar, FiArrowUpRight } from 'react-icons/fi'
+import { FiArrowUpRight } from 'react-icons/fi'
+import RepoButtons from '@/components/ui/RepoButtons'
 import { getBuild } from '@/data/builds'
 import LabSubheader from '@/components/sections/LabSubheader'
 import ExtensionsCarousel from '@/components/sections/ExtensionsCarousel'
@@ -43,13 +44,14 @@ const Detail = ({ ext }: { ext: Ext }) => {
   const build = getBuild(ext.slug)
   if (!build) return null
   return (
-    <div className="grid gap-6 md:grid-cols-2 md:items-center">
+    // The screenshot takes the smaller share, so the copy leads (smaller since 2026-10-26).
+    <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] md:items-center">
       {/* Visual */}
       <a
         href={build.github}
         target="_blank"
         rel="noopener noreferrer"
-        className="group/visual relative block aspect-16/10 overflow-hidden rounded-2xl border border-white/8 bg-[#07101d]"
+        className="group/visual relative mx-auto block aspect-16/10 w-full max-w-60 overflow-hidden rounded-2xl border border-white/8 bg-[#07101d] md:max-w-none"
       >
         {ext.shot ? (
           <Image
@@ -57,7 +59,7 @@ const Detail = ({ ext }: { ext: Ext }) => {
             alt={`${build.name} screenshot`}
             fill
             className="object-cover object-top transition-transform duration-500 group-hover/visual:scale-[1.03]"
-            sizes="(max-width: 768px) 100vw, 50vw"
+            sizes="(max-width: 768px) 240px, 30vw"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-[#0a1a33] to-[#081427]">
@@ -73,7 +75,7 @@ const Detail = ({ ext }: { ext: Ext }) => {
           <Image src={ext.icon} alt="" width={36} height={36} className="rounded-xl" />
           <div>
             <h3 className="text-xl font-extrabold leading-tight text-slate-50">{build.name}</h3>
-            <p className="font-mono text-xs text-slate-450">{build.tagline}</p>
+            <p className="text-sm text-slate-400">{build.tagline}</p>
           </div>
         </div>
         <p className="text-[#9cadc5] leading-relaxed">{ext.blurb}</p>
@@ -85,17 +87,7 @@ const Detail = ({ ext }: { ext: Ext }) => {
           ))}
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-3">
-          {build.github && (
-            <a
-              href={build.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-xl bg-linear-to-r from-amber-500/90 to-yellow-500/90 px-4 py-2 text-sm font-bold text-black transition-all duration-200 hover:scale-[1.02]"
-            >
-              <FiStar className="h-4 w-4" />
-              Star on GitHub
-            </a>
-          )}
+          {build.github && <RepoButtons href={build.github} name={build.name} />}
           <Link
             href={`/builds/${build.slug}`}
             className="flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8"
@@ -115,13 +107,10 @@ const Detail = ({ ext }: { ext: Ext }) => {
  * which gets each detail already rendered; on phones they simply stack.
  */
 const ExtensionsShowcase = () => (
-  <section id="extensions" aria-label="Chrome extensions" className="py-10">
-    <LabSubheader
-      eyebrow="Browser tools"
-      eyebrowClass="text-indigo-400"
-      title="Chrome extensions"
-      blurb={<>Small, local-first tools I built and actually use. All open source - if one&apos;s useful, a star helps a ton.</>}
-    />
+  // A full-bleed part of the Lab in its own indigo wash (`.lab-part-wash` in app/globals.css).
+  <section id="extensions" aria-label="Chrome Extensions" className="lab-accent-extensions lab-part-wash py-12">
+    <div className="mx-auto max-w-6xl px-5 sm:px-8">
+    <LabSubheader title="Chrome Extensions" />
 
     {/* ===== Desktop: 3 side-by-side + auto-cycle detail ===== */}
     <ExtensionsCarousel
@@ -141,6 +130,7 @@ const ExtensionsShowcase = () => (
           <Detail ext={ext} />
         </div>
       ))}
+    </div>
     </div>
   </section>
 )

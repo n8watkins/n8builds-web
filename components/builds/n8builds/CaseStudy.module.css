@@ -1,0 +1,191 @@
+/*
+ * The n8builds.dev case study's animations. All CSS, started by the shared
+ * scroll reveal (components/ui/Reveal.tsx sets data-revealed on .reveal).
+ * Each element's resting style is its final, lit state, so reduced motion,
+ * no JS and a screenshot all show the finished picture; the animations only
+ * run from the unlit state up to it. Opacity, colour and transform only, so
+ * nothing shifts layout.
+ */
+
+@property --cs-n {
+  syntax: '<integer>';
+  inherits: false;
+  initial-value: 0;
+}
+
+/* ---------- Hero screenshot: a slight tilt that settles on hover ---------- */
+
+.heroShot {
+  transition: transform 0.7s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+@media (min-width: 1024px) {
+  .heroShot {
+    transform: perspective(1600px) rotateY(-7deg) rotateX(2deg);
+  }
+
+  .heroShot:hover {
+    transform: none;
+  }
+}
+
+/* ---------- Pipeline: stages light up one after another ---------- */
+
+.stage {
+  --d: calc(var(--i, 0) * 380ms);
+  border-color: rgb(34 211 238 / 0.4);
+  background-color: rgb(34 211 238 / 0.06);
+  box-shadow: 0 0 28px -10px rgb(34 211 238 / 0.55);
+}
+
+.tick {
+  color: rgb(52 211 153);
+}
+
+.line {
+  --d: calc(var(--i, 0) * 380ms - 180ms);
+  position: relative;
+  background: rgb(255 255 255 / 0.08);
+}
+
+.line::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgb(34 211 238 / 0.2), rgb(34 211 238 / 0.9));
+  transform-origin: left center;
+}
+
+@media (max-width: 1279.98px) {
+  .line::after {
+    background: linear-gradient(180deg, rgb(34 211 238 / 0.2), rgb(34 211 238 / 0.9));
+    transform-origin: center top;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :global(.reveal[data-revealed]) .stage {
+    animation: stage-on 0.6s var(--d) both ease-out;
+  }
+
+  :global(.reveal[data-revealed]) .tick {
+    animation: tick-in 0.45s calc(var(--i, 0) * 380ms + 250ms) both cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  :global(.reveal[data-revealed]) .line::after {
+    animation: line-x 0.4s var(--d) both ease-in-out;
+  }
+
+  @media (max-width: 1279.98px) {
+    :global(.reveal[data-revealed]) .line::after {
+      animation-name: line-y;
+    }
+  }
+
+  /* The merged badge keeps a slow breath once everything is green. */
+  :global(.reveal[data-revealed]) .merged {
+    animation:
+      stage-on 0.6s var(--d) both ease-out,
+      breathe 3.2s calc(var(--d) + 0.6s) infinite ease-in-out;
+  }
+}
+
+@keyframes stage-on {
+  from {
+    border-color: rgb(255 255 255 / 0.08);
+    background-color: rgb(255 255 255 / 0.02);
+    box-shadow: 0 0 0 0 rgb(34 211 238 / 0);
+  }
+}
+
+@keyframes tick-in {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+
+@keyframes line-x {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes line-y {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+@keyframes breathe {
+  50% {
+    box-shadow: 0 0 40px -6px rgb(52 211 153 / 0.6);
+  }
+}
+
+/* ---------- Counters: an integer custom property counts to its value ---------- */
+
+.count {
+  --cs-n: var(--to);
+  counter-reset: cs var(--cs-n);
+  font-variant-numeric: tabular-nums;
+}
+
+.count::after {
+  content: counter(cs);
+}
+
+.count[data-pad]::after {
+  content: counter(cs, decimal-leading-zero);
+}
+
+/* ---------- Speed bars grow to their length ---------- */
+
+.bar {
+  transform-origin: left center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :global(.reveal[data-revealed]) .count {
+    animation: count 1.6s 0.25s both cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  :global(.reveal[data-revealed]) .bar {
+    animation: line-x 1.6s 0.25s both cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+}
+
+@keyframes count {
+  from {
+    --cs-n: var(--from);
+  }
+  to {
+    --cs-n: var(--to);
+  }
+}
+
+/* ---------- Feature cards: a cursor-free hover lift ---------- */
+
+.card {
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    background-color 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  border-color: rgb(34 211 238 / 0.3);
+  background-color: rgb(34 211 238 / 0.04);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroShot,
+  .card {
+    transition: none;
+  }
+
+  .card:hover {
+    transform: none;
+  }
+}

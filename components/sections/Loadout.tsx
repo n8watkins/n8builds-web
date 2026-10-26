@@ -5,7 +5,6 @@ import { FiArrowLeft } from 'react-icons/fi'
 import { loadout, type LoadoutGroup, type LoadoutItem } from '@/data/loadout'
 import AITechStack from '@/components/features/AITechStack'
 import BuildStacks from '@/components/sections/BuildStacks'
-import WhoamiTerminal from '@/components/features/WhoamiTerminal'
 import TechStackBento from '@/components/sections/TechStackBento'
 import Reveal from '@/components/ui/Reveal'
 import FadeIn from '@/components/ui/FadeIn'
@@ -91,9 +90,6 @@ const Loadout = () => {
             wall. If it earns a spot in the kit, it earns a sentence.
           </p>
         </FadeIn>
-
-        {/* whoami terminal block (shared with the homepage hero) */}
-        <WhoamiTerminal className="mt-8" />
 
         {/* AI tech stack - hover-reveal marquee (ported from the portfolio bento) */}
         <Reveal>

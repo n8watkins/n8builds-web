@@ -1,12 +1,14 @@
 // Analytics utility functions for tracking user interactions
 import { logger } from './logger'
+import { getConsent } from './consent'
 
 declare global {
   interface Window {
+    // Defined by the consent bootstrap in app/layout.tsx (lib/consent.ts).
     gtag?: (
-      command: 'event' | 'config' | 'set',
-      targetId: string,
-      params?: Record<string, string | number | boolean | undefined>
+      command: 'event' | 'config' | 'set' | 'consent' | 'js',
+      targetId: string | Date,
+      params?: Record<string, unknown>
     ) => void
   }
 }
@@ -35,8 +37,12 @@ interface EventParameters {
  * Track custom events in Google Analytics
  */
 export const trackEvent = (eventName: string, parameters: EventParameters = {}) => {
-  // Only track in production or when GA_ID is configured
+  // Only track when GA is configured and the visitor allows analytics (a
+  // European visitor who hasn't chosen yet, or who declined, sends nothing).
   if (typeof window === 'undefined' || !window.gtag || !process.env.NEXT_PUBLIC_GA_ID) {
+    return
+  }
+  if (getConsent()?.state !== 'granted') {
     return
   }
 
