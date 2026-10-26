@@ -47,7 +47,7 @@ const NowCarousel = ({ labels, cards }: { labels: string[]; cards: React.ReactNo
   return (
     <div
       ref={card}
-      className="relative overflow-hidden rounded-3xl border border-cyan-400/20 bg-linear-to-br from-cyan-500/6 via-white/2 to-blue-600/5 p-6 shadow-2xl shadow-cyan-950/40 md:p-10"
+      className="relative overflow-hidden rounded-3xl border border-cyan-400/20 bg-linear-to-br from-cyan-500/6 via-white/2 to-blue-600/5 p-5 shadow-2xl shadow-cyan-950/40 sm:p-6 md:p-9"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onFocus={() => setFocused(true)}
