@@ -29,15 +29,24 @@ const scrollState = (page: Page) =>
 test.describe('desktop', () => {
   test.use({ viewport: { width: 1280, height: 800 } })
 
-  test('two stacked cards, the screenshots on the right then the left', async ({ page }) => {
+  test('two stacked cards, the screenshots on the right then the left', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'a desktop layout; the phone describe below covers touch devices')
     await page.goto('/')
     const dev = card(page, /Like the builds/)
     const apt = card(page, /Run a local service business/)
     await apt.scrollIntoViewIfNeeded()
 
-    const devBox = await box(dev)
-    const aptBox = await box(apt)
-    expect(aptBox.y, 'stacked, not side by side').toBeGreaterThanOrEqual(devBox.y + devBox.height)
+    // Layout boxes, not boundingBox(): a card the page jumped past has not
+    // played its scroll reveal yet, so it is still translated down a little
+    // and would look like it overlaps the next one.
+    const layout = (c: Locator) =>
+      c.evaluate((el) => {
+        const wrapper = el.parentElement as HTMLElement
+        return { top: wrapper.offsetTop, height: wrapper.offsetHeight, width: wrapper.offsetWidth }
+      })
+    const devBox = await layout(dev)
+    const aptBox = await layout(apt)
+    expect(aptBox.top, 'stacked, not side by side').toBeGreaterThanOrEqual(devBox.top + devBox.height)
     expect(Math.abs(aptBox.width - devBox.width)).toBeLessThan(2)
 
     for (const [c, shotsOnRight] of [
