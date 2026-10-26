@@ -5834,6 +5834,830 @@
      "url": "https://github.com/n8watkins/portfolio-rank/commit/cdc1ba26e8a51116a55129cf286b0c626b2f51d2"
     }
    ]
+  },
+  {
+   "repo": "n8watkins/n8builds-web",
+   "pushedAt": "2026-10-26T19:43:05Z",
+   "releases": [
+    {
+     "tag": "v1.1.1",
+     "name": "v1.1.1",
+     "publishedAt": "2026-10-25T15:21:20Z",
+     "url": "https://github.com/n8watkins/n8builds-web/releases/tag/v1.1.1",
+     "draft": false,
+     "prerelease": false
+    },
+    {
+     "tag": "v1.1.0",
+     "name": "v1.1.0",
+     "publishedAt": "2026-10-25T05:01:18Z",
+     "url": "https://github.com/n8watkins/n8builds-web/releases/tag/v1.1.0",
+     "draft": false,
+     "prerelease": false
+    }
+   ],
+   "commits": [
+    {
+     "sha": "92da90373c2e2c74f617d1aae182cd64ce6851ae",
+     "message": "perf(home): server-render the homepage and animate with CSS (#44)",
+     "date": "2026-10-26T14:54:43Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/92da90373c2e2c74f617d1aae182cd64ce6851ae"
+    },
+    {
+     "sha": "2b8a4a81f8229e6252bff8ef1abdef4e9089052a",
+     "message": "fix(a11y): build log titles are tap-sized (24px), so /builds passes Lighthouse's target-size audit (#45)",
+     "date": "2026-10-26T14:54:25Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/2b8a4a81f8229e6252bff8ef1abdef4e9089052a"
+    },
+    {
+     "sha": "8265c0fed76aee8fe68fda0bbab18d007a6136ef",
+     "message": "fix: Appturnity contact copy and desktop Lighthouse wording (#43)",
+     "date": "2026-10-26T05:38:40Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/8265c0fed76aee8fe68fda0bbab18d007a6136ef"
+    },
+    {
+     "sha": "1b77488a77303dbf5cc5d6bb0f3241e2e70bbaab",
+     "message": "docs: Portfolio Rank and OpenPing follow-ups live in their own repos (#42)",
+     "date": "2026-10-26T05:33:15Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/1b77488a77303dbf5cc5d6bb0f3241e2e70bbaab"
+    },
+    {
+     "sha": "ad661c4533baca2462f11229c25878aa3cc73616",
+     "message": "docs: next session also writes follow-along plans for Portfolio Rank and OpenPing (#41)",
+     "date": "2026-10-26T04:52:17Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/ad661c4533baca2462f11229c25878aa3cc73616"
+    },
+    {
+     "sha": "0b1d17a684531f0bf210a9c811290c0d9dbe74c8",
+     "message": "docs: stopping point for 2026-10-25, and the next session's prompt (#40)",
+     "date": "2026-10-26T04:48:15Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/0b1d17a684531f0bf210a9c811290c0d9dbe74c8"
+    },
+    {
+     "sha": "a2184444c8b910642c149f0fc196f1e72ef78781",
+     "message": "perf: lazy Sentry, LazyMotion, filter-free glows, and a mobile Lighthouse pass (#39)",
+     "date": "2026-10-26T04:40:45Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/a2184444c8b910642c149f0fc196f1e72ef78781"
+    },
+    {
+     "sha": "d021005e00c6f2c1818ceed230a0740960fb05ad",
+     "message": "perf(builds): the build log hydrates in place and no longer shifts layout (#36)",
+     "date": "2026-10-26T03:39:38Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/d021005e00c6f2c1818ceed230a0740960fb05ad"
+    },
+    {
+     "sha": "a181bf4d74d88c29fa828dd0212d45010518ad8a",
+     "message": "feat(hero): the portrait fades in with the hero; templates named by site, with the N8 icon (#37)",
+     "date": "2026-10-26T03:38:27Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/a181bf4d74d88c29fa828dd0212d45010518ad8a"
+    },
+    {
+     "sha": "c43b81392229223a640782f9a2fe8a0aae902ee2",
+     "message": "ci(lighthouse): five runs per page, retry an unscored run; Details waits for hydration (#38)",
+     "date": "2026-10-26T03:28:08Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/c43b81392229223a640782f9a2fe8a0aae902ee2"
+    },
+    {
+     "sha": "841bd488400d2dc9dbdd6a2995ac35ae6a6f578a",
+     "message": "feat(blog): N8's Notions, and consistent fade-ins across the site (#35)",
+     "date": "2026-10-26T02:39:31Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/841bd488400d2dc9dbdd6a2995ac35ae6a6f578a"
+    },
+    {
+     "sha": "8d5c7a932f2350b71eaf4da4f2831a110298e4f8",
+     "message": "fix(nav): a new page opens at its top instead of scrolling up to it (#34)",
+     "date": "2026-10-26T02:37:19Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/8d5c7a932f2350b71eaf4da4f2831a110298e4f8"
+    },
+    {
+     "sha": "4985f4233217b8b4ec80eded5501e9aa3ad26fe9",
+     "message": "feat(lab): my daily tools lead the Lab; icons, Star, and a Details dialog for every build (#33)",
+     "date": "2026-10-26T01:50:56Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/4985f4233217b8b4ec80eded5501e9aa3ad26fe9"
+    },
+    {
+     "sha": "332d72ff8efd930ae808e04b4b83cd3e90439317",
+     "message": "feat(home): Appturnity ad, Appturnity-branded work card, site-wide footer sitemap (#32)",
+     "date": "2026-10-26T01:39:59Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/332d72ff8efd930ae808e04b4b83cd3e90439317"
+    },
+    {
+     "sha": "b3c2e518c33516e50c3b8fc2ee0dc9aef2f0698c",
+     "message": "feat(lab): ads for every featured build, a Scribe download link, and a portfolio ad (#31)",
+     "date": "2026-10-26T00:42:30Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/b3c2e518c33516e50c3b8fc2ee0dc9aef2f0698c"
+    },
+    {
+     "sha": "a2e2bed7bc7d4220976ef1e9b5cdc3dbae3cecee",
+     "message": "feat(lab): featured rows and build pages invite visitors to try each build (#30)",
+     "date": "2026-10-26T00:01:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/a2e2bed7bc7d4220976ef1e9b5cdc3dbae3cecee"
+    },
+    {
+     "sha": "4f92516f92b584ae43552e0b4c4248bb0f972a3d",
+     "message": "feat(builds): Portfolio Rank credits its list and invites visitors to add their portfolio (#29)",
+     "date": "2026-10-25T23:36:48Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/4f92516f92b584ae43552e0b4c4248bb0f972a3d"
+    },
+    {
+     "sha": "33de64b6dc3ff613d5c09d57bd53cedb5476e8f4",
+     "message": "feat(lab): daily drivers lead the featured rows; portfolio link; Use this as a template (#28)",
+     "date": "2026-10-25T22:50:44Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/33de64b6dc3ff613d5c09d57bd53cedb5476e8f4"
+    },
+    {
+     "sha": "ff3d872d1af920a7d6b6ac1a348adce9f059cea8",
+     "message": "feat(builds): OpenPing joins the Tools, with its build page and build log (#27)",
+     "date": "2026-10-25T21:00:23Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/ff3d872d1af920a7d6b6ac1a348adce9f059cea8"
+    },
+    {
+     "sha": "741602b158166d1dac868e09e4ff2b5a2c70447c",
+     "message": "chore(deps): Dependabot updates #4-#9 in one change (#26)",
+     "date": "2026-10-25T18:17:51Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/741602b158166d1dac868e09e4ff2b5a2c70447c"
+    },
+    {
+     "sha": "04115b13fa0c1b6e18f7d4e66925854cead5eb05",
+     "message": "docs: owner answers (train schedule, release-kit rollout, reCAPTCHA) (#25)",
+     "date": "2026-10-25T18:06:10Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/04115b13fa0c1b6e18f7d4e66925854cead5eb05"
+    },
+    {
+     "sha": "3e1978880c76183173429b77795345273ec9aa90",
+     "message": "fix(blog): post images no longer shift the page as they load (#24)",
+     "date": "2026-10-25T17:04:00Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/3e1978880c76183173429b77795345273ec9aa90"
+    },
+    {
+     "sha": "fbfe367e81d3d13db661d690f43f00e5dfa61adf",
+     "message": "chore(release): v1.1.1",
+     "date": "2026-10-25T15:20:20Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/fbfe367e81d3d13db661d690f43f00e5dfa61adf"
+    },
+    {
+     "sha": "fc936401826e1f70334c478c71d56e384e6205de",
+     "message": "ci: weekly release train (release-kit 1.1.0), safe with branch protection (#21)",
+     "date": "2026-10-25T09:58:02Z",
+     "author": "n8watkins",
+     "parents": 2,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/fc936401826e1f70334c478c71d56e384e6205de"
+    },
+    {
+     "sha": "53f660f55e14cecc24a3774ee8747a9ffe82e8de",
+     "message": "ci: let the release train start CI; release-kit 1.1.0",
+     "date": "2026-10-25T09:46:07Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/53f660f55e14cecc24a3774ee8747a9ffe82e8de"
+    },
+    {
+     "sha": "dceb2c7a3a15a1ec2c165cc0e9f5bb2813f4a418",
+     "message": "ci: remove the reusable-workflow probe (it passed: run 40170834807)",
+     "date": "2026-10-25T09:22:09Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/dceb2c7a3a15a1ec2c165cc0e9f5bb2813f4a418"
+    },
+    {
+     "sha": "53b5f696d8e57a41be7db10a6423b2fbbf010538",
+     "message": "ci: temporary probe of the kit's reusable commit check",
+     "date": "2026-10-25T09:22:09Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/53b5f696d8e57a41be7db10a6423b2fbbf010538"
+    },
+    {
+     "sha": "dc36c7c3b8836c2e9b21116165cc9d99c8150643",
+     "message": "docs: release train in HANDOFF and NEXT_STEPS",
+     "date": "2026-10-25T09:22:09Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/dc36c7c3b8836c2e9b21116165cc9d99c8150643"
+    },
+    {
+     "sha": "1dee1b50e3142cefc865d3b0d3bf952598a9434e",
+     "message": "refactor(build-log): the repo report uses the kit's own commit check",
+     "date": "2026-10-25T09:22:09Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/1dee1b50e3142cefc865d3b0d3bf952598a9434e"
+    },
+    {
+     "sha": "543d61ac0d03d84e15f939f767a1182c649e91a1",
+     "message": "ci: weekly release train that releases only user-facing work",
+     "date": "2026-10-25T09:22:09Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/543d61ac0d03d84e15f939f767a1182c649e91a1"
+    },
+    {
+     "sha": "35b16fd6877df972bd80bec3b6543eded7d105e6",
+     "message": "fix: review findings (#22)",
+     "date": "2026-10-25T07:30:29Z",
+     "author": "n8watkins",
+     "parents": 2,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/35b16fd6877df972bd80bec3b6543eded7d105e6"
+    },
+    {
+     "sha": "4f71c085cd39fd174454ad05b351412f0f46b650",
+     "message": "docs: build log filters, logHide and filtered links in HANDOFF",
+     "date": "2026-10-25T07:17:22Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/4f71c085cd39fd174454ad05b351412f0f46b650"
+    },
+    {
+     "sha": "218ffa855802a97370e91c25006a92880c3261c6",
+     "message": "fix(share): Copy link reports a failed copy; Share on X says it opens a new tab",
+     "date": "2026-10-25T07:17:02Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/218ffa855802a97370e91c25006a92880c3261c6"
+    },
+    {
+     "sha": "99227d74e7328bfea46102aa260dad190ada2b85",
+     "message": "fix(live): closed streams stay closed; live status lags two minutes, not four",
+     "date": "2026-10-25T07:17:00Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/99227d74e7328bfea46102aa260dad190ada2b85"
+    },
+    {
+     "sha": "de4d9d5968a964e955a5537fd2fb831edc89592b",
+     "message": "fix(build-log): a shared filtered link no longer flashes the whole feed",
+     "date": "2026-10-25T07:07:38Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/de4d9d5968a964e955a5537fd2fb831edc89592b"
+    },
+    {
+     "sha": "f3c2d8864d26caf60373994a5d65e87c43b87344",
+     "message": "fix(fonts): bundle Inter instead of fetching it from Google at build time",
+     "date": "2026-10-25T07:07:38Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/f3c2d8864d26caf60373994a5d65e87c43b87344"
+    },
+    {
+     "sha": "11115ee94630423e5807e03aa20c2b90dd0096b8",
+     "message": "fix(build-log): keep internal work out of the public log; let the owner hide entries",
+     "date": "2026-10-25T07:07:38Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/11115ee94630423e5807e03aa20c2b90dd0096b8"
+    },
+    {
+     "sha": "64b094bed1409f4a77f65f163e9bfd5cf1ce6642",
+     "message": "fix(content): current case-study numbers; Solara's GitHub link and live URL",
+     "date": "2026-10-25T07:07:38Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/64b094bed1409f4a77f65f163e9bfd5cf1ce6642"
+    },
+    {
+     "sha": "9f38600443646ef5bbdfe9b1b1cffa53ca62654a",
+     "message": "ci: docs-only shortcut, WebKit shards and a CI result check (#20)",
+     "date": "2026-10-25T07:07:25Z",
+     "author": "n8watkins",
+     "parents": 2,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/9f38600443646ef5bbdfe9b1b1cffa53ca62654a"
+    },
+    {
+     "sha": "5c400c945628c868115c83fa657cb5d67b3e4c32",
+     "message": "ci: a single CI result check for branch protection that accepts docs-only skips",
+     "date": "2026-10-25T06:45:13Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/5c400c945628c868115c83fa657cb5d67b3e4c32"
+    },
+    {
+     "sha": "876c8433023d59af6c28313568299d5678eb5be3",
+     "message": "ci: one worker per WebKit shard, and a realistic wait in the build log filter test",
+     "date": "2026-10-25T06:40:14Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/876c8433023d59af6c28313568299d5678eb5be3"
+    },
+    {
+     "sha": "5ae71518bc9b93354a3b3f1f77d4ccc3d093f423",
+     "message": "ci: skip browser tests and Lighthouse for docs-only changes; shard the WebKit jobs",
+     "date": "2026-10-25T06:35:55Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/5ae71518bc9b93354a3b3f1f77d4ccc3d093f423"
+    },
+    {
+     "sha": "9c3a2a2945defabe0084632573dbce114d53ee4b",
+     "message": "docs: owner to-do for the release-kit rollout (#19)",
+     "date": "2026-10-25T06:33:48Z",
+     "author": "n8watkins",
+     "parents": 2,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/9c3a2a2945defabe0084632573dbce114d53ee4b"
+    },
+    {
+     "sha": "f3b377a3b951ca732e0cfe2d03e9f3c457321bf7",
+     "message": "docs(owner todo): rolling the release standard out to the build repos",
+     "date": "2026-10-25T06:22:23Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/f3b377a3b951ca732e0cfe2d03e9f3c457321bf7"
+    },
+    {
+     "sha": "3e3e23b280e12bf75445c3b6f88b52caadf8fe68",
+     "message": "docs: release-kit public and adopted; v1.1.0 (#18)",
+     "date": "2026-10-25T05:12:47Z",
+     "author": "n8watkins",
+     "parents": 2,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/3e3e23b280e12bf75445c3b6f88b52caadf8fe68"
+    },
+    {
+     "sha": "8be0efcc6b6d6f77164833948d8f04adb263d3f4",
+     "message": "docs: release-kit is public and adopted here; v1.1.0 released",
+     "date": "2026-10-25T05:01:47Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/8be0efcc6b6d6f77164833948d8f04adb263d3f4"
+    },
+    {
+     "sha": "ed97b188f5865c2dd1725fd2c88a9b45a3e83fc1",
+     "message": "chore(release): v1.1.0",
+     "date": "2026-10-25T05:00:12Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/ed97b188f5865c2dd1725fd2c88a9b45a3e83fc1"
+    },
+    {
+     "sha": "b9d3564e38f8962a232c317b2ccf44d941ba8602",
+     "message": "chore: adopt release-kit (commit check and releases) (#17)",
+     "date": "2026-10-25T05:00:01Z",
+     "author": "n8watkins",
+     "parents": 2,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/b9d3564e38f8962a232c317b2ccf44d941ba8602"
+    },
+    {
+     "sha": "2099445bee131a369b45e9271cb41c7587dcf0db",
+     "message": "chore: release-kit 1.0.3",
+     "date": "2026-10-25T04:47:50Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/2099445bee131a369b45e9271cb41c7587dcf0db"
+    },
+    {
+     "sha": "9b1de6f5ea683208efc9925b5246012a432abf14",
+     "message": "chore: adopt release-kit 1.0.2 (Conventional Commits check, release workflow)",
+     "date": "2026-10-25T04:46:52Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/9b1de6f5ea683208efc9925b5246012a432abf14"
+    },
+    {
+     "sha": "528436ccf0cd28d7d5891a1ab09a1777bc00fa05",
+     "message": "docs: stopping point: done log, review prompt, status (#16)",
+     "date": "2026-10-25T04:38:45Z",
+     "author": "n8watkins",
+     "parents": 2,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/528436ccf0cd28d7d5891a1ab09a1777bc00fa05"
+    },
+    {
+     "sha": "4373b805f664a36ad49ce09a5a9c4fbcff1e8142",
+     "message": "docs: a clean stopping point: done log with PRs, review prompt for 2026-10-23/24, status and owner to-dos",
+     "date": "2026-10-25T04:29:11Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/4373b805f664a36ad49ce09a5a9c4fbcff1e8142"
+    },
+    {
+     "sha": "6801f112979c8e117f9d094affe8eda3cc9f9021",
+     "message": "docs: status after the build log and live player (#15)",
+     "date": "2026-10-24T08:44:40Z",
+     "author": "n8watkins",
+     "parents": 2,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/6801f112979c8e117f9d094affe8eda3cc9f9021"
+    },
+    {
+     "sha": "8ca3bce1e980b225f7f0210476ed3767857de1c8",
+     "message": "docs: build log, live player and Studio schemas are done; how to use the live switch and highlights",
+     "date": "2026-10-24T08:35:02Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/8ca3bce1e980b225f7f0210476ed3767857de1c8"
+    },
+    {
+     "sha": "66a0683a725a27f4ea3f8b500f23a77e70f48a8a",
+     "message": "feat(live): corner player, /live link and the Studio live switch (#13)",
+     "date": "2026-10-24T08:31:41Z",
+     "author": "n8watkins",
+     "parents": 2,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/66a0683a725a27f4ea3f8b500f23a77e70f48a8a"
+    },
+    {
+     "sha": "a4ae9a7d4fa2d093cf699e313708b2d08e3edbe3",
+     "message": "fix(share): keep Copy link disabled until it hydrates",
+     "date": "2026-10-24T06:49:34Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/a4ae9a7d4fa2d093cf699e313708b2d08e3edbe3"
+    },
+    {
+     "sha": "df622c5b71493ac4227ed5cc5fe663a350164870",
+     "message": "test(live): check the phone player's margins against the navbar's area",
+     "date": "2026-10-24T06:48:43Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/df622c5b71493ac4227ed5cc5fe663a350164870"
+    },
+    {
+     "sha": "3874a4a73cacfe8285937751961dfe2f760c8be9",
+     "message": "test(live): measure the phone player against the visual viewport",
+     "date": "2026-10-24T06:48:43Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/3874a4a73cacfe8285937751961dfe2f760c8be9"
+    },
+    {
+     "sha": "86c5dbf964e1fc70c30bb1b5d71d1e4c719820cc",
+     "message": "docs(live): how live detection works, its env vars and the Studio switch",
+     "date": "2026-10-24T06:48:43Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/86c5dbf964e1fc70c30bb1b5d71d1e4c719820cc"
+    },
+    {
+     "sha": "66ac2a2951e87478de6e07f76a0065766bdb40e1",
+     "message": "test(live): E2E for the player, /api/live and /live; privacy paragraph",
+     "date": "2026-10-24T06:48:33Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/66ac2a2951e87478de6e07f76a0065766bdb40e1"
+    },
+    {
+     "sha": "4ffca97ac0c459894f6cef1280bd54d7d38ded16",
+     "message": "feat(live): floating corner player, /live redirect and navbar live dot",
+     "date": "2026-10-24T06:48:33Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/4ffca97ac0c459894f6cef1280bd54d7d38ded16"
+    },
+    {
+     "sha": "4908128e58bdacdd015b85bc95916362579fc430",
+     "message": "feat(live): live status resolver and /api/live",
+     "date": "2026-10-24T06:48:33Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/4908128e58bdacdd015b85bc95916362579fc430"
+    },
+    {
+     "sha": "897d6d6e75172ab243d31f1094949f008f957fe1",
+     "message": "feat(builds): the /builds build log, fed from GitHub (#14)",
+     "date": "2026-10-24T06:45:46Z",
+     "author": "n8watkins",
+     "parents": 2,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/897d6d6e75172ab243d31f1094949f008f957fe1"
+    },
+    {
+     "sha": "cbbc9530d4f53860af72201f8be8e88b678a7979",
+     "message": "fix(build-log): filter chips apply the filter when clicked",
+     "date": "2026-10-24T06:35:37Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/cbbc9530d4f53860af72201f8be8e88b678a7979"
+    },
+    {
+     "sha": "e7db3b55a0acef13d554cb9991105edec5f328ed",
+     "message": "fix(build-log): leave builds without a tracked repo out of the log",
+     "date": "2026-10-24T06:29:47Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/e7db3b55a0acef13d554cb9991105edec5f328ed"
+    },
+    {
+     "sha": "47bde42ab39026d85ea2afabe7e4e143c765ea81",
+     "message": "fix(lighthouse): retry a Chrome launch that never reports its debugging port",
+     "date": "2026-10-24T06:28:46Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/47bde42ab39026d85ea2afabe7e4e143c765ea81"
+    },
+    {
+     "sha": "67119610e0c30103f3d38c79dae2b7ce02ce7f7f",
+     "message": "test(build-log): match the Last shipped label across its span",
+     "date": "2026-10-24T06:28:46Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/67119610e0c30103f3d38c79dae2b7ce02ce7f7f"
+    },
+    {
+     "sha": "a01a15acb9c58a2d54d5dde5cc60a4bfe1bc548a",
+     "message": "docs: how the build log is fed, its filter rules, the token and what's left",
+     "date": "2026-10-24T06:28:46Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/a01a15acb9c58a2d54d5dde5cc60a4bfe1bc548a"
+    },
+    {
+     "sha": "fd80b9c17b73a59dba2d3989d77238834f3bea69",
+     "message": "ci(nightly): check the repos that feed the build log",
+     "date": "2026-10-24T06:28:46Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/fd80b9c17b73a59dba2d3989d77238834f3bea69"
+    },
+    {
+     "sha": "acba9854df8d119481cf39c696703012a9f14f13",
+     "message": "test(build-log): E2E for the page, filter, navbar link, build-page activity and sitemap",
+     "date": "2026-10-24T06:28:46Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/acba9854df8d119481cf39c696703012a9f14f13"
+    },
+    {
+     "sha": "38a716874148329448d4c6ffc717d44df733ff93",
+     "message": "test(build-log): run E2E and Lighthouse against the recorded GitHub fixture",
+     "date": "2026-10-24T06:28:46Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/38a716874148329448d4c6ffc717d44df733ff93"
+    },
+    {
+     "sha": "604fc8f4a705fd7390a111b4c1cdae6a93d6c437",
+     "message": "feat(builds): /builds log page, share card, build-page activity and nav link",
+     "date": "2026-10-24T06:28:46Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/604fc8f4a705fd7390a111b4c1cdae6a93d6c437"
+    },
+    {
+     "sha": "4ce89ab35eb282638fa2b43ad4ca24b635cffdf3",
+     "message": "feat(build-log): GitHub-fed build log with commit filtering and Sanity highlights",
+     "date": "2026-10-24T06:28:46Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/4ce89ab35eb282638fa2b43ad4ca24b635cffdf3"
+    },
+    {
+     "sha": "2b1cf8c220a15d9ece08febcfadfa0880e18cb68",
+     "message": "feat(builds): track each build's GitHub repo for the build log",
+     "date": "2026-10-24T06:28:46Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/2b1cf8c220a15d9ece08febcfadfa0880e18cb68"
+    },
+    {
+     "sha": "ea56df1f45e0f1c24d2ea199595e7efcc2815484",
+     "message": "feat(builds): a build page for n8builds.dev itself (#12)",
+     "date": "2026-10-24T06:26:06Z",
+     "author": "n8watkins",
+     "parents": 2,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/ea56df1f45e0f1c24d2ea199595e7efcc2815484"
+    },
+    {
+     "sha": "88c1710aa192819b62caa0c35483b7218a1e7544",
+     "message": "docs(next steps): the n8builds build page is done",
+     "date": "2026-10-24T06:18:47Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/88c1710aa192819b62caa0c35483b7218a1e7544"
+    },
+    {
+     "sha": "fe3bacbb97d88060d0149d716ca9a9a126da9619",
+     "message": "docs: the n8builds build page in HANDOFF and the content inventory",
+     "date": "2026-10-24T06:18:42Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/fe3bacbb97d88060d0149d716ca9a9a126da9619"
+    },
+    {
+     "sha": "5eaf02e71c4f99f3c9cd1b430e21350bbbd78371",
+     "message": "test(builds): the n8builds page, its screenshots, share card and featured row",
+     "date": "2026-10-24T06:18:42Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/5eaf02e71c4f99f3c9cd1b430e21350bbbd78371"
+    },
+    {
+     "sha": "95002ba0c59ef2ad62e3678c8943be5ac1554273",
+     "message": "feat(builds): a build page for n8builds.dev itself, featured on the homepage",
+     "date": "2026-10-24T06:18:42Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/95002ba0c59ef2ad62e3678c8943be5ac1554273"
+    },
+    {
+     "sha": "e0620e1bb0925def97c9d77da64faa762a8af908",
+     "message": "feat(blog): Share on X and Copy link on every post (#11)",
+     "date": "2026-10-24T06:09:21Z",
+     "author": "n8watkins",
+     "parents": 2,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/e0620e1bb0925def97c9d77da64faa762a8af908"
+    },
+    {
+     "sha": "bc5f44a6aacd640574c6abcf304354d39e403a62",
+     "message": "ci: all browsers and Lighthouse on every PR (#10)",
+     "date": "2026-10-24T06:04:11Z",
+     "author": "n8watkins",
+     "parents": 2,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/bc5f44a6aacd640574c6abcf304354d39e403a62"
+    },
+    {
+     "sha": "2255d4db754ce72f6a5a25bbaffd796dcc382f92",
+     "message": "feat(blog): share bar on every post: Share on X and Copy link",
+     "date": "2026-10-24T06:01:09Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/2255d4db754ce72f6a5a25bbaffd796dcc382f92"
+    },
+    {
+     "sha": "085d2510df43789a522d489c4d7f54c4802c10be",
+     "message": "ci: every PR runs all six browser projects in parallel, plus Lighthouse",
+     "date": "2026-10-24T05:57:38Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/085d2510df43789a522d489c4d7f54c4802c10be"
+    },
+    {
+     "sha": "37840e180993dcf6f11125238ac1b95da80378a8",
+     "message": "docs: X streaming and X articles plans; next steps split into your to-do and the build list",
+     "date": "2026-10-24T05:54:48Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/37840e180993dcf6f11125238ac1b95da80378a8"
+    },
+    {
+     "sha": "f9689f89d4cde50cb9e4ed9e06403ebafacc1885",
+     "message": "docs(live): Twitch and YouTube player, /live link, limitations and recommendation",
+     "date": "2026-10-24T05:51:17Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/f9689f89d4cde50cb9e4ed9e06403ebafacc1885"
+    },
+    {
+     "sha": "7b33f4f404006fe141c8ea174a08528c8025c1ee",
+     "message": "docs: step-by-step next steps, and the live stream plan (Twitch and YouTube)",
+     "date": "2026-10-24T05:44:14Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/7b33f4f404006fe141c8ea174a08528c8025c1ee"
+    },
+    {
+     "sha": "0844c2865f39b10e02dee4197d7ba2ae8228bf48",
+     "message": "chore: repo hygiene",
+     "date": "2026-10-24T05:29:14Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/0844c2865f39b10e02dee4197d7ba2ae8228bf48"
+    },
+    {
+     "sha": "e1f1c79e2df1f66291bb863997f43244108a6cf7",
+     "message": "docs: streaming plan, YouTube and Launch Kit status, release standard in the log plan",
+     "date": "2026-10-24T05:29:07Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/e1f1c79e2df1f66291bb863997f43244108a6cf7"
+    },
+    {
+     "sha": "9642747a7dd9b38dbe8abefb5eb170005c7bdef2",
+     "message": "fix(motion): reduced motion shows sections without a fade or a jump",
+     "date": "2026-10-24T05:29:05Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/9642747a7dd9b38dbe8abefb5eb170005c7bdef2"
+    },
+    {
+     "sha": "33989f11c5b7cc765b7bea376177b069ac89716a",
+     "message": "content: put the Chrome Extension Launch Kit on hold",
+     "date": "2026-10-24T05:29:03Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/33989f11c5b7cc765b7bea376177b069ac89716a"
+    },
+    {
+     "sha": "5c0ed5c11150505f6d1e60b063a88c0bb18ef996",
+     "message": "content: remove the YouTube link until the channel is live",
+     "date": "2026-10-24T05:29:01Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/5c0ed5c11150505f6d1e60b063a88c0bb18ef996"
+    },
+    {
+     "sha": "854c2cf1800fca4db7582ee78820f3d3dd57e011",
+     "message": "docs(log plan): Launch Kit on hold, not in the log or the token scope",
+     "date": "2026-10-24T03:36:21Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/854c2cf1800fca4db7582ee78820f3d3dd57e011"
+    },
+    {
+     "sha": "9f5bcc3533964c97cccc30c7ee4dc2f67a7b324e",
+     "message": "docs: plan for the /builds log, fed automatically from GitHub",
+     "date": "2026-10-23T23:58:43Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/9f5bcc3533964c97cccc30c7ee4dc2f67a7b324e"
+    },
+    {
+     "sha": "ffc4128042fa37d264b8cf8590b20a0bf32be725",
+     "message": "feat(motion): sections fade up as they scroll into view",
+     "date": "2026-10-23T23:18:40Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/ffc4128042fa37d264b8cf8590b20a0bf32be725"
+    },
+    {
+     "sha": "f3015f3b32b81dba4213a8b1149ebaab375860b8",
+     "message": "feat(share): titled post cards over the cover, and share text that fits",
+     "date": "2026-10-23T22:55:46Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/f3015f3b32b81dba4213a8b1149ebaab375860b8"
+    },
+    {
+     "sha": "5227c095c5af2d4bf783241e15d485a504b7003c",
+     "message": "fix(stack cards): no 24px offset before hydration, and the slide can't widen the page",
+     "date": "2026-10-23T20:13:57Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/5227c095c5af2d4bf783241e15d485a504b7003c"
+    },
+    {
+     "sha": "9d2229e3245c007c14630e5e0e2cd5faeb726d8b",
+     "message": "docs(handoff): why the hero is top-aligned",
+     "date": "2026-10-23T19:34:23Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/9d2229e3245c007c14630e5e0e2cd5faeb726d8b"
+    },
+    {
+     "sha": "655b7bd6e3acaba3c36009b0e801c552de4608e5",
+     "message": "test: a 60s budget for the two-Turnstile retry test; upload Lighthouse reports",
+     "date": "2026-10-23T19:34:21Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/655b7bd6e3acaba3c36009b0e801c552de4608e5"
+    },
+    {
+     "sha": "eaad40ff76e5e3cd7f11c958d867c2d0463275ab",
+     "message": "fix(home): no layout shift while a slow device paints the page",
+     "date": "2026-10-23T19:34:19Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/eaad40ff76e5e3cd7f11c958d867c2d0463275ab"
+    },
+    {
+     "sha": "26ea730cd904b739ee461f88d6f87ba6bca5ec80",
+     "message": "docs(cloudflare): mention the Vercel WAF rule; no em dashes",
+     "date": "2026-10-23T19:06:05Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/n8builds-web/commit/26ea730cd904b739ee461f88d6f87ba6bca5ec80"
+    }
+   ]
   }
  ],
  "highlights": [

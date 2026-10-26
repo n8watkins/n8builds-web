@@ -278,16 +278,32 @@ describe('merging, sorting and the builds index', () => {
 
   it('tracks the visible builds with a repo, and none of the hidden ones', () => {
     const tracked = builds.filter((b) => b.repo)
-    expect(tracked.map((b) => b.slug)).toEqual(['piper-tts', 'tldw', 'tubevault', 'scribe', 'openping', 'solara', 'portfolio-rank'])
+    expect(tracked.map((b) => b.slug)).toEqual(['piper-tts', 'tldw', 'tubevault', 'scribe', 'openping', 'solara', 'portfolio-rank', 'n8builds'])
     expect(tracked.every((b) => /^n8watkins\/[\w-]+$/.test(b.repo!))).toBe(true)
     expect(hiddenBuilds.every((b) => !b.repo)).toBe(true)
     expect(new Set(log.entries.map((e) => e.build))).toEqual(new Set(tracked.map((b) => b.slug)))
   })
 
+  it("keeps this site's own busy repo to its releases and user-facing changes", () => {
+    const site = snapshot('n8builds-web')
+    const entries = entriesForBuild(build('n8builds'), site)
+    // One entry a day at most, however many commits landed.
+    expect(new Set(entries.map((e) => e.day)).size).toBe(entries.length)
+    expect(entries.length).toBeLessThan(site.commits.length / 10)
+    expect(entries.filter((e) => e.kind === 'release').map((e) => e.title)).toEqual(['Shipped v1.1.1', 'Shipped v1.1.0'])
+    // Only feat, fix and perf commits (or plain news sentences) reach it: never chores, docs, tests or CI.
+    const kept = site.commits.map(classifyCommit).filter((v) => v.kind === 'change')
+    const keptMessages = site.commits.filter((c) => classifyCommit(c).kind === 'change').map((c) => c.message)
+    expect(kept.length).toBeGreaterThan(0)
+    expect(keptMessages.every((m) => !/^(chore|docs|test|ci|build|refactor|style)(\(|:|!)/.test(m))).toBe(true)
+    // The owner's hide list drops CI plumbing that reads like a fix.
+    expect(entries.some((e) => /debugging port/i.test(e.title))).toBe(false)
+  })
+
   it('leaves untracked builds out of the index, rather than showing them as empty', () => {
-    // n8builds itself is a build page, not a tracked repo.
-    expect(build('n8builds').repo).toBeUndefined()
-    expect(log.activity.map((a) => a.slug)).not.toContain('n8builds')
+    // A build page without a repo (n8builds was one until 2026-10-26).
+    const untracked = { ...build('tldw'), slug: 'untracked', repo: undefined }
+    expect(assembleLog([...builds, untracked], snapshots, highlights).activity.map((a) => a.slug)).not.toContain('untracked')
     const off = { ...build('tldw'), log: 'off' as const }
     const without = assembleLog([...builds.filter((b) => b.slug !== 'tldw'), off], snapshots, highlights)
     expect(without.activity.map((a) => a.slug)).not.toContain('tldw')
@@ -324,8 +340,8 @@ describe('merging, sorting and the builds index', () => {
   })
 
   it('sorts builds by their latest activity and labels it as a month, never "ago"', () => {
-    expect(log.activity.map((a) => a.slug)).toEqual(['solara', 'tldw', 'openping', 'scribe', 'portfolio-rank', 'tubevault', 'piper-tts'])
-    expect(log.activity.map((a) => a.lastShippedLabel)).toEqual(['Oct 2026', 'Jul 2026', 'Jul 2026', 'Jul 2026', 'Jun 2026', 'Jun 2026', 'Jun 2026'])
+    expect(log.activity.map((a) => a.slug)).toEqual(['n8builds', 'solara', 'tldw', 'openping', 'scribe', 'portfolio-rank', 'tubevault', 'piper-tts'])
+    expect(log.activity.map((a) => a.lastShippedLabel)).toEqual(['Oct 2026', 'Oct 2026', 'Jul 2026', 'Jul 2026', 'Jul 2026', 'Jun 2026', 'Jun 2026', 'Jun 2026'])
     expect(log.activity.every((a) => a.latest.length === 2)).toBe(true)
   })
 
