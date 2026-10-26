@@ -16,9 +16,9 @@ import { DINO_COLS, DINO_FRAMES, DINO_ROWS, framePaths, type DinoFrame } from '.
  * Clicking (or tapping) the dino makes it roar: a pixel "RAWR!" bubble pops
  * up and, if it is walking, it backflips on the spot, changing colour each
  * time. Only its own small box takes the pointer, so the tiles around it stay
- * clickable; it is decorative and hidden from assistive tech. Once per visit,
- * after it has walked a few seconds unpoked, a small "POKE ME?" bubble hints
- * that it can be clicked.
+ * clickable; it is decorative and hidden from assistive tech. Now and then
+ * it says something in a smaller bubble (DINO_LINES), the first a few seconds
+ * in, hinting that it can be clicked.
  *
  * It runs on requestAnimationFrame with direct DOM writes (no React renders
  * per frame, no motion library), and stops while the panel is off screen or
@@ -67,22 +67,43 @@ const FLIP_T = 0.7 // s per backflip
 // with notched corners, its tail pointing down at the dino's mouth ('left' or
 // 'right'). 'f' is the bubble, 't' the text.
 const GLYPHS: Record<string, string[]> = {
-  R: ['###', '#.#', '##.', '#.#', '#.#'],
   A: ['.#.', '#.#', '###', '#.#', '#.#'],
-  W: ['#...#', '#...#', '#.#.#', '#.#.#', '.#.#.'],
-  '!': ['#', '#', '#', '.', '#'],
-  P: ['###', '#.#', '###', '#..', '#..'],
-  O: ['###', '#.#', '#.#', '#.#', '###'],
-  K: ['#.#', '#.#', '##.', '#.#', '#.#'],
+  B: ['##.', '#.#', '##.', '#.#', '##.'],
+  C: ['.##', '#..', '#..', '#..', '.##'],
+  D: ['##.', '#.#', '#.#', '#.#', '##.'],
   E: ['###', '#..', '##.', '#..', '###'],
+  F: ['###', '#..', '##.', '#..', '#..'],
+  G: ['.##', '#..', '#.#', '#.#', '.##'],
+  H: ['#.#', '#.#', '###', '#.#', '#.#'],
+  I: ['###', '.#.', '.#.', '.#.', '###'],
+  J: ['..#', '..#', '..#', '#.#', '.#.'],
+  K: ['#.#', '#.#', '##.', '#.#', '#.#'],
+  L: ['#..', '#..', '#..', '#..', '###'],
   M: ['#...#', '##.##', '#.#.#', '#...#', '#...#'],
+  N: ['#..#', '##.#', '#.##', '#..#', '#..#'],
+  O: ['###', '#.#', '#.#', '#.#', '###'],
+  P: ['###', '#.#', '###', '#..', '#..'],
+  Q: ['###', '#.#', '#.#', '###', '..#'],
+  R: ['###', '#.#', '##.', '#.#', '#.#'],
+  S: ['.##', '#..', '.#.', '..#', '##.'],
+  T: ['###', '.#.', '.#.', '.#.', '.#.'],
+  U: ['#.#', '#.#', '#.#', '#.#', '###'],
+  V: ['#.#', '#.#', '#.#', '#.#', '.#.'],
+  W: ['#...#', '#...#', '#.#.#', '#.#.#', '.#.#.'],
+  X: ['#.#', '#.#', '.#.', '#.#', '#.#'],
+  Y: ['#.#', '#.#', '.#.', '.#.', '.#.'],
+  Z: ['###', '..#', '.#.', '#..', '###'],
+  '!': ['#', '#', '#', '.', '#'],
   '?': ['###', '..#', '.##', '...', '.#.'],
+  '.': ['.', '.', '.', '.', '#'],
+  "'": ['#', '#', '.', '.', '.'],
   ' ': ['.', '.', '.', '.', '.'],
 }
 function bubbleRows(text: string, tail: 'left' | 'right') {
   const word = text
+    .toUpperCase()
     .split('')
-    .map((c) => GLYPHS[c])
+    .map((c) => GLYPHS[c] ?? GLYPHS[' '])
     .reduce((acc, g, i) => acc.map((row, y) => row + (i ? '.' : '') + g[y]), ['', '', '', '', ''])
   const lines = word.map((row) => 'fff' + row.replace(/#/g, 't').replace(/\./g, 'f') + 'fff')
   const w = lines[0].length
@@ -116,13 +137,30 @@ function makeBubble(text: string, px: number) {
   return { left, right, w: left.cols * px, h: left.rows * px }
 }
 type Bubble = ReturnType<typeof makeBubble>
-// The roar is a touch chunkier than the dino, so the word reads; the hint
-// that it can be poked is smaller and quieter.
+// The roar is a touch chunkier than the dino, so the word reads.
 const ROAR = makeBubble('RAWR!', 3)
-const HINT = makeBubble('POKE ME?', 2)
-const HINT_AFTER = 4 // s of walking on screen before the hint shows
-const HINT_FOR = 2.6 // s it stays up
-const HINT_KEY = 'n8-dino-hint' // sessionStorage: shown once per visit
+
+/**
+ * Things the dino says now and then while it walks, in this order, each once
+ * per visit: smaller and quieter than the roar. The first comes a few seconds
+ * in and hints that it can be clicked (skipped once it has been). Edit freely:
+ * letters, ! ? . ' and spaces (the pixel font has no digits).
+ */
+export const DINO_LINES = [
+  'Psst... click me',
+  "Can't catch me!",
+  'Hop hop',
+  'Shipping...',
+  'RAWR?',
+  'Spending tokens',
+  "Bet you can't",
+]
+const CLICK_HINTS = new Set([0]) // lines that only make sense before a click
+const LINES = DINO_LINES.map((line) => makeBubble(line, 2))
+const FIRST_LINE_AFTER = 4 // s of walking in view before the first line
+const LINE_GAP = [15, 25] as const // s between lines (walking in view)
+const LINE_FOR = 2.6 // s a line stays up
+const LINE_KEY = 'n8-dino-line' // sessionStorage: the next line to say
 // Only the current frame shows (the root's data-frame); spelled out in full so
 // Tailwind's scanner sees each class.
 const FRAME_CLASS: Record<DinoFrame, string> = {
@@ -139,14 +177,14 @@ const FRAMES = (Object.keys(DINO_FRAMES) as DinoFrame[]).map((name) => ({
 export default function DinoGame() {
   const dinoRef = useRef<HTMLDivElement>(null)
   const bubbleRef = useRef<HTMLDivElement>(null)
-  const hintRef = useRef<HTMLDivElement>(null)
+  const linesRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const dino = dinoRef.current
     const bubble = bubbleRef.current
-    const hint = hintRef.current
+    const lineEls = [...(linesRef.current?.children ?? [])] as HTMLElement[]
     const panel = dino?.closest<HTMLElement>('[data-dino-panel]')
-    if (!dino || !bubble || !hint || !panel) return
+    if (!dino || !bubble || !panel) return
 
     let rows: Row[] = []
     let levels: Level[] = []
@@ -207,15 +245,16 @@ export default function DinoGame() {
     // The click easter egg.
     let roars = 0
     let roarLeft = 0 // s the bubble has left
-    // The once-per-visit hint that it can be clicked.
-    let hintArmed = true
+    // What it says now and then (DINO_LINES), each once per visit.
+    let nextLine = 0
     try {
-      hintArmed = sessionStorage.getItem(HINT_KEY) === null
+      nextLine = Number(sessionStorage.getItem(LINE_KEY)) || 0
     } catch {
-      // Storage blocked: show it (once for this page view).
+      // Storage blocked: start from the first line on every page view.
     }
-    let walkedFor = 0
-    let hintLeft = 0
+    let lineWait = FIRST_LINE_AFTER
+    let line = -1 // the line showing, if any
+    let lineLeft = 0
     let flip = { t: 0, h: 0, floor: 0 }
     let angle = 0
 
@@ -303,7 +342,12 @@ export default function DinoGame() {
       const spans = current?.row ? intervals(current.row, panelLeft) : null
       const foot = x + W / 2
 
-      if (mode === 'walk' && current) {
+      if (mode === 'walk' && current && line >= 0 && spans && support(foot, spans)) {
+        // Saying something: it stops to talk, riding along on its tile, so
+        // the line stays put long enough to read (on a phone too).
+        x += (current.row?.velocity ?? 0) * dt
+        frame = 'stepA'
+      } else if (mode === 'walk' && current) {
         x += dir * SPEED * dt
         walked += SPEED * dt
         if (walked >= STEP_EVERY) {
@@ -417,31 +461,39 @@ export default function DinoGame() {
           x = panelW
           reentering = true
         }
+        // A line it was saying ends as it walks off.
+        if (reentering && line >= 0) lineLeft = Math.min(lineLeft, 0.1)
         // Ground lines have no gaps to fall through: leaving one ends the run.
         if (current && !current.row && (x <= -W || x >= panelW)) respawn()
       }
 
       dino.style.transform = `translate3d(${x.toFixed(1)}px, ${(y - H).toFixed(1)}px, 0) scaleX(${dir}) rotate(${angle.toFixed(1)}deg)`
 
-      // The hint: once it has walked a few seconds in plain view, unpoked.
-      // Only while it is clear of the edge fades, so the hint is seen.
+      // Now and then it says something: counted while it walks in plain
+      // view (clear of the edge fades, so the line is seen), never over a
+      // roar.
       const clear = x > panelW * 0.22 && x + W < panelW * 0.78
-      if (hintArmed && mode === 'walk' && roars === 0 && clear) {
-        walkedFor += dt
-        if (walkedFor >= HINT_AFTER) {
-          hintArmed = false
-          hintLeft = HINT_FOR
-          dino.dataset.hint = 'shown'
-          try {
-            sessionStorage.setItem(HINT_KEY, '1')
-          } catch {
-            // Storage blocked: it just may show again next visit.
+      if (line < 0 && roarLeft <= 0 && mode === 'walk' && clear && nextLine < LINES.length) {
+        lineWait -= dt
+        if (lineWait <= 0) {
+          while (roars > 0 && CLICK_HINTS.has(nextLine)) nextLine++
+          if (nextLine < LINES.length) {
+            line = nextLine++
+            lineLeft = LINE_FOR
+            dino.dataset.line = String(line)
+            try {
+              sessionStorage.setItem(LINE_KEY, String(nextLine))
+            } catch {
+              // Storage blocked: lines may repeat next visit.
+            }
           }
+          lineWait = LINE_GAP[0] + Math.random() * (LINE_GAP[1] - LINE_GAP[0])
         }
       }
-      if (hintLeft > 0) {
-        hintLeft = roarLeft > 0 ? 0 : hintLeft - dt
-        place(hint, HINT, hintLeft, HINT_FOR)
+      if (line >= 0) {
+        lineLeft = roarLeft > 0 ? 0 : lineLeft - dt
+        place(lineEls[line], LINES[line], lineLeft, LINE_FOR)
+        if (lineLeft <= 0) line = -1
       }
       if (roarLeft > 0) {
         roarLeft -= dt
@@ -474,7 +526,6 @@ export default function DinoGame() {
       event.preventDefault()
       roars += 1
       roarLeft = ROAR_FOR
-      hintArmed = false
       dino.style.setProperty('--dino-body', BODY_COLORS[roars % BODY_COLORS.length])
       dino.dataset.roars = String(roars)
       // A backflip on the spot, if it is walking (mid-jump or falling, it
@@ -543,7 +594,11 @@ export default function DinoGame() {
         </svg>
       </div>
       <BubbleView ref={bubbleRef} bubble={ROAR} name="roar" />
-      <BubbleView ref={hintRef} bubble={HINT} name="hint" className="opacity-90" />
+      <div ref={linesRef} className="contents">
+        {LINES.map((b, i) => (
+          <BubbleView key={DINO_LINES[i]} bubble={b} name={`line-${i}`} className="opacity-90" />
+        ))}
+      </div>
     </>
   )
 }
@@ -554,7 +609,7 @@ function BubbleView({
   name,
   className,
 }: {
-  ref: React.Ref<HTMLDivElement>
+  ref?: React.Ref<HTMLDivElement>
   bubble: Bubble
   name: string
   className?: string
