@@ -79,8 +79,8 @@ export default function ConsentBanner({ fromSettings, onClose }: { fromSettings:
             Analytics cookies?
           </h2>
           <p id={bodyId} className="mt-1 text-[0.85rem] leading-relaxed text-slate-400">
-            I&rsquo;d like to use Google Analytics to see which builds people read. No ads, no selling data, and
-            the site works the same either way.{' '}
+            May I use Google Analytics to see which builds get read? No ads, and the site works the same
+            either way.{' '}
             <Link href="/privacy" className="text-cyan-300 underline underline-offset-2 hover:text-cyan-200">
               Privacy
             </Link>
