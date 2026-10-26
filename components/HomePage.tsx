@@ -10,6 +10,7 @@ import NowBuilding from '@/components/sections/NowBuilding'
 import FeaturedProjects from '@/components/sections/FeaturedProjects'
 import ShelfSection from '@/components/sections/ShelfSection'
 import UseAsTemplate from '@/components/sections/UseAsTemplate'
+import PortfolioAd from '@/components/sections/PortfolioAd'
 import NotionsStrip from '@/components/sections/NotionsStrip'
 import ExtensionsShowcase from '@/components/sections/ExtensionsShowcase'
 import LabSectionNav from '@/components/sections/LabSectionNav'
@@ -138,12 +139,10 @@ export default function HomePage({ posts }: { posts: Post[] }) {
           </SectionErrorBoundary>
         </Band>
 
-        {/* ===== USE THIS AS A TEMPLATE, right after the Lab: both sites are
-             public. The portfolio card is also the ad for the developer
-             portfolio (hiring after seeing the builds? One click). ===== */}
+        {/* ===== THE PORTFOLIO AD: hiring after seeing the builds? One click. ===== */}
         <Band>
-          <SectionErrorBoundary sectionName="Use as Template">
-            <UseAsTemplate />
+          <SectionErrorBoundary sectionName="Portfolio Ad">
+            <PortfolioAd />
           </SectionErrorBoundary>
         </Band>
 
@@ -151,6 +150,14 @@ export default function HomePage({ posts }: { posts: Post[] }) {
         <Band tone="raised">
           <SectionErrorBoundary sectionName="N8's Notions">
             <NotionsStrip posts={posts} />
+          </SectionErrorBoundary>
+        </Band>
+
+        {/* ===== USE THIS AS A TEMPLATE: both sites are public; how n8builds
+             is built and tested lives here, not in a featured row. ===== */}
+        <Band>
+          <SectionErrorBoundary sectionName="Use as Template">
+            <UseAsTemplate />
           </SectionErrorBoundary>
         </Band>
 
