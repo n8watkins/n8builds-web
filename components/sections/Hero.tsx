@@ -7,6 +7,10 @@ import WhoamiTerminal from '@/components/features/WhoamiTerminal'
 import FadeIn from '@/components/ui/FadeIn'
 import HeroGrid from '@/components/sections/HeroGrid'
 import HeroChainMeter from '@/components/sections/HeroChainMeter'
+import HeroPortraitSwap from '@/components/sections/HeroPortraitSwap'
+
+/** The portrait's rendered width at each breakpoint (its w-* classes below). */
+const PORTRAIT_SIZES = '(max-width: 359px) 10rem, (max-width: 639px) 11rem, (max-width: 767px) 14rem, (max-width: 1023px) 21rem, 24rem'
 
 /**
  * The hero, rendered on the server. Its entrances are CSS (FadeIn) from the
@@ -16,26 +20,32 @@ import HeroChainMeter from '@/components/sections/HeroChainMeter'
 const Hero = () => {
   return (
     <div
-      className="relative flex flex-col md:min-h-[min(calc(100svh-180px),1000px)] items-center bg-linear-to-b from-darkBlue from-70% to-transparent overflow-hidden select-none"
+      className="relative flex flex-col md:min-h-[min(calc(100svh-250px),1000px)] items-center bg-linear-to-b from-darkBlue from-70% to-transparent overflow-hidden select-none"
       id="home"
     >
       <HeroGrid />
 
       {/* Top-aligned, not centered: a slow device paints the hero while it is
           still streaming in, and re-centering a growing column shifted it up.
-          From md up the hero is sized to the screen (svh, so it never changes
-          after load): its min-height leaves room under it for the top of the
-          "What I'm working on" heading (it starts ~113px below the hero and
-          is ~60px tall) but not the card ~32px under it, and the top padding
-          shrinks on short screens so the column still fits. Capped so a very
-          tall screen doesn't get an empty hero. tests/e2e/hero.spec.ts checks
-          the laptop sizes. */}
-      <div className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 w-full flex flex-col items-center pt-28 md:pt-[clamp(5.5rem,12svh,10rem)] pb-16 md:pb-6">
+          From md up the hero is sized to the screen instead (svh, so nothing
+          moves after load). Its min-height (100svh - 250px) leaves room under
+          it for a sneak peek of "What I'm working on": the heading (~65px
+          below the hero, ~60px tall) and the top of its card down to the
+          logo row (~238px below the hero). The top padding centres the
+          ~472px text column between the navbar (68px) and the hero's bottom,
+          68 + (100svh - 250 - 68 - 472) / 2 = 50svh - 327px, with no bottom
+          padding; short screens keep at least 5.5rem. Capped so a very tall
+          screen doesn't get an empty hero. tests/e2e/hero.spec.ts checks the
+          laptop and tablet sizes. */}
+      <div className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 w-full flex flex-col items-center pt-24 md:pt-[clamp(5.5rem,calc(50svh-327px),14rem)] pb-16 md:pb-0">
 
 
-        <div className="flex flex-col md:flex-row items-center justify-between w-full gap-10 md:gap-8">
+        {/* On phones the portrait comes first (order-first), above the
+            heading, so the face is on the first screen; from md up it sits
+            to the right of the text. */}
+        <div className="flex flex-col md:flex-row items-center justify-between w-full gap-6 md:gap-8">
           {/* Text */}
-          <div className="flex-1 flex flex-col items-start gap-5 min-w-0 w-full md:w-auto">
+          <div className="flex-1 flex flex-col items-start gap-5 md:gap-4 min-w-0 w-full md:w-auto">
 
             <div>
               <FadeIn
@@ -48,7 +58,10 @@ const Hero = () => {
               <FadeIn
                 as="p"
                 delay={0.16}
-                className="mt-3 text-2xl sm:text-3xl font-bold tracking-tight bg-linear-to-r from-cyan-400 via-blue-400 to-blue-600 bg-clip-text text-transparent"
+                // One line on every phone: the font scales with the screen
+                // (the line is ~16.75em wide; 100vw less the 2.5rem gutter),
+                // up to the usual 1.5rem.
+                className="mt-3 whitespace-nowrap text-[min(1.5rem,calc((100vw-2.5rem)/17.5))] sm:text-3xl font-bold tracking-tight bg-linear-to-r from-cyan-400 via-blue-400 to-blue-600 bg-clip-text text-transparent"
               >
                 Spending tokens, shipping features.
               </FadeIn>
@@ -153,7 +166,7 @@ const Hero = () => {
               the page's LCP element, so its entrance starts on first paint
               from the server HTML instead of waiting for hydration. Reduced
               motion skips it, and the portrait shows at once. */}
-          <div className="hero-portrait-in w-64 h-64 sm:w-76 sm:h-76 md:w-84 md:h-84 lg:w-96 lg:h-96 relative shrink-0">
+          <div className="hero-portrait-in order-first self-start md:order-none md:self-auto w-40 h-40 min-[360px]:w-44 min-[360px]:h-44 sm:w-56 sm:h-56 md:w-84 md:h-84 lg:w-96 lg:h-96 relative shrink-0">
             <div className="absolute inset-0 rounded-full bg-linear-to-br from-cyan-500/20 to-blue-600/20 blur-xl scale-110" />
             <div className="relative w-full h-full">
               <div className="absolute inset-0 dark:bg-black/10 rounded-full z-10" />
@@ -164,9 +177,12 @@ const Hero = () => {
                 priority
                 placeholder="blur"
                 blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-                sizes="(max-width: 640px) 16rem, (max-width: 768px) 19rem, (max-width: 1024px) 21rem, 24rem"
+                sizes={PORTRAIT_SIZES}
                 alt="Nathan Watkins - builder based in Los Angeles"
               />
+              {/* The watercolor version fades in and out over the photo, once
+                  the page has loaded (never under reduced motion). */}
+              <HeroPortraitSwap sizes={PORTRAIT_SIZES} />
             </div>
           </div>
         </div>

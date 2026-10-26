@@ -98,7 +98,7 @@ const Card = ({ now }: { now: NowState }) => (
  * client carousel (NowCarousel), which gets them already rendered.
  */
 const NowBuilding = () => (
-  <section id="now" aria-label="What I'm working on" className="py-14 md:py-16">
+  <section id="now" aria-label="What I'm working on" className="pt-14 pb-14 md:pt-4 md:pb-16">
     <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div>
         <p className="mb-2 flex items-center gap-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-cyan-400">
