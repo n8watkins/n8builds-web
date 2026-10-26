@@ -1,15 +1,18 @@
 'use client'
-import { Suspense, useMemo, useState } from 'react'
+import { Suspense, useCallback, useLayoutEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import LogEntryItem, { Timeline } from '@/components/log/LogEntryItem'
-import Reveal from '@/components/ui/Reveal'
 import type { LogEntry } from '@/lib/build-log'
 
 // The activity feed on /builds: month by month, newest first, with a filter by
 // build (chips, like the N8 Notions topic filter). The filter lives in the URL
 // (`/builds?build=scribe`), so build pages can link to their part of the log
 // and a filtered view can be shared. It opens on the last 12 months; older
-// months wait behind "Show more".
+// months wait behind "Show older entries".
+//
+// The feed is prerendered unfiltered and hydrated in place: it is visible in
+// the HTML before any JavaScript runs, and no entry animates in. Only the URL
+// reader below is rendered on the client.
 
 type FeedProps = {
   entries: LogEntry[]
@@ -20,34 +23,24 @@ type FeedProps = {
 }
 
 // Runs while the page parses: a shared filtered link (?build=x) hides the
-// prerendered, unfiltered feed until hydration swaps in the filtered one, so a
-// slow phone never shows every build and then collapses. It marks <html>,
-// which suppresses hydration warnings for exactly this kind of attribute.
+// prerendered, unfiltered feed until the filter applies, so a slow phone never
+// shows every build and then collapses. It marks <html>, which suppresses
+// hydration warnings for exactly this kind of attribute.
 const HIDE_UNFILTERED = `if(new URLSearchParams(location.search).get('build'))document.documentElement.dataset.logFiltered=''`
 
-export default function LogFeed(props: FeedProps) {
-  // useSearchParams opts its subtree out of prerendering, so the server HTML
-  // carries the unfiltered feed and the URL's filter applies on hydration.
-  return (
-    <Suspense
-      fallback={
-        <>
-          <script dangerouslySetInnerHTML={{ __html: HIDE_UNFILTERED }} />
-          <div className="[[data-log-filtered]_&]:invisible">
-            <Feed {...props} active={null} />
-          </div>
-        </>
-      }
-    >
-      <FeedFromUrl {...props} />
-    </Suspense>
-  )
-}
-
-function FeedFromUrl(props: FeedProps) {
+/**
+ * Reports the URL's `?build=` to the feed. useSearchParams opts everything up
+ * to the nearest Suspense boundary out of prerendering, and that boundary is
+ * rendered again on the client, so it gets a boundary of its own and renders
+ * nothing. (Around the whole feed, every visitor's prerendered feed was thrown
+ * away on hydration and rendered again, hidden, then faded back in.) Its
+ * fallback, which only the prerendered HTML has, is the script above.
+ */
+function UrlFilter({ onChange }: { onChange: (build: string | null) => void }) {
   const param = useSearchParams().get('build')
-  const active = props.builds.some((b) => b.slug === param) ? param : null
-  return <Feed {...props} active={active} />
+  // Before paint, so neither hydration nor a client navigation shows a frame of the wrong feed.
+  useLayoutEffect(() => onChange(param), [param, onChange])
+  return null
 }
 
 function setFilter(slug: string | null) {
@@ -60,10 +53,25 @@ function setFilter(slug: string | null) {
   window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`)
 }
 
-function Feed({ entries, builds, months, recentFrom, active }: FeedProps & { active: string | null }) {
+export default function LogFeed({ entries, builds, months, recentFrom }: FeedProps) {
+  // Null until the URL is read: the prerendered feed is unfiltered.
+  const [active, setActive] = useState<string | null>(null)
+  const [synced, setSynced] = useState(false)
   const [showOlder, setShowOlder] = useState(false)
   const names = useMemo(() => Object.fromEntries(builds.map((b) => [b.slug, b.name])), [builds])
-  const withEntries = builds.filter((b) => entries.some((e) => e.build === b.slug))
+  const withEntries = useMemo(() => builds.filter((b) => entries.some((e) => e.build === b.slug)), [builds, entries])
+
+  const onUrl = useCallback(
+    (param: string | null) => {
+      setActive(param && Object.hasOwn(names, param) ? param : null)
+      setSynced(true)
+    },
+    [names],
+  )
+  // The URL's filter has applied: show what the inline script hid.
+  useLayoutEffect(() => {
+    if (synced) delete document.documentElement.dataset.logFiltered
+  }, [synced])
 
   const visible = active ? entries.filter((e) => e.build === active) : entries
   const isRecent = (e: LogEntry) => !recentFrom || e.month >= recentFrom
@@ -80,7 +88,11 @@ function Feed({ entries, builds, months, recentFrom, active }: FeedProps & { act
   }
 
   return (
-    <>
+    <div className="[[data-log-filtered]_&]:invisible">
+      <Suspense fallback={<script dangerouslySetInnerHTML={{ __html: HIDE_UNFILTERED }} />}>
+        <UrlFilter onChange={onUrl} />
+      </Suspense>
+
       {withEntries.length > 1 && (
         <div className="mt-6 flex flex-wrap items-center gap-2" role="group" aria-label="Filter by build">
           <button type="button" aria-pressed={active === null} onClick={() => setFilter(null)} className={chip(active === null)}>
@@ -103,21 +115,19 @@ function Feed({ entries, builds, months, recentFrom, active }: FeedProps & { act
       {groups.length > 0 ? (
         <div className="mt-10 space-y-12">
           {groups.map((group) => (
-            <Reveal key={group.month}>
-              <section aria-labelledby={`month-${group.month}`}>
-                <h3
-                  id={`month-${group.month}`}
-                  className="mb-5 font-mono text-[0.7rem] font-bold uppercase tracking-[0.18em] text-cyan-400"
-                >
-                  {months[group.month]}
-                </h3>
-                <Timeline>
-                  {group.entries.map((entry) => (
-                    <LogEntryItem key={entry.id} entry={entry} buildName={names[entry.build] ?? entry.build} />
-                  ))}
-                </Timeline>
-              </section>
-            </Reveal>
+            <section key={group.month} aria-labelledby={`month-${group.month}`}>
+              <h3
+                id={`month-${group.month}`}
+                className="mb-5 font-mono text-[0.7rem] font-bold uppercase tracking-[0.18em] text-cyan-400"
+              >
+                {months[group.month]}
+              </h3>
+              <Timeline>
+                {group.entries.map((entry) => (
+                  <LogEntryItem key={entry.id} entry={entry} buildName={names[entry.build] ?? entry.build} />
+                ))}
+              </Timeline>
+            </section>
           ))}
         </div>
       ) : (
@@ -135,7 +145,7 @@ function Feed({ entries, builds, months, recentFrom, active }: FeedProps & { act
           Show older entries<span className="ml-1.5 text-xs text-slate-450">{older.length}</span>
         </button>
       )}
-    </>
+    </div>
   )
 }
 

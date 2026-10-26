@@ -107,7 +107,9 @@ Plan and rationale: `docs/BUILDS_LOG_PLAN.md`.
   To post one once the schema exists: Studio, Log entry, fill it in, publish; it appears within the hour.
 - **Page:** a builds index (most recently active first; "Last shipped Oct 2026", never "N months ago", so quiet builds read as finished) and a month-by-month feed with a build filter kept in the URL (`/builds?build=scribe#activity`), opening on the 12 months up to the newest entry with "Show older entries" for the rest.
   Each build page has "Recent activity" (its newest five entries) linking to its filtered log.
-  The feed is a client component under `Suspense` (it reads `useSearchParams`), so the prerendered HTML carries the unfiltered feed and the filter applies on hydration.
+  The feed (`components/log/LogFeed.tsx`) is a client component that is prerendered unfiltered and hydrated in place, with no entrance animation, so it is readable before any JavaScript runs.
+  Only its small URL reader (`useSearchParams`) sits under `Suspense`: a boundary around the whole feed made every visit throw the prerendered feed away on hydration, render it again hidden and fade it back in (the "laggy" load, fixed 2026-10-25; guarded by the "hydrated in place" test in `tests/e2e/build-log.spec.ts`).
+  The filter applies right after hydration.
 - **Tests:** `BUILD_LOG_FIXTURE=1` swaps both fetchers for `tests/fixtures/build-log-github.json`, real commits and releases recorded from the six repos plus one sample highlight; Playwright and the Lighthouse jobs set it, so tests never call GitHub.
   Refresh the fixture with `GITHUB_TOKEN=... node scripts/build-log-fixture.mjs` (then update the expectations in `tests/unit/build-log.test.ts` and `tests/e2e/build-log.spec.ts`).
 - **Monitoring:** the nightly `Build log repos` job runs `scripts/check-build-repos.mjs`: per repo, the latest release, release-kit adoption (`scripts/release-kit/VERSION`) and how many of the newest 20 commits pass the release-kit commit check.
