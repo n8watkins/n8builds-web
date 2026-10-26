@@ -21,14 +21,27 @@ function random(seed: number) {
 const TONES = ['#0c1836', '#13234d', '#0f1f52', '#16285a']
 // How many cells are lit at once. Each one wanders: it fades out, jumps to a
 // random free cell, and fades back in, all on its own random clock.
-const LIT = 34
+const LIT = 48
 // Where lit cells may appear: a band below the navbar, narrower than the full
 // grid, so the effect sits low and central rather than filling the screen.
-const SPAWN = { minX: 9, maxX: 31, minY: 3, maxY: 13 }
+const SPAWN = { minX: 7, maxX: 33, minY: 2, maxY: 13 }
 const spawnX = (r: number) => SPAWN.minX + Math.floor(r * (SPAWN.maxX - SPAWN.minX + 1))
 const spawnY = (r: number) => SPAWN.minY + Math.floor(r * (SPAWN.maxY - SPAWN.minY + 1))
+// A soft ease in and out (sine), so a cell neither pops on nor snaps off.
+const EASE = 'cubic-bezier(0.37, 0, 0.63, 1)'
 
-type Cell = { x: number; y: number; fill: string; peak: number }
+type Spot = { x: number; y: number }
+type Cell = Spot & { fill: string; peak: number }
+
+const key = ({ x, y }: Spot) => `${x},${y}`
+/**
+ * True if the spot and its 8 neighbours are all dark: lit cells never share
+ * an edge or a corner, so each one reads as its own block.
+ */
+const isClear = (taken: Set<string>, { x, y }: Spot) => {
+  for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) if (taken.has(key({ x: x + dx, y: y + dy }))) return false
+  return true
+}
 
 /**
  * Starting spots for the lit cells (a fixed seed, so server and client match).
@@ -37,14 +50,13 @@ type Cell = { x: number; y: number; fill: string; peak: number }
  */
 const initialCells: Cell[] = (() => {
   const rand = random(8)
-  const used = new Set<string>()
+  const taken = new Set<string>()
   const cells: Cell[] = []
   while (cells.length < LIT) {
-    const x = spawnX(rand())
-    const y = spawnY(rand())
-    if (used.has(`${x},${y}`)) continue
-    used.add(`${x},${y}`)
-    cells.push({ x, y, fill: TONES[Math.floor(rand() * TONES.length)], peak: 0.45 + rand() * 0.4 })
+    const spot = { x: spawnX(rand()), y: spawnY(rand()) }
+    if (!isClear(taken, spot)) continue
+    taken.add(key(spot))
+    cells.push({ ...spot, fill: TONES[Math.floor(rand() * TONES.length)], peak: 0.45 + rand() * 0.4 })
   }
   return cells
 })()
@@ -57,9 +69,13 @@ export default function HeroGrid() {
 
   // Warm-up, then wander. The grid starts dark; each cell first fades in at a
   // random moment over the first few seconds, then loops (fade out, move, fade
-  // in, hold) with random durations, so the pattern never repeats. Only
-  // opacity transitions (cheap to composite), and the DOM is touched a few
-  // times per second. Reduced motion shows the full set, still.
+  // in, hold) with random durations, so the pattern never repeats. A cell
+  // keeps its spot (and its neighbours stay off limits) until it has fully
+  // faded out, so no two lit cells ever touch, even mid-fade. Only opacity
+  // transitions (cheap to composite), and the DOM is touched a few times per
+  // second. While the hero is off screen (HeroChainMeter sets data-offscreen)
+  // or the tab is hidden, cells finish their fade and then wait instead of
+  // moving. Reduced motion shows the full set, still.
   useEffect(() => {
     if (reduceMotion) {
       initialCells.forEach((cell, i) => {
@@ -69,46 +85,52 @@ export default function HeroGrid() {
       return
     }
     const timers: ReturnType<typeof setTimeout>[] = []
-    const occupied = new Set(initialCells.map((c) => `${c.x},${c.y}`))
+    const taken = new Set(initialCells.map(key))
+    const hero = rects.current[0]?.closest<HTMLElement>('#home')
     const later = (fn: () => void, ms: number) => timers.push(setTimeout(fn, ms))
     const between = (min: number, max: number) => min + Math.random() * (max - min)
+    const resting = () => document.hidden || !!hero?.hasAttribute('data-offscreen')
+    const fade = (rect: SVGRectElement, opacity: number | string, ms: number) => {
+      rect.style.transition = `opacity ${ms}ms ${EASE}`
+      rect.style.opacity = String(opacity)
+    }
 
-    const cycle = (i: number, current: { x: number; y: number }) => {
+    const cycle = (i: number, current: Spot) => {
       const rect = rects.current[i]
       if (!rect) return
-      const fadeOut = between(1800, 3200)
-      rect.style.transition = `opacity ${fadeOut}ms ease-in-out`
-      rect.style.opacity = '0'
+      if (resting()) return later(() => cycle(i, current), 1000)
+      const fadeOut = between(1100, 1800)
+      fade(rect, 0, fadeOut)
       later(() => {
-        occupied.delete(`${current.x},${current.y}`)
+        taken.delete(key(current))
         let next = current
-        for (let tries = 0; tries < 20; tries++) {
+        for (let tries = 0; tries < 40; tries++) {
           const candidate = { x: spawnX(Math.random()), y: spawnY(Math.random()) }
-          if (!occupied.has(`${candidate.x},${candidate.y}`)) {
+          if (isClear(taken, candidate)) {
             next = candidate
             break
           }
         }
-        occupied.add(`${next.x},${next.y}`)
+        taken.add(key(next))
         rect.setAttribute('x', String(next.x * CELL + 1))
         rect.setAttribute('y', String(next.y * CELL + 1))
+        rect.dataset.x = String(next.x)
+        rect.dataset.y = String(next.y)
         rect.setAttribute('fill', TONES[Math.floor(Math.random() * TONES.length)])
-        const fadeIn = between(1800, 3600)
-        rect.style.transition = `opacity ${fadeIn}ms ease-in-out`
-        rect.style.opacity = String(between(0.45, 0.85).toFixed(2))
-        later(() => cycle(i, next), fadeIn + between(1500, 7000))
-      }, fadeOut + between(200, 1500))
+        const fadeIn = between(1100, 1800)
+        fade(rect, between(0.45, 0.85).toFixed(2), fadeIn)
+        later(() => cycle(i, next), fadeIn + between(1000, 4000))
+      }, fadeOut + between(100, 600))
     }
 
     initialCells.forEach((cell, i) =>
       later(() => {
         const rect = rects.current[i]
         if (!rect) return
-        const fadeIn = between(1600, 3000)
-        rect.style.transition = `opacity ${fadeIn}ms ease-in-out`
-        rect.style.opacity = String(cell.peak)
-        later(() => cycle(i, cell), fadeIn + between(1500, 6000))
-      }, between(300, 7000))
+        const fadeIn = between(1100, 1800)
+        fade(rect, cell.peak, fadeIn)
+        later(() => cycle(i, cell), fadeIn + between(1000, 4000))
+      }, between(300, 6000))
     )
     return () => timers.forEach(clearTimeout)
   }, [reduceMotion])
@@ -140,6 +162,9 @@ export default function HeroGrid() {
             }}
             fill={fill}
             style={{ opacity: 0 }}
+            data-cell=""
+            data-x={x}
+            data-y={y}
             x={x * CELL + 1}
             y={y * CELL + 1}
             width={CELL - 1}

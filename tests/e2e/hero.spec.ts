@@ -141,3 +141,80 @@ for (const [width, height] of [
     })
   })
 }
+
+/**
+ * The background grid (components/sections/HeroGrid.tsx): its lit cells
+ * wander, but never touch (no shared edge or corner, counting cells still
+ * fading out), hold still while the hero is off screen, and stand still under
+ * reduced motion.
+ */
+test.describe('the hero grid', () => {
+  test.use({ viewport: { width: 1280, height: 800 }, hasTouch: false })
+
+  /** The grid cells that are painted at all right now, as [x, y] cell indexes. */
+  const litCells = (page: import('@playwright/test').Page) =>
+    page.locator('#home svg rect[data-cell]').evaluateAll((rects) =>
+      rects
+        .filter((r) => Number(getComputedStyle(r).opacity) > 0.005)
+        .map((r) => [Number(r.getAttribute('data-x')), Number(r.getAttribute('data-y'))] as [number, number])
+    )
+
+  const touching = (cells: [number, number][]) => {
+    const pairs: string[] = []
+    for (let a = 0; a < cells.length; a++)
+      for (let b = a + 1; b < cells.length; b++)
+        if (Math.abs(cells[a][0] - cells[b][0]) <= 1 && Math.abs(cells[a][1] - cells[b][1]) <= 1)
+          pairs.push(`${cells[a]} & ${cells[b]}`)
+    return pairs
+  }
+
+  test.describe('with motion', () => {
+    test.use({ contextOptions: { reducedMotion: 'no-preference' } })
+
+    test('lights many cells, and no two lit cells ever touch', async ({ page }) => {
+      test.setTimeout(30_000)
+      await page.goto('/')
+      expect(await page.locator('#home svg rect[data-cell]').count()).toBeGreaterThanOrEqual(45)
+      let most = 0
+      const moved = new Set<string>()
+      for (let i = 0; i < 70; i++) {
+        const cells = await litCells(page)
+        most = Math.max(most, cells.length)
+        cells.forEach((c) => moved.add(String(c)))
+        expect(touching(cells), `sample ${i}`).toEqual([])
+        await page.waitForTimeout(150)
+      }
+      expect(most, 'cells lit at once').toBeGreaterThanOrEqual(35)
+      // They wander: more distinct spots were lit than there are cells.
+      expect(moved.size).toBeGreaterThan(48)
+    })
+
+    test('holds still while the hero is scrolled off screen', async ({ page }) => {
+      await page.goto('/')
+      await page.waitForTimeout(2000)
+      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+      await expect(page.locator('#home')).toHaveAttribute('data-offscreen', '')
+      const spots = () => page.locator('#home svg rect[data-cell]').evaluateAll((rects) => rects.map((r) => `${r.getAttribute('data-x')},${r.getAttribute('data-y')}`).join(' '))
+      // Let any fade already under way finish, then nothing may move.
+      await page.waitForTimeout(2000)
+      const before = await spots()
+      expect(before, 'the grid has cells').not.toBe('')
+      await page.waitForTimeout(5000)
+      expect(await spots()).toBe(before)
+    })
+  })
+
+  test.describe('with reduced motion', () => {
+    test.use({ contextOptions: { reducedMotion: 'reduce' } })
+
+    test('shows a still pattern of separate cells', async ({ page }) => {
+      await page.goto('/')
+      await page.waitForTimeout(500)
+      const first = await litCells(page)
+      expect(first.length).toBeGreaterThanOrEqual(35)
+      expect(touching(first)).toEqual([])
+      await page.waitForTimeout(3000)
+      expect(await litCells(page)).toEqual(first)
+    })
+  })
+})

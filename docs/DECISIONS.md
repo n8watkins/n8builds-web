@@ -22,6 +22,7 @@ When the owner decides something new, add it here (with the date) in the same ch
 - **"Two ways to put me to work":** the project card is Appturnity by name and mark, offering the free website.
 - **Hero grid:** it starts dark, warms up as cells fade in one by one over about 7 seconds, then the cells wander at random (fade out, jump to a free cell, fade in, each on its own clock) so no pattern repeats; it stays still under reduced motion.
   Keep it dim: the owner found a brighter version too dramatic.
+  Since 2026-10-26 it lights more cells (48), lit cells never touch (no shared edge or corner, even mid-fade), they cycle faster, and they fade on a soft ease in and out with no pop; the cells hold still while the hero is off screen.
 - **Blog covers:** each post has its own topic illustration uploaded as its Sanity cover (2026-10-23); the generated "signal" cover is the fallback for posts without one.
   Hero copy (2026-10-23): heading "n8builds", subheader "Spending tokens, shipping features.", and the whoami line "Nathan Watkins, AI-first software developer in LA, building apps, Chrome extensions and tools I wish existed, with AI agents doing the heavy lifting." No pill above the heading.
   Say "in public" sparingly; the owner felt the old hero overused it.
