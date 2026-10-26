@@ -13,6 +13,7 @@ import UseAsTemplate from '@/components/sections/UseAsTemplate'
 import PortfolioAd from '@/components/sections/PortfolioAd'
 import NotionsStrip from '@/components/sections/NotionsStrip'
 import ExtensionsShowcase from '@/components/sections/ExtensionsShowcase'
+import LabSectionNav from '@/components/sections/LabSectionNav'
 import HomeStack from '@/components/sections/HomeStack'
 import WorkWithMe from '@/components/sections/WorkWithMe'
 import Footer from '@/components/layout/Footer'
@@ -86,6 +87,8 @@ export default function HomePage({ posts }: { posts: Post[] }) {
              extensions (and a Tools grid, only if a build ever lands there).
              The navbar "Lab" menu scrolls to #lab, #featured and #extensions. ===== */}
         <Band id="lab" reveal={false}>
+          {/* Desktop only: a sticky rail in the left gutter marking the Lab part on screen. */}
+          <LabSectionNav />
           <Reveal className="pt-6">
             {/* The Lab's mark (the owner's pick, 2026-10-26): a flask in a chip like the rows' app icons. */}
             <div className="flex items-center gap-3.5">
