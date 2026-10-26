@@ -16,7 +16,7 @@ const SECTIONS: readonly LabPart[] = [
   // the full label on one line (1440-1535px); its accessible name stays whole.
   {
     id: 'extensions',
-    label: 'Chrome extensions',
+    label: 'Chrome Extensions',
     short: 'Extensions',
     icon: SiGooglechrome,
     iconSize: 'size-3 min-[110rem]:size-3.5',
@@ -36,8 +36,9 @@ type LabPart = { id: string; label: string; short?: string; icon: IconType; icon
  * ring: the owner asked for it light (2026-10-26). Desktop only (from 1280px),
  * in the left gutter beside the Lab's content column.
  *
- * Layout is pure CSS: an absolute column spanning the whole Lab band holds a
- * sticky rail, so the rail only shows while the Lab is on screen and never
+ * Layout is mostly CSS: an absolute column spanning the whole Lab band holds a
+ * sticky rail, held at the viewport's middle (the owner's call, 2026-10-26, so
+ * no one looks up for it), so it only shows while the Lab is on screen and never
  * leaves it, and being absolute it can't shift the layout. The links are plain
  * anchors (server-rendered, so they work without JS); the page's own
  * scroll-padding-top and reduced-motion-aware smooth scrolling handle the jump.
@@ -57,6 +58,19 @@ export default function LabSectionNav() {
   const [active, setActive] = useState(-1)
   const [inView, setInView] = useState(false)
   const listRef = useRef<HTMLUListElement>(null)
+  const navRef = useRef<HTMLElement>(null)
+
+  // The rail sticks at the viewport's middle: its own height (which changes
+  // with the breakpoint) goes to --nav-h so it can centre itself.
+  useEffect(() => {
+    const nav = navRef.current
+    if (!nav) return
+    const observer = new ResizeObserver(() =>
+      nav.style.setProperty('--nav-h', `${nav.offsetHeight}px`)
+    )
+    observer.observe(nav)
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
     const found = SECTIONS.map((s) => ({ s, el: document.getElementById(s.id) })).filter(
@@ -123,8 +137,9 @@ export default function LabSectionNav() {
     >
       {/* --row is one row's height and --chip an icon's square: the halo and the wire are measured in them. */}
       <nav
+        ref={navRef}
         aria-label="Lab contents"
-        className={`pointer-events-auto sticky top-28 mt-8 ml-auto mr-3 w-fit [--chip:1.625rem] [--row:2.25rem] transition-[opacity,translate] duration-700 ease-out motion-reduce:translate-none 2xl:mr-6 min-[110rem]:[--chip:1.75rem] min-[110rem]:[--row:2.5rem] ${
+        className={`pointer-events-auto sticky top-[calc(50vh-var(--nav-h,9rem)/2)] mt-8 ml-auto mr-3 w-fit [--chip:1.625rem] [--row:2.25rem] transition-[opacity,translate] duration-700 ease-out motion-reduce:translate-none 2xl:mr-6 min-[110rem]:[--chip:1.75rem] min-[110rem]:[--row:2.5rem] ${
           inView ? 'translate-x-0 opacity-100' : '-translate-x-3 opacity-0'
         }`}
       >
