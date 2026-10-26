@@ -1,10 +1,23 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { FiArrowUpRight } from 'react-icons/fi'
 import AITechStack from '@/components/features/AITechStack'
 import { buildStacks } from '@/data/buildStacks'
 
-// Homepage "stack" section: lead with the AI kit (the differentiator) + a short
-// TL;DR of the default build stack. The full generic tech marquee lives on /loadout.
+// Homepage "stack" section: lead with the AI kit (the differentiator), then the
+// default build stack with one line on why each piece is in it. The full
+// generic tech marquee lives on /loadout.
+
+// Why each tool is in the default stack. Keep these true to the loadout
+// (data/loadout.tsx) and the builds that use them (data/builds.tsx).
+const WHY: Record<string, { icon: string; reason: string }> = {
+  'Next.js': { icon: 'next.svg', reason: 'Every web app I make starts here: server components, and Vercel ships it.' },
+  TypeScript: { icon: 'ts.svg', reason: 'Strict mode everywhere. If it compiles, half my bugs never happened.' },
+  Turso: { icon: 'turso.svg', reason: 'SQLite at the edge: one small database that scales globally and is cheap to run.' },
+  Drizzle: { icon: 'drizzle.png', reason: 'A type-safe ORM, so queries are checked against the schema.' },
+  'Cloudflare R2': { icon: 'cloudflare.svg', reason: 'File storage with no egress fees (where Portfolio Rank keeps its screenshots).' },
+  Vercel: { icon: 'vercel.png', reason: 'Push to main and it ships, so I build instead of babysitting infra.' },
+}
 export default function HomeStack() {
   const turso = buildStacks.find((s) => s.name === 'The Turso Stack') ?? buildStacks[0]
 
@@ -29,23 +42,47 @@ export default function HomeStack() {
 
       <AITechStack dino />
 
-      {/* TL;DR - my default stack */}
-      <div className="mt-6 rounded-2xl border border-cyan-400/20 bg-linear-to-br from-cyan-500/6 to-transparent p-5 sm:p-6">
-        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <span className="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-cyan-400">TL;DR - my default stack</span>
-          {/* Separator only while everything fits on one line. */}
-          <span className="hidden text-slate-475 sm:inline">·</span>
-          <span className="font-semibold text-slate-100">{turso.name}</span>
-          <span className="text-sm text-slate-450">{turso.tagline}</span>
+      {/* My default stack, and why each piece is in it. */}
+      <div
+        role="group"
+        aria-labelledby="default-stack-title"
+        className="mt-6 rounded-2xl border border-white/8 bg-linear-to-br from-cyan-500/6 via-white/2 to-transparent p-5 sm:p-6"
+      >
+        <div className="border-l-2 border-cyan-400/40 pl-4">
+          <p className="mb-1.5 text-[0.68rem] font-bold uppercase tracking-[0.16em] text-cyan-400">My default stack</p>
+          <h3 id="default-stack-title" className="text-2xl font-bold tracking-tight text-slate-50">
+            {turso.name}
+          </h3>
+          <p className="mt-0.5 text-sm font-semibold text-blue-300">My first pick for new web apps</p>
         </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {turso.tools.map((t) => (
-            <span key={t} className="rounded-md border border-white/10 bg-white/4 px-2 py-0.5 text-xs font-medium text-slate-300">
-              {t}
-            </span>
-          ))}
-        </div>
-        <p className="mt-3 text-sm text-[#9cadc5]">{turso.note}</p>
+        <ul className="mt-5 grid gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
+          {turso.tools.map((tool) => {
+            const why = WHY[tool]
+            return (
+              <li key={tool} className="flex items-start gap-3">
+                <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-[#0a1428] p-2">
+                  {why && (
+                    <span className="relative h-full w-full">
+                      <Image
+                        src={`/projectIcons/${why.icon}`}
+                        alt=""
+                        fill
+                        sizes="40px"
+                        // The image optimizer doesn't take SVGs: serve those as they are.
+                        unoptimized={why.icon.endsWith('.svg')}
+                        style={{ objectFit: 'contain' }}
+                      />
+                    </span>
+                  )}
+                </span>
+                <div className="min-w-0">
+                  <p className="font-semibold text-slate-100">{tool}</p>
+                  {why && <p className="mt-0.5 text-sm leading-snug text-[#9cadc5]">{why.reason}</p>}
+                </div>
+              </li>
+            )
+          })}
+        </ul>
       </div>
     </section>
   )
