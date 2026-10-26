@@ -27,6 +27,16 @@ test('the project-work card is Appturnity, by name and mark', async ({ page }) =
   await expect(card.locator('img[src*="appturnity.png"]')).toHaveCount(1)
 })
 
+test('the contact card offers local service businesses a free Appturnity website, not consulting', async ({ page }) => {
+  await page.goto('/')
+  // The card's intro, next to the contact form (whose Topic menu is separate).
+  const intro = page.locator('#contact p', { hasText: 'I usually reply within a day' })
+  await intro.scrollIntoViewIfNeeded()
+  await expect(intro).not.toContainText(/consulting/i)
+  await expect(intro).toContainText('Run a local service business?')
+  await expect(intro.getByRole('link', { name: /free website/ })).toHaveAttribute('href', 'https://appturnity.com/#free-website')
+})
+
 test('the footer has a sitemap, the public contact address, and no invented Appturnity logo', async ({ page }) => {
   await page.goto('/')
   const footer = page.locator('footer').last()
