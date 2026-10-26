@@ -3,7 +3,9 @@ import { test, expect, type Page } from '@playwright/test'
 /**
  * The Lab's floating side nav (components/sections/LabSectionNav.tsx): a
  * desktop-only rail in the left gutter that marks the Lab part on screen
- * (My tools, Featured, Chrome extensions) and jumps to it.
+ * (My tools, Featured, Chrome Extensions) and jumps to it. It appears once
+ * the first part's heading reaches the middle of the window (level with it,
+ * not beside the Lab's intro), then holds there while the Lab scrolls by.
  */
 
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
@@ -11,7 +13,7 @@ test.use({ contextOptions: { reducedMotion: 'reduce' } })
 const PARTS = [
   { id: 'my-tools', label: 'My tools' },
   { id: 'featured', label: 'Featured' },
-  { id: 'extensions', label: 'Chrome extensions' },
+  { id: 'extensions', label: 'Chrome Extensions' },
 ] as const
 
 const rail = (page: Page) => page.getByRole('navigation', { name: 'Lab contents' })
@@ -20,7 +22,10 @@ const rail = (page: Page) => page.getByRole('navigation', { name: 'Lab contents'
 async function scrollToPart(page: Page, id: string) {
   await page.evaluate((id) => {
     const el = document.getElementById(id)!
-    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 120, behavior: 'instant' })
+    window.scrollTo({
+      top: el.getBoundingClientRect().top + window.scrollY - 120,
+      behavior: 'instant',
+    })
   }, id)
 }
 
@@ -30,9 +35,11 @@ test.describe('at 1440px', () => {
   test('shows only while the Lab is on screen, and marks the part being read', async ({ page }) => {
     await page.goto('/')
     const nav = rail(page)
-    for (const [i, part] of PARTS.entries()) await expect(nav.getByRole('link').nth(i)).toHaveAccessibleName(part.label)
-    // Above the Lab (the hero) it is out of view.
-    await expect(nav).not.toBeInViewport()
+    // Above the Lab (the hero) it is hidden.
+    await expect(nav).toBeHidden()
+    await scrollToPart(page, PARTS[0].id)
+    for (const [i, part] of PARTS.entries())
+      await expect(nav.getByRole('link').nth(i)).toHaveAccessibleName(part.label)
 
     for (const part of PARTS) {
       await scrollToPart(page, part.id)
@@ -56,9 +63,14 @@ test.describe('at 1440px', () => {
       await expect(page).toHaveURL(new RegExp(`#${part.id}$`))
       // Lands at the page's scroll-padding-top (80px), clear of the 68px navbar.
       await expect
-        .poll(() => page.locator(`#${part.id}`).evaluate((el) => Math.round(el.getBoundingClientRect().top)))
+        .poll(() =>
+          page.locator(`#${part.id}`).evaluate((el) => Math.round(el.getBoundingClientRect().top))
+        )
         .toBe(80)
-      await expect(nav.getByRole('link', { name: part.label, exact: true })).toHaveAttribute('aria-current', 'location')
+      await expect(nav.getByRole('link', { name: part.label, exact: true })).toHaveAttribute(
+        'aria-current',
+        'location'
+      )
     }
   })
 
@@ -75,18 +87,159 @@ test.describe('at 1440px', () => {
   })
 })
 
+test.describe('placement at 1440px', () => {
+  test.use({ viewport: { width: 1440, height: 900 } })
+
+  /** Scroll so the first part's heading sits `top` px from the window's top. */
+  async function headingAt(page: Page, top: number) {
+    await page.evaluate((top) => {
+      const h = document.querySelector<HTMLElement>('#my-tools :is(h2, h3)')!
+      window.scrollTo({
+        top: h.getBoundingClientRect().top + window.scrollY - top,
+        behavior: 'instant',
+      })
+    }, top)
+  }
+  const headingTop = (page: Page) =>
+    page
+      .locator('#my-tools')
+      .locator('h2, h3')
+      .first()
+      .evaluate((h) => h.getBoundingClientRect().top)
+
+  test('stays hidden beside the Lab intro and appears level with the first heading', async ({
+    page,
+  }) => {
+    await page.goto('/')
+    const nav = rail(page)
+    // The intro on screen, the first heading still in the lower half: no rail.
+    await headingAt(page, 650)
+    await expect(page.getByRole('navigation', { name: 'Lab sections' })).toBeInViewport()
+    await expect(nav).toBeHidden()
+
+    // The heading reaches the rail's centred spot: the rail shows, level with it.
+    const navHeight = await page
+      .locator('nav[aria-label="Lab contents"]')
+      .evaluate((n) => (n as HTMLElement).offsetHeight)
+    const centre = Math.floor((900 - navHeight) / 2)
+    await headingAt(page, centre - 2)
+    await expect(nav).toBeVisible()
+    const top = (await nav.boundingBox())!.y
+    expect(Math.abs(top - (await headingTop(page)))).toBeLessThanOrEqual(3)
+  })
+
+  test('holds at the middle of the window through the Lab', async ({ page }) => {
+    await page.goto('/')
+    const nav = rail(page)
+    for (const part of PARTS) {
+      await page.evaluate((id) => {
+        const el = document.getElementById(id)!
+        // The part's top at 300px: being read, with the Lab well below the window's foot.
+        window.scrollTo({
+          top: el.getBoundingClientRect().top + window.scrollY - 300,
+          behavior: 'instant',
+        })
+      }, part.id)
+      await expect(nav).toBeVisible()
+      const box = (await nav.boundingBox())!
+      expect(Math.abs(box.y + box.height / 2 - 450), part.id).toBeLessThanOrEqual(2)
+    }
+    // At the Lab's foot it rides out with the Lab, never below it.
+    await page.evaluate(() => {
+      const lab = document.getElementById('lab')!
+      window.scrollTo({
+        top: lab.getBoundingClientRect().bottom + window.scrollY - 300,
+        behavior: 'instant',
+      })
+    })
+    const box = (await nav.boundingBox())!
+    const labBottom = await page.locator('#lab').evaluate((l) => l.getBoundingClientRect().bottom)
+    expect(box.y + box.height).toBeLessThanOrEqual(labBottom + 1)
+  })
+
+  test('keyboard: Tab reaches each part in order and Enter jumps there', async ({ page }) => {
+    await page.goto('/')
+    await scrollToPart(page, 'featured')
+    const nav = rail(page)
+    await expect(nav).toBeVisible()
+    await nav.getByRole('link').first().focus()
+    await expect(nav.getByRole('link', { name: 'My tools', exact: true })).toBeFocused()
+    await page.keyboard.press('Tab')
+    await expect(nav.getByRole('link', { name: 'Featured', exact: true })).toBeFocused()
+    await page.keyboard.press('Tab')
+    const extensions = nav.getByRole('link', { name: 'Chrome Extensions', exact: true })
+    await expect(extensions).toBeFocused()
+    await page.keyboard.press('Enter')
+    await expect(page).toHaveURL(/#extensions$/)
+    await expect(extensions).toHaveAttribute('aria-current', 'location')
+  })
+
+  test('reduced motion: nothing moves (no comet spin, no sliding)', async ({ page }) => {
+    await page.goto('/')
+    await scrollToPart(page, 'featured')
+    const nav = page.locator('nav[aria-label="Lab contents"]')
+    await expect(rail(page)).toBeVisible()
+    const motion = await nav.evaluate((n) => {
+      const all = [n, ...n.querySelectorAll<HTMLElement>('*')].map((el) => getComputedStyle(el))
+      return {
+        animations: all.filter((cs) => cs.animationName !== 'none').length,
+        moving: all.filter(
+          (cs) =>
+            /translate|top|height/.test(cs.transitionProperty) && cs.transitionDuration !== '0s'
+        ).length,
+      }
+    })
+    expect(motion).toEqual({ animations: 0, moving: 0 })
+  })
+})
+
+test.describe('icons only, 1280-1439px', () => {
+  test.use({ viewport: { width: 1280, height: 900 } })
+
+  test('each icon names its part in a tooltip on hover and on keyboard focus', async ({ page }) => {
+    await page.goto('/')
+    await scrollToPart(page, 'featured')
+    const nav = rail(page)
+    await expect(nav).toBeVisible()
+    // No heading and no inline labels: the rail is just the icons.
+    await expect(nav.getByText('In the Lab')).toBeHidden()
+    const tooltip = (name: string) =>
+      nav.getByRole('link', { name, exact: true }).getByText(name, { exact: true })
+    for (const part of PARTS) await expect(tooltip(part.label)).toHaveCSS('opacity', '0')
+
+    await nav.getByRole('link', { name: 'Featured', exact: true }).hover()
+    await expect(tooltip('Featured')).toHaveCSS('opacity', '1')
+    await page.mouse.move(700, 450)
+    await expect(tooltip('Featured')).toHaveCSS('opacity', '0')
+
+    await nav.getByRole('link', { name: 'My tools', exact: true }).focus()
+    await page.keyboard.press('Tab')
+    await expect(tooltip('Featured')).toHaveCSS('opacity', '1')
+    // The links keep their full names for screen readers.
+    for (const [i, part] of PARTS.entries())
+      await expect(nav.getByRole('link').nth(i)).toHaveAccessibleName(part.label)
+  })
+})
+
 test('works without JavaScript: plain links to the three parts', async ({ browser }) => {
-  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 1440, height: 900 } })
+  const context = await browser.newContext({
+    javaScriptEnabled: false,
+    viewport: { width: 1440, height: 900 },
+  })
   const page = await context.newPage()
   await page.goto('/')
   const links = rail(page).getByRole('link')
-  for (const [i, part] of PARTS.entries()) await expect(links.nth(i)).toHaveAccessibleName(part.label)
-  for (const [i, part] of PARTS.entries()) await expect(links.nth(i)).toHaveAttribute('href', `#${part.id}`)
+  for (const [i, part] of PARTS.entries())
+    await expect(links.nth(i)).toHaveAccessibleName(part.label)
+  for (const [i, part] of PARTS.entries())
+    await expect(links.nth(i)).toHaveAttribute('href', `#${part.id}`)
   await context.close()
 })
 
 for (const width of [1280, 1440, 1536, 1920]) {
-  test(`at ${width}px it sits beside the content without overlapping it or scrolling sideways`, async ({ page }) => {
+  test(`at ${width}px it sits beside the content without overlapping it or scrolling sideways`, async ({
+    page,
+  }) => {
     await page.setViewportSize({ width, height: 900 })
     await page.goto('/')
     const nav = rail(page)
@@ -95,19 +248,41 @@ for (const width of [1280, 1440, 1536, 1920]) {
       await expect(nav).toBeInViewport()
       const navBox = (await nav.boundingBox())!
       expect(navBox.x, 'inside the window').toBeGreaterThanOrEqual(8)
-      // Every visible box in the part (headings, rows, cards) starts right of the rail.
+      // Everything visible in the part starts right of the rail: its text, its
+      // media and every box that paints (a border or a fill: cards, buttons,
+      // pills). Layout wrappers paint nothing, and full-bleed bands (the
+      // parts' and rows' background washes) are backdrop, so both are skipped.
       const contentLeft = await page.locator(`#${part.id}`).evaluate((root) => {
         let left = Infinity
-        for (const el of [root, ...root.querySelectorAll('*')]) {
+        const onScreen = (r: DOMRect) =>
+          r.width > 1 && r.height > 1 && r.bottom > 0 && r.top < window.innerHeight
+        for (const el of [root, ...root.querySelectorAll<HTMLElement>('*')]) {
           const r = el.getBoundingClientRect()
-          if (r.width && r.height && r.bottom > 0 && r.top < window.innerHeight) left = Math.min(left, r.left)
+          if (!onScreen(r) || r.width >= window.innerWidth * 0.9) continue
+          const cs = getComputedStyle(el)
+          const paints =
+            /^(IMG|SVG|VIDEO|CANVAS|PICTURE)$/i.test(el.tagName) ||
+            parseFloat(cs.borderLeftWidth) > 0 ||
+            (cs.backgroundColor !== 'rgba(0, 0, 0, 0)' && cs.backgroundColor !== 'transparent') ||
+            cs.backgroundImage !== 'none'
+          if (paints && cs.visibility !== 'hidden' && cs.opacity !== '0')
+            left = Math.min(left, r.left)
+          for (const node of el.childNodes) {
+            if (node.nodeType !== Node.TEXT_NODE || !node.textContent!.trim()) continue
+            const range = document.createRange()
+            range.selectNodeContents(node)
+            for (const t of range.getClientRects()) if (onScreen(t)) left = Math.min(left, t.left)
+          }
         }
         return left
       })
+      expect(contentLeft, `${part.id} has content on screen`).toBeLessThan(width)
       expect(navBox.x + navBox.width, `${part.id} content`).toBeLessThanOrEqual(contentLeft - 8)
     }
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
-    // Every label stays on one line (or one column, in the slim vertical rail).
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
+    ).toBe(true)
+    // Every label stays on one line (from 1440px; below that it is a one-line tooltip).
     const lines = await nav.getByRole('link').evaluateAll((links) =>
       links.map((a) => {
         // The line boxes of the label's visible text: one line means one top
@@ -125,12 +300,12 @@ for (const width of [1280, 1440, 1536, 1920]) {
           }
         }
         return positions.size
-      }),
+      })
     )
     expect(lines, 'lines per label').toEqual([1, 1, 1])
     // Where the gutter is tight, the long label shows its short form instead of wrapping.
-    const extensions = nav.getByRole('link', { name: 'Chrome extensions' })
-    await expect(extensions).toHaveAccessibleName('Chrome extensions')
+    const extensions = nav.getByRole('link', { name: 'Chrome Extensions' })
+    await expect(extensions).toHaveAccessibleName('Chrome Extensions')
     const short = extensions.getByText('Extensions', { exact: true })
     if (width >= 1440 && width < 1536) await expect(short).toBeVisible()
     else await expect(short).toBeHidden()
@@ -143,5 +318,7 @@ test('is absent on a phone', async ({ page }) => {
   await scrollToPart(page, 'featured')
   await expect(rail(page)).toBeHidden()
   // The pill links under the Lab heading still lead to each part.
-  await expect(page.getByRole('navigation', { name: 'Lab sections' }).getByRole('link')).toHaveText(PARTS.map((p) => p.label))
+  await expect(page.getByRole('navigation', { name: 'Lab sections' }).getByRole('link')).toHaveText(
+    PARTS.map((p) => p.label)
+  )
 })

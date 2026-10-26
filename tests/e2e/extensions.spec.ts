@@ -149,7 +149,7 @@ test.describe('phones', () => {
     await section.scrollIntoViewIfNeeded()
     await expect(section.getByRole('tablist')).toBeHidden()
     const headings = section.locator('h3:visible')
-    await expect(headings).toHaveText(['Chrome extensions', ...NAMES])
+    await expect(headings).toHaveText(['Chrome Extensions', ...NAMES])
     const first = headings.nth(1)
     const tagline = first.locator('xpath=following-sibling::p[1]')
     await expect(tagline).toHaveCSS('font-size', '14px')
