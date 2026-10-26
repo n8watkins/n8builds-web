@@ -31,7 +31,10 @@ function Title({ entry }: { entry: LogEntry }) {
     <a
       href={entry.url}
       {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-      className="group/link rounded-sm transition-colors hover:text-cyan-200"
+      // 2px of padding, cancelled by the margin, makes the target at least
+      // 24px tall (WCAG 2.5.8) without moving anything; no more, or it would
+      // overlap the build name's link above.
+      className="group/link -my-0.5 inline-block rounded-sm py-0.5 transition-colors hover:text-cyan-200"
     >
       {text}
       <FiArrowUpRight className="ml-1 inline-block h-3.5 w-3.5 align-[-0.1em] text-slate-475 transition-all group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5 group-hover/link:text-cyan-300" />
