@@ -4,6 +4,7 @@ import { FaXTwitter } from 'react-icons/fa6'
 import { FiGithub, FiMail } from 'react-icons/fi'
 import { CiLinkedin } from 'react-icons/ci'
 import Reveal from '@/components/ui/Reveal'
+import CookieSettingsButton from '@/components/consent/CookieSettingsButton'
 
 /**
  * The footer on every page: a sitemap (every page and section, so the build
@@ -11,7 +12,7 @@ import Reveal from '@/components/ui/Reveal'
  * The homepage's contact card sits just above it.
  */
 
-const SITEMAP: { heading: string; links: { label: string; href: string; icon?: string }[] }[] = [
+const SITEMAP: { heading: string; links: { label: string; href: string; icon?: string }[]; cookieSettings?: boolean }[] = [
   {
     heading: 'The Lab',
     links: [
@@ -44,6 +45,8 @@ const SITEMAP: { heading: string; links: { label: string; href: string; icon?: s
       { label: 'Source on GitHub', href: 'https://github.com/n8watkins/n8builds-web' },
       { label: 'Privacy', href: '/privacy' },
     ],
+    // Reopens the analytics consent banner (components/consent).
+    cookieSettings: true,
   },
 ]
 const SOCIALS = [
@@ -83,6 +86,11 @@ const SiteFooter = () => (
                   )}
                 </li>
               ))}
+              {group.cookieSettings && (
+                <li>
+                  <CookieSettingsButton className="cursor-pointer text-left text-sm text-slate-300 transition-colors hover:text-cyan-200" />
+                </li>
+              )}
             </ul>
           </div>
         ))}
