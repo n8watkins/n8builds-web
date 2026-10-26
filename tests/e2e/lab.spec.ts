@@ -69,14 +69,12 @@ test('Portfolio Rank credits the list it is built on and invites visitors to add
   const credit = featured.getByRole('link', { name: "Emma Bostian's developer-portfolios list" })
   await credit.scrollIntoViewIfNeeded()
   await expect(credit).toHaveAttribute('href', 'https://github.com/emmabostian/developer-portfolios')
-  await expect(featured.getByRole('link', { name: /Have a portfolio\? Add yours to Portfolio Rank/ })).toHaveAttribute(
-    'href',
-    'https://portfoliorank.vercel.app/',
-  )
+  await expect(featured.getByRole('link', { name: /Have a portfolio\? Add yours/ })).toHaveAttribute('href', 'https://portfoliorank.vercel.app/')
+  await expect(featured.getByRole('link', { name: /Vote in a face-off/ })).toHaveAttribute('href', 'https://portfoliorank.vercel.app/rank')
 
   // The build page: the invitation, and credits for the list and the tweet that started it.
   await page.goto('/builds/portfolio-rank')
-  await expect(page.getByRole('heading', { name: 'Have a portfolio?' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Vote, or add your portfolio' })).toBeVisible()
   await expect(page.getByRole('link', { name: /Add yours on Portfolio Rank/ })).toHaveAttribute('href', 'https://portfoliorank.vercel.app/')
   const credits = page.getByRole('region', { name: 'Credits' })
   await expect(credits.getByRole('link', { name: 'Emma Bostian, developer-portfolios' })).toHaveAttribute(
@@ -85,8 +83,31 @@ test('Portfolio Rank credits the list it is built on and invites visitors to add
   )
   await expect(credits.getByRole('link', { name: 'Ali Spittel' })).toHaveAttribute('href', /twitter\.com\/ASpittel\/status\/1171604728951779328/)
 
-  // Builds without them show neither.
+  // Builds without credits show none.
   await page.goto('/builds/scribe')
   await expect(page.getByRole('region', { name: 'Credits' })).toHaveCount(0)
+})
+
+test('every featured row and its build page invite the visitor to try it', async ({ page }) => {
+  const tries: [string, string, RegExp, string][] = [
+    ['Scribe', 'scribe', /Download Scribe for Windows, free/, 'https://scribe.n8builds.dev'],
+    ['OpenPing', 'openping', /Try the free tools, no sign-up/, 'https://openping.n8builds.dev/tools'],
+    ['Solara', 'solara', /Find your sun window, free, no sign-up/, 'https://solara-uv.web.app'],
+    ['Portfolio Rank', 'portfolio-rank', /Vote in a face-off/, 'https://portfoliorank.vercel.app/rank'],
+  ]
+  await page.goto('/')
+  const featured = page.locator('#featured')
+  for (const [, , label, href] of tries) {
+    await expect(featured.getByRole('link', { name: label })).toHaveAttribute('href', href)
+  }
+  // The two daily drivers say so.
+  await expect(featured).toContainText('I dictate with Scribe every day')
+  await expect(featured).toContainText('I check OpenPing every day')
+  for (const [, slug] of tries) {
+    await page.goto(`/builds/${slug}`)
+    await expect(page.locator('#cta-heading'), slug).toBeVisible()
+  }
+  // A build without one shows none.
+  await page.goto('/builds/tubevault')
   await expect(page.locator('#cta-heading')).toHaveCount(0)
 })

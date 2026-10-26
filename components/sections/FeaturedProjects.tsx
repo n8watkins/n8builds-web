@@ -26,8 +26,8 @@ interface FeaturedProject {
   imagePosition?: string
   /** Who the build stands on, credited under the description. */
   credit?: { before: string; name: string; href: string; after?: string }
-  /** An invitation to the visitor, linking out (Portfolio Rank: add your portfolio). */
-  cta?: { label: string; href: string }
+  /** Invitations to the visitor, linking out: try it, download it, add yours. */
+  ctas?: { label: string; href: string }[]
 }
 
 // The owner's daily drivers first (Scribe and OpenPing run every day), then
@@ -38,7 +38,7 @@ const featured: FeaturedProject[] = [
     title: 'Scribe',
     subtitle: 'Private Local Dictation for Windows',
     description:
-      'Hold a hotkey, talk, release: whisper.cpp transcribes on your own PC and the words land at your cursor, in any app. No cloud, no account, no subscription. I dictate with it every day.',
+      'I dictate with Scribe every day. Hold a hotkey, talk, release: whisper.cpp transcribes on your own PC and the words land at your cursor, in any app. A Tauri and Rust app keeps the model warm in memory, so the text is ready the moment you let go. No cloud, no account, no subscription.',
     image: '/builds/scribe/landing.webp',
     images: ['/builds/scribe/landing.webp', '/builds/scribe/features.webp'],
     imageAlt: 'Scribe: talk, it types. Private local dictation for Windows',
@@ -46,12 +46,13 @@ const featured: FeaturedProject[] = [
     github: 'https://github.com/n8watkins/scribe',
     liveSite: 'https://scribe.n8builds.dev',
     buildSlug: 'scribe',
+    ctas: [{ label: 'Download Scribe for Windows, free', href: 'https://scribe.n8builds.dev' }],
   },
   {
     title: 'OpenPing',
     subtitle: 'Uptime Monitoring in Your Own Cloudflare',
     description:
-      'Uptime checks, incidents and public status pages that deploy into your own Cloudflare account, on the free plan. Schedule-aware: apps are watched only when they matter, and off-hours never count as downtime. I use it daily to watch my live demos, and its free tools need no sign-up.',
+      'I check OpenPing every day: it watches my live demos. Uptime checks, incidents and public status pages run on a Cloudflare Worker and D1 in your own account, inside the free plan. Schedule-aware: apps are watched only when they matter, and off-hours never count as downtime.',
     image: '/builds/openping/landing.webp',
     images: ['/builds/openping/landing.webp', '/builds/openping/status.webp', '/builds/openping/tools.webp'],
     imageAlt: 'OpenPing: uptime monitoring that runs entirely in your own cloud',
@@ -59,12 +60,16 @@ const featured: FeaturedProject[] = [
     github: 'https://github.com/n8watkins/open-ping',
     liveSite: 'https://openping.n8builds.dev',
     buildSlug: 'openping',
+    ctas: [
+      { label: 'Try the free tools, no sign-up', href: 'https://openping.n8builds.dev/tools' },
+      { label: 'Deploy your own, free', href: 'https://openping.n8builds.dev' },
+    ],
   },
   {
     title: 'Solara',
     subtitle: 'Personal UV & Sun-Exposure Dashboard',
     description:
-      'The UV index is a number, not an answer. Solara turns live UV data, your skin type, sunscreen and activities into safe sun windows for today and the days ahead, with calendar scheduling and push reminders.',
+      'The UV index is a number, not an answer. Solara turns live UV data, your skin type, sunscreen and activities into safe sun windows for today and the days ahead, with calendar scheduling and push reminders. An installable Next.js app on Firebase, free to use, and no account needed to start.',
     image: '/builds/solara/og-image.png',
     imageAlt: 'Solara: know your sun window',
     // A wide social card: anchor left so the cover crop keeps the sun.
@@ -73,12 +78,13 @@ const featured: FeaturedProject[] = [
     github: 'https://github.com/n8watkins/solara',
     liveSite: 'https://solara-uv.web.app',
     buildSlug: 'solara',
+    ctas: [{ label: 'Find your sun window, free, no sign-up', href: 'https://solara-uv.web.app' }],
   },
   {
     title: 'Portfolio Rank',
     subtitle: 'Developer Portfolio Ranker',
     description:
-      "Ranks 1,700+ developer portfolios by what's actually good - head-to-head voting + AI scoring, not alphabetical. Build lists, save the ones you love, and like the best.",
+      "Nearly 2,000 developer portfolios, ranked by head-to-head votes instead of the alphabet. A vote takes about five seconds: pick the better of two. Every site gets a real screenshot, Lighthouse scores and a Gemini review, and an ELO rating decides the leaderboard.",
     image: '/projects/PortfolioRank-1.png',
     images: ['/projects/PortfolioRank-1.png'],
     imageAlt: 'Portfolio Rank - developer portfolio ranker screenshot',
@@ -92,7 +98,10 @@ const featured: FeaturedProject[] = [
       href: 'https://github.com/emmabostian/developer-portfolios',
       after: ', curated by thousands of contributors.',
     },
-    cta: { label: 'Have a portfolio? Add yours to Portfolio Rank', href: 'https://portfoliorank.vercel.app/' },
+    ctas: [
+      { label: 'Vote in a face-off', href: 'https://portfoliorank.vercel.app/rank' },
+      { label: 'Have a portfolio? Add yours', href: 'https://portfoliorank.vercel.app/' },
+    ],
   },
 ]
 
@@ -163,17 +172,23 @@ const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: b
             {project.credit.after}
           </p>
         )}
-        {project.cta && (
-          <a
-            href={project.cta.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-cyan-300 hover:text-cyan-200"
-          >
-            {project.cta.label}
-            <FiExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-            <span className="sr-only"> (opens in a new tab)</span>
-          </a>
+        {project.ctas && (
+          <ul className="mt-3 flex flex-col gap-1.5">
+            {project.ctas.map((cta) => (
+              <li key={cta.href + cta.label}>
+                <a
+                  href={cta.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-cyan-300 hover:text-cyan-200"
+                >
+                  {cta.label}
+                  <FiExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span className="sr-only"> (opens in a new tab)</span>
+                </a>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
 
