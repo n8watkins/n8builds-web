@@ -143,6 +143,11 @@ export default function HomePage({ posts }: { posts: Post[] }) {
             <FeaturedProjects />
           </SectionErrorBoundary>
 
+          {/* Right after the featured builds: building your own? Use mine as a template. */}
+          <SectionErrorBoundary sectionName="Use as Template">
+            <UseAsTemplate />
+          </SectionErrorBoundary>
+
           <SectionErrorBoundary sectionName="Extensions">
             <Reveal>
               <ExtensionsShowcase />
@@ -185,14 +190,6 @@ export default function HomePage({ posts }: { posts: Post[] }) {
         </Band>
 
         {/* The contact form animates its own fields in. */}
-        {/* ===== USE THIS AS A TEMPLATE: both sites are public; how n8builds
-             is built and tested lives here, not in a featured row. ===== */}
-        <Band>
-          <SectionErrorBoundary sectionName="Use as Template">
-            <UseAsTemplate />
-          </SectionErrorBoundary>
-        </Band>
-
         <Band id="contact" as="section" reveal={false}>
           <SectionErrorBoundary sectionName="Contact Section">
             <Footer />
