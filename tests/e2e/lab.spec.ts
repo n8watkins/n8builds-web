@@ -181,10 +181,10 @@ test('the Scribe ad downloads the newest installer through a stable link', async
   await expect(download).toHaveAttribute('href', '/download/scribe')
   await expect(download).not.toHaveAttribute('target', '_blank')
   // It says what you get, from the release itself (the fixture's v0.8.0 installer is 12,519,464 bytes).
-  await expect(download).toHaveAccessibleDescription('Installer (.exe) for Windows 10 and 11, 64-bit · v0.8.0 · 12 MB')
+  await expect(download).toHaveAccessibleDescription('Windows 10 and 11, 64-bit · v0.8.0 · 12 MB')
   // A download mark and the Windows logo, and the details sit under the button, not beside it.
   await expect(download.locator('svg')).toHaveCount(2)
-  const facts = ad.getByText('Installer (.exe) for Windows 10 and 11, 64-bit · v0.8.0 · 12 MB')
+  const facts = ad.getByText('Windows 10 and 11, 64-bit · v0.8.0 · 12 MB')
   const [button, caption] = await Promise.all([download.boundingBox(), facts.boundingBox()])
   expect(caption!.y).toBeGreaterThanOrEqual(button!.y + button!.height)
   // The Mac and Linux request carries the Apple and Tux marks.
@@ -401,28 +401,28 @@ test.describe('the Lab gallery on touch', () => {
   })
 })
 
-test('each ad lists its points, and each row shows its tech as pills instead of in the description', async ({ page }) => {
+test('each row lists its features as checks, and shows its tech as pills instead of in the description', async ({ page }) => {
   await page.goto('/')
-  const points: [string, string[]][] = [
-    ['Scribe', ['Free for Windows', 'No account', 'No telemetry', 'Voice stays local']],
-    ['OpenPing', ['Free tools, no sign-up', 'Self-host free on Cloudflare']],
-    ['Solara', ['Free to use', 'No account to start']],
-    ['Portfolio Rank', ['A vote takes five seconds']],
+  const features: [string, string[]][] = [
+    ['Scribe', ['Works in any app', 'Push-to-talk hotkey', 'Local Whisper models', 'Searchable history']],
+    ['OpenPing', ['Schedule-aware checks', 'Public status pages', 'Incident alerts', 'Five monitor types']],
+    ['Solara', ['Personalised sun windows', 'Google Calendar scheduling', 'Push reminders', 'Today and the days ahead']],
+    ['Portfolio Rank', ['Head-to-head voting', 'ELO leaderboard', 'Lighthouse and AI reviews', 'Add your portfolio and see how you compare']],
   ]
-  for (const [name, list] of points) {
-    await expect(page.getByRole('group', { name: `Try ${name}` }).getByRole('listitem')).toHaveText(list)
+  for (const [name, list] of features) {
+    await expect(page.getByRole('list', { name: `What ${name} does` }).getByRole('listitem')).toHaveText(list)
   }
   const stacks: [string, string[], RegExp][] = [
-    ['Scribe', ['Tauri', 'Rust', 'whisper.cpp', 'React'], /whisper|Tauri|Rust/],
+    ['Scribe', ['Tauri', 'Rust', 'whisper.cpp'], /whisper|Tauri|Rust/],
     ['OpenPing', ['Cloudflare Workers', 'D1', 'Hono', 'React'], /Worker|D1/],
-    ['Solara', ['Next.js', 'Firebase', 'Stripe', 'Open-Meteo'], /Next\.js|Firebase/],
+    ['Solara', ['Next.js', 'Firebase', 'Open-Meteo'], /Next\.js|Firebase/],
     ['Portfolio Rank', ['Next.js', 'Gemini', 'Turso', 'Vercel'], /Gemini|Next\.js/],
   ]
   for (const [name, tags, prose] of stacks) {
     const pills = page.getByRole('list', { name: `${name} is built with` })
     await expect(pills.getByRole('listitem')).toHaveText(tags)
-    // The description next to the pills is about features, not the stack.
-    const description = pills.locator('xpath=preceding-sibling::p[1]')
+    // The description above the pills is about features, not the stack.
+    const description = pills.locator('xpath=../preceding-sibling::p[1]')
     await expect(description).not.toHaveText(prose)
   }
 })
