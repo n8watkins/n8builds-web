@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { UseFormReturn } from 'react-hook-form'
-import { motion, AnimatePresence } from 'motion/react'
+import { m, AnimatePresence } from 'motion/react'
 import { Turnstile } from '@marsidev/react-turnstile'
 import { ContactInput } from '@/components/ui/ContactInput'
 import { ContactSelect } from '@/components/ui/ContactSelect'
@@ -71,13 +71,13 @@ export function ContactFormFields({
         />
       </div>
 
-      <motion.div
+      <m.div
         className="grid grid-cols-1 gap-4 md:gap-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.1 }}
       >
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.2, ease: "easeOut" }}
@@ -93,9 +93,9 @@ export function ContactFormFields({
             autoComplete="name"
             disabled={isSubmitting}
           />
-        </motion.div>
+        </m.div>
 
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.25, ease: "easeOut" }}
@@ -112,10 +112,10 @@ export function ContactFormFields({
             autoComplete="email"
             disabled={isSubmitting}
           />
-        </motion.div>
-      </motion.div>
+        </m.div>
+      </m.div>
 
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.3, ease: "easeOut" }}
@@ -133,9 +133,9 @@ export function ContactFormFields({
           onFocus={() => handleFieldFocus('subject')}
           disabled={isSubmitting}
         />
-      </motion.div>
+      </m.div>
 
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.4, ease: "easeOut" }}
@@ -153,11 +153,11 @@ export function ContactFormFields({
           onFocus={() => handleFieldFocus('message')}
           disabled={isSubmitting}
         />
-      </motion.div>
+      </m.div>
 
       <AnimatePresence>
         {submissionState === 'error' && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
@@ -167,11 +167,11 @@ export function ContactFormFields({
               <span aria-hidden="true" className="text-base leading-snug">😅</span>
               <span>{errorMessage}</span>
             </p>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
-      <motion.div
+      <m.div
         className="text-center sm:px-4"
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
@@ -210,7 +210,7 @@ export function ContactFormFields({
             {isVerifying ? "Verifying... 🛡️" : isSubmitting ? "Sending... 🚀" : "Send Message 🚀"}
           </span>
         </button>
-      </motion.div>
+      </m.div>
 
       <p className="text-center text-sm text-slate-600 dark:text-slate-400 pb-8">
         Prefer email? Reach me directly at{' '}

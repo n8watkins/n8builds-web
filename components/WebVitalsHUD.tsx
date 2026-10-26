@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { m, AnimatePresence } from 'motion/react'
 
 interface WebVital {
   name: string
@@ -106,7 +106,7 @@ export function WebVitalsHUD() {
   return (
     <AnimatePresence>
       {isVisible && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
@@ -166,7 +166,7 @@ export function WebVitalsHUD() {
           <div className="mt-3 pt-2 border-t border-white/20 text-[10px] text-white/40">
             Press <kbd className="px-1 py-0.5 bg-white/10 rounded-sm">Alt+Shift+V</kbd> to toggle
           </div>
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   )

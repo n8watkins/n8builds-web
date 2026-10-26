@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect } from 'react'
-import { motion } from 'motion/react'
+import { m } from 'motion/react'
 import { useContactFormSubmit } from './useContactFormSubmit'
 import { ContactFormSuccess } from './ContactFormSuccess'
 import { ContactFormLoading } from './ContactFormLoading'
@@ -73,7 +73,7 @@ export default function ContactForm({ className }: ContactFormProps) {
   }
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
@@ -98,6 +98,6 @@ export default function ContactForm({ className }: ContactFormProps) {
         onTurnstileExpire={onTurnstileExpire}
         turnstileSiteKey={turnstileSiteKey}
       />
-    </motion.div>
+    </m.div>
   )
 }

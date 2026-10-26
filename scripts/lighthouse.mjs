@@ -1,9 +1,10 @@
 // Lighthouse budgets for the production build (run `npm run build` first).
 //
-// Starts `next start`, audits each page RUNS times with Lighthouse's desktop
-// preset, and checks the median of every metric against BUDGETS. Writes the
-// HTML report of each page's median run to .lighthouse/. Exits 1 if an
-// "error" budget fails; "warn" budgets only print.
+// Starts `next start`, audits each page several times with Lighthouse's desktop
+// preset (BUDGETS) and a few pages with its mobile preset (MOBILE_BUDGETS), and
+// checks the median of every metric. Writes the HTML report of each page's
+// median run to .lighthouse/. Exits 1 if an "error" budget fails; "warn"
+// budgets only print.
 //
 // Env: LIGHTHOUSE_PORT (default 3747), CHROME_PATH (needed under WSL: a Linux Chrome).
 
@@ -38,12 +39,30 @@ const BUDGETS = [
   ['TBT (ms)', (lhr) => lhr.audits['total-blocking-time'].numericValue, 'warn', 200, 'max'],
 ]
 
+// Lighthouse's default (mobile) form factor: a mid-range phone on slow 4G with
+// a 4x slower CPU. Desktop alone hid a homepage at 0.77 and LCP ~4s on phones
+// (2026-10-25). These budgets sit below today's numbers (home ~0.81, /blog
+// ~0.98, /builds ~0.96 locally) to catch a real regression, not runner noise.
+const MOBILE_PAGES = ['/', '/blog', '/builds']
+const MOBILE_BUDGETS = [
+  ['performance', (lhr) => lhr.categories.performance.score, 'error', 0.7, 'min'],
+  ['LCP (ms)', (lhr) => lhr.audits['largest-contentful-paint'].numericValue, 'error', 5000, 'max'],
+  ['CLS', (lhr) => lhr.audits['cumulative-layout-shift'].numericValue, 'error', 0.1, 'max'],
+  ['TBT (ms)', (lhr) => lhr.audits['total-blocking-time'].numericValue, 'warn', 500, 'max'],
+]
+
+const FORMS = [
+  { name: 'desktop', config: desktopConfig, pages: PAGES, budgets: BUDGETS, runs: RUNS },
+  // Three runs: its budgets are loose regression guards, and CI time matters.
+  { name: 'mobile', config: undefined, pages: MOBILE_PAGES, budgets: MOBILE_BUDGETS, runs: 3 },
+]
+
 /** Why a Lighthouse run can't be scored (its own runtime error, or empty metrics), or null. */
-function runProblem(result) {
+function runProblem(result, budgets) {
   if (!result) return 'no result'
   const { lhr } = result
   if (lhr.runtimeError) return `${lhr.runtimeError.code}: ${lhr.runtimeError.message}`
-  const empty = BUDGETS.filter(([, read]) => typeof read(lhr) !== 'number').map(([label]) => label)
+  const empty = budgets.filter(([, read]) => typeof read(lhr) !== 'number').map(([label]) => label)
   if (empty.length) {
     const lcp = lhr.audits['largest-contentful-paint']
     return `no value for ${empty.join(', ')}${lcp?.errorMessage ? ` (${lcp.errorMessage})` : ''}`
@@ -110,22 +129,22 @@ async function main() {
     chrome = await launchChrome(profile)
     mkdirSync(REPORT_DIR, { recursive: true })
 
-    for (const path of PAGES) {
+    for (const form of FORMS) for (const path of form.pages) {
       const runs = []
-      for (let i = 0; i < RUNS; i++) {
+      for (let i = 0; i < form.runs; i++) {
         let result
         for (let attempt = 0; attempt <= RETRIES; attempt++) {
-          result = await lighthouse(`${BASE}${path}`, { port: chrome.port, output: 'html', logLevel: 'error' }, desktopConfig)
-          const problem = runProblem(result)
+          result = await lighthouse(`${BASE}${path}`, { port: chrome.port, output: 'html', logLevel: 'error' }, form.config)
+          const problem = runProblem(result, form.budgets)
           if (!problem) break
-          console.log(`  retry ${path} run ${i + 1}: ${problem}`)
-          if (attempt === RETRIES) throw new Error(`Lighthouse could not audit ${path}: ${problem}`)
+          console.log(`  retry ${path} (${form.name}) run ${i + 1}: ${problem}`)
+          if (attempt === RETRIES) throw new Error(`Lighthouse could not audit ${path} (${form.name}): ${problem}`)
         }
         runs.push(result)
       }
 
-      console.log(`\n${path}`)
-      for (const [label, read, level, limit, direction] of BUDGETS) {
+      console.log(`\n${path}${form.name === 'desktop' ? '' : ` (${form.name})`}`)
+      for (const [label, read, level, limit, direction] of form.budgets) {
         const value = median(runs.map((run) => read(run.lhr)))
         const ok = direction === 'min' ? value >= limit : value <= limit
         if (!ok && level === 'error') failed = true
@@ -137,7 +156,7 @@ async function main() {
       // Keep the report of the run with the median performance score.
       const medianScore = median(runs.map((run) => run.lhr.categories.performance.score))
       const report = runs.find((run) => run.lhr.categories.performance.score === medianScore).report
-      const name = path === '/' ? 'home' : path.slice(1).replaceAll('/', '_')
+      const name = `${path === '/' ? 'home' : path.slice(1).replaceAll('/', '_')}${form.name === 'desktop' ? '' : `-${form.name}`}`
       writeFileSync(join(REPORT_DIR, `${name}.html`), report)
     }
   } finally {

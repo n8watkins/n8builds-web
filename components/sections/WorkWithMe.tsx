@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import Image from 'next/image'
-import { motion } from 'motion/react'
+import { m } from 'motion/react'
 import { useReveal } from '@/hooks/useReveal'
 import { FiArrowUpRight, FiCode, FiCheck } from 'react-icons/fi'
 
@@ -69,7 +69,7 @@ const bridges: Bridge[] = [
 ]
 
 const BridgeCard = ({ bridge, index }: { bridge: Bridge; index: number }) => (
-  <motion.a
+  <m.a
     href={bridge.href}
     target="_blank"
     rel="noopener noreferrer"
@@ -129,7 +129,7 @@ const BridgeCard = ({ bridge, index }: { bridge: Bridge; index: number }) => (
         </div>
       </div>
     </div>
-  </motion.a>
+  </m.a>
 )
 
 const WorkWithMe = () => {

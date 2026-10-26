@@ -1,6 +1,6 @@
 "use client";
 
-import * as Sentry from "@sentry/nextjs";
+import { captureError } from '@/lib/sentry/lazy'
 import NextError from "next/error";
 import { useEffect } from "react";
 
@@ -8,7 +8,7 @@ import { useEffect } from "react";
 // the per-section boundaries can't. Reports to Sentry (no-op until DSN is set).
 export default function GlobalError({ error }: { error: Error & { digest?: string } }) {
   useEffect(() => {
-    Sentry.captureException(error);
+    captureError(error);
   }, [error]);
 
   return (

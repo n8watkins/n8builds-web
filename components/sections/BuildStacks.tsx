@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import { motion } from 'motion/react'
+import { m } from 'motion/react'
 import { useReveal } from '@/hooks/useReveal'
 import { buildStacks, type BuildStack } from '@/data/buildStacks'
 
@@ -16,7 +16,7 @@ const StackCard = ({ stack, index }: { stack: BuildStack; index: number }) => {
   // The site's scroll reveal, staggered; under reduced motion it simply shows.
   const reveal = useReveal(Math.min(index * 0.05, 0.2))
   return (
-    <motion.div
+    <m.div
       {...reveal}
       className="group relative flex flex-col gap-4 overflow-hidden rounded-2xl border border-white/8 bg-white/2 p-6 transition-all duration-200 hover:border-white/16 hover:bg-white/4"
     >
@@ -45,7 +45,7 @@ const StackCard = ({ stack, index }: { stack: BuildStack; index: number }) => {
         <span className={a.text}>{'//'}</span>
         {stack.note}
       </p>
-    </motion.div>
+    </m.div>
   )
 }
 

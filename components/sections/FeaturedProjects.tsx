@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { motion } from 'motion/react'
+import { m } from 'motion/react'
 import { FiGithub, FiExternalLink, FiFileText, FiDownload, FiStar, FiLayers, FiX } from 'react-icons/fi'
 import { useReveal } from '@/hooks/useReveal'
 import { useHydrated } from '@/hooks/useHydrated'
@@ -247,7 +247,7 @@ const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: b
   const revealProps = useReveal()
   const current = gallery[Math.min(active, gallery.length - 1)]
   return (
-  <motion.div
+  <m.div
     {...revealProps}
     className={`flex flex-col ${flipped ? 'md:flex-row-reverse' : 'md:flex-row'} gap-10 md:gap-14 items-center`}
   >
@@ -387,7 +387,7 @@ const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: b
       </div>
       <DetailsDialog project={project} technologies={technologies} open={detailsOpen} onClose={() => setDetailsOpen(false)} />
     </div>
-  </motion.div>
+  </m.div>
   )
 }
 

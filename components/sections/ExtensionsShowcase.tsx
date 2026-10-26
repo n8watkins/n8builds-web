@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { motion, AnimatePresence } from 'motion/react'
+import { m, AnimatePresence } from 'motion/react'
 import { FiGithub, FiStar, FiArrowUpRight } from 'react-icons/fi'
 import { getBuild } from '@/data/builds'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
@@ -180,7 +180,7 @@ const ExtensionsShowcase = () => {
                 {/* progress timer on the active card */}
                 <div className="mt-4 h-0.5 w-full overflow-hidden rounded-full bg-white/6">
                   {isActive && (
-                    <motion.div
+                    <m.div
                       key={progressKey}
                       className="h-full bg-linear-to-r from-cyan-400 to-blue-500"
                       initial={{ width: '0%' }}
@@ -197,7 +197,7 @@ const ExtensionsShowcase = () => {
         {/* Detail panel - carousels as active changes */}
         <div className="mt-6 rounded-3xl border border-white/8 bg-white/2 p-6 md:p-8">
           <AnimatePresence mode="wait">
-            <motion.div
+            <m.div
               key={active}
               initial={{ opacity: 0, x: 24 }}
               animate={{ opacity: 1, x: 0 }}
@@ -205,7 +205,7 @@ const ExtensionsShowcase = () => {
               transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
             >
               <Detail ext={exts[active]} />
-            </motion.div>
+            </m.div>
           </AnimatePresence>
         </div>
       </div>
