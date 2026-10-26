@@ -106,7 +106,9 @@ const Detail = ({ ext }: { ext: Ext }) => {
  * which gets each detail already rendered; on phones they simply stack.
  */
 const ExtensionsShowcase = () => (
-  <section id="extensions" aria-label="Chrome extensions" className="py-10">
+  // A full-bleed part of the Lab in its own indigo wash (`.lab-part-wash` in app/globals.css).
+  <section id="extensions" aria-label="Chrome extensions" className="lab-accent-extensions lab-part-wash py-12">
+    <div className="mx-auto max-w-6xl px-5 sm:px-8">
     <LabSubheader
       eyebrow="Browser tools"
       eyebrowClass="text-indigo-400"
@@ -132,6 +134,7 @@ const ExtensionsShowcase = () => (
           <Detail ext={ext} />
         </div>
       ))}
+    </div>
     </div>
   </section>
 )

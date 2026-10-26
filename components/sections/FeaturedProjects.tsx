@@ -496,13 +496,29 @@ const ProjectRow = ({ project, flipped, facts }: { project: FeaturedProject; fli
   )
 }
 
+/** The Lab's content width, inside its full-bleed part and row washes. */
+const container = 'mx-auto max-w-6xl px-5 sm:px-8'
+
+// Each row sits in its own full-bleed wash in its product's colour, its glow
+// centred behind the screenshot (`.lab-row-wash` in app/globals.css). The washes
+// fade out at their edges, so the rows' padding doubles as the gap between them.
 const Rows = ({ group, offset, facts }: { group: FeaturedProject['group']; offset: number; facts: DownloadFacts }) => (
-  <div className="flex flex-col gap-12 md:gap-16">
+  <div className="flex flex-col">
     {featured
       .filter((p) => p.group === group)
-      .map((p, i) => (
-        <ProjectRow key={p.title} project={p} flipped={(i + offset) % 2 === 1} facts={facts} />
-      ))}
+      .map((p, i) => {
+        const flipped = (i + offset) % 2 === 1
+        return (
+          <div
+            key={p.title}
+            className={`lab-row-wash lab-wash-a ${p.ad ? `lab-accent-${p.ad.accent}` : ''} py-6 md:py-8 [--lab-x:50%] ${flipped ? 'md:[--lab-x:72%]' : 'md:[--lab-x:28%]'}`}
+          >
+            <div className={container}>
+              <ProjectRow project={p} flipped={flipped} facts={facts} />
+            </div>
+          </div>
+        )
+      })}
   </div>
 )
 
@@ -512,14 +528,14 @@ const FeaturedProjects = async () => {
   const facts = await downloadFacts()
   return (
     <>
-      <section id="my-tools" aria-label="Tools I use every day" className="py-8">
-        <Reveal>
+      <section id="my-tools" aria-label="Tools I use every day" className="lab-accent-tools lab-part-wash lab-wash-b py-10">
+        <Reveal className={container}>
           <LabSubheader title="Tools I use every day" blurb="Mine first: I run both of these every day, and so can you." />
         </Reveal>
         <Rows group="tools" offset={0} facts={facts} />
       </section>
-      <section id="featured" aria-label="Featured builds" className="py-8">
-        <Reveal>
+      <section id="featured" aria-label="Featured builds" className="lab-accent-featured lab-part-wash lab-wash-b py-10">
+        <Reveal className={container}>
           <LabSubheader title="Featured builds" />
         </Reveal>
         {/* Continue the left/right alternation from the rows above. */}

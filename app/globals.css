@@ -439,3 +439,108 @@
 #home[data-offscreen] .n8-loop-comet {
   animation-play-state: paused;
 }
+
+/* The Lab's colour washes (components/HomePage.tsx, FeaturedProjects.tsx,
+   ExtensionsShowcase.tsx). Each part of the Lab, and each project row in it,
+   carries its product's colour as a faint full-bleed wash, so moving from one
+   to the next reads as a change of room rather than one long scroll. Every
+   wash fades to transparent at its top and bottom edges, so neighbours never
+   meet in a seam: the page dips back to its base colour between them. Peak
+   tint stays under 20% so all text keeps WCAG AA contrast.
+
+   Colours are RGB triplets set per element: --lab-from and --lab-to (a part
+   can blend two, e.g. My tools runs Scribe sky into OpenPing green), and
+   --lab-x, the horizontal centre of a row's glow (its screenshot side).
+
+   Preview (2026-10-26): two treatments, picked with ?labBg=a or ?labBg=b
+   (an inline script in HomePage sets data-lab-bg on <html>; a is the default).
+     a: per project. Each row glows in its own colour behind its screenshot;
+        Chrome extensions and Open source, which have no rows, get part washes.
+     b: per part. One vertical wash per part, blending its projects' colours;
+        rows carry no wash of their own. */
+@layer components {
+  .lab-accent-scribe {
+    --lab-from: 56 189 248;
+    --lab-to: 56 189 248;
+  }
+  .lab-accent-openping {
+    --lab-from: 52 211 153;
+    --lab-to: 52 211 153;
+  }
+  .lab-accent-solara {
+    --lab-from: 251 146 60;
+    --lab-to: 251 146 60;
+  }
+  .lab-accent-rank {
+    --lab-from: 251 191 36;
+    --lab-to: 251 191 36;
+  }
+  .lab-accent-tools {
+    --lab-from: 56 189 248;
+    --lab-to: 52 211 153;
+  }
+  .lab-accent-featured {
+    --lab-from: 251 146 60;
+    --lab-to: 251 191 36;
+  }
+  .lab-accent-extensions {
+    --lab-from: 129 140 248;
+    --lab-to: 96 165 250;
+  }
+  .lab-accent-oss {
+    --lab-from: 34 211 238;
+    --lab-to: 45 212 191;
+  }
+
+  /* A whole part: a vertical wash that peaks through the middle, and a glow
+     behind its subheader. No gradient reaches an edge with colour left in it. */
+  .lab-part-wash {
+    background:
+      radial-gradient(60% 150px at 50% 170px, rgb(var(--lab-from) / 0.1), transparent 100%),
+      linear-gradient(
+        to bottom,
+        transparent,
+        rgb(var(--lab-from) / 0.075) 22%,
+        rgb(var(--lab-to) / 0.075) 78%,
+        transparent
+      );
+  }
+
+  /* One project row: a soft glow behind its screenshot over a faint band. The
+     glow's vertical radius is half the row, so it is spent before either edge. */
+  .lab-row-wash {
+    background:
+      radial-gradient(
+        70% 50% at var(--lab-x, 30%) 50%,
+        rgb(var(--lab-from) / 0.15),
+        transparent 100%
+      ),
+      linear-gradient(
+        to bottom,
+        transparent,
+        rgb(var(--lab-from) / 0.05) 30%,
+        rgb(var(--lab-from) / 0.05) 70%,
+        transparent
+      );
+  }
+
+  /* Which wash shows depends on the preview treatment. */
+  html:not([data-lab-bg='b']) .lab-wash-b,
+  html[data-lab-bg='b'] .lab-wash-a {
+    background: none;
+  }
+
+  /* A Lab part's subheader bar takes its part's colours (falls back to a hairline). */
+  .lab-sub-bar {
+    background: linear-gradient(
+      to bottom,
+      rgb(var(--lab-from, 255 255 255) / 0.9),
+      rgb(var(--lab-to, 255 255 255) / 0.5)
+    );
+  }
+  .lab-sub-bar:not(
+    :where(.lab-accent-tools, .lab-accent-featured, .lab-accent-extensions, .lab-accent-oss) *
+  ) {
+    background: rgb(255 255 255 / 0.1);
+  }
+}
