@@ -204,7 +204,7 @@ test.describe('desktop', () => {
     // Only the new stream: the closed Twitch stream stays closed, so there is
     // no Twitch tab and YouTube is the one playing.
     const region = page.getByRole('region', { name: 'Live stream player' })
-    await expect(region.getByRole('tab', { name: 'Twitch' })).toHaveCount(0)
+    await expect(region.getByRole('tab', { name: 'Twitch', exact: true })).toHaveCount(0)
     await expect(region.getByRole('link', { name: /Watch on YouTube/ })).toBeVisible()
     await expect(region.getByRole('link', { name: /Watch on Twitch/ })).toHaveCount(0)
   })
@@ -219,10 +219,10 @@ test.describe('desktop', () => {
     await page.keyboard.press('Tab')
     await expect(page.getByRole('region', { name: 'Live stream player' }).getByRole('button', { name: 'Close live player' })).toBeFocused()
     await page.keyboard.press('Tab')
-    const twitchTab = page.getByRole('tab', { name: 'Twitch' })
+    const twitchTab = page.getByRole('tab', { name: 'Twitch', exact: true })
     await expect(twitchTab).toBeFocused()
     await page.keyboard.press('ArrowRight')
-    const youtubeTab = page.getByRole('tab', { name: 'YouTube' })
+    const youtubeTab = page.getByRole('tab', { name: 'YouTube', exact: true })
     await expect(youtubeTab).toBeFocused()
     await expect(youtubeTab).toHaveAttribute('aria-selected', 'true')
 
@@ -245,7 +245,7 @@ test.describe('desktop', () => {
     await openHome(page)
     await waitForPlayer(page)
     await expect(frame(page)).toHaveAttribute('src', /player\.twitch\.tv/)
-    await page.getByRole('tab', { name: 'YouTube' }).click()
+    await page.getByRole('tab', { name: 'YouTube', exact: true }).click()
     await expect(frame(page)).toHaveAttribute('src', /youtube-nocookie/)
     await page.waitForTimeout(1000)
     expect(violations).toEqual([])
