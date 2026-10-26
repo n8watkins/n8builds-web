@@ -66,9 +66,12 @@ const SiteFooter = () => (
                       className="inline-flex items-center gap-1.5 text-sm text-slate-300 transition-colors hover:text-cyan-200"
                     >
                       {link.icon && <Image src={link.icon} alt="" width={14} height={16} className="h-4 w-auto" />}
-                      {link.label}
-                      <span aria-hidden="true" className="text-slate-500">↗</span>
-                      <span className="sr-only"> (opens in a new tab)</span>
+                      {/* One text run, so a wrapped label keeps its arrow on the last line. */}
+                      <span>
+                        {link.label}
+                        <span aria-hidden="true" className="ml-1.5 text-slate-500">↗</span>
+                        <span className="sr-only"> (opens in a new tab)</span>
+                      </span>
                     </a>
                   ) : link.href.startsWith('mailto:') ? (
                     <a href={link.href} className="text-sm text-slate-300 transition-colors hover:text-cyan-200">

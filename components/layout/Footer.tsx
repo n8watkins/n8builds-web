@@ -60,7 +60,7 @@ const Footer = () => {
             {/* top accent line */}
             <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-cyan-400 via-blue-500 to-cyan-400" />
 
-            <div className="relative grid gap-6 p-5 sm:p-7 md:grid-cols-[0.8fr_1.2fr] md:gap-8 md:p-8">
+            <div className="relative grid grid-cols-[minmax(0,1fr)] gap-6 p-5 sm:p-7 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] md:gap-8 md:p-8">
               {/* Left - branded panel */}
               <div className="flex flex-col gap-5">
                 <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/12 bg-white/4 px-3 py-1 text-xs font-semibold text-slate-300">

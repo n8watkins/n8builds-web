@@ -183,7 +183,7 @@ export function ContactFormFields({
             {isVerifying ? "Verifying... 🛡️" : isSubmitting ? "Sending... 🚀" : "Send Message 🚀"}
           </span>
         </button>
-        <p className="text-center text-sm whitespace-nowrap text-slate-600 dark:text-slate-400">
+        <p className="text-center text-sm text-balance text-slate-600 dark:text-slate-400">
           Prefer email?{' '}
           <a
             href="mailto:contact@n8builds.dev"
