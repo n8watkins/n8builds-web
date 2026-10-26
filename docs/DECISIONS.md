@@ -86,6 +86,8 @@ When the owner decides something new, add it here (with the date) in the same ch
 - **Visitor-facing email is contact@n8builds.dev** everywhere (footer, form errors, privacy page); the Gmail address only appears as the SMTP delivery fallback.
 - **Contact form fields:** short labels (Name, Email, Topic, Message) with example placeholders, never repeating each other.
 - **A direct route to the portfolio:** "Hiring? See my developer portfolio" under the hero, and `n8builds.dev/portfolio` redirects to portfolio.n8builds.dev (2026-10-25).
+- **The hero portrait fades in with the rest of the hero** (2026-10-25), not "just there" at the start. It is the page's LCP element, so the fade is CSS from first paint (not after hydration), starts at 1% opacity so LCP timing is unchanged, and is skipped under reduced motion.
+- **"Use this as a template" names each site, with its icon** (2026-10-25): "n8builds.dev" and "portfolio.n8builds.dev", each with the N8 icon. The repo names (`n8builds-web`, `dev-portfolio`) appear only in the GitHub link text.
 
 ## Operations
 

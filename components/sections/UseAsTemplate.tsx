@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { FiArrowUpRight, FiGithub } from 'react-icons/fi'
 
@@ -8,7 +9,10 @@ import { FiArrowUpRight, FiGithub } from 'react-icons/fi'
  */
 const TEMPLATES = [
   {
-    name: 'n8builds-web',
+    name: 'n8builds.dev',
+    // Both sites carry the same N8 brand mark (docs/DECISIONS.md).
+    icon: '/tab/n8-icon-192.png',
+    repoName: 'n8builds-web',
     what: 'This site',
     description:
       'Next.js 16 and Sanity. Every pull request runs the Playwright suite on five browsers and the APIs, plus Lighthouse budgets, before anything merges; the contact form fails closed behind Turnstile and rate limits.',
@@ -17,7 +21,9 @@ const TEMPLATES = [
     more: { label: 'How it is built and tested', href: '/builds/n8builds', internal: true },
   },
   {
-    name: 'dev-portfolio',
+    name: 'portfolio.n8builds.dev',
+    icon: '/tab/n8-icon-192.png',
+    repoName: 'dev-portfolio',
     what: 'My developer portfolio',
     description:
       'Next.js 16 project pages with live demo status from OpenPing, generated share cards, and CI on every pull request. A clean starting point for a portfolio of your own.',
@@ -26,6 +32,22 @@ const TEMPLATES = [
     more: { label: 'See it live', href: 'https://portfolio.n8builds.dev', internal: false },
   },
 ]
+
+/**
+ * A subdomain site name may wrap after its first label on the narrowest
+ * phones ("portfolio." / "n8builds.dev"), never inside a word.
+ */
+const SiteName = ({ name }: { name: string }) => {
+  const dot = name.indexOf('.')
+  if (name.split('.').length < 3) return name
+  return (
+    <>
+      {name.slice(0, dot + 1)}
+      <wbr />
+      {name.slice(dot + 1)}
+    </>
+  )
+}
 
 const UseAsTemplate = () => (
   <section id="template" aria-labelledby="template-heading" className="py-10">
@@ -39,9 +61,16 @@ const UseAsTemplate = () => (
 
     <ul className="mt-6 grid gap-5 md:grid-cols-2">
       {TEMPLATES.map((t) => (
-        <li key={t.name} className="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-          <p className="font-mono text-xs uppercase tracking-wider text-slate-450">{t.what}</p>
-          <h3 className="mt-1 text-xl font-bold text-slate-50">{t.name}</h3>
+        <li key={t.name} className="flex min-w-0 flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+          <div className="flex items-center gap-3.5">
+            <Image src={t.icon} alt="" width={44} height={44} className="h-11 w-11 shrink-0 rounded-xl" />
+            <div className="min-w-0">
+              <p className="font-mono text-xs uppercase tracking-wider text-slate-450">{t.what}</p>
+              <h3 className="mt-0.5 text-lg font-bold text-slate-50 [overflow-wrap:anywhere] min-[360px]:text-xl">
+                <SiteName name={t.name} />
+              </h3>
+            </div>
+          </div>
           <p className="mt-3 leading-relaxed text-slate-300">{t.description}</p>
           <p className="mt-3 text-sm text-slate-450">License: {t.license}</p>
           <div className="mt-auto flex flex-wrap items-center gap-x-5 gap-y-2 pt-5 text-sm font-semibold">
@@ -52,7 +81,7 @@ const UseAsTemplate = () => (
               className="inline-flex items-center gap-2 text-cyan-300 transition-colors hover:text-cyan-200"
             >
               <FiGithub className="h-4 w-4" />
-              {t.name} on GitHub
+              {t.repoName} on GitHub
               <span className="sr-only"> (opens in a new tab)</span>
             </a>
             {t.more.internal ? (

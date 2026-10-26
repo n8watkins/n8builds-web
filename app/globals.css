@@ -161,3 +161,33 @@
     outline-offset: 2px;
   }
 }
+
+@layer components {
+  /* The hero portrait's entrance (components/sections/Hero.tsx). CSS rather
+     than motion, so it runs from the server HTML on first paint: the portrait
+     is the page's LCP element and must not wait for hydration. Timing matches
+     the hero's motion entrances. Only with no-preference: the reduced-motion
+     rule above shortens durations but keeps delays, which would hide the
+     portrait for the delay. */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-portrait-in {
+      animation: hero-portrait-in 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) 0.18s both;
+    }
+  }
+}
+
+/* Starts at 1% opacity, not 0: Chrome skips opacity-0 elements as LCP
+   candidates and, for a compositor-run fade, only records the paint when the
+   animation ends. From 0, Lighthouse's LCP grew by the whole delay plus
+   duration (~0.8s desktop, ~3s simulated mobile); from 0.01 it is unchanged.
+   1% is invisible on the dark hero. */
+@keyframes hero-portrait-in {
+  from {
+    opacity: 0.01;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

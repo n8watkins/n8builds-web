@@ -30,8 +30,9 @@ test('the heading, subheader and idea -> repeat chips all fit on a 320px screen'
     const culprits = [...document.querySelectorAll('body *')]
       .filter((el) => {
         if (el.getBoundingClientRect().right <= client + 0.5) return false
-        // Skip anything inside a box that clips it.
-        for (let p = el.parentElement; p; p = p.parentElement) {
+        // Skip anything inside a box that clips it. Stop at <body>: its
+        // overflow-y: scroll computes overflow-x to auto, which would skip everything.
+        for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
           if (getComputedStyle(p).overflowX !== 'visible') return false
         }
         return true
@@ -41,4 +42,47 @@ test('the heading, subheader and idea -> repeat chips all fit on a 320px screen'
     return { scroll: document.documentElement.scrollWidth, client, culprits }
   })
   expect(scroll, `overflowing: ${culprits.join(' | ')}`).toBeLessThanOrEqual(client)
+})
+
+/**
+ * The portrait (the page's LCP element) fades in with the rest of the hero,
+ * in CSS from the server HTML rather than after hydration, and shows at once
+ * under reduced motion.
+ */
+test.describe('the hero portrait', () => {
+  test.use({ viewport: { width: 1280, height: 800 }, hasTouch: false })
+
+  const portrait = (page: import('@playwright/test').Page) => page.locator('#home').getByRole('img', { name: /^Nathan Watkins/ })
+
+  /** The portrait's opacity as painted: its own times every ancestor's. */
+  const paintedOpacity = (page: import('@playwright/test').Page) =>
+    portrait(page).evaluate((img) => {
+      let opacity = 1
+      for (let el: Element | null = img; el; el = el.parentElement) opacity *= Number(getComputedStyle(el).opacity)
+      return opacity
+    })
+
+  test.describe('with motion', () => {
+    test.use({ contextOptions: { reducedMotion: 'no-preference' } })
+
+    test('fades in from the server HTML and ends fully visible', async ({ page }) => {
+      // JavaScript off: the entrance must not wait for hydration.
+      await page.context().route('**/*.js', (route) => route.abort())
+      await page.goto('/')
+      const animation = await portrait(page).evaluate((img) => getComputedStyle(img.closest('.hero-portrait-in')!).animationName)
+      expect(animation).toBe('hero-portrait-in')
+      await expect.poll(() => paintedOpacity(page), { timeout: 5_000 }).toBe(1)
+      await expect(portrait(page)).toBeVisible()
+    })
+  })
+
+  test.describe('with reduced motion', () => {
+    test.use({ contextOptions: { reducedMotion: 'reduce' } })
+
+    test('is fully visible immediately, with no entrance', async ({ page }) => {
+      await page.goto('/', { waitUntil: 'domcontentloaded' })
+      expect(await portrait(page).evaluate((img) => getComputedStyle(img.closest('.hero-portrait-in')!).animationName)).toBe('none')
+      expect(await paintedOpacity(page)).toBe(1)
+    })
+  })
 })
