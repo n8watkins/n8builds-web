@@ -65,8 +65,17 @@ const Footer = () => {
                   </span>
                 </h2>
                 <p className="text-[#9cadc5] leading-relaxed">
-                  Drop a message, connect on socials, or head to Appturnity for consulting and
-                  project work. I usually reply within a day.
+                  Drop a message or connect on socials; I usually reply within a day. Run a local
+                  service business?{' '}
+                  <a
+                    href="https://appturnity.com/#free-website"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-cyan-400 underline decoration-cyan-400/40 underline-offset-2 transition-colors hover:text-cyan-300 hover:decoration-cyan-300"
+                  >
+                    Appturnity will build you a free website
+                  </a>
+                  .
                 </p>
 
                 {/* socials */}
