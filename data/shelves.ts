@@ -6,7 +6,7 @@ import { builds, type Build } from './builds'
 
 // Every build sits in one part of the homepage Lab: web apps are the featured
 // rows, extensions have their showcase, and tools get a card grid.
-export type Shelf = 'featured' | 'extension' | 'tool'
+export type Shelf = 'mine' | 'featured' | 'extension' | 'tool'
 
 export interface ShelfMeta {
   id: Shelf
@@ -18,6 +18,14 @@ export interface ShelfMeta {
 }
 
 export const shelfMeta: Record<Shelf, ShelfMeta> = {
+  mine: {
+    id: 'mine',
+    slug: 'my-tools',
+    label: 'My tools',
+    eyebrow: 'My tools',
+    heading: 'Tools I use every day',
+    blurb: 'Mine first: I run both of these every day, and so can you.',
+  },
   extension: {
     id: 'extension',
     slug: 'extensions',
@@ -47,7 +55,7 @@ export const shelfMeta: Record<Shelf, ShelfMeta> = {
 // Classify a build onto a shelf. Extensions and tools get their own sections;
 // everything else (web apps) is a featured row.
 export function getShelf(build: Build): Shelf {
-  if (build.featured) return 'featured'
+  if (build.mine) return 'mine'
   switch (build.category) {
     case 'Chrome extension':
     case 'Starter template':

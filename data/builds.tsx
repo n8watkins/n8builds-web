@@ -15,10 +15,10 @@ export interface Build {
   category: string
   status?: 'shipped' | 'in the lab'
   /**
-   * A featured row in the Lab whatever its category: the owner's daily
-   * drivers (Scribe, OpenPing) sit with the web apps, not in a card grid.
+   * One of the owner's daily tools (Scribe, OpenPing): a row in the Lab's
+   * "Tools I use every day", whatever its category.
    */
-  featured?: boolean
+  mine?: boolean
   tags: string[]
   color: string
   problem: string
@@ -147,7 +147,7 @@ export const builds: Build[] = [
     name: 'Scribe',
     tagline: 'Privacy-first local speech-to-text',
     category: 'Desktop app',
-    featured: true,
+    mine: true,
     tags: ['Tauri', 'Rust', 'Whisper'],
     color: 'from-slate-500/20 to-blue-600/20',
     problem:
@@ -187,7 +187,7 @@ export const builds: Build[] = [
     name: 'OpenPing',
     tagline: 'Uptime monitoring that runs in your own Cloudflare account',
     category: 'Web tool',
-    featured: true,
+    mine: true,
     tags: ['Cloudflare Workers', 'D1', 'React'],
     color: 'from-sky-500/20 to-blue-600/20',
     problem:

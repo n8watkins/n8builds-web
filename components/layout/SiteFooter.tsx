@@ -14,6 +14,7 @@ const SITEMAP: { heading: string; links: { label: string; href: string; icon?: s
   {
     heading: 'The Lab',
     links: [
+      { label: 'My tools', href: '/#my-tools' },
       { label: 'Featured builds', href: '/#featured' },
       { label: 'Chrome extensions', href: '/#extensions' },
       { label: 'Build log', href: '/builds' },

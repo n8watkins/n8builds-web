@@ -269,7 +269,11 @@ export const projects = [
       Frontend: {
         descriptionParts: [
           {
-            text: 'A Windows app with global hotkeys, a tray icon and a floating status pill',
+            text: 'A React dashboard for history, stats and settings, in TypeScript with Vite',
+            icons: [{ icon: 're.svg' }, { icon: 'ts.svg' }, { icon: 'vite.svg' }],
+          },
+          {
+            text: 'A Tauri 2 shell: tray icon, global hotkeys, autostart and notifications',
             icons: [{ icon: 'tauri.svg' }],
           },
         ],
@@ -277,7 +281,7 @@ export const projects = [
       Backend: {
         descriptionParts: [
           {
-            text: 'Rust captures audio and types the text wherever the cursor is',
+            text: 'Rust captures the audio and types or pastes the text at your cursor; whisper.cpp stays warm in memory',
             icons: [{ icon: 'rust.svg' }],
           },
           {
@@ -289,7 +293,7 @@ export const projects = [
       Cloud: {
         descriptionParts: [
           {
-            text: 'No cloud at all: Whisper runs on the PC; the site and releases live on GitHub',
+            text: 'No cloud for your voice: releases ship on GitHub, with signed auto-updates',
             icons: [{ icon: 'github.png' }],
           },
         ],
@@ -308,8 +312,8 @@ export const projects = [
       Frontend: {
         descriptionParts: [
           {
-            text: 'The admin app, status pages and free tools: an installable React app',
-            icons: [{ icon: 're.svg' }, { icon: 'vite.svg' }, { icon: 'tail.svg' }, { icon: 'ts.svg' }],
+            text: 'The admin app, status pages and free tools: an installable React app with React Router',
+            icons: [{ icon: 're.svg' }, { icon: 'ts.svg' }, { icon: 'vite.svg' }, { icon: 'tail.svg' }],
           },
         ],
       },
@@ -319,6 +323,10 @@ export const projects = [
             text: 'A Worker API with Hono and Zod, and a scheduled run every 12 minutes',
             icons: [{ icon: 'hono.svg' }, { icon: 'zod.png' }],
           },
+          {
+            text: 'Alerts by email, phone notification or Discord; sign-in with GitHub or a magic link',
+            icons: [{ icon: 'resend.svg' }, { icon: 'discord.svg' }, { icon: 'github.png' }],
+          },
         ],
       },
       Cloud: {
@@ -326,6 +334,10 @@ export const projects = [
           {
             text: 'Cloudflare Workers and D1, inside the free plan',
             icons: [{ icon: 'cf-workers.svg' }],
+          },
+          {
+            text: 'Vitest unit tests plus Worker and D1 integration tests',
+            icons: [{ icon: 'vitest.svg' }],
           },
         ],
       },
@@ -449,6 +461,8 @@ export const techNameMapping = {
   'rust.svg': 'Rust',
   'sqlite.svg': 'SQLite',
   'hono.svg': 'Hono',
+  'resend.svg': 'Resend',
+  'discord.svg': 'Discord',
   'turnstile.svg': 'Cloudflare Turnstile',
   'sanity.svg': 'Sanity',
   'upstash.svg': 'Upstash Redis',

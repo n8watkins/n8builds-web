@@ -155,8 +155,8 @@ test('temporary redirects: builds on hold (so they can come back at the same URL
   for (const [path, target] of [
     ['/builds/chrome-extension-kit', '/#extensions'],
     ['/builds/vibelog', '/#lab'],
-    // Tools may come back if a build lands there; for now its builds are featured.
-    ['/tools', '/#featured'],
+    // Tools are the owner's daily tools now, at the top of the Lab.
+    ['/tools', '/#my-tools'],
     // The short address for the developer portfolio.
     ['/portfolio', 'https://portfolio.n8builds.dev/'],
   ]) {
