@@ -482,6 +482,11 @@
     --lab-from: 129 140 248;
     --lab-to: 96 165 250;
   }
+  /* "Building your own site?" (components/sections/UseAsTemplate.tsx): the site's own cyan to teal. */
+  .lab-accent-template {
+    --lab-from: 34 211 238;
+    --lab-to: 45 212 191;
+  }
 
   /* A whole part: a vertical wash that peaks through the middle, and a glow
      behind its subheader. No gradient reaches an edge with colour left in it. */
@@ -521,7 +526,7 @@
       rgb(var(--lab-to, 255 255 255) / 0.5)
     );
   }
-  .lab-sub-bar:not(:where(.lab-accent-tools, .lab-accent-featured, .lab-accent-extensions) *) {
+  .lab-sub-bar:not(:where(.lab-accent-tools, .lab-accent-featured, .lab-accent-extensions, .lab-accent-template) *) {
     background: rgb(255 255 255 / 0.1);
   }
 }

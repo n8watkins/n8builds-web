@@ -4,7 +4,7 @@ import { getBuild } from '../../data/builds'
 
 /**
  * The build page for this site itself (/builds/n8builds), and the homepage's
- * "Use this as a template" section that links to it.
+ * template part of the Lab ("Use mine as a template.") that links to it.
  */
 
 const PATH = '/builds/n8builds'
@@ -55,7 +55,7 @@ test('the n8builds build page has no serious accessibility violations', async ({
   expect(serious.map((v) => `${v.id}: ${v.help}`)).toEqual([])
 })
 
-test('the homepage points to the n8builds build page from "Use this as a template", not a featured row', async ({ page }) => {
+test('the homepage points to the n8builds build page from the Lab\'s template part, not a featured row', async ({ page }) => {
   await page.goto('/')
   await expect(page.locator('#featured').locator(`a[href="${PATH}"]`)).toHaveCount(0)
   const template = page.locator('#template')
