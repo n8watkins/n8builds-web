@@ -25,7 +25,7 @@ export async function generateStaticParams() {
   return posts.map((p) => ({ slug: p.slug.current }))
 }
 
-const postSummary = (post: Post) => post.seoDescription || post.excerpt || 'A note from N8 Notions.'
+const postSummary = (post: Post) => post.seoDescription || post.excerpt || "A note from Nate's Notions."
 const postDescription = (post: Post) => summarize(postSummary(post))
 
 /** The post's share image: its titled card (og.png/route.tsx) over its cover. */

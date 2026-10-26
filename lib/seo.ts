@@ -150,6 +150,6 @@ export function blogPostingJsonLd(post: {
     inLanguage: 'en-US',
     author: { '@type': 'Person', '@id': PERSON_ID, name: 'Nathan Watkins', url: SITE_URL },
     publisher: { '@id': PERSON_ID },
-    isPartOf: { '@type': 'Blog', name: 'N8 Notions', url: absoluteUrl('/blog') },
+    isPartOf: { '@type': 'Blog', name: "Nate's Notions", url: absoluteUrl('/blog') },
   }
 }
