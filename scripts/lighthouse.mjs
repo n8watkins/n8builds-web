@@ -41,14 +41,16 @@ const BUDGETS = [
 
 // Lighthouse's default (mobile) form factor: a mid-range phone on slow 4G with
 // a 4x slower CPU. Desktop alone hid a homepage at 0.77 and LCP ~4s on phones
-// (2026-10-25). These budgets sit below today's numbers (home ~0.81, /blog
-// ~0.98, /builds ~0.96 locally) to catch a real regression, not runner noise.
+// (2026-10-25). After the homepage became server components with CSS
+// animations (2026-10-26), local medians were home 0.87 (LCP ~3.6s, TBT
+// ~200ms), /blog 0.92 and /builds 0.95. These budgets sit just below that,
+// with room for a slow CI runner, so a real regression fails and noise doesn't.
 const MOBILE_PAGES = ['/', '/blog', '/builds']
 const MOBILE_BUDGETS = [
-  ['performance', (lhr) => lhr.categories.performance.score, 'error', 0.7, 'min'],
-  ['LCP (ms)', (lhr) => lhr.audits['largest-contentful-paint'].numericValue, 'error', 5000, 'max'],
+  ['performance', (lhr) => lhr.categories.performance.score, 'error', 0.8, 'min'],
+  ['LCP (ms)', (lhr) => lhr.audits['largest-contentful-paint'].numericValue, 'error', 4200, 'max'],
   ['CLS', (lhr) => lhr.audits['cumulative-layout-shift'].numericValue, 'error', 0.1, 'max'],
-  ['TBT (ms)', (lhr) => lhr.audits['total-blocking-time'].numericValue, 'warn', 500, 'max'],
+  ['TBT (ms)', (lhr) => lhr.audits['total-blocking-time'].numericValue, 'warn', 400, 'max'],
 ]
 
 const FORMS = [
