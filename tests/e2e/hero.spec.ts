@@ -8,13 +8,16 @@ import { test, expect } from '@playwright/test'
 
 test.use({ viewport: { width: 320, height: 568 }, hasTouch: true, contextOptions: { reducedMotion: 'reduce' } })
 
-test('the heading, subheader and idea -> repeat chips all fit on a 320px screen', async ({ page }) => {
+test('the heading, subheader and prompt -> repeat chips all fit on a 320px screen', async ({ page }) => {
   await page.goto('/')
   const hero = page.locator('#home')
+  // The chain is prompt -> build -> ship -> repeat, in that order ("idea" was dropped).
+  await expect(hero.locator('.n8-cnode')).toHaveText(['prompt', 'build', 'ship', 'repeat'])
+  await expect(hero.getByText('idea', { exact: true })).toHaveCount(0)
   const targets = [
     hero.getByRole('heading', { level: 1, name: 'n8builds' }),
     hero.getByText('Spending tokens, shipping features.'),
-    hero.getByText('idea', { exact: true }),
+    hero.getByText('prompt', { exact: true }),
     hero.getByText('repeat', { exact: true }),
   ]
   for (const target of targets) {

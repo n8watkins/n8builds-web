@@ -52,44 +52,46 @@ const Hero = () => {
 
             {/* Build philosophy - electrified circuit: a comet traces each chip's
                 outline left -> right, then runs the loop-back line from repeat under the
-                whole chain back into idea, and the loop starts again. */}
+                whole chain back into prompt, and the loop starts again. */}
             <FadeIn
               effect="in"
               delay={0.45}
-              className="relative w-fit font-mono text-[0.6rem] min-[360px]:text-[0.72rem] sm:text-[0.85rem] select-none [--n8wire:340px] sm:[--n8wire:410px]"
+              className="relative w-fit font-mono text-[0.6rem] min-[360px]:text-[0.72rem] sm:text-[0.85rem] select-none [--n8wire:280px] sm:[--n8wire:335px]"
             >
               {/* The chain's styles live in app/globals.css (.n8-cnode and friends). */}
               <HeroChainMeter />
               <div className="flex items-center gap-1 min-[360px]:gap-1.5">
-                {['idea', 'prompt', 'build', 'ship', 'repeat'].map((w, i, arr) => (
+                {['prompt', 'build', 'ship', 'repeat'].map((w, i, arr) => (
                   <React.Fragment key={w}>
                     <span
                       className={`n8-cnode rounded-md border px-1.5 min-[360px]:px-2 py-1 sm:px-3 sm:py-1.5 lowercase tracking-wide${
                         i > 0 && i < arr.length - 1 ? ' n8-split' : ''
                       }`}
                       style={{
-                        // 11s loop, 1.8s chip spacing, phase-shifted -10s so the page loads
-                        // pulse-mid-wire; idea fires ~0.45s early so it lights as the wire lands.
-                        ['--n8delay' as string]: `${(i === 0 ? -0.45 : i * 1.8) - 10}s`,
-                        // idea starts bottom-left (~7:30), repeat at 9 o'clock; the split
-                        // chips ignore --n8start (they sweep from 270deg +/- the angle).
+                        // 9.2s loop, 1.8s chip spacing, phase-shifted -8.2s so the page loads
+                        // pulse-mid-wire; the first chip (prompt) fires ~0.45s early so it
+                        // lights as the wire lands.
+                        ['--n8delay' as string]: `${(i === 0 ? -0.45 : i * 1.8) - 8.2}s`,
+                        // prompt starts bottom-left (~7:30), where the wire lands, and repeat
+                        // at 9 o'clock; the split chips ignore --n8start (they sweep from
+                        // 270deg +/- the angle).
                         ['--n8start' as string]:
                           i === 0 ? '135deg' : i === arr.length - 1 ? '172deg' : '0deg',
                       }}
                     >
                       {w}
                     </span>
-                    {/* middle chips (prompt/build/ship) carry a second light via
+                    {/* middle chips (build/ship) carry a second light via
                         ::after, so the two halves meet at the 3 o'clock arrow */}
                     {i < arr.length - 1 && (
                       // arrow lights at the hand-off as the comet leaves chip i
-                      <span className="n8-carrow" style={{ animationDelay: `${(i === 0 ? 0.43 : i * 1.8 + 0.88) - 10}s` }}>→</span>
+                      <span className="n8-carrow" style={{ animationDelay: `${(i === 0 ? 0.43 : i * 1.8 + 0.88) - 8.2}s` }}>→</span>
                     )}
                   </React.Fragment>
                 ))}
               </div>
               {/* loop-back circuit line: repeat (right) -> down -> under the chain ->
-                  up into idea (left). preserveAspectRatio=none stretches it to the
+                  up into prompt (left). preserveAspectRatio=none stretches it to the
                   chain width; non-scaling-stroke keeps the line crisp. */}
               <svg className="n8-loop" viewBox="0 0 100 16" preserveAspectRatio="none" aria-hidden="true">
                 <path

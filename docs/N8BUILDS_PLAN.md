@@ -118,7 +118,7 @@ have projects/extensions/tools/experiments all derive from it.
 
 `components/HomePage.tsx`, each section in a full-width band and a `SectionErrorBoundary`, most lazy-loaded via `next/dynamic`:
 
-1. **Hero** (`Hero.tsx`): "n8builds", "Spending tokens, shipping features.", the `whoami` terminal, the idea -> prompt -> build -> ship -> repeat circuit, a "See what I'm building" button, socials, and a background grid that warms up and wanders.
+1. **Hero** (`Hero.tsx`): "n8builds", "Spending tokens, shipping features.", the `whoami` terminal, the prompt -> build -> ship -> repeat circuit, a "See what I'm building" button, socials, and a background grid that warms up and wanders.
 2. **What I'm working on** (`NowBuilding.tsx`, data in `data/now.tsx`): Appturnity only, linking appturnity.com.
 3. **The Lab**: Featured web apps (`FeaturedProjects.tsx`: Portfolio Rank, Solara), Chrome extensions (`ExtensionsShowcase.tsx`) and Tools (`ShelfSection shelf="tool"`).
 4. **N8's Notions strip** (`NotionsStrip.tsx`).
