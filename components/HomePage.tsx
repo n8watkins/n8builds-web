@@ -85,9 +85,8 @@ export default function HomePage({ posts }: { posts: Post[] }) {
 
         {/* ===== THE LAB: one section in parts, each in its own colour wash
              (app/globals.css, "The Lab's colour washes"): My tools and Featured
-             (FeaturedProjects), the Chrome extensions, a Tools grid (only if a
-             build ever lands there), then Open source: this site and the
-             developer portfolio are work too. The parts are full-bleed, so the
+             (FeaturedProjects), the Chrome extensions, then a Tools grid (only
+             if a build ever lands there). The parts are full-bleed, so the
              Lab sets its own content width instead of using a Band. The navbar
              "Lab" menu and the side nav scroll to #lab and the part ids. ===== */}
         <div id="lab" className="relative z-10 border-t border-white/[0.06]">
@@ -119,7 +118,6 @@ export default function HomePage({ posts }: { posts: Post[] }) {
                   { label: 'My tools', href: '#my-tools' },
                   { label: 'Featured', href: '#featured' },
                   { label: 'Chrome extensions', href: '#extensions' },
-                  { label: 'Open source', href: '#open-source' },
                 ].map((c) => (
                   <a
                     key={c.href}
@@ -148,16 +146,6 @@ export default function HomePage({ posts }: { posts: Post[] }) {
               <ShelfSection shelf="tool" />
             </Reveal>
           </SectionErrorBoundary>
-
-          {/* Open source closes the Lab: both sites are public templates, and
-               how n8builds is built and tested lives here, not in a featured row. */}
-          <div id="open-source" className="lab-accent-oss lab-part-wash pt-6 pb-12">
-            <SectionErrorBoundary sectionName="Use as Template">
-              <Reveal className="mx-auto max-w-6xl px-5 sm:px-8">
-                <UseAsTemplate />
-              </Reveal>
-            </SectionErrorBoundary>
-          </div>
         </div>
 
         {/* ===== THE PORTFOLIO AD: hiring after seeing the builds? One click. ===== */}
@@ -189,6 +177,14 @@ export default function HomePage({ posts }: { posts: Post[] }) {
         </Band>
 
         {/* The contact form animates its own fields in. */}
+        {/* ===== USE THIS AS A TEMPLATE: both sites are public; how n8builds
+             is built and tested lives here, not in a featured row. ===== */}
+        <Band>
+          <SectionErrorBoundary sectionName="Use as Template">
+            <UseAsTemplate />
+          </SectionErrorBoundary>
+        </Band>
+
         <Band id="contact" as="section" reveal={false}>
           <SectionErrorBoundary sectionName="Contact Section">
             <Footer />

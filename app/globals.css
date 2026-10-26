@@ -455,7 +455,7 @@
    Preview (2026-10-26): two treatments, picked with ?labBg=a or ?labBg=b
    (an inline script in HomePage sets data-lab-bg on <html>; a is the default).
      a: per project. Each row glows in its own colour behind its screenshot;
-        Chrome extensions and Open source, which have no rows, get part washes.
+        Chrome extensions, which has no rows, gets a part wash.
      b: per part. One vertical wash per part, blending its projects' colours;
         rows carry no wash of their own. */
 @layer components {
@@ -486,10 +486,6 @@
   .lab-accent-extensions {
     --lab-from: 129 140 248;
     --lab-to: 96 165 250;
-  }
-  .lab-accent-oss {
-    --lab-from: 34 211 238;
-    --lab-to: 45 212 191;
   }
 
   /* A whole part: a vertical wash that peaks through the middle, and a glow
@@ -539,7 +535,7 @@
     );
   }
   .lab-sub-bar:not(
-    :where(.lab-accent-tools, .lab-accent-featured, .lab-accent-extensions, .lab-accent-oss) *
+    :where(.lab-accent-tools, .lab-accent-featured, .lab-accent-extensions) *
   ) {
     background: rgb(255 255 255 / 0.1);
   }
