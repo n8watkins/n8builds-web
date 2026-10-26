@@ -439,3 +439,89 @@
 #home[data-offscreen] .n8-loop-comet {
   animation-play-state: paused;
 }
+
+/* The Lab's colour washes (components/sections/FeaturedProjects.tsx and
+   ExtensionsShowcase.tsx; the owner's pick, 2026-10-26). Each project row
+   carries its product's colour as a glow that comes in from one side of the
+   page, its screenshot's side, so the colour sits at the edge and not across
+   the middle, where the row's coloured ad box already carries it. The Chrome
+   extensions part, which has no rows, gets a vertical wash instead. Every
+   wash is spent before its top and bottom edges, so neighbours never meet in
+   a seam: the page dips back to its base colour between them. Peak tint stays
+   under 17% so all text keeps WCAG AA contrast.
+
+   Colours are RGB triplets set per element (--lab-from, --lab-to); a row's
+   --lab-x is the side its glow comes from (0% left, 100% right). */
+@layer components {
+  .lab-accent-scribe {
+    --lab-from: 56 189 248;
+    --lab-to: 56 189 248;
+  }
+  .lab-accent-openping {
+    --lab-from: 52 211 153;
+    --lab-to: 52 211 153;
+  }
+  .lab-accent-solara {
+    --lab-from: 251 146 60;
+    --lab-to: 251 146 60;
+  }
+  .lab-accent-rank {
+    --lab-from: 251 191 36;
+    --lab-to: 251 191 36;
+  }
+  /* A part's colours, used by its subheader bar. */
+  .lab-accent-tools {
+    --lab-from: 56 189 248;
+    --lab-to: 52 211 153;
+  }
+  .lab-accent-featured {
+    --lab-from: 251 146 60;
+    --lab-to: 251 191 36;
+  }
+  .lab-accent-extensions {
+    --lab-from: 129 140 248;
+    --lab-to: 96 165 250;
+  }
+
+  /* A whole part: a vertical wash that peaks through the middle, and a glow
+     behind its subheader. No gradient reaches an edge with colour left in it. */
+  .lab-part-wash {
+    background:
+      radial-gradient(60% 150px at 50% 170px, rgb(var(--lab-from) / 0.1), transparent 100%),
+      linear-gradient(
+        to bottom,
+        transparent,
+        rgb(var(--lab-from) / 0.075) 22%,
+        rgb(var(--lab-to) / 0.075) 78%,
+        transparent
+      );
+  }
+
+  /* One project row: a glow centred on the page edge at its screenshot's side.
+     Its vertical radius is half the row, so it is spent before either edge.
+     Wider on phones, where the page is narrow. */
+  .lab-row-wash {
+    background: radial-gradient(
+      var(--lab-rx, 90%) 50% at var(--lab-x, 0%) 50%,
+      rgb(var(--lab-from) / 0.16),
+      transparent 100%
+    );
+  }
+  @media (min-width: 768px) {
+    .lab-row-wash {
+      --lab-rx: 60%;
+    }
+  }
+
+  /* A Lab part's subheader bar takes its part's colours (falls back to a hairline). */
+  .lab-sub-bar {
+    background: linear-gradient(
+      to bottom,
+      rgb(var(--lab-from, 255 255 255) / 0.9),
+      rgb(var(--lab-to, 255 255 255) / 0.5)
+    );
+  }
+  .lab-sub-bar:not(:where(.lab-accent-tools, .lab-accent-featured, .lab-accent-extensions) *) {
+    background: rgb(255 255 255 / 0.1);
+  }
+}

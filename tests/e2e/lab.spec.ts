@@ -13,7 +13,7 @@ test('the Lab leads with my daily tools, then the featured builds, each with its
   const tools = page.locator('#my-tools')
   await tools.scrollIntoViewIfNeeded()
   // The part's own heading, then one per row.
-  await expect(tools.getByRole('heading', { level: 3 })).toHaveText(['Tools I use every day', 'Scribe', 'OpenPing'])
+  await expect(tools.getByRole('heading', { level: 3 })).toHaveText(['My daily drivers', 'Scribe', 'OpenPing'])
   await expect(page.locator('#featured').getByRole('heading', { level: 3 })).toHaveText(['Featured builds', 'Solara', 'Portfolio Rank'])
   // No redundant "Featured" eyebrow over "Featured builds", and no "The bench" over the Lab.
   await expect(page.locator('#featured')).not.toContainText(/^Featured\s*Featured builds/)
@@ -31,7 +31,7 @@ test('the Lab leads with my daily tools, then the featured builds, each with its
 
 test('the Lab has no Tools part any more, in its own links or the navbar menu', async ({ page }) => {
   await page.goto('/')
-  await expect(page.getByRole('navigation', { name: 'Lab sections' }).getByRole('link')).toHaveText(['My tools', 'Featured', 'Chrome extensions'])
+  await expect(page.getByRole('navigation', { name: 'Lab sections' }).getByRole('link')).toHaveText(['My tools', 'Featured', 'Chrome Extensions'])
   await expect(page.locator('a[href="/#tools"], a[href="#tools"]')).toHaveCount(0)
   await expect(page.locator('#tools')).toHaveCount(0)
 })
@@ -181,10 +181,10 @@ test('the Scribe ad downloads the newest installer through a stable link', async
   await expect(download).toHaveAttribute('href', '/download/scribe')
   await expect(download).not.toHaveAttribute('target', '_blank')
   // It says what you get, from the release itself (the fixture's v0.8.0 installer is 12,519,464 bytes).
-  await expect(download).toHaveAccessibleDescription('Windows installer (.exe) · v0.8.0 · 12 MB')
+  await expect(download).toHaveAccessibleDescription('Installer (.exe) for Windows 10 and 11, 64-bit · v0.8.0 · 12 MB')
   // A download mark and the Windows logo, and the details sit under the button, not beside it.
   await expect(download.locator('svg')).toHaveCount(2)
-  const facts = ad.getByText('Windows installer (.exe) · v0.8.0 · 12 MB')
+  const facts = ad.getByText('Installer (.exe) for Windows 10 and 11, 64-bit · v0.8.0 · 12 MB')
   const [button, caption] = await Promise.all([download.boundingBox(), facts.boundingBox()])
   expect(caption!.y).toBeGreaterThanOrEqual(button!.y + button!.height)
   // The Mac and Linux request carries the Apple and Tux marks.
@@ -404,9 +404,9 @@ test.describe('the Lab gallery on touch', () => {
 test('each ad lists its points, and each row shows its tech as pills instead of in the description', async ({ page }) => {
   await page.goto('/')
   const points: [string, string[]][] = [
-    ['Scribe', ['Free for Windows', 'No account', 'No telemetry', 'Your voice never leaves your PC']],
-    ['OpenPing', ['Free tools, no sign-up', "Run your own monitor on Cloudflare's free plan"]],
-    ['Solara', ['Free to use', 'No account needed to start']],
+    ['Scribe', ['Free for Windows', 'No account', 'No telemetry', 'Voice stays local']],
+    ['OpenPing', ['Free tools, no sign-up', 'Self-host free on Cloudflare']],
+    ['Solara', ['Free to use', 'No account to start']],
     ['Portfolio Rank', ['A vote takes five seconds']],
   ]
   for (const [name, list] of points) {
