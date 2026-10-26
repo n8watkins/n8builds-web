@@ -25,6 +25,7 @@ const SPEED = 110 // walking speed, px/s on screen
 const GRAVITY = 1500 // px/s²
 const STEP_EVERY = 9 // px walked per leg swap
 const STILL = 2 // px/s: a row moving slower than this is paused
+const LANDING = 20 // px past the far edge of a gap that a hop lands
 
 type Mode = 'walk' | 'hop' | 'miss' | 'fall'
 
@@ -226,9 +227,16 @@ export default function DinoGame() {
                 carry = v
                 missPending = false
               } else {
-                const rel = Math.max(SPEED - dir * (current.row?.velocity ?? 0), 30)
-                const T = Math.min(Math.max((gap + 14) / rel, 0.28), 0.6)
-                hop = { t: 0, T, h: 8 + 14 * T, floor: current.y, vx: dir * SPEED }
+                // A lunge sized to the gap: it clears it and lands a little
+                // way onto the next tile (relative to the row, which carries
+                // the tiles along meanwhile), in an arc that grows with it.
+                const v = current.row?.velocity ?? 0
+                const rel = Math.max(SPEED - dir * v, 30)
+                const reach = gap + LANDING
+                const T = Math.min(Math.max(reach / (rel * 1.4), 0.3), 0.7)
+                // The top row's arc stays inside the panel (which clips).
+                const h = Math.min(8 + gap * 0.4, current.y - H - 2)
+                hop = { t: 0, T, h, floor: current.y, vx: v + (dir * reach) / T }
                 mode = 'hop'
               }
             }
