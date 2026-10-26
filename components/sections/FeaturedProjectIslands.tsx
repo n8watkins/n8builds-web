@@ -167,12 +167,15 @@ export function ProjectDetails({
   title,
   labelledBy,
   header,
+  media,
   children,
 }: {
   /** The build's name, so each row's button has its own accessible name. */
   title: string
   labelledBy: string
   header: React.ReactNode
+  /** The project's picture, on the dialog's left from md up (hidden on phones, to keep it short). */
+  media?: React.ReactNode
   children: React.ReactNode
 }) {
   const [open, setOpen] = useState(false)
@@ -206,16 +209,20 @@ export function ProjectDetails({
         onClick={(e) => {
           if (e.target === e.currentTarget) close()
         }}
-        className="m-auto w-[min(42rem,calc(100vw-2rem))] max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl border border-white/10 bg-[#0a1220] p-0 text-slate-200 shadow-2xl shadow-black/60 opacity-0 transition-[opacity,translate,display,overlay] duration-200 transition-discrete translate-y-2 open:translate-y-0 open:opacity-100 starting:open:translate-y-2 starting:open:opacity-0 backdrop:bg-black/70 backdrop:backdrop-blur-sm motion-reduce:transition-none"
+        className="m-auto w-[min(42rem,calc(100vw-2rem))] md:w-[min(66rem,calc(100vw-4rem))] max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl border border-white/10 bg-[#0a1220] p-0 text-slate-200 shadow-2xl shadow-black/60 opacity-0 transition-[opacity,translate,display,overlay] duration-200 transition-discrete translate-y-2 open:translate-y-0 open:opacity-100 starting:open:translate-y-2 starting:open:opacity-0 backdrop:bg-black/70 backdrop:backdrop-blur-sm motion-reduce:transition-none"
       >
-        <div className="p-6 sm:p-8">
-          <div className="flex items-start gap-4">
+        <div className={media ? 'md:grid md:grid-cols-[minmax(0,10fr)_minmax(0,11fr)]' : undefined}>
+          {media ? (
+            <div className="hidden items-center border-r border-white/8 bg-[#07101d] p-6 md:flex lg:p-8">{media}</div>
+          ) : null}
+        <div className="p-6 sm:p-8 lg:p-10">
+          <div className="flex items-center gap-4">
             {header}
             <button
               type="button"
               onClick={close}
               aria-label="Close details"
-              className="-mr-2 -mt-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-white/8 hover:text-slate-100"
+              className="-mr-2 flex h-10 w-10 shrink-0 self-start items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-white/8 hover:text-slate-100"
             >
               <FiX className="h-5 w-5" />
             </button>
@@ -223,6 +230,7 @@ export function ProjectDetails({
           {/* Always in the HTML, even closed: it holds the row's link to its
               build page, which crawlers follow from the homepage. */}
           {children}
+        </div>
         </div>
       </dialog>
     </>
