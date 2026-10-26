@@ -23,7 +23,7 @@ export const shelfMeta: Record<Shelf, ShelfMeta> = {
     slug: 'my-tools',
     label: 'My tools',
     eyebrow: 'My tools',
-    heading: 'Tools I use daily',
+    heading: 'My daily drivers',
     blurb: 'Mine first: I run both of these every day, and so can you.',
   },
   extension: {

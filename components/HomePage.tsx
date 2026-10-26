@@ -125,7 +125,7 @@ export default function HomePage({ posts }: { posts: Post[] }) {
                 {[
                   { label: 'My tools', href: '#my-tools' },
                   { label: 'Featured', href: '#featured' },
-                  { label: 'Chrome extensions', href: '#extensions' },
+                  { label: 'Chrome Extensions', href: '#extensions' },
                 ].map((c) => (
                   <a
                     key={c.href}

@@ -2,7 +2,7 @@ import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { FiArrowUpRight } from 'react-icons/fi'
-import StarButton from '@/components/ui/StarButton'
+import RepoButtons from '@/components/ui/RepoButtons'
 import { getBuild } from '@/data/builds'
 import LabSubheader from '@/components/sections/LabSubheader'
 import ExtensionsCarousel from '@/components/sections/ExtensionsCarousel'
@@ -87,7 +87,7 @@ const Detail = ({ ext }: { ext: Ext }) => {
           ))}
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-3">
-          {build.github && <StarButton href={build.github} name={build.name} />}
+          {build.github && <RepoButtons href={build.github} name={build.name} />}
           <Link
             href={`/builds/${build.slug}`}
             className="flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8"
@@ -108,9 +108,9 @@ const Detail = ({ ext }: { ext: Ext }) => {
  */
 const ExtensionsShowcase = () => (
   // A full-bleed part of the Lab in its own indigo wash (`.lab-part-wash` in app/globals.css).
-  <section id="extensions" aria-label="Chrome extensions" className="lab-accent-extensions lab-part-wash py-12">
+  <section id="extensions" aria-label="Chrome Extensions" className="lab-accent-extensions lab-part-wash py-12">
     <div className="mx-auto max-w-6xl px-5 sm:px-8">
-    <LabSubheader title="Chrome extensions" />
+    <LabSubheader title="Chrome Extensions" />
 
     {/* ===== Desktop: 3 side-by-side + auto-cycle detail ===== */}
     <ExtensionsCarousel
