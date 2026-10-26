@@ -44,8 +44,8 @@ export default async function BuildLogPage() {
         {/* Ambient glows. Placed in rem, not % of <main>: a percentage moves while
             the long page is still parsing, which counts as a layout shift. */}
         <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute left-[-10%] top-0 h-128 w-lg rounded-full bg-cyan-500/6 blur-[140px]" />
-          <div className="absolute right-[-10%] top-[120rem] h-120 w-120 rounded-full bg-blue-600/6 blur-[140px] md:top-[99rem] lg:top-[93rem]" />
+          <div className="absolute left-[-10%] top-0 h-128 w-lg scale-[1.6] bg-radial from-cyan-500/6 to-transparent to-70%" />
+          <div className="absolute right-[-10%] top-[120rem] h-120 w-120 scale-[1.6] bg-radial from-blue-600/6 to-transparent to-70% md:top-[99rem] lg:top-[93rem]" />
         </div>
 
         <div className="relative mx-auto max-w-6xl px-5 pb-24 pt-28 sm:px-8 md:pt-36">

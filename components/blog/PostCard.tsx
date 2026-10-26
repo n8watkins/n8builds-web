@@ -6,7 +6,7 @@ import type { Post } from '@/lib/sanity'
 
 // Blog post card - cover banner on top (real image or themed fallback), then
 // date / title / excerpt / topics. Matches the BuildCard visual language.
-export default function PostCard({ post }: { post: Post }) {
+export default function PostCard({ post, priority = false }: { post: Post; priority?: boolean }) {
   return (
     <Link
       href={`/blog/${post.slug.current}`}
@@ -17,6 +17,7 @@ export default function PostCard({ post }: { post: Post }) {
         coverAlt={post.coverAlt}
         seed={post.slug.current}
         topic={post.topics?.[0]}
+        priority={priority}
       />
 
       <div className="flex flex-1 flex-col gap-3 p-5">

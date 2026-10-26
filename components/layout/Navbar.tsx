@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { SiTwitch } from 'react-icons/si'
 import { FiExternalLink, FiMenu, FiX, FiChevronDown } from 'react-icons/fi'
-import { motion, AnimatePresence } from 'motion/react'
+import { m, AnimatePresence } from 'motion/react'
 import { useLiveStatus } from '@/components/live/liveStore'
 import NavLiveDot from '@/components/live/NavLiveDot'
 
@@ -177,7 +177,7 @@ const Navbar = () => {
               </Link>
               <AnimatePresence>
                 {labOpen && (
-                  <motion.div
+                  <m.div
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 6 }}
@@ -199,7 +199,7 @@ const Navbar = () => {
                         </Link>
                       ))}
                     </div>
-                  </motion.div>
+                  </m.div>
                 )}
               </AnimatePresence>
             </div>
@@ -269,7 +269,7 @@ const Navbar = () => {
       {/* Mobile menu */}
       <AnimatePresence>
         {mobileOpen && (
-          <motion.div
+          <m.div
             key="backdrop"
             id="mobile-menu-backdrop"
             aria-hidden
@@ -282,7 +282,7 @@ const Navbar = () => {
           />
         )}
         {mobileOpen && (
-          <motion.div
+          <m.div
             key="menu"
             id="mobile-menu"
             initial={{ opacity: 0, y: -8 }}
@@ -341,7 +341,7 @@ const Navbar = () => {
             >
               Portfolio ↗
             </a>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </>

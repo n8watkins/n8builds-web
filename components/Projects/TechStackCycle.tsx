@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import Image from 'next/image'
-import { motion, AnimatePresence } from 'motion/react'
+import { m, AnimatePresence } from 'motion/react'
 
 import { techNameMapping } from '@/data/projects'
 import { Technologies, TechNameMappingInterface } from '@/lib/types'
@@ -152,7 +152,7 @@ const TechStackCycle: React.FC<TechStackCycleProps> = ({ technologies }) => {
           first render, where the server HTML would hold the offset until hydration. */}
       <div className="min-h-22 overflow-x-clip">
         <AnimatePresence mode="wait" initial={false}>
-          <motion.ul
+          <m.ul
             key={currentCategory}
             initial={{ opacity: 0, x: 24 }}
             animate={{ opacity: 1, x: 0 }}
@@ -161,7 +161,7 @@ const TechStackCycle: React.FC<TechStackCycleProps> = ({ technologies }) => {
             className="flex flex-col gap-1"
           >
             {technologies[currentCategory].descriptionParts.map((part, index) => (
-              <motion.li
+              <m.li
                 key={index}
                 onMouseEnter={() => handlePartHover(index)}
                 onMouseLeave={resume}
@@ -176,16 +176,16 @@ const TechStackCycle: React.FC<TechStackCycleProps> = ({ technologies }) => {
               >
                 <span className="text-blue-400 shrink-0">•</span>
                 <span>{part.text}</span>
-              </motion.li>
+              </m.li>
             ))}
-          </motion.ul>
+          </m.ul>
         </AnimatePresence>
       </div>
 
       {/* Icon dock */}
       <div className="flex items-end gap-3 h-14 pt-1">
         {categoryIcons.map((tech) => (
-          <motion.div
+          <m.div
             key={`${currentCategory}-${tech.icon}`}
             onMouseEnter={() => handleIconHover(tech.icon)}
             onMouseLeave={resume}
@@ -208,14 +208,14 @@ const TechStackCycle: React.FC<TechStackCycleProps> = ({ technologies }) => {
                 style={{ objectFit: 'contain' }}
               />
             </div>
-          </motion.div>
+          </m.div>
         ))}
       </div>
 
       {/* Active tech name */}
       <div className="h-6">
         <AnimatePresence mode="wait">
-          <motion.p
+          <m.p
             key={label}
             initial={{ opacity: 0, x: 12 }}
             animate={{ opacity: 1, x: 0 }}
@@ -224,7 +224,7 @@ const TechStackCycle: React.FC<TechStackCycleProps> = ({ technologies }) => {
             className="text-sm font-bold text-blue-300"
           >
             {label}
-          </motion.p>
+          </m.p>
         </AnimatePresence>
       </div>
     </div>

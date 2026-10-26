@@ -1,6 +1,6 @@
 'use client'
 import React, { Component, ErrorInfo, ReactNode } from 'react'
-import * as Sentry from '@sentry/nextjs'
+import { captureError } from '@/lib/sentry/lazy'
 
 interface Props {
   children: ReactNode
@@ -24,7 +24,7 @@ class ErrorBoundary extends Component<Props, State> {
     console.error('Portfolio Error:', error, errorInfo)
 
     // Report to Sentry (no-op until a DSN is configured)
-    Sentry.captureException(error, {
+    captureError(error, {
       contexts: { react: { componentStack: errorInfo.componentStack } },
     })
   }

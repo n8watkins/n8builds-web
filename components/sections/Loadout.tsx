@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import Link from 'next/link'
-import { motion } from 'motion/react'
+import { m } from 'motion/react'
 import { FiArrowLeft } from 'react-icons/fi'
 import { loadout, type LoadoutGroup, type LoadoutItem } from '@/data/loadout'
 import AITechStack from '@/components/features/AITechStack'
@@ -48,7 +48,7 @@ const Group = ({ group, index }: { group: LoadoutGroup; index: number }) => {
   const a = accentMap[group.accent]
   const reveal = useReveal(Math.min(index * 0.05, 0.2))
   return (
-    <motion.section
+    <m.section
       {...reveal}
       className="scroll-mt-24"
       id={group.id}
@@ -66,7 +66,7 @@ const Group = ({ group, index }: { group: LoadoutGroup; index: number }) => {
           <ItemCard key={item.name} item={item} accent={group.accent} />
         ))}
       </div>
-    </motion.section>
+    </m.section>
   )
 }
 

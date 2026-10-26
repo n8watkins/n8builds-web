@@ -1,7 +1,7 @@
 'use client'
 
 import React, { lazy, Suspense, useEffect, useRef } from 'react'
-import { motion } from 'motion/react'
+import { m } from 'motion/react'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 
 // lottie-web is ~74 KB gzipped and only needed after a successful send, so the
@@ -55,7 +55,7 @@ export function ContactFormSuccess({ showConfetti, confettiKey, onSendAnother }:
   useEffect(() => heading.current?.focus(), [])
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
@@ -63,7 +63,7 @@ export function ContactFormSuccess({ showConfetti, confettiKey, onSendAnother }:
     >
       {/* Confetti Animation */}
       {showConfetti && !reduceMotion && (
-        <motion.div
+        <m.div
           key={confettiKey}
           aria-hidden
           data-confetti
@@ -77,23 +77,23 @@ export function ContactFormSuccess({ showConfetti, confettiKey, onSendAnother }:
               <Confetti />
             </Suspense>
           </ConfettiBoundary>
-        </motion.div>
+        </m.div>
       )}
 
-      <motion.div
+      <m.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.4 }}
         className="relative z-20"
       >
-        <motion.div
+        <m.div
           className="text-6xl mb-4"
           animate={{ rotate: [0, 10, -10, 0] }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
           🚀
-        </motion.div>
-        <motion.h3
+        </m.div>
+        <m.h3
           ref={heading}
           tabIndex={-1}
           className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-2 focus:outline-none"
@@ -102,16 +102,16 @@ export function ContactFormSuccess({ showConfetti, confettiKey, onSendAnother }:
           transition={{ delay: 0.4, duration: 0.4 }}
         >
           Message sent successfully!
-        </motion.h3>
-        <motion.p
+        </m.h3>
+        <m.p
           className="text-slate-600 dark:text-slate-400 mb-6"
           initial={{ y: 10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.6, duration: 0.4 }}
         >
           I&apos;ll get back to you within 24 hours.
-        </motion.p>
-        <motion.button
+        </m.p>
+        <m.button
           onClick={onSendAnother}
           className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2 transition-colors duration-200"
           initial={{ y: 10, opacity: 0 }}
@@ -121,8 +121,8 @@ export function ContactFormSuccess({ showConfetti, confettiKey, onSendAnother }:
           whileTap={{ scale: 0.95 }}
         >
           Send another message →
-        </motion.button>
-      </motion.div>
-    </motion.div>
+        </m.button>
+      </m.div>
+    </m.div>
   )
 }

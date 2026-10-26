@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useId, useRef } from 'react'
 import Image from 'next/image'
-import { motion } from 'motion/react'
+import { m } from 'motion/react'
 import { FiArrowDown, FiGithub } from 'react-icons/fi'
 import { CiLinkedin } from 'react-icons/ci'
 import { FaXTwitter } from 'react-icons/fa6'
@@ -210,22 +210,22 @@ const Hero = () => {
           <div className="flex-1 flex flex-col items-start gap-5 min-w-0 w-full md:w-auto">
 
             <div>
-              <motion.h1
+              <m.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.55, delay: 0.08, ease: [0.25, 0.1, 0.25, 1] }}
                 className="text-[3.2rem] sm:text-6xl/none lg:text-7xl/none xl:text-[5rem] font-extrabold leading-none tracking-tight text-slate-50"
               >
                 n8builds
-              </motion.h1>
-              <motion.p
+              </m.h1>
+              <m.p
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.45, delay: 0.16 }}
                 className="mt-3 text-2xl sm:text-3xl font-bold tracking-tight bg-linear-to-r from-cyan-400 via-blue-400 to-blue-600 bg-clip-text text-transparent"
               >
                 Spending tokens, shipping features.
-              </motion.p>
+              </m.p>
             </div>
 
             {/* whoami terminal = the description (blended copy) */}
@@ -234,7 +234,7 @@ const Hero = () => {
             {/* Build philosophy - electrified circuit: a comet traces each chip's
                 outline left -> right, then runs the loop-back line from repeat under the
                 whole chain back into idea, and the loop starts again. */}
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.45 }}
@@ -445,10 +445,10 @@ const Hero = () => {
                   vectorEffect="non-scaling-stroke"
                 />
               </svg>
-            </motion.div>
+            </m.div>
 
             {/* CTAs */}
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.55, ease: [0.25, 0.1, 0.25, 1] }}
@@ -464,10 +464,10 @@ const Hero = () => {
                   <FiArrowDown aria-hidden className="h-4 w-4 transition-transform duration-200 group-hover:translate-y-0.5" />
                 </span>
               </a>
-            </motion.div>
+            </m.div>
 
             {/* Socials */}
-            <motion.nav
+            <m.nav
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.4, delay: 0.72 }}
@@ -484,10 +484,10 @@ const Hero = () => {
                   {s.icon}
                 </a>
               ))}
-            </motion.nav>
+            </m.nav>
 
             {/* The direct route for someone hiring: the developer portfolio. */}
-            <motion.p
+            <m.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.4, delay: 0.8 }}
@@ -500,7 +500,7 @@ const Hero = () => {
               >
                 See my developer portfolio
               </a>
-            </motion.p>
+            </m.p>
           </div>
 
           {/* Portrait */}

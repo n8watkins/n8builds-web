@@ -1,25 +1,28 @@
-// Sentry — browser/client init. Inert until NEXT_PUBLIC_SENTRY_DSN is set
-// (no DSN = disabled, no network calls). Config per skills.sentry.dev/sentry-nextjs-sdk.
-import * as Sentry from '@sentry/nextjs'
+// Sentry in the browser. Inert until NEXT_PUBLIC_SENTRY_DSN is set (no DSN =
+// no SDK download, no network calls). The SDK itself loads lazily, once the
+// page is idle (lib/sentry/lazy.ts); until then these listeners catch any
+// error so it is reported once the SDK is up.
+import { captureError, captureRouterTransitionStart, loadSentry } from '@/lib/sentry/lazy'
 
 const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN
 
-Sentry.init({
-  dsn,
-  enabled: !!dsn,
-  // Same-origin tunnel (app/monitoring/route.ts), so ad blockers and the CSP
-  // let events through.
-  tunnel: '/monitoring',
-  // NOTE: sends user IP + request headers to Sentry, and Session Replay records
-  // sessions (text masked by default). Disclose this in the privacy policy, or
-  // set sendDefaultPii:false / drop the replay integration if you'd rather not.
-  sendDefaultPii: true,
-  tracesSampleRate: process.env.NODE_ENV === 'development' ? 1.0 : 0.1,
-  replaysSessionSampleRate: 0.1,
-  replaysOnErrorSampleRate: 1.0,
-  enableLogs: true,
-  integrations: [Sentry.replayIntegration()],
-})
+if (dsn && typeof window !== 'undefined') {
+  const onError = (event: ErrorEvent) => captureError(event.error ?? event.message)
+  const onRejection = (event: PromiseRejectionEvent) => captureError(event.reason)
+  window.addEventListener('error', onError)
+  window.addEventListener('unhandledrejection', onRejection)
 
-// Capture App Router client-side navigations for tracing.
-export const onRouterTransitionStart = Sentry.captureRouterTransitionStart
+  const start = () =>
+    loadSentry().then(() => {
+      // From here Sentry's own global handlers report errors.
+      window.removeEventListener('error', onError)
+      window.removeEventListener('unhandledrejection', onRejection)
+    })
+  const whenIdle = () =>
+    'requestIdleCallback' in window ? window.requestIdleCallback(start, { timeout: 8_000 }) : setTimeout(start, 3_000)
+  if (document.readyState === 'complete') whenIdle()
+  else window.addEventListener('load', whenIdle, { once: true })
+}
+
+// App Router navigations, for tracing once the SDK has loaded.
+export const onRouterTransitionStart = captureRouterTransitionStart

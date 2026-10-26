@@ -47,7 +47,8 @@ export default function NotionsList({ posts }: { posts: Post[] }) {
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {visible.map((p, i) => (
               <CardFade key={p._id} index={i}>
-                <PostCard post={p} />
+                {/* The first card's cover is the page's largest paint: load it now, at high priority. */}
+                <PostCard post={p} priority={i === 0} />
               </CardFade>
             ))}
           </div>

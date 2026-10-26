@@ -1,13 +1,13 @@
 'use client'
 import React from 'react'
 import Link from 'next/link'
-import { motion } from 'motion/react'
+import { m } from 'motion/react'
 import { FiGithub, FiExternalLink, FiArrowUpRight } from 'react-icons/fi'
 import type { Build } from '@/data/builds'
 
 const BuildCard = ({ build, index = 0 }: { build: Build; index?: number }) => {
   return (
-    <motion.div
+    <m.div
       layout
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -85,7 +85,7 @@ const BuildCard = ({ build, index = 0 }: { build: Build; index?: number }) => {
           <FiArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         </span>
       </div>
-    </motion.div>
+    </m.div>
   )
 }
 

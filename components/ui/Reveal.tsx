@@ -1,5 +1,5 @@
 'use client'
-import { motion } from 'motion/react'
+import { m } from 'motion/react'
 import { useReveal } from '@/hooks/useReveal'
 
 /**
@@ -16,8 +16,8 @@ export default function Reveal({
   delay?: number
 }) {
   return (
-    <motion.div {...useReveal(delay)} className={className}>
+    <m.div {...useReveal(delay)} className={className}>
       {children}
-    </motion.div>
+    </m.div>
   )
 }

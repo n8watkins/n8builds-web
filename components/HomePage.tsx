@@ -6,7 +6,7 @@ import { useSectionTracking } from '@/hooks/useSectionTracking'
 import { useScrollTracking } from '@/hooks/useScrollTracking'
 import SectionErrorBoundary from '@/components/SectionErrorBoundary'
 import dynamic from 'next/dynamic'
-import { motion } from 'motion/react'
+import { m } from 'motion/react'
 import { useHydrated } from '@/hooks/useHydrated'
 import Reveal from '@/components/ui/Reveal'
 
@@ -75,19 +75,19 @@ export default function HomePage() {
             hydration: while a slow device is still painting the streamed page,
             the page grows and they would slide down (a layout shift). */}
         {hydrated && (
-          <motion.div
+          <m.div
             aria-hidden
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
             className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
           >
-            <div className="absolute left-[-10%] top-[6%] h-160 w-160 rounded-full bg-cyan-500/10 blur-[150px]" />
-            <div className="absolute right-[-12%] top-[26%] h-152 w-152 rounded-full bg-blue-600/11 blur-[150px]" />
-            <div className="absolute left-[12%] top-[46%] h-136 w-136 rounded-full bg-teal-500/9 blur-[150px]" />
-            <div className="absolute right-[-8%] top-[66%] h-136 w-136 rounded-full bg-indigo-600/9 blur-[150px]" />
-            <div className="absolute left-[8%] top-[86%] h-136 w-136 rounded-full bg-emerald-500/[0.07] blur-[150px]" />
-          </motion.div>
+            <div className="absolute left-[-10%] top-[6%] h-160 w-160 scale-[1.6] bg-radial from-cyan-500/10 to-transparent to-70%" />
+            <div className="absolute right-[-12%] top-[26%] h-152 w-152 scale-[1.6] bg-radial from-blue-600/11 to-transparent to-70%" />
+            <div className="absolute left-[12%] top-[46%] h-136 w-136 scale-[1.6] bg-radial from-teal-500/9 to-transparent to-70%" />
+            <div className="absolute right-[-8%] top-[66%] h-136 w-136 scale-[1.6] bg-radial from-indigo-600/9 to-transparent to-70%" />
+            <div className="absolute left-[8%] top-[86%] h-136 w-136 scale-[1.6] bg-radial from-emerald-500/[0.07] to-transparent to-70%" />
+          </m.div>
         )}
 
         <SectionErrorBoundary sectionName="Hero Section">
