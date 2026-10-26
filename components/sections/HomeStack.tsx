@@ -46,7 +46,7 @@ export default function HomeStack() {
       <div
         role="group"
         aria-labelledby="default-stack-title"
-        className="mt-6 rounded-2xl border border-white/8 bg-linear-to-br from-cyan-500/6 via-white/2 to-transparent p-5 sm:p-6"
+        className="mt-6 rounded-2xl border border-white/8 bg-linear-to-br from-cyan-500/6 via-white/2 to-transparent p-4 sm:p-6"
       >
         <div className="border-l-2 border-cyan-400/40 pl-4">
           <p className="mb-1.5 text-[0.68rem] font-bold uppercase tracking-[0.16em] text-cyan-400">My default stack</p>
