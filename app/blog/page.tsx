@@ -2,11 +2,12 @@ import Navbar from '@/components/layout/Navbar'
 import NotionsList from '@/components/blog/NotionsList'
 import { getAllPosts } from '@/lib/sanity'
 import { pageMetadata } from '@/lib/seo'
+import FadeIn from '@/components/ui/FadeIn'
 
 export const revalidate = 3600
 
 export const metadata = pageMetadata({
-  title: 'N8 Notions | n8builds',
+  title: "N8's Notions | n8builds",
   description: 'Notes, essays, and build logs from n8 on building software with AI.',
   path: '/blog',
 })
@@ -25,19 +26,20 @@ export default async function BlogIndexPage() {
         </div>
 
         <div className="relative mx-auto max-w-6xl px-5 pb-24 pt-28 sm:px-8 md:pt-36">
-          <header>
+          {/* Above the fold: a CSS fade, so the heading never waits on hydration. */}
+          <FadeIn as="header">
             <p className="font-mono text-[0.7rem] font-bold uppercase tracking-[0.22em] text-cyan-400">
               The Build Log
             </p>
             <h1 className="mt-3 text-[2.6rem] font-extrabold leading-[1.03] tracking-tight text-slate-50 sm:text-6xl/none">
               <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                N8 Notions
+                N8&apos;s Notions
               </span>
             </h1>
             <p className="mt-4 max-w-[600px] text-base leading-relaxed text-[#9cadc5] sm:text-lg/7">
               Notes, essays, and lessons from building software in public.
             </p>
-          </header>
+          </FadeIn>
 
           <NotionsList posts={posts} />
         </div>

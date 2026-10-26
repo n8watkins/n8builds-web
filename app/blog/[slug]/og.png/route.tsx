@@ -21,9 +21,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
     background: await coverDataUrl(post.seoOgUrl || post.coverUrl),
     seed: post.slug.current,
     topic: post.topics?.[0],
-    eyebrow: post.topics?.[0]?.replace(/-/g, ' ') ?? 'N8 Notions',
+    eyebrow: post.topics?.[0]?.replace(/-/g, ' ') ?? "N8's Notions",
     title: post.title,
-    footer: 'N8 Notions · n8builds.dev',
+    footer: "N8's Notions · n8builds.dev",
   })
 }
 

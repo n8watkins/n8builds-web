@@ -54,3 +54,34 @@ test.describe('with reduced motion', () => {
     expect(['none', 'matrix(1, 0, 0, 1, 0, 0)']).toContain(transform)
   })
 })
+
+test.describe('above the fold, without JavaScript', () => {
+  test.use({ javaScriptEnabled: false })
+
+  // components/ui/FadeIn.tsx: a CSS fade from the server HTML, never held back
+  // until hydration (which, without JavaScript, never comes).
+  for (const [path, text] of [
+    ['/loadout', 'Nathan Watkins, AI-first software developer'],
+    ['/live', 'Not live right now'],
+    ['/privacy', 'Information I collect'],
+  ]) {
+    test(`${path} fades in its first screen`, async ({ page }) => {
+      await page.goto(path)
+      await expect.poll(() => seenOpacity(page.locator('h1')), FADE).toBe(1)
+      await expect.poll(() => seenOpacity(page.getByText(text).first()), FADE).toBe(1)
+    })
+  }
+})
+
+test('the site footer fades in as it scrolls into view', async ({ page }) => {
+  await page.goto('/privacy')
+  const sitemap = page.getByRole('navigation', { name: 'Sitemap' })
+  await expect(sitemap).toBeAttached()
+  expect(await seenOpacity(sitemap)).toBe(0)
+  await expect
+    .poll(async () => {
+      await sitemap.scrollIntoViewIfNeeded()
+      return seenOpacity(sitemap)
+    }, FADE)
+    .toBe(1)
+})

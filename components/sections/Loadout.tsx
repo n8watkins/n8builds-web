@@ -9,6 +9,8 @@ import BuildStacks from '@/components/sections/BuildStacks'
 import WhoamiTerminal from '@/components/features/WhoamiTerminal'
 import TechStackBento from '@/components/sections/TechStackBento'
 import Reveal from '@/components/ui/Reveal'
+import FadeIn from '@/components/ui/FadeIn'
+import { useReveal } from '@/hooks/useReveal'
 
 // Static class maps so Tailwind keeps these in the build.
 const accentMap: Record<LoadoutGroup['accent'], { text: string; dot: string; ring: string; glow: string }> = {
@@ -44,12 +46,10 @@ const ItemCard = ({ item, accent }: { item: LoadoutItem; accent: LoadoutGroup['a
 
 const Group = ({ group, index }: { group: LoadoutGroup; index: number }) => {
   const a = accentMap[group.accent]
+  const reveal = useReveal(Math.min(index * 0.05, 0.2))
   return (
     <motion.section
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-80px' }}
-      transition={{ duration: 0.5, delay: Math.min(index * 0.05, 0.2), ease: [0.25, 0.1, 0.25, 1] }}
+      {...reveal}
       className="scroll-mt-24"
       id={group.id}
     >
@@ -83,13 +83,8 @@ const Loadout = () => {
           Back to the bench
         </Link>
 
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-          className="mt-8"
-        >
+        {/* Header: above the fold, so a CSS fade (no waiting on hydration). */}
+        <FadeIn className="mt-8">
           <span className="font-mono text-xs uppercase tracking-[0.3em] text-cyan-400/80">The Loadout</span>
           <h1 className="mt-3 text-[2.4rem] font-extrabold leading-[1.05] tracking-tight text-slate-50 sm:text-5xl/none">
             My{' '}
@@ -101,7 +96,7 @@ const Loadout = () => {
             The tools, stack, and rig I actually run - and what I use each one for. No logo
             wall. If it earns a spot in the kit, it earns a sentence.
           </p>
-        </motion.div>
+        </FadeIn>
 
         {/* whoami terminal block (shared with the homepage hero) */}
         <WhoamiTerminal className="mt-8" />

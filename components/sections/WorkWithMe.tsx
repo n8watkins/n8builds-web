@@ -2,6 +2,7 @@
 import React from 'react'
 import Image from 'next/image'
 import { motion } from 'motion/react'
+import { useReveal } from '@/hooks/useReveal'
 import { FiArrowUpRight, FiCode, FiCheck } from 'react-icons/fi'
 
 interface Bridge {
@@ -72,10 +73,8 @@ const BridgeCard = ({ bridge, index }: { bridge: Bridge; index: number }) => (
     href={bridge.href}
     target="_blank"
     rel="noopener noreferrer"
-    initial={{ opacity: 0, y: 18 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: '-60px' }}
-    transition={{ duration: 0.45, delay: index * 0.08, ease: [0.25, 0.1, 0.25, 1] }}
+    // The site's scroll reveal, staggered; under reduced motion it simply shows.
+    {...useReveal(index * 0.08)}
     className={`group relative flex flex-col overflow-hidden rounded-3xl border border-white/8 bg-white/2 transition-all duration-200 hover:bg-white/4 ${bridge.accent.border}`}
   >
     {/* Preview screenshot of the destination site */}

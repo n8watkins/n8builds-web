@@ -142,6 +142,15 @@ test('a blog post is a BlogPosting with its share image', async ({ request }) =>
   expect(data).toMatchObject({ '@type': 'BlogPosting', url: post, mainEntityOfPage: post, image: meta(html, 'property', 'og:image') })
   expect(data.headline).toBeTruthy()
   expect(data.datePublished).toBeTruthy()
+  expect(data.isPartOf).toMatchObject({ '@type': 'Blog', name: "N8's Notions", url: `${SITE}/blog` })
+})
+
+test("the blog is called N8's Notions in its title, heading and share tags", async ({ request }) => {
+  const html = await (await request.get('/blog')).text()
+  expect(decode(html.match(/<title>([^<]*)<\/title>/)![1])).toBe("N8's Notions | n8builds")
+  expect(meta(html, 'property', 'og:title')).toBe("N8's Notions | n8builds")
+  expect(decode(html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)![1].replace(/<[^>]+>/g, '')).trim()).toBe("N8's Notions")
+  expect(html).not.toMatch(/N8 Notions/i)
 })
 
 test('retired routes redirect permanently', async ({ request }) => {

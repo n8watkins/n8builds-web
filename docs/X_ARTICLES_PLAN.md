@@ -1,4 +1,4 @@
-# Plan: N8 Notions and X articles
+# Plan: N8's Notions and X articles
 
 Written 2026-10-24.
 Status: recommendation; nothing built yet.
@@ -18,7 +18,7 @@ So pulling articles from X into Sanity automatically is paid, fragile and incomp
 
 This is the "publish on your own site, syndicate elsewhere" pattern.
 
-1. **Write the article in the Sanity Studio** as an N8 Notions post. Your site is the original: it ranks in search under your domain, it outlives any platform change, and it gets the share cards we built.
+1. **Write the article in the Sanity Studio** as an N8's Notions post. Your site is the original: it ranks in search under your domain, it outlives any platform change, and it gets the share cards we built.
 2. **Share it to X** in one of two ways:
    - **Free:** a "Share on X" button in the Studio (and on each post) that opens X with the title, the link and a short summary filled in; you press Post.
    - **Automatic (paid, small):** when a post is published, the site posts it to X for you. At about $0.20 per post with a link, four articles a month is under a dollar. It needs an X developer account with a little prepaid credit.
@@ -28,7 +28,7 @@ This is the "publish on your own site, syndicate elsewhere" pattern.
 
 Two options, both free:
 
-- **"On X" entries in N8 Notions:** in the Studio, paste the X Article's link, title, a short summary and a cover image. It appears in the blog list and the homepage strip with an "On X" badge and opens the article on X. No copying, no duplicate content.
+- **"On X" entries in N8's Notions:** in the Studio, paste the X Article's link, title, a short summary and a cover image. It appears in the blog list and the homepage strip with an "On X" badge and opens the article on X. No copying, no duplicate content.
 - **Manual import:** paste the article's text into a new Sanity post (the Studio keeps headings, links and lists); set it to say "originally published on X" with a link.
 
 Not recommended: automatic import through a scraper (paid, breaks without warning, loses formatting).
@@ -36,7 +36,7 @@ Not recommended: automatic import through a scraper (paid, breaks without warnin
 ## What I'd build
 
 1. A "Share on X" button on every post page and a "Share on X" / "Copy for X" action in the Studio.
-2. An "On X" post type in Sanity (link, title, summary, cover, date) shown in N8 Notions with a badge.
+2. An "On X" post type in Sanity (link, title, summary, cover, date) shown in N8's Notions with a badge.
 3. Optional, if you want it: automatic posting to X when a post is published (needs an X developer account and API credit).
 
 ## What I need from you

@@ -318,11 +318,11 @@ export const builds: Build[] = [
     problem:
       'A personal site is usually the least-tested thing a developer ships: no tests, no performance budget, and a contact form any bot can flood. Visitors judge the work by it anyway, and the engineering behind it stays invisible.',
     solution:
-      'n8builds.dev holds my builds, the N8 Notions blog and the Loadout, and it is run like a product. Every pull request runs lint, type checks and more than 200 unit tests, then more than 450 Playwright tests across six browser projects in parallel (the APIs, plus Chromium, Firefox, WebKit, a Pixel 7 and an iPhone 14), then Lighthouse budgets on five pages. Branch protection holds every merge until it is green (a docs-only change skips the browser suite), and the source is public.',
+      "n8builds.dev holds my builds, the N8's Notions blog and the Loadout, and it is run like a product. Every pull request runs lint, type checks and more than 200 unit tests, then more than 450 Playwright tests across six browser projects in parallel (the APIs, plus Chromium, Firefox, WebKit, a Pixel 7 and an iPhone 14), then Lighthouse budgets on five pages. Branch protection holds every merge until it is green (a docs-only change skips the browser suite), and the source is public.",
     stack: [
       { name: 'Next.js 16 · React 19 · TypeScript', detail: 'App Router in strict mode; build pages are static, and blog posts revalidate hourly' },
       { name: 'Tailwind CSS 4 · Motion', detail: 'Theme tokens in CSS, scroll reveals, and reduced motion honored on every animation' },
-      { name: 'Sanity', detail: 'N8 Notions posts, read through the CDN client, so a new post needs no deploy' },
+      { name: 'Sanity', detail: "N8's Notions posts, read through the CDN client, so a new post needs no deploy" },
       { name: 'Vercel · Cloudflare', detail: 'Auto-deploys from main and an edge rate limit on Vercel; DNS, email routing and Turnstile on Cloudflare' },
       { name: 'Upstash Redis', detail: 'Contact-form rate limits shared by every serverless instance, failing closed when unreachable' },
       { name: 'Sentry', detail: 'Errors and CSP violation reports, through a same-origin tunnel that forwards only this project' },

@@ -1,7 +1,7 @@
 {
   "name": "n8builds-web",
   "version": "1.1.1",
-  "description": "Nathan Watkins' site: apps, AI tools, Chrome extensions and the N8 Notions blog (n8builds.dev).",
+  "description": "Nathan Watkins' site: apps, AI tools, Chrome extensions and the N8's Notions blog (n8builds.dev).",
   "homepage": "https://n8builds.dev",
   "repository": {
     "type": "git",

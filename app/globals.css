@@ -45,6 +45,30 @@
   --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
 }
 
+/* The load fade for content above the fold (components/ui/FadeIn.tsx). Pure
+   CSS, so it plays from the server HTML without waiting for hydration, and it
+   animates opacity and transform only, so it never shifts layout. It ends on
+   `transform: none`, leaving no containing block behind. Reduced motion skips
+   it entirely: no fade, and no wait through an animation-delay. */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility fade-up {
+  animation: fade-up 0.55s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
 @utility custom-scrollbar {
   &::-webkit-scrollbar-track {
     background-color: var(--scrollbar-track);

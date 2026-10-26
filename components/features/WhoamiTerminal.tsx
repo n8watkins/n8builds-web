@@ -1,17 +1,15 @@
-'use client'
-import { motion } from 'motion/react'
 import { whoami } from '@/data/loadout'
+import FadeIn from '@/components/ui/FadeIn'
 
 /**
  * The macOS-style `whoami` terminal block. Extracted from the Loadout page so
- * the homepage hero and /loadout share one implementation.
+ * the homepage hero and /loadout share one implementation. It is above the
+ * fold in both, so it fades in with CSS, without waiting on hydration.
  */
 export default function WhoamiTerminal({ className = '' }: { className?: string }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
+    <FadeIn
+      delay={0.1}
       className={`overflow-hidden rounded-2xl border border-white/8 bg-black/30 backdrop-blur-xs ${className}`}
     >
       <div className="flex items-center gap-2 border-b border-white/6 px-4 py-2.5">
@@ -29,6 +27,6 @@ export default function WhoamiTerminal({ className = '' }: { className?: string 
           <span className="text-cyan-400">$</span> <span className="animate-pulse">▊</span>
         </p>
       </div>
-    </motion.div>
+    </FadeIn>
   )
 }

@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { FaXTwitter } from 'react-icons/fa6'
 import { FiGithub, FiMail } from 'react-icons/fi'
 import { CiLinkedin } from 'react-icons/ci'
+import Reveal from '@/components/ui/Reveal'
 
 /**
  * The footer on every page: a sitemap (every page and section, so the build
@@ -54,7 +55,8 @@ const SOCIALS = [
 
 const SiteFooter = () => (
   <footer className="relative z-10 border-t border-white/8 bg-darkBlue">
-    <div className="mx-auto max-w-6xl px-5 pb-10 pt-12 sm:px-8">
+    {/* Fades up as it scrolls into view, like the sections above it. */}
+    <Reveal className="mx-auto max-w-6xl px-5 pb-10 pt-12 sm:px-8">
       <nav aria-label="Sitemap" className="grid grid-cols-2 gap-8 sm:grid-cols-4">
         {SITEMAP.map((group) => (
           <div key={group.heading}>
@@ -108,7 +110,7 @@ const SiteFooter = () => (
           ))}
         </nav>
       </div>
-    </div>
+    </Reveal>
   </footer>
 )
 

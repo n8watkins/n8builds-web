@@ -156,9 +156,9 @@ export default function HomePage() {
           </SectionErrorBoundary>
         </Band>
 
-        {/* N8 Notions: latest blog posts */}
+        {/* N8's Notions: latest blog posts */}
         <Band tone="raised">
-          <SectionErrorBoundary sectionName="N8 Notions">
+          <SectionErrorBoundary sectionName="N8's Notions">
             <NotionsStrip />
           </SectionErrorBoundary>
         </Band>

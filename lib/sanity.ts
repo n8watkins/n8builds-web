@@ -1,7 +1,7 @@
 import { cache } from 'react'
 import { createClient } from '@sanity/client'
 
-// Read-only client for the N8 Notions blog. Reads the shared Sanity dataset
+// Read-only client for the N8's Notions blog. Reads the shared Sanity dataset
 // (project abgyc32w / production) that the Sanity Studio (n8builds.sanity.studio)
 // writes to. Public CDN read - no token needed. Server-only: do not import this
 // into client components (keeps @sanity/client out of the browser bundle).

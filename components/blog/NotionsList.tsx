@@ -1,6 +1,8 @@
 'use client'
 import { useMemo, useState } from 'react'
 import PostCard from '@/components/blog/PostCard'
+import FadeIn from '@/components/ui/FadeIn'
+import Reveal from '@/components/ui/Reveal'
 import type { Post } from '@/lib/sanity'
 
 // Client-side topic filtering, mirroring the Shelf tag-chip UX. Posts are fetched
@@ -22,7 +24,7 @@ export default function NotionsList({ posts }: { posts: Post[] }) {
   return (
     <>
       {topics.length > 1 && (
-        <div className="mt-8 flex flex-wrap items-center gap-2">
+        <FadeIn delay={0.05} className="mt-8 flex flex-wrap items-center gap-2">
           <button onClick={() => setActive(null)} className={chip(active === null)}>
             All<span className="ml-1.5 text-xs opacity-60">{posts.length}</span>
           </button>
@@ -35,7 +37,7 @@ export default function NotionsList({ posts }: { posts: Post[] }) {
               {t}
             </button>
           ))}
-        </div>
+        </FadeIn>
       )}
 
       {visible.length > 0 ? (
@@ -43,8 +45,10 @@ export default function NotionsList({ posts }: { posts: Post[] }) {
           {/* Keeps heading levels sequential: page h1 -> list h2 -> card h3. */}
           <h2 className="sr-only">{active ? `Notes tagged ${active}` : 'All notes'}</h2>
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {visible.map((p) => (
-              <PostCard key={p._id} post={p} />
+            {visible.map((p, i) => (
+              <CardFade key={p._id} index={i}>
+                <PostCard post={p} />
+              </CardFade>
             ))}
           </div>
         </>
@@ -54,6 +58,26 @@ export default function NotionsList({ posts }: { posts: Post[] }) {
         </p>
       )}
     </>
+  )
+}
+
+/** Cards in the first row: they are on screen at load, so they fade with CSS. */
+const FIRST_ROW = 3
+
+/**
+ * Staggered card fades. The first row fades in on load with CSS (no waiting on
+ * hydration above the fold); later cards fade up as they scroll into view,
+ * staggered across the row. `grid` lets the card fill its grid cell.
+ */
+function CardFade({ index, children }: { index: number; children: React.ReactNode }) {
+  return index < FIRST_ROW ? (
+    <FadeIn delay={index * 0.08} className="grid">
+      {children}
+    </FadeIn>
+  ) : (
+    <Reveal delay={(index % FIRST_ROW) * 0.08} className="grid">
+      {children}
+    </Reveal>
   )
 }
 

@@ -1,6 +1,7 @@
 'use client'
 import React from 'react'
 import { motion } from 'motion/react'
+import { useReveal } from '@/hooks/useReveal'
 import { buildStacks, type BuildStack } from '@/data/buildStacks'
 
 const accentMap: Record<BuildStack['accent'], { bar: string; text: string }> = {
@@ -12,12 +13,11 @@ const accentMap: Record<BuildStack['accent'], { bar: string; text: string }> = {
 
 const StackCard = ({ stack, index }: { stack: BuildStack; index: number }) => {
   const a = accentMap[stack.accent]
+  // The site's scroll reveal, staggered; under reduced motion it simply shows.
+  const reveal = useReveal(Math.min(index * 0.05, 0.2))
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.4, delay: Math.min(index * 0.05, 0.2), ease: [0.25, 0.1, 0.25, 1] }}
+      {...reveal}
       className="group relative flex flex-col gap-4 overflow-hidden rounded-2xl border border-white/8 bg-white/2 p-6 transition-all duration-200 hover:border-white/16 hover:bg-white/4"
     >
       <div className={`absolute inset-x-0 top-0 h-1 bg-linear-to-r ${a.bar}`} />
