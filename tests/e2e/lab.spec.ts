@@ -13,7 +13,7 @@ test('the Lab leads with my daily tools, then the featured builds, each with its
   const tools = page.locator('#my-tools')
   await tools.scrollIntoViewIfNeeded()
   // The part's own heading, then one per row.
-  await expect(tools.getByRole('heading', { level: 3 })).toHaveText(['Tools I use every day', 'Scribe', 'OpenPing'])
+  await expect(tools.getByRole('heading', { level: 3 })).toHaveText(['My daily drivers', 'Scribe', 'OpenPing'])
   await expect(page.locator('#featured').getByRole('heading', { level: 3 })).toHaveText(['Featured builds', 'Solara', 'Portfolio Rank'])
   // No redundant "Featured" eyebrow over "Featured builds", and no "The bench" over the Lab.
   await expect(page.locator('#featured')).not.toContainText(/^Featured\s*Featured builds/)
@@ -31,7 +31,7 @@ test('the Lab leads with my daily tools, then the featured builds, each with its
 
 test('the Lab has no Tools part any more, in its own links or the navbar menu', async ({ page }) => {
   await page.goto('/')
-  await expect(page.getByRole('navigation', { name: 'Lab sections' }).getByRole('link')).toHaveText(['My tools', 'Featured', 'Chrome extensions'])
+  await expect(page.getByRole('navigation', { name: 'Lab sections' }).getByRole('link')).toHaveText(['My tools', 'Featured', 'Chrome Extensions'])
   await expect(page.locator('a[href="/#tools"], a[href="#tools"]')).toHaveCount(0)
   await expect(page.locator('#tools')).toHaveCount(0)
 })
@@ -181,10 +181,10 @@ test('the Scribe ad downloads the newest installer through a stable link', async
   await expect(download).toHaveAttribute('href', '/download/scribe')
   await expect(download).not.toHaveAttribute('target', '_blank')
   // It says what you get, from the release itself (the fixture's v0.8.0 installer is 12,519,464 bytes).
-  await expect(download).toHaveAccessibleDescription('Windows installer (.exe) · v0.8.0 · 12 MB')
+  await expect(download).toHaveAccessibleDescription('Windows 10 and 11, 64-bit · v0.8.0 · 12 MB')
   // A download mark and the Windows logo, and the details sit under the button, not beside it.
   await expect(download.locator('svg')).toHaveCount(2)
-  const facts = ad.getByText('Windows installer (.exe) · v0.8.0 · 12 MB')
+  const facts = ad.getByText('Windows 10 and 11, 64-bit · v0.8.0 · 12 MB')
   const [button, caption] = await Promise.all([download.boundingBox(), facts.boundingBox()])
   expect(caption!.y).toBeGreaterThanOrEqual(button!.y + button!.height)
   // The Mac and Linux request carries the Apple and Tux marks.
@@ -401,28 +401,28 @@ test.describe('the Lab gallery on touch', () => {
   })
 })
 
-test('each ad lists its points, and each row shows its tech as pills instead of in the description', async ({ page }) => {
+test('each row lists its features as checks, and shows its tech as pills instead of in the description', async ({ page }) => {
   await page.goto('/')
-  const points: [string, string[]][] = [
-    ['Scribe', ['Free for Windows', 'No account', 'No telemetry', 'Your voice never leaves your PC']],
-    ['OpenPing', ['Free tools, no sign-up', "Run your own monitor on Cloudflare's free plan"]],
-    ['Solara', ['Free to use', 'No account needed to start']],
-    ['Portfolio Rank', ['A vote takes five seconds']],
+  const features: [string, string[]][] = [
+    ['Scribe', ['Works in any app', 'Push-to-talk hotkey', 'Local Whisper models', 'Searchable history']],
+    ['OpenPing', ['Schedule-aware checks', 'Public status pages', 'Incident alerts', 'Five monitor types']],
+    ['Solara', ['Personalised sun windows', 'Google Calendar scheduling', 'Push reminders', 'Today and the days ahead']],
+    ['Portfolio Rank', ['Head-to-head voting', 'ELO leaderboard', 'Lighthouse and AI reviews', 'Add your portfolio and see how you compare']],
   ]
-  for (const [name, list] of points) {
-    await expect(page.getByRole('group', { name: `Try ${name}` }).getByRole('listitem')).toHaveText(list)
+  for (const [name, list] of features) {
+    await expect(page.getByRole('list', { name: `What ${name} does` }).getByRole('listitem')).toHaveText(list)
   }
   const stacks: [string, string[], RegExp][] = [
-    ['Scribe', ['Tauri', 'Rust', 'whisper.cpp', 'React'], /whisper|Tauri|Rust/],
+    ['Scribe', ['Tauri', 'Rust', 'whisper.cpp'], /whisper|Tauri|Rust/],
     ['OpenPing', ['Cloudflare Workers', 'D1', 'Hono', 'React'], /Worker|D1/],
-    ['Solara', ['Next.js', 'Firebase', 'Stripe', 'Open-Meteo'], /Next\.js|Firebase/],
+    ['Solara', ['Next.js', 'Firebase', 'Open-Meteo'], /Next\.js|Firebase/],
     ['Portfolio Rank', ['Next.js', 'Gemini', 'Turso', 'Vercel'], /Gemini|Next\.js/],
   ]
   for (const [name, tags, prose] of stacks) {
     const pills = page.getByRole('list', { name: `${name} is built with` })
     await expect(pills.getByRole('listitem')).toHaveText(tags)
-    // The description next to the pills is about features, not the stack.
-    const description = pills.locator('xpath=preceding-sibling::p[1]')
+    // The description above the pills is about features, not the stack.
+    const description = pills.locator('xpath=../preceding-sibling::p[1]')
     await expect(description).not.toHaveText(prose)
   }
 })

@@ -16,7 +16,7 @@ export interface Build {
   status?: 'shipped' | 'in the lab'
   /**
    * One of the owner's daily tools (Scribe, OpenPing): a row in the Lab's
-   * "Tools I use every day", whatever its category.
+   * "My daily drivers", whatever its category.
    */
   mine?: boolean
   tags: string[]
