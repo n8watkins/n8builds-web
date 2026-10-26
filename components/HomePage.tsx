@@ -14,6 +14,7 @@ const NowBuilding = dynamic(() => import('@/components/sections/NowBuilding'))
 const FeaturedProjects = dynamic(() => import('@/components/sections/FeaturedProjects'))
 const ShelfSection = dynamic(() => import('@/components/sections/ShelfSection'))
 const UseAsTemplate = dynamic(() => import('@/components/sections/UseAsTemplate'))
+const PortfolioAd = dynamic(() => import('@/components/sections/PortfolioAd'))
 const NotionsStrip = dynamic(() => import('@/components/sections/NotionsStrip'))
 const ExtensionsShowcase = dynamic(() => import('@/components/sections/ExtensionsShowcase'))
 const HomeStack = dynamic(() => import('@/components/sections/HomeStack'))
@@ -140,6 +141,13 @@ export default function HomePage() {
             <Reveal>
               <ShelfSection shelf="tool" />
             </Reveal>
+          </SectionErrorBoundary>
+        </Band>
+
+        {/* ===== THE PORTFOLIO AD: hiring after seeing the builds? One click. ===== */}
+        <Band>
+          <SectionErrorBoundary sectionName="Portfolio Ad">
+            <PortfolioAd />
           </SectionErrorBoundary>
         </Band>
 

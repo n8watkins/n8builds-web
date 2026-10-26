@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'motion/react'
-import { FiGithub, FiExternalLink, FiFileText } from 'react-icons/fi'
+import { FiGithub, FiExternalLink, FiFileText, FiDownload } from 'react-icons/fi'
 import { useReveal } from '@/hooks/useReveal'
 import Reveal from '@/components/ui/Reveal'
 import TechStackCycle from '@/components/Projects/TechStackCycle'
@@ -26,8 +26,12 @@ interface FeaturedProject {
   imagePosition?: string
   /** Who the build stands on, credited under the description. */
   credit?: { before: string; name: string; href: string; after?: string }
-  /** Invitations to the visitor, linking out: try it, download it, add yours. */
-  ctas?: { label: string; href: string }[]
+  /**
+   * The row's ad: a one-line hook and the links that act on it (try it,
+   * download it, add yours). The first is the primary button. A link without
+   * `external` stays in this tab (a download).
+   */
+  ad?: { hook: string; ctas: { label: string; href: string; external?: boolean; download?: boolean }[] }
 }
 
 // The owner's daily drivers first (Scribe and OpenPing run every day), then
@@ -46,7 +50,13 @@ const featured: FeaturedProject[] = [
     github: 'https://github.com/n8watkins/scribe',
     liveSite: 'https://scribe.n8builds.dev',
     buildSlug: 'scribe',
-    ctas: [{ label: 'Download Scribe for Windows, free', href: 'https://scribe.n8builds.dev' }],
+    ad: {
+      hook: 'Free for Windows. No account, no telemetry, and your voice never leaves your PC.',
+      ctas: [
+        { label: 'Download for Windows', href: '/download/scribe', download: true },
+        { label: 'How it works', href: 'https://scribe.n8builds.dev', external: true },
+      ],
+    },
   },
   {
     title: 'OpenPing',
@@ -60,10 +70,13 @@ const featured: FeaturedProject[] = [
     github: 'https://github.com/n8watkins/open-ping',
     liveSite: 'https://openping.n8builds.dev',
     buildSlug: 'openping',
-    ctas: [
-      { label: 'Try the free tools, no sign-up', href: 'https://openping.n8builds.dev/tools' },
-      { label: 'Deploy your own, free', href: 'https://openping.n8builds.dev' },
-    ],
+    ad: {
+      hook: 'Use the free tools now with no sign-up, or run your own monitor on Cloudflare\'s free plan.',
+      ctas: [
+        { label: 'Try the free tools', href: 'https://openping.n8builds.dev/tools', external: true },
+        { label: 'Deploy your own', href: 'https://openping.n8builds.dev', external: true },
+      ],
+    },
   },
   {
     title: 'Solara',
@@ -78,7 +91,10 @@ const featured: FeaturedProject[] = [
     github: 'https://github.com/n8watkins/solara',
     liveSite: 'https://solara-uv.web.app',
     buildSlug: 'solara',
-    ctas: [{ label: 'Find your sun window, free, no sign-up', href: 'https://solara-uv.web.app' }],
+    ad: {
+      hook: 'Free to use, and no account needed to start.',
+      ctas: [{ label: 'Find your sun window', href: 'https://solara-uv.web.app', external: true }],
+    },
   },
   {
     title: 'Portfolio Rank',
@@ -98,10 +114,13 @@ const featured: FeaturedProject[] = [
       href: 'https://github.com/emmabostian/developer-portfolios',
       after: ', curated by thousands of contributors.',
     },
-    ctas: [
-      { label: 'Vote in a face-off', href: 'https://portfoliorank.vercel.app/rank' },
-      { label: 'Have a portfolio? Add yours', href: 'https://portfoliorank.vercel.app/' },
-    ],
+    ad: {
+      hook: 'A vote takes five seconds. Have a portfolio? It could be next.',
+      ctas: [
+        { label: 'Vote in a face-off', href: 'https://portfoliorank.vercel.app/rank', external: true },
+        { label: 'Add your portfolio', href: 'https://portfoliorank.vercel.app/', external: true },
+      ],
+    },
   },
 ]
 
@@ -172,23 +191,33 @@ const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: b
             {project.credit.after}
           </p>
         )}
-        {project.ctas && (
-          <ul className="mt-3 flex flex-col gap-1.5">
-            {project.ctas.map((cta) => (
-              <li key={cta.href + cta.label}>
+        {project.ad && (
+          <div
+            role="group"
+            aria-label={`Try ${project.title}`}
+            className="mt-4 rounded-xl border border-cyan-400/25 bg-linear-to-br from-cyan-500/[0.08] to-blue-600/[0.08] p-4"
+          >
+            <p className="text-sm font-semibold text-slate-100">{project.ad.hook}</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {project.ad.ctas.map((cta, i) => (
                 <a
+                  key={cta.href + cta.label}
                   href={cta.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-cyan-300 hover:text-cyan-200"
+                  {...(cta.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                  className={
+                    i === 0
+                      ? 'inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-blue-600 to-cyan-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:scale-[1.02] hover:from-blue-500 hover:to-cyan-400'
+                      : 'inline-flex items-center gap-2 rounded-lg border border-cyan-400/30 bg-white/4 px-4 py-2 text-sm font-semibold text-cyan-200 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8'
+                  }
                 >
+                  {cta.download ? <FiDownload className="h-4 w-4" aria-hidden="true" /> : null}
                   {cta.label}
-                  <FiExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-                  <span className="sr-only"> (opens in a new tab)</span>
+                  {cta.external ? <FiExternalLink className="h-3.5 w-3.5" aria-hidden="true" /> : null}
+                  {cta.external ? <span className="sr-only"> (opens in a new tab)</span> : null}
                 </a>
-              </li>
-            ))}
-          </ul>
+              ))}
+            </div>
+          </div>
         )}
       </div>
 
