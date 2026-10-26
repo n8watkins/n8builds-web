@@ -14,6 +14,8 @@ import NavLiveDot from '@/components/live/NavLiveDot'
 const labMenu = [
   { label: 'Featured', href: '/#featured', desc: 'The builds I use every day' },
   { label: 'Chrome Extensions', href: '/#extensions', desc: 'Browser tools, local-first' },
+  // The build log is a page, not a section: it lives here and in the footer, not as its own top-level link.
+  { label: 'Build log', href: '/builds', desc: 'What shipped, pulled from GitHub' },
 ]
 
 const Navbar = () => {
@@ -89,10 +91,9 @@ const Navbar = () => {
     window.history.replaceState(null, '', href)
   }
 
-  // Top-level items besides the Lab dropdown: the build log page, then links
-  // that scroll to their homepage section.
+  // Top-level items besides the Lab dropdown: links that scroll to their
+  // homepage section.
   const navLinks = [
-    { label: 'Log', href: '/builds' },
     { label: 'Notions', href: '/#notions' },
     { label: 'Loadout', href: '/#loadout' },
   ]

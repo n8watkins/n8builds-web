@@ -110,10 +110,10 @@ test.describe('the CSP blocks nothing the site uses', () => {
     await form.scrollIntoViewIfNeeded()
     await expect(page.locator('#contact input[name="cf-turnstile-response"]')).toHaveValue(/.+/, { timeout: SEND_TIMEOUT })
 
-    await form.getByLabel('Your Name').fill('Test Visitor')
-    await form.getByLabel('Email Address').fill('visitor@example.com')
-    await form.getByLabel("What's this about?").selectOption('consulting')
-    await form.getByLabel('Tell me more').fill('Hello! This is an end-to-end CSP test message.')
+    await form.getByLabel('Name').fill('Test Visitor')
+    await form.getByLabel('Email').fill('visitor@example.com')
+    await form.getByLabel('Topic').selectOption('consulting')
+    await form.getByLabel('Message').fill('Hello! This is an end-to-end CSP test message.')
     await page.getByRole('button', { name: /Send Message/ }).click()
     await expect(page.getByText('Message sent successfully!')).toBeVisible({ timeout: SEND_TIMEOUT })
 

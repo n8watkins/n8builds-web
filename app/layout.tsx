@@ -7,6 +7,7 @@ import ErrorBoundary from '@/components/ErrorBoundary'
 import { WebVitals } from './web-vitals'
 import { WebVitalsHUD } from '@/components/WebVitalsHUD'
 import LiveLoader from '@/components/live/LiveLoader'
+import SiteFooter from '@/components/layout/SiteFooter'
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { DEFAULT_PREVIEW, SITE_NAME, SITE_URL } from '@/lib/seo'
 
@@ -98,6 +99,7 @@ export default function RootLayout({
           <ErrorBoundary>
             {children}
           </ErrorBoundary>
+          <SiteFooter />
           {/* Checks /api/live after load; the corner player loads only while live. */}
           <LiveLoader />
           <WebVitals />

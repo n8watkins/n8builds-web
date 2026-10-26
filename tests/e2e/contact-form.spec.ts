@@ -23,10 +23,10 @@ test.beforeEach(async ({ page }) => {
 
 async function fillForm(page: Page) {
   const form = page.locator('#contact form')
-  await form.getByLabel('Your Name').fill('Test Visitor')
-  await form.getByLabel('Email Address').fill('visitor@example.com')
-  await form.getByLabel("What's this about?").selectOption('consulting')
-  await form.getByLabel('Tell me more').fill('Hello! This is an end-to-end test message.')
+  await form.getByLabel('Name').fill('Test Visitor')
+  await form.getByLabel('Email').fill('visitor@example.com')
+  await form.getByLabel('Topic').selectOption('consulting')
+  await form.getByLabel('Message').fill('Hello! This is an end-to-end test message.')
 }
 
 async function waitForTurnstileToken(page: Page) {
@@ -206,7 +206,7 @@ test('Send shows a focus indicator when reached by keyboard', async ({ page }) =
   await openContactForm(page)
   const send = page.getByRole('button', { name: /Send Message/ })
   await expect(send).toBeEnabled() // hydrated, so focus won't be reset under us
-  await page.locator('#contact form').getByLabel('Tell me more').focus()
+  await page.locator('#contact form').getByLabel('Message').focus()
   await page.keyboard.press('Tab')
   await expect(send).toBeFocused()
   expect(await send.evaluate((el) => getComputedStyle(el).boxShadow)).not.toBe('none')
@@ -224,7 +224,7 @@ test('client-side validation blocks an empty submission', async ({ page }) => {
   // button with no handler yet (flaky under load).
   await waitForTurnstileToken(page)
   // No subject is pre-selected; leaving it blank is an error, not a silent default.
-  await expect(page.locator('#contact form').getByLabel("What's this about?")).toHaveValue('')
+  await expect(page.locator('#contact form').getByLabel('Topic')).toHaveValue('')
   await page.getByRole('button', { name: /Send Message/ }).click()
   await expect(page.getByText('Name must be at least 2 characters')).toBeVisible()
   await expect(page.getByText('Please select a subject')).toBeVisible()
@@ -235,7 +235,7 @@ test('pressing Enter in a field submits the form, like Go on a phone keyboard', 
   await openContactForm(page)
   await waitForTurnstileToken(page)
   await fillForm(page)
-  await page.locator('#contact form').getByLabel('Email Address').press('Enter')
+  await page.locator('#contact form').getByLabel('Email').press('Enter')
 
   await expect(page.getByText('Message sent successfully!')).toBeVisible({ timeout: SEND_TIMEOUT })
 })
@@ -247,15 +247,15 @@ test('validation errors are tied to their fields for screen readers', async ({ p
 
   const form = page.locator('#contact form')
   for (const [label, message] of [
-    ['Your Name', 'Name must be at least 2 characters'],
-    ["What's this about?", 'Please select a subject'],
+    ['Name', 'Name must be at least 2 characters'],
+    ['Topic', 'Please select a subject'],
   ]) {
     const field = form.getByLabel(label)
     await expect(field).toHaveAttribute('aria-invalid', 'true')
     await expect(field).toHaveAccessibleDescription(message)
   }
   // The first invalid field is focused, and its label clears the fixed navbar.
-  const name = form.getByLabel('Your Name')
+  const name = form.getByLabel('Name')
   await expect(name).toBeFocused()
   const navBottom = await page.locator('nav[aria-label="Primary"]').evaluate((el) => el.getBoundingClientRect().bottom)
   const labelTop = await form.locator('label[for="name"]').evaluate((el) => el.getBoundingClientRect().top)
