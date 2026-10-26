@@ -22,7 +22,8 @@ const seenOpacity = (locator: Locator) =>
 
 test('a section below the fold is hidden until scrolled to, then fades in', async ({ page }) => {
   await page.goto('/')
-  const section = page.locator('#template')
+  // The Lab's template part, well below the fold: its content reveals inside its full-bleed wash.
+  const section = page.locator('#template > .reveal')
   await expect(section).toBeAttached()
   expect(await seenOpacity(section)).toBe(0)
 
@@ -42,7 +43,7 @@ test.describe('with reduced motion', () => {
 
   test('sections are simply shown: no fade, no rise, nothing to wait for', async ({ page }) => {
     await page.goto('/')
-    const section = page.locator('#template')
+    const section = page.locator('#template > .reveal')
     // Hydration applies it (FADE also covers a slow hydration on a loaded machine).
     await expect
       .poll(async () => {
@@ -50,7 +51,7 @@ test.describe('with reduced motion', () => {
         return seenOpacity(section)
       }, FADE)
       .toBe(1)
-    const transform = await section.evaluate((el) => getComputedStyle(el.parentElement!).transform)
+    const transform = await section.evaluate((el) => getComputedStyle(el).transform)
     expect(['none', 'matrix(1, 0, 0, 1, 0, 0)']).toContain(transform)
   })
 })

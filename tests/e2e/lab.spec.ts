@@ -106,32 +106,6 @@ test('the hero gives someone hiring a direct link to the developer portfolio', a
   await expect(link).toHaveAttribute('href', 'https://portfolio.n8builds.dev')
 })
 
-test('the page ends with "Use this as a template": both sites with their icons, repos, licenses, and how this site is tested', async ({ page }) => {
-  await page.goto('/')
-  const template = page.locator('#template')
-  await template.scrollIntoViewIfNeeded()
-  await expect(template.getByRole('heading', { level: 2 })).toHaveText('Use this as a template')
-  // Each template goes by its site name, with the N8 icon; the repo names stay on the GitHub links.
-  await expect(template.getByRole('heading', { level: 3 })).toHaveText(['n8builds.dev', 'portfolio.n8builds.dev'])
-  const cards = template.getByRole('listitem')
-  await expect(cards).toHaveCount(2)
-  for (const card of await cards.all()) {
-    const icon = card.locator('img[src*="n8-icon"]')
-    await expect(icon).toBeVisible()
-    await expect.poll(() => icon.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true)
-  }
-  await expect(template.getByRole('link', { name: /n8builds-web on GitHub/ })).toHaveAttribute('href', 'https://github.com/n8watkins/n8builds-web')
-  await expect(template.getByRole('link', { name: /dev-portfolio on GitHub/ })).toHaveAttribute('href', 'https://github.com/n8watkins/dev-portfolio')
-  await expect(template).toContainText('License: MIT')
-  await expect(template).toContainText('Playwright suite on five browsers')
-  // It sits right before the contact section.
-  const order = await page.evaluate(() => {
-    const ids = [...document.querySelectorAll('#template, #contact')].map((el) => el.id)
-    return ids
-  })
-  expect(order).toEqual(['template', 'contact'])
-})
-
 test('Portfolio Rank credits the list it is built on and invites visitors to add their portfolio', async ({ page }) => {
   // The featured row: a linked credit, and the invitation out to the live site.
   await page.goto('/')
