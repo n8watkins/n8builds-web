@@ -4,8 +4,8 @@ import { useEffect, useState, useSyncExternalStore } from 'react'
 import dynamic from 'next/dynamic'
 import { CONSENT_CHANGE_EVENT, CONSENT_OPEN_EVENT, getConsent } from '@/lib/consent'
 
-// The banner is downloaded only for visitors who see it: a European visitor
-// who hasn't chosen yet, or anyone who opens "Cookie settings" in the footer.
+// The banner is downloaded only for visitors who see it: a European or Quebec
+// visitor who hasn't chosen yet, or anyone who opens "Cookie settings".
 const ConsentBanner = dynamic(() => import('./ConsentBanner'), { ssr: false })
 
 function subscribe(onChange: () => void) {
@@ -13,10 +13,12 @@ function subscribe(onChange: () => void) {
   return () => window.removeEventListener(CONSENT_CHANGE_EVENT, onChange)
 }
 
-/** A visitor from a European time zone who hasn't chosen yet (GA waits for the answer). */
+/**
+ * A visitor from a European or Quebec time zone who hasn't chosen yet, and
+ * sends no Global Privacy Control signal (GA waits for the answer).
+ */
 function needsAnswer() {
-  const consent = getConsent()
-  return Boolean(consent?.ask && !consent.choice)
+  return getConsent()?.state === 'pending'
 }
 
 export default function ConsentLoader() {
