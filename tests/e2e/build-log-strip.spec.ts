@@ -61,6 +61,9 @@ test('a row opens its build in the full log, filtered', async ({ page }) => {
   const first = rows(page).first()
   await first.scrollIntoViewIfNeeded()
   const link = first.getByRole('link')
+  // Screen readers hear the build and the entry, not the build alone.
+  const title = (await first.locator('p').nth(1).innerText()).trim()
+  await expect(link).toHaveAccessibleName(new RegExp(`^\\S.+ ${title.slice(0, 20).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`))
   const build = new URL((await link.getAttribute('href'))!, 'http://x').searchParams.get('build')!
   await link.click()
   await expect(page).toHaveURL(new RegExp(`/builds\\?build=${build}$`))

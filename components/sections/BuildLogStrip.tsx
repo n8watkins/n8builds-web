@@ -131,6 +131,8 @@ function Row({ entry, phoneHidden }: { entry: LogEntry; phoneHidden: boolean }) 
   const name = names[entry.build] ?? entry.build
   const icon = ICONS[entry.build]
   const version = entry.kind === 'release' ? /^Shipped (v\S+)$/.exec(entry.title)?.[1] : undefined
+  // The row's link is named by the build and the entry ("Solara: Setup: centered steps..."), not the build alone.
+  const id = `strip-${entry.id.replace(/[^\w-]/g, '-')}`
   return (
     <li
       className={`group relative items-start gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-white/[0.04] sm:items-center sm:gap-3.5 ${
@@ -156,10 +158,10 @@ function Row({ entry, phoneHidden }: { entry: LogEntry; phoneHidden: boolean }) 
           {/* Stretched over the row: it opens this build's part of the full log. */}
           <Link
             href={`/builds?build=${entry.build}`}
+            aria-labelledby={`${id}-build ${id}-title`}
             className="after:absolute after:inset-0 after:rounded-xl after:content-[''] focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-cyan-400/60"
           >
-            {name}
-            <span className="sr-only">: </span>
+            <span id={`${id}-build`}>{name}</span>
           </Link>
           {/* Phones: the date rides on this line, so the title gets the width. */}
           <span className="font-normal text-slate-475 sm:hidden">
@@ -167,7 +169,7 @@ function Row({ entry, phoneHidden }: { entry: LogEntry; phoneHidden: boolean }) 
             / <span className="text-slate-450">{entry.dayLabel}</span>
           </span>
         </p>
-        <p className="line-clamp-2 text-[0.95rem] sm:line-clamp-none sm:truncate font-semibold leading-snug text-slate-100 transition-colors group-hover:text-cyan-100">
+        <p id={`${id}-title`} className="line-clamp-2 text-[0.95rem] sm:line-clamp-none sm:truncate font-semibold leading-snug text-slate-100 transition-colors group-hover:text-cyan-100">
           {version ? (
             <>
               Shipped <span className="font-mono text-[0.92em] text-cyan-300">{version}</span>
