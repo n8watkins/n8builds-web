@@ -36,10 +36,11 @@ type LabPart = { id: string; label: string; short?: string; icon: IconType; icon
  * ring: the owner asked for it light (2026-10-26). Desktop only (from 1280px),
  * in the left gutter beside the Lab's content column.
  *
- * Layout is mostly CSS: an absolute column spanning the whole Lab band holds a
- * sticky rail, held at the viewport's middle (the owner's call, 2026-10-26, so
- * no one looks up for it), so it only shows while the Lab is on screen and never
- * leaves it, and being absolute it can't shift the layout. The links are plain
+ * Layout is mostly CSS: an absolute column from the first part's heading to
+ * the Lab's foot holds a sticky rail, held at the viewport's middle (the
+ * owner's call, 2026-10-26, so no one looks up for it). It starts level with
+ * that heading, never leaves the Lab, and being absolute it can't shift the
+ * layout. The links are plain
  * anchors (server-rendered, so they work without JS); the page's own
  * scroll-padding-top and reduced-motion-aware smooth scrolling handle the jump.
  *
@@ -56,9 +57,10 @@ type LabPart = { id: string; label: string; short?: string; icon: IconType; icon
 export default function LabSectionNav() {
   const [parts, setParts] = useState<readonly LabPart[]>(SECTIONS)
   const [active, setActive] = useState(-1)
-  const [inView, setInView] = useState(false)
+  const [shown, setShown] = useState(false)
   const listRef = useRef<HTMLUListElement>(null)
   const navRef = useRef<HTMLElement>(null)
+  const columnRef = useRef<HTMLDivElement>(null)
 
   // The rail sticks at the viewport's middle: its own height (which changes
   // with the breakpoint) goes to --nav-h so it can centre itself.
@@ -82,7 +84,29 @@ export default function LabSectionNav() {
     const present = found.map((x) => x.s)
     const els = found.map((x) => x.el)
     const lab = document.getElementById('lab')
-    if (!lab || !els.length) return
+    const column = columnRef.current
+    if (!lab || !column || !els.length) return
+
+    // The rail's column starts level with the first part's heading, so the
+    // rail never sits beside the Lab's intro (whose pills already list the
+    // parts) and starts out lined up with that heading before it sticks.
+    const anchor = els[0].querySelector<HTMLElement>('h2, h3') ?? els[0]
+    // Layout offsets, not on-screen boxes: the scroll reveals shift content
+    // with transforms while they play, which must not move the anchor.
+    const place = () => {
+      let top = 0
+      for (
+        let el: HTMLElement | null = anchor;
+        el && el !== lab;
+        el = el.offsetParent as HTMLElement | null
+      ) {
+        top += el.offsetTop
+      }
+      column.style.top = `${top}px`
+    }
+    place()
+    const resize = new ResizeObserver(place)
+    resize.observe(lab)
 
     let frame = 0
     const update = () => {
@@ -101,22 +125,28 @@ export default function LabSectionNav() {
       // In rows from the first chip's centre; the wire ends at the list's foot.
       const fill = index < 0 ? 0 : Math.min(index + fraction, els.length - 0.5)
       listRef.current?.style.setProperty('--fill', String(fill))
+      // Shown from the moment the first part's heading reaches the rail's
+      // centred spot: the rail fades in level with it, after the Lab's intro
+      // (whose pills already list the parts) has mostly gone by, and holds there.
+      const centre = (window.innerHeight - (navRef.current?.offsetHeight ?? 0)) / 2
+      setShown(anchor.getBoundingClientRect().top <= centre + 1)
     }
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(update)
     }
 
+    // The scroll listener runs only while the Lab is on screen.
     const observer = new IntersectionObserver(([entry]) => {
       // Drops any part missing from the page, on the first callback.
       setParts((prev) =>
         prev.map((p) => p.id).join() === present.map((p) => p.id).join() ? prev : present
       )
-      setInView(entry.isIntersecting)
       if (entry.isIntersecting) {
         update()
         window.addEventListener('scroll', onScroll, { passive: true })
         window.addEventListener('resize', onScroll, { passive: true })
       } else {
+        setShown(false)
         window.removeEventListener('scroll', onScroll)
         window.removeEventListener('resize', onScroll)
       }
@@ -124,6 +154,7 @@ export default function LabSectionNav() {
     observer.observe(lab)
     return () => {
       observer.disconnect()
+      resize.disconnect()
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onScroll)
       if (frame) cancelAnimationFrame(frame)
@@ -132,15 +163,16 @@ export default function LabSectionNav() {
 
   return (
     <div
-      className="pointer-events-none absolute inset-y-0 left-0 hidden w-[calc((100%-72rem)/2+2rem)] xl:block"
+      ref={columnRef}
+      className="pointer-events-none absolute top-0 bottom-0 left-0 hidden w-[calc((100%-72rem)/2+2rem)] xl:block"
       data-testid="lab-section-nav"
     >
       {/* --row is one row's height and --chip an icon's square: the halo and the wire are measured in them. */}
       <nav
         ref={navRef}
         aria-label="Lab contents"
-        className={`pointer-events-auto sticky top-[calc(50vh-var(--nav-h,9rem)/2)] mt-8 ml-auto mr-3 w-fit [--chip:1.625rem] [--row:2.25rem] transition-[opacity,translate] duration-700 ease-out motion-reduce:translate-none 2xl:mr-6 min-[110rem]:[--chip:1.75rem] min-[110rem]:[--row:2.5rem] ${
-          inView ? 'translate-x-0 opacity-100' : '-translate-x-3 opacity-0'
+        className={`pointer-events-auto sticky top-[calc(50vh-var(--nav-h,9rem)/2)] ml-auto mr-3 w-fit [--chip:1.625rem] [--row:2.25rem] transition-[opacity,translate,visibility] duration-700 ease-out motion-reduce:translate-none 2xl:mr-6 min-[110rem]:[--chip:1.75rem] min-[110rem]:[--row:2.5rem] ${
+          shown ? 'visible translate-x-0 opacity-100' : 'invisible -translate-x-3 opacity-0'
         }`}
       >
         {/* Heading, wide shape only: the Lab's flask (centred over the icons) and its name in the tagline's gradient. */}
@@ -186,9 +218,9 @@ export default function LabSectionNav() {
               <li
                 key={s.id}
                 className={`transition-[opacity,translate] duration-500 ease-out motion-reduce:translate-none ${
-                  inView ? 'translate-x-0 opacity-100' : '-translate-x-2 opacity-0'
+                  shown ? 'translate-x-0 opacity-100' : '-translate-x-2 opacity-0'
                 }`}
-                style={{ transitionDelay: inView ? `${150 + i * 80}ms` : '0ms' }}
+                style={{ transitionDelay: shown ? `${150 + i * 80}ms` : '0ms' }}
               >
                 <a
                   href={`#${s.id}`}
@@ -206,7 +238,7 @@ export default function LabSectionNav() {
                       className={s.iconSize ?? 'size-3.5 min-[110rem]:size-4'}
                       aria-hidden="true"
                     />
-                    {current && inView && <Comet />}
+                    {current && shown && <Comet />}
                   </span>
                   <Label part={s} current={current} />
                 </a>
