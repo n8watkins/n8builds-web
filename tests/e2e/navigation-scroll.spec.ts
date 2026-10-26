@@ -28,11 +28,19 @@ test('a post opened from the homepage starts at its top, without scrolling up to
   await expect(page).toHaveURL(/\/blog\/.+/)
   await expect(page.locator('article h1, main h1').first()).toBeVisible()
   await page.waitForTimeout(500)
-  // Once the post is showing it sits at the top; it never passes through the
-  // in-between positions an animated scroll would.
+  // An animated scroll passes through dozens of positions on its way up (the
+  // bug measured 3,710, 3,503, 2,526, 1,334... over a second). A jump goes
+  // straight to the top; at most one position in between is allowed, where the
+  // browser clamps the old offset to the new page's height for a frame or two
+  // before Next.js scrolls to the top.
   const frames = await page.evaluate(() => (window as unknown as { __frames: number[] }).__frames)
   const start = frames[0]
-  const inBetween = frames.filter((y) => y > 0 && y < start - 50)
-  expect(inBetween, `scroll positions after the click: ${frames.join(', ')}`).toEqual([])
+  const trace = `scroll positions after the click: ${frames.join(', ')}`
+  const inBetween = new Set(frames.filter((y) => y > 0 && y < start))
+  expect(inBetween.size, trace).toBeLessThanOrEqual(1)
+  const left = frames.findIndex((y) => y !== start)
+  const top = frames.indexOf(0)
+  expect(top, trace).toBeGreaterThan(-1)
+  expect(top - left, trace).toBeLessThanOrEqual(6)
   expect(await page.evaluate(() => window.scrollY)).toBe(0)
 })
