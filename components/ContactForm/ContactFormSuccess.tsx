@@ -2,6 +2,7 @@
 
 import React, { lazy, Suspense, useEffect, useRef } from 'react'
 import { m } from 'motion/react'
+import MotionProvider from '@/components/MotionProvider'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 
 // lottie-web is ~74 KB gzipped and only needed after a successful send, so the
@@ -45,7 +46,7 @@ interface ContactFormSuccessProps {
   onSendAnother: () => void
 }
 
-export function ContactFormSuccess({ showConfetti, confettiKey, onSendAnother }: ContactFormSuccessProps) {
+function ContactFormSuccessScreen({ showConfetti, confettiKey, onSendAnother }: ContactFormSuccessProps) {
   // lottie-web ignores MotionConfig and the global reduced-motion CSS, so skip
   // the confetti entirely for visitors who asked for less motion.
   const reduceMotion = usePrefersReducedMotion()
@@ -124,5 +125,14 @@ export function ContactFormSuccess({ showConfetti, confettiKey, onSendAnother }:
         </m.button>
       </m.div>
     </m.div>
+  )
+}
+
+/** Loaded on demand by the form (components/ContactForm/index.tsx), with its own motion setup. */
+export function ContactFormSuccess(props: React.ComponentProps<typeof ContactFormSuccessScreen>) {
+  return (
+    <MotionProvider>
+      <ContactFormSuccessScreen {...props} />
+    </MotionProvider>
   )
 }

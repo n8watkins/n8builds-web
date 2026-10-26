@@ -1,4 +1,4 @@
-import type { CSSProperties, ElementType, ReactNode } from 'react'
+import type { CSSProperties, ElementType, HTMLAttributes, ReactNode } from 'react'
 
 /**
  * Fades its content up once, on load, with CSS only (the `fade-up` utility in
@@ -11,17 +11,21 @@ export default function FadeIn({
   children,
   className = '',
   delay = 0,
+  effect = 'up',
   as: Tag = 'div',
-}: {
+  ...rest
+}: Omit<HTMLAttributes<HTMLElement>, 'className' | 'style'> & {
   children: ReactNode
   className?: string
   /** Seconds to wait before fading in, for a stagger. */
   delay?: number
+  /** `up` fades and rises (the default); `in` only fades. */
+  effect?: 'up' | 'in'
   as?: ElementType
 }) {
   const style: CSSProperties | undefined = delay ? { animationDelay: `${delay}s` } : undefined
   return (
-    <Tag className={`fade-up ${className}`.trim()} style={style}>
+    <Tag {...rest} className={`${effect === 'in' ? 'fade-in' : 'fade-up'} ${className}`.trim()} style={style}>
       {children}
     </Tag>
   )

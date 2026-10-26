@@ -1,12 +1,9 @@
-'use client'
-import React, { useEffect, useRef, useState } from 'react'
+import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { m } from 'motion/react'
-import { FiGithub, FiExternalLink, FiFileText, FiDownload, FiStar, FiLayers, FiX } from 'react-icons/fi'
-import { useReveal } from '@/hooks/useReveal'
-import { useHydrated } from '@/hooks/useHydrated'
+import { FiGithub, FiExternalLink, FiFileText, FiDownload, FiStar } from 'react-icons/fi'
 import Reveal from '@/components/ui/Reveal'
+import { ProjectDetails, ProjectGallery } from '@/components/sections/FeaturedProjectIslands'
 import TechStackCycle from '@/components/Projects/TechStackCycle'
 import { projects } from '@/data/projects'
 import LabSubheader from '@/components/sections/LabSubheader'
@@ -143,97 +140,62 @@ const featured: FeaturedProject[] = [
 ]
 
 /**
- * The row's detail view, in a native <dialog>: the tech stack and the way to
- * the full story, kept out of the row so the row stays short.
+ * The row's detail view: the tech stack and the way to the full story, kept
+ * out of the row so the row stays short. Rendered here on the server; the
+ * Details button and its native <dialog> are an island (ProjectDetails).
  */
-const DetailsDialog = ({
-  project,
-  technologies,
-  open,
-  onClose,
-}: {
-  project: FeaturedProject
-  technologies: ReturnType<typeof techFor>
-  open: boolean
-  onClose: () => void
-}) => {
-  const ref = useRef<HTMLDialogElement>(null)
-  useEffect(() => {
-    const dialog = ref.current
-    if (!dialog) return
-    if (open && !dialog.open) dialog.showModal()
-    if (!open && dialog.open) dialog.close()
-  }, [open])
-  return (
-    <dialog
-      ref={ref}
-      aria-labelledby={`${slugOf(project)}-details-title`}
-      onClose={onClose}
-      // A click on the backdrop (the dialog element itself) closes it.
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose()
-      }}
-      className="m-auto w-[min(42rem,calc(100vw-2rem))] max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl border border-white/10 bg-[#0a1220] p-0 text-slate-200 shadow-2xl shadow-black/60 opacity-0 transition-[opacity,translate,display,overlay] duration-200 transition-discrete translate-y-2 open:translate-y-0 open:opacity-100 starting:open:translate-y-2 starting:open:opacity-0 backdrop:bg-black/70 backdrop:backdrop-blur-sm motion-reduce:transition-none"
-    >
-      <div className="p-6 sm:p-8">
-        <div className="flex items-start gap-4">
-          <Image src={project.icon} alt="" width={48} height={48} className="h-12 w-12 shrink-0 rounded-xl" unoptimized={project.icon.endsWith('.svg')} />
-          <div className="min-w-0 flex-1">
-            <h4 id={`${slugOf(project)}-details-title`} className="text-2xl font-bold tracking-tight text-slate-50">
-              {project.title}
-            </h4>
-            <p className="mt-0.5 text-sm text-blue-300">{project.subtitle}</p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close details"
-            className="-mr-2 -mt-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-white/8 hover:text-slate-100"
-          >
-            <FiX className="h-5 w-5" />
-          </button>
+const DetailsBody = ({ project, technologies }: { project: FeaturedProject; technologies: ReturnType<typeof techFor> }) => (
+  <>
+    <p className="mt-6 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-slate-450">How it&apos;s built</p>
+    <div className="mt-3">
+      {technologies ? (
+        <TechStackCycle technologies={technologies} />
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          {project.tags.map((tag) => (
+            <span key={tag} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-semibold text-slate-400">
+              {tag}
+            </span>
+          ))}
         </div>
+      )}
+    </div>
 
-        <p className="mt-6 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-slate-450">How it&apos;s built</p>
-        <div className="mt-3">
-          {technologies ? (
-            <TechStackCycle technologies={technologies} />
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              {project.tags.map((tag) => (
-                <span key={tag} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-semibold text-slate-400">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
+    <div className="mt-8 flex flex-wrap gap-3 border-t border-white/8 pt-6">
+      <Link
+        href={`/builds/${project.buildSlug}`}
+        className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:scale-[1.02] hover:from-blue-500 hover:to-cyan-400"
+      >
+        <FiFileText className="h-3.5 w-3.5" />
+        Full story and build log
+      </Link>
+      {project.github && (
+        <a
+          href={project.github}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8"
+        >
+          <FiGithub className="h-3.5 w-3.5" />
+          Source
+          <span className="sr-only"> (opens in a new tab)</span>
+        </a>
+      )}
+    </div>
+  </>
+)
 
-        <div className="mt-8 flex flex-wrap gap-3 border-t border-white/8 pt-6">
-          <Link
-            href={`/builds/${project.buildSlug}`}
-            className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:scale-[1.02] hover:from-blue-500 hover:to-cyan-400"
-          >
-            <FiFileText className="h-3.5 w-3.5" />
-            Full story and build log
-          </Link>
-          {project.github && (
-            <a
-              href={project.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8"
-            >
-              <FiGithub className="h-3.5 w-3.5" />
-              Source
-              <span className="sr-only"> (opens in a new tab)</span>
-            </a>
-          )}
-        </div>
-      </div>
-    </dialog>
-  )
-}
+const DetailsHeader = ({ project }: { project: FeaturedProject }) => (
+  <>
+    <Image src={project.icon} alt="" width={48} height={48} className="h-12 w-12 shrink-0 rounded-xl" unoptimized={project.icon.endsWith('.svg')} />
+    <div className="min-w-0 flex-1">
+      <h4 id={`${slugOf(project)}-details-title`} className="text-2xl font-bold tracking-tight text-slate-50">
+        {project.title}
+      </h4>
+      <p className="mt-0.5 text-sm text-blue-300">{project.subtitle}</p>
+    </div>
+  </>
+)
 
 const slugOf = (project: FeaturedProject) => project.buildSlug
 const techFor = (project: FeaturedProject) => projects.find((p) => p.title === project.title)?.technologies
@@ -241,51 +203,15 @@ const techFor = (project: FeaturedProject) => projects.find((p) => p.title === p
 const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: boolean }) => {
   const technologies = techFor(project)
   const gallery = project.images && project.images.length > 1 ? project.images : [project.image]
-  const [active, setActive] = useState(0)
-  const [detailsOpen, setDetailsOpen] = useState(false)
-  const hydrated = useHydrated()
-  const revealProps = useReveal()
-  const current = gallery[Math.min(active, gallery.length - 1)]
   return (
-  <m.div
-    {...revealProps}
-    className={`flex flex-col ${flipped ? 'md:flex-row-reverse' : 'md:flex-row'} gap-10 md:gap-14 items-center`}
-  >
+  <Reveal className={`flex flex-col ${flipped ? 'md:flex-row-reverse' : 'md:flex-row'} gap-10 md:gap-14 items-center`}>
     {/* Image + gallery */}
-    <div className="w-full md:w-1/2 shrink-0">
-      <div className="relative rounded-2xl overflow-hidden border border-white/8 bg-[#07101d] aspect-16/10 group">
-        <Image
-          key={current}
-          src={current}
-          alt={project.imageAlt}
-          fill
-          className={`object-cover ${project.imagePosition ?? 'object-top'} transition-transform duration-500 group-hover:scale-[1.02]`}
-          sizes="(max-width: 768px) 100vw, 50vw"
-        />
-        {/* Subtle overlay */}
-        <div className="absolute inset-0 bg-linear-to-t from-darkBlue/40 to-transparent pointer-events-none" />
-      </div>
-
-      {/* Thumbnail strip */}
-      {gallery.length > 1 && (
-        <div className="mt-3 flex gap-2">
-          {gallery.map((src, i) => (
-            <button
-              key={src}
-              onClick={() => setActive(i)}
-              aria-label={`${project.title} image ${i + 1}`}
-              className={`relative aspect-16/10 w-full overflow-hidden rounded-lg border transition-all duration-200 ${
-                i === active
-                  ? 'border-cyan-400/60 ring-1 ring-cyan-400/40'
-                  : 'border-white/10 opacity-60 hover:opacity-100'
-              }`}
-            >
-              <Image src={src} alt="" fill className="object-cover object-top" sizes="120px" />
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
+    <ProjectGallery
+      title={project.title}
+      images={gallery}
+      imageAlt={project.imageAlt}
+      imageClassName={`object-cover ${project.imagePosition ?? 'object-top'} transition-transform duration-500 group-hover:scale-[1.02]`}
+    />
 
     {/* Content */}
     <div className="w-full md:w-1/2 flex flex-col gap-4">
@@ -355,14 +281,14 @@ const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: b
           <a href={project.liveSite} target="_blank" rel="noopener noreferrer"
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold text-sm transition-all duration-200 hover:scale-[1.02]">
             <FiExternalLink className="w-3.5 h-3.5" />
-            Live Site
+            Live Site<span className="sr-only"> of {project.title} (opens in a new tab)</span>
           </a>
         )}
         {project.github && (
           <a href={project.github} target="_blank" rel="noopener noreferrer"
             className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/12 bg-white/4 hover:bg-white/8 text-slate-300 font-semibold text-sm transition-all duration-200 hover:scale-[1.02]">
             <FiGithub className="w-3.5 h-3.5" />
-            GitHub
+            GitHub<span className="sr-only"> repository of {project.title} (opens in a new tab)</span>
           </a>
         )}
         {project.github && (
@@ -373,21 +299,16 @@ const ProjectRow = ({ project, flipped }: { project: FeaturedProject; flipped: b
             Star
           </a>
         )}
-        <button
-          type="button"
-          onClick={() => setDetailsOpen(true)}
-          aria-haspopup="dialog"
-          // Server-rendered: a click before hydration would be lost, so it stays
-          // disabled until its handler exists (as Copy link and the contact form's Send).
-          disabled={!hydrated}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/12 bg-white/4 hover:bg-white/8 text-slate-300 font-semibold text-sm transition-all duration-200 hover:scale-[1.02] disabled:cursor-wait">
-          <FiLayers className="w-3.5 h-3.5" />
-          Details
-        </button>
+        <ProjectDetails
+          title={project.title}
+          labelledBy={`${slugOf(project)}-details-title`}
+          header={<DetailsHeader project={project} />}
+        >
+          <DetailsBody project={project} technologies={technologies} />
+        </ProjectDetails>
       </div>
-      <DetailsDialog project={project} technologies={technologies} open={detailsOpen} onClose={() => setDetailsOpen(false)} />
     </div>
-  </m.div>
+  </Reveal>
   )
 }
 

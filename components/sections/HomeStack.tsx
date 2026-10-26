@@ -1,4 +1,3 @@
-'use client'
 import Link from 'next/link'
 import { FiArrowUpRight } from 'react-icons/fi'
 import AITechStack from '@/components/features/AITechStack'

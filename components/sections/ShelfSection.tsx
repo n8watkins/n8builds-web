@@ -1,4 +1,3 @@
-'use client'
 import React from 'react'
 import BuildCard from '@/components/sections/BuildCard'
 import LabSubheader from '@/components/sections/LabSubheader'

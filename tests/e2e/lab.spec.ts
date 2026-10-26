@@ -223,3 +223,14 @@ test('Details waits for hydration instead of swallowing an early click', async (
   await details.click()
   await expect(page.getByRole('dialog', { name: 'Scribe' })).toBeVisible()
 })
+
+test('each row names its own Details, Live Site and GitHub controls for screen readers', async ({ page }) => {
+  // Four rows with controls all named "Details" (or "Live Site", "GitHub")
+  // are indistinguishable in a screen reader's list of buttons or links.
+  await page.goto('/')
+  for (const title of ['Scribe', 'OpenPing', 'Solara', 'Portfolio Rank']) {
+    await expect(page.getByRole('button', { name: `Details about ${title}`, exact: true })).toHaveCount(1)
+    await expect(page.getByRole('link', { name: `Live Site of ${title} (opens in a new tab)`, exact: true })).toHaveCount(1)
+    await expect(page.getByRole('link', { name: `GitHub repository of ${title} (opens in a new tab)`, exact: true })).toHaveCount(1)
+  }
+})

@@ -1,6 +1,7 @@
 import React, { createContext, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
+import { useHydrated } from '@/hooks/useHydrated'
 
 /**
  * True inside the loop's duplicate copies. Focusable children should leave the
@@ -36,6 +37,10 @@ export default function Marquee({
   const [hasFocus, setHasFocus] = useState(false)
   const isPaused = (pauseOnHover && isHovered) || hasFocus
   const reduceMotion = usePrefersReducedMotion()
+  // The server sends one copy of the items; the loop's duplicates are added
+  // once the page hydrates. They only make the loop seamless, and repeating
+  // every tile in the HTML made the page heavy to download and parse.
+  const copies = useHydrated() ? repeat : 1
 
   // Reduced motion: show every item once instead of a frozen track that clips
   // items at the edges. Small screens get a row the visitor swipes themselves;
@@ -77,7 +82,7 @@ export default function Marquee({
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setHasFocus(false)
       }}>
-      {Array(repeat)
+      {Array(copies)
         .fill(0)
         .map((_, i) => (
           <div

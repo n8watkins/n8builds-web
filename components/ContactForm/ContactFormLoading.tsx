@@ -2,13 +2,14 @@
 
 import React, { useEffect } from 'react'
 import { m } from 'motion/react'
+import MotionProvider from '@/components/MotionProvider'
 import { preloadConfetti } from './ContactFormSuccess'
 // TODO: Download a loading animation from https://lottiefiles.com/free-animations/send-mail
 // and save it as /data/loading-email.json
 // For now, we'll show a placeholder
 // import loadingData from '@/data/loading-email.json'
 
-export function ContactFormLoading() {
+function ContactFormLoadingScreen() {
   // Fetch the success confetti while the message is sending.
   useEffect(preloadConfetti, [])
 
@@ -60,5 +61,14 @@ export function ContactFormLoading() {
         Sending message...
       </m.h3>
     </m.div>
+  )
+}
+
+/** Loaded on demand by the form (components/ContactForm/index.tsx), with its own motion setup. */
+export function ContactFormLoading() {
+  return (
+    <MotionProvider>
+      <ContactFormLoadingScreen />
+    </MotionProvider>
   )
 }

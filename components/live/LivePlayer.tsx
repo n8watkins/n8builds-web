@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent, type ReactNode } from 'react'
 import { motion } from 'motion/react'
+import MotionProvider from '@/components/MotionProvider'
 import { SiTwitch, SiYoutube } from 'react-icons/si'
 import { FaXTwitter } from 'react-icons/fa6'
 import { FiExternalLink, FiMaximize2, FiMinimize2, FiMinus, FiMove, FiRadio, FiVolume2, FiVolumeX, FiX } from 'react-icons/fi'
@@ -178,7 +179,7 @@ function StreamView({ stream, muted }: { stream: LiveStream; muted: boolean }) {
   )
 }
 
-export default function LivePlayer({ status }: { status: LiveStatus }) {
+function Player({ status }: { status: LiveStatus }) {
   const phone = useIsPhone()
   const [prefs, setPrefs] = useState<PlayerPrefs>(readPrefs)
   const [closed, setClosed] = useState<string[]>(readClosed)
@@ -412,5 +413,14 @@ export default function LivePlayer({ status }: { status: LiveStatus }) {
         </section>
       )}
     </motion.div>
+  )
+}
+
+/** Loaded only while live (LiveLoader), with its own motion setup. */
+export default function LivePlayer({ status }: { status: LiveStatus }) {
+  return (
+    <MotionProvider>
+      <Player status={status} />
+    </MotionProvider>
   )
 }

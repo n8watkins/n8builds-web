@@ -1,18 +1,15 @@
 'use client'
 import React from 'react'
 import Link from 'next/link'
-import { m } from 'motion/react'
+import Reveal from '@/components/ui/Reveal'
 import { FiGithub, FiExternalLink, FiArrowUpRight } from 'react-icons/fi'
 import type { Build } from '@/data/builds'
 
 const BuildCard = ({ build, index = 0 }: { build: Build; index?: number }) => {
   return (
-    <m.div
-      layout
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.35, delay: Math.min(index * 0.03, 0.18), ease: [0.25, 0.1, 0.25, 1] }}
+    // The site's scroll reveal, staggered.
+    <Reveal
+      delay={Math.min(index * 0.03, 0.18)}
       className="group relative flex flex-col gap-3 overflow-hidden rounded-2xl border border-white/8 bg-white/2 p-5 transition-all duration-200 hover:border-cyan-400/30 hover:bg-white/4"
     >
       {/* Accent wash */}
@@ -85,7 +82,7 @@ const BuildCard = ({ build, index = 0 }: { build: Build; index?: number }) => {
           <FiArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         </span>
       </div>
-    </m.div>
+    </Reveal>
   )
 }
 

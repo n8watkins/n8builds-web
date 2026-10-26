@@ -53,7 +53,8 @@ Portfolio Rank's starts with rotating its invalid Gemini API key (nothing has be
 
 ## Part 2: What Claude builds
 
-**Next session:** paste [prompts/next-session-2026-10-26.md](prompts/next-session-2026-10-26.md): a shallow subagent review of the 2026-10-25 work, then the homepage speed refactor (render the sections on the server, client islands only where they're interactive; the homepage is ~0.83 on phones because it is one client component).
+**Done 2026-10-26:** the review of the 2026-10-25 work and the homepage speed refactor (see the done log).
+What is left on phone speed: the homepage's simulated LCP (~3.5s) is now mostly the download of React and Next themselves (about 150 KB compressed of the ~270 KB the page loads first), which a page can't drop; the next gains would come from fewer client islands on the page, not from any one of them.
 
 
 Ordered by value.
@@ -117,6 +118,16 @@ To review it later, paste [prompts/review-2026-10-24-changes.md](prompts/review-
 - Speed (#39): lazy Sentry (SDK and Replay load when the page is idle; early errors are queued), LazyMotion, gradient glows instead of blur filters, the first blog cover loads eagerly, and a mobile Lighthouse pass in CI. Mobile: / 0.77 to ~0.83, /blog 0.86 to ~0.95-0.98, /builds 0.87 to ~0.91-0.96; desktop LCP down too.
 - Elsewhere: dev-portfolio#3 (n8builds card, MIT license with a content carve-out) and #4 (Portfolio Rank's real icon); portfolio-rank#5 (the daily sync captures screenshots again); release-kit#3 (merged, unreleased: "1 commit"); n8builds-studio#2 (OpenPing in the highlight list).
 - Train fix (#24, kit 1.2.0, n8watkins/release-kit#2): GitHub doesn't count checks from `workflow_dispatch` runs, so `main` moved to a ruleset that the train's deploy key (secret `RELEASE_TRAIN_KEY`) may bypass; the train still pushes only after CI passes on the release commit.
+
+**2026-10-26:**
+
+- Shallow review of the 2026-10-25 work (one subagent): no high-severity problems; six medium and low findings, all fixed: the contact card's Appturnity line and the case study's Lighthouse claim (#43), the portfolio's "Building in public" card now links builds to their n8builds.dev pages and drops Scribe (dev-portfolio#5), and the Lab rows' Details, Live Site and GitHub controls name their build for screen readers (#44).
+  Two findings are the owner's: the portfolio's Lifeline Clinical Lab link fails TLS (the client's certificate), and Portfolio Rank's "Add your portfolio" button goes to the leaderboard by decision.
+- Homepage speed (#44): the homepage is server components with client islands only for its interactive parts; animations are CSS, so no page loads motion up front (it loads only with the form's sending and success screens and the live player); zod and those screens load when the form scrolls into view, with plain fallbacks if a deploy removed their chunks; the hero's endless animations pause off screen; the marquee server-renders one copy of its items; the three newest posts render on the server (`/api/notions/recent` is gone).
+  Mobile Lighthouse on `/` (local, CI env): score 0.85 to 0.87-0.90, TBT 255ms to 80-200ms, first-load JavaScript 405 KB to 270 KB (transferred), HTML 469 KB to 348 KB before compression, LCP ~3.6s to ~3.55s, CLS 0.
+  Desktop stays 1.00 on all five pages; the mobile budgets in `scripts/lighthouse.mjs` rose to 0.8 and 4.2s.
+  Tried and reverted: inlining the CSS (`experimental.inlineCss`) made the first HTML task longer and TBT worse, with no LCP gain.
+- Follow-along plans, in their own repos (branch `docs/follow-up-2026-10`, file `docs/FOLLOW_UP_2026-10.md`): Portfolio Rank (its Gemini key has been invalid since late July, so nothing has been graded since) and OpenPing (the off-hours status bug). Portfolio Rank's issue #3 is closed with a comment linking its plan.
 
 **Outside this repo:**
 
