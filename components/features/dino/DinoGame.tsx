@@ -146,15 +146,7 @@ const ROAR = makeBubble('RAWR!', 3)
  * in and hints that it can be clicked (skipped once it has been). Edit freely:
  * letters, ! ? . ' and spaces (the pixel font has no digits).
  */
-export const DINO_LINES = [
-  'Psst... click me',
-  "Can't catch me!",
-  'Hop hop',
-  'Shipping...',
-  'RAWR?',
-  'Spending tokens',
-  "Bet you can't",
-]
+export const DINO_LINES = ['Psst... click me', "Can't catch me!", 'Hop hop', 'RAWR!!!']
 const CLICK_HINTS = new Set([0]) // lines that only make sense before a click
 const LINES = DINO_LINES.map((line) => makeBubble(line, 2))
 const FIRST_LINE_AFTER = 4 // s of walking in view before the first line
