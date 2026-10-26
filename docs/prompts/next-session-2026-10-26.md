@@ -1,7 +1,7 @@
 # Prompt: next session (review, then speed)
 
 A ready-to-paste prompt for a fresh Claude Code session in `~/n8builds/n8builds-web`.
-It does two things, in order: a shallow, fast review of everything shipped on 2026-10-25 (by one subagent), then the homepage speed refactor.
+It does three things: a shallow, fast review of everything shipped on 2026-10-25 (by one subagent), the homepage speed refactor, and (by a second subagent, in parallel with Part 2) two follow-along plans the owner will act on later, one in Portfolio Rank and one in OpenPing.
 Speed is the priority: the review is a quick sweep for real problems, not an audit.
 
 Written 2026-10-25, at main `a218444` (PR #39).
@@ -36,4 +36,28 @@ Do the refactor:
 5. Commit, PR, CI green, merge; record the numbers in docs/NEXT_STEPS.md's done log.
 
 When done, report the before/after numbers and anything you couldn't fix.
+
+## Part 3: follow-along plans for Portfolio Rank and OpenPing (one subagent, while Part 2 runs)
+
+Spawn ONE more subagent (general-purpose) with this brief. It writes Markdown plans for the owner to follow later; it changes no code, runs nothing destructive, and makes no GitHub issue comments, closes, labels or settings changes.
+
+  "Write two follow-along plans, one per repo, each a single Markdown file the owner (or a later agent) can work through step by step. One sentence per line, no em dashes, numbered steps with checkboxes, each step saying who does it (owner or agent), exactly what to run or click, and how to verify it worked. Commit each file on a new branch in its own repo and push the branch, but do not open a PR or merge (the owner will). Report both branch names and file paths.
+
+  1. Portfolio Rank (~/n8builds/published/portfolio-rank, GitHub n8watkins/portfolio-rank, live at https://portfoliorank.vercel.app). File: docs/FOLLOW_UP_2026-10.md. Cover:
+     - Close issue #3 (the 'Scheduled job failed: Sync upstream + ingest' alert): it was fixed by PR #5, which pinned the sync job to ubuntu-24.04 because Playwright 1.60 can't install Chromium on ubuntu-latest (26.04); a manual run (40244406862) captured and graded the backlog.
+     - Process the pending submission: issues #2 and #4 are the same person (Shubham Sinha, https://shubhamsinha1010.github.io/, submitted 2026-08-08 and 2026-10-24). Steps to check the site is live and not already listed, add it to data/additions.json (read AUTOMATION.md for the format and the feed rebuild), close #4 as a duplicate of #2, reply on #2, and confirm it appears with a screenshot and grade after the next sync.
+     - The broken promise: the homepage and FAQ say a submission 'flows in, gets screenshotted and graded automatically', but nothing turns an issue into data/additions.json. Plan the small bot: a GitHub Actions workflow on issues labeled portfolio-submission that validates the URL (https, responds 200 within a timeout, not a duplicate after URL normalization, not in data/excluded.json), comments the result on the issue, and when the owner adds an 'approved' label, commits the entry to data/additions.json and closes the issue. Include the files to add, the permissions (issues: write, contents: write), tests, and the copy change on the site until the bot exists. Leave the decision (bot vs. updating the copy) to the owner.
+     - Unpin later: upgrading Playwright to a version that supports ubuntu 26.04, then removing the ubuntu-24.04 pin.
+  2. OpenPing (~/projects/public/open-ping, GitHub n8watkins/open-ping, live at https://openping.n8builds.dev). File: docs/FOLLOW_UP_2026-10.md. Build it from the existing bug report docs/BUG-public-scheduled-off.md on the local branch docs/public-scheduled-off-bug (base your new branch on that branch so the report comes along). Cover:
+     - The fix: the public feed, status page and widget report off-hours monitors as 'operational' because mapPublicState hides scheduled_off unless showScheduledOff is on (default off, and the editor has no toggle). Steps to report scheduled_off by default, decide the option's future, handle the all-off banner (all_off), the editor toggle if the option stays, tests in src/worker/routes/public.test.ts, docs (STATUS_PAGES.md, WIDGET.md), and a deploy and verify step (curl /api/public/status on a weekend or off-hours: state scheduled_off).
+     - Allow embedding on the bare domain: add https://n8builds.dev to ALLOWED_FRAME_ANCESTORS in src/worker/index.ts, with a test.
+     - Adopt release-kit (https://github.com/n8watkins/release-kit): node ~/n8builds/release-kit/apply.mjs ., baseline tag, then the first release.
+     - Note that portfolio.n8builds.dev reads this feed and treats a feed older than 30 minutes as Asleep; that workaround keeps working after the fix."
+
+When it reports, add both branch names and file paths to docs/NEXT_STEPS.md (Part 1, B2) so the owner can find them.
+
+## The owner's own list
+
+The owner's to-do list stays in docs/NEXT_STEPS.md Part 1 (decisions, accounts and keys, small cleanups, content): the reCAPTCHA key, the Twitch app and YouTube keys, the GitGuardian false positive, screenshots, streaming links, release-kit for the other repos, and the rest.
+Don't remove or tick any of them unless the owner says they're done; when this session finishes, remind the owner of the open ones in one short list.
 ````
