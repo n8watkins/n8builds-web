@@ -23,11 +23,10 @@ export interface LoadoutGroup {
   items: LoadoutItem[]
 }
 
-// First-person intro, no resume energy. Shown as a terminal block in the homepage hero.
-export const whoami: string[] = [
-  '$ whoami',
-  'Nathan Watkins, AI-first software developer in LA, building apps, Chrome extensions and tools I wish existed, with AI agents doing the heavy lifting.',
-]
+// First-person intro, no resume energy. Shown as a terminal block in the homepage hero:
+// the name sits in the window's title bar, the body is the command and two short sentences.
+export const whoamiTitle = { path: '~/whoami', name: "Nathan 'N8' Watkins" }
+export const whoami: string[] = ['$ whoami', 'AI-first software developer.', 'I build apps and tools I wish existed.']
 
 export const loadout: LoadoutGroup[] = [
   {
