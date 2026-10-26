@@ -13,7 +13,7 @@ test('the Lab leads with my daily tools, then the featured builds, each with its
   const tools = page.locator('#my-tools')
   await tools.scrollIntoViewIfNeeded()
   // The part's own heading, then one per row.
-  await expect(tools.getByRole('heading', { level: 3 })).toHaveText(['Tools I use every day', 'Scribe', 'OpenPing'])
+  await expect(tools.getByRole('heading', { level: 3 })).toHaveText(['Tools I use daily', 'Scribe', 'OpenPing'])
   await expect(page.locator('#featured').getByRole('heading', { level: 3 })).toHaveText(['Featured builds', 'Solara', 'Portfolio Rank'])
   // No redundant "Featured" eyebrow over "Featured builds", and no "The bench" over the Lab.
   await expect(page.locator('#featured')).not.toContainText(/^Featured\s*Featured builds/)

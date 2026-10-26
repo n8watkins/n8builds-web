@@ -8,11 +8,12 @@ When the owner decides something new, add it here (with the date) in the same ch
 ## Brand and content
 
 - Blue/cyan accents, **no purple** (except the Twitch brand hover in the navbar).
-  Indigo (between blue and violet) is allowed and stays: the Loadout "indigo" group and the "Browser tools" eyebrow.
+  Indigo (between blue and violet) is allowed and stays: the Loadout "indigo" group and the Chrome extensions part's wash and bar.
 - The site is a **build-in-public workshop, not a portfolio**.
   The hire-me lane is portfolio.n8builds.dev; client work is appturnity.com.
 - **Projects and Lab are one.**
-  The Lab (`#lab`) is one homepage section in three parts (2026-10-25): "Tools I use every day" (`#my-tools`: Scribe and OpenPing, the owner's daily tools, marked `mine: true` in `data/builds.tsx`), "Featured builds" (`#featured`: Solara, Portfolio Rank) and Chrome extensions (`#extensions`). No "The bench" eyebrow; no "Featured" eyebrow over "Featured builds". The intro says everything is public and mostly MIT open source.
+  The Lab (`#lab`) is one homepage section in three parts (2026-10-25): "Tools I use daily" (`#my-tools`: Scribe and OpenPing, the owner's daily tools, marked `mine: true` in `data/builds.tsx`), "Featured builds" (`#featured`: Solara, Portfolio Rank) and Chrome extensions (`#extensions`). No "The bench" eyebrow; no "Featured" eyebrow over "Featured builds".
+  The three part headings are titles only (2026-10-26): no eyebrow (the "Browser tools" label is gone) and no subtext, each with its part's colour bar. The intro says everything is public and mostly MIT open source.
   Each row: the app's icon left of its name, the subtitle under the name (never above), description, its tech as small pills, ad, then a two-by-two block of buttons: Live Site and Star on top, GitHub and Details below (2026-10-26). The full tech stack and the build-log link live in the Details dialog, so rows stay short.
   Descriptions are about features, short and not salesy (2026-10-26); the tech (whisper.cpp, Tauri, Workers, D1, Next.js...) goes in the pills, never the prose.
   The Details dialog (2026-10-26) shows the project's screenshots on its left from md up (hidden on phones), with larger type, tabs and tech icons, each icon centred over its name.

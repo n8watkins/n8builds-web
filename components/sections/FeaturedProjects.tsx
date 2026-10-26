@@ -526,14 +526,14 @@ const FeaturedProjects = async () => {
   const facts = await downloadFacts()
   return (
     <>
-      <section id="my-tools" aria-label="Tools I use every day" className="lab-accent-tools py-10">
-        <Reveal className={container}>
-          <LabSubheader title="Tools I use every day" blurb="Mine first: I run both of these every day, and so can you." />
+      <section id="my-tools" aria-label="Tools I use daily" className="lab-accent-tools py-10">
+        {/* Title-only subheaders get extra room under them, so the first row doesn't crowd them. */}
+        <Reveal className={`${container} pb-4`}>
+          <LabSubheader title="Tools I use daily" />
         </Reveal>
         <Rows group="tools" offset={0} facts={facts} />
       </section>
       <section id="featured" aria-label="Featured builds" className="lab-accent-featured py-10">
-        {/* A title with no blurb: extra room under it, so Solara doesn't crowd it. */}
         <Reveal className={`${container} pb-4`}>
           <LabSubheader title="Featured builds" />
         </Reveal>

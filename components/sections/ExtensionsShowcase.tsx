@@ -110,12 +110,7 @@ const ExtensionsShowcase = () => (
   // A full-bleed part of the Lab in its own indigo wash (`.lab-part-wash` in app/globals.css).
   <section id="extensions" aria-label="Chrome extensions" className="lab-accent-extensions lab-part-wash py-12">
     <div className="mx-auto max-w-6xl px-5 sm:px-8">
-    <LabSubheader
-      eyebrow="Browser tools"
-      eyebrowClass="text-indigo-400"
-      title="Chrome extensions"
-      blurb={<>Small, local-first tools I built and actually use. All open source - if one&apos;s useful, a star helps a ton.</>}
-    />
+    <LabSubheader title="Chrome extensions" />
 
     {/* ===== Desktop: 3 side-by-side + auto-cycle detail ===== */}
     <ExtensionsCarousel
