@@ -95,11 +95,12 @@ test.describe('marquees (motion allowed)', () => {
 })
 
 /**
- * Hovering a tile shrinks its name and reveals the description. The pair must
- * sit centred in the tile whatever the description's length (one line or
- * three), not crammed against the top with empty space below.
+ * Revealing a tile (hover, or a tap or focus) shrinks its name and shows the
+ * description. The pair must sit centred in the tile whatever the
+ * description's length (one line or three), not crammed against the top with
+ * empty space below.
  */
-test.describe('hovered tile content is vertically centred', () => {
+test.describe('revealed tile content is vertically centred', () => {
   test.use({
     contextOptions: { reducedMotion: 'no-preference' },
     viewport: { width: 1280, height: 900 },
@@ -111,7 +112,7 @@ test.describe('hovered tile content is vertically centred', () => {
     { path: '/', section: '#loadout', lines: [1, 2] },
     { path: '/loadout', section: '#techstack', lines: [2, 3] },
   ]) {
-    test(`${section} tiles on ${path}`, async ({ page }) => {
+    test(`${section} tiles on ${path}`, async ({ page, hasTouch }) => {
       await page.goto(path)
       const tiles = page.locator(`${section} figure`)
       // Jump (the page scrolls smoothly otherwise) so the marquee sits mid-screen.
@@ -124,11 +125,16 @@ test.describe('hovered tile content is vertically centred', () => {
       const seenLines = new Set<number>()
       const rows = page.locator(`${section} .overflow-hidden:has(> .animate-marquee)`)
       for (const rowEl of await rows.all()) {
-        // Pause this row by resting the pointer on its edge, then hover each
-        // tile that is fully on screen in turn.
-        const row = (await rowEl.boundingBox())!
-        await page.mouse.move(640, row.y + 3)
+        // Pause this row, then reveal each tile fully on screen in turn: by
+        // hovering it with a mouse, or tapping it on a touch screen (where
+        // there is no hover; a tap focuses the tile). The pointer rests on the
+        // row's edge to pause it; on touch, focus inside the row does.
         const rowTiles = rowEl.locator('figure')
+        if (hasTouch) await rowTiles.first().evaluate((el) => el.focus({ preventScroll: true }))
+        else {
+          const row = (await rowEl.boundingBox())!
+          await page.mouse.move(640, row.y + 3)
+        }
         const visible = await rowTiles.evaluateAll((figures) =>
           figures.flatMap((figure, index) => {
             const box = figure.getBoundingClientRect()
@@ -146,8 +152,9 @@ test.describe('hovered tile content is vertically centred', () => {
         for (const index of visible) {
           const tile = rowTiles.nth(index)
           const box = (await tile.boundingBox())!
-          await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
-          // Let the hover transition finish.
+          if (hasTouch) await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2)
+          else await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+          // Let the reveal transition finish.
           await expect
             .poll(() =>
               tile.evaluate((el) => getComputedStyle(el.querySelector('.description')!).opacity)
