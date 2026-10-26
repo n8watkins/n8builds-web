@@ -54,11 +54,15 @@ test.describe('dino easter egg (motion allowed)', () => {
 
     await showKit(page, '#loadout')
     await expect(dino(page)).toHaveCount(1)
-    // Decorative: hidden from assistive tech, and clicks pass through it.
+    // Decorative: hidden from assistive tech. Clicks pass through its layer;
+    // only the dino's own small box takes them (the click easter egg).
     await expect(
       page.locator('[data-dino-panel] [aria-hidden="true"]:has([data-dino])')
     ).toHaveCount(1)
-    expect(await dino(page).evaluate((el) => getComputedStyle(el).pointerEvents)).toBe('none')
+    expect(
+      await dino(page).evaluate((el) => getComputedStyle(el.parentElement!).pointerEvents)
+    ).toBe('none')
+    expect(await dino(page).evaluate((el) => getComputedStyle(el).pointerEvents)).toBe('auto')
     // It walks: its position changes from frame to frame.
     const at = () => dino(page).evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m41)
     const first = await at()

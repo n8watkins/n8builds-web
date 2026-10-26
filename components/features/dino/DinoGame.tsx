@@ -13,6 +13,11 @@ import { DINO_COLS, DINO_FRAMES, DINO_ROWS, framePaths, type DinoFrame } from '.
  * A panel with a single row gets a solid ground line under it as its second
  * level.
  *
+ * Clicking (or tapping) the dino makes it roar: a pixel "RAWR!" bubble pops
+ * up and, if it is walking, it backflips on the spot, changing colour each
+ * time. Only its own small box takes the pointer, so the tiles around it stay
+ * clickable; it is decorative and hidden from assistive tech.
+ *
  * It runs on requestAnimationFrame with direct DOM writes (no React renders
  * per frame, no motion library), and stops while the panel is off screen or
  * the tab is hidden.
@@ -27,7 +32,7 @@ const STEP_EVERY = 12 // px walked per leg swap
 const STILL = 2 // px/s: a row moving slower than this is paused
 const LANDING = 20 // px past the far edge of a gap that a hop lands
 
-type Mode = 'walk' | 'hop' | 'miss' | 'fall'
+type Mode = 'walk' | 'hop' | 'miss' | 'fall' | 'flip'
 
 interface Row {
   el: HTMLElement
@@ -50,6 +55,56 @@ interface Level {
 }
 
 const COLORS = { body: '#cfdbe9', eye: '#081427', shine: '#ffffff' } as const
+// Each roar moves the body on to the next colour (blue/cyan family and warm
+// accents, no purple).
+const BODY_COLORS = ['#cfdbe9', '#67e8f9', '#fbbf24', '#86efac', '#fb923c', '#38bdf8'] as const
+const ROAR_FOR = 1.1 // s the bubble stays up
+const FLIP_T = 0.7 // s per backflip
+
+// The "RAWR!" bubble, in the dino's pixel style: dark text on a light bubble
+// with notched corners, its tail pointing down at the dino's mouth ('left' or
+// 'right'). 'f' is the bubble, 't' the text.
+const GLYPHS: Record<string, string[]> = {
+  R: ['###', '#.#', '##.', '#.#', '#.#'],
+  A: ['.#.', '#.#', '###', '#.#', '#.#'],
+  W: ['#...#', '#...#', '#.#.#', '#.#.#', '.#.#.'],
+  '!': ['#', '#', '#', '.', '#'],
+}
+function bubbleRows(tail: 'left' | 'right') {
+  const word = 'RAWR!'
+    .split('')
+    .map((c) => GLYPHS[c])
+    .reduce((acc, g, i) => acc.map((row, y) => row + (i ? '.' : '') + g[y]), ['', '', '', '', ''])
+  const text = word.map((row) => 'fff' + row.replace(/#/g, 't').replace(/\./g, 'f') + 'fff')
+  const w = text[0].length
+  const rows = [
+    '.' + 'f'.repeat(w - 2) + '.',
+    'f'.repeat(w),
+    ...text,
+    'f'.repeat(w),
+    '.' + 'f'.repeat(w - 2) + '.',
+    '.fff' + '.'.repeat(w - 4),
+    'ff' + '.'.repeat(w - 2),
+  ]
+  const mirror = (row: string) => row.split('').reverse().join('')
+  // Only the tail flips; the word always reads left to right.
+  return tail === 'left' ? rows : [...rows.slice(0, -2), ...rows.slice(-2).map(mirror)]
+}
+function bubblePaths(rows: string[]) {
+  let ink = ''
+  let fill = ''
+  rows.forEach((row, y) => {
+    for (let x = 0; x < row.length; x++) {
+      if (row[x] === 't') ink += `M${x} ${y}h1v1h-1z`
+      else if (row[x] === 'f') fill += `M${x} ${y}h1v1h-1z`
+    }
+  })
+  return { ink, fill, cols: rows[0].length, rows: rows.length }
+}
+const BUBBLES = { left: bubblePaths(bubbleRows('left')), right: bubblePaths(bubbleRows('right')) }
+const BUBBLE_PX = 3 // a touch chunkier than the dino, so the word reads
+const BUBBLE_W = BUBBLES.left.cols * BUBBLE_PX
+const BUBBLE_H = BUBBLES.left.rows * BUBBLE_PX
 // Only the current frame shows (the root's data-frame); spelled out in full so
 // Tailwind's scanner sees each class.
 const FRAME_CLASS: Record<DinoFrame, string> = {
@@ -65,11 +120,13 @@ const FRAMES = (Object.keys(DINO_FRAMES) as DinoFrame[]).map((name) => ({
 
 export default function DinoGame() {
   const dinoRef = useRef<HTMLDivElement>(null)
+  const bubbleRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const dino = dinoRef.current
+    const bubble = bubbleRef.current
     const panel = dino?.closest<HTMLElement>('[data-dino-panel]')
-    if (!dino || !panel) return
+    if (!dino || !bubble || !panel) return
 
     let rows: Row[] = []
     let levels: Level[] = []
@@ -127,6 +184,11 @@ export default function DinoGame() {
     // Just came back in at the other end of a level: walk on (in the edge
     // fade) until there is a tile underfoot, rather than dropping straight in.
     let reentering = false
+    // The click easter egg.
+    let roars = 0
+    let roarLeft = 0 // s the bubble has left
+    let flip = { t: 0, h: 0, floor: 0 }
+    let angle = 0
 
     const respawn = () => {
       level = -1
@@ -261,6 +323,21 @@ export default function DinoGame() {
             vy = 0
           }
         }
+      } else if (mode === 'flip') {
+        // Rides along with its tile while it spins.
+        flip.t += dt
+        const p = Math.min(flip.t / FLIP_T, 1)
+        x += (current?.row?.velocity ?? 0) * dt
+        y = flip.floor - flip.h * 4 * p * (1 - p)
+        // Eased so it tucks fast at the top and lands upright.
+        angle = -360 * (p < 0.5 ? 2 * p * p : 1 - 2 * (1 - p) * (1 - p))
+        frame = 'hop'
+        if (p >= 1) {
+          y = flip.floor
+          angle = 0
+          mode = 'walk'
+          frame = 'stepA'
+        }
       } else if (mode === 'fall') {
         frame = 'fall'
         vy += GRAVITY * dt
@@ -293,7 +370,34 @@ export default function DinoGame() {
         if (current && !current.row && (x <= -W || x >= panelW)) respawn()
       }
 
-      dino.style.transform = `translate3d(${x.toFixed(1)}px, ${(y - H).toFixed(1)}px, 0) scaleX(${dir})`
+      dino.style.transform = `translate3d(${x.toFixed(1)}px, ${(y - H).toFixed(1)}px, 0) scaleX(${dir}) rotate(${angle.toFixed(1)}deg)`
+
+      // The bubble comes out of its mouth (at the height it stands, not where
+      // a flip takes it): beside its head on the side it faces, or the other
+      // if that is off the panel. Beside, not above: the top row has little
+      // room overhead.
+      if (roarLeft > 0) {
+        roarLeft -= dt
+        const floor = mode === 'flip' ? flip.floor : y
+        let side: 'left' | 'right' = dir > 0 ? 'right' : 'left'
+        let bx = side === 'right' ? x + W + 2 : x - 2 - BUBBLE_W
+        if (side === 'right' && bx + BUBBLE_W > panelW - 4) {
+          side = 'left'
+          bx = x - 2 - BUBBLE_W
+        } else if (side === 'left' && bx < 4) {
+          side = 'right'
+          bx = x + W + 2
+        }
+        const by = Math.max(floor - H - BUBBLE_H + 12, 2)
+        // A quick pop in, and out at the end.
+        const age = ROAR_FOR - roarLeft
+        const scale = Math.min(1, 0.5 + age * 6, roarLeft * 8)
+        bubble.dataset.tail = side === 'right' ? 'left' : 'right'
+        bubble.style.transformOrigin = side === 'right' ? 'bottom left' : 'bottom right'
+        bubble.style.transform = `translate3d(${bx.toFixed(1)}px, ${by.toFixed(1)}px, 0) scale(${Math.max(scale, 0).toFixed(2)})`
+        bubble.style.visibility = 'visible'
+        if (roarLeft <= 0) bubble.style.visibility = 'hidden'
+      }
       const dataset = `${frame}|${level}|${dir}|${mode}`
       if (dataset !== lastDataset) {
         lastDataset = dataset
@@ -317,6 +421,22 @@ export default function DinoGame() {
       }
     }
 
+    const roar = (event: MouseEvent) => {
+      event.preventDefault()
+      roars += 1
+      roarLeft = ROAR_FOR
+      dino.style.setProperty('--dino-body', BODY_COLORS[roars % BODY_COLORS.length])
+      dino.dataset.roars = String(roars)
+      // A backflip on the spot, if it is walking (mid-jump or falling, it
+      // only roars). The arc stays inside the panel on the top row.
+      const current = levels[level]
+      if (mode === 'walk' && current) {
+        flip = { t: 0, h: Math.min(44, current.y - H - 2), floor: current.y }
+        mode = 'flip'
+      }
+    }
+    dino.addEventListener('click', roar)
+
     measure()
     respawn()
     const resize = new ResizeObserver(() => {
@@ -336,32 +456,67 @@ export default function DinoGame() {
       resize.disconnect()
       visibility.disconnect()
       document.removeEventListener('visibilitychange', update)
+      dino.removeEventListener('click', roar)
     }
   }, [])
 
   return (
-    <div
-      ref={dinoRef}
-      data-dino
-      data-frame="fall"
-      className="group/dino absolute top-0 left-0 will-change-transform"
-      style={{ width: W, height: H, transform: `translate3d(-${W * 2}px, -${H * 2}px, 0)` }}
-    >
-      <svg
-        viewBox={`0 0 ${DINO_COLS} ${DINO_ROWS}`}
-        width={W}
-        height={H}
-        shapeRendering="crispEdges"
-        className="block overflow-visible"
+    <>
+      <div
+        ref={dinoRef}
+        data-dino
+        data-frame="fall"
+        // Its own small box takes clicks (the easter egg); the layer around it
+        // lets everything else through to the tiles.
+        className="group/dino pointer-events-auto absolute top-0 left-0 cursor-pointer will-change-transform"
+        style={{
+          width: W,
+          height: H,
+          transform: `translate3d(-${W * 2}px, -${H * 2}px, 0)`,
+          ['--dino-body' as string]: COLORS.body,
+        }}
       >
-        {FRAMES.map(({ name, paths }) => (
-          <g key={name} className={FRAME_CLASS[name]}>
-            <path d={paths.body} fill={COLORS.body} />
-            <path d={paths.eye} fill={COLORS.eye} />
-            <path d={paths.shine} fill={COLORS.shine} />
-          </g>
+        <svg
+          viewBox={`0 0 ${DINO_COLS} ${DINO_ROWS}`}
+          width={W}
+          height={H}
+          shapeRendering="crispEdges"
+          className="block overflow-visible"
+        >
+          {FRAMES.map(({ name, paths }) => (
+            <g key={name} className={FRAME_CLASS[name]}>
+              <path d={paths.body} fill="var(--dino-body)" />
+              <path d={paths.eye} fill={COLORS.eye} />
+              <path d={paths.shine} fill={COLORS.shine} />
+            </g>
+          ))}
+        </svg>
+      </div>
+      <div
+        ref={bubbleRef}
+        data-dino-bubble
+        data-tail="left"
+        className="group/bubble pointer-events-none absolute top-0 left-0"
+        style={{ width: BUBBLE_W, height: BUBBLE_H, visibility: 'hidden' }}
+      >
+        {(['left', 'right'] as const).map((tail) => (
+          <svg
+            key={tail}
+            viewBox={`0 0 ${BUBBLES[tail].cols} ${BUBBLES[tail].rows}`}
+            width={BUBBLE_W}
+            height={BUBBLE_H}
+            shapeRendering="crispEdges"
+            className={
+              tail === 'left'
+                ? 'hidden group-data-[tail=left]/bubble:block'
+                : 'hidden group-data-[tail=right]/bubble:block'
+            }
+          >
+            <path d={BUBBLES[tail].fill} fill="#f8fafc" />
+            <path d={BUBBLES[tail].ink} fill={COLORS.eye} />
+          </svg>
         ))}
-      </svg>
-    </div>
+      </div>
+    </>
   )
 }
