@@ -74,7 +74,7 @@ const Detail = ({ ext }: { ext: Ext }) => {
           <Image src={ext.icon} alt="" width={36} height={36} className="rounded-xl" />
           <div>
             <h3 className="text-xl font-extrabold leading-tight text-slate-50">{build.name}</h3>
-            <p className="font-mono text-xs text-slate-450">{build.tagline}</p>
+            <p className="text-sm text-slate-400">{build.tagline}</p>
           </div>
         </div>
         <p className="text-[#9cadc5] leading-relaxed">{ext.blurb}</p>
