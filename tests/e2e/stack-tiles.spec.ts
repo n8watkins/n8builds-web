@@ -80,7 +80,9 @@ test.describe('marquees (motion allowed)', () => {
 
     // The loop repeats every item; only the first copy is in the tab order,
     // and the copies are hidden from assistive tech.
-    expect(await tiles.count()).toBe((await focusable.count()) * 4)
+    // (The copies join after hydration: wait for them.)
+    const items = await focusable.count()
+    await expect.poll(() => tiles.count()).toBe(items * 4)
     await expect(page.locator('[aria-hidden="true"] [tabindex="0"]')).toHaveCount(0)
 
     await focusable.first().focus()
