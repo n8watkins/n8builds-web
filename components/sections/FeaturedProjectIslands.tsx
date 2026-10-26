@@ -24,15 +24,22 @@ const SWIPE = 40
  * Dots at the bottom show where you are. Only the first image loads up front;
  * the rest load once the visitor shows interest (hover, focus or touch), so
  * the homepage downloads no extra screenshots for rows nobody browses.
+ * The Details dialog uses it too, at its own width (`className`, `sizes`).
  */
 export function ProjectGallery({
   title,
   images,
   imageClassName,
+  className = 'w-full shrink-0 md:w-1/2',
+  sizes = '(max-width: 768px) 100vw, 50vw',
 }: {
   title: string
   images: GalleryImage[]
   imageClassName: string
+  /** The gallery's own box: half the row by default. */
+  className?: string
+  /** The images' `sizes`, for that box. */
+  sizes?: string
 }) {
   const [active, setActive] = useState(0)
   const [warm, setWarm] = useState(false)
@@ -86,7 +93,7 @@ export function ProjectGallery({
               }
             : undefined
         }
-        className="w-full shrink-0 touch-pan-y md:w-1/2"
+        className={`touch-pan-y ${className}`}
       >
       <div className="group relative aspect-16/10 overflow-hidden rounded-2xl border border-white/8 bg-[#07101d]">
         {images.map((image, i) =>
@@ -97,7 +104,7 @@ export function ProjectGallery({
               alt={i === active ? image.alt : ''}
               aria-hidden={i === active ? undefined : true}
               fill
-              sizes="(max-width: 768px) 100vw, 50vw"
+              sizes={sizes}
               className={`${imageClassName} transition-opacity duration-300 motion-reduce:transition-none ${i === active ? 'opacity-100' : 'opacity-0'}`}
             />
           ) : null,
@@ -197,7 +204,7 @@ export function ProjectDetails({
         // Server-rendered: a click before hydration would be lost, so it stays
         // disabled until its handler exists (as Copy link and the contact form's Send).
         disabled={!hydrated}
-        className="flex items-center justify-center gap-2 whitespace-nowrap px-4 py-2 rounded-xl border border-white/12 bg-white/4 hover:bg-white/8 text-slate-300 font-semibold text-sm transition-all duration-200 hover:scale-[1.02] motion-reduce:hover:scale-100 disabled:cursor-wait">
+        className="flex items-center justify-center gap-2 whitespace-nowrap px-4 py-2 rounded-xl border border-white/12 bg-white/4 hover:bg-white/8 text-slate-300 font-semibold text-sm transition-colors duration-200 disabled:cursor-wait">
         <FiLayers className="w-3.5 h-3.5" />
         Details<span className="sr-only"> about {title}</span>
       </button>
