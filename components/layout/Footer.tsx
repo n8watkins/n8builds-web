@@ -1,10 +1,10 @@
-import { FaXTwitter } from 'react-icons/fa6'
 import Image from 'next/image'
 import ContactForm from '@/components/ContactForm'
 import { ContactFormErrorBoundary } from '@/components/ContactFormErrorBoundary'
-import { FiGithub, FiMail } from 'react-icons/fi'
-import { CiLinkedin } from 'react-icons/ci'
 import Reveal from '@/components/ui/Reveal'
+import { SOCIALS, isExternal, type Social } from '@/data/socials'
+
+const ICON_SIZE: Record<Social['size'], string> = { sm: 'h-4 w-4', md: 'h-4.5 w-4.5', lg: 'h-[1.35rem] w-[1.35rem]' }
 
 const Footer = () => {
   return (
@@ -34,7 +34,7 @@ const Footer = () => {
             {/* top accent line */}
             <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-cyan-400 via-blue-500 to-cyan-400" />
 
-            <div className="relative grid gap-8 p-5 sm:p-7 md:grid-cols-[0.9fr_1.1fr] md:p-10">
+            <div className="relative grid gap-6 p-5 sm:p-7 md:grid-cols-[0.9fr_1.1fr] md:gap-8 md:p-8">
               {/* Left - branded panel */}
               <div className="flex flex-col gap-5">
                 <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/12 bg-white/4 px-3 py-1 text-xs font-semibold text-slate-300">
@@ -79,33 +79,28 @@ const Footer = () => {
                 </p>
 
                 {/* socials */}
-                <div className="mt-auto flex items-center gap-2">
-                  {[
-                    { href: 'https://github.com/n8watkins', label: 'GitHub', icon: <FiGithub className="w-4.5 h-4.5" /> },
-                    { href: 'https://x.com/n8watkins', label: 'X (Twitter)', icon: <FaXTwitter className="w-4 h-4" /> },
-                    { href: 'https://www.linkedin.com/in/n8watkins/', label: 'LinkedIn', icon: <CiLinkedin className="w-[1.35rem] h-[1.35rem]" /> },
-                    { href: 'mailto:contact@n8builds.dev', label: 'Email', icon: <FiMail className="w-4.5 h-4.5" /> },
-                  ].map(s => (
+                <nav aria-label="Contact social media links" className="mt-auto flex items-center justify-between gap-1 sm:justify-start sm:gap-2">
+                  {SOCIALS.map(({ label, href, Icon, size }) => (
                     <a
-                      key={s.label}
-                      href={s.href}
-                      target={s.href.startsWith('http') ? '_blank' : undefined}
-                      rel={s.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                      aria-label={s.label}
-                      className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/4 text-slate-400 transition-all duration-200 hover:scale-[1.05] hover:border-cyan-400/30 hover:text-cyan-300"
+                      key={label}
+                      href={href}
+                      {...(isExternal(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                      aria-label={label}
+                      title={label}
+                      className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 sm:h-10 sm:w-10 bg-white/4 text-slate-400 transition-all duration-200 hover:scale-[1.05] hover:border-cyan-400/30 hover:text-cyan-300"
                     >
-                      {s.icon}
+                      <Icon aria-hidden className={ICON_SIZE[size]} />
                     </a>
                   ))}
-                </div>
+                </nav>
               </div>
 
               {/* Right - form */}
-              <div className="relative rounded-2xl border border-white/10 bg-[#050c18]/60 p-4 backdrop-blur-xs sm:p-6">
+              <div className="relative rounded-2xl border border-white/10 bg-[#050c18]/60 p-4 backdrop-blur-xs sm:p-5">
                 <ContactFormErrorBoundary>
                   <ContactForm />
                 </ContactFormErrorBoundary>
-                <div className="mt-3 flex items-center gap-1 text-xs text-slate-450 select-none">
+                <div className="mt-4 flex items-center gap-1 text-xs text-slate-450 select-none">
                   <span>🛡️</span>
                   <span>Protected by Cloudflare Turnstile</span>
                 </div>

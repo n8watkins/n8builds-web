@@ -1,9 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { FaXTwitter } from 'react-icons/fa6'
-import { FiGithub, FiMail } from 'react-icons/fi'
-import { CiLinkedin } from 'react-icons/ci'
 import Reveal from '@/components/ui/Reveal'
+import { SOCIALS, isExternal, type Social } from '@/data/socials'
 
 /**
  * The footer on every page: a sitemap (every page and section, so the build
@@ -35,7 +33,8 @@ const SITEMAP: { heading: string; links: { label: string; href: string; icon?: s
     links: [
       { label: 'Developer portfolio', href: 'https://portfolio.n8builds.dev' },
       { label: 'Appturnity', href: 'https://appturnity.com', icon: '/brands/appturnity.png' },
-      { label: 'Contact', href: '/#contact' },
+      { label: 'Contact form', href: '/#contact' },
+      { label: 'contact@n8builds.dev', href: 'mailto:contact@n8builds.dev' },
     ],
   },
   {
@@ -46,12 +45,7 @@ const SITEMAP: { heading: string; links: { label: string; href: string; icon?: s
     ],
   },
 ]
-const SOCIALS = [
-  { href: 'https://github.com/n8watkins', label: 'GitHub', icon: <FiGithub className="h-5 w-5" aria-hidden="true" /> },
-  { href: 'https://x.com/n8watkins', label: 'X (Twitter)', icon: <FaXTwitter className="h-4.5 w-4.5" aria-hidden="true" /> },
-  { href: 'https://www.linkedin.com/in/n8watkins/', label: 'LinkedIn', icon: <CiLinkedin className="h-6 w-6" aria-hidden="true" /> },
-  { href: 'mailto:contact@n8builds.dev', label: 'Email', icon: <FiMail className="h-5 w-5" aria-hidden="true" /> },
-]
+const ICON_SIZE: Record<Social['size'], string> = { sm: 'h-4.5 w-4.5', md: 'h-5 w-5', lg: 'h-6 w-6' }
 
 const SiteFooter = () => (
   <footer className="relative z-10 border-t border-white/8 bg-darkBlue">
@@ -76,6 +70,10 @@ const SiteFooter = () => (
                       <span aria-hidden="true" className="text-slate-500">↗</span>
                       <span className="sr-only"> (opens in a new tab)</span>
                     </a>
+                  ) : link.href.startsWith('mailto:') ? (
+                    <a href={link.href} className="text-sm text-slate-300 transition-colors hover:text-cyan-200">
+                      {link.label}
+                    </a>
                   ) : (
                     <Link href={link.href} className="text-sm text-slate-300 transition-colors hover:text-cyan-200">
                       {link.label}
@@ -95,17 +93,18 @@ const SiteFooter = () => (
           </span>
           <span className="text-sm font-bold text-slate-200">n8builds</span>
         </div>
-        <p className="text-xs text-slate-450 lg:text-sm">© 2026 n8builds. All rights reserved.</p>
+        <p className="text-xs text-slate-450 lg:text-sm">© 2026 n8builds.dev. All rights reserved.</p>
         <nav aria-label="Footer social media links" className="flex items-center gap-1">
-          {SOCIALS.map((s) => (
+          {SOCIALS.map(({ label, href, Icon, size }) => (
             <a
-              key={s.label}
-              href={s.href}
-              {...(s.href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-              aria-label={s.label}
+              key={label}
+              href={href}
+              {...(isExternal(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+              aria-label={label}
+              title={label}
               className="flex h-11 w-11 items-center justify-center rounded-full text-slate-400 transition-colors duration-200 hover:bg-white/10 hover:text-slate-200"
             >
-              {s.icon}
+              <Icon aria-hidden className={ICON_SIZE[size]} />
             </a>
           ))}
         </nav>
