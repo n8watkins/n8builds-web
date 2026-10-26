@@ -102,7 +102,14 @@ test('the keyboard reaches every link in order, card by card', async ({ page }) 
   await first.focus()
   const names: string[] = []
   for (let i = 0; i < 7; i++) {
-    names.push(await page.evaluate(() => (document.activeElement as HTMLElement).innerText.trim() || (document.activeElement as HTMLElement).getAttribute('href') || ''))
+    // Whitespace collapsed: browsers lay out the visually hidden "(opens in a new
+    // tab)" differently in innerText (Chromium a line break, WebKit a space).
+    names.push(
+      await page.evaluate(() => {
+        const el = document.activeElement as HTMLElement
+        return (el.innerText || el.getAttribute('href') || '').replace(/\s+/g, ' ').trim()
+      })
+    )
     await page.keyboard.press('Tab')
   }
   expect(names).toEqual([
@@ -110,7 +117,7 @@ test('the keyboard reaches every link in order, card by card', async ({ page }) 
     'How it is built and tested',
     expect.stringContaining('Star'),
     expect.stringContaining('GitHub'),
-    'portfolio.n8builds.dev\n(opens in a new tab)',
+    'portfolio.n8builds.dev (opens in a new tab)',
     expect.stringContaining('Star'),
     expect.stringContaining('GitHub'),
   ])
