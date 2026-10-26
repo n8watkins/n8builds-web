@@ -33,12 +33,19 @@ Detailed plans: [BUILDS_LOG_PLAN.md](BUILDS_LOG_PLAN.md), [LIVE_STREAM_PLAN.md](
 - [ ] **YouTube Data API key** (5 minutes): console.cloud.google.com, new project `n8builds-live`, enable "YouTube Data API v3", Credentials, Create credentials, API key, restrict it to YouTube Data API v3. Then `! vercel env add YOUTUBE_API_KEY production`.
 - [ ] **X:** confirm you'll stream from @n8watkins.
 - [ ] **X developer account** (only if you choose automatic posting to X): developer.x.com, a small prepaid credit, and its keys added to Vercel the same way.
+- [ ] **Portfolio Rank's Gemini key** (5 minutes; found 2026-10-25): every Gemini call has failed with `HTTP 401: API key not valid` since about 2026-07-29, so no portfolio has been graded since then and the daily AI vote job does nothing (its runs stay green because `pipeline/judge.mjs` gives up and exits 0).
+  Create a new key at https://aistudio.google.com/apikey, then in `~/n8builds/published/portfolio-rank` run `! gh secret set GEMINI_API_KEY` and paste it.
+  Then re-run the "Sync upstream + ingest" workflow and check its log says `rubric done: N/N judged` instead of `0/300`.
+  Part A of the follow-along plan (below) covers this, plus making the job fail loudly on a bad key.
 
 ### B2. Small cleanups only you can do (2026-10-25)
 
 - [ ] **GitGuardian incident 39011681:** mark it a false positive. A local Lighthouse run left a throwaway headless-Chrome profile in a PR #39 commit (its Preferences hold a random value); the files were removed before the squash merge, so main never had them.
+- [ ] **Follow-along plans** (written 2026-10-25, each on a pushed branch for you to review and merge, no PR opened):
+  Portfolio Rank: branch `docs/follow-up-2026-10`, file `docs/FOLLOW_UP_2026-10.md` (the Gemini key first, then issue #3, Shubham Sinha's submission, the submission bot or a copy change, and the Playwright unpin).
+  OpenPing: branch `docs/follow-up-2026-10`, file `docs/FOLLOW_UP_2026-10.md` (it also carries the bug report; release-kit first, then the off-hours fix, embedding on n8builds.dev, and a deploy check).
 - [ ] **Portfolio Rank issues:** close #3 (the sync failure, fixed in portfolio-rank#5), and add Shubham Sinha's portfolio (#2 and #4, the same submission, waiting since August) or reply. Its "Submit yours" form promises the site adds submissions automatically, but nothing processes them yet; decide whether Claude should build the small approve-by-label bot.
-- [ ] **OpenPing's off-hours bug:** hand `~/projects/public/open-ping/docs/BUG-public-scheduled-off.md` (local branch `docs/public-scheduled-off-bug`, not pushed) to an agent in that repo. The portfolio already works around it.
+- [ ] **OpenPing's off-hours bug:** work through OpenPing's follow-along plan (above); the bug report `docs/BUG-public-scheduled-off.md` is now pushed with it, on branch `docs/follow-up-2026-10`. The portfolio already works around it.
 
 ### C. Content (ongoing)
 
