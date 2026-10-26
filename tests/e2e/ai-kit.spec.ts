@@ -23,6 +23,17 @@ test.describe('AI kit content', () => {
     }
   })
 
+  test('the default stack says why each piece is in it', async ({ page }) => {
+    await page.goto('/')
+    const stack = page.getByRole('group', { name: 'The Turso Stack' })
+    await expect(stack.getByText('My default stack')).toBeVisible()
+    for (const tool of ['Next.js', 'TypeScript', 'Turso', 'Drizzle', 'Cloudflare R2', 'Vercel']) {
+      await expect(stack.getByText(tool, { exact: true })).toBeVisible()
+    }
+    await expect(stack.getByText(/no egress fees/)).toBeVisible()
+    await expect(page.getByText('TL;DR')).toHaveCount(0)
+  })
+
   test('the whoami terminal is in the homepage hero, not on /loadout', async ({ page }) => {
     await page.goto('/')
     await expect(page.locator('main').getByText('$ whoami')).toBeVisible()
@@ -165,6 +176,48 @@ test.describe('dino easter egg (motion allowed)', () => {
     await focusTile(0)
     await expect(dino(page)).toHaveAttribute('data-level', '1', { timeout: 10_000 })
     await expect(dino(page)).toHaveAttribute('data-dir', 'left')
+  })
+
+  test('clicking it makes it roar: a RAWR bubble, a backflip and a new colour', async ({ page }) => {
+    await onTopRow(page)
+    const colour = () =>
+      dino(page).evaluate((el) => getComputedStyle(el).getPropertyValue('--dino-body').trim())
+    const before = await colour()
+    // It never holds still, so click it where it is.
+    await dino(page).click({ force: true })
+    await expect(dino(page)).toHaveAttribute('data-roars', '1')
+    await expect(dino(page)).toHaveAttribute('data-mode', 'flip')
+    await expect(page.locator('[data-dino-bubble="roar"]')).toBeVisible()
+    expect(await colour()).not.toBe(before)
+    // It lands and walks on, the bubble gone.
+    await expect(dino(page)).toHaveAttribute('data-mode', 'walk')
+    await expect(page.locator('[data-dino-bubble="roar"]')).toBeHidden()
+    await dino(page).click({ force: true })
+    await expect(dino(page)).toHaveAttribute('data-roars', '2')
+  })
+
+  test('says its lines now and then, each once per visit', async ({ page }) => {
+    // A line waits for seconds of walking in plain view: slow on a busy machine.
+    test.slow()
+    await page.goto('/')
+    await showKit(page, '#loadout')
+    // The first, a few seconds in, hints at the click; it stops to say it.
+    await expect(dino(page)).toHaveAttribute('data-line', '0', { timeout: 40_000 })
+    await expect(page.locator('[data-dino-bubble="line-0"]')).toBeVisible()
+    await expect(dino(page)).toHaveAttribute('data-mode', 'walk')
+    // Back again in the same visit: it picks up with the next line.
+    await page.reload()
+    await showKit(page, '#loadout')
+    await expect(dino(page)).toHaveAttribute('data-line', '1', { timeout: 40_000 })
+    await expect(page.locator('[data-dino-bubble="line-1"]')).toBeVisible()
+  })
+
+  test('skips the click hint once it has been clicked', async ({ page }) => {
+    test.slow()
+    await onTopRow(page)
+    await dino(page).click({ force: true })
+    await expect(dino(page)).toHaveAttribute('data-roars', '1')
+    await expect(dino(page)).toHaveAttribute('data-line', '1', { timeout: 40_000 })
   })
 
   test('the gaps it hops and falls through are clearly wider than it is', async ({ page }) => {
