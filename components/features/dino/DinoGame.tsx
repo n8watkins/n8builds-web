@@ -16,7 +16,9 @@ import { DINO_COLS, DINO_FRAMES, DINO_ROWS, framePaths, type DinoFrame } from '.
  * Clicking (or tapping) the dino makes it roar: a pixel "RAWR!" bubble pops
  * up and, if it is walking, it backflips on the spot, changing colour each
  * time. Only its own small box takes the pointer, so the tiles around it stay
- * clickable; it is decorative and hidden from assistive tech.
+ * clickable; it is decorative and hidden from assistive tech. Once per visit,
+ * after it has walked a few seconds unpoked, a small "POKE ME?" bubble hints
+ * that it can be clicked.
  *
  * It runs on requestAnimationFrame with direct DOM writes (no React renders
  * per frame, no motion library), and stops while the panel is off screen or
@@ -69,18 +71,25 @@ const GLYPHS: Record<string, string[]> = {
   A: ['.#.', '#.#', '###', '#.#', '#.#'],
   W: ['#...#', '#...#', '#.#.#', '#.#.#', '.#.#.'],
   '!': ['#', '#', '#', '.', '#'],
+  P: ['###', '#.#', '###', '#..', '#..'],
+  O: ['###', '#.#', '#.#', '#.#', '###'],
+  K: ['#.#', '#.#', '##.', '#.#', '#.#'],
+  E: ['###', '#..', '##.', '#..', '###'],
+  M: ['#...#', '##.##', '#.#.#', '#...#', '#...#'],
+  '?': ['###', '..#', '.##', '...', '.#.'],
+  ' ': ['.', '.', '.', '.', '.'],
 }
-function bubbleRows(tail: 'left' | 'right') {
-  const word = 'RAWR!'
+function bubbleRows(text: string, tail: 'left' | 'right') {
+  const word = text
     .split('')
     .map((c) => GLYPHS[c])
     .reduce((acc, g, i) => acc.map((row, y) => row + (i ? '.' : '') + g[y]), ['', '', '', '', ''])
-  const text = word.map((row) => 'fff' + row.replace(/#/g, 't').replace(/\./g, 'f') + 'fff')
-  const w = text[0].length
+  const lines = word.map((row) => 'fff' + row.replace(/#/g, 't').replace(/\./g, 'f') + 'fff')
+  const w = lines[0].length
   const rows = [
     '.' + 'f'.repeat(w - 2) + '.',
     'f'.repeat(w),
-    ...text,
+    ...lines,
     'f'.repeat(w),
     '.' + 'f'.repeat(w - 2) + '.',
     '.fff' + '.'.repeat(w - 4),
@@ -101,10 +110,19 @@ function bubblePaths(rows: string[]) {
   })
   return { ink, fill, cols: rows[0].length, rows: rows.length }
 }
-const BUBBLES = { left: bubblePaths(bubbleRows('left')), right: bubblePaths(bubbleRows('right')) }
-const BUBBLE_PX = 3 // a touch chunkier than the dino, so the word reads
-const BUBBLE_W = BUBBLES.left.cols * BUBBLE_PX
-const BUBBLE_H = BUBBLES.left.rows * BUBBLE_PX
+function makeBubble(text: string, px: number) {
+  const left = bubblePaths(bubbleRows(text, 'left'))
+  const right = bubblePaths(bubbleRows(text, 'right'))
+  return { left, right, w: left.cols * px, h: left.rows * px }
+}
+type Bubble = ReturnType<typeof makeBubble>
+// The roar is a touch chunkier than the dino, so the word reads; the hint
+// that it can be poked is smaller and quieter.
+const ROAR = makeBubble('RAWR!', 3)
+const HINT = makeBubble('POKE ME?', 2)
+const HINT_AFTER = 4 // s of walking on screen before the hint shows
+const HINT_FOR = 2.6 // s it stays up
+const HINT_KEY = 'n8-dino-hint' // sessionStorage: shown once per visit
 // Only the current frame shows (the root's data-frame); spelled out in full so
 // Tailwind's scanner sees each class.
 const FRAME_CLASS: Record<DinoFrame, string> = {
@@ -121,12 +139,14 @@ const FRAMES = (Object.keys(DINO_FRAMES) as DinoFrame[]).map((name) => ({
 export default function DinoGame() {
   const dinoRef = useRef<HTMLDivElement>(null)
   const bubbleRef = useRef<HTMLDivElement>(null)
+  const hintRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const dino = dinoRef.current
     const bubble = bubbleRef.current
+    const hint = hintRef.current
     const panel = dino?.closest<HTMLElement>('[data-dino-panel]')
-    if (!dino || !bubble || !panel) return
+    if (!dino || !bubble || !hint || !panel) return
 
     let rows: Row[] = []
     let levels: Level[] = []
@@ -187,6 +207,15 @@ export default function DinoGame() {
     // The click easter egg.
     let roars = 0
     let roarLeft = 0 // s the bubble has left
+    // The once-per-visit hint that it can be clicked.
+    let hintArmed = true
+    try {
+      hintArmed = sessionStorage.getItem(HINT_KEY) === null
+    } catch {
+      // Storage blocked: show it (once for this page view).
+    }
+    let walkedFor = 0
+    let hintLeft = 0
     let flip = { t: 0, h: 0, floor: 0 }
     let angle = 0
 
@@ -224,6 +253,28 @@ export default function DinoGame() {
     let running = false
     let onScreen = false
     let lastDataset = ''
+
+    // A bubble comes out of its mouth (at the height it stands, not where a
+    // flip takes it): beside its head on the side it faces, or the other if
+    // that is off the panel. Beside, not above: the top row has little room
+    // overhead. It pops in quickly and out at the end.
+    const place = (el: HTMLElement, b: Bubble, left: number, total: number) => {
+      if (left <= 0) {
+        el.style.visibility = 'hidden'
+        return
+      }
+      const floor = mode === 'flip' ? flip.floor : y
+      let side: 'left' | 'right' = dir > 0 ? 'right' : 'left'
+      if (side === 'right' && x + W + 2 + b.w > panelW - 4) side = 'left'
+      else if (side === 'left' && x - 2 - b.w < 4) side = 'right'
+      const bx = side === 'right' ? x + W + 2 : x - 2 - b.w
+      const by = Math.max(floor - H - b.h + 12, 2)
+      const scale = Math.max(Math.min(1, 0.5 + (total - left) * 6, left * 8), 0)
+      el.dataset.tail = side === 'right' ? 'left' : 'right'
+      el.style.transformOrigin = side === 'right' ? 'bottom left' : 'bottom right'
+      el.style.transform = `translate3d(${bx.toFixed(1)}px, ${by.toFixed(1)}px, 0) scale(${scale.toFixed(2)})`
+      el.style.visibility = 'visible'
+    }
 
     const tick = (now: number) => {
       raf = requestAnimationFrame(tick)
@@ -372,31 +423,29 @@ export default function DinoGame() {
 
       dino.style.transform = `translate3d(${x.toFixed(1)}px, ${(y - H).toFixed(1)}px, 0) scaleX(${dir}) rotate(${angle.toFixed(1)}deg)`
 
-      // The bubble comes out of its mouth (at the height it stands, not where
-      // a flip takes it): beside its head on the side it faces, or the other
-      // if that is off the panel. Beside, not above: the top row has little
-      // room overhead.
+      // The hint: once it has walked a few seconds in plain view, unpoked.
+      // Only while it is clear of the edge fades, so the hint is seen.
+      const clear = x > panelW * 0.22 && x + W < panelW * 0.78
+      if (hintArmed && mode === 'walk' && roars === 0 && clear) {
+        walkedFor += dt
+        if (walkedFor >= HINT_AFTER) {
+          hintArmed = false
+          hintLeft = HINT_FOR
+          dino.dataset.hint = 'shown'
+          try {
+            sessionStorage.setItem(HINT_KEY, '1')
+          } catch {
+            // Storage blocked: it just may show again next visit.
+          }
+        }
+      }
+      if (hintLeft > 0) {
+        hintLeft = roarLeft > 0 ? 0 : hintLeft - dt
+        place(hint, HINT, hintLeft, HINT_FOR)
+      }
       if (roarLeft > 0) {
         roarLeft -= dt
-        const floor = mode === 'flip' ? flip.floor : y
-        let side: 'left' | 'right' = dir > 0 ? 'right' : 'left'
-        let bx = side === 'right' ? x + W + 2 : x - 2 - BUBBLE_W
-        if (side === 'right' && bx + BUBBLE_W > panelW - 4) {
-          side = 'left'
-          bx = x - 2 - BUBBLE_W
-        } else if (side === 'left' && bx < 4) {
-          side = 'right'
-          bx = x + W + 2
-        }
-        const by = Math.max(floor - H - BUBBLE_H + 12, 2)
-        // A quick pop in, and out at the end.
-        const age = ROAR_FOR - roarLeft
-        const scale = Math.min(1, 0.5 + age * 6, roarLeft * 8)
-        bubble.dataset.tail = side === 'right' ? 'left' : 'right'
-        bubble.style.transformOrigin = side === 'right' ? 'bottom left' : 'bottom right'
-        bubble.style.transform = `translate3d(${bx.toFixed(1)}px, ${by.toFixed(1)}px, 0) scale(${Math.max(scale, 0).toFixed(2)})`
-        bubble.style.visibility = 'visible'
-        if (roarLeft <= 0) bubble.style.visibility = 'hidden'
+        place(bubble, ROAR, roarLeft, ROAR_FOR)
       }
       const dataset = `${frame}|${level}|${dir}|${mode}`
       if (dataset !== lastDataset) {
@@ -425,6 +474,7 @@ export default function DinoGame() {
       event.preventDefault()
       roars += 1
       roarLeft = ROAR_FOR
+      hintArmed = false
       dino.style.setProperty('--dino-body', BODY_COLORS[roars % BODY_COLORS.length])
       dino.dataset.roars = String(roars)
       // A backflip on the spot, if it is walking (mid-jump or falling, it
@@ -492,31 +542,48 @@ export default function DinoGame() {
           ))}
         </svg>
       </div>
-      <div
-        ref={bubbleRef}
-        data-dino-bubble
-        data-tail="left"
-        className="group/bubble pointer-events-none absolute top-0 left-0"
-        style={{ width: BUBBLE_W, height: BUBBLE_H, visibility: 'hidden' }}
-      >
-        {(['left', 'right'] as const).map((tail) => (
-          <svg
-            key={tail}
-            viewBox={`0 0 ${BUBBLES[tail].cols} ${BUBBLES[tail].rows}`}
-            width={BUBBLE_W}
-            height={BUBBLE_H}
-            shapeRendering="crispEdges"
-            className={
-              tail === 'left'
-                ? 'hidden group-data-[tail=left]/bubble:block'
-                : 'hidden group-data-[tail=right]/bubble:block'
-            }
-          >
-            <path d={BUBBLES[tail].fill} fill="#f8fafc" />
-            <path d={BUBBLES[tail].ink} fill={COLORS.eye} />
-          </svg>
-        ))}
-      </div>
+      <BubbleView ref={bubbleRef} bubble={ROAR} name="roar" />
+      <BubbleView ref={hintRef} bubble={HINT} name="hint" className="opacity-90" />
     </>
+  )
+}
+
+function BubbleView({
+  ref,
+  bubble,
+  name,
+  className,
+}: {
+  ref: React.Ref<HTMLDivElement>
+  bubble: Bubble
+  name: string
+  className?: string
+}) {
+  return (
+    <div
+      ref={ref}
+      data-dino-bubble={name}
+      data-tail="left"
+      className={`group/bubble pointer-events-none absolute top-0 left-0 ${className ?? ''}`}
+      style={{ width: bubble.w, height: bubble.h, visibility: 'hidden' }}
+    >
+      {(['left', 'right'] as const).map((tail) => (
+        <svg
+          key={tail}
+          viewBox={`0 0 ${bubble[tail].cols} ${bubble[tail].rows}`}
+          width={bubble.w}
+          height={bubble.h}
+          shapeRendering="crispEdges"
+          className={
+            tail === 'left'
+              ? 'hidden group-data-[tail=left]/bubble:block'
+              : 'hidden group-data-[tail=right]/bubble:block'
+          }
+        >
+          <path d={bubble[tail].fill} fill="#f8fafc" />
+          <path d={bubble[tail].ink} fill={COLORS.eye} />
+        </svg>
+      ))}
+    </div>
   )
 }
