@@ -2,11 +2,14 @@
  * A public repo's star count, for the Star half of RepoButtons. Fetched on the
  * server and cached for an hour (like the build log and the downloads), so it
  * costs no client JS and at most one GitHub call per repo an hour. Null when
- * GitHub can't say, and in the E2E suite (BUILD_LOG_FIXTURE=1), which never
- * calls GitHub: the button then simply shows no count.
+ * GitHub can't say: the button then shows just the star. The E2E suite
+ * (BUILD_LOG_FIXTURE=1) never calls GitHub; it reads FIXTURE_STARS, where one
+ * repo has a count and the rest have none, so both looks are covered.
  */
+export const FIXTURE_STARS: Record<string, number> = { 'n8watkins/scribe': 1234 }
+
 export async function repoStars(repo: string): Promise<number | null> {
-  if (process.env.BUILD_LOG_FIXTURE === '1') return null
+  if (process.env.BUILD_LOG_FIXTURE === '1') return FIXTURE_STARS[repo] ?? null
   try {
     const token = process.env.GITHUB_TOKEN
     const res = await fetch(`https://api.github.com/repos/${repo}`, {
