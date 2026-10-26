@@ -47,8 +47,7 @@ export function ProjectGallery({
   }
   const warmUp = () => setWarm(true)
   return (
-    <div className="w-full shrink-0 md:w-1/2">
-      <div
+    <div
         data-gallery
         role={many ? 'group' : undefined}
         aria-roledescription={many ? 'carousel' : undefined}
@@ -87,8 +86,9 @@ export function ProjectGallery({
               }
             : undefined
         }
-        className="group relative aspect-16/10 overflow-hidden rounded-2xl border border-white/8 bg-[#07101d] touch-pan-y"
+        className="w-full shrink-0 touch-pan-y md:w-1/2"
       >
+      <div className="group relative aspect-16/10 overflow-hidden rounded-2xl border border-white/8 bg-[#07101d]">
         {images.map((image, i) =>
           i === 0 || warm || i === active ? (
             <Image
@@ -132,25 +132,29 @@ export function ProjectGallery({
                 </span>
               </button>
             ))}
-            {/* Where you are: subtle dots, for sight only; the live region below says it aloud. */}
-            <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-2.5 flex justify-center gap-1.5">
-              {images.map((image, i) => (
-                <span
-                  key={image.src}
-                  data-dot
-                  data-active={i === active ? '' : undefined}
-                  className={`h-1.5 rounded-full shadow-sm shadow-black/50 transition-[width,background-color] duration-200 motion-reduce:transition-none ${
-                    i === active ? 'w-4 bg-white/85' : 'w-1.5 bg-white/40'
-                  }`}
-                />
-              ))}
-            </div>
-            <p className="sr-only" aria-live="polite">
-              {`Screenshot ${active + 1} of ${count}`}
-            </p>
           </>
         )}
       </div>
+      {many && (
+        <>
+          {/* Where you are: small dots just under the image, clear of its content; for sight only, the live region says it aloud. */}
+          <div aria-hidden="true" className="mt-2 flex justify-center gap-1.5">
+            {images.map((image, i) => (
+              <span
+                key={image.src}
+                data-dot
+                data-active={i === active ? '' : undefined}
+                className={`h-1 rounded-full transition-[width,background-color] duration-200 motion-reduce:transition-none ${
+                  i === active ? 'w-4 bg-cyan-300/70' : 'w-1 bg-white/25'
+                }`}
+              />
+            ))}
+          </div>
+          <p className="sr-only" aria-live="polite">
+            {`Screenshot ${active + 1} of ${count}`}
+          </p>
+        </>
+      )}
     </div>
   )
 }

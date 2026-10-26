@@ -1,4 +1,5 @@
 import React from 'react'
+import { LuFlaskConical } from 'react-icons/lu'
 import Hero from '@/components/sections/Hero'
 import Navbar from '@/components/layout/Navbar'
 import SectionErrorBoundary from '@/components/SectionErrorBoundary'
@@ -86,7 +87,13 @@ export default function HomePage({ posts }: { posts: Post[] }) {
              The navbar "Lab" menu scrolls to #lab, #featured and #extensions. ===== */}
         <Band id="lab" reveal={false}>
           <Reveal className="pt-6">
-            <h2 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">The Lab</h2>
+            {/* The Lab's mark (the owner's pick, 2026-10-26): a flask in a chip like the rows' app icons. */}
+            <div className="flex items-center gap-3.5">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-300/30">
+                <LuFlaskConical className="h-6 w-6" aria-hidden="true" />
+              </span>
+              <h2 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">The Lab</h2>
+            </div>
             <p className="mt-2 max-w-[560px] text-[#9cadc5]">
               Everything I&apos;ve built and still use: the tools I run every day, the builds I&apos;m proudest of, and
               Chrome extensions.

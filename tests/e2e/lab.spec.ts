@@ -79,6 +79,13 @@ test('every row can be starred on GitHub, and Scribe takes Mac and Linux request
 
 test('the Lab says its builds are public and mostly open source', async ({ page }) => {
   await page.goto('/')
+  // Its heading carries the Lab's flask mark, beside it in a chip.
+  const heading = page.locator('#lab').getByRole('heading', { level: 2, name: 'The Lab' })
+  const mark = heading.locator('xpath=preceding-sibling::span[1]/*[local-name()="svg"]')
+  await expect(mark).toBeVisible()
+  await expect(mark).toHaveAttribute('aria-hidden', 'true')
+  const [h, m] = await Promise.all([heading.boundingBox(), mark.boundingBox()])
+  expect(Math.abs(h!.y + h!.height / 2 - (m!.y + m!.height / 2))).toBeLessThan(4)
   await expect(page.locator('#lab')).toContainText('public on GitHub, and most of it is MIT-licensed open source')
 })
 
@@ -303,6 +310,9 @@ test.describe('the Lab gallery', () => {
     await expect(dots(gallery)).toHaveCount(3)
     await expect.poll(() => activeDot(gallery)).toBe(0)
     await expect(gallery.getByRole('img')).toHaveAccessibleName(/runs entirely in your own cloud/)
+    // The dots sit under the image, clear of the screenshot itself.
+    const image = (await gallery.getByRole('img').boundingBox())!
+    for (const dot of await dots(gallery).all()) expect((await dot.boundingBox())!.y).toBeGreaterThanOrEqual(image.y + image.height)
     // The thumbnail strip is gone.
     await expect(page.getByRole('button', { name: /OpenPing image \d/ })).toHaveCount(0)
 
