@@ -187,5 +187,7 @@ test.describe('on n8builds.dev itself', () => {
     await settle(page)
     await expect(banner(page)).toHaveCount(0)
     expect(await page.evaluate(() => window.n8Consent?.state)).toBe('granted')
+    // Requests still in flight (error reporting, say) would hit a closed context.
+    await context.unrouteAll({ behavior: 'ignoreErrors' })
   })
 })

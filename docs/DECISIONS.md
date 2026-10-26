@@ -80,6 +80,11 @@ When the owner decides something new, add it here (with the date) in the same ch
   Footer, navbar and redirect links to the portfolio and Appturnity are intentional bridges.
 - The N8 neon icon is the brand mark and favicon for both n8builds and the portfolio.
 - One GA4 property (`G-JZQGKY9Q37`) covers the whole n8builds.dev domain, subdomains included.
+- **Analytics consent** (2026-10-26): Google Consent Mode v2 with region defaults (analytics denied for the EEA, UK, Switzerland and Quebec `CA-QC`, granted elsewhere; ad signals denied everywhere, as the site runs no ads).
+  Visitors whose time zone is in Europe or covers Quebec (`America/Toronto` and friends, so Ontario is asked too) get the banner, and GA doesn't load at all until they accept (basic mode); everyone else gets analytics by default, with "Cookie settings" in the footer.
+  Global Privacy Control counts as a decline everywhere until the visitor chooses.
+  The choice is the `n8-consent` cookie on `.n8builds.dev` (12 months), shared with portfolio.n8builds.dev, which runs a copy of `lib/consent.ts`.
+  The banner is a centred bottom bar titled "Cookies" with equal-size Decline (solid neutral, left) and Accept (brand gradient, right) buttons; it links to `/privacy#cookies`, which names Google Analytics.
 - The site is dark-only (`defaultTheme="dark"`, no theme toggle).
   Muted text uses `text-slate-450` / `text-slate-475`, not stock slate-500/600, which fail WCAG AA contrast on the dark backgrounds.
 - react-icons are decorative by default (`aria-hidden` via `IconContext` in `app/provider.tsx`).
