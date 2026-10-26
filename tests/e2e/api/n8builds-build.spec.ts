@@ -31,3 +31,10 @@ test('the n8builds share card is a 1200x630 PNG, set as the page preview', async
   expect(html).toContain('<meta property="og:image" content="https://n8builds.dev/builds/n8builds/og.png"')
   expect(html).toContain('<title>n8builds.dev | n8builds</title>')
 })
+
+test('the n8builds build page says its Lighthouse scores are desktop, and names the mobile pass without a score', async ({ request }) => {
+  const html = await (await request.get('/builds/n8builds')).text()
+  expect(html).toContain('Recent desktop runs scored 0.98 to 1.00 for performance')
+  expect(html).toContain('a mobile pass on the home, blog and builds pages')
+  expect(html).not.toContain('Recent runs scored')
+})
