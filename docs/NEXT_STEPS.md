@@ -37,8 +37,9 @@ Detailed plans: [BUILDS_LOG_PLAN.md](BUILDS_LOG_PLAN.md), [LIVE_STREAM_PLAN.md](
 ### B2. Small cleanups only you can do (2026-10-25)
 
 - [ ] **GitGuardian incident 39011681:** mark it a false positive. A local Lighthouse run left a throwaway headless-Chrome profile in a PR #39 commit (its Preferences hold a random value); the files were removed before the squash merge, so main never had them.
-- [ ] **Portfolio Rank issues:** close #3 (the sync failure, fixed in portfolio-rank#5), and add Shubham Sinha's portfolio (#2 and #4, the same submission, waiting since August) or reply. Its "Submit yours" form promises the site adds submissions automatically, but nothing processes them yet; decide whether Claude should build the small approve-by-label bot.
-- [ ] **OpenPing's off-hours bug:** hand `~/projects/public/open-ping/docs/BUG-public-scheduled-off.md` (local branch `docs/public-scheduled-off-bug`, not pushed) to an agent in that repo. The portfolio already works around it.
+
+Portfolio Rank and OpenPing keep their own to-do lists, in their repos: `docs/FOLLOW_UP_2026-10.md` on branch `docs/follow-up-2026-10` in each (not merged yet).
+Portfolio Rank's starts with rotating its invalid Gemini API key (nothing has been graded since late July 2026); OpenPing's covers the off-hours status bug.
 
 ### C. Content (ongoing)
 
