@@ -1,7 +1,6 @@
 'use client'
 import React from 'react'
 import Link from 'next/link'
-import { m } from 'motion/react'
 import { FiArrowLeft } from 'react-icons/fi'
 import { loadout, type LoadoutGroup, type LoadoutItem } from '@/data/loadout'
 import AITechStack from '@/components/features/AITechStack'
@@ -10,7 +9,6 @@ import WhoamiTerminal from '@/components/features/WhoamiTerminal'
 import TechStackBento from '@/components/sections/TechStackBento'
 import Reveal from '@/components/ui/Reveal'
 import FadeIn from '@/components/ui/FadeIn'
-import { useReveal } from '@/hooks/useReveal'
 
 // Static class maps so Tailwind keeps these in the build.
 const accentMap: Record<LoadoutGroup['accent'], { text: string; dot: string; ring: string; glow: string }> = {
@@ -46,13 +44,9 @@ const ItemCard = ({ item, accent }: { item: LoadoutItem; accent: LoadoutGroup['a
 
 const Group = ({ group, index }: { group: LoadoutGroup; index: number }) => {
   const a = accentMap[group.accent]
-  const reveal = useReveal(Math.min(index * 0.05, 0.2))
+  // The site's scroll reveal, staggered; under reduced motion it simply shows.
   return (
-    <m.section
-      {...reveal}
-      className="scroll-mt-24"
-      id={group.id}
-    >
+    <Reveal as="section" delay={Math.min(index * 0.05, 0.2)} className="scroll-mt-24" id={group.id}>
       <div className="mb-5 flex flex-col gap-1.5">
         <span className="font-mono text-xs text-slate-475">{group.path}</span>
         <div className="flex items-center gap-2.5">
@@ -66,7 +60,7 @@ const Group = ({ group, index }: { group: LoadoutGroup; index: number }) => {
           <ItemCard key={item.name} item={item} accent={group.accent} />
         ))}
       </div>
-    </m.section>
+    </Reveal>
   )
 }
 

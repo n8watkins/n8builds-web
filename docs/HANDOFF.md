@@ -28,8 +28,8 @@ Strategy and IA: `docs/N8BUILDS_PLAN.md`.
 - **Next session:** work through `docs/NEXT_STEPS.md`, the step-by-step checklist of what's left and what's needed from the owner.
 - **Sharing posts:** every post ends with "Share this note": "Share on X" opens X compose with the title, the canonical link and `via=n8watkins` (free; no X API), and "Copy link" copies the canonical URL (`components/blog/ShareBar.tsx`).
   Automatic posting to X is a separate, paid option (`docs/X_ARTICLES_PLAN.md`).
-- **Scroll reveals:** sections below the fold fade up once as they scroll in (`components/ui/Reveal.tsx`, preset `reveal` in `lib/animations.ts`, motion props from `hooks/useReveal.ts`; homepage bands, Lab parts, build-page sections, blog cards past the first row, related posts, loadout sections, the contact card, the site footer, and /privacy past its first screen).
-  Never wrap the hero or anything above the fold in Reveal: its opacity 0 is in the server HTML until hydration, which holds back the LCP.
+- **Scroll reveals:** sections below the fold fade up once as they scroll in (`components/ui/Reveal.tsx`: a CSS transition, `.reveal` in `app/globals.css`, started by an IntersectionObserver; homepage bands, Lab parts, build-page sections, blog cards past the first row, related posts, loadout sections, the contact card, the site footer, and /privacy past its first screen).
+  Never wrap the hero or anything above the fold in Reveal: it starts at opacity 0 until its script runs, which holds back the LCP.
   Above the fold, use the CSS load fade instead (`components/ui/FadeIn.tsx`, the `fade-up` utility in `app/globals.css`): it plays from the server HTML without JavaScript, with no delay on the LCP element (the /blog header and first card row, the post header and cover, the /loadout header and whoami terminal, /live, the top of /privacy).
   Reduced motion skips both: no fade, no rise. `tests/e2e/reveal.spec.ts` and `tests/e2e/blog-motion.spec.ts` guard them.
 - **Hero layout:** the hero content is top-aligned, not vertically centered, and the ambient glows mount after hydration: both caused layout shift on slow devices (Nightly Lighthouse CLS 0.29). Keep it that way.
@@ -207,7 +207,7 @@ The owner's standing decisions live in [DECISIONS.md](DECISIONS.md), the one pla
 - Don't use Next's generated global type helpers (`RouteContext`, `PageProps`): they exist only after a build or `next dev`, and CI type-checks before building. Type `params` explicitly.
   To type-check like CI: `rm -rf .next/types .next/dev && npm run type-check`.
 - `npm run lint` fails on any warning (CI too).
-- Reduced motion is honored everywhere: CSS animations stop globally, smooth scrolling is enabled only under `prefers-reduced-motion: no-preference`, Motion uses `MotionConfig reducedMotion="user"`, and timer-driven cycles check `usePrefersReducedMotion` (`hooks/`).
+- Reduced motion is honored everywhere: CSS animations stop globally, smooth scrolling is enabled only under `prefers-reduced-motion: no-preference`, the few motion animations left use `MotionConfig reducedMotion="user"` (`components/MotionProvider.tsx`), and timer-driven cycles check `usePrefersReducedMotion` (`hooks/`).
   `Marquee` requires a `label` prop (its reduced-motion fallback is a labelled, keyboard-reachable list).
   With motion on, its loop copies are `aria-hidden`; focusable children read `MarqueeCopyContext` to leave the tab order there (see `components/ui/StackTile.tsx`).
 - Tailwind 4 applies `hover:` only on devices that can hover, so anything revealed on hover also needs a focus/tap path (`StackTile` reveals on `focus:` too).
@@ -242,9 +242,11 @@ The owner's standing decisions live in [DECISIONS.md](DECISIONS.md), the one pla
 
 ## File map
 
-- `app/page.tsx`: homepage metadata and JSON-LD; the page itself is the client component `components/HomePage.tsx`, whose sections load via `next/dynamic` and are wrapped in `SectionErrorBoundary`.
+- `app/page.tsx`: homepage metadata, JSON-LD, and the three newest posts (fetched from Sanity on the server; the page is static and revalidates hourly).
+  `components/HomePage.tsx` is a server component: every section renders on the server, each wrapped in `SectionErrorBoundary`, and only the interactive parts are client components (islands): the navbar, the hero's grid and wire meter (`HeroGrid`, `HeroChainMeter`), the carousels (`NowCarousel`, `ExtensionsCarousel`), the Lab rows' gallery and Details dialog (`FeaturedProjectIslands`), the scroll reveals, the contact form, and `HomeEffects` (analytics and the ambient glows).
+  Keep it that way: a section that turns into a client component ships all its code to every phone ("Speed first" in DECISIONS.md).
 - `app/layout.tsx`: site-wide metadata defaults, GA (gated on `NEXT_PUBLIC_GA_ID`), Speed Insights (Vercel only), providers.
-- `app/api/contact/route.ts`, `app/api/health/route.ts` (liveness ping), `app/api/notions/recent/route.ts` (homepage blog strip; keeps `@sanity/client` out of the client bundle), `app/api/live/route.ts` (live status).
+- `app/api/contact/route.ts`, `app/api/health/route.ts` (liveness ping), `app/api/live/route.ts` (live status).
 - `lib/live.ts`, `lib/live-shared.ts`, `components/live/`, `app/live/page.tsx`: live streams (see "Live streams").
 - `components/sections/`: `Hero`, `NowBuilding`, `FeaturedProjects`, `ShelfSection`, `LabSubheader`, `ExtensionsShowcase`, `HomeStack`, `NotionsStrip`, `WorkWithMe`, `Loadout`, `BuildStacks`, `TechStackBento`, `BuildCard`.
 - `components/layout/`: `Navbar` (`labMenu[]` drives the Lab dropdown), `Footer` (contact card and form).

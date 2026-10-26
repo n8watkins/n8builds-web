@@ -25,7 +25,6 @@ The site is dark-only and honors `prefers-reduced-motion` everywhere.
 app/
   api/contact/route.ts      Contact form API
   api/health/route.ts       Liveness ping
-  api/notions/recent/       Latest posts for the homepage strip
   blog/, blog/[slug]/       N8's Notions (ISR, hourly)
   builds/[slug]/            Build detail pages
   loadout/, privacy/        Static pages

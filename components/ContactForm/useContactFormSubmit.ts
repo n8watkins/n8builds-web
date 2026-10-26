@@ -1,9 +1,24 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { useForm, type FieldErrors } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { contactFormSchema, ContactFormData } from '@/lib/validations/contact'
+import { useForm, type Resolver } from 'react-hook-form'
+import type { ContactFormData } from '@/lib/validations/contact'
 import { trackContactEvent } from '@/lib/analytics'
 import { logger } from '@/lib/logger'
+
+// The schema (zod) is not in the page's first JavaScript: it loads with the
+// form's other on-demand parts once the form scrolls into view
+// (components/ContactForm/index.tsx), or at the latest on first validation.
+// If it can't load (a deploy since the page was opened removes old chunks),
+// the form skips client-side checks: the server validates every message anyway.
+export const loadContactResolver = () => import('@/lib/validations/contactResolver')
+
+const lazyResolver: Resolver<ContactFormData> = async (values, context, options) => {
+  try {
+    const { contactResolver } = await loadContactResolver()
+    return contactResolver(values, context, options)
+  } catch {
+    return { values, errors: {} }
+  }
+}
 
 export type SubmissionState = 'idle' | 'submitting' | 'success' | 'error'
 
@@ -62,7 +77,7 @@ export function useContactFormSubmit(): UseContactFormSubmitReturn {
   }, [])
 
   const form = useForm<ContactFormData>({
-    resolver: zodResolver(contactFormSchema),
+    resolver: lazyResolver,
     // We focus the first invalid field ourselves (focusFirstError): the
     // browser's own focus scroll leaves it under the fixed navbar in Safari,
     // which ignores scroll-margin there.
@@ -171,8 +186,11 @@ export function useContactFormSubmit(): UseContactFormSubmitReturn {
   }
 
   /** Bring the first invalid field to the middle of the screen and focus it. */
-  const focusFirstError = (errors: FieldErrors<ContactFormData>) => {
-    const field = VISIBLE_FIELDS.find((name) => errors[name])
+  // Reads the form's live state (getFieldState), not formState: that is a
+  // snapshot from the last render, which validation run in this same handler
+  // hasn't updated yet.
+  const focusFirstError = () => {
+    const field = VISIBLE_FIELDS.find((name) => form.getFieldState(name).invalid)
     const el = field && document.getElementById(field)
     if (!el) return
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -194,7 +212,7 @@ export function useContactFormSubmit(): UseContactFormSubmitReturn {
       // No token yet (Turnstile still working, or blocked). Validate the visible
       // fields first so errors show immediately, then wait for the token.
       const fieldsValid = await trigger([...VISIBLE_FIELDS])
-      if (!fieldsValid) return focusFirstError(form.formState.errors)
+      if (!fieldsValid) return focusFirstError()
 
       setIsVerifying(true)
       setLiveRegionMessage('Verifying...')
@@ -213,7 +231,7 @@ export function useContactFormSubmit(): UseContactFormSubmitReturn {
 
     // Validate before handleSubmit: it disables the inputs (isSubmitting) while
     // it runs, and a disabled field can't take focus.
-    if (!(await trigger())) return focusFirstError(form.formState.errors)
+    if (!(await trigger())) return focusFirstError()
     handleSubmit(onSubmit)()
   }
 

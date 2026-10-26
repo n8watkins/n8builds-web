@@ -72,6 +72,84 @@
   }
 }
 
+/* The scroll reveal (components/ui/Reveal.tsx): hidden until the block
+   scrolls into view, then it fades up once. Opacity and transform only, so it
+   never shifts layout, and it ends on `transform: none`, leaving no
+   containing block behind. Reduced motion simply shows it. */
+@layer components {
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 0.55s cubic-bezier(0.25, 0.1, 0.25, 1),
+      transform 0.55s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  .reveal[data-revealed] {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+}
+
+/* A keyed entrance from the side (TechStackCycle's list and label, the
+   extensions' detail panel): the element is re-keyed on each change, so it
+   mounts fresh and slides in from --slide-from. */
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    translate: var(--slide-from, 24px) 0;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@utility slide-in {
+  animation: slide-in 0.3s ease-out both;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/* The extensions showcase's timer bar (components/sections/ExtensionsCarousel.tsx). */
+@keyframes progress-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* The same load fade without the rise, for small pieces that only appear
+   (the hero's chips, socials and portfolio link). */
+@keyframes fade-in {
+  from {
+    opacity: 0.01;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@utility fade-in {
+  animation: fade-in 0.45s ease-out both;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
 @utility custom-scrollbar {
   &::-webkit-scrollbar-track {
     background-color: var(--scrollbar-track);
@@ -190,4 +268,173 @@
     opacity: 1;
     transform: none;
   }
+}
+
+/* The hero's idea -> repeat chain (components/sections/Hero.tsx): an
+   electrified circuit. A comet traces each chip's outline left -> right, then
+   runs the loop-back line from repeat under the whole chain back into idea,
+   and the loop starts again. Here, not in a <style> in the component, so it
+   ships once in the stylesheet instead of in the page's JavaScript too. */
+@property --n8ang {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* Shared 11s loop. Chips fire on a 1.8s stagger (left -> right); each comet
+   sweeps its perimeter, then the loop-back line carries a fast pulse from
+   repeat back under the chain into idea (~3x quicker than the chip sweeps),
+   landing right as idea relights, and it repeats. */
+@keyframes n8cometSweep {
+  0%          { --n8ang: 0deg;   opacity: 0; }
+  3%          { opacity: 1; }
+  11%         { --n8ang: 225deg; opacity: 1; }
+  13.5%, 100% { --n8ang: 225deg; opacity: 0; }
+}
+/* split trace (middle chips): two lights start at 9 o'clock and sweep
+   a half each (one over the top, one under the bottom), meeting at the
+   3 o'clock arrow. --n8ang 0 -> 180; the +/- in the conic from-angle sends
+   ::before clockwise (top) and ::after counter-clockwise (bottom). */
+@keyframes n8splitSweep {
+  0%          { --n8ang: 0deg;   opacity: 0; }
+  3%          { opacity: 1; }
+  11%         { --n8ang: 180deg; opacity: 1; }
+  13.5%, 100% { --n8ang: 180deg; opacity: 0; }
+}
+/* fade in (dim -> lit), hold while the comet traces, fade out, then a
+   gap before the next chip so the hand-off reads as a clear flow. */
+@keyframes n8chipGlow {
+  0%        { border-color: rgba(34,211,238,0.12); background-color: rgba(34,211,238,0); color: rgb(100,116,139); text-shadow: none; }
+  3%        { border-color: rgba(34,211,238,0.55); background-color: rgba(34,211,238,0.06); color: rgb(165,243,252); text-shadow: 0 0 8px rgba(34,211,238,0.6); }
+  11%       { border-color: rgba(34,211,238,0.55); background-color: rgba(34,211,238,0.06); color: rgb(165,243,252); text-shadow: 0 0 8px rgba(34,211,238,0.6); }
+  14%, 100% { border-color: rgba(34,211,238,0.12); background-color: rgba(34,211,238,0); color: rgb(100,116,139); text-shadow: none; }
+}
+@keyframes n8arrowGlow {
+  0%        { color: rgb(100,116,139); text-shadow: none; }
+  3%, 8%    { color: rgb(165,243,252); text-shadow: 0 0 4px rgba(34,211,238,1), 0 0 9px rgba(34,211,238,1), 0 0 16px rgba(34,211,238,0.7); }
+  13%, 100% { color: rgb(100,116,139); text-shadow: none; }
+}
+/* loop-back connector: dim wire + ONE blue pulse (#22d3ee, same as the
+   chips). Tight hand-off both ends: starts ~78%, right as repeat's comet
+   lands on the 4:30 corner (no lead-in gap), travels the WHOLE wire, and
+   reaches the idea corner ~99%, right before the loop restarts and idea
+   lights (no trailing gap). --n8wire is the wire's on-screen pixel
+   length, measured by useWireLength (non-scaling-stroke makes the dash
+   use px, ignoring pathLength); the class values are only the fallback. */
+@keyframes n8loopComet {
+  0%, 75%  { stroke-dashoffset: 0;    opacity: 0; }
+  77%      { stroke-dashoffset: 0;    opacity: 1; }
+  99%      { stroke-dashoffset: calc(var(--n8wire) * -1); opacity: 1; }
+  100%     { stroke-dashoffset: calc(var(--n8wire) * -1 - 20px); opacity: 0; }
+}
+
+.n8-cnode {
+  position: relative;
+  isolation: isolate;
+  border-color: rgba(34,211,238,0.12);
+  color: rgb(100,116,139);
+  animation: n8chipGlow 11s linear infinite;
+  animation-delay: var(--n8delay, 0s);
+}
+.n8-cnode:not(.n8-split)::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  opacity: 0;
+  /* idea/ship (single comet): a partial 225deg clockwise arc (up & over).
+     idea 7:30 -> 3:00 (--n8start 135deg); ship 9:00 -> 4:30 (--n8start 180deg).
+     bright head sits 90deg ahead of the from-angle (the 25% cone stop). */
+  background: conic-gradient(
+    from calc(var(--n8ang) + var(--n8start, 0deg)),
+    transparent 0 10%,
+    rgba(103,232,249,0.5) 18%,
+    #67e8f9 23%,
+    #22d3ee 25%,
+    transparent 28%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          mask-composite: exclude;
+  filter: drop-shadow(0 0 5px rgba(34,211,238,0.7));
+  animation: n8cometSweep 11s linear infinite;
+  animation-delay: var(--n8delay, 0s);
+  z-index: 1;
+  pointer-events: none;
+}
+.n8-split::before,
+.n8-split::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  opacity: 0;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          mask-composite: exclude;
+  filter: drop-shadow(0 0 5px rgba(34,211,238,0.7));
+  animation: n8splitSweep 11s linear infinite;
+  animation-delay: var(--n8delay, 0s);
+  z-index: 1;
+  pointer-events: none;
+}
+/* top light: 9 o'clock -> over the top -> 3 o'clock (clockwise) */
+.n8-split::before {
+  background: conic-gradient(from calc(270deg + var(--n8ang)),
+    #22d3ee 0deg, rgba(103,232,249,0.4) 13deg, transparent 26deg,
+    transparent 334deg, rgba(103,232,249,0.4) 347deg, #22d3ee 360deg);
+}
+/* bottom light: 9 o'clock -> under the bottom -> 3 o'clock (counter-cw) */
+.n8-split::after {
+  background: conic-gradient(from calc(270deg - var(--n8ang)),
+    #22d3ee 0deg, rgba(103,232,249,0.4) 13deg, transparent 26deg,
+    transparent 334deg, rgba(103,232,249,0.4) 347deg, #22d3ee 360deg);
+}
+.n8-carrow {
+  color: rgb(100,116,139);
+  font-size: 0.85rem;
+  animation: n8arrowGlow 11s linear infinite;
+}
+/* below 360px (iPhone SE 1st gen) the chain shrinks to fit the screen */
+@media (max-width: 359px) {
+  .n8-carrow { font-size: 0.7rem; }
+}
+.n8-loop {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  width: 100%;
+  height: 9px;
+  overflow: visible;
+  pointer-events: none;
+}
+.n8-loop-base { stroke: rgba(34,211,238,0.22); }
+.n8-loop-comet {
+  stroke: #22d3ee;
+  filter: drop-shadow(0 0 2px #67e8f9) drop-shadow(0 0 6px #22d3ee) drop-shadow(0 0 9px rgba(34,211,238,0.7));
+  /* -10s phase: page loads mid-loop with the pulse already on the bottom
+     wire (more negative -> closer to idea; less -> closer to ship). */
+  animation: n8loopComet 11s linear -10s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .n8-cnode, .n8-cnode::before, .n8-cnode::after, .n8-carrow, .n8-loop-comet { animation: none; }
+  .n8-cnode::before, .n8-cnode::after, .n8-loop-comet { opacity: 0; }
+  .n8-cnode { border-color: rgba(34,211,238,0.3); }
+}
+
+/* Off screen, the hero's endless animations hold still (HeroChainMeter sets
+   data-offscreen): they restyle and repaint every frame even where no one sees them. */
+#home[data-offscreen] .n8-cnode,
+#home[data-offscreen] .n8-cnode::before,
+#home[data-offscreen] .n8-cnode::after,
+#home[data-offscreen] .n8-carrow,
+#home[data-offscreen] .n8-loop-comet,
+#home[data-offscreen] .hero-cta-spin {
+  animation-play-state: paused;
 }

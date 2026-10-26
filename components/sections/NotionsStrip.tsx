@@ -1,29 +1,12 @@
-'use client'
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { FiArrowUpRight } from 'react-icons/fi'
 import PostCard from '@/components/blog/PostCard'
 import type { Post } from '@/lib/sanity'
 
-// Homepage "Latest from N8's Notions" strip. Lives inside the client home page, so
-// it fetches the 3 newest posts from the server route (keeps the Sanity SDK off
-// the homepage bundle). The canonical, SSR'd content lives at /blog.
-const NotionsStrip = () => {
-  const [posts, setPosts] = useState<Post[]>([])
-
-  useEffect(() => {
-    let cancelled = false
-    fetch('/api/notions/recent')
-      .then((r) => r.json())
-      .then((d) => {
-        if (!cancelled) setPosts(d.posts ?? [])
-      })
-      .catch(() => {})
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
+// Homepage "Latest from N8's Notions" strip: the 3 newest posts, fetched on the
+// server by the homepage (app/page.tsx), so they are in its HTML. The full
+// list lives at /blog.
+const NotionsStrip = ({ posts }: { posts: Post[] }) => {
   if (posts.length === 0) return null
 
   return (

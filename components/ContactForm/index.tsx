@@ -1,12 +1,34 @@
 'use client'
 
-import React, { useEffect } from 'react'
-import { m } from 'motion/react'
-import { useContactFormSubmit } from './useContactFormSubmit'
-import { ContactFormSuccess } from './ContactFormSuccess'
-import { ContactFormLoading } from './ContactFormLoading'
+import React, { useEffect, useRef } from 'react'
+import dynamic from 'next/dynamic'
+import FadeIn from '@/components/ui/FadeIn'
+import { loadContactResolver, useContactFormSubmit } from './useContactFormSubmit'
 import { ContactFormFields } from './ContactFormFields'
+
+import { SendingFallback, SuccessFallback } from './ContactFormFallbacks'
 import { trackContactEvent } from '@/lib/analytics'
+
+// The sending and success screens (and their motion animations) and the
+// validation are not part of the page's first JavaScript: they load once the
+// form scrolls into view (preloadScreens), so they are ready well before a
+// message is sent. Each
+// holds the form's height while it loads, so the card doesn't collapse, and
+// if its chunk is gone (a deploy since the page was opened) a plain version
+// still tells the visitor their message went out.
+const screenPlaceholder = () => <div className="min-h-[600px]" />
+const loadSending = () => import('./ContactFormLoading')
+const loadSuccess = () => import('./ContactFormSuccess')
+const preloadScreens = () =>
+  Promise.all([loadContactResolver(), loadSending(), loadSuccess(), import('@/lib/motion-features')]).catch(() => {})
+const ContactFormLoading = dynamic(
+  () => loadSending().then((mod) => mod.ContactFormLoading, () => SendingFallback),
+  { ssr: false, loading: screenPlaceholder }
+)
+const ContactFormSuccess = dynamic(
+  () => loadSuccess().then((mod) => mod.ContactFormSuccess, () => SuccessFallback),
+  { ssr: false, loading: screenPlaceholder }
+)
 
 interface ContactFormProps {
   className?: string
@@ -43,6 +65,23 @@ export default function ContactForm({ className }: ContactFormProps) {
     trackContactEvent('view')
   }, [])
 
+  // Fetch the sending and success screens once the form is near the screen.
+  const sentinel = useRef<HTMLSpanElement>(null)
+  useEffect(() => {
+    const form = sentinel.current?.parentElement
+    if (!form || typeof IntersectionObserver === 'undefined') return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return
+        observer.disconnect()
+        preloadScreens()
+      },
+      { rootMargin: '400px' }
+    )
+    observer.observe(form)
+    return () => observer.disconnect()
+  }, [])
+
   // Auto-reset state after timeout (30 seconds)
   useEffect(() => {
     if (submissionState === 'success' || submissionState === 'error') {
@@ -73,12 +112,8 @@ export default function ContactForm({ className }: ContactFormProps) {
   }
 
   return (
-    <m.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-      className={className}
-    >
+    <FadeIn className={className}>
+      <span ref={sentinel} hidden />
       {/* Accessibility: Live region for screen readers */}
       <div
         aria-live="polite"
@@ -98,6 +133,6 @@ export default function ContactForm({ className }: ContactFormProps) {
         onTurnstileExpire={onTurnstileExpire}
         turnstileSiteKey={turnstileSiteKey}
       />
-    </m.div>
+    </FadeIn>
   )
 }

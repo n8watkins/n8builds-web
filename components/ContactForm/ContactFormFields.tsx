@@ -2,12 +2,13 @@
 
 import React from 'react'
 import { UseFormReturn } from 'react-hook-form'
-import { m, AnimatePresence } from 'motion/react'
+import FadeIn from '@/components/ui/FadeIn'
 import { Turnstile } from '@marsidev/react-turnstile'
 import { ContactInput } from '@/components/ui/ContactInput'
 import { ContactSelect } from '@/components/ui/ContactSelect'
 import { ContactTextarea } from '@/components/ui/ContactTextarea'
-import { ContactFormData, subjectOptions } from '@/lib/validations/contact'
+import type { ContactFormData } from '@/lib/validations/contact'
+import { subjectOptions } from '@/lib/validations/contactOptions'
 import { trackContactEvent } from '@/lib/analytics'
 import { useHydrated } from '@/hooks/useHydrated'
 import { SubmissionState } from './useContactFormSubmit'
@@ -71,17 +72,10 @@ export function ContactFormFields({
         />
       </div>
 
-      <m.div
-        className="grid grid-cols-1 gap-4 md:gap-6"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-      >
-        <m.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.2, ease: "easeOut" }}
-        >
+      {/* The fields fade up in a stagger, in CSS (FadeIn), so the form
+          needs no animation library. */}
+      <FadeIn delay={0.1} className="grid grid-cols-1 gap-4 md:gap-6">
+        <FadeIn delay={0.2}>
           <ContactInput
             {...register('name')}
             id="name"
@@ -93,13 +87,9 @@ export function ContactFormFields({
             autoComplete="name"
             disabled={isSubmitting}
           />
-        </m.div>
+        </FadeIn>
 
-        <m.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.25, ease: "easeOut" }}
-        >
+        <FadeIn delay={0.25}>
           <ContactInput
             {...register('email')}
             id="email"
@@ -112,14 +102,10 @@ export function ContactFormFields({
             autoComplete="email"
             disabled={isSubmitting}
           />
-        </m.div>
-      </m.div>
+        </FadeIn>
+      </FadeIn>
 
-      <m.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.3, ease: "easeOut" }}
-      >
+      <FadeIn delay={0.3}>
         <ContactSelect
           {...register('subject')}
           id="subject"
@@ -133,13 +119,9 @@ export function ContactFormFields({
           onFocus={() => handleFieldFocus('subject')}
           disabled={isSubmitting}
         />
-      </m.div>
+      </FadeIn>
 
-      <m.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.4, ease: "easeOut" }}
-      >
+      <FadeIn delay={0.4}>
         <ContactTextarea
           {...register('message')}
           id="message"
@@ -153,30 +135,20 @@ export function ContactFormFields({
           onFocus={() => handleFieldFocus('message')}
           disabled={isSubmitting}
         />
-      </m.div>
+      </FadeIn>
 
-      <AnimatePresence>
-        {submissionState === 'error' && (
-          <m.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4"
-          >
-            <p className="text-sm leading-relaxed text-red-800 dark:text-red-200 flex items-start gap-3">
-              <span aria-hidden="true" className="text-base leading-snug">😅</span>
-              <span>{errorMessage}</span>
-            </p>
-          </m.div>
-        )}
-      </AnimatePresence>
+      {submissionState === 'error' && (
+        <div
+          className="fade-in bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4"
+        >
+          <p className="text-sm leading-relaxed text-red-800 dark:text-red-200 flex items-start gap-3">
+            <span aria-hidden="true" className="text-base leading-snug">😅</span>
+            <span>{errorMessage}</span>
+          </p>
+        </div>
+      )}
 
-      <m.div
-        className="text-center sm:px-4"
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.45, ease: "easeOut" }}
-      >
+      <FadeIn delay={0.45} className="text-center sm:px-4">
         {/*
           Invisible Cloudflare Turnstile widget.
           appearance: 'interaction-only' keeps it hidden unless a challenge is
@@ -210,7 +182,7 @@ export function ContactFormFields({
             {isVerifying ? "Verifying... 🛡️" : isSubmitting ? "Sending... 🚀" : "Send Message 🚀"}
           </span>
         </button>
-      </m.div>
+      </FadeIn>
 
       <p className="text-center text-sm text-slate-600 dark:text-slate-400 pb-8">
         Prefer email? Reach me directly at{' '}

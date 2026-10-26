@@ -42,8 +42,6 @@ export const contactFormSchema = z.object({
 
 export type ContactFormData = z.infer<typeof contactFormSchema>
 
-export const subjectOptions: { value: string; label: string }[] = [
-  { value: 'project_opportunity', label: '🚀 New project opportunity' },
-  { value: 'consulting', label: '🎯 Consulting' },
-  { value: 'networking', label: '🤝 Networking' },
-]
+// The topics live in their own module, without zod, so the contact form's
+// first JavaScript doesn't include the schema (it loads on first validation).
+export { subjectOptions } from './contactOptions'

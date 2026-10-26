@@ -1,8 +1,6 @@
-'use client'
 import React from 'react'
 import Image from 'next/image'
-import { m } from 'motion/react'
-import { useReveal } from '@/hooks/useReveal'
+import Reveal from '@/components/ui/Reveal'
 import { FiArrowUpRight, FiCode, FiCheck } from 'react-icons/fi'
 
 interface Bridge {
@@ -68,68 +66,69 @@ const bridges: Bridge[] = [
   },
 ]
 
+// The site's scroll reveal, staggered; under reduced motion it simply shows.
 const BridgeCard = ({ bridge, index }: { bridge: Bridge; index: number }) => (
-  <m.a
-    href={bridge.href}
-    target="_blank"
-    rel="noopener noreferrer"
-    // The site's scroll reveal, staggered; under reduced motion it simply shows.
-    {...useReveal(index * 0.08)}
-    className={`group relative flex flex-col overflow-hidden rounded-3xl border border-white/8 bg-white/2 transition-all duration-200 hover:bg-white/4 ${bridge.accent.border}`}
-  >
-    {/* Preview screenshot of the destination site */}
-    <div className="relative aspect-video overflow-hidden border-b border-white/6 bg-[#0a1322]">
-      <Image
-        src={bridge.image}
-        alt={`${bridge.title} - site preview`}
-        fill
-        className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
-        sizes="(max-width: 768px) 100vw, 50vw"
-      />
-      <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-[#070b16] via-transparent to-transparent" />
-    </div>
+  <Reveal delay={index * 0.08} className="flex">
+    <a
+      href={bridge.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`group relative flex flex-1 flex-col overflow-hidden rounded-3xl border border-white/8 bg-white/2 transition-all duration-200 hover:bg-white/4 ${bridge.accent.border}`}
+    >
+      {/* Preview screenshot of the destination site */}
+      <div className="relative aspect-video overflow-hidden border-b border-white/6 bg-[#0a1322]">
+        <Image
+          src={bridge.image}
+          alt={`${bridge.title} - site preview`}
+          fill
+          className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
+          sizes="(max-width: 768px) 100vw, 50vw"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-[#070b16] via-transparent to-transparent" />
+      </div>
 
-    {/* Content */}
-    <div className="relative flex flex-1 flex-col p-7 sm:p-8">
-      {/* Corner glow */}
-      <div
-        aria-hidden
-        className={`pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-linear-to-br ${bridge.accent.glow} to-transparent blur-2xl`}
-      />
-
-      <div className="relative flex flex-1 flex-col">
-        <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/4 text-slate-200">
-            {bridge.icon}
-          </span>
-          <p className={`text-[0.7rem] font-bold uppercase tracking-[0.16em] ${bridge.accent.eyebrow}`}>
-            {bridge.eyebrow}
-          </p>
-        </div>
-
-        <h3 className="mt-5 text-2xl font-extrabold leading-tight tracking-tight text-slate-50">
-          {bridge.title}
-        </h3>
-        <p className="mt-3 text-[15px] leading-relaxed text-[#9cadc5]">{bridge.blurb}</p>
-
-        <ul className="mt-5 flex flex-col gap-2">
-          {bridge.points.map((p) => (
-            <li key={p} className="flex items-center gap-2.5 text-sm text-slate-300">
-              <FiCheck className={`h-4 w-4 shrink-0 ${bridge.accent.check}`} />
-              {p}
-            </li>
-          ))}
-        </ul>
-
+      {/* Content */}
+      <div className="relative flex flex-1 flex-col p-7 sm:p-8">
+        {/* Corner glow */}
         <div
-          className={`mt-7 inline-flex w-fit items-center gap-2 rounded-xl bg-linear-to-r ${bridge.accent.button} px-5 py-2.5 text-sm font-bold text-white transition-all duration-200 group-hover:scale-[1.02]`}
-        >
-          {bridge.cta}
-          <FiArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          aria-hidden
+          className={`pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-linear-to-br ${bridge.accent.glow} to-transparent blur-2xl`}
+        />
+
+        <div className="relative flex flex-1 flex-col">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/4 text-slate-200">
+              {bridge.icon}
+            </span>
+            <p className={`text-[0.7rem] font-bold uppercase tracking-[0.16em] ${bridge.accent.eyebrow}`}>
+              {bridge.eyebrow}
+            </p>
+          </div>
+
+          <h3 className="mt-5 text-2xl font-extrabold leading-tight tracking-tight text-slate-50">
+            {bridge.title}
+          </h3>
+          <p className="mt-3 text-[15px] leading-relaxed text-[#9cadc5]">{bridge.blurb}</p>
+
+          <ul className="mt-5 flex flex-col gap-2">
+            {bridge.points.map((p) => (
+              <li key={p} className="flex items-center gap-2.5 text-sm text-slate-300">
+                <FiCheck className={`h-4 w-4 shrink-0 ${bridge.accent.check}`} />
+                {p}
+              </li>
+            ))}
+          </ul>
+
+          <div
+            className={`mt-7 inline-flex w-fit items-center gap-2 rounded-xl bg-linear-to-r ${bridge.accent.button} px-5 py-2.5 text-sm font-bold text-white transition-all duration-200 group-hover:scale-[1.02]`}
+          >
+            {bridge.cta}
+            <FiArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </div>
         </div>
       </div>
-    </div>
-  </m.a>
+    </a>
+  </Reveal>
 )
 
 const WorkWithMe = () => {

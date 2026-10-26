@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { SiTwitch } from 'react-icons/si'
 import { FiExternalLink, FiMenu, FiX, FiChevronDown } from 'react-icons/fi'
-import { m, AnimatePresence } from 'motion/react'
 import { useLiveStatus } from '@/components/live/liveStore'
 import NavLiveDot from '@/components/live/NavLiveDot'
 
@@ -18,6 +17,13 @@ const labMenu = [
   // The build log is a page, not a section: it lives here and in the footer, not as its own top-level link.
   { label: 'Build log', href: '/builds', desc: 'What shipped, pulled from GitHub' },
 ]
+
+// The menus open and close with CSS transitions, not motion, so no page loads
+// the animation library just to render its navbar. Closed, a menu stays in
+// the DOM but invisible (out of the tab order and the accessibility tree);
+// `visibility` waits for the fade to end, so closing still animates.
+const shown = 'visible opacity-100 translate-y-0'
+const hidden = 'invisible pointer-events-none opacity-0'
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false)
@@ -175,33 +181,27 @@ const Navbar = () => {
                   className={`w-3.5 h-3.5 transition-transform duration-200 ${labOpen ? 'rotate-180' : ''}`}
                 />
               </Link>
-              <AnimatePresence>
-                {labOpen && (
-                  <m.div
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 6 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute left-0 top-full w-64 pt-2"
-                  >
-                    <div className="rounded-xl border border-white/8 bg-[#070b16]/97 backdrop-blur-2xl p-1.5 shadow-2xl shadow-black/50">
-                      {labMenu.map((item) => (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          onClick={(e) => goToSection(e, item.href)}
-                          className="group/item flex flex-col gap-0.5 px-3 py-2 rounded-lg hover:bg-white/6 transition-colors"
-                        >
-                          <span className="text-sm font-semibold text-slate-200 transition-colors group-hover/item:text-cyan-300">
-                            {item.label}
-                          </span>
-                          <span className="text-xs text-slate-450">{item.desc}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  </m.div>
-                )}
-              </AnimatePresence>
+              <div
+                className={`absolute left-0 top-full w-64 pt-2 transition-[opacity,translate,visibility] duration-150 motion-reduce:transition-none ${
+                  labOpen ? shown : `${hidden} translate-y-1.5`
+                }`}
+              >
+                <div className="rounded-xl border border-white/8 bg-[#070b16]/97 backdrop-blur-2xl p-1.5 shadow-2xl shadow-black/50">
+                  {labMenu.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={(e) => goToSection(e, item.href)}
+                      className="group/item flex flex-col gap-0.5 px-3 py-2 rounded-lg hover:bg-white/6 transition-colors"
+                    >
+                      <span className="text-sm font-semibold text-slate-200 transition-colors group-hover/item:text-cyan-300">
+                        {item.label}
+                      </span>
+                      <span className="text-xs text-slate-450">{item.desc}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
             </div>
 
             {navLinks.map((l) => (
@@ -267,83 +267,71 @@ const Navbar = () => {
       </nav>
 
       {/* Mobile menu */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <m.div
-            key="backdrop"
-            id="mobile-menu-backdrop"
-            aria-hidden
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.18 }}
-            onClick={() => setMobileOpen(false)}
-            className="fixed inset-0 top-[68px] z-40 bg-black/50 lg:hidden"
-          />
-        )}
-        {mobileOpen && (
-          <m.div
-            key="menu"
-            id="mobile-menu"
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.18 }}
-            className="fixed top-[68px] left-0 right-0 z-40 max-h-[calc(100dvh-68px)] overflow-y-auto overscroll-contain bg-darkBlue/96 backdrop-blur-2xl border-b border-white/[0.07] px-5 py-4 flex flex-col gap-1 lg:hidden"
+      <div
+        id="mobile-menu-backdrop"
+        aria-hidden
+        onClick={() => setMobileOpen(false)}
+        className={`fixed inset-0 top-[68px] z-40 bg-black/50 transition-[opacity,visibility] duration-180 motion-reduce:transition-none lg:hidden ${
+          mobileOpen ? shown : hidden
+        }`}
+      />
+      <div
+        id="mobile-menu"
+        className={`fixed top-[68px] left-0 right-0 z-40 max-h-[calc(100dvh-68px)] overflow-y-auto overscroll-contain bg-darkBlue/96 backdrop-blur-2xl border-b border-white/[0.07] px-5 py-4 flex flex-col gap-1 transition-[opacity,translate,visibility] duration-180 motion-reduce:transition-none lg:hidden ${
+          mobileOpen ? shown : `${hidden} -translate-y-2`
+        }`}
+      >
+        {/* Lab group */}
+        <p className="px-3 pt-1 pb-1 text-[0.65rem] font-bold uppercase tracking-wider text-slate-475">
+          Lab
+        </p>
+        {labMenu.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            onClick={(e) => goToSection(e, item.href)}
+            className="px-3 py-2.5 text-sm text-slate-300 hover:text-slate-100 rounded-lg hover:bg-white/5 transition-colors"
           >
-            {/* Lab group */}
-            <p className="px-3 pt-1 pb-1 text-[0.65rem] font-bold uppercase tracking-wider text-slate-475">
-              Lab
-            </p>
-            {labMenu.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={(e) => goToSection(e, item.href)}
-                className="px-3 py-2.5 text-sm text-slate-300 hover:text-slate-100 rounded-lg hover:bg-white/5 transition-colors"
-              >
-                {item.label}
-              </Link>
-            ))}
-            <hr className="border-white/8 my-1" />
-            {navLinks.map((l) => (
-              <Link
-                key={l.label}
-                href={l.href}
-                onClick={(e) => goToSection(e, l.href)}
-                aria-current={pathname === l.href ? 'page' : undefined}
-                className="px-3 py-2.5 text-sm text-slate-300 hover:text-slate-100 aria-[current=page]:text-cyan-300 rounded-lg hover:bg-white/5 transition-colors"
-              >
-                {l.label}
-              </Link>
-            ))}
-            {socialLinks.map((l) => (
-              <a
-                key={l.label}
-                href={l.href}
-                target={l.href.startsWith('http') ? '_blank' : undefined}
-                rel={l.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                onClick={() => setMobileOpen(false)}
-                className={`flex items-center gap-2 px-3 py-2.5 text-sm text-slate-400 ${l.hoverColor} rounded-lg hover:bg-white/5 transition-colors`}
-              >
-                {l.icon}
-                {l.label}
-                {l.live && <NavLiveDot />}
-              </a>
-            ))}
-            <hr className="border-white/8 my-1" />
-            <a
-              href="https://portfolio.n8builds.dev"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setMobileOpen(false)}
-              className="px-3 py-2.5 text-sm text-slate-400 hover:text-slate-100 rounded-lg hover:bg-white/5 transition-colors"
-            >
-              Portfolio ↗
-            </a>
-          </m.div>
-        )}
-      </AnimatePresence>
+            {item.label}
+          </Link>
+        ))}
+        <hr className="border-white/8 my-1" />
+        {navLinks.map((l) => (
+          <Link
+            key={l.label}
+            href={l.href}
+            onClick={(e) => goToSection(e, l.href)}
+            aria-current={pathname === l.href ? 'page' : undefined}
+            className="px-3 py-2.5 text-sm text-slate-300 hover:text-slate-100 aria-[current=page]:text-cyan-300 rounded-lg hover:bg-white/5 transition-colors"
+          >
+            {l.label}
+          </Link>
+        ))}
+        {socialLinks.map((l) => (
+          <a
+            key={l.label}
+            href={l.href}
+            target={l.href.startsWith('http') ? '_blank' : undefined}
+            rel={l.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+            onClick={() => setMobileOpen(false)}
+            className={`flex items-center gap-2 px-3 py-2.5 text-sm text-slate-400 ${l.hoverColor} rounded-lg hover:bg-white/5 transition-colors`}
+          >
+            {l.icon}
+            {l.label}
+            {l.live && <NavLiveDot />}
+          </a>
+        ))}
+        <hr className="border-white/8 my-1" />
+        <a
+          href="https://portfolio.n8builds.dev"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => setMobileOpen(false)}
+          className="px-3 py-2.5 text-sm text-slate-400 hover:text-slate-100 rounded-lg hover:bg-white/5 transition-colors"
+        >
+          Portfolio ↗
+        </a>
+      </div>
     </>
   )
 }

@@ -58,7 +58,8 @@ test.describe('motion allowed', () => {
 
   test('marquees scroll a repeated track', async ({ page }) => {
     await page.goto('/loadout')
-    expect(await page.getByText('Claude Code', { exact: true }).count()).toBeGreaterThan(1)
+    // The server sends one copy of the items; hydration adds the loop's copies.
+    await expect.poll(() => page.getByText('Claude Code', { exact: true }).count()).toBeGreaterThan(1)
     // Check the marquee tracks themselves, not just "some infinite animation":
     // pulses elsewhere kept a page-wide count passing while every marquee had
     // an invalid animation (animation-name: none) and stood still.

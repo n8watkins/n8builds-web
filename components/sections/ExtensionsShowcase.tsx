@@ -1,12 +1,10 @@
-'use client'
-import React, { useEffect, useRef, useState } from 'react'
+import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { m, AnimatePresence } from 'motion/react'
-import { FiGithub, FiStar, FiArrowUpRight } from 'react-icons/fi'
+import { FiStar, FiArrowUpRight } from 'react-icons/fi'
 import { getBuild } from '@/data/builds'
-import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import LabSubheader from '@/components/sections/LabSubheader'
+import ExtensionsCarousel from '@/components/sections/ExtensionsCarousel'
 
 interface Ext {
   slug: string
@@ -40,8 +38,6 @@ const exts: Ext[] = [
     blurb: 'On any YouTube video, hit Alt+G - it opens Gemini with a saved prompt and the video, and submits. Too Long; Didn\'t Watch.',
   },
 ]
-
-const CYCLE_MS = 5000
 
 const Detail = ({ ext }: { ext: Ext }) => {
   const build = getBuild(ext.slug)
@@ -113,114 +109,40 @@ const Detail = ({ ext }: { ext: Ext }) => {
   )
 }
 
-const ExtensionsShowcase = () => {
-  const [active, setActive] = useState(0)
-  const [paused, setPaused] = useState(false)
-  const [progressKey, setProgressKey] = useState(0)
-  const timer = useRef<ReturnType<typeof setInterval> | null>(null)
-  const reduceMotion = usePrefersReducedMotion()
+/**
+ * The Lab's Chrome extensions, rendered on the server. On desktop the three
+ * cards and the detail panel cycle in a client island (ExtensionsCarousel),
+ * which gets each detail already rendered; on phones they simply stack.
+ */
+const ExtensionsShowcase = () => (
+  <section id="extensions" aria-label="Chrome extensions" className="py-10">
+    <LabSubheader
+      eyebrow="Browser tools"
+      eyebrowClass="text-indigo-400"
+      title="Chrome extensions"
+      blurb={<>Small, local-first tools I built and actually use. All open source - if one&apos;s useful, a star helps a ton.</>}
+    />
 
-  // auto-cycle (desktop). Pauses on hover, and never runs under reduced motion.
-  useEffect(() => {
-    if (paused || reduceMotion) return
-    timer.current = setInterval(() => {
-      setActive((a) => (a + 1) % exts.length)
-      setProgressKey((k) => k + 1)
-    }, CYCLE_MS)
-    return () => {
-      if (timer.current) clearInterval(timer.current)
-    }
-  }, [paused, reduceMotion])
+    {/* ===== Desktop: 3 side-by-side + auto-cycle detail ===== */}
+    <ExtensionsCarousel
+      cards={exts.map((ext) => {
+        const build = getBuild(ext.slug)
+        return { slug: ext.slug, icon: ext.icon, name: build?.name, tagline: build?.tagline }
+      })}
+      details={exts.map((ext) => (
+        <Detail key={ext.slug} ext={ext} />
+      ))}
+    />
 
-  const select = (i: number) => {
-    setActive(i)
-    setProgressKey((k) => k + 1)
-  }
-
-  return (
-    <section id="extensions" aria-label="Chrome extensions" className="py-10">
-      <LabSubheader
-        eyebrow="Browser tools"
-        eyebrowClass="text-indigo-400"
-        title="Chrome extensions"
-        blurb={<>Small, local-first tools I built and actually use. All open source - if one&apos;s useful, a star helps a ton.</>}
-      />
-
-      {/* ===== Desktop: 3 side-by-side + auto-cycle detail ===== */}
-      <div className="hidden md:block">
-        <div className="grid grid-cols-3 gap-4">
-          {exts.map((ext, i) => {
-            const build = getBuild(ext.slug)
-            const isActive = i === active
-            return (
-              <button
-                key={ext.slug}
-                onMouseEnter={() => {
-                  setPaused(true)
-                  select(i)
-                }}
-                onMouseLeave={() => setPaused(false)}
-                onFocus={() => {
-                  setPaused(true)
-                  select(i)
-                }}
-                className={`group relative overflow-hidden rounded-2xl border p-5 text-left transition-all duration-300 ${
-                  isActive
-                    ? 'border-cyan-400/40 bg-white/5 shadow-lg shadow-cyan-500/5'
-                    : 'border-white/8 bg-white/2 opacity-55 blur-[1.5px] hover:opacity-80'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Image src={ext.icon} alt="" width={40} height={40} className="rounded-xl" />
-                  <div className="min-w-0">
-                    <p className="truncate font-bold text-slate-100">{build?.name}</p>
-                    <p className="truncate font-mono text-[0.7rem] text-slate-450">{build?.tagline}</p>
-                  </div>
-                </div>
-                {/* progress timer on the active card */}
-                <div className="mt-4 h-0.5 w-full overflow-hidden rounded-full bg-white/6">
-                  {isActive && (
-                    <m.div
-                      key={progressKey}
-                      className="h-full bg-linear-to-r from-cyan-400 to-blue-500"
-                      initial={{ width: '0%' }}
-                      animate={{ width: paused ? '100%' : '100%' }}
-                      transition={{ duration: paused ? 0.3 : CYCLE_MS / 1000, ease: 'linear' }}
-                    />
-                  )}
-                </div>
-              </button>
-            )
-          })}
+    {/* ===== Mobile: stacked, each with its detail (no hover/cycle) ===== */}
+    <div className="flex flex-col gap-5 md:hidden">
+      {exts.map((ext) => (
+        <div key={ext.slug} className="rounded-2xl border border-white/8 bg-white/2 p-5">
+          <Detail ext={ext} />
         </div>
-
-        {/* Detail panel - carousels as active changes */}
-        <div className="mt-6 rounded-3xl border border-white/8 bg-white/2 p-6 md:p-8">
-          <AnimatePresence mode="wait">
-            <m.div
-              key={active}
-              initial={{ opacity: 0, x: 24 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -24 }}
-              transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
-            >
-              <Detail ext={exts[active]} />
-            </m.div>
-          </AnimatePresence>
-        </div>
-      </div>
-
-      {/* ===== Mobile: stacked, each with its detail (no hover/cycle) ===== */}
-      <div className="flex flex-col gap-5 md:hidden">
-        {exts.map((ext) => (
-          <div key={ext.slug} className="rounded-2xl border border-white/8 bg-white/2 p-5">
-            <Detail ext={ext} />
-          </div>
-        ))}
-      </div>
-
-    </section>
-  )
-}
+      ))}
+    </div>
+  </section>
+)
 
 export default ExtensionsShowcase

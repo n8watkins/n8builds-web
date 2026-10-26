@@ -195,8 +195,8 @@ test.describe('desktop', () => {
     await openHome(page)
     await page.waitForTimeout(1000)
     await expect(player(page)).toHaveCount(0)
-    // The navbar still says it's live.
-    await expect(page.locator('[data-nav-live-dot]')).toBeVisible()
+    // The navbar still says it's live (the closed mobile menu holds a hidden copy).
+    await expect(page.getByRole('navigation', { name: 'Primary' }).locator('[data-nav-live-dot]')).toBeVisible()
 
     await context.addCookies([{ name: 'n8-live-test', value: 'both', url: E2E_BASE_URL }])
     await openHome(page)

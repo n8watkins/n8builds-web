@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { m, AnimatePresence } from 'motion/react'
 
 interface WebVital {
   name: string
@@ -104,71 +103,67 @@ export function WebVitalsHUD() {
   }
 
   return (
-    <AnimatePresence>
-      {isVisible && (
-        <m.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          className="fixed bottom-4 right-4 z-9999 bg-black/90 backdrop-blur-xs text-white p-4 rounded-lg shadow-2xl border border-white/20 font-mono text-xs"
-          style={{ maxWidth: '400px' }}
-        >
-          <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/20">
-            <h3 className="text-sm font-bold">Web Vitals</h3>
-            <button
-              onClick={() => setIsVisible(false)}
-              className="text-white/60 hover:text-white transition-colors focus:outline-hidden focus:ring-2 focus:ring-white/50 rounded-sm"
-              aria-label="Close Web Vitals HUD"
-            >
-              ✕
-            </button>
-          </div>
+    // A dev tool, so a plain CSS entrance: no page loads motion for it.
+    isVisible && (
+      <div
+        className="fade-up fixed bottom-4 right-4 z-9999 bg-black/90 backdrop-blur-xs text-white p-4 rounded-lg shadow-2xl border border-white/20 font-mono text-xs"
+        style={{ maxWidth: '400px' }}
+      >
+        <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/20">
+          <h3 className="text-sm font-bold">Web Vitals</h3>
+          <button
+            onClick={() => setIsVisible(false)}
+            className="text-white/60 hover:text-white transition-colors focus:outline-hidden focus:ring-2 focus:ring-white/50 rounded-sm"
+            aria-label="Close Web Vitals HUD"
+          >
+            ✕
+          </button>
+        </div>
 
-          {Object.keys(vitals).length === 0 ? (
-            <p className="text-white/60">Waiting for metrics...</p>
-          ) : (
-            <div className="space-y-2">
-              {Object.values(vitals)
-                .sort((a, b) => {
-                  // Sort by Core Web Vitals first, then others
-                  const order = ['LCP', 'INP', 'CLS', 'FCP', 'TTFB', 'FID']
-                  return order.indexOf(a.name) - order.indexOf(b.name)
-                })
-                .map((vital) => (
-                <div
-                  key={vital.name}
-                  className="flex items-center justify-between gap-3"
-                >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className={`w-2 h-2 rounded-full ${getRatingColor(vital.rating)}`}
-                      />
-                      <span className="font-semibold">{vital.name}</span>
-                    </div>
-                    <div className="text-[10px] text-white/50 ml-4">
-                      {getMetricDescription(vital.name)}
-                    </div>
+        {Object.keys(vitals).length === 0 ? (
+          <p className="text-white/60">Waiting for metrics...</p>
+        ) : (
+          <div className="space-y-2">
+            {Object.values(vitals)
+              .sort((a, b) => {
+                // Sort by Core Web Vitals first, then others
+                const order = ['LCP', 'INP', 'CLS', 'FCP', 'TTFB', 'FID']
+                return order.indexOf(a.name) - order.indexOf(b.name)
+              })
+              .map((vital) => (
+              <div
+                key={vital.name}
+                className="flex items-center justify-between gap-3"
+              >
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`w-2 h-2 rounded-full ${getRatingColor(vital.rating)}`}
+                    />
+                    <span className="font-semibold">{vital.name}</span>
                   </div>
-                  <div className="text-right">
-                    <div className={`font-bold ${getRatingTextColor(vital.rating)}`}>
-                      {formatValue(vital.name, vital.value)}
-                    </div>
-                    <div className="text-[10px] text-white/50 capitalize">
-                      {vital.rating.replace('-', ' ')}
-                    </div>
+                  <div className="text-[10px] text-white/50 ml-4">
+                    {getMetricDescription(vital.name)}
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-
-          <div className="mt-3 pt-2 border-t border-white/20 text-[10px] text-white/40">
-            Press <kbd className="px-1 py-0.5 bg-white/10 rounded-sm">Alt+Shift+V</kbd> to toggle
+                <div className="text-right">
+                  <div className={`font-bold ${getRatingTextColor(vital.rating)}`}>
+                    {formatValue(vital.name, vital.value)}
+                  </div>
+                  <div className="text-[10px] text-white/50 capitalize">
+                    {vital.rating.replace('-', ' ')}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-        </m.div>
-      )}
-    </AnimatePresence>
+        )}
+
+        <div className="mt-3 pt-2 border-t border-white/20 text-[10px] text-white/40">
+          Press <kbd className="px-1 py-0.5 bg-white/10 rounded-sm">Alt+Shift+V</kbd> to toggle
+        </div>
+      </div>
+    )
   )
 }
 

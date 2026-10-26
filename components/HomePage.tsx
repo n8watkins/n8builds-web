@@ -1,26 +1,21 @@
-'use client'
 import React from 'react'
 import Hero from '@/components/sections/Hero'
 import Navbar from '@/components/layout/Navbar'
-import { useSectionTracking } from '@/hooks/useSectionTracking'
-import { useScrollTracking } from '@/hooks/useScrollTracking'
 import SectionErrorBoundary from '@/components/SectionErrorBoundary'
-import dynamic from 'next/dynamic'
-import { m } from 'motion/react'
-import { useHydrated } from '@/hooks/useHydrated'
 import Reveal from '@/components/ui/Reveal'
-
-const NowBuilding = dynamic(() => import('@/components/sections/NowBuilding'))
-const FeaturedProjects = dynamic(() => import('@/components/sections/FeaturedProjects'))
-const ShelfSection = dynamic(() => import('@/components/sections/ShelfSection'))
-const UseAsTemplate = dynamic(() => import('@/components/sections/UseAsTemplate'))
-const PortfolioAd = dynamic(() => import('@/components/sections/PortfolioAd'))
-const NotionsStrip = dynamic(() => import('@/components/sections/NotionsStrip'))
-const ExtensionsShowcase = dynamic(() => import('@/components/sections/ExtensionsShowcase'))
-const HomeStack = dynamic(() => import('@/components/sections/HomeStack'))
-const WorkWithMe = dynamic(() => import('@/components/sections/WorkWithMe'))
-const Footer = dynamic(() => import('@/components/layout/Footer'))
-const ScrollToTop = dynamic(() => import('@/components/ui/ScrollToTop'), { ssr: false })
+import ScrollToTop from '@/components/ui/ScrollToTop'
+import HomeEffects from '@/components/HomeEffects'
+import NowBuilding from '@/components/sections/NowBuilding'
+import FeaturedProjects from '@/components/sections/FeaturedProjects'
+import ShelfSection from '@/components/sections/ShelfSection'
+import UseAsTemplate from '@/components/sections/UseAsTemplate'
+import PortfolioAd from '@/components/sections/PortfolioAd'
+import NotionsStrip from '@/components/sections/NotionsStrip'
+import ExtensionsShowcase from '@/components/sections/ExtensionsShowcase'
+import HomeStack from '@/components/sections/HomeStack'
+import WorkWithMe from '@/components/sections/WorkWithMe'
+import Footer from '@/components/layout/Footer'
+import type { Post } from '@/lib/sanity'
 
 /**
  * A full-width homepage band. Alternating tones and a hairline between bands
@@ -57,11 +52,14 @@ function Band({
   )
 }
 
-export default function HomePage() {
-  useSectionTracking()
-  useScrollTracking()
-  const hydrated = useHydrated()
-
+/**
+ * The homepage, rendered on the server. Only its interactive parts are client
+ * components (islands): the navbar, the hero's grid and wire meter, the
+ * carousels, the Lab rows' gallery and Details, the scroll reveals, the
+ * contact form, and HomeEffects (analytics and the ambient glows). A phone
+ * downloads and hydrates those, not every section's code.
+ */
+export default function HomePage({ posts }: { posts: Post[] }) {
   return (
     <>
       <Navbar />
@@ -70,25 +68,7 @@ export default function HomePage() {
         tabIndex={-1}
         className="relative w-full min-h-screen bg-linear-to-b from-darkBlue via-[#06101f] to-darkBlue focus:outline-none"
       >
-        {/* Ambient color shift - soft glows so the page isn't one flat color.
-            They sit at percentages of the page height, so they mount only after
-            hydration: while a slow device is still painting the streamed page,
-            the page grows and they would slide down (a layout shift). */}
-        {hydrated && (
-          <m.div
-            aria-hidden
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8 }}
-            className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
-          >
-            <div className="absolute left-[-10%] top-[6%] h-160 w-160 scale-[1.6] bg-radial from-cyan-500/10 to-transparent to-70%" />
-            <div className="absolute right-[-12%] top-[26%] h-152 w-152 scale-[1.6] bg-radial from-blue-600/11 to-transparent to-70%" />
-            <div className="absolute left-[12%] top-[46%] h-136 w-136 scale-[1.6] bg-radial from-teal-500/9 to-transparent to-70%" />
-            <div className="absolute right-[-8%] top-[66%] h-136 w-136 scale-[1.6] bg-radial from-indigo-600/9 to-transparent to-70%" />
-            <div className="absolute left-[8%] top-[86%] h-136 w-136 scale-[1.6] bg-radial from-emerald-500/[0.07] to-transparent to-70%" />
-          </m.div>
-        )}
+        <HomeEffects />
 
         <SectionErrorBoundary sectionName="Hero Section">
           <Hero />
@@ -159,7 +139,7 @@ export default function HomePage() {
         {/* N8's Notions: latest blog posts */}
         <Band tone="raised">
           <SectionErrorBoundary sectionName="N8's Notions">
-            <NotionsStrip />
+            <NotionsStrip posts={posts} />
           </SectionErrorBoundary>
         </Band>
 
