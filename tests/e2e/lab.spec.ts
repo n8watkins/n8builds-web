@@ -133,7 +133,7 @@ test('Portfolio Rank credits the list it is built on and invites visitors to add
   await expect(page.getByRole('region', { name: 'Credits' })).toHaveCount(0)
 })
 
-test('every featured row and its build page invite the visitor to try it', async ({ page }) => {
+test('every featured row and its build page invite the visitor to try it', async ({ page, isMobile }) => {
   const tries: [string, string, RegExp, string][] = [
     ['Scribe', 'scribe', /Download for Windows/, '/download/scribe'],
     ['OpenPing', 'openping', /Try the free tools/, 'https://openping.n8builds.dev/tools'],
@@ -145,9 +145,14 @@ test('every featured row and its build page invite the visitor to try it', async
     const row = page.getByRole('article', { name })
     const action = row.getByRole('link', { name: label })
     await expect(action).toHaveAttribute('href', href)
-    // The main action sits on the tech pills' line.
+    // The main action sits on the tech pills' line; on a phone, where the line
+    // is too narrow for both, it wraps under the pills, starting at the left.
     await action.scrollIntoViewIfNeeded()
     const [pills, button] = await Promise.all([row.getByRole('list', { name: `${name} is built with` }).boundingBox(), action.boundingBox()])
+    if (isMobile && button!.y >= pills!.y + pills!.height) {
+      expect(Math.abs(button!.x - pills!.x), `${name}: wrapped action starts under the pills`).toBeLessThan(2)
+      continue
+    }
     expect(button!.y, `${name}: action on the pills' line`).toBeLessThan(pills!.y + pills!.height)
     expect(button!.y + button!.height, `${name}: action on the pills' line`).toBeGreaterThan(pills!.y)
     expect(button!.x, `${name}: action right of the pills`).toBeGreaterThan(pills!.x)
@@ -271,6 +276,7 @@ test('each row names its own Details, Live Site, Star and GitHub controls for sc
 
 test('each row puts Live Site, Star | GitHub and Details in one row across its column, and no two buttons go to the same place', async ({
   page,
+  isMobile,
 }) => {
   await page.goto('/')
   for (const title of ['Scribe', 'OpenPing', 'Solara', 'Portfolio Rank']) {
@@ -282,12 +288,23 @@ test('each row puts Live Site, Star | GitHub and Details in one row across its c
     await live.scrollIntoViewIfNeeded()
     const features = row.getByRole('list', { name: `What ${title} does` })
     const [l, r, d, text] = await Promise.all([live, repo, details, features].map((el) => el.boundingBox()))
-    expect(Math.round(l!.y), `${title}: one row`).toBe(Math.round(r!.y))
-    expect(Math.round(r!.y), `${title}: one row`).toBe(Math.round(d!.y))
-    expect(l!.x < r!.x && r!.x < d!.x, `${title}: Live Site, Star | GitHub, Details`).toBe(true)
-    // Even thirds that span the text column.
-    expect(Math.abs(l!.width - r!.width), title).toBeLessThan(2)
-    expect(Math.abs(r!.width - d!.width), title).toBeLessThan(2)
+    if (isMobile) {
+      // Phones (below 640px): Live Site and Details share a line in even halves,
+      // and Star | GitHub takes the full line under them.
+      expect(Math.round(l!.y), `${title}: Live Site and Details share a line`).toBe(Math.round(d!.y))
+      expect(l!.x < d!.x, `${title}: Live Site, then Details`).toBe(true)
+      expect(Math.abs(l!.width - d!.width), title).toBeLessThan(2)
+      expect(r!.y, `${title}: Star | GitHub below`).toBeGreaterThan(l!.y + l!.height - 1)
+      expect(Math.abs(r!.x - text!.x), `${title}: starts with the text`).toBeLessThan(2)
+      expect(Math.abs(r!.width - text!.width), `${title}: spans the column`).toBeLessThan(2)
+    } else {
+      expect(Math.round(l!.y), `${title}: one row`).toBe(Math.round(r!.y))
+      expect(Math.round(r!.y), `${title}: one row`).toBe(Math.round(d!.y))
+      expect(l!.x < r!.x && r!.x < d!.x, `${title}: Live Site, Star | GitHub, Details`).toBe(true)
+      // Even thirds that span the text column.
+      expect(Math.abs(l!.width - r!.width), title).toBeLessThan(2)
+      expect(Math.abs(r!.width - d!.width), title).toBeLessThan(2)
+    }
     expect(Math.abs(l!.x - text!.x), `${title}: starts with the text`).toBeLessThan(2)
     expect(Math.abs(d!.x + d!.width - (text!.x + text!.width)), `${title}: ends with the text`).toBeLessThan(2)
 
@@ -338,7 +355,7 @@ test.describe('the Lab gallery', () => {
   const activeDot = async (gallery: import('@playwright/test').Locator) =>
     dots(gallery).evaluateAll((els) => els.findIndex((el) => el.hasAttribute('data-active')))
 
-  test('steps through the screenshots by clicking the sides of the image, with no thumbnails under it', async ({ page }) => {
+  test('steps through the screenshots by clicking the sides of the image, with no thumbnails under it', async ({ page, hasTouch }) => {
     await page.goto('/')
     const gallery = page.getByRole('group', { name: 'OpenPing screenshots' })
     await gallery.scrollIntoViewIfNeeded()
@@ -352,10 +369,13 @@ test.describe('the Lab gallery', () => {
     await expect(page.getByRole('button', { name: /OpenPing image \d/ })).toHaveCount(0)
 
     const box = (await gallery.boundingBox())!
-    // The right half steps forward; its arrow shows on hover.
-    await page.mouse.move(box.x + box.width - 30, box.y + box.height / 2)
+    // The right half steps forward; its arrow shows on hover (a pointer that
+    // can hover: touch screens have none, and step by tapping or swiping).
     const next = gallery.getByRole('button', { name: 'Next OpenPing screenshot' })
-    await expect(next.locator('span')).toHaveCSS('opacity', '1')
+    if (!hasTouch) {
+      await page.mouse.move(box.x + box.width - 30, box.y + box.height / 2)
+      await expect(next.locator('span')).toHaveCSS('opacity', '1')
+    }
     await page.mouse.click(box.x + box.width * 0.75, box.y + box.height / 2)
     await expect.poll(() => activeDot(gallery)).toBe(1)
     await expect(gallery.getByRole('img', { name: /status page/ })).toBeVisible()
@@ -411,9 +431,22 @@ test.describe('the Lab gallery on touch', () => {
         (el, [x0, x1]) => {
           const rect = el.getBoundingClientRect()
           const y = rect.top + rect.height / 2
-          const touch = (x: number) => new Touch({ identifier: 1, target: el, clientX: rect.left + x, clientY: y })
-          el.dispatchEvent(new TouchEvent('touchstart', { bubbles: true, touches: [touch(x0)], changedTouches: [touch(x0)] }))
-          el.dispatchEvent(new TouchEvent('touchend', { bubbles: true, touches: [], changedTouches: [touch(x1)] }))
+          // WebKit (Safari) can't construct Touch or TouchEvent from script, so
+          // there the events are plain Events carrying the same touch lists; the
+          // gallery reads only touches[0] and changedTouches[0].clientX.
+          const fire = (type: string, touches: { clientX: number; clientY: number }[], changed: { clientX: number; clientY: number }[]) => {
+            try {
+              const make = (t: { clientX: number; clientY: number }) => new Touch({ identifier: 1, target: el, ...t })
+              el.dispatchEvent(new TouchEvent(type, { bubbles: true, touches: touches.map(make), changedTouches: changed.map(make) }))
+            } catch {
+              const event = new Event(type, { bubbles: true })
+              Object.defineProperties(event, { touches: { value: touches }, changedTouches: { value: changed } })
+              el.dispatchEvent(event)
+            }
+          }
+          const at = (x: number) => ({ clientX: rect.left + x, clientY: y })
+          fire('touchstart', [at(x0)], [at(x0)])
+          fire('touchend', [], [at(x1)])
         },
         [from, to],
       )
@@ -498,7 +531,9 @@ test.describe('the Details dialog on a phone', () => {
   })
 })
 
-test('the Details dialog steps through the screenshots like the row does', async ({ page }) => {
+test('the Details dialog steps through the screenshots like the row does', async ({ page, isMobile }) => {
+  // Phones leave the dialog's picture out to keep it short ("the Details dialog on a phone").
+  test.skip(isMobile, 'the dialog has no screenshots on phones')
   await page.goto('/')
   await page.getByRole('button', { name: 'Details about OpenPing' }).click()
   const dialog = page.getByRole('dialog', { name: 'OpenPing' })
