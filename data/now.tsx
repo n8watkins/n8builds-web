@@ -7,22 +7,42 @@ export interface NowUpdate {
   text: string
 }
 
+/** A screenshot shown in a device frame on the ad. */
+export interface NowShot {
+  src: string
+  width: number
+  height: number
+  /** What the frame's label says it is, e.g. "Pool service template". */
+  label: string
+}
+
 export interface NowState {
   project: string
   /** The project's own mark, shown next to its name. */
   logo?: string
+  /** One line on what the project is; the What's new dialog's subtitle. */
   tagline: string
   status: 'prototype' | 'active' | 'polishing' | 'shipping'
-  /** one sentence: what I'm doing right now */
+  /** The ad's headline; `accent` is the highlighted end of it. */
+  headline: { lead: string; accent: string }
+  /** The ad's pitch, one short paragraph. */
+  pitch: string
+  /** Three short selling points, shown with checkmarks. */
+  perks: string[]
+  /** Real screenshots for the ad's device frames: a desktop page and a phone page. */
+  showcase?: { desktop: NowShot; phone: NowShot }
+  /** What is being built right now, in a few words (the card's footer). */
+  building: string
+  /** one sentence: what I'm doing right now (in the What's new dialog) */
   focus: string
-  /** the target I'm building toward */
+  /** the target I'm building toward (in the What's new dialog) */
   goal: string
   stack: string[]
   /** The ad's buttons; the first is the primary one. All open the project's own site. */
   ctas?: { label: string; href: string }[]
   /** Its page on this site (/builds/<slug>), from data/builds.tsx. */
   buildSlug?: string
-  /** recent build-log lines, newest first */
+  /** recent build-log lines, newest first (in the What's new dialog) */
   updates: NowUpdate[]
 }
 
@@ -32,6 +52,17 @@ export const nowItems: NowState[] = [
     logo: '/brands/appturnity.png',
     tagline: 'Free websites and automation for local service businesses',
     status: 'active',
+    headline: { lead: 'Your free website,', accent: 'built for your trade.' },
+    pitch:
+      'Websites for local service businesses, like pool, HVAC and landscaping companies. Pick a template made for your trade, and we build and launch it for free.',
+    perks: ['Built and launched for free', 'Templates for your trade', 'Review requests add-on'],
+    // Appturnity's own template previews (its home page and /examples use
+    // them), copied from apps/hub/public/example-shots in its repo.
+    showcase: {
+      desktop: { src: '/now/pool-clearline-template.webp', width: 1200, height: 750, label: 'Pool template' },
+      phone: { src: '/now/hvac-template-phone.webp', width: 440, height: 1100, label: 'HVAC template' },
+    },
+    building: 'Appturnity Booking',
     focus:
       'Appturnity Booking: online booking with arrival windows and job-specific questions, so a pool, HVAC or landscaping customer can book without a phone call.',
     goal:
