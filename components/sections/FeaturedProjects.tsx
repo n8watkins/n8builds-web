@@ -2,8 +2,8 @@ import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import type { IconType } from 'react-icons'
-import { FaWindows } from 'react-icons/fa6'
-import { FiActivity, FiBarChart2, FiExternalLink, FiFileText, FiGithub, FiMic, FiSun } from 'react-icons/fi'
+import { FaApple, FaLinux, FaWindows } from 'react-icons/fa6'
+import { FiActivity, FiBarChart2, FiCheck, FiDownload, FiExternalLink, FiFileText, FiGithub, FiMic, FiSun } from 'react-icons/fi'
 import Reveal from '@/components/ui/Reveal'
 import StarButton from '@/components/ui/StarButton'
 import { ProjectDetails, ProjectGallery, type GalleryImage } from '@/components/sections/FeaturedProjectIslands'
@@ -25,6 +25,7 @@ const accents = {
     primary: 'bg-linear-to-r from-blue-600 to-cyan-500 text-white hover:from-blue-500 hover:to-cyan-400',
     secondary: 'border-sky-400/30 text-sky-200',
     link: 'hover:text-sky-200',
+    check: 'text-sky-300',
   },
   openping: {
     icon: FiActivity,
@@ -33,6 +34,7 @@ const accents = {
     primary: 'bg-emerald-400 text-slate-950 hover:bg-emerald-300',
     secondary: 'border-emerald-400/35 text-emerald-200',
     link: 'hover:text-emerald-200',
+    check: 'text-emerald-300',
   },
   solara: {
     icon: FiSun,
@@ -41,16 +43,19 @@ const accents = {
     primary: 'bg-linear-to-r from-orange-500 to-amber-400 text-slate-950 hover:from-orange-400 hover:to-amber-300',
     secondary: 'border-orange-400/35 text-orange-200',
     link: 'hover:text-orange-200',
+    check: 'text-orange-300',
   },
   rank: {
     icon: FiBarChart2,
-    box: 'border-yellow-400/20 from-yellow-400/[0.07] to-transparent',
-    chip: 'bg-yellow-400/15 text-yellow-300 ring-yellow-300/25',
-    primary: 'bg-yellow-400 text-slate-950 hover:bg-yellow-300',
-    secondary: 'border-yellow-400/35 text-yellow-200',
-    link: 'hover:text-yellow-200',
+    // Portfolio Rank's own accent, #fbbf24 (amber-400).
+    box: 'border-amber-400/20 from-amber-400/[0.07] to-transparent',
+    chip: 'bg-amber-400/15 text-amber-300 ring-amber-300/25',
+    primary: 'bg-amber-400 text-slate-950 hover:bg-amber-300',
+    secondary: 'border-amber-400/35 text-amber-200',
+    link: 'hover:text-amber-200',
+    check: 'text-amber-300',
   },
-} satisfies Record<string, { icon: IconType; box: string; chip: string; primary: string; secondary: string; link: string }>
+} satisfies Record<string, { icon: IconType; box: string; chip: string; primary: string; secondary: string; link: string; check: string }>
 
 interface AdLink {
   label: string
@@ -61,15 +66,20 @@ interface AdLink {
   external?: boolean
   /** Fetches a file from one of DOWNLOADS: shows a Windows mark and what you get. */
   download?: keyof typeof DOWNLOADS
+  /** Marks shown before the label, e.g. the platforms a request is for. */
+  marks?: IconType[]
 }
 
 interface FeaturedProject {
   title: string
+  /** The title as the product writes it (Portfolio Rank's gold "Rank"); reads the same as `title`. */
+  wordmark?: React.ReactNode
   /** The app's own icon, shown left of its name. */
   icon: string
   /** Which part of the Lab: the owner's daily tools, or the featured builds. */
   group: 'tools' | 'featured'
   subtitle: string
+  /** What it does, in a few sentences; the tech goes in `tags`, shown as pills. */
   description: string
   /** The screenshots, first one shown; the gallery steps through the rest. */
   images: GalleryImage[]
@@ -83,12 +93,12 @@ interface FeaturedProject {
   /** Who the build stands on, credited under the description. */
   credit?: { before: string; name: string; href: string; after?: string }
   /**
-   * The row's ad: a one-line hook and the links that act on it. No link goes
+   * The row's ad: a few short points and the links that act on them. No link goes
    * where the row's Live Site or GitHub button already goes: each is a
    * different door (the download, the app itself, the install guide, the vote).
-   * `compact` sets hook and buttons on one line (the tightest row).
+   * `compact` sets points and buttons on one line (the tightest row).
    */
-  ad?: { hook: string; accent: keyof typeof accents; compact?: boolean; links: AdLink[] }
+  ad?: { points: string[]; accent: keyof typeof accents; compact?: boolean; links: AdLink[] }
 }
 
 // The owner's daily drivers first (Scribe and OpenPing run every day), then
@@ -101,22 +111,23 @@ const featured: FeaturedProject[] = [
     group: 'tools',
     subtitle: 'Private Local Dictation for Windows',
     description:
-      'I dictate with Scribe every day. Hold a hotkey, talk, release: whisper.cpp transcribes on your own PC and the words land at your cursor, in any app. A Tauri and Rust app keeps the model warm in memory, so the text is ready the moment you let go. No cloud, no account, no subscription.',
+      'I dictate with Scribe every day. Hold a hotkey, talk and let go: the words land at your cursor in any app. It transcribes on your own PC with the model kept loaded, so the text is there the moment you release.',
     images: [
       { src: '/builds/scribe/landing.webp', alt: 'Scribe: talk, it types. Private local dictation for Windows' },
       { src: '/builds/scribe/features.webp', alt: "Scribe's features: local Whisper models, a model picker, rebindable hotkeys and a floating status pill" },
     ],
-    tags: ['Tauri', 'Rust', 'Whisper'],
+    tags: ['Tauri', 'Rust', 'whisper.cpp', 'React'],
     github: 'https://github.com/n8watkins/scribe',
     liveSite: 'https://scribe.n8builds.dev',
     buildSlug: 'scribe',
     ad: {
-      hook: 'Free for Windows. No account, no telemetry, and your voice never leaves your PC.',
+      points: ['Free for Windows', 'No account', 'No telemetry', 'Your voice never leaves your PC'],
       accent: 'scribe',
       links: [
         { label: 'Download for Windows', href: '/download/scribe', kind: 'primary', download: 'scribe' },
         {
           label: 'Want it on Mac or Linux? Ask for it',
+          marks: [FaApple, FaLinux],
           href: 'https://github.com/n8watkins/scribe/issues/new?title=Request%3A%20Scribe%20for%20macOS%20or%20Linux&body=Which%20platform%20would%20you%20use%20Scribe%20on%20(macOS%20or%20Linux%2C%20and%20which%20version)%3F%0A%0AWhat%20would%20you%20use%20it%20for%3F',
           kind: 'link',
           external: true,
@@ -130,18 +141,18 @@ const featured: FeaturedProject[] = [
     group: 'tools',
     subtitle: 'Uptime Monitoring in Your Own Cloudflare',
     description:
-      'I check OpenPing every day: it watches my live demos. Uptime checks, incidents and public status pages run on a Cloudflare Worker and D1 in your own account, inside the free plan. Schedule-aware: apps are watched only when they matter, and off-hours never count as downtime.',
+      'I check OpenPing every day: it watches my live demos. Uptime checks, incidents, alerts and public status pages, running in your own Cloudflare account. Schedules decide when each app is watched, so off-hours never count as downtime.',
     images: [
       { src: '/builds/openping/landing.webp', alt: 'OpenPing: uptime monitoring that runs entirely in your own cloud' },
       { src: '/builds/openping/status.webp', alt: 'An OpenPing public status page: all systems operational, with 90 days of uptime bars per service' },
       { src: '/builds/openping/tools.webp', alt: "OpenPing's free tools: is it down, uptime calculator, subnet calculator, cron tester, DNS and MX lookup" },
     ],
-    tags: ['Cloudflare Workers', 'D1', 'React'],
+    tags: ['Cloudflare Workers', 'D1', 'Hono', 'React'],
     github: 'https://github.com/n8watkins/open-ping',
     liveSite: 'https://openping.n8builds.dev',
     buildSlug: 'openping',
     ad: {
-      hook: "Use the free tools now with no sign-up, or run your own monitor on Cloudflare's free plan.",
+      points: ['Free tools, no sign-up', "Run your own monitor on Cloudflare's free plan"],
       accent: 'openping',
       links: [
         { label: 'Try the free tools', href: 'https://openping.n8builds.dev/tools', kind: 'primary', external: true },
@@ -156,16 +167,16 @@ const featured: FeaturedProject[] = [
     group: 'featured',
     subtitle: 'Personal UV & Sun-Exposure Dashboard',
     description:
-      'The UV index is a number, not an answer. Solara turns live UV data, your skin type, sunscreen and activities into safe sun windows for today and the days ahead, with calendar scheduling and push reminders. An installable Next.js app on Firebase, free to use, and no account needed to start.',
+      'The UV index is a number, not an answer. Solara turns live UV data, your skin type, sunscreen and plans into safe sun windows for today and the days ahead, with calendar scheduling and push reminders. Installs like an app on your phone.',
     // A wide social card: anchor left so the cover crop keeps the sun.
     images: [{ src: '/builds/solara/og-image.png', alt: 'Solara: know your sun window' }],
     imagePosition: 'object-left',
-    tags: ['Next.js', 'Firebase', 'Stripe'],
+    tags: ['Next.js', 'Firebase', 'Stripe', 'Open-Meteo'],
     github: 'https://github.com/n8watkins/solara',
     liveSite: 'https://solara-uv.web.app',
     buildSlug: 'solara',
     ad: {
-      hook: 'Free to use, and no account needed to start.',
+      points: ['Free to use', 'No account needed to start'],
       accent: 'solara',
       // Straight into the planner; Live Site is the landing page.
       links: [{ label: 'Find your sun window', href: 'https://solara-uv.web.app/app/', kind: 'primary', external: true }],
@@ -173,13 +184,18 @@ const featured: FeaturedProject[] = [
   },
   {
     title: 'Portfolio Rank',
+    wordmark: (
+      <>
+        Portfolio <span className="text-[#fbbf24]">Rank</span>
+      </>
+    ),
     icon: '/builds/portfolio-rank/icon.png',
     group: 'featured',
     subtitle: 'Developer Portfolio Ranker',
     description:
-      "Nearly 2,000 developer portfolios, ranked by head-to-head votes instead of the alphabet. A vote takes about five seconds: pick the better of two. Every site gets a real screenshot, Lighthouse scores and a Gemini review, and an ELO rating decides the leaderboard.",
+      'Nearly 2,000 developer portfolios, ranked by head-to-head votes instead of the alphabet: pick the better of two, and an ELO rating sets the leaderboard. Every site gets a real screenshot, Lighthouse scores and an AI review.',
     images: [{ src: '/projects/PortfolioRank-1.png', alt: 'Portfolio Rank - developer portfolio ranker screenshot' }],
-    tags: ['Next.js', 'TypeScript', 'Vercel'],
+    tags: ['Next.js', 'Gemini', 'Turso', 'Vercel'],
     github: 'https://github.com/n8watkins/portfolio-rank',
     liveSite: 'https://portfoliorank.vercel.app/',
     buildSlug: 'portfolio-rank',
@@ -190,7 +206,7 @@ const featured: FeaturedProject[] = [
       after: ', curated by thousands of contributors.',
     },
     ad: {
-      hook: 'A vote takes five seconds.',
+      points: ['A vote takes five seconds'],
       accent: 'rank',
       compact: true,
       links: [
@@ -240,7 +256,13 @@ const Ad = ({ project, facts }: { project: FeaturedProject; facts: DownloadFacts
               : `${buttonBase} rounded-lg border bg-white/4 hover:bg-white/8 ${accent.secondary}`
         }
       >
-        {link.download ? <FaWindows className="h-3.5 w-3.5" /> : null}
+        {link.download ? (
+          <>
+            <FiDownload className="h-4 w-4" aria-hidden="true" />
+            <FaWindows className="h-3.5 w-3.5" aria-hidden="true" />
+          </>
+        ) : null}
+        {link.marks?.map((Mark, i) => <Mark key={i} className="h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden="true" />)}
         {link.label}
         {link.external && link.kind !== 'link' ? <FiExternalLink className="h-3.5 w-3.5" /> : null}
         {link.external ? <span className="sr-only"> (opens in a new tab)</span> : null}
@@ -250,8 +272,20 @@ const Ad = ({ project, facts }: { project: FeaturedProject; facts: DownloadFacts
   const fact = ad.links.map((l) => (l.download ? facts[l.download] : undefined)).find(Boolean)
   const chip = (
     <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ring-1 ${accent.chip}`}>
-      <Icon className="h-3.5 w-3.5" />
+      <Icon className="h-3.5 w-3.5" aria-hidden="true" />
     </span>
+  )
+  // Short points share a line; a long one takes a line of its own.
+  const points = (
+    <ul className="flex flex-wrap items-center gap-x-4 gap-y-1">
+      {ad.points.map((point) => (
+        <li key={point} className={`flex items-start gap-1.5 text-sm font-semibold text-slate-100 ${point.length > 30 ? 'basis-full' : ''}`}>
+          {/* Centred on the first line, so a point that wraps keeps its check at the top. */}
+          <FiCheck className={`mt-[3px] h-3.5 w-3.5 shrink-0 ${accent.check}`} aria-hidden="true" />
+          {point}
+        </li>
+      ))}
+    </ul>
   )
   return (
     <div
@@ -264,7 +298,7 @@ const Ad = ({ project, facts }: { project: FeaturedProject; facts: DownloadFacts
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <div className="flex items-center gap-2.5">
             {chip}
-            <p className="text-sm font-semibold text-slate-100">{ad.hook}</p>
+            {points}
           </div>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             {buttons.map(renderLink)}
@@ -275,16 +309,15 @@ const Ad = ({ project, facts }: { project: FeaturedProject; facts: DownloadFacts
         <>
           <div className="flex items-start gap-2.5">
             {chip}
-            <p className="pt-0.5 text-sm font-semibold text-slate-100">{ad.hook}</p>
+            <div className="min-w-0 pt-1">{points}</div>
           </div>
-          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
-            {buttons.map(renderLink)}
-            {fact ? (
-              <p id={factsId} className="text-xs text-slate-400">
-                {fact}
-              </p>
-            ) : null}
-          </div>
+          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">{buttons.map(renderLink)}</div>
+          {/* What the download is, right under its button. */}
+          {fact ? (
+            <p id={factsId} className="mt-1.5 text-xs text-slate-400">
+              {fact}
+            </p>
+          ) : null}
           {links.length > 0 && <div className="mt-1.5 flex flex-wrap gap-x-4">{links.map(renderLink)}</div>}
         </>
       )}
@@ -299,14 +332,14 @@ const Ad = ({ project, facts }: { project: FeaturedProject; facts: DownloadFacts
  */
 const DetailsBody = ({ project, technologies }: { project: FeaturedProject; technologies: ReturnType<typeof techFor> }) => (
   <>
-    <p className="mt-6 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-slate-450">How it&apos;s built</p>
-    <div className="mt-3">
+    <p className="mt-8 text-xs font-bold uppercase tracking-[0.16em] text-slate-450">How it&apos;s built</p>
+    <div className="mt-4">
       {technologies ? (
         <TechStackCycle technologies={technologies} />
       ) : (
         <div className="flex flex-wrap gap-2">
           {project.tags.map((tag) => (
-            <span key={tag} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-semibold text-slate-400">
+            <span key={tag} className="rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-sm font-semibold text-slate-300">
               {tag}
             </span>
           ))}
@@ -317,9 +350,9 @@ const DetailsBody = ({ project, technologies }: { project: FeaturedProject; tech
     <div className="mt-8 flex flex-wrap gap-3 border-t border-white/8 pt-6">
       <Link
         href={`/builds/${project.buildSlug}`}
-        className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:scale-[1.02] hover:from-blue-500 hover:to-cyan-400"
+        className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 px-5 py-2.5 text-[0.95rem] font-semibold text-white transition-all duration-200 hover:scale-[1.02] hover:from-blue-500 hover:to-cyan-400"
       >
-        <FiFileText className="h-3.5 w-3.5" />
+        <FiFileText className="h-4 w-4 shrink-0" aria-hidden="true" />
         Full story and build log
       </Link>
       {project.github && (
@@ -327,9 +360,9 @@ const DetailsBody = ({ project, technologies }: { project: FeaturedProject; tech
           href={project.github}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8"
+          className="flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-5 py-2.5 text-[0.95rem] font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8"
         >
-          <FiGithub className="h-3.5 w-3.5" />
+          <FiGithub className="h-4 w-4 shrink-0" aria-hidden="true" />
           Source
           <span className="sr-only"> (opens in a new tab)</span>
         </a>
@@ -340,12 +373,19 @@ const DetailsBody = ({ project, technologies }: { project: FeaturedProject; tech
 
 const DetailsHeader = ({ project }: { project: FeaturedProject }) => (
   <>
-    <Image src={project.icon} alt="" width={48} height={48} className="h-12 w-12 shrink-0 rounded-xl" unoptimized={project.icon.endsWith('.svg')} />
+    <Image
+      src={project.icon}
+      alt=""
+      width={56}
+      height={56}
+      className="h-14 w-14 shrink-0 rounded-2xl ring-1 ring-white/10"
+      unoptimized={project.icon.endsWith('.svg')}
+    />
     <div className="min-w-0 flex-1">
-      <h4 id={`${slugOf(project)}-details-title`} className="text-2xl font-bold tracking-tight text-slate-50">
-        {project.title}
+      <h4 id={`${slugOf(project)}-details-title`} className="text-2xl font-bold tracking-tight text-slate-50 sm:text-3xl">
+        {project.wordmark ?? project.title}
       </h4>
-      <p className="mt-0.5 text-sm text-blue-300">{project.subtitle}</p>
+      <p className="mt-1 text-base font-medium text-blue-300">{project.subtitle}</p>
     </div>
   </>
 )
@@ -374,11 +414,18 @@ const ProjectRow = ({ project, flipped, facts }: { project: FeaturedProject; fli
             className="h-10 w-10 shrink-0 rounded-xl ring-1 ring-white/10 sm:h-11 sm:w-11"
           />
           <div className="min-w-0">
-            <h3 className="text-2xl font-bold tracking-tight text-slate-50 sm:text-3xl">{project.title}</h3>
+            <h3 className="text-2xl font-bold tracking-tight text-slate-50 sm:text-3xl">{project.wordmark ?? project.title}</h3>
             <p className="text-sm font-semibold text-blue-300">{project.subtitle}</p>
           </div>
         </div>
         <p className="mt-3 text-sm leading-relaxed text-[#9cadc5] sm:text-[0.95rem]">{project.description}</p>
+        <ul aria-label={`${project.title} is built with`} className="mt-2.5 flex flex-wrap gap-1.5">
+          {project.tags.map((tag) => (
+            <li key={tag} className="rounded-md border border-white/8 bg-white/3 px-2 py-0.5 font-mono text-[0.68rem] text-slate-400">
+              {tag}
+            </li>
+          ))}
+        </ul>
         {project.credit && (
           <p className="mt-1.5 text-sm text-slate-450">
             {project.credit.before}{' '}
@@ -420,7 +467,27 @@ const ProjectRow = ({ project, flipped, facts }: { project: FeaturedProject; fli
               GitHub<span className="sr-only"> repository of {project.title} (opens in a new tab)</span>
             </a>
           )}
-          <ProjectDetails title={project.title} labelledBy={`${slugOf(project)}-details-title`} header={<DetailsHeader project={project} />}>
+          <ProjectDetails
+            title={project.title}
+            labelledBy={`${slugOf(project)}-details-title`}
+            header={<DetailsHeader project={project} />}
+            media={
+              // Up to two screenshots, stacked, so the column fills beside the details.
+              <div className="flex w-full flex-col gap-4">
+                {project.images.slice(0, 2).map((image) => (
+                  <Image
+                    key={image.src}
+                    src={image.src}
+                    alt=""
+                    width={1280}
+                    height={800}
+                    sizes="(max-width: 1024px) 45vw, 500px"
+                    className={`aspect-16/10 w-full rounded-xl border border-white/8 object-cover ${project.imagePosition ?? 'object-top'}`}
+                  />
+                ))}
+              </div>
+            }
+          >
             <DetailsBody project={project} technologies={technologies} />
           </ProjectDetails>
         </div>

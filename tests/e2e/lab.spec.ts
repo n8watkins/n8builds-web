@@ -182,7 +182,13 @@ test('the Scribe ad downloads the newest installer through a stable link', async
   await expect(download).not.toHaveAttribute('target', '_blank')
   // It says what you get, from the release itself (the fixture's v0.8.0 installer is 12,519,464 bytes).
   await expect(download).toHaveAccessibleDescription('Windows installer (.exe) · v0.8.0 · 12 MB')
-  await expect(download.locator('svg')).toBeVisible()
+  // A download mark and the Windows logo, and the details sit under the button, not beside it.
+  await expect(download.locator('svg')).toHaveCount(2)
+  const facts = ad.getByText('Windows installer (.exe) · v0.8.0 · 12 MB')
+  const [button, caption] = await Promise.all([download.boundingBox(), facts.boundingBox()])
+  expect(caption!.y).toBeGreaterThanOrEqual(button!.y + button!.height)
+  // The Mac and Linux request carries the Apple and Tux marks.
+  await expect(ad.getByRole('link', { name: /Mac or Linux/ }).locator('svg')).toHaveCount(2)
 
   // The link resolves to the latest release's installer (a fixed release in tests).
   const response = await request.get('/download/scribe', { maxRedirects: 0 })
@@ -392,5 +398,68 @@ test.describe('the Lab gallery on touch', () => {
     const box = (await gallery.boundingBox())!
     await page.touchscreen.tap(box.x + box.width * 0.8, box.y + box.height / 2)
     await expect.poll(() => active()).toBe(1)
+  })
+})
+
+test('each ad lists its points, and each row shows its tech as pills instead of in the description', async ({ page }) => {
+  await page.goto('/')
+  const points: [string, string[]][] = [
+    ['Scribe', ['Free for Windows', 'No account', 'No telemetry', 'Your voice never leaves your PC']],
+    ['OpenPing', ['Free tools, no sign-up', "Run your own monitor on Cloudflare's free plan"]],
+    ['Solara', ['Free to use', 'No account needed to start']],
+    ['Portfolio Rank', ['A vote takes five seconds']],
+  ]
+  for (const [name, list] of points) {
+    await expect(page.getByRole('group', { name: `Try ${name}` }).getByRole('listitem')).toHaveText(list)
+  }
+  const stacks: [string, string[], RegExp][] = [
+    ['Scribe', ['Tauri', 'Rust', 'whisper.cpp', 'React'], /whisper|Tauri|Rust/],
+    ['OpenPing', ['Cloudflare Workers', 'D1', 'Hono', 'React'], /Worker|D1/],
+    ['Solara', ['Next.js', 'Firebase', 'Stripe', 'Open-Meteo'], /Next\.js|Firebase/],
+    ['Portfolio Rank', ['Next.js', 'Gemini', 'Turso', 'Vercel'], /Gemini|Next\.js/],
+  ]
+  for (const [name, tags, prose] of stacks) {
+    const pills = page.getByRole('list', { name: `${name} is built with` })
+    await expect(pills.getByRole('listitem')).toHaveText(tags)
+    // The description next to the pills is about features, not the stack.
+    const description = pills.locator('xpath=preceding-sibling::p[1]')
+    await expect(description).not.toHaveText(prose)
+  }
+})
+
+test("Portfolio Rank's title writes Rank in its own gold", async ({ page }) => {
+  await page.goto('/')
+  const heading = page.locator('#featured').getByRole('heading', { level: 3, name: 'Portfolio Rank' })
+  await expect(heading).toHaveText('Portfolio Rank')
+  await expect(heading.getByText('Rank', { exact: true })).toHaveCSS('color', 'rgb(251, 191, 36)')
+})
+
+test('the Details dialog shows the project picture on the left on wide screens', async ({ page }) => {
+  await page.goto('/')
+  for (const name of ['Scribe', 'Solara']) {
+    await page.getByRole('button', { name: `Details about ${name}` }).click()
+    const dialog = page.getByRole('dialog', { name })
+    const picture = dialog.locator('img').filter({ visible: true }).nth(0)
+    const title = dialog.getByRole('heading', { level: 4 })
+    const [p, t] = await Promise.all([picture.boundingBox(), title.boundingBox()])
+    expect(p!.x + p!.width, `${name}: the picture is left of the details`).toBeLessThanOrEqual(t!.x)
+    // Each tech's icon is centred over its name.
+    const tech = dialog.getByRole('listitem').filter({ has: page.locator('img') }).first()
+    const [icon, label] = await Promise.all([tech.locator('img').boundingBox(), tech.locator('span').last().boundingBox()])
+    expect(Math.abs(icon!.x + icon!.width / 2 - (label!.x + label!.width / 2))).toBeLessThan(2)
+    await page.keyboard.press('Escape')
+    await expect(dialog).toBeHidden()
+  }
+})
+
+test.describe('the Details dialog on a phone', () => {
+  test.use({ viewport: { width: 375, height: 800 } })
+  test('leaves the picture out to stay short', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Details about OpenPing' }).click()
+    const dialog = page.getByRole('dialog', { name: 'OpenPing' })
+    await expect(dialog.getByRole('heading', { level: 4 })).toBeVisible()
+    // Only the app icon and the tech icons show; the screenshots column is hidden.
+    await expect(dialog.locator('img[src*="landing"]').filter({ visible: true })).toHaveCount(0)
   })
 })
