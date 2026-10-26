@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import type { IconType } from 'react-icons'
-import { LuFlaskConical, LuPuzzle, LuStar, LuWrench } from 'react-icons/lu'
+import { LuFlaskConical, LuStar, LuWrench } from 'react-icons/lu'
+import { SiGooglechrome } from 'react-icons/si'
 
 /**
  * The Lab's parts: the nav lists the ones found on the page, in document
@@ -13,10 +14,17 @@ const SECTIONS: readonly LabPart[] = [
   { id: 'featured', label: 'Featured', icon: LuStar },
   // Shortened to "Extensions" on screen where the gutter is too narrow for
   // the full label on one line (1440-1535px); its accessible name stays whole.
-  { id: 'extensions', label: 'Chrome extensions', short: 'Extensions', icon: LuPuzzle },
+  {
+    id: 'extensions',
+    label: 'Chrome extensions',
+    short: 'Extensions',
+    icon: SiGooglechrome,
+    iconSize: 'size-3 min-[110rem]:size-3.5',
+  },
 ]
 
-type LabPart = { id: string; label: string; short?: string; icon: IconType }
+// iconSize: a filled brand glyph reads heavier than the outline icons, so it runs a size smaller.
+type LabPart = { id: string; label: string; short?: string; icon: IconType; iconSize?: string }
 
 /**
  * The Lab's floating side nav: a heading ("In the Lab", with the Lab's flask)
@@ -52,9 +60,11 @@ export default function LabSectionNav() {
 
   useEffect(() => {
     const found = SECTIONS.map((s) => ({ s, el: document.getElementById(s.id) })).filter(
-      (x): x is { s: LabPart; el: HTMLElement } => !!x.el,
+      (x): x is { s: LabPart; el: HTMLElement } => !!x.el
     )
-    found.sort((a, b) => (a.el.compareDocumentPosition(b.el) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1))
+    found.sort((a, b) =>
+      a.el.compareDocumentPosition(b.el) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1
+    )
     const present = found.map((x) => x.s)
     const els = found.map((x) => x.el)
     const lab = document.getElementById('lab')
@@ -84,7 +94,9 @@ export default function LabSectionNav() {
 
     const observer = new IntersectionObserver(([entry]) => {
       // Drops any part missing from the page, on the first callback.
-      setParts((prev) => (prev.map((p) => p.id).join() === present.map((p) => p.id).join() ? prev : present))
+      setParts((prev) =>
+        prev.map((p) => p.id).join() === present.map((p) => p.id).join() ? prev : present
+      )
       setInView(entry.isIntersecting)
       if (entry.isIntersecting) {
         update()
@@ -172,10 +184,13 @@ export default function LabSectionNav() {
                     className={`relative flex size-(--chip) shrink-0 items-center justify-center rounded-lg transition-colors duration-300 ${
                       current
                         ? 'bg-[#0b1a2b] text-cyan-300 ring-1 ring-cyan-300/20'
-                        : 'bg-[#070d1a] text-slate-450 group-hover:text-slate-200'
+                        : 'bg-[#070d1a] text-slate-450'
                     }`}
                   >
-                    <Icon className="size-3.5 min-[110rem]:size-4" aria-hidden="true" />
+                    <Icon
+                      className={s.iconSize ?? 'size-3.5 min-[110rem]:size-4'}
+                      aria-hidden="true"
+                    />
                     {current && inView && <Comet />}
                   </span>
                   <Label part={s} current={current} />
@@ -209,19 +224,24 @@ function Comet() {
 
 // The label: inline from 1440px; below that, a tooltip beside the chip on hover or focus.
 const TOOLTIP =
-  'pointer-events-none absolute top-1/2 left-full ml-1 -translate-y-1/2 -translate-x-1 rounded-lg bg-slate-900 px-2.5 py-1 text-xs font-medium text-slate-100 opacity-0 shadow-lg ring-1 ring-white/10 transition-[opacity,translate] duration-200 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100 motion-reduce:translate-x-0'
+  'pointer-events-none absolute top-1/2 left-full ml-1 -translate-y-1/2 rounded-lg bg-slate-900 px-2.5 py-1 text-xs font-medium text-slate-100 opacity-0 shadow-lg ring-1 ring-white/10 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100'
 const INLINE =
   'min-[90rem]:pointer-events-auto min-[90rem]:static min-[90rem]:ml-0 min-[90rem]:translate-none min-[90rem]:rounded-none min-[90rem]:bg-transparent min-[90rem]:p-0 min-[90rem]:text-[0.8125rem] min-[90rem]:opacity-100 min-[110rem]:text-sm min-[90rem]:shadow-none min-[90rem]:ring-0 min-[90rem]:transition-colors'
 
 function Label({ part, current }: { part: LabPart; current: boolean }) {
   const tone = current
     ? 'min-[90rem]:text-cyan-200'
-    : 'min-[90rem]:text-slate-400 min-[90rem]:group-hover:text-slate-200'
+    : 'min-[90rem]:text-slate-400 min-[90rem]:group-hover:text-slate-300'
   if (!part.short) return <span className={`${TOOLTIP} ${INLINE} ${tone}`}>{part.label}</span>
   return (
     <>
-      <span className={`${TOOLTIP} ${INLINE} ${tone} min-[90rem]:max-2xl:sr-only`}>{part.label}</span>
-      <span aria-hidden="true" className={`hidden font-medium min-[90rem]:max-2xl:inline ${INLINE} ${tone}`}>
+      <span className={`${TOOLTIP} ${INLINE} ${tone} min-[90rem]:max-2xl:sr-only`}>
+        {part.label}
+      </span>
+      <span
+        aria-hidden="true"
+        className={`hidden font-medium min-[90rem]:max-2xl:inline ${INLINE} ${tone}`}
+      >
         {part.short}
       </span>
     </>
