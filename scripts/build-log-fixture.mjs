@@ -5,7 +5,8 @@
 //   GITHUB_TOKEN=... node scripts/build-log-fixture.mjs
 //
 // It fetches what lib/build-log.ts fetches (the repo, its releases and the
-// owner's last 100 commits on the default branch) and stores it in the same
+// owner's commits on the default branch, paged back to the log's 12-month
+// window as `collectCommits` does) and stores it in the same
 // normalized shape. On top of that it keeps the newest bot commits (which the
 // real fetch never asks for), so the bot filter is tested against real ones.
 // The highlights are a hand-written sample, not Sanity data.
@@ -53,12 +54,29 @@ const release = (r) => ({
   prerelease: r.prerelease,
 })
 
+// Mirrors lib/build-log.ts (COMMIT_PAGE_SIZE, MAX_COMMIT_PAGES, historyCutoff, collectCommits).
+const PAGE_SIZE = 100
+const MAX_PAGES = 10
+const now = new Date()
+const CUTOFF = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 11, 1)).toISOString()
+
+async function ownerCommits(repo, owner) {
+  const commits = []
+  for (let page = 1; page <= MAX_PAGES; page++) {
+    const batch = await gh(`/repos/${repo}/commits?per_page=${PAGE_SIZE}&author=${owner}${page > 1 ? `&page=${page}` : ''}`)
+    commits.push(...batch)
+    const oldest = Math.min(...batch.map((c) => Date.parse(c.commit.committer?.date ?? c.commit.author?.date)).filter((t) => !Number.isNaN(t)))
+    if (batch.length < PAGE_SIZE || !Number.isFinite(oldest) || oldest < Date.parse(CUTOFF)) break
+  }
+  return commits
+}
+
 async function snapshot(repo) {
   const owner = repo.split('/')[0]
   const [info, releases, mine, all] = await Promise.all([
     gh(`/repos/${repo}`),
     gh(`/repos/${repo}/releases?per_page=100`),
-    gh(`/repos/${repo}/commits?per_page=100&author=${owner}`),
+    ownerCommits(repo, owner),
     gh(`/repos/${repo}/commits?per_page=100`),
   ])
   const bots = all.filter((c) => /\[bot\]$/.test(c.author?.login ?? c.commit.author?.name ?? '')).slice(0, BOT_COMMITS)

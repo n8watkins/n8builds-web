@@ -23,11 +23,10 @@ export interface LoadoutGroup {
   items: LoadoutItem[]
 }
 
-// First-person intro, no resume energy. Shown as a terminal block (homepage hero + /loadout).
-export const whoami: string[] = [
-  '$ whoami',
-  'Nathan Watkins, AI-first software developer in LA, building apps, Chrome extensions and tools I wish existed, with AI agents doing the heavy lifting.',
-]
+// First-person intro, no resume energy. Shown as a terminal block in the homepage hero:
+// the name sits in the window's title bar (~/whoami), the body is two short sentences that type out.
+export const whoamiTitle = { path: '~/whoami', name: "Nathan 'N8' Watkins" }
+export const whoami: string[] = ['AI-first software developer.', 'I build apps and tools I wish existed.']
 
 export const loadout: LoadoutGroup[] = [
   {
@@ -59,8 +58,8 @@ export const loadout: LoadoutGroup[] = [
         take: 'Long-context + cheap makes it perfect for "summarize this whole video" jobs.',
       },
       {
-        name: 'Ollama + whisper.cpp + Piper',
-        whatFor: 'Local inference - offline transcription (Scribe), local TTS, private experiments.',
+        name: 'whisper.cpp + Piper',
+        whatFor: 'Local speech, both ways - offline transcription in Scribe (whisper.cpp) and text-to-speech in my Piper TTS extension.',
         take: 'Local-first is underrated. No API bill, no data leaving the machine.',
         tag: 'local-first',
       },

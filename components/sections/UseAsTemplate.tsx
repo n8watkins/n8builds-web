@@ -1,123 +1,175 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { FiArrowUpRight, FiGithub } from 'react-icons/fi'
+import type { IconType } from 'react-icons'
+import { FiBriefcase, FiCheck, FiFileText } from 'react-icons/fi'
+import LabSubheader from '@/components/sections/LabSubheader'
+import RepoButtons from '@/components/ui/RepoButtons'
+import Reveal from '@/components/ui/Reveal'
 
 /**
- * The end of the homepage: both sites are public and free to reuse. This is
- * where "how n8builds is built and tested" lives now, instead of a featured
- * row advertising the site's own specs (the detail is /builds/n8builds).
+ * In the Lab, right after the featured builds: a prompt to the visitor who is
+ * building their own site, with both of mine as public templates. Two cards
+ * with the anatomy of a Lab row (components/sections/FeaturedProjects.tsx)
+ * and no screenshots: what you get if you fork it, what it's built with, how
+ * it is built and tested (this site), and the repo. Hiring is the PortfolioAd section's
+ * job, not this one's.
  */
-const TEMPLATES = [
+
+interface Template {
+  title: string
+  /** The live site, as a link under the title. */
+  site: { label: string; href: string; internal?: boolean }
+  /** The N8 mark belongs to n8builds.dev; the portfolio gets a neutral icon chip. */
+  mark: { image: string } | { icon: IconType }
+  /** What you get if you fork it. */
+  description: string
+  /** What it's built with. */
+  tags: string[]
+  /**
+   * How it is built and tested: a build page on this site. The portfolio has
+   * none, and its repo is already the GitHub half of RepoButtons.
+   */
+  howItsBuilt?: string
+  repoName: string
+  repo: string
+}
+
+/**
+ * Under the heading. Both repos are MIT-licensed, and both run lint, types and
+ * Playwright in GitHub Actions on every pull request.
+ */
+const POINTS = ['Open source', 'MIT-licensed', 'Tested on every pull request']
+
+const TEMPLATES: Template[] = [
   {
-    name: 'n8builds.dev',
-    // Both sites carry the same N8 brand mark (docs/DECISIONS.md).
-    icon: '/tab/n8-icon-192.png',
-    repoName: 'n8builds-web',
-    what: 'This site',
+    title: 'This site',
+    site: { label: 'n8builds.dev', href: '/', internal: true },
+    mark: { image: '/tab/n8-icon-192.png' },
     description:
-      'Next.js 16 and Sanity. Every pull request runs the Playwright suite on five browsers and the APIs, plus Lighthouse budgets, before anything merges; the contact form fails closed behind Turnstile and rate limits.',
-    license: 'MIT',
+      'A server-rendered Next.js 16 site with a Sanity blog, a build log, a contact form behind Turnstile and rate limits, and a speed-first setup tested on five browsers. A clean start for building in public.',
+    tags: ['Next.js 16', 'Sanity', 'Tailwind CSS 4', 'Turnstile', 'Upstash', 'Vercel'],
+    howItsBuilt: '/builds/n8builds',
+    repoName: 'n8builds-web',
     repo: 'https://github.com/n8watkins/n8builds-web',
-    more: { label: 'How it is built and tested', href: '/builds/n8builds', internal: true },
   },
   {
-    name: 'portfolio.n8builds.dev',
-    icon: '/tab/n8-icon-192.png',
-    repoName: 'dev-portfolio',
-    what: 'My developer portfolio',
+    title: 'My developer portfolio',
+    site: { label: 'portfolio.n8builds.dev', href: 'https://portfolio.n8builds.dev' },
+    mark: { icon: FiBriefcase },
     description:
-      'Next.js 16 project pages with live demo status from OpenPing, generated share cards, and CI on every pull request. A clean starting point for a portfolio of your own.',
-    license: 'MIT (code; my photos and write-ups stay mine)',
+      'A Next.js 16 portfolio with a page per project, live demo status from OpenPing, room for client work and experience, and generated share cards. A clean start for a portfolio of your own.',
+    tags: ['Next.js 16', 'Tailwind CSS', 'Framer Motion', 'Vercel'],
+    repoName: 'dev-portfolio',
     repo: 'https://github.com/n8watkins/dev-portfolio',
-    more: { label: 'See it live', href: 'https://portfolio.n8builds.dev', internal: false },
   },
 ]
 
-/**
- * A subdomain site name may wrap after its first label on the narrowest
- * phones ("portfolio." / "n8builds.dev"), never inside a word.
- */
-const SiteName = ({ name }: { name: string }) => {
-  const dot = name.indexOf('.')
-  if (name.split('.').length < 3) return name
-  return (
-    <>
-      {name.slice(0, dot + 1)}
-      <wbr />
-      {name.slice(dot + 1)}
-    </>
+const buttonBase =
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-200 hover:scale-[1.02] motion-reduce:hover:scale-100'
+
+const primary = `${buttonBase} bg-linear-to-r from-blue-600 to-cyan-500 text-white hover:from-blue-500 hover:to-cyan-400`
+
+const siteLink =
+  'text-sm font-semibold text-blue-300 underline decoration-blue-300/30 underline-offset-4 transition-colors hover:text-cyan-200 hover:decoration-cyan-200/60'
+
+const Mark = ({ mark }: { mark: Template['mark'] }) =>
+  'image' in mark ? (
+    <Image
+      src={mark.image}
+      alt=""
+      width={44}
+      height={44}
+      className="h-10 w-10 shrink-0 rounded-xl ring-1 ring-white/10 sm:h-11 sm:w-11"
+    />
+  ) : (
+    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-400/10 text-teal-300 ring-1 ring-teal-300/30 sm:h-11 sm:w-11">
+      <mark.icon className="h-5 w-5" aria-hidden="true" />
+    </span>
   )
-}
 
-const UseAsTemplate = () => (
-  <section id="template" aria-labelledby="template-heading" className="py-10">
-    <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-teal-400">Open source</p>
-    <h2 id="template-heading" className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
-      Use this as a template
-    </h2>
-    <p className="mt-2 max-w-[600px] text-[#9cadc5]">
-      Both of my sites are public. Fork either one, keep what helps, and make it yours.
-    </p>
-
-    <ul className="mt-6 grid gap-5 md:grid-cols-2">
-      {TEMPLATES.map((t) => (
-        <li key={t.name} className="flex min-w-0 flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-          <div className="flex items-center gap-3.5">
-            <Image src={t.icon} alt="" width={44} height={44} className="h-11 w-11 shrink-0 rounded-xl" />
-            <div className="min-w-0">
-              <p className="font-mono text-xs uppercase tracking-wider text-slate-450">{t.what}</p>
-              <h3 className="mt-0.5 text-lg font-bold text-slate-50 [overflow-wrap:anywhere] min-[360px]:text-xl">
-                <SiteName name={t.name} />
-              </h3>
-            </div>
-          </div>
-          <p className="mt-3 leading-relaxed text-slate-300">{t.description}</p>
-          <p className="mt-3 text-sm text-slate-450">License: {t.license}</p>
-          <div className="mt-auto flex flex-wrap items-center gap-x-5 gap-y-2 pt-5 text-sm font-semibold">
-            <a
-              href={t.repo}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-cyan-300 transition-colors hover:text-cyan-200"
-            >
-              <FiGithub className="h-4 w-4" />
-              {t.repoName} on GitHub
-              <span className="sr-only"> (opens in a new tab)</span>
-            </a>
-            {t.more.internal ? (
-              <Link href={t.more.href} className="inline-flex items-center gap-1 text-slate-300 transition-colors hover:text-cyan-200">
-                {t.more.label}
-                <FiArrowUpRight className="h-4 w-4" />
-              </Link>
-            ) : (
-              <a
-                href={t.more.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-slate-300 transition-colors hover:text-cyan-200"
-              >
-                {t.more.label}
-                <FiArrowUpRight className="h-4 w-4" />
-                <span className="sr-only"> (opens in a new tab)</span>
-              </a>
-            )}
-          </div>
+const TemplateCard = ({ t }: { t: Template }) => (
+  <li className="flex min-w-0 flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+    <div className="flex items-center gap-3">
+      <Mark mark={t.mark} />
+      <div className="min-w-0">
+        <h4 className="text-xl font-bold tracking-tight text-slate-50 sm:text-2xl">{t.title}</h4>
+        {t.site.internal ? (
+          <Link href={t.site.href} className={siteLink}>
+            {t.site.label}
+          </Link>
+        ) : (
+          <a href={t.site.href} target="_blank" rel="noopener noreferrer" className={siteLink}>
+            {t.site.label}
+            <span className="sr-only"> (opens in a new tab)</span>
+          </a>
+        )}
+      </div>
+    </div>
+    <p className="mt-3 text-sm leading-relaxed text-[#9cadc5] sm:text-[0.95rem]">{t.description}</p>
+    <ul aria-label={`${t.title} is built with`} className="mt-2.5 flex flex-wrap gap-1.5">
+      {t.tags.map((tag) => (
+        <li
+          key={tag}
+          className="rounded-md border border-white/8 bg-white/3 px-2 py-0.5 font-mono text-[0.68rem] text-slate-400"
+        >
+          {tag}
         </li>
       ))}
     </ul>
 
-    <p className="mt-5 text-sm text-slate-450">
-      This site&apos;s releases follow{' '}
-      <a
-        href="https://github.com/n8watkins/release-kit"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-slate-300 underline decoration-white/20 underline-offset-4 hover:text-cyan-200"
-      >
-        release-kit
-      </a>
-      , a release standard you can apply to any repo.
-    </p>
+    {/* How it's built, then the repo. Pinned to the bottom so the two cards line up. */}
+    <div className="mt-auto flex flex-wrap items-center gap-2 pt-5">
+      {t.howItsBuilt && (
+        <Link href={t.howItsBuilt} className={primary}>
+          <FiFileText className="h-3.5 w-3.5" aria-hidden="true" />
+          How it is built and tested
+        </Link>
+      )}
+      <RepoButtons href={t.repo} name={t.repoName} />
+    </div>
+  </li>
+)
+
+const UseAsTemplate = () => (
+  // A full-bleed part of the Lab in its own cyan wash (`.lab-part-wash` and
+  // `.lab-accent-template` in app/globals.css), its content at the Lab's width.
+  <section
+    id="template"
+    aria-label="Use my sites as templates"
+    className="lab-accent-template lab-part-wash py-12"
+  >
+    {/* The Lab doesn't reveal itself, so its parts do. */}
+    <Reveal className="mx-auto max-w-6xl px-5 sm:px-8">
+      <LabSubheader
+        title={
+          <>
+            Don&apos;t have a site? Need help building your own?
+            {/* Same size, the tagline's gradient. Underlined in cyan: the gradient clips the text, so the line needs its own colour. */}
+            <span className="block w-fit bg-linear-to-r from-cyan-400 via-blue-400 to-blue-600 bg-clip-text pb-1 text-transparent underline decoration-cyan-400/70 decoration-2 underline-offset-[6px]">
+              Use mine as a template.
+            </span>
+          </>
+        }
+        blurb={
+          <span className="mt-1 flex flex-wrap gap-x-5 gap-y-1.5">
+            {POINTS.map((point) => (
+              <span
+                key={point}
+                className="flex items-center gap-1.5 text-sm font-semibold text-slate-200"
+              >
+                <FiCheck className="h-3.5 w-3.5 shrink-0 text-cyan-300" aria-hidden="true" />
+                {point}
+              </span>
+            ))}
+          </span>
+        }
+      />
+      <ul className="grid gap-5 md:grid-cols-2">
+        {TEMPLATES.map((t) => (
+          <TemplateCard key={t.title} t={t} />
+        ))}
+      </ul>
+    </Reveal>
   </section>
 )
 

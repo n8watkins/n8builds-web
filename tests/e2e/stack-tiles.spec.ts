@@ -52,6 +52,30 @@ test.describe('touch screens', () => {
 test.describe('marquees (motion allowed)', () => {
   test.use({ contextOptions: { reducedMotion: 'no-preference' } })
 
+  test("the loop's copies move in step, never drifting over each other", async ({ page }) => {
+    // The first copy is in the server HTML; the others join after hydration.
+    for (const path of ['/', '/loadout']) {
+      await page.goto(path)
+      await expect
+        .poll(() => page.getByText('Claude Code', { exact: true }).count())
+        .toBeGreaterThan(1)
+      await expect
+        .poll(() =>
+          page
+            .locator('[data-marquee-row], .overflow-hidden:has(> .animate-marquee)')
+            .evaluateAll((rows) =>
+              rows.every((row) => {
+                const times = [...row.children].map((t) =>
+                  Number(t.getAnimations()[0]?.currentTime)
+                )
+                return times.every((time) => Math.abs(time - times[0]) < 1)
+              })
+            )
+        )
+        .toBe(true)
+    }
+  })
+
   test('keyboard focus reveals a tile, and each item is a single tab stop', async ({ page }) => {
     await page.goto('/loadout')
     const tiles = page.locator('#techstack figure')
@@ -68,4 +92,101 @@ test.describe('marquees (motion allowed)', () => {
     await focusable.first().focus()
     await expect.poll(() => descriptionOpacity(focusable.first())).toBe('1')
   })
+})
+
+/**
+ * Hovering a tile shrinks its name and reveals the description. The pair must
+ * sit centred in the tile whatever the description's length (one line or
+ * three), not crammed against the top with empty space below.
+ */
+test.describe('hovered tile content is vertically centred', () => {
+  test.use({
+    contextOptions: { reducedMotion: 'no-preference' },
+    viewport: { width: 1280, height: 900 },
+  })
+
+  // The homepage AI kit has one- and two-line descriptions; the /loadout tech
+  // stack has two- and three-line ones.
+  for (const { path, section, lines } of [
+    { path: '/', section: '#loadout', lines: [1, 2] },
+    { path: '/loadout', section: '#techstack', lines: [2, 3] },
+  ]) {
+    test(`${section} tiles on ${path}`, async ({ page }) => {
+      await page.goto(path)
+      const tiles = page.locator(`${section} figure`)
+      // Jump (the page scrolls smoothly otherwise) so the marquee sits mid-screen.
+      await page
+        .locator(section)
+        .evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
+      // Wait for hydration's loop copies, so the track has its final layout.
+      await expect.poll(() => tiles.count()).toBeGreaterThan(10)
+
+      const seenLines = new Set<number>()
+      const rows = page.locator(`${section} .overflow-hidden:has(> .animate-marquee)`)
+      for (const rowEl of await rows.all()) {
+        // Pause this row by resting the pointer on its edge, then hover each
+        // tile that is fully on screen in turn.
+        const row = (await rowEl.boundingBox())!
+        await page.mouse.move(640, row.y + 3)
+        const rowTiles = rowEl.locator('figure')
+        const visible = await rowTiles.evaluateAll((figures) =>
+          figures.flatMap((figure, index) => {
+            const box = figure.getBoundingClientRect()
+            // The rounded panel clips the rows (which can be wider than it).
+            const panel = figure.closest('.rounded-3xl')!.getBoundingClientRect()
+            const inView =
+              box.top >= 0 &&
+              box.bottom <= innerHeight &&
+              box.left >= Math.max(panel.left, 0) + 8 &&
+              box.right <= Math.min(panel.right, innerWidth) - 8
+            return inView ? [index] : []
+          })
+        )
+        expect(visible.length).toBeGreaterThan(2)
+        for (const index of visible) {
+          const tile = rowTiles.nth(index)
+          const box = (await tile.boundingBox())!
+          await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+          // Let the hover transition finish.
+          await expect
+            .poll(() =>
+              tile.evaluate((el) => getComputedStyle(el.querySelector('.description')!).opacity)
+            )
+            .toBe('1')
+          await page.waitForTimeout(400)
+          const m = await tile.evaluate((tile) => {
+            const box = tile.getBoundingClientRect()
+            // The visible ink: the icon, the name's text and the description's text.
+            const rects = [tile.querySelector('svg')!.getBoundingClientRect()]
+            let lines = 0
+            for (const el of tile.querySelectorAll('[data-tile-name], .description')) {
+              const range = document.createRange()
+              range.selectNodeContents(el)
+              rects.push(range.getBoundingClientRect())
+              if (el.classList.contains('description')) {
+                lines = Math.round(
+                  range.getBoundingClientRect().height / parseFloat(getComputedStyle(el).lineHeight)
+                )
+              }
+            }
+            const top = Math.min(...rects.map((r) => r.top))
+            const bottom = Math.max(...rects.map((r) => r.bottom))
+            return {
+              name: tile.querySelector('[data-tile-name]')!.textContent,
+              lines,
+              top: Math.round(top - box.top),
+              bottom: Math.round(box.bottom - bottom),
+            }
+          })
+          seenLines.add(m.lines)
+          expect(m.top, `${m.name}: content clears the top edge`).toBeGreaterThan(4)
+          expect(
+            Math.abs(m.top - m.bottom),
+            `${m.name} (${m.lines} lines): top gap ${m.top}px vs bottom gap ${m.bottom}px`
+          ).toBeLessThanOrEqual(3)
+        }
+      }
+      for (const n of lines) expect([...seenLines], `checked a ${n}-line description`).toContain(n)
+    })
+  }
 })

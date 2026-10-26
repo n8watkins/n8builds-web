@@ -4,7 +4,8 @@ import { E2E_BASE_URL, E2E_PORT } from './tests/e2e-env'
 /**
  * Playwright runs against a production build (`next build && next start`) in
  * CONTACT_TEST_MODE, with Cloudflare's always-pass Turnstile test keys. Nothing
- * here reads .env.local: no email is sent, and analytics/Sentry are off.
+ * here reads .env.local: no email is sent, Sentry is off, and analytics uses a
+ * made-up GA ID.
  *
  * Projects:
  * - api:      contact API tests (no browser)
@@ -24,6 +25,9 @@ export default defineConfig({
     baseURL: E2E_BASE_URL,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
+    // A fixed time zone outside the ones asked about analytics consent, so the
+    // consent banner (lib/consent.ts) never shows unless a spec asks for it.
+    timezoneId: 'America/Los_Angeles',
   },
 
   projects: [
@@ -58,8 +62,10 @@ export default defineConfig({
       // The build log reads its recorded GitHub fixture, never live GitHub.
       BUILD_LOG_FIXTURE: '1',
       GITHUB_TOKEN: '',
+      // A made-up GA ID (not the real property), so the consent banner and the
+      // GA loader are built and tested (tests/e2e/consent.spec.ts).
+      NEXT_PUBLIC_GA_ID: 'G-E2ETEST000',
       // Explicitly blank so values in .env.local can't leak into test builds.
-      NEXT_PUBLIC_GA_ID: '',
       NEXT_PUBLIC_SENTRY_DSN: '',
       SENTRY_DSN: '',
       SENTRY_AUTH_TOKEN: '',

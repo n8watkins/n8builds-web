@@ -23,6 +23,39 @@ test('the logo goes home from any page', async ({ page }) => {
   await expect(page).toHaveURL(/\/$/)
 })
 
+/** The Ko-fi link (2026-10-26): left of Portfolio in the navbar, and in the mobile menu. */
+const KOFI = 'https://ko-fi.com/n8watkins'
+
+test.describe('the Ko-fi link', () => {
+  test('sits left of Portfolio in the navbar and opens Ko-fi in a new tab', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto('/')
+    const nav = page.locator('nav[aria-label="Primary"]')
+    const kofi = nav.getByRole('link', { name: 'Ko-fi', exact: true })
+    await expect(kofi).toBeVisible()
+    await expect(kofi).toHaveAttribute('href', KOFI)
+    await expect(kofi).toHaveAttribute('target', '_blank')
+    await expect(kofi).toHaveAttribute('rel', /noopener/)
+    await expect(kofi.locator('svg')).toBeVisible()
+    const portfolio = (await nav.getByRole('link', { name: 'Portfolio', exact: true }).boundingBox())!
+    const box = (await kofi.boundingBox())!
+    expect(box.x + box.width, 'left of Portfolio').toBeLessThanOrEqual(portfolio.x)
+    // Same look as Portfolio: the same height and top.
+    expect(Math.abs(box.height - portfolio.height)).toBeLessThanOrEqual(1)
+    expect(Math.abs(box.y - portfolio.y)).toBeLessThanOrEqual(1)
+  })
+
+  test('is in the mobile menu', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/')
+    await openMenu(page)
+    const kofi = page.locator('#mobile-menu').getByRole('link', { name: /Ko-fi/ })
+    await expect(kofi).toBeVisible()
+    await expect(kofi).toHaveAttribute('href', KOFI)
+    await expect(kofi).toHaveAttribute('target', '_blank')
+  })
+})
+
 test.describe('tablet width', () => {
   test.use({ viewport: { width: 810, height: 1080 } })
 
@@ -32,6 +65,10 @@ test.describe('tablet width', () => {
     const box = await cta.boundingBox()
     expect(box!.x + box!.width).toBeLessThanOrEqual(810)
     await expect(menuButton(page)).toBeVisible()
+    // Ko-fi fits too, clear of the logo.
+    const kofi = (await page.locator('nav[aria-label="Primary"]').getByRole('link', { name: 'Ko-fi', exact: true }).boundingBox())!
+    const logo = (await page.getByRole('link', { name: 'n8builds.dev home' }).boundingBox())!
+    expect(kofi.x).toBeGreaterThan(logo.x + logo.width)
   })
 })
 
@@ -89,7 +126,7 @@ test.describe('mobile menu on a landscape phone', () => {
     await page.goto('/')
     await openMenu(page)
     const menu = page.locator('#mobile-menu')
-    const last = menu.getByRole('link', { name: /Portfolio/ })
+    const last = menu.getByRole('link', { name: /Ko-fi/ })
 
     const panel = await menu.boundingBox()
     expect(panel!.y + panel!.height).toBeLessThanOrEqual(340)

@@ -48,6 +48,33 @@ export default function Marquee({
   // once the page hydrates. They only make the loop seamless, and repeating
   // every tile in the HTML made the page heavy to download and parse.
   const copies = useHydrated() ? repeat : 1
+  const rowRef = useRef<HTMLDivElement>(null)
+
+  // The first copy started animating at first paint; the loop's copies join
+  // after hydration. Line them up with it, or they run out of step and the
+  // copies drift over each other.
+  useEffect(() => {
+    const tracks = rowRef.current ? [...rowRef.current.children] : []
+    const animations = tracks.map((track) => track.getAnimations()[0]).filter(Boolean)
+    const lead = animations[0]
+    if (!lead || animations.length < 2) return
+    let cancelled = false
+    // Once every copy has started, give them the lead's clock.
+    Promise.all(animations.map((animation) => animation.ready))
+      .then(() => {
+        if (cancelled) return
+        for (const animation of animations.slice(1)) {
+          if (lead.startTime !== null && animation.startTime !== null)
+            animation.startTime = lead.startTime
+          else animation.currentTime = lead.currentTime
+        }
+      })
+      // A copy replaced or cancelled mid-way has nothing left to sync.
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [copies])
 
   // Reduced motion: show every item once instead of a frozen track that clips
   // items at the edges. Small screens get a row the visitor swipes themselves;
@@ -66,7 +93,8 @@ export default function Marquee({
             ? 'flex-col items-center'
             : 'w-full snap-x overflow-x-auto md:flex-wrap md:justify-center md:overflow-visible *:shrink-0 *:snap-start',
           className
-        )}>
+        )}
+      >
         {children}
       </div>
     )
@@ -75,6 +103,7 @@ export default function Marquee({
   return (
     <div
       {...props}
+      ref={rowRef}
       className={cn(
         'flex overflow-hidden p-2 [--duration:40s] [--gap:1rem] gap-(--gap)',
         {
@@ -88,7 +117,8 @@ export default function Marquee({
       onFocus={() => setHasFocus(true)}
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setHasFocus(false)
-      }}>
+      }}
+    >
       {Array(copies)
         .fill(0)
         .map((_, i) => (
@@ -103,7 +133,8 @@ export default function Marquee({
               'animate-marquee-vertical flex-col': vertical,
               '[animation-play-state:paused]': isPaused,
               '[animation-direction:reverse]': reverse,
-            })}>
+            })}
+          >
             <MarqueeCopyContext.Provider value={i > 0}>{children}</MarqueeCopyContext.Provider>
           </div>
         ))}

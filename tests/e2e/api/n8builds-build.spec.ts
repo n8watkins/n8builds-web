@@ -32,9 +32,11 @@ test('the n8builds share card is a 1200x630 PNG, set as the page preview', async
   expect(html).toContain('<title>n8builds.dev | n8builds</title>')
 })
 
-test('the n8builds build page says its Lighthouse scores are desktop, and names the mobile pass without a score', async ({ request }) => {
+test('the n8builds build page labels its Lighthouse numbers: desktop scores, and mobile as local runs', async ({ request }) => {
   const html = await (await request.get('/builds/n8builds')).text()
-  expect(html).toContain('Recent desktop runs scored 0.98 to 1.00 for performance')
-  expect(html).toContain('a mobile pass on the home, blog and builds pages')
-  expect(html).not.toContain('Recent runs scored')
+  expect(html).toContain('recent runs score 0.98 to 1.00 for')
+  expect(html).toContain('Mobile numbers are local Lighthouse runs')
+  // The page never shows the old "problem" pitch or the CI report's localhost URL.
+  expect(html).not.toContain('The problem')
+  expect(html).not.toContain('localhost:')
 })

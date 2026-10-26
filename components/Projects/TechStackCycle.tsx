@@ -21,13 +21,6 @@ const CYCLE_INTERVAL = 3000
 const getTechName = (icon: string): string =>
   (techNameMapping as TechNameMappingInterface)[icon] || icon
 
-const formatTechNames = (icons: string[]): string => {
-  const names = icons.map(getTechName)
-  if (names.length <= 1) return names[0] ?? ''
-  if (names.length === 2) return `${names[0]} and ${names[1]}`
-  return names.slice(0, -1).join(', ') + ', & ' + names[names.length - 1]
-}
-
 const TechStackCycle: React.FC<TechStackCycleProps> = ({ technologies }) => {
   const categories = useMemo(
     () => Object.keys(technologies) as (keyof Technologies)[],
@@ -132,21 +125,19 @@ const TechStackCycle: React.FC<TechStackCycleProps> = ({ technologies }) => {
   )
 
   const categoryIcons = allIcons.filter((tech) => tech.category === currentCategory)
-  const labelIcons = hoveredIcons.length > 0 ? hoveredIcons : active ? [active.icon] : []
-  const label = formatTechNames(labelIcons)
 
   const isActive = (tech: FlatIcon) =>
     hoveredIcons.includes(tech.icon) || allIcons.indexOf(tech) === activeIndex
 
   return (
-    <div ref={root} className="flex flex-col gap-3 select-none">
+    <div ref={root} className="flex flex-col gap-4 select-none">
       {/* Category tabs */}
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         {categories.map((category) => (
           <button
             key={category}
             onClick={() => handleCategoryClick(category)}
-            className={`text-xs font-semibold px-2.5 py-1 rounded-full border transition-all duration-200 ${
+            className={`text-sm font-semibold px-3.5 py-1.5 rounded-full border transition-all duration-200 ${
               category === currentCategory
                 ? 'bg-blue-500/15 border-blue-400/40 text-blue-300'
                 : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/8 hover:text-slate-300'
@@ -162,58 +153,53 @@ const TechStackCycle: React.FC<TechStackCycleProps> = ({ technologies }) => {
           keyed CSS entrance, `slide-in` in app/globals.css; the animations
           here are CSS, so the Lab's Details dialogs don't load motion). Clip
           it sideways so the slide can't widen the page. */}
-      <div className="min-h-22 overflow-x-clip">
+      <div className="min-h-26 overflow-x-clip">
         <ul key={currentCategory} className="slide-in flex flex-col gap-1">
           {technologies[currentCategory].descriptionParts.map((part, index) => (
             <li
               key={index}
               onMouseEnter={() => handlePartHover(index)}
               onMouseLeave={resume}
-              className={`flex items-start gap-2 text-sm text-[#9cadc5] cursor-pointer rounded-lg px-2 py-1 w-fit max-w-[calc(100%-0.5rem)] transition-[translate,opacity] duration-200 ${
+              className={`flex items-start gap-2.5 text-[0.95rem] leading-relaxed text-[#9cadc5] cursor-pointer rounded-lg px-2.5 py-1.5 w-fit max-w-[calc(100%-0.5rem)] transition-[translate,opacity] duration-200 ${
                 index === highlightedPart ? 'translate-x-1.5 bg-blue-500/10 text-slate-200 opacity-100' : 'opacity-65'
               }`}
             >
-              <span className="text-blue-400 shrink-0">•</span>
+              {/* A dot centred on the first line of text. */}
+              <span aria-hidden="true" className="mt-[0.7em] h-1.5 w-1.5 shrink-0 -translate-y-1/2 rounded-full bg-blue-400" />
               <span>{part.text}</span>
             </li>
           ))}
         </ul>
       </div>
 
-      {/* Icon dock */}
-      <div className="flex items-end gap-3 h-14 pt-1">
-        {categoryIcons.map((tech) => (
-          <div
-            key={`${currentCategory}-${tech.icon}`}
-            onMouseEnter={() => handleIconHover(tech.icon)}
-            onMouseLeave={resume}
-            className={`relative w-10 h-10 sm:w-11 sm:h-11 rounded-full p-2 bg-[#0a1428] flex items-center justify-center cursor-pointer border transition-[scale,translate] duration-200 ${
-              isActive(tech) ? 'z-10 -translate-y-1.25 scale-118 border-blue-400' : 'z-1 border-white/15'
-            }`}
-          >
-            <div className="relative w-full h-full">
-              <Image
-                src={`/projectIcons/${tech.icon}`}
-                alt={getTechName(tech.icon)}
-                fill
-                sizes="(max-width: 768px) 40px, 44px"
-                style={{ objectFit: 'contain' }}
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Active tech name */}
-      <div className="h-6">
-        <p
-          key={label}
-          className="slide-in text-sm font-bold text-blue-300"
-          style={{ animationDuration: '0.2s', ['--slide-from' as string]: '12px' }}
-        >
-          {label}
-        </p>
-      </div>
+      {/* Icon dock: each tech's icon centred over its name. The active one
+          lights up in place (no lift), so icons and names stay aligned. */}
+      <ul className="flex flex-wrap items-start gap-x-2 gap-y-3 pt-1">
+        {categoryIcons.map((tech) => {
+          const on = isActive(tech)
+          return (
+            <li
+              key={`${currentCategory}-${tech.icon}`}
+              onMouseEnter={() => handleIconHover(tech.icon)}
+              onMouseLeave={resume}
+              className="flex w-20 cursor-pointer flex-col items-center gap-1.5 text-center"
+            >
+              <span
+                className={`relative flex h-12 w-12 items-center justify-center rounded-full border bg-[#0a1428] p-2.5 transition-[border-color,box-shadow] duration-200 motion-reduce:transition-none ${
+                  on ? 'border-blue-400 shadow-[0_0_0_3px_rgba(96,165,250,0.18)]' : 'border-white/15'
+                }`}
+              >
+                <span className="relative h-full w-full">
+                  <Image src={`/projectIcons/${tech.icon}`} alt="" fill sizes="48px" style={{ objectFit: 'contain' }} />
+                </span>
+              </span>
+              <span className={`text-xs font-semibold leading-tight transition-colors duration-200 ${on ? 'text-blue-200' : 'text-slate-400'}`}>
+                {getTechName(tech.icon)}
+              </span>
+            </li>
+          )
+        })}
+      </ul>
     </div>
   )
 }

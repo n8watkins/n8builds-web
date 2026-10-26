@@ -3,10 +3,13 @@ import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { SiTwitch } from 'react-icons/si'
+import { SiKofi, SiTwitch } from 'react-icons/si'
 import { FiExternalLink, FiMenu, FiX, FiChevronDown } from 'react-icons/fi'
 import { useLiveStatus } from '@/components/live/liveStore'
 import NavLiveDot from '@/components/live/NavLiveDot'
+
+// The owner's Ko-fi page (the same one Portfolio Rank links in its header).
+const KOFI_URL = 'https://ko-fi.com/n8watkins'
 
 // The Lab is one homepage section; its parts live in a hover dropdown so the
 // top nav stays short. Each item scrolls to its anchor on the homepage.
@@ -234,6 +237,16 @@ const Navbar = () => {
           {/* Right actions */}
           <div className="flex items-center gap-2">
             <a
+              href={KOFI_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Support me on Ko-fi"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-sm text-slate-400 hover:text-slate-200 border border-white/10 rounded-lg hover:border-white/20 hover:bg-white/5 transition-all duration-150"
+            >
+              <SiKofi className="w-4 h-4" aria-hidden />
+              Ko-fi
+            </a>
+            <a
               href="https://portfolio.n8builds.dev"
               target="_blank"
               rel="noopener noreferrer"
@@ -330,6 +343,16 @@ const Navbar = () => {
           className="px-3 py-2.5 text-sm text-slate-400 hover:text-slate-100 rounded-lg hover:bg-white/5 transition-colors"
         >
           Portfolio ↗
+        </a>
+        <a
+          href={KOFI_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => setMobileOpen(false)}
+          className="flex items-center gap-2 px-3 py-2.5 text-sm text-slate-400 hover:text-slate-100 rounded-lg hover:bg-white/5 transition-colors"
+        >
+          <SiKofi className="w-4 h-4" aria-hidden />
+          Ko-fi ↗
         </a>
       </div>
     </>

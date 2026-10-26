@@ -16,7 +16,7 @@ import { trackContactEvent } from '@/lib/analytics'
 // holds the form's height while it loads, so the card doesn't collapse, and
 // if its chunk is gone (a deploy since the page was opened) a plain version
 // still tells the visitor their message went out.
-const screenPlaceholder = () => <div className="min-h-[600px]" />
+const screenPlaceholder = () => <div className="min-h-[370px]" />
 const loadSending = () => import('./ContactFormLoading')
 const loadSuccess = () => import('./ContactFormSuccess')
 const preloadScreens = () =>
