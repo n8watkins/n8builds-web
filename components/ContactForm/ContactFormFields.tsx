@@ -85,9 +85,9 @@ export function ContactFormFields({
           <ContactInput
             {...register('name')}
             id="name"
-            label="Your Name"
+            label="Name"
             emoji="👤"
-            placeholder="Your name"
+            placeholder="Jane Smith"
             error={errors.name?.message}
             onFocus={() => handleFieldFocus('name')}
             autoComplete="name"
@@ -104,9 +104,9 @@ export function ContactFormFields({
             {...register('email')}
             id="email"
             type="email"
-            label="Email Address"
+            label="Email"
             emoji="📧"
-            placeholder="your@email.com"
+            placeholder="jane@company.com"
             error={errors.email?.message}
             onFocus={() => handleFieldFocus('email')}
             autoComplete="email"
@@ -126,7 +126,7 @@ export function ContactFormFields({
           // Start on the placeholder: without this the browser silently
           // pre-selects the first subject.
           defaultValue=""
-          label="What's this about?"
+          label="Topic"
           emoji="💼"
           options={subjectOptions}
           error={errors.subject?.message}
@@ -143,9 +143,9 @@ export function ContactFormFields({
         <ContactTextarea
           {...register('message')}
           id="message"
-          label="Tell me more"
+          label="Message"
           emoji="💬"
-          placeholder="Tell me about your project or how I can help..."
+          placeholder="What are you building, and where can I help?"
           rows={5}
           maxChars={1000}
           charCount={charCount}
@@ -215,10 +215,10 @@ export function ContactFormFields({
       <p className="text-center text-sm text-slate-600 dark:text-slate-400 pb-8">
         Prefer email? Reach me directly at{' '}
         <a
-          href="mailto:nathancwatkins23@gmail.com"
+          href="mailto:contact@n8builds.dev"
           className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
         >
-          nathancwatkins23@gmail.com
+          contact@n8builds.dev
         </a>
       </p>
     </form>

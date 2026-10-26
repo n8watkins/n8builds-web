@@ -12,7 +12,7 @@ const DEFAULT_ERROR_MESSAGE = 'Oops! Something went wrong. Please try again or e
 // Vercel's firewall rate limit answers before the app does, with its own JSON
 // body ({ error: { code, message } }), so a 429 without our message gets this.
 const RATE_LIMITED_MESSAGE =
-  'Too many messages from your connection in the last minute. Please wait a minute and try again, or email me directly at nathancwatkins23@gmail.com.'
+  'Too many messages from your connection in the last minute. Please wait a minute and try again, or email me directly at contact@n8builds.dev.'
 
 // How long to wait for Turnstile to issue a token after the visitor clicks Send.
 const TURNSTILE_WAIT_MS = 15_000
@@ -21,7 +21,7 @@ const TURNSTILE_WAIT_MS = 15_000
 const VISIBLE_FIELDS = ['name', 'email', 'subject', 'message'] as const
 
 const VERIFICATION_FAILED_MESSAGE =
-  "We couldn't verify your browser (an ad or privacy blocker can cause this). Please refresh and try again, or email me directly at nathancwatkins23@gmail.com."
+  "We couldn't verify your browser (an ad or privacy blocker can cause this). Please refresh and try again, or email me directly at contact@n8builds.dev."
 
 /** An error whose message came from the API and is safe to show the visitor. */
 class SubmissionError extends Error {}

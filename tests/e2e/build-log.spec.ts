@@ -132,31 +132,39 @@ test('a build page shows its recent activity and links to its part of the log', 
   await expect(chip(page, 'TubeVault')).toHaveAttribute('aria-pressed', 'true')
 })
 
-test.describe('navbar', () => {
-  test('desktop: the Log link reaches the build log', async ({ page, isMobile }) => {
+test.describe('navigation to the build log', () => {
+  test('desktop: the Lab menu leads to it, and the top bar has no Log link of its own', async ({ page, isMobile }) => {
     test.skip(isMobile, 'the desktop navbar is hidden on phones')
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto('/loadout')
-    await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Log', exact: true }).click()
+    const primary = page.getByRole('navigation', { name: 'Primary' })
+    await expect(primary.getByRole('link', { name: 'Log', exact: true })).toHaveCount(0)
+    await primary.getByRole('link', { name: 'Lab' }).hover()
+    await primary.getByRole('link', { name: /Build log/ }).click()
     await expect(page).toHaveURL(/\/builds$/)
     await expect(page.getByRole('heading', { level: 1, name: 'The build log' })).toBeVisible()
-    await expect(page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Log', exact: true })).toHaveAttribute(
-      'aria-current',
-      'page',
-    )
+  })
+
+  test('the footer sitemap links to it', async ({ page }) => {
+    await page.goto('/loadout')
+    const sitemap = page.getByRole('navigation', { name: 'Sitemap' })
+    await sitemap.scrollIntoViewIfNeeded()
+    await sitemap.getByRole('link', { name: 'Build log' }).click()
+    await expect(page).toHaveURL(/\/builds$/)
+    await expect(page.getByRole('heading', { level: 1, name: 'The build log' })).toBeVisible()
   })
 
   test.describe('mobile menu', () => {
     test.use({ viewport: { width: 390, height: 844 }, hasTouch: true })
 
-    test('the Log link reaches the build log', async ({ page }) => {
+    test('the Build log link reaches the build log', async ({ page }) => {
       await page.goto('/loadout')
       const button = page.getByRole('button', { name: 'Menu' })
       await expect(async () => {
         if ((await button.getAttribute('aria-expanded')) !== 'true') await button.click()
         await expect(button).toHaveAttribute('aria-expanded', 'true', { timeout: 500 })
       }).toPass()
-      await page.locator('#mobile-menu').getByRole('link', { name: 'Log', exact: true }).click()
+      await page.locator('#mobile-menu').getByRole('link', { name: 'Build log', exact: true }).click()
       await expect(page).toHaveURL(/\/builds$/)
       await expect(page.getByRole('heading', { level: 1, name: 'The build log' })).toBeVisible()
     })

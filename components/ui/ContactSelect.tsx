@@ -36,7 +36,7 @@ export const ContactSelect = forwardRef<HTMLSelectElement, ContactSelectProps>(
           {...controlProps(props.id, error)}
           {...props}
         >
-          <option value="" disabled>Select an option...</option>
+          <option value="" disabled>Choose one</option>
           {options.map((option) => (
             <option key={option.value} value={option.value} className="text-slate-900 dark:text-slate-100">
               {option.label}

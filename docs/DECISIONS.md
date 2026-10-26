@@ -18,7 +18,8 @@ When the owner decides something new, add it here (with the date) in the same ch
   There is no "web apps and experiments" shelf (removed 2026-10-22); web apps are featured rows.
   There are no standalone shelf pages; `/lab`, `/extensions` and `/tools` redirect to the anchors, and the retired `/resources` redirects to `#lab` (`next.config.mjs`).
   The navbar "Lab" dropdown scrolls to them.
-- **"What I'm working on"** sits right under the hero (it was removed and then brought back on 2026-10-23), showing Appturnity only with a link to appturnity.com; its band fades in from the hero with no divider.
+- **"What I'm working on" is the Appturnity ad** (2026-10-25), right under the hero: Appturnity is a platform for local service businesses (pool, HVAC, landscaping): a free, done-for-you website (the way in), then paid plans (Care, Pro) with systems like Google review requests, and booking coming. Not generic consulting. Copy comes from Appturnity's own repo (`~/appturnity/monorepo-app`, docs/COMPANY_STRATEGY.md) and its recent commits; buttons go to appturnity.com/#free-website and /examples. Its mark is the real one (`public/brands/appturnity.png`), never an invented logo. The "Check out the lab" button is gone.
+- **"Two ways to put me to work":** the project card is Appturnity by name and mark, offering the free website.
 - **Hero grid:** it starts dark, warms up as cells fade in one by one over about 7 seconds, then the cells wander at random (fade out, jump to a free cell, fade in, each on its own clock) so no pattern repeats; it stays still under reduced motion.
   Keep it dim: the owner found a brighter version too dramatic.
 - **Blog covers:** each post has its own topic illustration uploaded as its Sanity cover (2026-10-23); the generated "signal" cover is the fallback for posts without one.
@@ -79,6 +80,9 @@ When the owner decides something new, add it here (with the date) in the same ch
 - **Each featured row carries an ad** (2026-10-25): a hook and buttons (`ad` in `components/sections/FeaturedProjects.tsx`). Scribe's primary button downloads the installer through `n8builds.dev/download/scribe`, a stable link that always resolves to the newest release (`lib/downloads.ts`).
 - **The homepage advertises the developer portfolio** right after the Lab (`components/sections/PortfolioAd.tsx`, image `public/ads/dev-portfolio.webp`; recapture it when the portfolio's hero changes). The portfolio mirrors it with a card selling how n8builds is built.
 - **Portfolio Rank credits its origins and invites submissions** (2026-10-25): its featured row and build page link Emma Bostian's developer-portfolios list (and, on the page, Ali Spittel's tweet that started it), and invite visitors to add their portfolio by sending them to the Portfolio Rank site. n8builds only links there; submissions are Portfolio Rank's business, not this site's. Builds can carry `credits` and a `cta` in `data/builds.tsx`.
+- **The build log has no top-level navbar link** (2026-10-25): it lives in the Lab menu ("Build log") and in the site-wide footer sitemap (`components/layout/SiteFooter.tsx`, on every page). The homepage's contact card sits above that footer.
+- **Visitor-facing email is contact@n8builds.dev** everywhere (footer, form errors, privacy page); the Gmail address only appears as the SMTP delivery fallback.
+- **Contact form fields:** short labels (Name, Email, Topic, Message) with example placeholders, never repeating each other.
 - **A direct route to the portfolio:** "Hiring? See my developer portfolio" under the hero, and `n8builds.dev/portfolio` redirects to portfolio.n8builds.dev (2026-10-25).
 
 ## Operations

@@ -163,10 +163,10 @@ export default function PrivacyPolicy() {
                 I keep contact-form submissions only as long as needed to respond and maintain our
                 correspondence. To request access to or deletion of your information, email me at{' '}
                 <a
-                  href="mailto:nathancwatkins23@gmail.com"
+                  href="mailto:contact@n8builds.dev"
                   className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
                 >
-                  nathancwatkins23@gmail.com
+                  contact@n8builds.dev
                 </a>
                 .
               </p>
@@ -177,10 +177,10 @@ export default function PrivacyPolicy() {
               <p>
                 Questions about this policy? Reach me at{' '}
                 <a
-                  href="mailto:nathancwatkins23@gmail.com"
+                  href="mailto:contact@n8builds.dev"
                   className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
                 >
-                  nathancwatkins23@gmail.com
+                  contact@n8builds.dev
                 </a>
                 .
               </p>

@@ -12,7 +12,7 @@ import { verifyTurnstile } from '@/lib/security/turnstile'
 import { validateRequestSize, parseJsonBody } from '@/lib/security/validation'
 import { sendContactEmails } from '@/lib/email/sender'
 
-const DIRECT_EMAIL = 'nathancwatkins23@gmail.com'
+const DIRECT_EMAIL = 'contact@n8builds.dev'
 
 /**
  * POST /api/contact - Handle contact form submissions

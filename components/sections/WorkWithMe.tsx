@@ -2,7 +2,7 @@
 import React from 'react'
 import Image from 'next/image'
 import { motion } from 'motion/react'
-import { FiArrowUpRight, FiCode, FiLayout, FiCheck } from 'react-icons/fi'
+import { FiArrowUpRight, FiCode, FiCheck } from 'react-icons/fi'
 
 interface Bridge {
   eyebrow: string
@@ -35,7 +35,7 @@ const bridges: Bridge[] = [
     points: ['Full-stack + AI-assisted', 'Case studies & real work', 'Available for roles'],
     cta: 'See the portfolio',
     href: 'https://portfolio.n8builds.dev',
-    image: '/bridge/portfolio.webp',
+    image: '/bridge/portfolio-2026-10.webp',
     icon: <FiCode className="h-5 w-5" />,
     accent: {
       eyebrow: 'text-cyan-400',
@@ -47,15 +47,15 @@ const bridges: Bridge[] = [
     },
   },
   {
-    eyebrow: 'Project work',
-    title: 'Need a website or business system?',
+    eyebrow: 'Appturnity',
+    title: 'Run a local service business?',
     blurb:
-      "Have an idea, a business to put online, or an internal tool that should already exist? That's Appturnity - I take it from a conversation to something live you can use.",
-    points: ['Websites & web apps', 'Custom business systems', 'From idea to shipped'],
-    cta: 'Start a project',
-    href: 'https://appturnity.com',
-    image: '/bridge/appturnity.webp',
-    icon: <FiLayout className="h-5 w-5" />,
+      'Appturnity is my company. We build pool, HVAC, landscaping and other service businesses a modern website for free, then run the systems that bring in work, like Google review requests, on one account.',
+    points: ['A website built and launched for you, free', '90 days of free support', 'Review requests on the Care and Pro plans'],
+    cta: 'Claim your free website',
+    href: 'https://appturnity.com/#free-website',
+    image: '/bridge/appturnity-2026-10.webp',
+    icon: <Image src="/brands/appturnity.png" alt="" width={20} height={23} className="h-5 w-auto" />,
     accent: {
       eyebrow: 'text-emerald-400',
       border: 'hover:border-emerald-400/40',
@@ -142,8 +142,8 @@ const WorkWithMe = () => {
           Two ways to put me to work
         </h2>
         <p className="mt-2 text-[#9cadc5]">
-          This is where I build in public. If you like what you see, here&apos;s where it goes next -
-          hire me, or have me build the thing.
+          This is where I build in public. If you like what you see, here&apos;s where it goes next:
+          hire me, or let Appturnity put your business online.
         </p>
       </div>
 

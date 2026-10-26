@@ -105,7 +105,7 @@ describe('POST /api/contact', () => {
     const { status, json } = await post(validForm)
     expect(status).toBe(503)
     expect(json.type).toBe('unavailable')
-    expect(json.error).toContain('email me directly at nathancwatkins23@gmail.com')
+    expect(json.error).toContain('email me directly at contact@n8builds.dev')
     expect(sendContactEmails).not.toHaveBeenCalled()
   })
 

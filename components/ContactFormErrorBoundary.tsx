@@ -36,10 +36,10 @@ export class ContactFormErrorBoundary extends React.Component<Props, State> {
           <p className="text-slate-600 dark:text-slate-400 mb-6">
             Please refresh the page or email me directly at{' '}
             <a
-              href="mailto:nathancwatkins23@gmail.com"
+              href="mailto:contact@n8builds.dev"
               className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
             >
-              nathancwatkins23@gmail.com
+              contact@n8builds.dev
             </a>
           </p>
           <button

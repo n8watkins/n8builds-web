@@ -1,9 +1,8 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import {
-  FiGithub,
-  FiExternalLink,
   FiActivity,
   FiChevronLeft,
   FiChevronRight,
@@ -33,6 +32,9 @@ const Card = ({ now }: { now: NowState }) => (
     {/* Left: the build */}
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center gap-3">
+        {now.logo && (
+          <Image src={now.logo} alt="" width={40} height={46} className="h-10 w-auto shrink-0" />
+        )}
         <h3 className="text-3xl font-extrabold tracking-tight text-slate-50 md:text-4xl">{now.project}</h3>
         <span className={`rounded-full border px-2.5 py-0.5 text-[0.62rem] font-bold uppercase tracking-wider ${statusStyles[now.status]}`}>
           {now.status}
@@ -59,20 +61,25 @@ const Card = ({ now }: { now: NowState }) => (
         ))}
       </div>
 
-      {(now.links?.github || now.links?.live || now.buildSlug) && (
+      {(now.ctas?.length || now.buildSlug) && (
         <div className="mt-1 flex flex-wrap gap-3">
-          {now.links?.live && (
-            <a href={now.links.live} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 px-4 py-2 text-sm font-bold text-white transition-all duration-200 hover:scale-[1.02] hover:from-blue-500 hover:to-cyan-400">
-              <FiExternalLink className="h-3.5 w-3.5" /> Live
+          {now.ctas?.map((cta, i) => (
+            <a
+              key={cta.href}
+              href={cta.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={
+                i === 0
+                  ? 'flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 px-5 py-2.5 text-sm font-bold text-white transition-all duration-200 hover:scale-[1.02] hover:from-blue-500 hover:to-cyan-400'
+                  : 'flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-5 py-2.5 text-sm font-semibold text-slate-200 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8'
+              }
+            >
+              {cta.label}
+              <FiArrowUpRight className="h-4 w-4" />
+              <span className="sr-only"> (opens in a new tab)</span>
             </a>
-          )}
-          {now.links?.github && (
-            <a href={now.links.github} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8">
-              <FiGithub className="h-3.5 w-3.5" /> GitHub
-            </a>
-          )}
+          ))}
           {now.buildSlug && (
             <Link href={`/builds/${now.buildSlug}`}
               className="flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8">
@@ -142,10 +149,6 @@ const NowBuilding = () => {
           </p>
           <h2 className="text-4xl font-extrabold tracking-tight text-slate-50 sm:text-5xl/tight">What I&apos;m working on</h2>
         </div>
-        <a href="#lab" className="group flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8">
-          Check out the lab
-          <FiArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-        </a>
       </div>
 
       <div

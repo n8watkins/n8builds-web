@@ -5,26 +5,11 @@ import ContactForm from '@/components/ContactForm'
 import { ContactFormErrorBoundary } from '@/components/ContactFormErrorBoundary'
 import { FiGithub, FiMail } from 'react-icons/fi'
 import { CiLinkedin } from 'react-icons/ci'
-import { fadeInVariants, staggerContainerVariants, staggerItemVariants, defaultAnimationConfig } from '@/lib/animations'
-
-const AppturnityLogo = () => (
-  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <defs>
-      <linearGradient id="apt-grad" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stopColor="#36e8ff" />
-        <stop offset="100%" stopColor="#8b5cf6" />
-      </linearGradient>
-    </defs>
-    {/* Stylized A / upward arrow triangle */}
-    <path d="M24 6 L40 38 H8 Z" fill="none" stroke="url(#apt-grad)" strokeWidth="2.5" strokeLinejoin="round" />
-    <path d="M15 38 L24 20 L33 38" fill="none" stroke="url(#apt-grad)" strokeWidth="2" strokeLinejoin="round" opacity="0.6" />
-    <circle cx="24" cy="6" r="2.5" fill="url(#apt-grad)" />
-  </svg>
-)
+import { fadeInVariants, defaultAnimationConfig } from '@/lib/animations'
 
 const Footer = () => {
   return (
-    <footer className="mx-auto xl:max-w-5xl pt-0 pb-12">
+    <div className="mx-auto xl:max-w-5xl pt-0 pb-12">
       {/* Background grid */}
       <div className="w-full absolute left-0 1sm:-translate-y-52 -bottom-72 min-h-96 pointer-events-none">
         <Image
@@ -93,7 +78,7 @@ const Footer = () => {
                     { href: 'https://github.com/n8watkins', label: 'GitHub', icon: <FiGithub className="w-4.5 h-4.5" /> },
                     { href: 'https://x.com/n8watkins', label: 'X (Twitter)', icon: <FaXTwitter className="w-4 h-4" /> },
                     { href: 'https://www.linkedin.com/in/n8watkins/', label: 'LinkedIn', icon: <CiLinkedin className="w-[1.35rem] h-[1.35rem]" /> },
-                    { href: 'mailto:nathancwatkins23@gmail.com', label: 'Email', icon: <FiMail className="w-4.5 h-4.5" /> },
+                    { href: 'mailto:contact@n8builds.dev', label: 'Email', icon: <FiMail className="w-4.5 h-4.5" /> },
                   ].map(s => (
                     <a
                       key={s.label}
@@ -123,108 +108,9 @@ const Footer = () => {
           </div>
         </motion.div>
 
-        {/* Appturnity + Portfolio CTA banner */}
-        <motion.div
-          variants={fadeInVariants}
-          {...defaultAnimationConfig}
-          className="w-full max-w-4xl mx-auto mb-10 sm:px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6 rounded-2xl border border-white/10 bg-white/3 dark:bg-slate-900/40 backdrop-blur-xs">
-            {/* Left */}
-            <div className="text-center md:text-left max-w-xs">
-              <p className="font-bold text-slate-100 text-base mb-1">Need something built?</p>
-              <p className="text-slate-450 text-sm leading-relaxed">
-                n8builds is the public lab. For project work and consulting, let&apos;s connect through Appturnity. Looking to hire me on a contract or full-time basis? View my portfolio.
-              </p>
-            </div>
-
-            {/* Center */}
-            <div className="flex items-center gap-4 shrink-0">
-              <AppturnityLogo />
-              <div>
-                <div className="flex items-center gap-2 mb-0.5">
-                  <p className="font-bold text-slate-100 text-base">Appturnity</p>
-                  <span className="text-[0.62rem] font-bold px-2 py-0.5 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-300">
-                    The Consulting Studio
-                  </span>
-                </div>
-                <p className="text-slate-400 text-sm">Strategy. Product. Engineering.</p>
-                <p className="text-slate-450 text-xs">Built to ship.</p>
-              </div>
-            </div>
-
-            {/* Right */}
-            <div className="flex flex-col gap-2 shrink-0">
-              <a
-                href="https://appturnity.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between gap-3 px-5 py-2.5 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-sm transition-all duration-200 hover:scale-[1.02] shadow-lg shadow-blue-900/30"
-              >
-                <span>Visit Appturnity</span>
-                <span>↗</span>
-              </a>
-              <a
-                href="https://portfolio.n8builds.dev"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between gap-3 px-5 py-2.5 rounded-xl border border-white/12 bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-sm transition-all duration-200 hover:scale-[1.02]"
-              >
-                <span>View Portfolio</span>
-                <span>↗</span>
-              </a>
-            </div>
-          </div>
-        </motion.div>
       </div>
 
-      {/* Bottom bar */}
-      <motion.div
-        variants={staggerContainerVariants}
-        {...defaultAnimationConfig}
-        className="flex mt-4 lg:flex-row flex-col-reverse justify-center xl:justify-between items-center gap-6 lg:mx-10 pt-6 border-t border-white/8">
-        <motion.div variants={staggerItemVariants} className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg overflow-hidden ring-1 ring-white/10">
-            <Image
-              src="/tab/n8-logo.png"
-              alt="n8builds"
-              width={28}
-              height={28}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <span className="font-bold text-slate-200 text-sm">n8builds</span>
-        </motion.div>
-
-        <motion.p variants={staggerItemVariants} className="lg:text-sm text-xs text-slate-450">
-          © 2026 n8builds. All rights reserved. ·{' '}
-          <a href="/privacy" className="inline-block py-3 -my-3 hover:text-slate-300 underline underline-offset-2">
-            Privacy
-          </a>
-        </motion.p>
-
-        <motion.nav
-          variants={staggerItemVariants}
-          aria-label="Footer social media links"
-          className="flex items-center justify-center gap-1 z-50">
-          <a href="https://github.com/n8watkins" target="_blank" rel="noopener noreferrer" aria-label="GitHub"
-            className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors duration-200">
-            <FiGithub className="w-5 h-5 text-slate-400 hover:text-slate-200 transition-colors" aria-hidden="true" />
-          </a>
-          <a href="https://x.com/n8watkins" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"
-            className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors duration-200">
-            <FaXTwitter className="w-4.5 h-4.5 text-slate-400 hover:text-slate-200 transition-colors" aria-hidden="true" />
-          </a>
-          <a href="https://www.linkedin.com/in/n8watkins/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"
-            className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors duration-200">
-            <CiLinkedin className="w-6 h-6 text-slate-400 hover:text-slate-200 transition-colors" aria-hidden="true" />
-          </a>
-          <a href="mailto:nathancwatkins23@gmail.com" aria-label="Email"
-            className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors duration-200">
-            <FiMail className="w-5 h-5 text-slate-400 hover:text-slate-200 transition-colors" aria-hidden="true" />
-          </a>
-        </motion.nav>
-      </motion.div>
-    </footer>
+    </div>
   )
 }
 
