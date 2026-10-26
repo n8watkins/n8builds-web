@@ -18,17 +18,15 @@ const SECTIONS: readonly LabPart[] = [
 
 type LabPart = { id: string; label: string; short?: string; icon: IconType }
 
-
-// PREVIEW ONLY: ?navVariant=b shows the "circuit" look; removed once the owner picks.
-type Variant = 'a' | 'b'
-
 /**
- * The Lab's floating side nav: one row per Lab part (icon chip and label), the
- * part on screen marked by an indicator that slides between rows and a lit
- * chip with a comet circling it, like the hero chain's chips. A wire beside
- * the chips fills cyan to blue as you scroll through the Lab, reaching each
- * chip as its part starts. Desktop only (from 1280px), in the left gutter
- * beside the Lab's content column.
+ * The Lab's floating side nav: a heading ("In the Lab", with the Lab's flask)
+ * over one row per part (a small icon and its label). The part on screen is
+ * marked by a soft halo that slides between rows and a lit icon with a slow,
+ * dim comet circling it, like the hero chain's chips. A hairline wire through
+ * the icons fills cyan to blue as you scroll through the Lab, reaching each
+ * icon as its part starts. No box around it, and only the current icon has a
+ * ring: the owner asked for it light (2026-10-26). Desktop only (from 1280px),
+ * in the left gutter beside the Lab's content column.
  *
  * Layout is pure CSS: an absolute column spanning the whole Lab band holds a
  * sticky rail, so the rail only shows while the Lab is on screen and never
@@ -44,18 +42,13 @@ type Variant = 'a' | 'b'
  * finds the current part (the one whose top has passed 40% of the viewport)
  * and writes the wire's fill straight to a CSS variable (no re-render per
  * frame). Animation is CSS transitions plus Tailwind's spin; under reduced
- * motion nothing moves (the indicator jumps, the comet is a still ring).
+ * motion nothing moves (the halo jumps, the comet is a still arc).
  */
 export default function LabSectionNav() {
   const [parts, setParts] = useState<readonly LabPart[]>(SECTIONS)
   const [active, setActive] = useState(-1)
   const [inView, setInView] = useState(false)
-  const [variant, setVariant] = useState<Variant>('a')
   const listRef = useRef<HTMLUListElement>(null)
-
-  useEffect(() => {
-    if (new URLSearchParams(window.location.search).get('navVariant') === 'b') setVariant('b')
-  }, [])
 
   useEffect(() => {
     const found = SECTIONS.map((s) => ({ s, el: document.getElementById(s.id) })).filter(
@@ -111,71 +104,50 @@ export default function LabSectionNav() {
     }
   }, [])
 
-  const circuit = variant === 'b'
-
   return (
     <div
       className="pointer-events-none absolute inset-y-0 left-0 hidden w-[calc((100%-72rem)/2+2rem)] xl:block"
       data-testid="lab-section-nav"
-      data-variant={variant}
     >
+      {/* --row is one row's height and --chip an icon's square: the halo and the wire are measured in them. */}
       <nav
         aria-label="Lab contents"
-        className={`pointer-events-auto sticky top-28 mt-8 ml-auto mr-3 w-fit transition-[opacity,translate] duration-700 ease-out motion-reduce:translate-none 2xl:mr-6 ${
+        className={`pointer-events-auto sticky top-28 mt-8 ml-auto mr-3 w-fit [--chip:1.625rem] [--row:2.25rem] transition-[opacity,translate] duration-700 ease-out motion-reduce:translate-none 2xl:mr-6 min-[110rem]:[--chip:1.75rem] min-[110rem]:[--row:2.5rem] ${
           inView ? 'translate-x-0 opacity-100' : '-translate-x-3 opacity-0'
-        } ${
-          circuit
-            ? ''
-            : 'rounded-2xl border border-white/10 bg-[#0a1424]/85 p-1 shadow-[0_10px_40px_-12px_rgba(34,211,238,0.25)] min-[90rem]:pr-1.5 2xl:p-2 2xl:pr-3'
         }`}
       >
-        {/* Heading, wide shape only: the Lab's flask chip in miniature and its name in the tagline's gradient. */}
-        <p
-          className={`mb-2 hidden items-center gap-2 text-[0.9375rem] font-bold tracking-tight min-[90rem]:flex min-[110rem]:text-base ${circuit ? 'pl-0.5' : 'px-1.5 pt-1'}`}
-        >
-          <LuFlaskConical className="h-4 w-4 text-cyan-300" aria-hidden="true" />
+        {/* Heading, wide shape only: the Lab's flask (centred over the icons) and its name in the tagline's gradient. */}
+        <p className="mb-2.5 hidden items-center gap-2 pl-[calc(0.375rem+var(--chip)/2-0.625rem)] text-lg font-bold tracking-tight min-[90rem]:flex min-[110rem]:text-xl">
+          <LuFlaskConical className="size-5 shrink-0 text-cyan-300" aria-hidden="true" />
           <span className="bg-linear-to-r from-cyan-300 via-blue-400 to-blue-500 bg-clip-text text-transparent">
             In the Lab
           </span>
         </p>
-        {/* --row is one row's height and --chip an icon chip's size: the indicator and the wire are measured in them. */}
-        <ul
-          ref={listRef}
-          className="relative [--chip:2.25rem] [--row:3rem] min-[110rem]:[--chip:2.75rem] min-[110rem]:[--row:3.5rem]"
-          style={{ '--fill': 0 } as CSSProperties}
-        >
-          {/* The wire: a dim track through the chips' centres, filling cyan to blue as you scroll. */}
+        <ul ref={listRef} className="relative" style={{ '--fill': 0 } as CSSProperties}>
+          {/* The wire: a hairline through the icons' centres, filling cyan to blue as you scroll. */}
           <span
             aria-hidden="true"
-            className={`absolute top-[calc(var(--row)/2)] w-0.5 -translate-x-1/2 rounded-full ${
-              circuit ? 'bg-cyan-400/20' : 'bg-white/8'
-            } left-[calc(0.375rem+var(--chip)/2)]`}
+            className="absolute top-[calc(var(--row)/2)] left-[calc(0.375rem+var(--chip)/2)] w-px -translate-x-1/2 bg-cyan-400/15"
             style={{ height: `calc(var(--row) * ${parts.length - 0.5})` }}
           >
             <span
-              className="absolute inset-x-0 top-0 origin-top rounded-full bg-linear-to-b from-cyan-300 via-cyan-400 to-blue-500 shadow-[0_0_8px_rgba(34,211,238,0.7)] transition-[height] duration-150 ease-out motion-reduce:transition-none"
+              className="absolute inset-x-0 top-0 bg-linear-to-b from-cyan-300/80 to-blue-500/80 transition-[height] duration-150 ease-out motion-reduce:transition-none"
               style={{ height: 'calc(var(--row) * var(--fill))' }}
             />
-            {circuit && (
-              // The comet head riding the wire's fill.
-              <span
-                className={`absolute left-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-100 shadow-[0_0_4px_#67e8f9,0_0_10px_#22d3ee,0_0_16px_rgba(34,211,238,0.7)] transition-[top,opacity] duration-150 ease-out motion-reduce:transition-none ${
-                  active < 0 ? 'opacity-0' : 'opacity-100'
-                }`}
-                style={{ top: 'calc(var(--row) * var(--fill))' }}
-              />
-            )}
+            {/* A small light riding the end of the fill. */}
+            <span
+              className={`absolute left-1/2 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-200 shadow-[0_0_6px_rgba(34,211,238,0.6)] transition-[top,opacity] duration-150 ease-out motion-reduce:transition-none ${
+                active < 0 ? 'opacity-0' : 'opacity-80'
+              }`}
+              style={{ top: 'calc(var(--row) * var(--fill))' }}
+            />
           </span>
 
-          {/* The sliding indicator behind the current row (a halo round the chip in the circuit look). */}
+          {/* The current row's halo, sliding between rows. */}
           <span
             aria-hidden="true"
-            className={`absolute left-0 top-0 h-(--row) transition-[translate,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+            className={`absolute top-0 left-0 h-(--row) w-[calc(var(--chip)+0.75rem)] rounded-full bg-[radial-gradient(closest-side,rgba(34,211,238,0.16),transparent)] transition-[translate,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
               active < 0 ? 'opacity-0' : 'opacity-100'
-            } ${
-              circuit
-                ? 'w-[calc(var(--chip)+0.75rem)] rounded-full bg-[radial-gradient(closest-side,rgba(34,211,238,0.35),rgba(34,211,238,0.08)_70%,transparent)]'
-                : 'w-full rounded-xl bg-linear-to-r from-cyan-400/15 via-blue-500/8 to-transparent ring-1 ring-cyan-300/20'
             }`}
             style={{ translate: `0 calc(var(--row) * ${Math.max(active, 0)})` }}
           />
@@ -194,16 +166,16 @@ export default function LabSectionNav() {
                 <a
                   href={`#${s.id}`}
                   aria-current={current ? 'location' : undefined}
-                  className="group relative flex h-(--row) items-center gap-2 rounded-xl px-1.5 2xl:gap-2.5 min-[110rem]:gap-3 whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-cyan-300"
+                  className="group relative flex h-(--row) items-center gap-2 rounded-lg px-1.5 whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-cyan-300 min-[110rem]:gap-2.5"
                 >
                   <span
-                    className={`relative flex size-(--chip) shrink-0 items-center justify-center rounded-[0.625rem] ring-1 min-[110rem]:rounded-xl transition-[color,background-color,box-shadow,scale] duration-300 group-hover:scale-105 motion-reduce:group-hover:scale-100 ${
+                    className={`relative flex size-(--chip) shrink-0 items-center justify-center rounded-lg transition-colors duration-300 ${
                       current
-                        ? 'bg-[#0b1d2e] text-cyan-300 ring-cyan-300/30 shadow-[0_0_16px_-2px_rgba(34,211,238,0.6)]'
-                        : 'bg-[#0b1524] text-slate-450 ring-white/10 group-hover:text-slate-200 group-hover:ring-white/25'
+                        ? 'bg-[#0b1a2b] text-cyan-300 ring-1 ring-cyan-300/20'
+                        : 'bg-[#070d1a] text-slate-450 group-hover:text-slate-200'
                     }`}
                   >
-                    <Icon className="size-[1.125rem] min-[110rem]:size-[1.375rem]" aria-hidden="true" />
+                    <Icon className="size-3.5 min-[110rem]:size-4" aria-hidden="true" />
                     {current && inView && <Comet />}
                   </span>
                   <Label part={s} current={current} />
@@ -225,11 +197,11 @@ function Comet() {
   return (
     <span
       aria-hidden="true"
-      className="pointer-events-none absolute -inset-px overflow-hidden rounded-[0.6875rem] p-[2px] [mask:linear-gradient(#fff_0_0)_content-box_exclude,linear-gradient(#fff_0_0)] drop-shadow-[0_0_5px_rgba(34,211,238,0.9)] min-[110rem]:rounded-[0.8125rem]"
+      className="pointer-events-none absolute -inset-px overflow-hidden rounded-[0.5625rem] p-px [mask:linear-gradient(#fff_0_0)_content-box_exclude,linear-gradient(#fff_0_0)] drop-shadow-[0_0_3px_rgba(34,211,238,0.45)]"
     >
       <span
-        className="absolute -inset-1/2 animate-spin bg-[conic-gradient(from_0deg,transparent_0_45%,rgba(34,211,238,0.35)_72%,#67e8f9_92%,#cffafe_98%,transparent_100%)] motion-reduce:animate-none"
-        style={{ animationDuration: '3.2s' }}
+        className="absolute -inset-1/2 animate-spin bg-[conic-gradient(from_0deg,transparent_0_55%,rgba(34,211,238,0.2)_78%,rgba(103,232,249,0.65)_96%,transparent_100%)] motion-reduce:animate-none"
+        style={{ animationDuration: '7s' }}
       />
     </span>
   )
@@ -237,14 +209,14 @@ function Comet() {
 
 // The label: inline from 1440px; below that, a tooltip beside the chip on hover or focus.
 const TOOLTIP =
-  'pointer-events-none absolute top-1/2 left-full ml-1 -translate-y-1/2 -translate-x-1 rounded-lg bg-slate-900 px-2.5 py-1 text-xs font-medium text-slate-100 opacity-0 shadow-lg ring-1 ring-cyan-300/25 transition-[opacity,translate] duration-200 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100 motion-reduce:translate-x-0'
+  'pointer-events-none absolute top-1/2 left-full ml-1 -translate-y-1/2 -translate-x-1 rounded-lg bg-slate-900 px-2.5 py-1 text-xs font-medium text-slate-100 opacity-0 shadow-lg ring-1 ring-white/10 transition-[opacity,translate] duration-200 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100 motion-reduce:translate-x-0'
 const INLINE =
-  'min-[90rem]:pointer-events-auto min-[90rem]:static min-[90rem]:ml-0 min-[90rem]:translate-none min-[90rem]:rounded-none min-[90rem]:bg-transparent min-[90rem]:p-0 min-[90rem]:text-[0.9375rem] min-[90rem]:opacity-100 min-[110rem]:text-base min-[90rem]:shadow-none min-[90rem]:ring-0 min-[90rem]:transition-colors'
+  'min-[90rem]:pointer-events-auto min-[90rem]:static min-[90rem]:ml-0 min-[90rem]:translate-none min-[90rem]:rounded-none min-[90rem]:bg-transparent min-[90rem]:p-0 min-[90rem]:text-[0.8125rem] min-[90rem]:opacity-100 min-[110rem]:text-sm min-[90rem]:shadow-none min-[90rem]:ring-0 min-[90rem]:transition-colors'
 
 function Label({ part, current }: { part: LabPart; current: boolean }) {
   const tone = current
-    ? 'min-[90rem]:bg-linear-to-r min-[90rem]:from-cyan-200 min-[90rem]:to-blue-400 min-[90rem]:bg-clip-text min-[90rem]:text-transparent'
-    : 'min-[90rem]:text-slate-400 min-[90rem]:group-hover:text-slate-100'
+    ? 'min-[90rem]:text-cyan-200'
+    : 'min-[90rem]:text-slate-400 min-[90rem]:group-hover:text-slate-200'
   if (!part.short) return <span className={`${TOOLTIP} ${INLINE} ${tone}`}>{part.label}</span>
   return (
     <>
