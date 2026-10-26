@@ -166,12 +166,17 @@ export default function LabSectionNav() {
       ref={columnRef}
       className="pointer-events-none absolute top-0 bottom-0 left-0 hidden w-[calc((100%-72rem)/2+2rem)] xl:block"
       data-testid="lab-section-nav"
+      data-lab-rail=""
     >
+      {/* Without JavaScript nothing reveals the rail, so it simply shows: plain links to each part. */}
+      <noscript>
+        <style>{'[data-lab-rail] :is(nav,li){visibility:visible;opacity:1;translate:none}'}</style>
+      </noscript>
       {/* --row is one row's height and --chip an icon's square: the halo and the wire are measured in them. */}
       <nav
         ref={navRef}
         aria-label="Lab contents"
-        className={`pointer-events-auto sticky top-[calc(50vh-var(--nav-h,9rem)/2)] ml-auto mr-3 w-fit [--chip:1.625rem] [--row:2.25rem] transition-[opacity,translate,visibility] duration-700 ease-out motion-reduce:translate-none 2xl:mr-6 min-[110rem]:[--chip:1.75rem] min-[110rem]:[--row:2.5rem] ${
+        className={`pointer-events-auto sticky top-[calc(50vh-var(--nav-h,9rem)/2)] ml-auto mr-3 w-fit [--chip:1.625rem] [--row:2.25rem] transition-[opacity,translate,visibility] duration-700 ease-out motion-reduce:translate-none motion-reduce:transition-[opacity,visibility] 2xl:mr-6 min-[110rem]:[--chip:1.75rem] min-[110rem]:[--row:2.5rem] ${
           shown ? 'visible translate-x-0 opacity-100' : 'invisible -translate-x-3 opacity-0'
         }`}
       >
@@ -217,7 +222,7 @@ export default function LabSectionNav() {
             return (
               <li
                 key={s.id}
-                className={`transition-[opacity,translate] duration-500 ease-out motion-reduce:translate-none ${
+                className={`transition-[opacity,translate] duration-500 ease-out motion-reduce:translate-none motion-reduce:transition-opacity ${
                   shown ? 'translate-x-0 opacity-100' : '-translate-x-2 opacity-0'
                 }`}
                 style={{ transitionDelay: shown ? `${150 + i * 80}ms` : '0ms' }}
