@@ -51,8 +51,11 @@
    `transform: none`, leaving no containing block behind. Reduced motion skips
    it entirely: no fade, and no wait through an animation-delay. */
 @keyframes fade-up {
+  /* 1%, not 0: Chrome doesn't count fully transparent content as painted, so
+     a fade from 0 holds back Largest Contentful Paint until it ends (and can
+     leave Lighthouse with no LCP at all). 1% is invisible on the dark page. */
   from {
-    opacity: 0;
+    opacity: 0.01;
     transform: translateY(16px);
   }
   to {

@@ -17,7 +17,13 @@ import lighthouse, { desktopConfig } from 'lighthouse'
 const PORT = Number(process.env.LIGHTHOUSE_PORT) || 3747
 const BASE = `http://localhost:${PORT}`
 const PAGES = ['/', '/blog', '/builds', '/builds/solara', '/loadout']
-const RUNS = 3
+// Five runs per page: the median of three let one slow CI runner fail a
+// budget on its own (the homepage once scored 0.83, then 0.99 on a rerun).
+const RUNS = 5
+// A run whose metrics come back empty is a Lighthouse error, not a score
+// (seen on /blog in CI as a crash on null.toFixed): retry it, and if it keeps
+// failing, report Lighthouse's own error instead of crashing.
+const RETRIES = 2
 const REPORT_DIR = '.lighthouse'
 
 /** [label, read(lhr), level, limit, direction] */
@@ -31,6 +37,19 @@ const BUDGETS = [
   ['CLS', (lhr) => lhr.audits['cumulative-layout-shift'].numericValue, 'error', 0.1, 'max'],
   ['TBT (ms)', (lhr) => lhr.audits['total-blocking-time'].numericValue, 'warn', 200, 'max'],
 ]
+
+/** Why a Lighthouse run can't be scored (its own runtime error, or empty metrics), or null. */
+function runProblem(result) {
+  if (!result) return 'no result'
+  const { lhr } = result
+  if (lhr.runtimeError) return `${lhr.runtimeError.code}: ${lhr.runtimeError.message}`
+  const empty = BUDGETS.filter(([, read]) => typeof read(lhr) !== 'number').map(([label]) => label)
+  if (empty.length) {
+    const lcp = lhr.audits['largest-contentful-paint']
+    return `no value for ${empty.join(', ')}${lcp?.errorMessage ? ` (${lcp.errorMessage})` : ''}`
+  }
+  return null
+}
 
 const median = (values) => [...values].sort((a, b) => a - b)[Math.floor(values.length / 2)]
 
@@ -94,8 +113,14 @@ async function main() {
     for (const path of PAGES) {
       const runs = []
       for (let i = 0; i < RUNS; i++) {
-        const result = await lighthouse(`${BASE}${path}`, { port: chrome.port, output: 'html', logLevel: 'error' }, desktopConfig)
-        if (!result) throw new Error(`Lighthouse returned no result for ${path}`)
+        let result
+        for (let attempt = 0; attempt <= RETRIES; attempt++) {
+          result = await lighthouse(`${BASE}${path}`, { port: chrome.port, output: 'html', logLevel: 'error' }, desktopConfig)
+          const problem = runProblem(result)
+          if (!problem) break
+          console.log(`  retry ${path} run ${i + 1}: ${problem}`)
+          if (attempt === RETRIES) throw new Error(`Lighthouse could not audit ${path}: ${problem}`)
+        }
         runs.push(result)
       }
 
