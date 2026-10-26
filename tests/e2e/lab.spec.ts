@@ -404,9 +404,9 @@ test.describe('the Lab gallery on touch', () => {
 test('each ad lists its points, and each row shows its tech as pills instead of in the description', async ({ page }) => {
   await page.goto('/')
   const points: [string, string[]][] = [
-    ['Scribe', ['Free for Windows', 'No account', 'No telemetry', 'Your voice never leaves your PC']],
-    ['OpenPing', ['Free tools, no sign-up', "Run your own monitor on Cloudflare's free plan"]],
-    ['Solara', ['Free to use', 'No account needed to start']],
+    ['Scribe', ['Free for Windows', 'No account', 'No telemetry', 'Voice stays local']],
+    ['OpenPing', ['Free tools, no sign-up', 'Self-host free on Cloudflare']],
+    ['Solara', ['Free to use', 'No account to start']],
     ['Portfolio Rank', ['A vote takes five seconds']],
   ]
   for (const [name, list] of points) {

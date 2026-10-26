@@ -44,13 +44,14 @@ const Detail = ({ ext }: { ext: Ext }) => {
   const build = getBuild(ext.slug)
   if (!build) return null
   return (
-    <div className="grid gap-6 md:grid-cols-2 md:items-center">
+    // The screenshot takes the smaller share, so the copy leads (smaller since 2026-10-26).
+    <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] md:items-center">
       {/* Visual */}
       <a
         href={build.github}
         target="_blank"
         rel="noopener noreferrer"
-        className="group/visual relative block aspect-16/10 overflow-hidden rounded-2xl border border-white/8 bg-[#07101d]"
+        className="group/visual relative mx-auto block aspect-16/10 w-full max-w-60 overflow-hidden rounded-2xl border border-white/8 bg-[#07101d] md:max-w-none"
       >
         {ext.shot ? (
           <Image
@@ -58,7 +59,7 @@ const Detail = ({ ext }: { ext: Ext }) => {
             alt={`${build.name} screenshot`}
             fill
             className="object-cover object-top transition-transform duration-500 group-hover/visual:scale-[1.03]"
-            sizes="(max-width: 768px) 100vw, 50vw"
+            sizes="(max-width: 768px) 240px, 30vw"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-[#0a1a33] to-[#081427]">

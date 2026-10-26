@@ -94,12 +94,6 @@ export default function HomePage({ posts }: { posts: Post[] }) {
              69px navbar, not 11px lower (html scroll-padding-top is 80px), so no strip
              of the band above shows between the two. */}
         <div id="lab" className="relative z-10 scroll-mt-[-11px] border-t border-white/[0.06]">
-          {/* Preview only (2026-10-26): ?labBg=b shows the per-part washes instead of per-project. */}
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `if(/[?&]labBg=b\\b/.test(location.search))document.documentElement.dataset.labBg='b'`,
-            }}
-          />
           {/* Desktop only: a sticky rail in the left gutter marking the Lab part on screen. */}
           <LabSectionNav />
           {/* The intro picks up the raised tone the band above ends on and eases it out,

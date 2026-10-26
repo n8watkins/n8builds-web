@@ -40,7 +40,8 @@ const accents = {
     icon: FiSun,
     box: 'border-orange-400/25 from-orange-500/[0.10] to-amber-400/[0.04]',
     chip: 'bg-orange-400/15 text-orange-300 ring-orange-300/25',
-    primary: 'bg-linear-to-r from-orange-500 to-amber-400 text-slate-950 hover:from-orange-400 hover:to-amber-300',
+    // Mostly solid orange with a slight warm shift; orange into amber was too loud.
+    primary: 'bg-linear-to-r from-orange-500 to-orange-400 text-slate-950 hover:from-orange-400 hover:to-orange-300',
     secondary: 'border-orange-400/35 text-orange-200',
     link: 'hover:text-orange-200',
     check: 'text-orange-300',
@@ -96,7 +97,7 @@ interface FeaturedProject {
    * The row's ad: a few short points and the links that act on them. No link goes
    * where the row's Live Site or GitHub button already goes: each is a
    * different door (the download, the app itself, the install guide, the vote).
-   * `compact` sets points and buttons on one line (the tightest row).
+   * `compact` gives the box tighter padding (a single point and one button).
    */
   ad?: { points: string[]; accent: keyof typeof accents; compact?: boolean; links: AdLink[] }
 }
@@ -111,7 +112,7 @@ const featured: FeaturedProject[] = [
     group: 'tools',
     subtitle: 'Private Local Dictation for Windows',
     description:
-      'I dictate with Scribe every day. Hold a hotkey, talk and let go: the words land at your cursor in any app. It transcribes on your own PC with the model kept loaded, so the text is there the moment you release.',
+      "I dictate with Scribe every day. Hold a hotkey, talk, let go: the words land at your cursor in any app, transcribed on your own PC by a model kept loaded, so there's no wait.",
     images: [
       { src: '/builds/scribe/landing.webp', alt: 'Scribe: talk, it types. Private local dictation for Windows' },
       { src: '/builds/scribe/features.webp', alt: "Scribe's features: local Whisper models, a model picker, rebindable hotkeys and a floating status pill" },
@@ -121,7 +122,7 @@ const featured: FeaturedProject[] = [
     liveSite: 'https://scribe.n8builds.dev',
     buildSlug: 'scribe',
     ad: {
-      points: ['Free for Windows', 'No account', 'No telemetry', 'Your voice never leaves your PC'],
+      points: ['Free for Windows', 'No account', 'No telemetry', 'Voice stays local'],
       accent: 'scribe',
       links: [
         { label: 'Download for Windows', href: '/download/scribe', kind: 'primary', download: 'scribe' },
@@ -141,7 +142,7 @@ const featured: FeaturedProject[] = [
     group: 'tools',
     subtitle: 'Uptime Monitoring in Your Own Cloudflare',
     description:
-      'I check OpenPing every day: it watches my live demos. Uptime checks, incidents, alerts and public status pages, running in your own Cloudflare account. Schedules decide when each app is watched, so off-hours never count as downtime.',
+      'I check OpenPing every day: it watches my live demos. Uptime checks, incidents, alerts and status pages in your own Cloudflare account, with schedules so off-hours never count as downtime.',
     images: [
       { src: '/builds/openping/landing.webp', alt: 'OpenPing: uptime monitoring that runs entirely in your own cloud' },
       { src: '/builds/openping/status.webp', alt: 'An OpenPing public status page: all systems operational, with 90 days of uptime bars per service' },
@@ -152,7 +153,7 @@ const featured: FeaturedProject[] = [
     liveSite: 'https://openping.n8builds.dev',
     buildSlug: 'openping',
     ad: {
-      points: ['Free tools, no sign-up', "Run your own monitor on Cloudflare's free plan"],
+      points: ['Free tools, no sign-up', 'Self-host free on Cloudflare'],
       accent: 'openping',
       links: [
         { label: 'Try the free tools', href: 'https://openping.n8builds.dev/tools', kind: 'primary', external: true },
@@ -167,7 +168,7 @@ const featured: FeaturedProject[] = [
     group: 'featured',
     subtitle: 'Personal UV & Sun-Exposure Dashboard',
     description:
-      'The UV index is a number, not an answer. Solara turns live UV data, your skin type, sunscreen and plans into safe sun windows for today and the days ahead, with calendar scheduling and push reminders. Installs like an app on your phone.',
+      'The UV index is a number, not an answer. Solara turns live UV data, your skin type, sunscreen and plans into safe sun windows for today and the days ahead, with calendar scheduling and push reminders.',
     // A wide social card: anchor left so the cover crop keeps the sun.
     images: [{ src: '/builds/solara/og-image.png', alt: 'Solara: know your sun window' }],
     imagePosition: 'object-left',
@@ -176,7 +177,7 @@ const featured: FeaturedProject[] = [
     liveSite: 'https://solara-uv.web.app',
     buildSlug: 'solara',
     ad: {
-      points: ['Free to use', 'No account needed to start'],
+      points: ['Free to use', 'No account to start'],
       accent: 'solara',
       // Straight into the planner; Live Site is the landing page.
       links: [{ label: 'Find your sun window', href: 'https://solara-uv.web.app/app/', kind: 'primary', external: true }],
@@ -193,7 +194,7 @@ const featured: FeaturedProject[] = [
     group: 'featured',
     subtitle: 'Developer Portfolio Ranker',
     description:
-      'Nearly 2,000 developer portfolios, ranked by head-to-head votes instead of the alphabet: pick the better of two, and an ELO rating sets the leaderboard. Every site gets a real screenshot, Lighthouse scores and an AI review.',
+      'Nearly 2,000 developer portfolios, ranked by head-to-head votes: pick the better of two and an ELO rating sets the leaderboard. Each site gets a real screenshot, Lighthouse scores and an AI review.',
     images: [{ src: '/projects/PortfolioRank-1.png', alt: 'Portfolio Rank - developer portfolio ranker screenshot' }],
     tags: ['Next.js', 'Gemini', 'Turso', 'Vercel'],
     github: 'https://github.com/n8watkins/portfolio-rank',
@@ -203,7 +204,7 @@ const featured: FeaturedProject[] = [
       before: 'Built on',
       name: "Emma Bostian's developer-portfolios list",
       href: 'https://github.com/emmabostian/developer-portfolios',
-      after: ', curated by thousands of contributors.',
+      after: ', curated by thousands.',
     },
     ad: {
       points: ['A vote takes five seconds'],
@@ -275,18 +276,23 @@ const Ad = ({ project, facts }: { project: FeaturedProject; facts: DownloadFacts
       <Icon className="h-3.5 w-3.5" aria-hidden="true" />
     </span>
   )
-  // Short points share a line; a long one takes a line of its own.
+  // Short points, one per line, never wrapped: if they don't fit beside the
+  // action, the whole list moves under it.
   const points = (
-    <ul className="flex flex-wrap items-center gap-x-4 gap-y-1">
+    <ul className="flex flex-col gap-1">
       {ad.points.map((point) => (
-        <li key={point} className={`flex items-start gap-1.5 text-sm font-semibold text-slate-100 ${point.length > 30 ? 'basis-full' : ''}`}>
-          {/* Centred on the first line, so a point that wraps keeps its check at the top. */}
+        <li key={point} className="flex items-start gap-1.5 whitespace-nowrap text-sm font-semibold text-slate-100">
           <FiCheck className={`mt-[3px] h-3.5 w-3.5 shrink-0 ${accent.check}`} aria-hidden="true" />
           {point}
         </li>
       ))}
     </ul>
   )
+  // A link sits under the points when they are few, else under the whole box.
+  const linksBeside = ad.points.length <= 2
+  const linkRow = links.length > 0 && <div className="flex flex-wrap gap-x-4">{links.map(renderLink)}</div>
+  // The action on the left (with the product's mark), the points beside it on
+  // the right, so the box stays short; where they don't fit (phones), they wrap under.
   return (
     <div
       role="group"
@@ -294,33 +300,25 @@ const Ad = ({ project, facts }: { project: FeaturedProject; facts: DownloadFacts
       data-accent={ad.accent}
       className={`mt-3 rounded-xl border bg-linear-to-br ${accent.box} ${ad.compact ? 'px-3 py-2.5' : 'p-3.5'}`}
     >
-      {ad.compact ? (
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <div className="flex items-center gap-2.5">
-            {chip}
-            {points}
-          </div>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+        <div className="flex shrink-0 items-start gap-2">
+          <span className="mt-1">{chip}</span>
+          <div className="flex flex-col items-start gap-2">
             {buttons.map(renderLink)}
-            {links.map(renderLink)}
+            {/* What the download is, right under its button. */}
+            {fact ? (
+              <p id={factsId} className="-mt-0.5 text-xs text-slate-400">
+                {fact}
+              </p>
+            ) : null}
           </div>
         </div>
-      ) : (
-        <>
-          <div className="flex items-start gap-2.5">
-            {chip}
-            <div className="min-w-0 pt-1">{points}</div>
-          </div>
-          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">{buttons.map(renderLink)}</div>
-          {/* What the download is, right under its button. */}
-          {fact ? (
-            <p id={factsId} className="mt-1.5 text-xs text-slate-400">
-              {fact}
-            </p>
-          ) : null}
-          {links.length > 0 && <div className="mt-1.5 flex flex-wrap gap-x-4">{links.map(renderLink)}</div>}
-        </>
-      )}
+        <div className="flex min-w-0 flex-col gap-1">
+          {points}
+          {linksBeside && linkRow}
+        </div>
+      </div>
+      {!linksBeside && linkRow ? <div className="mt-2">{linkRow}</div> : null}
     </div>
   )
 }
@@ -427,7 +425,7 @@ const ProjectRow = ({ project, flipped, facts }: { project: FeaturedProject; fli
           ))}
         </ul>
         {project.credit && (
-          <p className="mt-1.5 text-sm text-slate-450">
+          <p className="mt-1.5 text-xs italic text-slate-450">
             {project.credit.before}{' '}
             <a
               href={project.credit.href}
@@ -499,9 +497,9 @@ const ProjectRow = ({ project, flipped, facts }: { project: FeaturedProject; fli
 /** The Lab's content width, inside its full-bleed part and row washes. */
 const container = 'mx-auto max-w-6xl px-5 sm:px-8'
 
-// Each row sits in its own full-bleed wash in its product's colour, its glow
-// centred behind the screenshot (`.lab-row-wash` in app/globals.css). The washes
-// fade out at their edges, so the rows' padding doubles as the gap between them.
+// Each row sits in its own full-bleed wash in its product's colour, a glow from
+// the page edge on its screenshot's side (`.lab-row-wash` in app/globals.css). The
+// washes fade out at their edges, so the rows' padding doubles as the gap between them.
 const Rows = ({ group, offset, facts }: { group: FeaturedProject['group']; offset: number; facts: DownloadFacts }) => (
   <div className="flex flex-col">
     {featured
@@ -511,7 +509,7 @@ const Rows = ({ group, offset, facts }: { group: FeaturedProject['group']; offse
         return (
           <div
             key={p.title}
-            className={`lab-row-wash lab-wash-a ${p.ad ? `lab-accent-${p.ad.accent}` : ''} py-6 md:py-8 [--lab-x:50%] ${flipped ? 'md:[--lab-x:72%]' : 'md:[--lab-x:28%]'}`}
+            className={`lab-row-wash ${p.ad ? `lab-accent-${p.ad.accent}` : ''} py-6 md:py-8 ${flipped ? '[--lab-x:100%]' : '[--lab-x:0%]'}`}
           >
             <div className={container}>
               <ProjectRow project={p} flipped={flipped} facts={facts} />
@@ -528,14 +526,15 @@ const FeaturedProjects = async () => {
   const facts = await downloadFacts()
   return (
     <>
-      <section id="my-tools" aria-label="Tools I use every day" className="lab-accent-tools lab-part-wash lab-wash-b py-10">
+      <section id="my-tools" aria-label="Tools I use every day" className="lab-accent-tools py-10">
         <Reveal className={container}>
           <LabSubheader title="Tools I use every day" blurb="Mine first: I run both of these every day, and so can you." />
         </Reveal>
         <Rows group="tools" offset={0} facts={facts} />
       </section>
-      <section id="featured" aria-label="Featured builds" className="lab-accent-featured lab-part-wash lab-wash-b py-10">
-        <Reveal className={container}>
+      <section id="featured" aria-label="Featured builds" className="lab-accent-featured py-10">
+        {/* A title with no blurb: extra room under it, so Solara doesn't crowd it. */}
+        <Reveal className={`${container} pb-4`}>
           <LabSubheader title="Featured builds" />
         </Reveal>
         {/* Continue the left/right alternation from the rows above. */}
