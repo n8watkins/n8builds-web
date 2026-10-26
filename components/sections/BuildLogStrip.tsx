@@ -187,15 +187,16 @@ function Row({ entry, phoneHidden }: { entry: LogEntry; phoneHidden: boolean }) 
 
 export default async function BuildLogStrip() {
   let entries: LogEntry[]
+  let asOf: string
   try {
-    entries = (await getBuildLog()).entries
+    ;({ entries, asOf } = await getBuildLog())
   } catch {
     // GitHub unreachable with nothing cached: leave the strip out.
     return null
   }
   if (entries.length === 0) return null
 
-  const current = dayKey(new Date().toISOString()).slice(0, 7)
+  const current = dayKey(asOf).slice(0, 7)
   const thisMonth = entries.filter((e) => e.month === current)
   const isThisMonth = thisMonth.length >= MONTH_MIN
   const rows = isThisMonth ? pickRows(thisMonth, PER_BUILD) : pickRows(entries, 1)

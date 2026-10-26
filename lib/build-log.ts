@@ -592,7 +592,7 @@ async function fetchHighlights(): Promise<Highlight[]> {
   }
 }
 
-type Fixture = { snapshots: RepoSnapshot[]; highlights: Highlight[] }
+type Fixture = { capturedAt: string; snapshots: RepoSnapshot[]; highlights: Highlight[] }
 
 const loadFixture = async (): Promise<Fixture> =>
   (await import('@/tests/fixtures/build-log-github.json')).default as Fixture
@@ -607,9 +607,10 @@ function fetchers() {
         return found
       },
       highlights: async () => (await loadFixture()).highlights,
+      now: async () => new Date((await loadFixture()).capturedAt),
     }
   }
-  return { snapshot: fetchRepoSnapshot, highlights: fetchHighlights }
+  return { snapshot: fetchRepoSnapshot, highlights: fetchHighlights, now: async () => new Date() }
 }
 
 /**
@@ -618,7 +619,7 @@ function fetchers() {
  * response). When every repo fails on a revalidation (GitHub down, the token
  * revoked), it throws, so ISR keeps serving the last good page.
  */
-export const getBuildLog = cache(async (): Promise<BuildLog> => {
+export const getBuildLog = cache(async (): Promise<BuildLog & { asOf: string }> => {
   const source = fetchers()
   const tracked = allBuilds.filter(isTracked)
   const [results, highlights] = await Promise.all([
@@ -634,7 +635,10 @@ export const getBuildLog = cache(async (): Promise<BuildLog> => {
   if (tracked.length && !snapshots.length && process.env.NEXT_PHASE !== 'phase-production-build') {
     throw new Error('Build log: GitHub returned nothing for any tracked repo')
   }
-  return assembleLog(allBuilds, snapshots, highlights)
+  // "Now" for anything that reads the calendar (the homepage strip's "this
+  // month"): the fixture's capture time under BUILD_LOG_FIXTURE=1, so tests
+  // don't drift as the months pass.
+  return { ...assembleLog(allBuilds, snapshots, highlights), asOf: (await source.now()).toISOString() }
 })
 
 /** One build's newest entries, for its page's "Recent activity". */
