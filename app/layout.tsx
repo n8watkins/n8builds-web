@@ -58,7 +58,15 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      // The site scrolls smoothly (globals.css), and without this a route change
+      // smooth-scrolls the new page up from wherever the old one was: a post
+      // opened from the homepage glided a second's worth to its top. With it,
+      // Next.js turns smoothing off during navigation, so a new page starts at
+      // its top, while in-page anchors keep scrolling smoothly.
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning>
       <head>
         <meta name="google-site-verification" content="UaCoLg9YeNobXjRaOb59YzQxzc8RDb1yiOZEKdmNECU" />
 
