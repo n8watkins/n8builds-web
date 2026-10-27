@@ -72,6 +72,21 @@
   }
 }
 
+/* The consent banner's exit (components/consent/ConsentBanner.tsx): it fades
+   and slides down, then unmounts on animationend. Opacity and transform only,
+   on a fixed element, so nothing shifts. Under reduced motion the banner
+   skips it and closes at once. */
+@keyframes consent-out {
+  to {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+
+@utility consent-out {
+  animation: consent-out 0.22s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
 /* The scroll reveal (components/ui/Reveal.tsx): hidden until the block
    scrolls into view, then it fades up once. Opacity and transform only, so it
    never shifts layout, and it ends on `transform: none`, leaving no

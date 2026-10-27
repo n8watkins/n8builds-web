@@ -106,7 +106,9 @@ When the owner decides something new, add it here (with the date) in the same ch
   Visitors whose time zone is in Europe or covers Quebec (`America/Toronto` and friends, so Ontario is asked too) get the banner, and GA doesn't load at all until they accept (basic mode); everyone else gets analytics by default, with "Cookie settings" in the footer.
   Global Privacy Control counts as a decline everywhere until the visitor chooses.
   The choice is the `n8-consent` cookie on `.n8builds.dev` (12 months), shared with portfolio.n8builds.dev, which runs a copy of `lib/consent.ts`.
-  The banner is a centred bottom bar titled "Cookies" with equal-size Decline (solid neutral, left) and Accept (brand gradient, right) buttons; it links to `/privacy#cookies`, which names Google Analytics.
+  The banner is a centred bottom bar (up to 62rem) titled "Cookies", with a cookie icon inline with the title (no icon chip), and it links to `/privacy#cookies`, which names Google Analytics.
+  **Accept is the more inviting button** (owner's call, 2026-10-26, knowing EU regulators can read a much stronger Accept as a nudge): larger, brand gradient with a check icon, on the right; Decline is a smaller secondary button on its left but stays a real, solid, readable (AA) button at least 40px tall.
+  Choosing plays a short exit (the bar fades and slides down for about 220ms, then unmounts; instant under reduced motion), and focus returns to "Cookie settings" or moves to the page's main content.
 - The site is dark-only (`defaultTheme="dark"`, no theme toggle).
   Muted text uses `text-slate-450` / `text-slate-475`, not stock slate-500/600, which fail WCAG AA contrast on the dark backgrounds.
 - react-icons are decorative by default (`aria-hidden` via `IconContext` in `app/provider.tsx`).
