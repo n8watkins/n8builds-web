@@ -339,8 +339,8 @@ export const builds: Build[] = [
     images: [
       { src: '/builds/n8builds/home-hero-2026-10.webp', alt: 'The n8builds.dev homepage hero at desktop width: the name, the whoami terminal, the prompt, build, ship, repeat chain and the portrait' },
       { src: '/builds/n8builds/lighthouse-2026-10.webp', alt: 'Lighthouse report for the homepage from CI: performance 99, accessibility, best practices and SEO 100, LCP 0.9s, CLS 0' },
-      // TODO(owner): retake from a fresh CI run of the combined PR (this one is run #38, before the WebKit shards).
-      { src: '/builds/n8builds/ci-checks.webp', alt: 'A GitHub Actions run: lint, types and unit tests, six E2E jobs and Lighthouse, all passing' },
+      // CI run #169 on main (the #48 merge), retaken 2026-10-26.
+      { src: '/builds/n8builds/ci-checks-2026-10.webp', alt: 'A GitHub Actions run on main: lint, types and unit tests, eight E2E jobs, Lighthouse and the CI result, all passing' },
     ],
     github: 'https://github.com/n8watkins/n8builds-web',
     liveSite: 'https://n8builds.dev',
