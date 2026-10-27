@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { FiArrowLeft, FiArrowRight, FiArrowUpRight, FiDownload, FiGithub } from 'react-icons/fi'
+import { FiArrowLeft, FiArrowRight, FiArrowUpRight, FiCheck, FiDownload, FiGithub } from 'react-icons/fi'
 import Navbar from '@/components/layout/Navbar'
 import { builds, getBuild } from '@/data/builds'
 import { shelfMeta, getShelf } from '@/data/shelves'
@@ -11,6 +11,10 @@ import Reveal from '@/components/ui/Reveal'
 import LogEntryItem, { Timeline } from '@/components/log/LogEntryItem'
 import { getRecentActivity } from '@/lib/build-log'
 import N8buildsCaseStudy from '@/components/builds/n8builds/CaseStudy'
+import TechStackCycle from '@/components/Projects/TechStackCycle'
+import { projects } from '@/data/projects'
+import { BUILD_ICONS } from '@/lib/build-meta'
+import { TECH, TechGlyph, type TechKey } from '@/lib/tech-icons'
 
 interface BuildPageProps {
   params: Promise<{ slug: string }>
@@ -47,6 +51,12 @@ export default async function BuildPage({ params }: BuildPageProps) {
 
   const shelf = shelfMeta[getShelf(build)]
   const activity = await getRecentActivity(slug)
+  // The tech pills: every technology on the Stack cards, in order, once.
+  const techs = [...new Set(build.stack.flatMap((item) => item.tech ?? []))] as TechKey[]
+  // The same "how it's built" explainer as the Lab's Details dialog (data/projects.tsx).
+  const technologies = projects.find((p) => p.title === build.name)?.technologies
+  const icon = BUILD_ICONS[build.slug]
+  const download = build.cta?.href.startsWith('/download/') ? build.cta : undefined
 
   // This site's own page is its own layout: a case study for developers
   // deciding whether to fork it (linked from the homepage's "Use as a template").
@@ -63,7 +73,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
     <>
       <Navbar />
       <main id="main-content" tabIndex={-1} className="relative min-h-screen bg-darkBlue text-slate-100 focus:outline-none">
-        <div className="max-w-4xl mx-auto px-5 sm:px-8 pt-28 pb-10 md:pt-32 md:pb-16">
+        <div className="max-w-5xl mx-auto px-5 sm:px-8 pt-28 pb-10 md:pt-32 md:pb-16">
           {/* Top nav */}
           <Link
             href={`/#${shelf.slug}`}
@@ -73,94 +83,127 @@ export default async function BuildPage({ params }: BuildPageProps) {
             Back to {shelf.label}
           </Link>
 
-          {/* Header */}
-          <header className="mt-8">
-            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
-              <span className="px-2.5 py-1 rounded-full border border-cyan-400/20 bg-cyan-400/10 text-cyan-300">
-                {build.category}
-              </span>
-              {build.status && (
-                <span className="px-2.5 py-1 rounded-full border border-white/10 bg-white/5 text-slate-400">
-                  {build.status}
-                </span>
-              )}
-            </div>
-            <h1 className="mt-4 text-4xl md:text-5xl font-bold tracking-tight">
-              <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                {build.name}
-              </span>
-            </h1>
-            <p className="mt-3 text-lg text-slate-400">{build.tagline}</p>
+          {/* Header: who it is on the left, the build itself on the right */}
+          <header className={`mt-8 grid items-center gap-8 ${build.images.length > 0 ? 'lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]' : ''}`}>
+            <div>
+              <div className="flex items-center gap-4">
+                {icon && (
+                  <Image
+                    src={icon}
+                    alt=""
+                    width={64}
+                    height={64}
+                    unoptimized={icon.endsWith('.svg')}
+                    className="h-14 w-14 shrink-0 rounded-2xl ring-1 ring-white/10 sm:h-16 sm:w-16"
+                  />
+                )}
+                <div className="min-w-0">
+                  <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
+                    <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">{build.name}</span>
+                  </h1>
+                  <p className="mt-1.5 text-lg text-slate-300">{build.tagline}</p>
+                </div>
+              </div>
 
-            <div className="mt-5 flex flex-wrap items-center gap-3">
-              {build.github && (
-                <a
-                  href={build.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-sm font-semibold text-slate-200 transition-all duration-200 hover:scale-[1.02]"
-                >
-                  <FiGithub className="w-4 h-4" />
-                  View source
-                </a>
+              <div className="mt-5 flex flex-wrap items-center gap-2 text-xs font-semibold">
+                <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2.5 py-1 text-cyan-300">{build.category}</span>
+                {build.status && (
+                  <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-slate-400">{build.status}</span>
+                )}
+              </div>
+
+              {techs.length > 0 && (
+                <ul aria-label={`${build.name} is built with`} className="mt-3 flex flex-wrap gap-1.5">
+                  {techs.map((t) => (
+                    <li
+                      key={t}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-white/8 bg-white/4 px-2.5 py-1 text-xs font-semibold text-slate-300"
+                    >
+                      <TechGlyph tech={t} className="h-3.5 w-3.5" />
+                      {TECH[t].label}
+                    </li>
+                  ))}
+                </ul>
               )}
-              {build.liveSite && (
-                <a
-                  href={build.liveSite}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-linear-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-sm font-semibold text-white transition-all duration-200 hover:scale-[1.02]"
-                >
-                  Visit live site
-                  <FiArrowUpRight className="w-4 h-4" />
-                </a>
-              )}
-              <div className="flex flex-wrap gap-1.5">
-                {build.tags.map(tag => (
-                  <span
-                    key={tag}
-                    className="text-xs font-semibold px-2.5 py-1 rounded-full bg-white/5 border border-white/8 text-slate-400"
+
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                {download && (
+                  <a
+                    href={download.href}
+                    className="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:scale-[1.02] hover:from-blue-500 hover:to-cyan-400"
                   >
-                    {tag}
-                  </span>
-                ))}
+                    <FiDownload className="h-4 w-4" />
+                    {download.label}
+                  </a>
+                )}
+                {build.github && (
+                  <a
+                    href={build.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-slate-200 transition-all duration-200 hover:scale-[1.02] hover:bg-white/10"
+                  >
+                    <FiGithub className="h-4 w-4" />
+                    View source
+                    <span className="sr-only"> (opens in a new tab)</span>
+                  </a>
+                )}
+                {/* No screenshot to sit beside: the live site goes with the other actions. */}
+                {build.liveSite && build.images.length === 0 && <LiveSite href={build.liveSite} />}
               </div>
             </div>
-          </header>
 
-          {/* Screenshots */}
-          {build.images.length > 0 && (
-            <section className="mt-12" aria-label="Screenshots">
-              <div className={`relative rounded-2xl border border-white/8 bg-linear-to-br ${build.color} overflow-hidden`}>
+            {build.images.length > 0 && (
+              <div className={`relative overflow-hidden rounded-2xl border border-white/8 bg-linear-to-br ${build.color}`}>
                 <div className="relative aspect-video">
                   <Image
                     src={build.images[0].src}
                     alt={build.images[0].alt}
                     fill
                     priority
-                    sizes="(max-width: 896px) 100vw, 896px"
-                    className="object-contain p-3 md:p-5"
+                    sizes="(max-width: 1024px) 100vw, 560px"
+                    className="object-contain p-3 md:p-4"
                   />
                 </div>
+                {/* The live site, on the right of the picture of it. */}
+                {build.liveSite && (
+                  <div className="absolute top-3 right-3">
+                    <LiveSite href={build.liveSite} />
+                  </div>
+                )}
               </div>
-              {build.images.length > 1 && (
-                <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {build.images.slice(1).map(img => (
-                    <div
-                      key={img.src}
-                      className="relative aspect-video rounded-xl border border-white/8 bg-white/3 overflow-hidden"
-                    >
-                      <Image
-                        src={img.src}
-                        alt={img.alt}
-                        fill
-                        sizes="(max-width: 768px) 50vw, 290px"
-                        className="object-contain p-2"
-                      />
-                    </div>
-                  ))}
+            )}
+          </header>
+
+          {/* What it does, as a checklist */}
+          {build.highlights && build.highlights.length > 0 && (
+            <section aria-labelledby="highlights-heading" className="mt-10">
+              <h2 id="highlights-heading" className="sr-only">
+                What {build.name} does
+              </h2>
+              <ul className="grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
+                {build.highlights.map((item) => (
+                  <li key={item} className="flex items-start gap-2.5 text-[0.95rem] leading-snug text-slate-200">
+                    <FiCheck aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {/* The other screenshots */}
+          {build.images.length > 1 && (
+            // A single extra shot shows large and centred, not alone in a three-column row.
+            <section
+              className={`mt-10 grid gap-4 ${build.images.length === 2 ? 'mx-auto max-w-3xl grid-cols-1' : 'grid-cols-2 md:grid-cols-3'}`}
+              aria-label="More screenshots"
+            >
+              {build.images.slice(1).map((img) => (
+                <div key={img.src} className="relative aspect-video overflow-hidden rounded-xl border border-white/8 bg-white/3">
+                  <Image src={img.src} alt={img.alt} fill sizes="(max-width: 768px) 100vw, 768px" className="object-contain p-2" />
                 </div>
-              )}
+              ))}
             </section>
           )}
 
@@ -178,8 +221,8 @@ export default async function BuildPage({ params }: BuildPageProps) {
             </section>
           </Reveal>
 
-          {/* An invitation to the visitor, when the build has one */}
-          {build.cta && (
+          {/* An invitation to the visitor, when the build has one (a download is already up top) */}
+          {build.cta && !download && (
             <Reveal>
               <section
                 aria-labelledby="cta-heading"
@@ -233,6 +276,21 @@ export default async function BuildPage({ params }: BuildPageProps) {
             </Reveal>
           )}
 
+          {/* How it's built: the Details dialog's explainer, front to back */}
+          {technologies && (
+            <Reveal>
+              <section className="mt-12" aria-labelledby="how-built-heading">
+                <h2 id="how-built-heading" className="text-2xl font-bold tracking-tight">
+                  How it&apos;s{' '}
+                  <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">built</span>
+                </h2>
+                <div className="mt-5 rounded-2xl border border-white/8 bg-linear-to-br from-blue-500/[0.06] to-cyan-500/[0.04] p-5 sm:p-6">
+                  <TechStackCycle technologies={technologies} />
+                </div>
+              </section>
+            </Reveal>
+          )}
+
           {/* Stack */}
           <Reveal>
             <section className="mt-12" aria-label="Tech stack">
@@ -244,9 +302,20 @@ export default async function BuildPage({ params }: BuildPageProps) {
               </h2>
               <ul className="mt-5 grid sm:grid-cols-2 gap-3">
                 {build.stack.map(item => (
-                  <li key={item.name} className="rounded-xl border border-white/8 bg-white/3 p-4">
-                    <span className="block text-sm font-bold text-slate-100">{item.name}</span>
-                    <span className="mt-1 block text-sm text-slate-400 leading-relaxed">{item.detail}</span>
+                  <li key={item.name} className="flex gap-3.5 rounded-xl border border-white/8 bg-white/3 p-4 transition-colors hover:border-white/15 hover:bg-white/5">
+                    {item.tech && item.tech.length > 0 && (
+                      <span aria-hidden className="flex shrink-0 -space-x-1.5 pt-0.5">
+                        {item.tech.slice(0, 3).map((t) => (
+                          <span key={t} className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-[#0a1428]">
+                            <TechGlyph tech={t} className="h-[18px] w-[18px]" />
+                          </span>
+                        ))}
+                      </span>
+                    )}
+                    <span className="min-w-0">
+                      <span className="block text-sm font-bold text-slate-100">{item.name}</span>
+                      <span className="mt-1 block text-sm leading-relaxed text-slate-400">{item.detail}</span>
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -325,5 +394,21 @@ export default async function BuildPage({ params }: BuildPageProps) {
         </div>
       </main>
     </>
+  )
+}
+
+/** "Visit live site", opening in a new tab. */
+function LiveSite({ href }: { href: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-cyan-500 to-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-black/30 transition-all duration-200 hover:scale-[1.02] hover:from-cyan-400 hover:to-blue-500"
+    >
+      Visit live site
+      <FiArrowUpRight className="h-4 w-4" />
+      <span className="sr-only"> (opens in a new tab)</span>
+    </a>
   )
 }

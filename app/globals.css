@@ -641,15 +641,50 @@
       );
   }
 
+  /* "Use mine as a template" gets a quieter wash (the owner found it a lot, 2026-10-27). */
+  .lab-accent-template.lab-part-wash {
+    background:
+      radial-gradient(60% 150px at 50% 170px, rgb(var(--lab-from) / 0.05), transparent 100%),
+      linear-gradient(
+        to bottom,
+        transparent,
+        rgb(var(--lab-from) / 0.035) 22%,
+        rgb(var(--lab-to) / 0.035) 78%,
+        transparent
+      );
+  }
+
   /* One project row: a glow centred on the page edge at its screenshot's side.
      Its vertical radius is half the row, so it is spent before either edge.
      Wider on phones, where the page is narrow. */
+  /* The wash sits on a layer behind the row, so it can come and go on its own:
+     it swells in as the row scrolls into view and fades as it leaves (the
+     owner's ask, 2026-10-27). Browsers without scroll-driven animations, and
+     reduced motion, keep it steady. */
   .lab-row-wash {
+    position: relative;
+    isolation: isolate;
+  }
+  .lab-row-wash::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
     background: radial-gradient(
       var(--lab-rx, 90%) 50% at var(--lab-x, 0%) 50%,
-      rgb(var(--lab-from) / 0.16),
+      rgb(var(--lab-from) / 0.2),
       transparent 100%
     );
+  }
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .lab-row-wash::before {
+        animation: lab-wash linear both;
+        animation-timeline: view();
+        animation-range: cover 5% cover 95%;
+      }
+    }
   }
   @media (min-width: 768px) {
     .lab-row-wash {
@@ -712,5 +747,68 @@
       animation-timeline: view();
       animation-range: entry 0% entry 70%;
     }
+  }
+}
+
+/* A Lab row's wash follows the scroll: faint at the edges of the screen,
+   full while the row is in the middle of it. */
+@keyframes lab-wash {
+  0% { opacity: 0.15; transform: scale(0.96); }
+  35%, 65% { opacity: 1; transform: none; }
+  100% { opacity: 0.15; transform: scale(0.96); }
+}
+
+/* "Check out the Lab": the tagline's cyan to blue, with a light running
+   through it now and then. */
+.lab-eyebrow {
+  background: linear-gradient(100deg, #67e8f9 0%, #60a5fa 40%, #e0f2fe 50%, #60a5fa 60%, #22d3ee 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: lab-eyebrow-shimmer 4.5s ease-in-out infinite;
+  animation-play-state: paused;
+}
+.lab-eyebrow[data-seen] {
+  animation-play-state: running;
+}
+@keyframes lab-eyebrow-shimmer {
+  0% { background-position: 100% 0; }
+  60%, 100% { background-position: 0% 0; }
+}
+
+/* The Lab's main buttons: a soft light sweeps across every few seconds. */
+.btn-shimmer {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+/* Each button sweeps on its own rhythm (components/ShimmerWhenSeen.tsx sets
+   --shimmer-every and --shimmer-delay at random) and only while it's on
+   screen (data-seen), so they never sweep together or out of sight. */
+.btn-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 35%, rgb(255 255 255 / 0.38) 50%, transparent 65%);
+  transform: translateX(-120%);
+  animation: btn-shimmer var(--shimmer-every, 7s) ease-in-out var(--shimmer-delay, 1s) infinite;
+  animation-play-state: paused;
+}
+.btn-shimmer[data-seen]::after {
+  animation-play-state: running;
+}
+@keyframes btn-shimmer {
+  0% { transform: translateX(-120%); }
+  18%, 100% { transform: translateX(120%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lab-eyebrow,
+  .btn-shimmer::after {
+    animation: none;
+  }
+  .lab-eyebrow {
+    background-position: 50% 0;
   }
 }

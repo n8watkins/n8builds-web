@@ -1,5 +1,6 @@
 'use client'
 import React, { type CSSProperties } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { FiArrowLeft, FiArrowRight } from 'react-icons/fi'
 import { LuBackpack } from 'react-icons/lu'
@@ -11,7 +12,7 @@ import FadeIn from '@/components/ui/FadeIn'
  * The Loadout (/loadout): the tools I use and what each one is for, not a
  * tech stack. It leads with how I work with AI (decide, build, fix: the tool
  * and model for each step), then the AI inside the apps I build, then the
- * physical kit as spec sheets (stream kit, rig, desk).
+ * physical setup in one section (rig, desk, stream).
  */
 
 // A section's small mono path and title, left-aligned over its content.
@@ -58,39 +59,56 @@ const StepCard = ({ step, index }: { step: WorkflowStep; index: number }) => (
   </article>
 )
 
-/** A physical kit group as a spec sheet: one row per item, its use and my take. */
-const SpecSheet = ({ group }: { group: LoadoutGroup }) => (
-  <Reveal as="section" id={group.id} className="scroll-mt-24">
-    <SectionHead path={group.path} title={group.title}>
-      {group.subtitle}
+/**
+ * The physical setup in one place (the owner found three spec sheets
+ * repetitive, 2026-10-27): a column each for the rig, the desk and the stream,
+ * one line per item.
+ */
+const Setup = ({ groups }: { groups: LoadoutGroup[] }) => (
+  <Reveal as="section" id="setup" aria-labelledby="setup-title" className="scroll-mt-24">
+    <SectionHead id="setup-title" path="~/loadout/setup" title="The setup">
+      What it all runs on, from the PC to the mic.
     </SectionHead>
-    <dl className="grid overflow-hidden rounded-2xl border border-white/8 bg-white/[0.02] md:grid-cols-2">
-      {group.items.map((item) => (
-        <div
-          key={item.name}
-          className="group flex flex-col gap-1.5 border-b border-white/6 p-5 transition-colors duration-200 last:border-b-0 hover:bg-white/[0.03] md:odd:border-r md:last:odd:col-span-2 md:last:odd:border-r-0 md:[&:nth-last-child(2):nth-child(odd)]:border-b-0"
-        >
-          <dt className="flex flex-wrap items-center gap-2">
-            <span className="font-bold text-slate-100 transition-colors group-hover:text-cyan-200">{item.name}</span>
-            {item.tag && (
-              <span className="rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2 py-0.5 text-[0.62rem] font-bold tracking-wider text-cyan-300 uppercase">
-                {item.tag}
-              </span>
-            )}
-          </dt>
-          <dd className="text-sm leading-relaxed text-[#9cadc5]">{item.whatFor}</dd>
-          <dd className="font-mono text-[0.78rem] leading-relaxed text-slate-450">
-            <span className="text-cyan-400">{'// '}</span>
-            {item.take}
-          </dd>
-        </div>
+    <div className="grid gap-4 md:grid-cols-3">
+      {groups.map((group, g) => (
+        <Reveal key={group.id} delay={g * 0.1}>
+          <section
+            id={group.id}
+            aria-labelledby={`${group.id}-title`}
+            className="h-full scroll-mt-24 rounded-2xl border border-white/8 bg-white/[0.02] p-5 transition-[border-color,translate] duration-300 hover:-translate-y-1 hover:border-cyan-300/25 motion-reduce:hover:translate-y-0"
+          >
+            <h3 id={`${group.id}-title`} className="font-mono text-xs font-bold tracking-[0.16em] text-cyan-300 uppercase">
+              {group.title.replace(/^The /, '')}
+            </h3>
+            <ul className="mt-4 space-y-3.5">
+              {group.items.map((item) => (
+                <li key={item.name} className="group/item flex gap-3">
+                  <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-200 transition-colors group-hover/item:text-cyan-200 [&_svg]:h-4 [&_svg]:w-4">
+                    {item.icon ?? (item.name === 'Scribe' ? <Image src="/builds/scribe/app-icon.png" alt="" width={18} height={18} /> : null)}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="flex flex-wrap items-center gap-2 font-semibold text-slate-100">
+                      {item.name}
+                      {item.tag && (
+                        <span className="rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2 py-0.5 text-[0.6rem] font-bold tracking-wider text-cyan-300 uppercase">
+                          {item.tag}
+                        </span>
+                      )}
+                    </p>
+                    <p className="mt-0.5 text-sm leading-relaxed text-[#9cadc5]">{item.whatFor}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </Reveal>
       ))}
-    </dl>
+    </div>
   </Reveal>
 )
 
 const Loadout = () => {
-  const kit = loadout.filter((group) => ['stream', 'rig', 'desk'].includes(group.id))
+  const kit = ['rig', 'desk', 'stream'].flatMap((id) => loadout.filter((group) => group.id === id))
   return (
     <main id="main-content" tabIndex={-1} className="relative min-h-screen overflow-hidden bg-darkBlue text-slate-100 focus:outline-none">
       {/* A soft glow behind the top of the page */}
@@ -113,10 +131,10 @@ const Loadout = () => {
             <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-300/30 sm:h-16 sm:w-16">
               <LuBackpack className="h-7 w-7 sm:h-9 sm:w-9" aria-hidden="true" />
             </span>
-            <h1 className="text-4xl font-bold tracking-tight text-slate-50 sm:text-6xl lg:text-7xl">The Loadout</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-slate-50 sm:text-6xl lg:text-7xl">My Loadout</h1>
           </div>
           <p className="mt-5 max-w-[600px] text-balance text-lg text-[#9cadc5] sm:text-xl">
-            The AI I work with and what each one is for, then the rig and desk it all runs on.
+            The AI I work with and what each one is for, then the setup it all runs on.
           </p>
         </FadeIn>
 
@@ -186,11 +204,9 @@ const Loadout = () => {
           </ul>
         </Reveal>
 
-        {/* The physical kit, as spec sheets */}
-        <div className="mt-20 space-y-16">
-          {kit.map((group) => (
-            <SpecSheet key={group.id} group={group} />
-          ))}
+        {/* The physical kit, in one section */}
+        <div className="mt-20">
+          <Setup groups={kit} />
         </div>
 
         <p className="mt-16 border-t border-white/6 pt-8 text-center font-mono text-xs text-slate-475">

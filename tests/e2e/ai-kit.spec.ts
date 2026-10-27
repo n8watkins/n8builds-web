@@ -14,10 +14,9 @@ test.describe('AI kit content', () => {
       await page.goto(path)
       const kit = page.getByRole('region', { name: 'AI tools' })
       await expect(kit.getByText('whisper.cpp', { exact: true })).toBeVisible()
-      await expect(
-        page.getByRole('region', { name: 'AI agents' }).getByText('Perplexity', { exact: true })
-      ).toBeVisible()
-      for (const dropped of ['Ollama', 'LangChain']) {
+      await expect(page.getByRole('region', { name: 'AI agents' }).getByText('Claude Code', { exact: true }).first()).toBeVisible()
+      // Not used, so not listed (the owner's call, 2026-10-27).
+      for (const dropped of ['Ollama', 'LangChain', 'Perplexity']) {
         await expect(page.getByText(dropped)).toHaveCount(0)
       }
     }
@@ -246,7 +245,8 @@ test.describe('dino easter egg (motion allowed)', () => {
         return { at, x: box.x + box.width / 2, y: box.y + box.height / 2 }
       })
     const pick = async (index: number) => {
-      await expect.poll(() => findTile(index), { message: 'a tile fully on screen' }).not.toBeNull()
+      // On a phone a tile is fully in view only part of the time as the row drifts: allow it a while.
+      await expect.poll(() => findTile(index), { message: 'a tile fully on screen', timeout: 20_000 }).not.toBeNull()
       const target = (await findTile(index))!
       if (hasTouch) await page.touchscreen.tap(target.x, target.y)
       else
@@ -662,7 +662,7 @@ test.describe('dino easter egg (motion allowed)', () => {
 
   test('is not on /loadout', async ({ page }) => {
     await page.goto('/loadout')
-    await expect(page.getByRole('heading', { level: 1, name: 'The Loadout' })).toBeVisible()
+    await expect(page.getByRole('heading', { level: 1, name: 'My Loadout' })).toBeVisible()
     await page.waitForTimeout(1500)
     await expect(dino(page)).toHaveCount(0)
     await expect(page.locator('[data-dino-panel]')).toHaveCount(0)

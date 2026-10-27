@@ -32,6 +32,57 @@ export type SnapshotRelease = {
   url: string
   draft: boolean
   prerelease: boolean
+  /** The release's patch notes, when its body has release-kit's sections. */
+  notes?: ReleaseNote[]
+}
+
+/** One line of a release's patch notes, under its section (release-kit's headings). */
+export type ReleaseNote = { section: ReleaseSection; text: string }
+export type ReleaseSection = 'breaking' | 'new' | 'fixed' | 'faster' | 'safer'
+
+/** The most notes a release shows; the rest wait on GitHub ("and N more"). */
+export const RELEASE_NOTES_SHOWN = 5
+
+// release-kit's headings, plain ("New") and classic ("Features") alike.
+const NOTE_SECTIONS: [RegExp, ReleaseSection][] = [
+  [/^breaking/i, 'breaking'],
+  [/^(new|features?)$/i, 'new'],
+  [/^(fixed|fixes|bug fixes)$/i, 'fixed'],
+  [/^(faster|performance)$/i, 'faster'],
+  [/^(safer|security)$/i, 'safer'],
+]
+
+/**
+ * Patch notes from a GitHub release body written by release-kit: the bullets
+ * under its New / Fixed / Faster / Safer (or Features / Fixes / Performance /
+ * Security) headings, as plain text. Anything else (GitHub's generated "What's
+ * Changed" list, a "Full Changelog" link) is left out, so an older release
+ * simply shows no notes.
+ */
+export function parseReleaseNotes(body: string | null | undefined): ReleaseNote[] {
+  if (!body) return []
+  const notes: ReleaseNote[] = []
+  let section: ReleaseSection | null = null
+  for (const raw of body.split(/\r?\n/)) {
+    const line = raw.trim()
+    const heading = /^#{2,4}\s+(.+?)\s*$/.exec(line)
+    if (heading) {
+      section = NOTE_SECTIONS.find(([re]) => re.test(heading[1].replace(/[^\w ]/g, '').trim()))?.[1] ?? null
+      continue
+    }
+    const bullet = /^[-*]\s+(.+)$/.exec(line)
+    if (!section || !bullet) continue
+    const text = bullet[1]
+      .replace(/\s*\(\[?[0-9a-f]{7,40}\]?(\([^)]*\))?\)\s*$/, '') // a commit hash: (ff3d872) or ([ff3d872](url))
+      .replace(/\s*\(\[#\d+\]\([^)]*\)\)\s*$/, '') // ([#12](url))
+      .replace(/\s*\(#\d+\)\s*$/, '') // (#12)
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1') // [text](url)
+      .replace(/^\*\*[^*]+:\*\*\s*/, '') // **scope:**
+      .replace(/\*\*|__|`/g, '')
+      .trim()
+    if (text) notes.push({ section, text: text.charAt(0).toUpperCase() + text.slice(1) })
+  }
+  return notes
 }
 
 export type SnapshotCommit = {
@@ -79,6 +130,8 @@ export type LogEntry = {
   detail?: string
   /** Changes from the same day folded into this entry ("and N more changes"). */
   more: number
+  /** A release's patch notes (release-kit's sections), newest release only. */
+  notes?: ReleaseNote[]
   url?: string
   highlightKind?: HighlightKind
   image?: { url: string; alt: string }
@@ -264,7 +317,7 @@ const compareVersions = (a: string, b: string) => {
   return 0
 }
 
-type Version = { version: string; date: string; url: string; notes?: string }
+type Version = { version: string; date: string; url: string; notes?: string; patchNotes?: ReleaseNote[] }
 type Change = { title: string; score: number; date: string; url: string }
 
 /**
@@ -284,7 +337,7 @@ export function entriesForBuild(build: Pick<Build, 'slug' | 'log' | 'github' | '
 
   const versions: Version[] = snapshot.releases
     .filter((r) => !r.draft && !r.prerelease)
-    .map((r) => ({ version: r.tag.startsWith('v') ? r.tag : `v${r.tag}`, date: r.publishedAt, url: r.url }))
+    .map((r) => ({ version: r.tag.startsWith('v') ? r.tag : `v${r.tag}`, date: r.publishedAt, url: r.url, patchNotes: r.notes }))
   const released = new Set(versions.map((v) => v.version))
 
   const changes: Change[] = []
@@ -318,8 +371,9 @@ export function entriesForBuild(build: Pick<Build, 'slug' | 'log' | 'github' | '
         kind: 'release',
         title: `Shipped ${latest.version}`,
         // The release's own notes when its commit has them, else the day's strongest change.
-        detail: latest.notes ?? ranked[0]?.title,
-        more: latest.notes ? ranked.length : Math.max(ranked.length - 1, 0),
+        detail: latest.notes ?? (latest.patchNotes?.length ? undefined : ranked[0]?.title),
+        more: latest.notes || latest.patchNotes?.length ? ranked.length : Math.max(ranked.length - 1, 0),
+        ...(latest.patchNotes?.length ? { notes: latest.patchNotes } : {}),
         url: link(latest.url),
       })
     } else {
@@ -464,7 +518,7 @@ async function github<T>(path: string): Promise<T> {
 }
 
 type GitHubRepo = { pushed_at: string | null }
-type GitHubRelease = { tag_name: string; name: string | null; published_at: string | null; html_url: string; draft: boolean; prerelease: boolean }
+type GitHubRelease = { tag_name: string; name: string | null; published_at: string | null; html_url: string; draft: boolean; prerelease: boolean; body?: string | null }
 type GitHubCommit = {
   sha: string
   html_url: string
@@ -492,6 +546,7 @@ export function normalizeRelease(r: GitHubRelease): SnapshotRelease {
     url: r.html_url,
     draft: r.draft,
     prerelease: r.prerelease,
+    ...(parseReleaseNotes(r.body).length ? { notes: parseReleaseNotes(r.body) } : {}),
   }
 }
 

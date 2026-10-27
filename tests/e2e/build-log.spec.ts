@@ -54,8 +54,9 @@ test('the build log leads with the builds, most recently active first', async ({
 test('the feed groups entries by month, with highlights pinned and releases shown as versions', async ({ page }) => {
   await page.goto('/builds')
   const months = feed(page).getByRole('heading', { level: 3 })
-  await expect(months.first()).toHaveText('October 2026')
-  await expect(months.nth(1)).toHaveText('July 2026')
+  // Each month heading, then its counts.
+  await expect(months.first()).toHaveText(/^October 2026\d+ updates?/)
+  await expect(months.nth(1)).toHaveText(/^July 2026\d+ updates?/)
 
   // The hand-written highlight sits atop its month, styled as featured.
   const july = feed(page).getByRole('region', { name: 'July 2026' })

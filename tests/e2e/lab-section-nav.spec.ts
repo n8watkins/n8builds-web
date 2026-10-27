@@ -76,6 +76,9 @@ test.describe('at 1440px', () => {
   })
 
   test('a click jumps to the part, below the sticky navbar', async ({ page }) => {
+    // Three smooth-scroll jumps in a row: under a full parallel run each can take
+    // several seconds, so the 30s default is too tight.
+    test.setTimeout(60_000)
     await openHome(page)
     await scrollToPart(page, 'my-tools')
     const nav = rail(page)
@@ -197,18 +200,18 @@ test.describe('placement at 1440px', () => {
         [id, top] as const
       )
     // The template offer coming in, filling the window, and leaving until its
-    // foot is just under the 40% line: still Featured.
+    // foot is just under the middle of the window: still Featured.
     const height = await page
       .locator('#template')
       .evaluate((el) => el.getBoundingClientRect().height)
-    for (const top of [500, 100, Math.round(380 - height)]) {
+    for (const top of [500, 100, Math.round(470 - height)]) {
       await place('template', top)
       await expect(current, `template at ${top}px`).toHaveAccessibleName('Featured')
     }
-    // Chrome Extensions takes over only once its own top passes 40% of the window.
-    await place('extensions', 400)
+    // Chrome Extensions takes over only once its own top passes the middle of the window.
+    await place('extensions', 500)
     await expect(current).toHaveAccessibleName('Featured')
-    await place('extensions', 300)
+    await place('extensions', 400)
     await expect(current).toHaveAccessibleName('Chrome Extensions')
   })
 
@@ -263,7 +266,7 @@ test.describe('icons only, 1280-1439px', () => {
     const nav = rail(page)
     await expect(nav).toBeVisible()
     // No heading and no inline labels: the rail is just the icons.
-    await expect(nav.getByText('In the Lab')).toBeHidden()
+    await expect(nav.getByText('The Lab', { exact: true })).toBeHidden()
     const tooltip = (name: string) =>
       nav.getByRole('link', { name, exact: true }).getByText(name, { exact: true })
     for (const part of PARTS) await expect(tooltip(part.label)).toHaveCSS('opacity', '0')
@@ -366,8 +369,8 @@ for (const width of [1280, 1366, 1440, 1536, 1920]) {
       await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
     ).toBe(true)
     // No heading in the icons-only shape.
-    if (shape.labels) await expect(nav.getByText('In the Lab')).toBeVisible()
-    else await expect(nav.getByText('In the Lab')).toBeHidden()
+    if (shape.labels) await expect(nav.getByText('The Lab', { exact: true })).toBeVisible()
+    else await expect(nav.getByText('The Lab', { exact: true })).toBeHidden()
     // Every label stays on one line (from 1440px; below that it is a one-line tooltip).
     const lines = await nav.getByRole('link').evaluateAll((links) =>
       links.map((a) => {

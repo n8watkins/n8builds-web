@@ -25,9 +25,13 @@ export interface NowState {
   project: string
   /** The project's own mark, shown next to its name. */
   logo?: string
+  /** The project's own wordmark, light on dark, shown in place of the logo and name. */
+  wordmark?: { src: string; width: number; height: number }
   /** One line on what the project is; the What's new dialog's subtitle. */
   tagline: string
   status: 'prototype' | 'active' | 'polishing' | 'shipping'
+  /** What the badge says, when the offer itself says more than the status does. */
+  badge?: string
   /** The ad's headline; `accent` is the highlighted end of it. */
   headline: { lead: string; accent: string }
   /** The ad's pitch, one short paragraph. */
@@ -53,8 +57,11 @@ export const nowItems: NowState[] = [
   {
     project: 'Appturnity',
     logo: '/brands/appturnity.png',
+    // Appturnity's real wordmark (appturnity.com), its navy letters lightened for the dark card.
+    wordmark: { src: '/brands/appturnity-wordmark-light.png', width: 623, height: 130 },
     tagline: 'Free websites and automation for service businesses',
     status: 'active',
+    badge: 'Free websites',
     headline: { lead: 'Your free website,', accent: 'built for your trade.' },
     pitch:
       'Websites for service businesses, like pool, HVAC and landscaping companies. Pick a template made for your trade, and we build and launch it for free.',

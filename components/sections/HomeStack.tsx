@@ -27,7 +27,7 @@ export default function HomeStack() {
     <section id="loadout" aria-label="My stack" className="py-16">
       <SectionMark
         icon={<LuBackpack aria-hidden="true" />}
-        title="The Loadout"
+        title="My Loadout"
         action={
           <Link
             href="/loadout"

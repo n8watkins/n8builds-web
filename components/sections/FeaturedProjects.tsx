@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import type { IconType } from 'react-icons'
 import { FaApple, FaLinux, FaWindows } from 'react-icons/fa6'
-import { FiCheck, FiDownload, FiExternalLink, FiFileText, FiGithub } from 'react-icons/fi'
+import { FiActivity, FiCheck, FiDownload, FiExternalLink, FiFileText, FiGithub } from 'react-icons/fi'
 import Reveal from '@/components/ui/Reveal'
 import RepoButtons from '@/components/ui/RepoButtons'
 import { ProjectDetails, ProjectGallery, type GalleryImage } from '@/components/sections/FeaturedProjectIslands'
@@ -109,7 +109,7 @@ const featured: FeaturedProject[] = [
     title: 'Scribe',
     icon: '/builds/scribe/app-icon.png',
     group: 'tools',
-    subtitle: 'Local dictation for Windows',
+    subtitle: 'Speech-to-text for Windows',
     description:
       'I dictate with Scribe every day: hold a hotkey, talk and let go, and your words land at the cursor, transcribed on your own PC.',
     images: [
@@ -187,9 +187,9 @@ const featured: FeaturedProject[] = [
     ),
     icon: '/builds/portfolio-rank/icon.png',
     group: 'featured',
-    subtitle: 'Developer portfolios, ranked',
+    subtitle: 'The developer portfolio leaderboard',
     description:
-      'Nearly 2,000 developer portfolios, ranked by head-to-head votes instead of A to Z, with a real screenshot of every site.',
+      '1,700+ developer portfolios, ranked by head-to-head votes instead of A to Z, with a real screenshot of every site.',
     images: [{ src: '/projects/PortfolioRank-1.png', alt: 'Portfolio Rank - developer portfolio ranker screenshot' }],
     tags: ['Next.js', 'Gemini', 'Turso', 'Vercel'],
     github: 'https://github.com/n8watkins/portfolio-rank',
@@ -255,7 +255,7 @@ const ActionLinkView = ({ project, link, facts }: { project: FeaturedProject; li
       className={
         isLink
           ? `inline-flex items-center gap-1.5 py-1 text-sm font-semibold text-slate-300 transition-colors ${accent.link}`
-          : `${buttonBase} rounded-lg px-3.5 ${accent.primary}`
+          : `${buttonBase} btn-shimmer rounded-lg px-3.5 ${accent.primary}`
       }
     >
       {link.download ? <FiDownload className="h-4 w-4" aria-hidden="true" /> : null}
@@ -355,7 +355,15 @@ const DetailsBody = ({ project, technologies }: { project: FeaturedProject; tech
         className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-700 px-5 py-2.5 text-[0.95rem] font-semibold text-white transition-colors duration-200 hover:from-blue-700 hover:to-cyan-800"
       >
         <FiFileText className="h-4 w-4 shrink-0" aria-hidden="true" />
-        Full story and build log
+        Full story
+      </Link>
+      {/* Straight to this build's part of the /builds log. */}
+      <Link
+        href={`/builds?build=${project.buildSlug}#activity`}
+        className="flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-5 py-2.5 text-[0.95rem] font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8"
+      >
+        <FiActivity className="h-4 w-4 shrink-0" aria-hidden="true" />
+        Build log
       </Link>
       {project.github && (
         <a
@@ -542,7 +550,7 @@ const FeaturedProjects = async () => {
         </Reveal>
         <Rows group="tools" offset={0} facts={facts} />
       </section>
-      <section id="featured" aria-label="Featured builds" className="lab-accent-featured py-10">
+      <section id="featured" aria-label="Featured builds" className="lab-accent-featured mt-10 py-10 md:mt-16">
         <Reveal className={`${container} pb-4`}>
           <LabSubheader title="Featured builds" blurb="Free to use and open source, with no sign-up to start." />
         </Reveal>

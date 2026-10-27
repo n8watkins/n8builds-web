@@ -11,7 +11,8 @@ test('"What I\'m working on" advertises Appturnity, with its mark and the free-w
   await page.goto('/')
   const now = page.locator('#now')
   await expect(now.getByRole('heading', { level: 3, name: 'Appturnity' })).toBeVisible()
-  await expect(now.locator('img[src*="appturnity.png"]').first()).toBeVisible()
+  // Appturnity's own wordmark (from appturnity.com), lightened for the dark card.
+  await expect(now.locator('img[src*="appturnity-wordmark-light"]').first()).toBeVisible()
   await expect(now).toContainText('service businesses')
   await expect(now).not.toContainText('local service')
   await expect(now.getByRole('link', { name: /Claim your free website/ }).first()).toHaveAttribute('href', 'https://appturnity.com/#free-website')
@@ -25,7 +26,7 @@ test('the project-work card is Appturnity, by name and mark', async ({ page }) =
   await card.scrollIntoViewIfNeeded()
   await expect(card.getByRole('link', { name: /Claim your free website/ })).toHaveAttribute('href', 'https://appturnity.com/#free-website')
   await expect(card).toContainText('Appturnity is my company')
-  await expect(card.locator('img[src*="appturnity.png"]')).toHaveCount(1)
+  await expect(card.locator('img[src*="appturnity-wordmark-light"]')).toHaveCount(1)
 })
 
 test('the contact card offers service businesses a free Appturnity website, not consulting', async ({ page }) => {

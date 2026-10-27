@@ -70,8 +70,15 @@ test.describe('desktop', () => {
     const apt = card(page, /Run a service business/)
     await expect(apt.getByRole('link', { name: /Claim your free website/ })).toHaveAttribute('href', 'https://appturnity.com/#free-website')
     await expect(apt.getByRole('link', { name: /See the plans/ })).toHaveAttribute('href', 'https://appturnity.com/pricing')
-    // Planned features are labelled as such, never as included.
-    await expect(apt.getByRole('list', { name: 'Coming soon' }).getByRole('listitem')).toHaveCount(6)
+    // Planned features are labelled as such, never as included; booking, reminders and follow-up are live today.
+    await expect(apt.getByRole('list', { name: 'Coming soon' }).getByRole('listitem')).toHaveText([
+      'AI phone receptionist',
+      'Missed-call text-back',
+      'Online payments',
+    ])
+    await expect(apt.getByText('Online booking and appointment reminders')).toBeVisible()
+    // Appturnity's own wordmark, not gradient text.
+    await expect(apt.getByRole('img', { name: 'Appturnity' })).toBeVisible()
   })
 
   test('the screenshot links stay out of the tab order; the buttons are reachable', async ({ page }) => {

@@ -8,17 +8,32 @@ import { FiArrowUpRight } from 'react-icons/fi'
  */
 const PORTFOLIO = 'https://portfolio.n8builds.dev'
 
+/** A project's page on the portfolio, inline in the ad's sentence. */
+const ProjectLink = ({ slug, children }: { slug: string; children: React.ReactNode }) => (
+  <a
+    href={`${PORTFOLIO}/projects/${slug}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="font-semibold text-cyan-300 underline decoration-cyan-300/40 underline-offset-4 transition-colors hover:text-cyan-200 hover:decoration-cyan-200"
+  >
+    {children}
+    <span className="sr-only"> (opens in a new tab)</span>
+  </a>
+)
+
 const PortfolioAd = () => (
   <section aria-labelledby="portfolio-ad-heading" className="py-10">
     <div className="grid items-center gap-8 overflow-hidden rounded-2xl border border-cyan-400/20 bg-linear-to-br from-cyan-500/[0.06] to-blue-600/[0.08] p-6 sm:p-8 md:grid-cols-2">
       <div>
         <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-cyan-400">Hiring?</p>
-        <h2 id="portfolio-ad-heading" className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
-          Meet the developer behind the builds
+        <h2 id="portfolio-ad-heading" className="text-[1.65rem] font-bold tracking-tight text-slate-50 sm:text-3xl lg:whitespace-nowrap">
+          The developer behind the build
         </h2>
         <p className="mt-3 leading-relaxed text-[#9cadc5]">
-          My developer portfolio: AI projects with live demos and their uptime (a realtime voice agent, a research agent, a
-          Gemini chat platform), the client sites I&apos;ve shipped, and my experience. The short version of everything here.
+          AI projects with live demos: <ProjectLink slug="echo">a realtime voice agent</ProjectLink>,{' '}
+          <ProjectLink slug="scout">a research agent</ProjectLink> and{' '}
+          <ProjectLink slug="geminigpt">a chat platform with retrieval</ProjectLink>. Plus the client sites I&apos;ve shipped and my
+          experience.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
           <a

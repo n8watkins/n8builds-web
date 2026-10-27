@@ -487,10 +487,12 @@ test.describe('the whoami typing', () => {
     test('types each line out from the server HTML, without JavaScript, then shows the prompt', async ({ page }) => {
       await page.context().route('**/*.js', (route) => route.abort())
       await page.goto('/')
-      await expect(lines(page)).toHaveText(['AI-first software developer.', 'I build apps and tools I wish existed.'])
+      await expect(lines(page)).toHaveText(['AI-first software developer.', 'I build apps and tools I wish existed.', 'Shipping with Claude Opus 5.5.'])
       // Pause every animation early on: line 1 part typed, line 2 and the prompt not yet.
       await page.evaluate(() => {
+        // Time-based animations only: the Lab's scroll-driven washes run on scroll progress.
         for (const a of document.getAnimations()) {
+          if (!(a.timeline instanceof DocumentTimeline)) continue
           a.pause()
           a.currentTime = 900
         }
@@ -504,7 +506,7 @@ test.describe('the whoami typing', () => {
       // Then let it finish.
       await page.evaluate(() => {
         for (const a of document.getAnimations()) {
-          a.currentTime = 10_000
+          if (a.timeline instanceof DocumentTimeline) a.currentTime = 10_000
         }
       })
       for (const clip of await lines(page).evaluateAll((els) => els.map((el) => getComputedStyle(el).clipPath)))

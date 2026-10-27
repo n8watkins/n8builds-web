@@ -23,6 +23,13 @@ export const metadata = pageMetadata({
 
 export default async function BuildLogPage() {
   const log = await getBuildLog()
+  // The year at a glance, over the feed's own 12-month window.
+  const recent = log.entries.filter((e) => !log.recentFrom || e.month >= log.recentFrom)
+  const figures = [
+    { value: log.activity.length, label: 'builds tracked' },
+    { value: recent.length, label: 'updates in 12 months' },
+    { value: recent.filter((e) => e.kind === 'release').length, label: 'releases in 12 months' },
+  ]
 
   const itemList = {
     '@context': 'https://schema.org',
@@ -73,6 +80,17 @@ export default async function BuildLogPage() {
               </a>
               , my release standard, as each project adopts it.
             </p>
+            <dl className="mt-8 grid max-w-2xl grid-cols-3 gap-3">
+              {figures.map((f) => (
+                <div key={f.label} className="rounded-2xl border border-white/8 bg-linear-to-br from-cyan-500/[0.07] to-blue-600/[0.04] px-4 py-3.5">
+                  <dt className="sr-only">{f.label}</dt>
+                  <dd className="text-2xl font-bold tabular-nums text-slate-50 sm:text-3xl">{f.value}</dd>
+                  <dd aria-hidden className="mt-0.5 text-xs leading-snug text-[#9cadc5] sm:text-sm">
+                    {f.label}
+                  </dd>
+                </div>
+              ))}
+            </dl>
           </header>
 
           <section className="mt-12 md:mt-14" aria-labelledby="builds-heading">

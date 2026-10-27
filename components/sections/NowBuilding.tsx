@@ -141,10 +141,18 @@ const Card = ({ now }: { now: NowState }) => (
   <div>
     <div className="grid content-start gap-5 lg:grid-cols-[1.1fr_1fr] lg:gap-x-12">
       <div className="flex flex-wrap items-center gap-3 lg:col-start-1">
-        {now.logo && <Image src={now.logo} alt="" width={152} height={177} className="h-8 w-auto shrink-0 sm:h-9" />}
-        <h3 className="text-[1.4rem] font-extrabold sm:text-2xl tracking-tight text-slate-50">{now.project}</h3>
+        {now.wordmark ? (
+          <h3>
+            <Image src={now.wordmark.src} alt={now.project} width={now.wordmark.width} height={now.wordmark.height} className="h-8 w-auto sm:h-9" />
+          </h3>
+        ) : (
+          <>
+            {now.logo && <Image src={now.logo} alt="" width={152} height={177} className="h-8 w-auto shrink-0 sm:h-9" />}
+            <h3 className="text-[1.4rem] font-extrabold sm:text-2xl tracking-tight text-slate-50">{now.project}</h3>
+          </>
+        )}
         <span className={`rounded-full border px-2.5 py-0.5 text-[0.62rem] font-bold uppercase tracking-wider ${statusStyles[now.status]}`}>
-          {now.status}
+          {now.badge ?? now.status}
         </span>
       </div>
 
@@ -225,7 +233,7 @@ const NowBuilding = () => (
         <p className="mb-2 flex items-center gap-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-cyan-400">
           <MdRadioButtonChecked className="h-3 w-3 animate-pulse text-green-400" /> Currently building
         </p>
-        <h2 className="text-4xl font-extrabold tracking-tight text-slate-50 sm:text-5xl/tight">What I&apos;m working on</h2>
+        <h2 className="text-[2rem] font-extrabold tracking-tight text-slate-50 sm:text-[2.6rem]/tight">What I&apos;m working on</h2>
       </div>
     </div>
 
