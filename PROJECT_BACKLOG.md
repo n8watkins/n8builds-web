@@ -7,7 +7,16 @@ Updated: October 26, 2026
 - [ ] **Portfolio Rank** — Verify Gemini API key configuration without exposing secrets; restore reliable continuous portfolio ELO scoring, automatic refresh, persistence, and error handling.
 
 ## Security and CI follow-ups (added October 26, 2026)
-- [ ] **Dependency security round per repo** - Dependabot alerts were switched on for every build repo on October 26. Open alerts then: scribe 68, open-ping 39, portfolio-rank 31 (6 critical), tl-dw 17, piper-tts 6 (1 critical), tube-vault 1. For each repo: update dependencies within their major versions, run its tests, open a PR, merge when CI is green, and list anything that needs a breaking upgrade. The admin dashboard's Security page shows the live counts.
+- [x] **Dependency security round per repo** (done October 27) - Dependabot alerts were switched on for every build repo on October 26; 161 of the 162 open alerts are now closed. The admin dashboard's Security page shows the live counts.
+  - portfolio-rank 31 to 0 (6 critical): PR #6, next 15.5.28, next-auth beta.32, and a same-major postcss override. Verified live after the deploy.
+  - piper-tts 6 to 0 (1 critical): PR #1, lockfile refresh (express, body-parser, qs, proxy-addr, esbuild).
+  - tube-vault 1 to 0: PR #2, esbuild 0.28. Its `npm run build` bumps the version, commits, and syncs to the Windows extension folder, so test builds call esbuild directly. Open PR #1 (v0.3.106) has its own lockfile.
+  - open-ping 39 to 0: PR #6. zod 3 to 4.6.7, because zod 3 has no fix. Some validation message wording changes, but the `issues` shape is unchanged. Same-major overrides cover the undici, sharp and zod copies that miniflare pins. The runtime fixes reach openping.n8builds.dev only after `npm run deploy`, which the owner runs.
+  - scribe 68 to 1: PR #40, npm lockfiles plus `cargo update` for new RustSec advisories (quinn-proto, rustls, rustls-webpki, webpki-roots). Its Rust CI jobs had been red since July and are green again.
+  - tl-dw 17 to 0: cleared by its quality-gate PR #3.
+- [ ] **Scribe zip advisories** - `.cargo/audit.toml` ignores RUSTSEC-2026-0367, 0368 and 0369 (zip 4.x extract), whose only user is tauri-plugin-updater 2.x. The updater checks an archive's signature before it extracts it. Remove the ignores when tauri-plugin-updater 3 (zip 9) is stable.
+- [ ] **Scribe glib alert** - The last open scribe alert is glib 0.18 (RUSTSEC-2024-0429, an unsound iterator), which comes in through Tauri 2's Linux GTK stack. It needs Tauri to move to glib 0.20. Scribe ships on Windows, which never compiles glib.
+- [ ] **open-ping deploy** - Run `npm run deploy` so the hono, react-router and zod fixes go live.
 - [x] **dev-portfolio security round** - PR #6 fixed 82 of 87 alerts (all 7 critical). The last 5 are dev-only, inside `@lhci/cli`, and need either a new `@lhci/cli` release or running it on demand with `npx`.
 - [ ] **TL;DW quality gate** - Failing on master since July 20. Diagnosis and fix plan: `docs/CI_QUALITY_GATE_FAILURE.md` on the tl-dw branch `docs/ci-failure-report` (a timezone-dependent test, a clock-dependent test, and Vite/Vitest advisories; about an hour of work).
 - [ ] **GeminiGPT model** - It calls `gemini-3.1-flash-lite` (`lib/websocket/services/GeminiService.js`); the owner wants Gemini 3.5 Flash Lite. Upgrade in the GeminiGPT repo, test, then update the portfolio copy (it says "Gemini 3.1 Flash Lite" to match the code today).
