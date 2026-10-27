@@ -367,7 +367,27 @@ export default function DinoGame() {
         return from - d * p - hh * 4 * p * (1 - p)
       }
       while (h > d / 4 + 1 && peak(h) - H < 2) h -= 2
-      climb = { t: 0, from, to, h, vx: dir * SPEED * 0.9, target }
+      // Aim for a tile of the row above where it will be on landing (that
+      // row moves too), as near as possible to an ordinary forward leap.
+      const row = levels[target].row
+      const foot = x + W / 2
+      let spotX = foot + dir * SPEED * 0.9 * CLIMB_T
+      if (row) {
+        const shift = row.velocity * CLIMB_T
+        let best = Infinity
+        for (const [a, b] of intervals(row, panel.getBoundingClientRect().left)) {
+          const lo = a + shift + 6
+          const hi = b + shift - 6
+          if (lo > hi) continue
+          const spot = Math.min(Math.max(spotX, lo), hi)
+          // Forward, and not so far it would have to fly.
+          const reach = (spot - foot) * dir
+          if (reach < SPEED * 0.3 * CLIMB_T || reach > SPEED * 1.6 * CLIMB_T) continue
+          if (Math.abs(spot - spotX) < Math.abs(best - spotX)) best = spot
+        }
+        if (best !== Infinity) spotX = best
+      }
+      climb = { t: 0, from, to, h, vx: (spotX - foot) / CLIMB_T, target }
       mode = 'climb'
     }
 
@@ -477,6 +497,11 @@ export default function DinoGame() {
           frame = frame === 'stepA' ? 'stepB' : 'stepA'
         }
         if (frame !== 'stepA' && frame !== 'stepB') frame = 'stepA'
+        // Roaming, it only leaves the panel when it has chosen to: heading
+        // into a side fade otherwise, it turns back (a tile can reach past
+        // the panel's side, so this can't wait for a tile's edge).
+        if (roam && !leaving && !reentering && (dir > 0 ? x + W > panelW * 0.85 : x < panelW * 0.15))
+          dir = dir > 0 ? -1 : 1
         if (spans) {
           const under = support(foot, spans)
           if (under) reentering = false
@@ -505,19 +530,10 @@ export default function DinoGame() {
                 mode = 'miss'
                 carry = current.row?.velocity ?? 0
                 missPending = false
-              } else if (
-                roam &&
-                !leaving &&
-                !reentering &&
-                // Been here a while, or about to walk into the side fade
-                // (it only leaves the panel when it chooses to).
-                (stayLeft <= 0 || (dir > 0 ? x + W > panelW * 0.8 : x < panelW * 0.2))
-              ) {
-                const nearSide = stayLeft > 0
+              } else if (roam && stayLeft <= 0 && !leaving && !reentering) {
+                // Been here a while: it does something else.
                 stayLeft = between(stayFor)
-                let choice = nextChoice()
-                // Not ready to leave yet: back the way it came.
-                if (nearSide && choice === 'exit') choice = 'turn'
+                const choice = nextChoice()
                 const above = levels[level - 1]
                 const below = levels[level + 1]
                 if (choice === 'change' && above?.row) {
