@@ -78,14 +78,25 @@ const pokeDino = (page: Page) =>
     )
     .toBe(true)
 
-// The tests shorten the dino's line waits (see DinoTiming in DinoGame.tsx).
-const lineTiming = (page: Page, timing: { firstLineAfter: number; lineGap: [number, number] }) =>
+// The tests shorten the dino's waits and can turn its roaming off (see
+// DinoTiming in DinoGame.tsx). Later calls add to earlier ones.
+interface DinoTiming {
+  firstLineAfter?: number
+  lineGap?: [number, number]
+  stay?: [number, number]
+  roam?: boolean
+}
+const dinoTiming = (page: Page, timing: DinoTiming) =>
   page.addInitScript((t) => {
-    ;(window as unknown as { __n8DinoTiming: unknown }).__n8DinoTiming = t
+    const w = window as unknown as { __n8DinoTiming?: DinoTiming }
+    w.__n8DinoTiming = { ...w.__n8DinoTiming, ...t }
   }, timing)
 
 test.describe('dino easter egg (motion allowed)', () => {
   test.use({ contextOptions: { reducedMotion: 'no-preference' } })
+  // Most tests follow it along its rows, so they keep it from roaming off on
+  // its own (the roaming has its own test below).
+  test.beforeEach(({ page }) => dinoTiming(page, { roam: false }))
 
   test('loads only once the AI kit nears the viewport, and never blocks the tiles', async ({
     page,
@@ -244,7 +255,7 @@ test.describe('dino easter egg (motion allowed)', () => {
 
   test('says its lines now and then, each once per visit', async ({ page }) => {
     // Shortened waits; one line per page view, so each view shows the next.
-    await lineTiming(page, { firstLineAfter: 0.3, lineGap: [600, 600] })
+    await dinoTiming(page, { firstLineAfter: 0.3, lineGap: [600, 600] })
     await page.goto('/')
     await showKit(page, '[data-dino-panel]')
     // The first hints at the click; it stops to say it.
@@ -260,9 +271,41 @@ test.describe('dino easter egg (motion allowed)', () => {
     await expect(page.locator('[data-dino-bubble="line-1"]')).toBeVisible()
   })
 
+  test('says its first line soon after it comes into view', async ({ page }) => {
+    // The real wait, not a shortened one: a visitor scrolling to it sees it.
+    await page.goto('/')
+    await showKit(page, '[data-dino-panel]')
+    await expect(dino(page)).toHaveAttribute('data-line', '0', { timeout: 6_000 })
+    await expect(page.locator('[data-dino-bubble="line-0"]')).toBeVisible()
+  })
+
+  test('roams: leaps up, drops down, turns round, and comes back in from elsewhere', async ({
+    page,
+  }) => {
+    // Short stays so it chooses often; no lines to stop it.
+    await dinoTiming(page, { roam: true, stay: [0.2, 0.4], firstLineAfter: 600 })
+    await page.goto('/')
+    await showKit(page, '[data-dino-panel]')
+    await expect(dino(page)).toHaveAttribute('data-mode', 'walk', { timeout: 10_000 })
+    await dino(page).evaluate((el) => {
+      const seen = new Set<string>()
+      ;(window as unknown as { dinoSeen: Set<string> }).dinoSeen = seen
+      const note = () => {
+        seen.add(el.dataset.mode!)
+        if (el.dataset.mode === 'walk') seen.add(`walk@${el.dataset.level}:${el.dataset.dir}`)
+      }
+      note()
+      new MutationObserver(note).observe(el, { attributes: true })
+    })
+    const seen = () =>
+      page.evaluate(() => [...(window as unknown as { dinoSeen: Set<string> }).dinoSeen])
+    for (const want of ['climb', 'drop', 'away', 'walk@0:right', 'walk@0:left', 'walk@1:right', 'walk@1:left'])
+      await expect.poll(seen, { message: `it gets to ${want}`, timeout: 45_000 }).toContain(want)
+  })
+
   test('skips the click hint once it has been clicked', async ({ page }) => {
     // Long enough a first wait to click before it.
-    await lineTiming(page, { firstLineAfter: 1.5, lineGap: [600, 600] })
+    await dinoTiming(page, { firstLineAfter: 1.5, lineGap: [600, 600] })
     await onTopRow(page)
     await pokeDino(page)
     await expect(dino(page)).toHaveAttribute('data-roars', '1')
