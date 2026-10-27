@@ -69,6 +69,8 @@ Round 8 brief (the owner's latest asks; verify each against the 3829 preview):
 17. Contact: center "Reach me directly" and "Open the contact form", tighter "Have a longer message?" copy, nicer block.
 
 The marquee and dino in dev-portfolio are byte-identical copies of n8builds-web's (8 files); `npm run check:sync` compares them. Keep them identical.
+The dino fix from n8builds-web #51 (ride along with the row) is synced into `feat/portfolio-refresh` (commit `8cf5285`).
+The portfolio has NO dino tests yet: in its finish phase, port n8builds-web's `tests/e2e/ai-kit.spec.ts` dino tests (walk, hop, miss on its own row's pause, fall and reverse, click roar, the four lines once per visit, absent under reduced motion, lazy load, no blocking of tile clicks) adapted to the portfolio's tech stack card, and run them on chromium, webkit and mobile-safari.
 
 ### n8builds-admin (local only, not on GitHub)
 
