@@ -122,6 +122,10 @@ When the owner decides something new, add it here (with the date) in the same ch
   - Twitch shows in the navbar only while live; streaming will be on YouTube and X.
   - Ko-fi appears in its own blue with the red cup.
   - The build log drops the six-month view; "Shipped this month" cycles real figures from the log.
+- **Dino fixes (2026-10-27, owner's calls):** the dino never teleports.
+  Its click reactions are a backflip, a fall, a leap up and a dash, all in plain sight (the "blink" to another spot is gone), and a resize or relayout no longer carries it or flings it across the panel.
+  A catch round's scoreboard and its best score (lit when this round beats it) sit in a band across the top of the kit panel that the dino never enters: the panel has twice the room above its rows, the dino is clipped below the band, and its jumps and bubbles stay under it.
+  The AI kit's tiles can't be selected (not even by a triple click) or highlighted.
 
 ## Publishing and releases (2026-10-25)
 
