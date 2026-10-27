@@ -72,8 +72,8 @@ The marquee and dino in dev-portfolio are byte-identical copies of n8builds-web'
 
 ### n8builds-admin (local only, not on GitHub)
 
-- Repo `/home/natkins/n8builds/n8builds-admin`, branch `main`, latest local commit `65ba035`, not pushed; no GitHub repo or Vercel project exists (the owner creates them).
-- Owner approved the design after several rounds; the finish phase (Playwright E2E for the sign-in gate, every page, nav, phone menu, axe; README "run it locally") was in progress at handoff.
+- Repo `/home/natkins/n8builds/n8builds-admin`, branch `main`, latest local commit `dd21840`, not pushed; no GitHub repo or Vercel project exists (the owner creates them).
+- Owner approved the design after several rounds; the finish phase is done (local commit `dd21840`): 61 Playwright tests (a sign-in gate project on the normal build, an app project on the E2E build, axe on every page), 30 unit tests, Lighthouse budgets, and a README section on running them. Only the owner's setup steps remain before deploying.
 - Preview on port 3831 (production build with a test-only sign-in stub; see its README). Lighthouse: desktop 1.00 on all pages, mobile 0.95-0.99.
 - Setup steps the owner still has to do are in its Setup page and `docs/SETUP.md` (generated from `lib/setup.ts`).
 
@@ -94,7 +94,7 @@ The marquee and dino in dev-portfolio are byte-identical copies of n8builds-web'
 1. Check what finished after the handoff: `gh pr list -R n8watkins/n8builds-web --state all --limit 5`, `gh pr checks 51`, the two portfolio branches' latest commits, and the admin repo's log.
 2. Get #51 and the case study follow-up green and merged (acceptance: main's CI and the nightly green).
 3. Portfolio: finish round 8 (the brief above), show the owner the 3829 preview with a done/not-done list, iterate until approved, then ship as described.
-4. Admin: finish its tests; hand the owner the setup checklist; deploy only after the owner creates the GitHub repo and Vercel project.
+4. Admin: done locally; hand the owner the setup checklist; deploy only after the owner creates the GitHub repo and Vercel project.
 5. Ask the owner: run the v1.2.0 release, the `@lhci/cli` choice, the tl-dw fix, the security round for the other repos, and the Experience hover image overlapping text on the portfolio.
 
 ## Owner's open items (remind them in one short list at the end)
