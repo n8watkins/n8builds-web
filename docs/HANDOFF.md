@@ -69,11 +69,11 @@ CI (`.github/workflows/`):
 
 - `ci.yml` on every push to `main` and every PR: lint, type-check, unit tests; E2E on all six Playwright projects as parallel jobs (each builds the app in test mode; WebKit and mobile Safari, the slowest, run as two shards each); Lighthouse budgets. About 6 minutes end to end.
 - **Docs-only changes skip the browser suite and Lighthouse** (only Markdown, `docs/` or `LICENSE` changed; the "What changed" job decides). Lint, types, unit tests and the commit check still run. `vercel.json`'s `ignoreCommand` skips Vercel builds for the same changes, so a docs-only merge doesn't redeploy.
-- **Branch protection on `main`** is the ruleset "release-kit: protect main" (Settings, Rules; made by `scripts/release-kit/protect.mjs`, replacing classic protection on 2026-10-25).
+- **Branch protection on `main`** is the ruleset "release-kit: protect main" (Settings, Rules; made by the kit's protect command, now `npx release-kit protect`, replacing classic protection on 2026-10-25).
   It requires two checks: "CI result" (a summary job that passes when every CI job passed or was skipped on purpose) and "check" (commit messages), and blocks deletion and force pushes.
   Docs-only PRs pass in about a minute.
   Two actors may bypass it: repository admins (so `npm run release -- --push` works by hand) and the deploy key "release-kit train", whose private half is only in the Actions secret `RELEASE_TRAIN_KEY`.
-  Rotate the key by running `node scripts/release-kit/protect.mjs` again.
+  Rotate the key by running `npx release-kit protect` again.
 - Work goes through pull requests (see `docs/BUILD_PLAN.md`); full browser runs happen in Actions, not on the dev machine.
 - `nightly.yml` at 09:00 UTC and on demand: E2E on every browser project, Lighthouse budgets (`npm run lighthouse`), and the build log's repo check (`scripts/check-build-repos.mjs`, see "Build log").
 
@@ -113,7 +113,7 @@ Plan and rationale: `docs/BUILDS_LOG_PLAN.md`.
   The filter applies right after hydration.
 - **Tests:** `BUILD_LOG_FIXTURE=1` swaps both fetchers for `tests/fixtures/build-log-github.json`, real commits and releases recorded from the six repos plus one sample highlight; Playwright and the Lighthouse jobs set it, so tests never call GitHub.
   Refresh the fixture with `GITHUB_TOKEN=... node scripts/build-log-fixture.mjs` (then update the expectations in `tests/unit/build-log.test.ts` and `tests/e2e/build-log.spec.ts`).
-- **Monitoring:** the nightly `Build log repos` job runs `scripts/check-build-repos.mjs`: per repo, the latest release, release-kit adoption (`scripts/release-kit/VERSION`) and how many of the newest 20 commits pass the release-kit commit check.
+- **Monitoring:** the nightly `Build log repos` job runs `scripts/check-build-repos.mjs`: per repo, the latest release, release-kit adoption (the `release-kit` dev dependency's tag, or `scripts/release-kit/VERSION` in a repo that copies the scripts) and how many of the newest 20 commits pass the release-kit commit check.
   It fails only when a repo can't be read.
   It uses the `BUILD_LOG_GITHUB_TOKEN` repo secret if set (to also catch the site's token expiring), else the workflow's own token.
 
@@ -149,7 +149,7 @@ While Nathan is live, every page shows a floating corner player, the navbar's Tw
 
 ## Releases
 
-This repo follows the n8 release standard (`RELEASING.md`; the kit is public at https://github.com/n8watkins/release-kit, adopted 2026-10-25; vendored at the version in `scripts/release-kit/VERSION`, now 1.2.0; upgrade with `node ../release-kit/apply.mjs .`).
+This repo follows the n8 release standard (`RELEASING.md`; the kit is public at https://github.com/n8watkins/release-kit, adopted 2026-10-25; installed as a dev dependency pinned to a release tag, now v2.0.0; Dependabot opens the update PR when the kit releases, and `npm run release:check` warns if it falls behind).
 - Commit messages are Conventional Commits, checked by `.husky/commit-msg` and the "Commit messages" workflow on every push and PR.
 - Every merge to `main` deploys; a release is a milestone on top of that, and the **release train** cuts it so nobody has to remember.
 - **Release train** (`.github/workflows/release-train.yml`, settings in `.release.json` `train`): every Monday at 16:00 UTC (9:00 in Los Angeles in summer, 8:00 in winter) it looks at the commits since the last tag.

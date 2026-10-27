@@ -36,7 +36,7 @@ Until then the commit filters below carry the load.
 Monitoring the tracked repos (part of this work):
 
 - `data/builds.tsx` gets a `repo` per build; that list is the single list of tracked repos.
-- `scripts/check-build-repos.mjs` reports, per tracked repo: its latest release and date, whether it has adopted release-kit (and which kit version, from `scripts/release-kit/VERSION`), and whether its newest commits pass the commit check.
+- `scripts/check-build-repos.mjs` reports, per tracked repo: its latest release and date, whether it has adopted release-kit (and which kit version, from its `release-kit` dev dependency or `scripts/release-kit/VERSION`), and whether its newest commits pass the commit check.
 - The nightly workflow runs it and prints the report; it fails only when a repo can't be read (a revoked or expired token), so a token problem is caught before the log goes stale.
 
 ## Design
