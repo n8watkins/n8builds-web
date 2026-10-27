@@ -64,9 +64,16 @@ const showKit = (page: Page, selector: string) =>
     .poll(() =>
       page.locator(selector).evaluate((el) => {
         const box = el.getBoundingClientRect()
-        // Centred: it spans the middle of the viewport (it can be taller).
-        if (box.top <= innerHeight / 2 && box.bottom >= innerHeight / 2) return true
-        el.scrollIntoView({ block: 'center', behavior: 'instant' })
+        // Near the middle with its top below the sticky header, or, if it is
+        // taller than the window, its top just in view: a reload's restored
+        // scroll can leave its top row under the header, where the dino counts
+        // as out of sight. (The page's scroll padding keeps "centre" a little
+        // off true centre, hence the slack.)
+        const centred = Math.abs((box.top + box.bottom) / 2 - innerHeight / 2) <= 100 && box.top >= 72
+        const tall = box.height > innerHeight - 80
+        if (tall ? box.top >= 72 && box.top <= innerHeight / 3 : centred) return true
+        el.scrollIntoView({ block: box.height > innerHeight - 80 ? 'start' : 'center', behavior: 'instant' })
+        if (box.height > innerHeight - 80) scrollBy(0, -88)
         return false
       })
     )

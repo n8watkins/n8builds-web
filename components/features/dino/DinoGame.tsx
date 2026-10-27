@@ -72,6 +72,8 @@ interface Row {
   tiles: [number, number][]
   /** The tiles' top edge, relative to the panel: the level's floor. */
   top: number
+  /** The first track's top edge, relative to the panel (to notice the row moving up or down). */
+  trackTop: number
   /** Last frame's position of the first track (to measure the row's speed). */
   lastLeft: number | null
   /** How far the row moved this frame, px (measured, so exact at any frame rate). */
@@ -325,7 +327,8 @@ export default function DinoGame() {
           return [r.left - trackLeft, r.right - trackLeft]
         })
         const top = figures[0].getBoundingClientRect().top - box.top
-        return [{ el, tracks, tiles, top, lastLeft: null, delta: 0, velocity: 0, paused: false }]
+        const trackTop = first.getBoundingClientRect().top - box.top
+        return [{ el, tracks, tiles, top, trackTop, lastLeft: null, delta: 0, velocity: 0, paused: false }]
       })
       levels = rows.map((row) => ({ y: row.top, row }))
       // One row: a ground line under it is the second level.
@@ -663,7 +666,11 @@ export default function DinoGame() {
       const onRow = levels[level]?.row
       let relaidOut = false
       for (const row of rows) {
-        const left = row.tracks[0].getBoundingClientRect().left
+        const trackBox = row.tracks[0].getBoundingClientRect()
+        const left = trackBox.left
+        // Moved up or down (a card resized around rows anchored to its
+        // bottom): laid out again, so the dino moves with it this frame.
+        if (Math.abs(trackBox.top - panelBox.top - row.trackTop) > 1) relaidOut = true
         row.delta = 0
         if (row.lastLeft !== null) {
           // The loop jumps the track back by one copy each time round: take
