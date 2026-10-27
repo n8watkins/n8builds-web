@@ -110,13 +110,9 @@ export default function HomePage({ posts }: { posts: Post[] }) {
               {/* "Check out the Lab" spans exactly the flask and title below it: its
                    letters spread across that width (the owner's ask, 2026-10-27). */}
               <div className="inline-flex flex-col items-stretch">
-                <p className="lab-eyebrow relative mb-3 flex justify-between font-mono text-sm font-bold uppercase sm:text-lg">
-                  <span className="sr-only">Check out the Lab</span>
-                  {Array.from('Check out the Lab').map((ch, i) => (
-                    <span key={i} aria-hidden="true" className={ch === ' ' ? 'w-2' : undefined}>
-                      {ch === ' ' ? '' : ch}
-                    </span>
-                  ))}
+                {/* One line of text, justified to the flask and title's width (no per-letter spans). */}
+                <p className="lab-eyebrow mb-3 text-justify font-mono text-base font-bold tracking-[0.2em] uppercase [text-align-last:justify] sm:text-xl">
+                  Check out the Lab
                 </p>
                 {/* The Lab's mark (the owner's pick, 2026-10-26): a flask in a chip like the rows' app icons. */}
                 <div className="flex items-center gap-4 sm:gap-5">

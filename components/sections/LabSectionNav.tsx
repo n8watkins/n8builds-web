@@ -197,7 +197,8 @@ export default function LabSectionNav() {
           <span
             aria-hidden="true"
             className="absolute top-[calc(var(--row)/2)] left-[calc(0.375rem+var(--chip)/2)] w-px -translate-x-1/2 bg-cyan-400/15"
-            style={{ height: `calc(var(--row) * ${parts.length - 0.5})` }}
+            // From the first icon's centre to the last one's: nothing past Chrome Extensions.
+            style={{ height: `calc(var(--row) * ${parts.length - 1})` }}
           >
             <span
               className="absolute inset-x-0 top-0 bg-linear-to-b from-cyan-300/80 to-blue-500/80 transition-[height] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
@@ -273,7 +274,7 @@ function Comet() {
     >
       <span
         className="absolute -inset-1/2 animate-spin bg-[conic-gradient(from_0deg,transparent_0_55%,rgba(34,211,238,0.2)_78%,rgba(103,232,249,0.65)_96%,transparent_100%)] motion-reduce:animate-none"
-        style={{ animationDuration: '7s' }}
+        style={{ animationDuration: '5s' }}
       />
     </span>
   )

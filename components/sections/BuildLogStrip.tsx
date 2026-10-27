@@ -171,7 +171,7 @@ export default async function BuildLogStrip() {
             </div>
 
             <div className="grid grid-cols-1 overflow-hidden rounded-2xl border border-white/8 bg-[#0a1526]/70 md:grid-cols-[17rem_minmax(0,1fr)]">
-              <div className="flex flex-col justify-center border-b border-white/8 px-5 py-4 md:border-r md:border-b-0 md:px-6 md:py-5">
+              <div className="flex flex-col border-b border-white/8 px-5 py-4 md:border-r md:border-b-0 md:px-6 md:py-5">
                 {/* The month is named once, here; the rows below only get month headings when they span several. */}
                 <ShippedStats stats={stats} period={isThisMonth ? monthLabel(current).replace(` ${current.slice(0, 4)}`, '') : `Last ${QUIET_DAYS} days`} />
               </div>

@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react'
 import { BsOpenai } from 'react-icons/bs'
-import { LuAudioLines } from 'react-icons/lu'
-import { SiClaude, SiGooglegemini } from 'react-icons/si'
+import { LuCircuitBoard, LuKeyboard, LuMemoryStick, LuMic } from 'react-icons/lu'
+import { SiAcer, SiAmd, SiClaude, SiGooglegemini, SiObsstudio, SiRazer, SiSamsung } from 'react-icons/si'
+import { GgmlMark } from '@/data/aiStack'
 
 // The Loadout - "who I am" without a resume. You ARE your loadout.
 // Each item: what it is + what I use it for + my one-line take.
@@ -13,8 +14,10 @@ export interface LoadoutItem {
   whatFor: string
   /** my one-line take / opinion */
   take: string
-  /** optional badge, e.g. "daily driver", "secret weapon", "local-first" */
+  /** optional badge, e.g. "built it myself", "local-first" */
   tag?: string
+  /** the brand's own mark where it has one, else a plain icon of the thing */
+  icon?: ReactElement
 }
 
 export interface LoadoutGroup {
@@ -92,6 +95,7 @@ export const workflow: WorkflowStep[] = [
 export const harnesses: { name: string; whatFor: string }[] = [
   { name: 'Claude Code', whatFor: 'my main harness, where the building happens' },
   { name: 'Pi', whatFor: 'a minimal coding-agent harness that runs any model' },
+  { name: 'Codex', whatFor: 'OpenAI\'s coding agent, which comes with its own harness: my second opinion for fixes' },
 ]
 
 /** The AI inside the apps I build (what my users' requests actually run on). */
@@ -109,10 +113,10 @@ export const inApps: { name: string; icon: ReactElement; color: string; whatFor:
     whatFor: 'Structured outputs and generation pipelines, when I need reliable JSON out of a model.',
   },
   {
-    name: 'whisper.cpp + Piper',
-    icon: <LuAudioLines className="h-full w-full" />,
-    color: '#a5f3fc',
-    whatFor: 'Local speech both ways: Scribe transcribes with whisper.cpp, my Piper TTS extension reads aloud.',
+    name: 'whisper.cpp',
+    icon: <GgmlMark className="h-full w-full" />,
+    color: '#e6edf6',
+    whatFor: 'Local speech-to-text: Scribe runs OpenAI\'s Whisper models on your own PC with it, no cloud involved.',
     tag: 'local-first',
   },
 ]
@@ -127,6 +131,7 @@ export const loadout: LoadoutGroup[] = [
     items: [
       {
         name: 'OBS Studio',
+        icon: <SiObsstudio />,
         whatFor: 'Capturing and streaming the builds. Scenes for code, cam, and overlays.',
         take: 'Free, infinitely tweakable, runs everything. The backbone of streaming.',
       },
@@ -147,26 +152,31 @@ export const loadout: LoadoutGroup[] = [
     items: [
       {
         name: 'AMD Ryzen 7 9700X',
+        icon: <SiAmd />,
         whatFor: '8 Zen 5 cores / 16 threads for compiling, local models, and three dev servers at once.',
         take: 'Zen 5 runs cool and fast - efficient enough that the fans stay quiet under a full build.',
       },
       {
         name: 'Radeon RX 7800 XT (16GB)',
+        icon: <SiAmd />,
         whatFor: 'Local inference, encoding the stream without dropping frames, and the occasional game.',
         take: '16GB of VRAM is the sweet spot - room for decent local models and still stream clean.',
       },
       {
         name: '32GB DDR5-6000 (CL32)',
+        icon: <LuMemoryStick />,
         whatFor: 'Chrome, Docker, a local LLM, and OBS all wanting to be friends at the same time.',
         take: 'G.Skill DDR5 - RAM is cheap, closing tabs is expensive. Easy call.',
       },
       {
         name: 'Samsung 990 PRO 2TB',
+        icon: <SiSamsung />,
         whatFor: 'OS, every project, and a graveyard of node_modules folders. Gen4 NVMe.',
         take: 'Fast storage you forget exists, which is exactly the point.',
       },
       {
         name: 'Gigabyte B650 Gaming X AX V2',
+        icon: <LuCircuitBoard />,
         whatFor: 'The board it all bolts to - AM5, PCIe Gen4, Wi-Fi 6E for when ethernet isn\'t handy.',
         take: 'B650 is the value-sane AM5 pick: everything I need, nothing I\'m paying to never use.',
       },
@@ -181,22 +191,25 @@ export const loadout: LoadoutGroup[] = [
     items: [
       {
         name: 'Acer XV272U V3 - 27" 1440p 180Hz',
+        icon: <SiAcer />,
         whatFor: 'The main code and stream surface. High-refresh 1440p IPS, with a second screen off to the side for reference.',
         take: 'A fast, sharp panel is the one screen upgrade I feel every single day - 180Hz spoils you.',
       },
       {
         name: 'Leopold mechanical',
+        icon: <LuKeyboard />,
         whatFor: 'All day every day - code, prompts, commit messages.',
         take: 'Thick PBT caps and a rock-solid case. The one piece of gear I\'m genuinely picky about.',
-        tag: 'daily driver',
       },
       {
         name: 'Razer Cobra',
+        icon: <SiRazer />,
         whatFor: 'Pointer duty - light enough that long sessions don\'t wear on the wrist.',
         take: 'Light, simple, accurate. I don\'t want my mouse to have opinions.',
       },
       {
         name: 'Fifine USB mic',
+        icon: <LuMic />,
         whatFor: 'Stream and recording audio that doesn\'t make people leave.',
         take: 'Good audio is the cheapest upgrade to sounding like you know what you\'re doing - no interface needed.',
       },

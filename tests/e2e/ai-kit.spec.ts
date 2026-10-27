@@ -14,10 +14,9 @@ test.describe('AI kit content', () => {
       await page.goto(path)
       const kit = page.getByRole('region', { name: 'AI tools' })
       await expect(kit.getByText('whisper.cpp', { exact: true })).toBeVisible()
-      await expect(
-        page.getByRole('region', { name: 'AI agents' }).getByText('Perplexity', { exact: true })
-      ).toBeVisible()
-      for (const dropped of ['Ollama', 'LangChain']) {
+      await expect(page.getByRole('region', { name: 'AI agents' }).getByText('Claude Code', { exact: true }).first()).toBeVisible()
+      // Not used, so not listed (the owner's call, 2026-10-27).
+      for (const dropped of ['Ollama', 'LangChain', 'Perplexity']) {
         await expect(page.getByText(dropped)).toHaveCount(0)
       }
     }
