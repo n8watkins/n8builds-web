@@ -193,7 +193,7 @@ export default async function BuildLogStrip() {
                 ))}
               </div>
 
-              <div className="flex flex-col justify-center border-t border-white/8 px-5 py-5 md:border-l md:border-t-0 md:px-6">
+              <div className="flex flex-col justify-center border-t border-white/8 px-5 py-4 md:border-l md:border-t-0 md:px-6 md:py-5">
                 <ShippedStats stats={stats} period={isThisMonth ? monthLabel(current) : `Last ${QUIET_DAYS} days`} />
               </div>
             </div>

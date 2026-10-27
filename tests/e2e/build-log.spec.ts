@@ -10,14 +10,15 @@ test.use({ contextOptions: { reducedMotion: 'reduce' } })
 const feed = (page: Page) => page.locator('#activity')
 const feedEntries = (page: Page) => feed(page).locator('li[data-kind]')
 const chip = (page: Page, name: string) => feed(page).getByRole('group', { name: 'Filter by build' }).getByRole('button', { name })
+const kindChip = (page: Page, name: string | RegExp) => feed(page).getByRole('group', { name: 'Filter by kind' }).getByRole('button', { name })
 
 /**
  * Click a filter chip, retrying a click that lands before hydration. The inner
  * wait is generous because a busy CI runner can take seconds per step (a 500ms
  * wait failed at random on WebKit).
  */
-async function pick(page: Page, name: string) {
-  const button = chip(page, name)
+async function pick(page: Page, name: string, which: typeof chip = chip) {
+  const button = which(page, name)
   await expect(async () => {
     if ((await button.getAttribute('aria-pressed')) !== 'true') await button.click()
     await expect(button).toHaveAttribute('aria-pressed', 'true', { timeout: 3000 })
@@ -80,9 +81,45 @@ test('the build filter narrows the feed and lives in the URL', async ({ page }) 
   const builds = await feedEntries(page).evaluateAll((els) => [...new Set(els.map((el) => el.getAttribute('data-build')))])
   expect(builds).toEqual(['scribe'])
 
-  await pick(page, 'All')
+  await pick(page, 'All', kindChip)
   await expect(page).toHaveURL(/\/builds$/)
   await expect(feedEntries(page)).toHaveCount(total)
+})
+
+test('the kind filter narrows the feed and its build chips, and lives in the URL', async ({ page }) => {
+  await page.goto('/builds')
+  const total = await feedEntries(page).count()
+  // Each kind chip counts its entries; the counts add up to All.
+  const counts = await feed(page)
+    .getByRole('group', { name: 'Filter by kind' })
+    .getByRole('button')
+    .evaluateAll((els) => els.slice(1).map((el) => Number(el.querySelector('span')?.textContent)))
+  expect(counts.reduce((a, b) => a + b, 0)).toBe(total)
+
+  await pick(page, 'Chrome extensions', kindChip)
+  await expect(page).toHaveURL(/\/builds\?kind=extensions$/)
+  const builds = await feedEntries(page).evaluateAll((els) => [...new Set(els.map((el) => el.getAttribute('data-build')))])
+  expect(builds.length).toBeGreaterThan(0)
+  expect(builds.every((b) => ['tldw', 'tubevault', 'piper-tts'].includes(b!))).toBe(true)
+  // Only that kind's builds are offered, each with its icon.
+  const offered = feed(page).getByRole('group', { name: 'Filter by build' }).getByRole('button')
+  expect(await offered.allInnerTexts()).toEqual(['TL;DW', 'TubeVault', 'Piper TTS'])
+  expect(await offered.evaluateAll((els) => els.every((el) => !!el.querySelector('img')))).toBe(true)
+
+  // A build within the kind narrows further; unpicking it goes back to the kind.
+  await pick(page, 'TubeVault')
+  await expect(page).toHaveURL(/\/builds\?kind=extensions&build=tubevault$/)
+  await chip(page, 'TubeVault').click()
+  await expect(page).toHaveURL(/\/builds\?kind=extensions$/)
+})
+
+test('each entry carries its build icon on the timeline', async ({ page }) => {
+  await page.goto('/builds')
+  const first = feedEntries(page).first()
+  await expect(first.locator('img')).toHaveCount(1)
+  // The build cards lead with the icon too.
+  const card = page.getByRole('list', { name: 'Builds by latest activity' }).locator('[data-build="scribe"]')
+  await expect(card.locator('h3 img')).toHaveCount(1)
 })
 
 test('a filtered link opens the feed already filtered', async ({ page }) => {

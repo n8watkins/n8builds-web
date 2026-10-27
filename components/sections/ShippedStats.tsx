@@ -47,7 +47,7 @@ export default function ShippedStats({ stats, period }: { stats: ShippedStat[]; 
       role="group"
       aria-roledescription="carousel"
       aria-label={`Shipped ${period}`}
-      className="flex flex-col gap-4"
+      className="flex flex-col gap-3 md:gap-4"
       onMouseEnter={() => setHeld(true)}
       onMouseLeave={() => setHeld(false)}
       onFocus={() => setHeld(true)}
@@ -56,7 +56,7 @@ export default function ShippedStats({ stats, period }: { stats: ShippedStat[]; 
       <p className="font-mono text-[0.62rem] font-bold uppercase tracking-[0.16em] text-slate-450">{period}</p>
 
       {/* Every figure in one grid cell; only the current one shows. */}
-      <div className="grid min-h-[5.5rem] items-center">
+      <div className="grid min-h-[4.75rem] items-center md:min-h-[5.5rem]">
         {stats.map((stat, i) => {
           const current = i === index
           const icon = stat.build ? BUILD_ICONS[stat.build] : undefined

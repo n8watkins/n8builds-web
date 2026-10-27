@@ -49,13 +49,13 @@ function UrlFilter({ onChange }: { onChange: (build: string | null, kind: string
   return null
 }
 
-/** Sets the filters in the URL; a build filter replaces a kind, and the other way round. */
-function setFilter(filter: { build: string } | { kind: LogKind } | null) {
+/** Sets the filters in the URL: a kind, and optionally one of its builds. */
+function setFilter({ kind = null, build = null }: { kind?: LogKind | null; build?: string | null }) {
   const url = new URL(window.location.href)
-  url.searchParams.delete('build')
   url.searchParams.delete('kind')
-  if (filter && 'build' in filter) url.searchParams.set('build', filter.build)
-  if (filter && 'kind' in filter) url.searchParams.set('kind', filter.kind)
+  url.searchParams.delete('build')
+  if (kind) url.searchParams.set('kind', kind)
+  if (build) url.searchParams.set('build', build)
   // Next.js syncs useSearchParams with the native history API, but only for a
   // null (or app-owned) state: a state carrying Next's own router internals is
   // taken as Next's own call and not synced, and the filter would never apply.
@@ -75,9 +75,10 @@ export default function LogFeed({ entries, builds, months, recentFrom }: FeedPro
   const onUrl = useCallback(
     (build: string | null, kindParam: string | null) => {
       const b = build && Object.hasOwn(bySlug, build) ? build : null
+      const k = LOG_KINDS.find((x) => x.id === kindParam)?.id ?? null
       setActive(b)
-      // A build's own filter shows its kind too, so its chip stays in the row.
-      setKind(b ? bySlug[b].kind : (LOG_KINDS.find((k) => k.id === kindParam)?.id ?? null))
+      // A kind that doesn't hold the build is dropped, so the build's chip stays in the row.
+      setKind(b && k && bySlug[b].kind !== k ? null : k)
       setSynced(true)
     },
     [bySlug],
@@ -119,7 +120,7 @@ export default function LogFeed({ entries, builds, months, recentFrom }: FeedPro
       {withEntries.length > 1 && (
         <div className="mt-6 flex flex-col gap-3">
           <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter by kind">
-            <button type="button" aria-pressed={!active && !kind} onClick={() => setFilter(null)} className={chip(!active && !kind)}>
+            <button type="button" aria-pressed={!active && !kind} onClick={() => setFilter({})} className={chip(!active && !kind)}>
               All<span className="ml-1.5 text-xs opacity-60">{entries.length}</span>
             </button>
             {kinds.length > 1 &&
@@ -128,7 +129,7 @@ export default function LogFeed({ entries, builds, months, recentFrom }: FeedPro
                   key={k.id}
                   type="button"
                   aria-pressed={!active && kind === k.id}
-                  onClick={() => setFilter(!active && kind === k.id ? null : { kind: k.id })}
+                  onClick={() => setFilter(!active && kind === k.id ? {} : { kind: k.id })}
                   className={chip(!active && kind === k.id)}
                 >
                   {k.label}
@@ -136,14 +137,19 @@ export default function LogFeed({ entries, builds, months, recentFrom }: FeedPro
                 </button>
               ))}
           </div>
-          <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter by build">
+          {/* Phones: one row that scrolls sideways, so eight builds don't stack four rows deep. */}
+          <div
+            className="flex items-center gap-2 max-sm:-mx-5 max-sm:overflow-x-auto max-sm:px-5 max-sm:pb-1 max-sm:[scrollbar-width:none] sm:flex-wrap"
+            role="group"
+            aria-label="Filter by build"
+          >
             {buildChips.map((b) => (
               <button
                 key={b.slug}
                 type="button"
                 aria-pressed={active === b.slug}
-                onClick={() => setFilter(active === b.slug ? (kind ? { kind } : null) : { build: b.slug })}
-                className={`${chip(active === b.slug, true)} inline-flex items-center gap-2`}
+                onClick={() => setFilter({ kind, build: active === b.slug ? null : b.slug })}
+                className={`${chip(active === b.slug, true)} inline-flex shrink-0 items-center gap-2`}
               >
                 {b.icon && (
                   <Image src={b.icon} alt="" width={18} height={18} unoptimized={b.icon.endsWith('.svg')} className="h-[18px] w-[18px] rounded-[5px]" />
