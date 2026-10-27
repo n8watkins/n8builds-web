@@ -55,7 +55,7 @@ const CHOICES: Choice[] = ['change', 'turn', 'change', 'exit']
 // How it comes back in after leaving.
 type Entry = 'drop' | 'left' | 'right'
 const ENTRIES: Entry[] = ['drop', 'left', 'right']
-const STAY = [2.5, 6] as const // s on a row before it chooses something
+const STAY = [2, 4.5] as const // s on a row before it chooses something
 const AWAY = [0.8, 2] as const // s off the panel before it comes back
 const CLIMB_T = 0.5 // s for a leap up to the row above
 
@@ -505,10 +505,19 @@ export default function DinoGame() {
                 mode = 'miss'
                 carry = current.row?.velocity ?? 0
                 missPending = false
-              } else if (roam && stayLeft <= 0 && !leaving && !reentering) {
-                // Been here a while: it does something else.
+              } else if (
+                roam &&
+                !leaving &&
+                !reentering &&
+                // Been here a while, or about to walk into the side fade
+                // (it only leaves the panel when it chooses to).
+                (stayLeft <= 0 || (dir > 0 ? x + W > panelW * 0.8 : x < panelW * 0.2))
+              ) {
+                const nearSide = stayLeft > 0
                 stayLeft = between(stayFor)
-                const choice = nextChoice()
+                let choice = nextChoice()
+                // Not ready to leave yet: back the way it came.
+                if (nearSide && choice === 'exit') choice = 'turn'
                 const above = levels[level - 1]
                 const below = levels[level + 1]
                 if (choice === 'change' && above?.row) {
