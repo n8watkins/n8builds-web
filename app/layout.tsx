@@ -8,6 +8,7 @@ import { WebVitalsHUD } from '@/components/WebVitalsHUD'
 import LiveLoader from '@/components/live/LiveLoader'
 import SiteFooter from '@/components/layout/SiteFooter'
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Analytics } from '@vercel/analytics/next'
 import { DEFAULT_PREVIEW, SITE_NAME, SITE_URL } from '@/lib/seo'
 import { consentBootstrapScript } from '@/lib/consent'
 import ConsentLoader from '@/components/consent/ConsentLoader'
@@ -106,6 +107,7 @@ export default function RootLayout({
           <WebVitalsHUD />
           {/* The script is served only by Vercel's edge; elsewhere it 404s. */}
           {process.env.VERCEL && <SpeedInsights />}
+          {process.env.VERCEL && <Analytics />}
         </ThemeProvider>
       </body>
     </html>
