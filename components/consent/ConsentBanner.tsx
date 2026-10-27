@@ -1,23 +1,72 @@
 'use client'
 
-import { useEffect, useId, useRef } from 'react'
+import { useCallback, useEffect, useId, useRef, useState, type AnimationEvent } from 'react'
 import Link from 'next/link'
-import { FiBarChart2 } from 'react-icons/fi'
+import { FiCheck } from 'react-icons/fi'
+import { LuCookie } from 'react-icons/lu'
 import { getConsent, type ConsentChoice } from '@/lib/consent'
 
 /**
- * The analytics consent banner: a compact bar centred at the bottom of the
- * screen (text left, buttons right from sm up; stacked on phones). It never
- * blocks the page: no backdrop, no scroll lock, no focus trap. Accept wears
- * the brand colour and Decline is a solid neutral button of the same size,
- * font and weight beside it, so declining is as easy as accepting.
+ * The analytics consent banner: a bar centred at the bottom of the screen
+ * (text left, buttons right from sm up; stacked on phones). It never blocks
+ * the page: no backdrop, no scroll lock, no focus trap. Accept is the larger,
+ * brand-coloured button (the owner's choice, 2026-10-26); Decline is a
+ * smaller secondary button beside it, still solid, readable (AA) and one
+ * click away.
  */
-export default function ConsentBanner({ fromSettings, onClose }: { fromSettings: boolean; onClose: () => void }) {
+export default function ConsentBanner({
+  fromSettings,
+  returnFocusTo,
+  onClosed,
+}: {
+  /** Opened from "Cookie settings" (not the first-visit question). */
+  fromSettings: boolean
+  /** Where focus goes when the bar closes (the "Cookie settings" button), if anywhere. */
+  returnFocusTo: HTMLElement | null
+  /** Called once the exit animation is over, to unmount the bar. */
+  onClosed: () => void
+}) {
   const ref = useRef<HTMLDivElement>(null)
   const titleId = useId()
   const bodyId = useId()
   const consent = getConsent()
   const current = consent?.state
+  const [closing, setClosing] = useState(false)
+  const finish = useRef<(() => void) | null>(null)
+
+  /**
+   * Closes the bar: focus moves on at once (back to "Cookie settings", or to
+   * the page's main content if it was inside the bar), then the bar fades and
+   * slides down (instant under reduced motion), then the choice, if any, is
+   * applied and the bar unmounts.
+   */
+  const close = useCallback(
+    (choice?: ConsentChoice) => {
+      if (finish.current) return
+      let done = false
+      finish.current = () => {
+        if (done) return
+        done = true
+        if (choice) getConsent()?.set(choice)
+        onClosed()
+      }
+      const focusInside = ref.current?.contains(document.activeElement)
+      if (returnFocusTo) returnFocusTo.focus()
+      else if (focusInside) document.getElementById('main-content')?.focus({ preventScroll: true })
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        finish.current()
+        return
+      }
+      setClosing(true)
+      // In case animationend never fires (a hidden tab, say).
+      window.setTimeout(() => finish.current?.(), 500)
+    },
+    [onClosed, returnFocusTo],
+  )
+
+  const onAnimationEnd = (event: AnimationEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget && event.animationName === 'consent-out') finish.current?.()
+  }
 
   // Opened from "Cookie settings": move focus to the bar itself (not to
   // either button, so neither is favoured), and Escape closes it.
@@ -25,11 +74,11 @@ export default function ConsentBanner({ fromSettings, onClose }: { fromSettings:
     if (!fromSettings) return
     ref.current?.focus()
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose()
+      if (event.key === 'Escape') close()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [fromSettings, onClose])
+  }, [fromSettings, close])
 
   // Where the bar reaches the bottom-right corner (phones and narrower
   // laptops), the floating scroll-to-top button rises above it while it's
@@ -54,13 +103,9 @@ export default function ConsentBanner({ fromSettings, onClose }: { fromSettings:
     }
   }, [])
 
-  const choose = (choice: ConsentChoice) => {
-    getConsent()?.set(choice)
-    onClose()
-  }
+  const choose = (choice: ConsentChoice) => close(choice)
 
-  const button =
-    'flex-1 cursor-pointer rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 sm:min-w-[7.5rem] sm:flex-none'
+  const focusRing = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300'
 
   return (
     <div
@@ -70,47 +115,46 @@ export default function ConsentBanner({ fromSettings, onClose }: { fromSettings:
       aria-labelledby={titleId}
       aria-describedby={bodyId}
       tabIndex={-1}
-      className="fade-up outline-none fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))] z-60 mx-auto max-w-[52rem] rounded-2xl border border-cyan-400/20 bg-[#07101f]/95 p-4 text-slate-300 shadow-[0_18px_50px_-12px_rgba(0,0,0,0.8)] backdrop-blur-md sm:bottom-5 sm:flex sm:items-center sm:gap-6 sm:px-5"
+      inert={closing}
+      data-closing={closing || undefined}
+      onAnimationEnd={onAnimationEnd}
+      className={`${closing ? 'consent-out' : 'fade-up'} outline-none fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))] z-60 mx-auto max-w-[62rem] rounded-2xl border border-cyan-400/25 bg-[#07101f]/95 p-5 text-slate-300 shadow-[0_22px_60px_-12px_rgba(0,0,0,0.85)] backdrop-blur-md sm:bottom-6 sm:flex sm:items-center sm:gap-8 sm:px-7 sm:py-6`}
     >
-      <div className="flex min-w-0 flex-1 items-start gap-3">
-        <span
-          aria-hidden="true"
-          className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-cyan-400/25 bg-cyan-400/10 text-cyan-300"
-        >
-          <FiBarChart2 className="h-4 w-4" />
-        </span>
-        <div className="min-w-0">
-          <h2 id={titleId} className="text-[0.95rem] font-bold text-slate-50">
-            Cookies
-          </h2>
-          <p id={bodyId} className="mt-0.5 text-[0.85rem] leading-relaxed text-slate-400">
-            I use cookies to understand how people use the site so I can improve it. No ads. The site works the
-            same either way.{' '}
-            <Link href="/privacy#cookies" className="text-cyan-300 underline underline-offset-2 hover:text-cyan-200">
-              Privacy
-            </Link>
+      <div className="min-w-0 flex-1">
+        <h2 id={titleId} className="flex items-center gap-2 text-[1.05rem] font-bold text-slate-50">
+          <LuCookie aria-hidden="true" className="h-5 w-5 shrink-0 text-cyan-300" />
+          Cookies
+        </h2>
+        <p id={bodyId} className="mt-1.5 text-[0.92rem] leading-relaxed text-slate-400">
+          I use cookies to understand how people use the site so I can improve it. No ads. The site works the
+          same either way.{' '}
+          <Link href="/privacy#cookies" className="text-cyan-300 underline underline-offset-2 hover:text-cyan-200">
+            Privacy
+          </Link>
+        </p>
+        {fromSettings && current && current !== 'pending' && (
+          <p className="mt-1.5 font-mono text-[0.75rem] text-slate-450">
+            Currently: {current === 'granted' ? 'accepted' : 'declined'}
+            {consent?.gpc && ' (Global Privacy Control)'}
           </p>
-          {fromSettings && current && current !== 'pending' && (
-            <p className="mt-1 font-mono text-[0.72rem] text-slate-450">
-              Currently: {current === 'granted' ? 'accepted' : 'declined'}
-              {consent?.gpc && ' (Global Privacy Control)'}
-            </p>
-          )}
-        </div>
+        )}
       </div>
-      <div className="mt-3.5 flex shrink-0 gap-2.5 sm:mt-0">
+      {/* Accept is the inviting one (the owner's call); Decline stays a real,
+          readable button right beside it. */}
+      <div className="mt-4 flex shrink-0 items-center gap-3 sm:mt-0">
         <button
           type="button"
-          className={`${button} border border-slate-500/60 bg-slate-700 hover:bg-slate-600`}
+          className={`cursor-pointer rounded-xl border border-slate-500/70 bg-slate-800 px-4 py-2.5 text-sm font-semibold text-slate-100 transition-colors hover:bg-slate-700 ${focusRing}`}
           onClick={() => choose('denied')}
         >
           Decline
         </button>
         <button
           type="button"
-          className={`${button} border border-cyan-400/30 bg-linear-to-r from-blue-600 to-cyan-700 hover:from-blue-700 hover:to-cyan-800`}
+          className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border border-cyan-300/40 bg-linear-to-r from-blue-600 to-cyan-700 px-7 py-3 text-base font-bold text-white shadow-lg shadow-cyan-950/60 transition-colors hover:from-blue-700 hover:to-cyan-800 sm:flex-none ${focusRing}`}
           onClick={() => choose('granted')}
         >
+          <FiCheck aria-hidden="true" className="h-5 w-5" />
           Accept
         </button>
       </div>
