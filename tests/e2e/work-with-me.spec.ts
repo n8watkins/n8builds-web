@@ -33,7 +33,7 @@ test.describe('desktop', () => {
     test.skip(isMobile, 'a desktop layout; the phone describe below covers touch devices')
     await page.goto('/')
     const dev = card(page, /Like the builds/)
-    const apt = card(page, /Run a local service business/)
+    const apt = card(page, /Run a service business/)
     await apt.scrollIntoViewIfNeeded()
 
     // Layout boxes, not boundingBox(): a card the page jumped past has not
@@ -67,7 +67,7 @@ test.describe('desktop', () => {
     await expect(dev.getByRole('link', { name: /See my portfolio/ })).toHaveAttribute('href', 'https://portfolio.n8builds.dev')
     await expect(dev.getByRole('link', { name: 'Or send me a message' })).toHaveAttribute('href', '/#contact')
 
-    const apt = card(page, /Run a local service business/)
+    const apt = card(page, /Run a service business/)
     await expect(apt.getByRole('link', { name: /Claim your free website/ })).toHaveAttribute('href', 'https://appturnity.com/#free-website')
     await expect(apt.getByRole('link', { name: /See the plans/ })).toHaveAttribute('href', 'https://appturnity.com/pricing')
     // Planned features are labelled as such, never as included.
@@ -130,7 +130,7 @@ test.describe('phone', () => {
 
   test('the screenshots sit above the copy, and nothing overflows', async ({ page }) => {
     await page.goto('/')
-    for (const name of [/Like the builds/, /Run a local service business/]) {
+    for (const name of [/Like the builds/, /Run a service business/]) {
       const c = card(page, name)
       await c.scrollIntoViewIfNeeded()
       const shots = await box(c.locator('a[aria-hidden="true"]'))

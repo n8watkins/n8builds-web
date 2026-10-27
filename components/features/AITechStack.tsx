@@ -6,8 +6,9 @@ import DinoEasterEgg from '@/components/features/dino/DinoEasterEgg'
 import { ai_agents, ai_tools } from '@/data/aiStack'
 
 /**
- * The AI kit marquee. `dino` adds the homepage's easter egg (a pixel dino
- * walking the rows, see components/features/dino/); /loadout leaves it off.
+ * The homepage's AI kit marquee, with calm tiles that don't react to the
+ * pointer. `dino` adds the easter egg (a pixel dino walking the rows, see
+ * components/features/dino/).
  *
  * While the rows move, the tiles sit well apart (2.5rem across and between
  * the rows' tiles) so the gaps read clearly wider than the dino that hops and
@@ -28,6 +29,7 @@ export function AITechStack({ dino = false }: { dino?: boolean }) {
             name={tech.name}
             icon={tech.icon}
             description={tech.description}
+            still
           />
         ))}
       </Marquee>
@@ -38,6 +40,7 @@ export function AITechStack({ dino = false }: { dino?: boolean }) {
             name={tech.name}
             icon={tech.icon}
             description={tech.description}
+            still
           />
         ))}
       </Marquee>

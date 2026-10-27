@@ -2,7 +2,9 @@ import Navbar from '@/components/layout/Navbar'
 import JsonLd from '@/components/JsonLd'
 import BuildIndex from '@/components/log/BuildIndex'
 import LogFeed from '@/components/log/LogFeed'
+import { builds } from '@/data/builds'
 import { getBuildLog } from '@/lib/build-log'
+import { BUILD_ICONS, logKind } from '@/lib/build-meta'
 import { absoluteUrl, pageMetadata } from '@/lib/seo'
 
 // Rebuilt at most hourly from GitHub (lib/build-log.ts). A revalidation that
@@ -88,7 +90,12 @@ export default async function BuildLogPage() {
             </h2>
             <LogFeed
               entries={log.entries}
-              builds={log.activity.map((b) => ({ slug: b.slug, name: b.name }))}
+              builds={log.activity.map((b) => ({
+                slug: b.slug,
+                name: b.name,
+                kind: logKind(builds.find((x) => x.slug === b.slug) ?? b),
+                icon: BUILD_ICONS[b.slug],
+              }))}
               months={log.months}
               recentFrom={log.recentFrom}
             />

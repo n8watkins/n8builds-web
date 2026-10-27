@@ -18,6 +18,8 @@ export interface Social {
   enabled: boolean
   /** Optical size: some glyphs draw smaller or larger than the rest. */
   size: 'sm' | 'md' | 'lg'
+  /** A brand colour for the icon, where the brand's own colour matters (Ko-fi). */
+  color?: string
 }
 
 export const ALL_SOCIALS: Social[] = [
@@ -29,7 +31,7 @@ export const ALL_SOCIALS: Social[] = [
   // TODO(owner): PLACEHOLDER URL. @n8watkins is not a live channel yet (it
   // 404s); put the real channel URL here before enabling this for good.
   { label: 'YouTube', href: 'https://www.youtube.com/@n8watkins', Icon: FaYoutube, enabled: false, size: 'md' },
-  { label: 'Ko-fi', href: 'https://ko-fi.com/n8watkins', Icon: SiKofi, enabled: true, size: 'md' },
+  { label: 'Ko-fi', href: 'https://ko-fi.com/n8watkins', Icon: SiKofi, enabled: true, size: 'md', color: 'text-[#ff5e5b]' },
 ]
 
 /** The links to show (in ALL_SOCIALS order). */

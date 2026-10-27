@@ -30,15 +30,24 @@ async function openHome(page: Page) {
   })
 }
 
-/** Scroll so the part's top sits a little under the navbar. */
+/**
+ * Scroll so the part's top sits a little under the navbar, and keep at it
+ * until it stays there: images and reveals above can still shift the layout
+ * just after the jump (on a loaded CI machine), which left the page short of
+ * the Lab, with the rail rightly hidden.
+ */
 async function scrollToPart(page: Page, id: string) {
-  await page.evaluate((id) => {
-    const el = document.getElementById(id)!
-    window.scrollTo({
-      top: el.getBoundingClientRect().top + window.scrollY - 120,
-      behavior: 'instant',
-    })
-  }, id)
+  await expect
+    .poll(() =>
+      page.evaluate((id) => {
+        const el = document.getElementById(id)!
+        const top = el.getBoundingClientRect().top
+        if (Math.abs(top - 120) <= 2) return true
+        window.scrollTo({ top: top + window.scrollY - 120, behavior: 'instant' })
+        return false
+      }, id)
+    )
+    .toBe(true)
 }
 
 test.describe('at 1440px', () => {
@@ -316,7 +325,10 @@ for (const width of [1280, 1366, 1440, 1536, 1920]) {
     }
     for (const part of PARTS) {
       await scrollToPart(page, part.id)
-      await expect(nav).toBeInViewport()
+      // The rail shows from its scroll and intersection callbacks, which a
+      // loaded CI runner's WebKit delivers seconds late (its trace showed the
+      // rail turning visible just after the default 5s), so wait longer here.
+      await expect(nav).toBeInViewport({ timeout: 15_000 })
       const navBox = (await nav.boundingBox())!
       expect(navBox.x, 'inside the window').toBeGreaterThanOrEqual(8)
       // Everything visible in the part starts right of the rail: its text, its

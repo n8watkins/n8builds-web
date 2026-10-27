@@ -81,7 +81,6 @@ export function ContactFormFields({
             {...register('name')}
             id="name"
             label="Name"
-            emoji="👤"
             placeholder="Jane Smith"
             error={errors.name?.message}
             onFocus={() => handleFieldFocus('name')}
@@ -96,7 +95,6 @@ export function ContactFormFields({
             id="email"
             type="email"
             label="Email"
-            emoji="📧"
             placeholder="jane@company.com"
             error={errors.email?.message}
             onFocus={() => handleFieldFocus('email')}
@@ -114,7 +112,6 @@ export function ContactFormFields({
           // pre-selects the first subject.
           defaultValue=""
           label="Topic"
-          emoji="💼"
           options={subjectOptions}
           error={errors.subject?.message}
           onFocus={() => handleFieldFocus('subject')}
@@ -127,7 +124,6 @@ export function ContactFormFields({
           {...register('message')}
           id="message"
           label="Message"
-          emoji="💬"
           placeholder="What are you building, and where can I help?"
           rows={4}
           maxChars={1000}

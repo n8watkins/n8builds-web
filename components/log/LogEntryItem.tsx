@@ -47,11 +47,14 @@ export default function LogEntryItem({
   entry,
   buildName,
   showBuild = true,
+  icon,
 }: {
   entry: LogEntry
   buildName: string
   /** Off on a build's own page, where the name would repeat on every line. */
   showBuild?: boolean
+  /** The build's app icon: it takes the timeline dot's place, so the feed reads by build at a glance. */
+  icon?: string
 }) {
   const highlight = entry.kind === 'highlight'
 
@@ -98,20 +101,34 @@ export default function LogEntryItem({
     </>
   )
 
+  // Level with the meta line, which a highlight's card pads down.
+  const top = highlight ? 'top-[1.35rem] sm:top-[1.6rem]' : 'top-[0.3rem]'
   return (
-    <li className="relative pb-7 pl-6 last:pb-0" data-kind={entry.kind} data-build={entry.build}>
-      {/* The timeline dot: releases and highlights glow, a day's changes don't. */}
-      <span
-        aria-hidden
-        className={`absolute left-0 h-2.5 w-2.5 -translate-x-1/2 rounded-full ${
-          // Level with the meta line, which a highlight's card pads down.
-          highlight ? 'top-[1.35rem] sm:top-[1.6rem]' : 'top-[0.3rem]'
-        } ${
-          entry.kind === 'change'
-            ? 'border border-slate-450 bg-darkBlue'
-            : 'bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.6)]'
-        }`}
-      />
+    // `log-in` (globals.css) eases the entry in as it scrolls into view.
+    <li className={`log-in relative pb-6 last:pb-0 ${icon ? 'pl-8' : 'pl-6'}`} data-kind={entry.kind} data-build={entry.build}>
+      {icon ? (
+        // The build's icon on the line: releases and highlights get a cyan ring, a day's changes don't.
+        <Image
+          src={icon}
+          alt=""
+          width={24}
+          height={24}
+          unoptimized={icon.endsWith('.svg')}
+          className={`absolute left-0 h-6 w-6 -translate-x-1/2 -translate-y-[0.2rem] rounded-md bg-darkBlue ${
+            highlight ? 'top-[1.35rem] sm:top-[1.6rem]' : 'top-0'
+          } ${entry.kind === 'change' ? 'ring-1 ring-white/10' : 'ring-2 ring-cyan-400/70 shadow-[0_0_10px_rgba(34,211,238,0.45)]'}`}
+        />
+      ) : (
+        // The timeline dot: releases and highlights glow, a day's changes don't.
+        <span
+          aria-hidden
+          className={`absolute left-0 h-2.5 w-2.5 -translate-x-1/2 rounded-full ${top} ${
+            entry.kind === 'change'
+              ? 'border border-slate-450 bg-darkBlue'
+              : 'bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.6)]'
+          }`}
+        />
+      )}
       {highlight ? (
         <div className="rounded-2xl border border-cyan-400/20 bg-linear-to-br from-cyan-500/[0.07] to-blue-600/[0.07] p-4 sm:p-5">
           {body}

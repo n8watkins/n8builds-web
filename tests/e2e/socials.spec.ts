@@ -34,22 +34,26 @@ test('the footer socials are on every page', async ({ page }) => {
   expect(await labels(footerSocials(page))).toEqual(SOCIALS.map((s) => s.label))
 })
 
-test('Follow the build links the build log and notions, and only enabled socials', async ({ page }) => {
+test('Follow the build links the build log and notions, and only the enabled streaming links', async ({ page }) => {
   await page.goto('/')
   const follow = page.locator('#contact p', { hasText: 'Everything I ship lands in the' })
   await follow.scrollIntoViewIfNeeded()
   await expect(follow.getByRole('link', { name: 'build log' })).toHaveAttribute('href', '/builds')
   await expect(follow.getByRole('link', { name: "N8's Notions" })).toHaveAttribute('href', '/blog')
-  for (const s of ALL_SOCIALS.filter((x) => ['GitHub', 'X (Twitter)', 'Twitch', 'YouTube'].includes(x.label))) {
-    const name = s.label === 'X (Twitter)' ? 'X' : s.label
-    // Named "GitHub (opens in a new tab)" and so on.
-    await expect(follow.getByRole('link', { name: new RegExp(`^${name} \\(opens`) })).toHaveCount(s.enabled ? 1 : 0)
+  // No "follow along on GitHub and X" (owner, 2026-10-27); a streaming link only once streaming starts.
+  for (const name of ['GitHub', 'X']) {
+    await expect(follow.getByRole('link', { name: new RegExp(`^${name} \\(opens`) })).toHaveCount(0)
+  }
+  for (const s of ALL_SOCIALS.filter((x) => ['Twitch', 'YouTube'].includes(x.label))) {
+    // Named "YouTube (opens in a new tab)" and so on.
+    await expect(follow.getByRole('link', { name: new RegExp(`^${s.label} \\(opens`) })).toHaveCount(s.enabled ? 1 : 0)
   }
   if (!ALL_SOCIALS.some((s) => ['Twitch', 'YouTube'].includes(s.label) && s.enabled)) {
     await expect(follow).not.toContainText('watch me build live')
   }
 
-  const work = page.locator('#contact p', { hasText: 'I usually reply within a day' })
+  const work = page.locator('#contact p', { hasText: 'Message me with' })
+  await expect(work).not.toContainText('I usually reply within a day')
   await expect(work.getByRole('link', { name: 'the form' })).toHaveAttribute('href', '#contact-form')
   await expect(work.getByRole('link', { name: 'contact@n8builds.dev' })).toHaveAttribute('href', 'mailto:contact@n8builds.dev')
 })

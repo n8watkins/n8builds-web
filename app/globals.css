@@ -669,3 +669,48 @@
     background: rgb(255 255 255 / 0.1);
   }
 }
+
+/* The Lab's percolating flask (components/ui/BubblingFlask.tsx): each bubble
+   rises from the bowl, swelling a little, and fades before the neck. */
+@keyframes flask-bubble {
+  0% {
+    transform: translateY(0) scale(0.6);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(-260%) scale(1);
+    opacity: 0;
+  }
+}
+.flask-bubble {
+  opacity: 0;
+  animation: flask-bubble 2.4s ease-in infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .flask-bubble {
+    animation: none;
+  }
+}
+
+/* A build log entry eases in as it scrolls into view (components/log/LogEntryItem.tsx).
+   Driven by the scroll position itself (a view timeline), not a script: an entry
+   already on screen is simply there, nothing waits on an observer, and browsers
+   without view timelines show the entries plainly. Opacity and transform only. */
+@keyframes log-in {
+  from {
+    opacity: 0.25;
+    transform: translateY(14px);
+  }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .log-in {
+      animation: log-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 70%;
+    }
+  }
+}
