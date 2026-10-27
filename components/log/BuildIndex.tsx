@@ -1,6 +1,8 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { FiArrowUpRight } from 'react-icons/fi'
 import type { BuildActivity } from '@/lib/build-log'
+import { BUILD_ICONS } from '@/lib/build-meta'
 
 // The builds index that leads /builds: a card per build, most recently active
 // first, with when it last shipped (a month, never "N months ago", so a quiet
@@ -21,7 +23,17 @@ export default function BuildIndex({ activity }: { activity: BuildActivity[] }) 
           <span className="font-mono text-[0.7rem] uppercase tracking-wider text-slate-450">{build.category}</span>
 
           <div className="mt-3">
-            <h3 className="text-lg font-bold leading-tight text-slate-50">
+            <h3 className="flex items-center gap-2.5 text-lg font-bold leading-tight text-slate-50">
+              {BUILD_ICONS[build.slug] && (
+                <Image
+                  src={BUILD_ICONS[build.slug]}
+                  alt=""
+                  width={28}
+                  height={28}
+                  unoptimized={BUILD_ICONS[build.slug].endsWith('.svg')}
+                  className="h-7 w-7 shrink-0 rounded-lg"
+                />
+              )}
               {/* Stretched over the card: the whole card opens the build page. */}
               <Link
                 href={`/builds/${build.slug}`}
