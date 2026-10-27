@@ -628,10 +628,12 @@ test.describe('dino easter egg (motion allowed)', () => {
     // nothing gets selected).
     expect(await page.locator('[data-dino-panel]').evaluate((el) => getComputedStyle(el).userSelect)).toBe('none')
     // A double and a triple click would select a word, then the whole line, anywhere else.
+    // (A triple click can leave an empty line break selected in the card around
+    // the panel: no text, nothing highlighted.)
     await page.mouse.dblclick(cx, cy)
-    expect(await page.evaluate(() => String(getSelection()))).toBe('')
+    expect(await page.evaluate(() => String(getSelection()).trim())).toBe('')
     await page.mouse.click(cx, cy, { clickCount: 3 })
-    expect(await page.evaluate(() => String(getSelection()))).toBe('')
+    expect(await page.evaluate(() => String(getSelection()).trim())).toBe('')
     const tile = page.locator('[data-dino-panel] figure[tabindex="0"]').first()
     await tile.focus()
     await expect(tile).toBeFocused()
