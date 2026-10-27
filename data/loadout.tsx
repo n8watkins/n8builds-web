@@ -1,3 +1,8 @@
+import type { ReactElement } from 'react'
+import { BsOpenai } from 'react-icons/bs'
+import { LuAudioLines, LuBug } from 'react-icons/lu'
+import { SiClaude, SiGooglegemini } from 'react-icons/si'
+
 // The Loadout - "who I am" without a resume. You ARE your loadout.
 // Each item: what it is + what I use it for + my one-line take.
 // Content is curated/representative - edit freely as the kit changes.
@@ -28,113 +33,79 @@ export interface LoadoutGroup {
 export const whoamiTitle = { path: '~/whoami', name: "Nathan 'N8' Watkins" }
 export const whoami: string[] = ['AI-first software developer.', 'I build apps and tools I wish existed.']
 
+/**
+ * How I work with AI, in the order a piece of work goes through it: decide
+ * what to build, build it, then fix what's hard. Each step names the tool and
+ * the model I reach for, and why. The Loadout page's headline section.
+ */
+export interface WorkflowStep {
+  /** The step, as a verb: what I'm doing when I reach for it. */
+  step: string
+  tool: string
+  /** The model behind it, when it matters. */
+  model?: string
+  icon: ReactElement
+  /** The tool's brand colour, for its glow. */
+  color: string
+  whatFor: string
+  take: string
+}
+
+export const workflow: WorkflowStep[] = [
+  {
+    step: 'Decide',
+    tool: 'ChatGPT',
+    icon: <BsOpenai className="h-full w-full" />,
+    color: '#e5e7eb',
+    whatFor:
+      'General decision-making: weighing options, planning a build, a sounding board before any code exists. Voice mode when I want to talk an idea through out loud.',
+    take: 'The thinking partner. It is where a rough idea becomes a plan.',
+  },
+  {
+    step: 'Build',
+    tool: 'Claude Code',
+    model: 'Claude Opus 5.5',
+    icon: <SiClaude className="h-full w-full" />,
+    color: '#D97757',
+    whatFor:
+      'Execution and development, on the most advanced model there is: features, refactors, whole projects, tested and shipped through pull requests.',
+    take: 'The one that does the work. Everything on this site was built here.',
+  },
+  {
+    // TODO(owner): confirm the tool the owner called "Astra" (bug fixes and deeper thinking).
+    step: 'Fix',
+    tool: 'Astra',
+    icon: <LuBug className="h-full w-full" />,
+    color: '#22d3ee',
+    whatFor: 'Bug fixes and the hard problems: the ones that need more thinking before any change.',
+    take: 'When a bug fights back, it gets the slow, careful pass.',
+  },
+]
+
+/** The AI inside the apps I build (what my users' requests actually run on). */
+export const inApps: { name: string; icon: ReactElement; color: string; whatFor: string; tag?: string }[] = [
+  {
+    name: 'Gemini API',
+    icon: <SiGooglegemini className="h-full w-full" />,
+    color: '#4285F4',
+    whatFor: 'Long-context chat, research and analysis: GeminiGPT, Scout, Echo and Net-Trailer run on it.',
+  },
+  {
+    name: 'OpenAI API',
+    icon: <BsOpenai className="h-full w-full" />,
+    color: '#e5e7eb',
+    whatFor: 'Structured outputs and generation pipelines, when I need reliable JSON out of a model.',
+  },
+  {
+    name: 'whisper.cpp + Piper',
+    icon: <LuAudioLines className="h-full w-full" />,
+    color: '#a5f3fc',
+    whatFor: 'Local speech both ways: Scribe transcribes with whisper.cpp, my Piper TTS extension reads aloud.',
+    tag: 'local-first',
+  },
+]
+
 export const loadout: LoadoutGroup[] = [
-  {
-    id: 'ai',
-    title: 'AI & Agents',
-    subtitle: 'The part of the kit that does the heavy lifting now.',
-    accent: 'cyan',
-    path: '~/loadout/ai',
-    items: [
-      {
-        name: 'Claude Code',
-        whatFor: 'My main pair-programmer. I build basically everything here now - features, refactors, whole projects.',
-        take: 'Closest thing to having a senior dev who never gets tired. Agent-native is the whole workflow.',
-        tag: 'daily driver',
-      },
-      {
-        name: 'Cursor',
-        whatFor: 'Inline edits and quick context-aware changes when I want my hands on the keys.',
-        take: 'Great for surgical edits; I reach for Claude Code when the task is bigger than a file.',
-      },
-      {
-        name: 'OpenAI API',
-        whatFor: 'Generation pipelines - icon extraction in Asset Arsenal, structured outputs, embeddings.',
-        take: 'Still my default when I need reliable structured JSON out of a model.',
-      },
-      {
-        name: 'Gemini API',
-        whatFor: 'Summarization + analysis in my extensions (TL;DW, TL;DR Comments).',
-        take: 'Long-context + cheap makes it perfect for "summarize this whole video" jobs.',
-      },
-      {
-        name: 'whisper.cpp + Piper',
-        whatFor: 'Local speech, both ways - offline transcription in Scribe (whisper.cpp) and text-to-speech in my Piper TTS extension.',
-        take: 'Local-first is underrated. No API bill, no data leaving the machine.',
-        tag: 'local-first',
-      },
-    ],
-  },
-  {
-    id: 'build',
-    title: 'Build Stack',
-    subtitle: 'What I actually write the apps in.',
-    accent: 'blue',
-    path: '~/loadout/build',
-    items: [
-      {
-        name: 'Next.js',
-        whatFor: 'Every web app I make. App Router by default.',
-        take: 'The default for a reason. Server components + Vercel is a cheat code for shipping fast.',
-        tag: 'daily driver',
-      },
-      {
-        name: 'TypeScript',
-        whatFor: 'Non-negotiable across everything - web, extensions, CLIs.',
-        take: 'If it compiles, half my bugs never happened. Strict mode or bust.',
-      },
-      {
-        name: 'Tailwind + shadcn/ui',
-        whatFor: 'Styling and component primitives for every front end.',
-        take: 'Utility-first means I never leave the file. shadcn gives me good bones to override.',
-      },
-      {
-        name: 'Tauri + Rust',
-        whatFor: 'When it has to be a real native desktop app (Scribe).',
-        take: 'Tiny binaries, native speed, and I get to write a little Rust without committing my life to it.',
-      },
-      {
-        name: 'WXT',
-        whatFor: 'My Chrome extension framework - MV3, React, fast HMR (the whole extensions shelf).',
-        take: 'Makes MV3 extensions feel like building a normal app instead of fighting the manifest.',
-      },
-    ],
-  },
-  {
-    id: 'ship',
-    title: 'Ship & Infra',
-    subtitle: 'Where the builds live and how data sticks around.',
-    accent: 'sky',
-    path: '~/loadout/ship',
-    items: [
-      {
-        name: 'Vercel',
-        whatFor: 'Hosting + deploys for n8builds.dev and most of my apps. Push to main, it ships.',
-        take: 'Zero-config deploys mean I spend my time building, not babysitting infra.',
-        tag: 'daily driver',
-      },
-      {
-        name: 'Turso + Drizzle',
-        whatFor: 'SQLite at the edge with a type-safe ORM (cutelyask.me, Asset Arsenal).',
-        take: 'SQLite that scales globally + Drizzle\'s typing is my current favorite DB combo.',
-      },
-      {
-        name: 'Supabase / Firebase',
-        whatFor: 'Auth + realtime + Postgres when I want batteries included (Solara, BF6 Field Intel).',
-        take: 'Reach for these when I want to skip the backend and get to the product.',
-      },
-      {
-        name: 'Clerk',
-        whatFor: 'Drop-in auth when I don\'t want to think about sessions (cutelyask.me).',
-        take: 'Auth is a solved problem now; I refuse to roll my own again.',
-      },
-      {
-        name: 'Cloudflare',
-        whatFor: 'DNS, R2 object storage, email routing for my domains.',
-        take: 'The quiet workhorse behind everything. R2 with no egress fees is the move.',
-      },
-    ],
-  },
   {
     id: 'stream',
     title: 'Stream Kit',

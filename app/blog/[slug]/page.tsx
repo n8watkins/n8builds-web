@@ -82,7 +82,13 @@ export default async function PostPage({ params }: PostPageProps) {
         tabIndex={-1}
         className="relative min-h-screen bg-darkBlue text-slate-100 focus:outline-none"
       >
-        <article className="mx-auto max-w-3xl px-5 pb-20 pt-28 sm:px-8 md:pt-32">
+        {/* A soft cyan-to-blue wash behind the top of the note, fading into the
+            page, so reading isn't flat black; the text keeps full contrast. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 h-[900px] bg-[radial-gradient(60%_480px_at_30%_0,rgb(34_211_238/0.10),transparent_100%),radial-gradient(50%_520px_at_80%_120px,rgb(37_99_235/0.10),transparent_100%),linear-gradient(to_bottom,rgb(12_74_110/0.18),transparent_900px)]"
+        />
+        <article className="relative mx-auto max-w-3xl px-5 pb-20 pt-28 sm:px-8 md:pt-32">
           {/* The top of the post is on screen at load, so it fades in with CSS
               (no waiting on hydration for the heading or the cover, the LCP).
               The body follows; the gallery and more notes fade in on scroll. */}
