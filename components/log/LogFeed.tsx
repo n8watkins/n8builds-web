@@ -121,7 +121,7 @@ export default function LogFeed({ entries, builds, months, recentFrom }: FeedPro
         <div className="mt-6 flex flex-col gap-3">
           <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter by kind">
             <button type="button" aria-pressed={!active && !kind} onClick={() => setFilter({})} className={chip(!active && !kind)}>
-              All<span className="ml-1.5 text-xs opacity-60">{entries.length}</span>
+              All<span className="ml-1.5 text-xs font-normal">{entries.length}</span>
             </button>
             {kinds.length > 1 &&
               kinds.map((k) => (
@@ -133,7 +133,7 @@ export default function LogFeed({ entries, builds, months, recentFrom }: FeedPro
                   className={chip(!active && kind === k.id)}
                 >
                   {k.label}
-                  <span className="ml-1.5 text-xs opacity-60">{countFor(k.id)}</span>
+                  <span className="ml-1.5 text-xs font-normal">{countFor(k.id)}</span>
                 </button>
               ))}
           </div>

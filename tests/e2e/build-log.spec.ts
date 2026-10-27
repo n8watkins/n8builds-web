@@ -88,13 +88,12 @@ test('the build filter narrows the feed and lives in the URL', async ({ page }) 
 
 test('the kind filter narrows the feed and its build chips, and lives in the URL', async ({ page }) => {
   await page.goto('/builds')
-  const total = await feedEntries(page).count()
-  // Each kind chip counts its entries; the counts add up to All.
+  // Each kind chip counts its entries (older ones too, as All does); the counts add up to All's.
   const counts = await feed(page)
     .getByRole('group', { name: 'Filter by kind' })
     .getByRole('button')
-    .evaluateAll((els) => els.slice(1).map((el) => Number(el.querySelector('span')?.textContent)))
-  expect(counts.reduce((a, b) => a + b, 0)).toBe(total)
+    .evaluateAll((els) => els.map((el) => Number(el.querySelector('span')?.textContent)))
+  expect(counts.slice(1).reduce((a, b) => a + b, 0)).toBe(counts[0])
 
   await pick(page, 'Chrome extensions', kindChip)
   await expect(page).toHaveURL(/\/builds\?kind=extensions$/)
