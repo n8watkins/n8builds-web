@@ -15,10 +15,10 @@ import FadeIn from '@/components/ui/FadeIn'
  */
 
 // A section's small mono path and title, left-aligned over its content.
-const SectionHead = ({ path, title, children }: { path: string; title: string; children?: React.ReactNode }) => (
+const SectionHead = ({ id, path, title, children }: { id?: string; path: string; title: string; children?: React.ReactNode }) => (
   <div className="mb-6 flex flex-col gap-1.5">
     <span className="font-mono text-xs text-slate-475">{path}</span>
-    <h2 className="text-2xl font-extrabold tracking-tight text-slate-50 sm:text-3xl">{title}</h2>
+    <h2 id={id} className="text-2xl font-extrabold tracking-tight text-slate-50 sm:text-3xl">{title}</h2>
     {children && <p className="max-w-[620px] text-[15px] leading-relaxed text-[#9cadc5]">{children}</p>}
   </div>
 )
@@ -121,8 +121,9 @@ const Loadout = () => {
         </FadeIn>
 
         {/* How I work with AI: a sequence, so the steps are numbered and joined by arrows. */}
-        <Reveal as="section" id="workflow" className="mt-16 scroll-mt-24">
-          <SectionHead path="~/loadout/workflow" title="How I work with AI">
+        <Reveal className="mt-16">
+          <section id="workflow" aria-labelledby="workflow-title" className="scroll-mt-24">
+          <SectionHead id="workflow-title" path="~/loadout/workflow" title="How I work with AI">
             One tool for each part of the job. A piece of work goes through them in this order.
           </SectionHead>
           <ol className="grid gap-5 lg:grid-cols-3 lg:gap-8">
@@ -141,15 +142,17 @@ const Loadout = () => {
             ))}
           </ol>
           {/* The harnesses the models run in */}
-          <p className="mt-6 flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[15px] leading-relaxed text-[#9cadc5]">
+          <div className="mt-6 flex flex-wrap items-center gap-3">
             <span className="font-mono text-xs font-semibold tracking-[0.18em] text-cyan-300 uppercase">Harnesses</span>
-            {harnesses.map((h, i) => (
-              <span key={h.name}>
-                <span className="font-semibold text-slate-100">{h.name}</span>, {h.whatFor}
-                {i < harnesses.length - 1 ? ';' : '.'}
-              </span>
-            ))}
-          </p>
+            <ul className="flex flex-wrap gap-3">
+              {harnesses.map((h) => (
+                <li key={h.name} className="rounded-xl border border-white/8 bg-white/[0.03] px-3.5 py-2 text-sm text-[#9cadc5]">
+                  <span className="font-semibold text-slate-100">{h.name}</span>: {h.whatFor}
+                </li>
+              ))}
+            </ul>
+          </div>
+          </section>
         </Reveal>
 
         {/* The AI inside the apps I build */}

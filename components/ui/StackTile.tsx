@@ -15,7 +15,9 @@ import { cn } from '@/lib/utils'
 // the description's length.
 //
 // `still`: a calm tile, icon and name only, that doesn't react to the pointer
-// (the homepage's AI kit, so the dino is what stands out).
+// (the homepage's AI kit, so the dino is what stands out). It stays in the tab
+// order with a keyboard focus ring: focusing (or tapping) a tile pauses its
+// row (WCAG 2.2.2), which the dino game uses too.
 export default function StackTile({
   name,
   icon,
@@ -33,7 +35,10 @@ export default function StackTile({
   const isCopy = useContext(MarqueeCopyContext)
   if (still) {
     return (
-      <figure className="relative flex h-28 w-52 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/8 bg-white/4 px-2">
+      <figure
+        tabIndex={isCopy ? -1 : 0}
+        className="relative flex h-28 w-52 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/8 bg-white/4 px-2 outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+      >
         <figcaption className="flex items-center gap-2 text-xl font-medium text-white">
           <span className={cn('flex size-7 shrink-0 items-center justify-center *:size-full!', iconClassName)}>{icon}</span>
           <span data-tile-name className="whitespace-nowrap">

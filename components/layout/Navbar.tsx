@@ -242,7 +242,7 @@ const Navbar = () => {
               target="_blank"
               rel="noopener noreferrer"
               title="Support me on Ko-fi"
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-white bg-[#29abe0] hover:bg-[#3dbbef] rounded-lg transition-all duration-150 hover:scale-[1.02]"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-[#0b1324] bg-[#29abe0] hover:bg-[#4cc1ef] rounded-lg transition-all duration-150 hover:scale-[1.02]"
             >
               <SiKofi className="w-4 h-4 text-[#ff5e5b]" aria-hidden />
               Ko-fi

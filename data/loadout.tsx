@@ -75,9 +75,10 @@ export const workflow: WorkflowStep[] = [
     step: 'Fix',
     tool: 'Codex and Gemini',
     icon: (
-      <span className="flex h-full w-full items-center justify-center gap-1">
-        <BsOpenai className="h-[45%] w-[45%] text-[#e5e7eb]" />
-        <SiGooglegemini className="h-[45%] w-[45%] text-[#4285F4]" />
+      // The two marks overlapping, OpenAI's top left and Gemini's bottom right.
+      <span className="relative block h-full w-full">
+        <BsOpenai className="absolute top-0 left-0 h-[62%] w-[62%] text-[#e5e7eb]" />
+        <SiGooglegemini className="absolute right-0 bottom-0 h-[62%] w-[62%] text-[#4285F4]" />
       </span>
     ),
     color: '#4285F4',
@@ -90,7 +91,7 @@ export const workflow: WorkflowStep[] = [
 /** The harnesses the models run in: the tools that let them work on the code. */
 export const harnesses: { name: string; whatFor: string }[] = [
   { name: 'Claude Code', whatFor: 'my main harness, where the building happens' },
-  { name: 'Pi', whatFor: 'a minimal coding-agent harness that runs any model, for when I want to try one outside Claude Code' },
+  { name: 'Pi', whatFor: 'a minimal coding-agent harness that runs any model' },
 ]
 
 /** The AI inside the apps I build (what my users' requests actually run on). */

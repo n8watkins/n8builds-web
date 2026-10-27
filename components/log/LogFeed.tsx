@@ -119,9 +119,17 @@ export default function LogFeed({ entries, builds, months, recentFrom }: FeedPro
 
       {withEntries.length > 1 && (
         <div className="mt-6 flex flex-col gap-3">
-          <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter by kind">
-            <button type="button" aria-pressed={!active && !kind} onClick={() => setFilter({})} className={chip(!active && !kind)}>
-              All<span className="ml-1.5 text-xs font-normal">{entries.length}</span>
+          {/* The counts are updates (log entries), said in full for screen readers and on hover. */}
+          <p className="font-mono text-xs uppercase tracking-[0.16em] text-slate-400">Updates by kind</p>
+          <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter updates by kind">
+            <button
+              type="button"
+              aria-pressed={!active && !kind}
+              title={updates(entries.length)}
+              onClick={() => setFilter({})}
+              className={chip(!active && !kind)}
+            >
+              All<Count n={entries.length} />
             </button>
             {kinds.length > 1 &&
               kinds.map((k) => (
@@ -129,11 +137,12 @@ export default function LogFeed({ entries, builds, months, recentFrom }: FeedPro
                   key={k.id}
                   type="button"
                   aria-pressed={!active && kind === k.id}
+                  title={updates(countFor(k.id))}
                   onClick={() => setFilter(!active && kind === k.id ? {} : { kind: k.id })}
                   className={chip(!active && kind === k.id)}
                 >
                   {k.label}
-                  <span className="ml-1.5 text-xs font-normal">{countFor(k.id)}</span>
+                  <Count n={countFor(k.id)} />
                 </button>
               ))}
           </div>
@@ -162,12 +171,22 @@ export default function LogFeed({ entries, builds, months, recentFrom }: FeedPro
       )}
 
       {groups.length > 0 ? (
-        <div className="mt-10 space-y-10">
+        // Its own scroll area, so the feed doesn't run the page on forever: a
+        // focusable region (arrow keys scroll it), months sticky at its top, and
+        // a fade at the foot saying there is more below.
+        <div
+          role="region"
+          aria-label="Activity feed"
+          tabIndex={0}
+          data-log-scroll
+          className="relative mt-8 max-h-[70vh] overflow-y-auto overscroll-contain rounded-2xl border border-white/8 bg-white/[0.015] px-4 pb-10 [mask-image:linear-gradient(to_bottom,black_calc(100%-3rem),transparent)] focus-visible:outline-2 focus-visible:outline-cyan-400/60 sm:px-6"
+        >
+        <div className="space-y-8 pt-2">
           {groups.map((group) => (
             <section key={group.month} aria-labelledby={`month-${group.month}`}>
               <h3
                 id={`month-${group.month}`}
-                className="mb-4 flex items-center gap-3 font-mono text-[0.7rem] font-bold uppercase tracking-[0.18em] text-cyan-400 after:h-px after:flex-1 after:bg-white/8"
+                className="sticky top-0 z-10 -mx-4 mb-4 flex items-center gap-3 bg-[#060d1c]/95 px-4 py-3 font-mono text-xs font-bold uppercase tracking-[0.18em] text-cyan-400 backdrop-blur-sm after:h-px after:flex-1 after:bg-white/8 sm:-mx-6 sm:px-6"
               >
                 {months[group.month]}
               </h3>
@@ -184,22 +203,44 @@ export default function LogFeed({ entries, builds, months, recentFrom }: FeedPro
             </section>
           ))}
         </div>
+        {older.length > 0 && !showOlder && (
+          <button
+            type="button"
+            onClick={() => setShowOlder(true)}
+            className="mt-8 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-200 transition-colors hover:bg-white/10"
+          >
+            Show older entries<span className="ml-1.5 text-xs text-slate-400">{older.length}</span>
+          </button>
+        )}
+        </div>
       ) : (
         <p className="mt-12 font-mono text-sm text-slate-450">
           {emptyName ? `// nothing from ${emptyName} in the last 12 months.` : '// nothing logged yet - check back soon.'}
         </p>
       )}
-
-      {older.length > 0 && !showOlder && (
+      {groups.length === 0 && older.length > 0 && !showOlder && (
         <button
           type="button"
           onClick={() => setShowOlder(true)}
-          className="mt-10 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-200 transition-colors hover:bg-white/10"
+          className="mt-6 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-200 transition-colors hover:bg-white/10"
         >
-          Show older entries<span className="ml-1.5 text-xs text-slate-450">{older.length}</span>
+          Show older entries<span className="ml-1.5 text-xs text-slate-400">{older.length}</span>
         </button>
       )}
+
     </div>
+  )
+}
+
+const updates = (n: number) => `${n} ${n === 1 ? 'update' : 'updates'}`
+
+/** A chip's count of updates, as a small badge. */
+function Count({ n }: { n: number }) {
+  return (
+    <span className="ml-2 rounded-full bg-white/10 px-1.5 py-px font-mono text-[0.7rem] font-semibold tabular-nums">
+      {n}
+      <span className="sr-only"> {n === 1 ? 'update' : 'updates'}</span>
+    </span>
   )
 }
 

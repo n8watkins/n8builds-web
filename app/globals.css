@@ -692,6 +692,8 @@
 @media (prefers-reduced-motion: reduce) {
   .flask-bubble {
     animation: none;
+  }
+}
 
 /* A build log entry eases in as it scrolls into view (components/log/LogEntryItem.tsx).
    Driven by the scroll position itself (a view timeline), not a script: an entry

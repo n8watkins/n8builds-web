@@ -20,7 +20,7 @@ export default function BuildIndex({ activity }: { activity: BuildActivity[] }) 
           {/* Accent wash */}
           <div aria-hidden className={`pointer-events-none absolute inset-x-0 top-0 -z-10 h-24 bg-linear-to-b ${build.color} opacity-40 blur-2xl`} />
 
-          <span className="font-mono text-[0.7rem] uppercase tracking-wider text-slate-450">{build.category}</span>
+          <span className="font-mono text-xs uppercase tracking-wider text-slate-400">{build.category}</span>
 
           <div className="mt-3">
             <h3 className="flex items-center gap-2.5 text-lg font-bold leading-tight text-slate-50">
@@ -42,24 +42,24 @@ export default function BuildIndex({ activity }: { activity: BuildActivity[] }) 
                 {build.name}
               </Link>
             </h3>
-            <p className="mt-1 text-sm text-[#9cadc5]">{build.tagline}</p>
+            <p className="mt-1.5 text-[0.95rem] leading-snug text-slate-300">{build.tagline}</p>
           </div>
 
           {build.latest.length > 0 && (
             <ul className="mt-4 space-y-3 border-t border-white/6 pt-4" aria-label={`Latest from ${build.name}`}>
               {build.latest.map((entry) => (
-                <li key={entry.id} className="flex gap-3 text-sm">
-                  <time dateTime={entry.date} className="w-12 shrink-0 pt-px font-mono text-[0.7rem] uppercase tracking-wider text-slate-450">
+                <li key={entry.id} className="flex gap-3 text-[0.9rem]">
+                  <time dateTime={entry.date} className="w-14 shrink-0 pt-px font-mono text-xs uppercase tracking-wider text-slate-400">
                     {entry.dayLabel}
                   </time>
-                  <span className="line-clamp-2 leading-snug text-slate-300">{entry.title}</span>
+                  <span className="line-clamp-2 leading-snug text-slate-200">{entry.title}</span>
                 </li>
               ))}
             </ul>
           )}
 
           <div className="mt-auto flex items-center justify-between gap-3 pt-4">
-            <span className="font-mono text-[0.7rem] text-slate-450">
+            <span className="font-mono text-xs text-slate-400">
               {build.lastShippedLabel ? (
                 <>
                   Last shipped <span className="text-slate-300">{build.lastShippedLabel}</span>
@@ -68,7 +68,7 @@ export default function BuildIndex({ activity }: { activity: BuildActivity[] }) 
                 'Nothing logged yet'
               )}
             </span>
-            <span aria-hidden className="flex items-center gap-1 font-mono text-[0.7rem] text-slate-475 transition-colors group-hover:text-cyan-400">
+            <span aria-hidden className="flex items-center gap-1 font-mono text-xs text-slate-400 transition-colors group-hover:text-cyan-400">
               read
               <FiArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
             </span>

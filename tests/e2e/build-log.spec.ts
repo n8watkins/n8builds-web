@@ -10,7 +10,7 @@ test.use({ contextOptions: { reducedMotion: 'reduce' } })
 const feed = (page: Page) => page.locator('#activity')
 const feedEntries = (page: Page) => feed(page).locator('li[data-kind]')
 const chip = (page: Page, name: string) => feed(page).getByRole('group', { name: 'Filter by build' }).getByRole('button', { name })
-const kindChip = (page: Page, name: string | RegExp) => feed(page).getByRole('group', { name: 'Filter by kind' }).getByRole('button', { name })
+const kindChip = (page: Page, name: string | RegExp) => feed(page).getByRole('group', { name: 'Filter updates by kind' }).getByRole('button', { name })
 
 /**
  * Click a filter chip, retrying a click that lands before hydration. The inner
@@ -90,7 +90,7 @@ test('the kind filter narrows the feed and its build chips, and lives in the URL
   await page.goto('/builds')
   // Each kind chip counts its entries (older ones too, as All does); the counts add up to All's.
   const counts = await feed(page)
-    .getByRole('group', { name: 'Filter by kind' })
+    .getByRole('group', { name: 'Filter updates by kind' })
     .getByRole('button')
     .evaluateAll((els) => els.map((el) => Number(el.querySelector('span')?.textContent)))
   expect(counts.slice(1).reduce((a, b) => a + b, 0)).toBe(counts[0])

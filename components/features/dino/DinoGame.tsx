@@ -95,7 +95,16 @@ function randomHue(last: number) {
 // while the dino is on screen); every click in it is a catch, and each catch
 // makes it walk faster and choose its next move sooner. The best score stays
 // in this browser (localStorage).
-const ROUND = 60
+const ROUND = 30
+// What a click makes it do (from a shuffled bag, so each one comes round
+// soon): a backflip on the spot; a fall straight through its row (to the row
+// below, or off the bottom, coming back in somewhere else); a leap up to the
+// row above; a dash the other way; or a blink to another spot. In the air it
+// only roars.
+type Reaction = 'flip' | 'fall' | 'leap' | 'dash' | 'blink'
+const REACTIONS: Reaction[] = ['flip', 'fall', 'leap', 'dash', 'blink']
+const DASH_T = 0.7 // s of dashing
+const DASH_SPEED = 3 // times its walking speed
 const PACE_PER_CATCH = 0.06
 const MAX_PACE = 2.2
 const RESULT_FOR = 5 // s the final score shows
@@ -204,6 +213,8 @@ interface DinoTiming {
   lineGap?: readonly [number, number]
   stay?: readonly [number, number]
   roam?: boolean
+  /** Click reactions in this order, round and round, instead of shuffled. */
+  reactions?: readonly Reaction[]
 }
 const between = ([a, b]: readonly [number, number]) => a + Math.random() * (b - a)
 // Hands out a shuffled bag's items one by one, reshuffling when it is empty.
@@ -361,6 +372,14 @@ export default function DinoGame() {
     let awayLeft = 0
     let climb = { t: 0, from: 0, to: 0, h: 0, vx: 0, target: 0 }
     const nextChoice = bag(CHOICES)
+    const nextReaction = timing?.reactions?.length
+      ? (() => {
+          let i = 0
+          const order = timing.reactions!
+          return () => order[i++ % order.length]
+        })()
+      : bag(REACTIONS)
+    let dashLeft = 0 // s of dashing left
     const nextEntry = bag(ENTRIES)
 
     // The first time in (and without roaming, every time): it drops onto the
@@ -561,8 +580,10 @@ export default function DinoGame() {
         // the line stays put long enough to read (on a phone too).
         frame = 'stepA'
       } else if (mode === 'walk' && current) {
-        x += dir * SPEED * pace * dt
-        walked += SPEED * pace * dt
+        const speed = SPEED * pace * (dashLeft > 0 ? DASH_SPEED : 1)
+        dashLeft = Math.max(0, dashLeft - dt)
+        x += dir * speed * dt
+        walked += speed * dt
         stayLeft -= dt * pace
         if (walked >= STEP_EVERY) {
           walked = 0
@@ -820,12 +841,48 @@ export default function DinoGame() {
         delete dino.dataset.rainbow
       }
       dino.dataset.roars = String(roars)
-      // A backflip on the spot, if it is walking (mid-jump or falling, it
-      // only roars). The arc stays inside the panel on the top row.
+      // A reaction, if it is walking (mid-jump or falling, it only roars).
       const current = levels[level]
       if (mode === 'walk' && current) {
-        flip = { t: 0, h: Math.min(44, current.y - H - 2), floor: current.y }
-        mode = 'flip'
+        let reaction = nextReaction()
+        // On the top row there is nothing to leap up to: it blinks instead.
+        if (reaction === 'leap' && !levels[level - 1]?.row) reaction = 'blink'
+        dino.dataset.reaction = reaction
+        if (reaction === 'flip') {
+          // The arc stays inside the panel on the top row.
+          flip = { t: 0, h: Math.min(44, current.y - H - 2), floor: current.y }
+          mode = 'flip'
+        } else if (reaction === 'fall') {
+          // A startled little pop, then straight down through its row.
+          mode = 'fall'
+          vy = -90
+          carry = 0
+          missPending = false
+        } else if (reaction === 'leap') {
+          startClimb(level - 1)
+        } else if (reaction === 'dash') {
+          dir = dir > 0 ? -1 : 1
+          dashLeft = DASH_T
+        } else {
+          // Gone and back in a blink, somewhere else on a row.
+          const floors = levels.flatMap((l, i) => (l.row ? [i] : []))
+          if (floors.length) {
+            level = floors[Math.floor(Math.random() * floors.length)]
+            const spans = intervals(levels[level].row!, panel.getBoundingClientRect().left).filter(
+              ([a, b]) => a > panelW * 0.2 && b < panelW * 0.8
+            )
+            const [a, b] = spans.length
+              ? spans[Math.floor(Math.random() * spans.length)]
+              : [panelW * 0.3, panelW * 0.7]
+            x = a + (b - a) / 2 - W / 2
+            y = levels[level].y
+            dir = Math.random() < 0.5 ? 1 : -1
+            stayLeft = between(stayFor)
+            reentering = false
+            leaving = false
+            dino.animate?.([{ opacity: 0 }, { opacity: 1 }], { duration: 260, easing: 'ease-out' })
+          }
+        }
       }
     }
     dino.addEventListener('click', roar)
