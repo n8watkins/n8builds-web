@@ -577,9 +577,10 @@ test.describe('dino easter egg (motion allowed)', () => {
         .sort((a, b) => Math.abs(a.x + a.width / 2 - mid) - Math.abs(b.x + b.width / 2 - mid))[0]
       return [box.x + box.width / 2, box.y + box.height / 2]
     })
-    expect(
-      await page.evaluate(([x, y]) => getComputedStyle(document.elementFromPoint(x, y)!.closest('figure')!).userSelect, [cx, cy])
-    ).toBe('none')
+    // Set on the whole panel (Firefox and WebKit report a child's own value as
+    // "auto" even though the panel's applies to it, so what counts is below:
+    // nothing gets selected).
+    expect(await page.locator('[data-dino-panel]').evaluate((el) => getComputedStyle(el).userSelect)).toBe('none')
     // A double and a triple click would select a word, then the whole line, anywhere else.
     await page.mouse.dblclick(cx, cy)
     expect(await page.evaluate(() => String(getSelection()))).toBe('')
