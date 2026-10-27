@@ -53,7 +53,7 @@ Portfolio Rank's starts with rotating its invalid Gemini API key (nothing has be
 
 ## Part 2: What Claude builds
 
-**Next session:** start from [prompts/next-session-2026-10-27.md](prompts/next-session-2026-10-27.md); it holds the full state of the portfolio refresh, the admin dashboard and the open PRs.
+**Next session:** start from [prompts/next-session-2026-10-27b.md](prompts/next-session-2026-10-27b.md); its in-flight items are done (see the 2026-10-27 done log) except the Scribe and OpenPing landing previews, which wait on the owner.
 **Done 2026-10-26 (evening):** the homepage refresh (#48), the WebKit marquee fix (#47), cookie banner v2 (#49) and the security backlog note (#50); dev-portfolio's security update (dev-portfolio #6).
 **Owner, new 2026-10-26:** run the v1.2.0 release (`gh workflow run release-train.yml -f bump=auto -f dry-run=false`) or let Monday's run do it; the admin dashboard's setup steps (its Setup page); Appturnity's Actions minutes are used up until Nov 1; more Chrome extension screenshots; review the Appturnity card's "Coming soon" list.
 **Done 2026-10-26:** the review of the 2026-10-25 work and the homepage speed refactor (see the done log).
@@ -89,7 +89,7 @@ Suggested order: 1 and 2 now (they need nothing), 4 next, then 6-9 as your answe
 - **VibeLog:** hidden, record kept; comes back when it's ready.
 - **YouTube link:** removed until the channel is live; returns with build 3.
 
-## Done recently (2026-10-22 to 2026-10-24)
+## Done recently (2026-10-22 to 2026-10-27)
 
 Everything here is merged and live.
 To review it later, paste [prompts/review-2026-10-24-changes.md](prompts/review-2026-10-24-changes.md) into a fresh session.
@@ -136,6 +136,17 @@ To review it later, paste [prompts/review-2026-10-24-changes.md](prompts/review-
   Desktop stays 1.00 on all five pages; the mobile budgets in `scripts/lighthouse.mjs` rose to 0.8 and 4.2s.
   Tried and reverted: inlining the CSS (`experimental.inlineCss`) made the first HTML task longer and TBT worse, with no LCP gain.
 - Follow-along plans, in their own repos (branch `docs/follow-up-2026-10`, file `docs/FOLLOW_UP_2026-10.md`): Portfolio Rank (its Gemini key has been invalid since late July, so nothing has been graded since) and OpenPing (the off-hours status bug). Portfolio Rank's issue #3 is closed with a comment linking its plan.
+
+**2026-10-27:**
+
+- Owner round 10 (#61, after #59 and #60 were closed for over-long commit headers): the Loadout rebuilt, the dino game in the AI kit, the build log, brand and contact updates.
+- Dino walk-in fixes: it walks well into view after coming in, on any panel width (#62), and drops its walk-in target once it turns (#63).
+- v1.2.0 released by the release train (https://github.com/n8watkins/n8builds-web/releases/tag/v1.2.0).
+- The two long dino roaming tests get a 90s test timeout (#65): Playwright's 30s default fired before their 45-60s polls, which failed dev-portfolio's CI.
+- dev-portfolio: the portfolio refresh (owner rounds 8 to 12, consent banner, the dino; dev-portfolio#7), the dino synced with #63 plus its test fixes (dev-portfolio#8), and the old `nathansportfolio.vercel.app` and `n8sportfolio.vercel.app` addresses now 308 to https://portfolio.n8builds.dev with every other vercel.app reference removed (dev-portfolio#9).
+  The portfolio does send GA4 hits after consent (`g/collect` with analytics granted); the visit on the old address was this alias, which now redirects.
+- Admin dashboard live at https://admin.n8builds.dev with its GitHub, GA4 and session settings in Vercel.
+- OpenPing security fixes deployed; Vercel's AI Bots ruleset in Log mode on n8builds-web and the portfolio.
 
 **Outside this repo:**
 
