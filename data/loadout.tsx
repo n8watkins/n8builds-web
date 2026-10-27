@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react'
 import { BsOpenai } from 'react-icons/bs'
-import { LuAudioLines, LuBug } from 'react-icons/lu'
+import { LuAudioLines } from 'react-icons/lu'
 import { SiClaude, SiGooglegemini } from 'react-icons/si'
 
 // The Loadout - "who I am" without a resume. You ARE your loadout.
@@ -72,14 +72,25 @@ export const workflow: WorkflowStep[] = [
     take: 'The one that does the work. Everything on this site was built here.',
   },
   {
-    // TODO(owner): confirm the tool the owner called "Astra" (bug fixes and deeper thinking).
     step: 'Fix',
-    tool: 'Astra',
-    icon: <LuBug className="h-full w-full" />,
-    color: '#22d3ee',
-    whatFor: 'Bug fixes and the hard problems: the ones that need more thinking before any change.',
-    take: 'When a bug fights back, it gets the slow, careful pass.',
+    tool: 'Codex and Gemini',
+    icon: (
+      <span className="flex h-full w-full items-center justify-center gap-1">
+        <BsOpenai className="h-[45%] w-[45%] text-[#e5e7eb]" />
+        <SiGooglegemini className="h-[45%] w-[45%] text-[#4285F4]" />
+      </span>
+    ),
+    color: '#4285F4',
+    whatFor:
+      'Bug fixes and deeper thinking: the hard problems that need a second model and a careful pass before any change.',
+    take: 'When a bug fights back, a fresh pair of eyes from another lab usually finds it.',
   },
+]
+
+/** The harnesses the models run in: the tools that let them work on the code. */
+export const harnesses: { name: string; whatFor: string }[] = [
+  { name: 'Claude Code', whatFor: 'my main harness, where the building happens' },
+  { name: 'Pi', whatFor: 'a minimal coding-agent harness that runs any model, for when I want to try one outside Claude Code' },
 ]
 
 /** The AI inside the apps I build (what my users' requests actually run on). */

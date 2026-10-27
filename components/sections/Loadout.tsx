@@ -3,7 +3,7 @@ import React, { type CSSProperties } from 'react'
 import Link from 'next/link'
 import { FiArrowLeft, FiArrowRight } from 'react-icons/fi'
 import { LuBackpack } from 'react-icons/lu'
-import { inApps, loadout, workflow, type LoadoutGroup, type WorkflowStep } from '@/data/loadout'
+import { harnesses, inApps, loadout, workflow, type LoadoutGroup, type WorkflowStep } from '@/data/loadout'
 import Reveal from '@/components/ui/Reveal'
 import FadeIn from '@/components/ui/FadeIn'
 
@@ -140,6 +140,16 @@ const Loadout = () => {
               </li>
             ))}
           </ol>
+          {/* The harnesses the models run in */}
+          <p className="mt-6 flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[15px] leading-relaxed text-[#9cadc5]">
+            <span className="font-mono text-xs font-semibold tracking-[0.18em] text-cyan-300 uppercase">Harnesses</span>
+            {harnesses.map((h, i) => (
+              <span key={h.name}>
+                <span className="font-semibold text-slate-100">{h.name}</span>, {h.whatFor}
+                {i < harnesses.length - 1 ? ';' : '.'}
+              </span>
+            ))}
+          </p>
         </Reveal>
 
         {/* The AI inside the apps I build */}
