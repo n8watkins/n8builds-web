@@ -45,7 +45,9 @@ async function scrollToPart(page: Page, id: string) {
         if (Math.abs(top - 120) <= 2) return true
         window.scrollTo({ top: top + window.scrollY - 120, behavior: 'instant' })
         return false
-      }, id)
+      }, id),
+      // The page can still be settling (images, fades) on a slow CI machine: keep nudging it.
+      { timeout: 20_000 }
     )
     .toBe(true)
 }
