@@ -252,7 +252,9 @@ test.describe('dino easter egg (motion allowed)', () => {
     await expect(page.locator('[data-dino-bubble="line-0"]')).toBeVisible()
     await expect(dino(page)).toHaveAttribute('data-mode', 'walk')
     // Back again in the same visit (same tab): it picks up with the next line.
-    await page.goto('/')
+    // A reload, not a goto to the same URL (Firefox can leave that one still
+    // navigating); showKit undoes the scroll position the reload restores.
+    await page.reload()
     await showKit(page, '[data-dino-panel]')
     await expect(dino(page)).toHaveAttribute('data-line', '1', { timeout: 15_000 })
     await expect(page.locator('[data-dino-bubble="line-1"]')).toBeVisible()
