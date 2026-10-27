@@ -11,7 +11,7 @@
 
 import { appendFileSync } from 'node:fs'
 import { trackedRepos } from './build-log-fixture.mjs'
-import { lint } from './release-kit/conventional.mjs'
+import { lint } from 'release-kit/template/scripts/release-kit/conventional.mjs'
 
 const RECENT = 20
 
@@ -34,13 +34,25 @@ async function gh(path, { optional = false } = {}) {
   return res.json()
 }
 
+/** The release-kit a repo runs: its pinned dev dependency (package mode), else the copied scripts' VERSION file. */
+function kitVersion(versionFile, packageJson) {
+  const decode = (file) => Buffer.from(file.content, 'base64').toString('utf8')
+  try {
+    const spec = packageJson && JSON.parse(decode(packageJson)).devDependencies?.['release-kit']
+    const tag = typeof spec === 'string' ? /#(v\d+\.\d+\.\d+)$/.exec(spec)?.[1] : undefined
+    if (tag) return tag
+  } catch {}
+  return versionFile ? `v${decode(versionFile).trim()}` : 'not adopted'
+}
+
 async function check(repo) {
-  const [, releases, commits, kit] = await Promise.all([
+  const [, releases, commits, kit, pkg] = await Promise.all([
     gh(`/repos/${repo}`),
     gh(`/repos/${repo}/releases?per_page=1`),
     // The owner's commits, as the log reads them (a bot can fill a repo's newest 100).
     gh(`/repos/${repo}/commits?per_page=${RECENT * 2}&author=${repo.split('/')[0]}`),
     gh(`/repos/${repo}/contents/scripts/release-kit/VERSION`, { optional: true }),
+    gh(`/repos/${repo}/contents/package.json`, { optional: true }),
   ])
   const human = commits.filter((c) => !/\[bot\]$/.test(c.author?.login ?? '')).slice(0, RECENT)
   const passing = human.filter((c) => passesCommitCheck(c.commit.message)).length
@@ -48,7 +60,7 @@ async function check(repo) {
   return {
     repo,
     release: latest ? `${latest.tag_name} (${latest.published_at?.slice(0, 10)})` : 'none',
-    kit: kit ? `v${Buffer.from(kit.content, 'base64').toString('utf8').trim()}` : 'not adopted',
+    kit: kitVersion(kit, pkg),
     commits: `${passing}/${human.length} pass`,
   }
 }

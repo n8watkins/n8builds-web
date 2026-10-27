@@ -1,11 +1,6 @@
-# release-kit: published by pushing a vX.Y.Z tag (npm run release -- --push),
-# or by running this workflow on a tag ("Run workflow", "Use workflow from":
-# the tag). The release train starts it that way, and it is how to publish a
-# tag again after a failed run.
-# Verify, then publish, as two jobs: only the publish job can write to the repo.
-#
-# Vendored into a repo by apply.mjs, or called from n8watkins/release-kit:
-#   uses: n8watkins/release-kit/.github/workflows/release.yml@vX.Y.Z
+# release-kit (reusable): published by pushing a vX.Y.Z tag (npm run release -- --push),
+# or by running this workflow on a tag. The steps live in the release-kit repo,
+# pinned below; apply.mjs updates the pin.
 name: Release
 
 on:
@@ -13,145 +8,12 @@ on:
     tags:
       - "v[0-9]*"
   workflow_dispatch:
-  workflow_call:
 
 permissions:
   contents: read
 
-concurrency:
-  group: release-${{ github.ref }}
-  cancel-in-progress: false
-
-env:
-  TAG: ${{ github.ref_name }}
-
 jobs:
-  verify:
-    name: Verify and build
-    runs-on: ubuntu-latest
-    outputs:
-      baseline: ${{ steps.kind.outputs.baseline }}
-    steps:
-      # Tag names reach the shell only through $TAG, and only once they are
-      # known to be plain vX.Y.Z.
-      - name: A release tag
-        env:
-          REF_TYPE: ${{ github.ref_type }}
-        run: |
-          if [ "$REF_TYPE" != "tag" ] || ! printf '%s' "$TAG" | grep -Eqx 'v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)'; then
-            echo "::error::Release runs on a vX.Y.Z tag; this is the $REF_TYPE '$TAG'."
-            exit 1
-          fi
-
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0 # the notes need the previous tag
-
-      # Called from another repo: run the kit's scripts at the exact commit the
-      # caller pinned. A vendored copy runs the repo's own scripts/release-kit.
-      - name: Fetch the release-kit scripts
-        if: job.workflow_repository != '' && job.workflow_repository != github.repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          repository: ${{ job.workflow_repository }}
-          ref: ${{ job.workflow_sha }}
-          path: .release-kit-source
-          sparse-checkout: template/scripts/release-kit
-          persist-credentials: false
-
-      - name: Locate the release-kit scripts and the Node version
-        id: setup
-        run: |
-          if [ -d .release-kit-source ]; then
-            mv .release-kit-source/template/scripts/release-kit "$RUNNER_TEMP/release-kit"
-            rm -rf .release-kit-source
-            echo "RELEASE_KIT=$RUNNER_TEMP/release-kit" >> "$GITHUB_ENV"
-          else
-            echo "RELEASE_KIT=scripts/release-kit" >> "$GITHUB_ENV"
-          fi
-          # The Node version: .release.json "node", else .nvmrc or .node-version, else 22.
-          node=$(jq -r '.node // empty | tostring' .release.json 2>/dev/null || true)
-          for file in .nvmrc .node-version; do
-            if [ -z "$node" ] && [ -f "$file" ]; then node=$(tr -d ' \r\nv' < "$file"); fi
-          done
-          if ! printf '%s' "$node" | grep -Eqx '[0-9]+(\.[0-9x]+){0,2}'; then node=22; fi
-          echo "node=$node" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: ${{ steps.setup.outputs.node }}
-          cache: npm
-
-      # npm run release -- --baseline makes a tag-only "baseline": verify it,
-      # but don't publish a release for it.
-      - name: Release or baseline tag
-        id: kind
-        run: |
-          # checkout can store the pushed tag as a lightweight tag; fetch the annotated one.
-          git fetch --force origin "refs/tags/$TAG:refs/tags/$TAG"
-          node "$RELEASE_KIT/release.mjs" --tag-kind "$TAG" >> "$GITHUB_OUTPUT"
-
-      - name: Tag matches every version file
-        run: node "$RELEASE_KIT/release.mjs" --verify-tag "$TAG"
-
-      - name: Install
-        run: npm ci
-
-      - name: The repo's checks (npm run release:check)
-        run: npm run release:check
-
-      # Optional: a repo that ships files (an extension zip, an installer)
-      # defines release:artifacts to write them into release-artifacts/.
-      - name: Artifacts
-        run: |
-          mkdir -p release-artifacts
-          if npm run | grep -q "^  release:artifacts$"; then npm run release:artifacts; fi
-          cd release-artifacts
-          if [ -n "$(ls -A)" ]; then sha256sum -- * > SHA256SUMS.txt; cat SHA256SUMS.txt; fi
-
-      - name: Release notes
-        run: node "$RELEASE_KIT/notes.mjs" --to "$TAG" > release-notes.md
-
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: release
-          path: |
-            release-notes.md
-            release-artifacts/
-          include-hidden-files: false
-          if-no-files-found: error
-          retention-days: 14
-
-  publish:
-    name: Publish the GitHub Release
-    needs: verify
-    if: needs.verify.outputs.baseline != 'true'
-    runs-on: ubuntu-latest
+  release:
     permissions:
-      contents: write
-    steps:
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: release
-
-      - name: Create the release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          shopt -s nullglob
-          assets=(release-artifacts/*)
-          gh release create "$TAG" "${assets[@]}" \
-            --repo "$GITHUB_REPOSITORY" \
-            --title "$TAG" \
-            --notes-file release-notes.md \
-            --verify-tag
-
-      - name: Verify the uploaded files
-        if: hashFiles('release-artifacts/SHA256SUMS.txt') != ''
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          mkdir downloaded
-          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir downloaded
-          cd downloaded
-          sha256sum --check SHA256SUMS.txt
+      contents: write # only the kit's publish job uses it
+    uses: n8watkins/release-kit/.github/workflows/release.yml@v2.0.0
