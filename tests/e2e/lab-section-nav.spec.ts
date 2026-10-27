@@ -76,6 +76,9 @@ test.describe('at 1440px', () => {
   })
 
   test('a click jumps to the part, below the sticky navbar', async ({ page }) => {
+    // Three smooth-scroll jumps in a row: under a full parallel run each can take
+    // several seconds, so the 30s default is too tight.
+    test.setTimeout(60_000)
     await openHome(page)
     await scrollToPart(page, 'my-tools')
     const nav = rail(page)
