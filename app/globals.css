@@ -641,6 +641,19 @@
       );
   }
 
+  /* "Use mine as a template" gets a quieter wash (the owner found it a lot, 2026-10-27). */
+  .lab-accent-template.lab-part-wash {
+    background:
+      radial-gradient(60% 150px at 50% 170px, rgb(var(--lab-from) / 0.05), transparent 100%),
+      linear-gradient(
+        to bottom,
+        transparent,
+        rgb(var(--lab-from) / 0.035) 22%,
+        rgb(var(--lab-to) / 0.035) 78%,
+        transparent
+      );
+  }
+
   /* One project row: a glow centred on the page edge at its screenshot's side.
      Its vertical radius is half the row, so it is spent before either edge.
      Wider on phones, where the page is narrow. */
@@ -754,6 +767,10 @@
   background-clip: text;
   color: transparent;
   animation: lab-eyebrow-shimmer 4.5s ease-in-out infinite;
+  animation-play-state: paused;
+}
+.lab-eyebrow[data-seen] {
+  animation-play-state: running;
 }
 @keyframes lab-eyebrow-shimmer {
   0% { background-position: 100% 0; }
@@ -766,6 +783,9 @@
   overflow: hidden;
   isolation: isolate;
 }
+/* Each button sweeps on its own rhythm (components/ShimmerWhenSeen.tsx sets
+   --shimmer-every and --shimmer-delay at random) and only while it's on
+   screen (data-seen), so they never sweep together or out of sight. */
 .btn-shimmer::after {
   content: '';
   position: absolute;
@@ -773,11 +793,15 @@
   pointer-events: none;
   background: linear-gradient(110deg, transparent 35%, rgb(255 255 255 / 0.38) 50%, transparent 65%);
   transform: translateX(-120%);
-  animation: btn-shimmer 3.6s ease-in-out infinite;
+  animation: btn-shimmer var(--shimmer-every, 7s) ease-in-out var(--shimmer-delay, 1s) infinite;
+  animation-play-state: paused;
+}
+.btn-shimmer[data-seen]::after {
+  animation-play-state: running;
 }
 @keyframes btn-shimmer {
   0% { transform: translateX(-120%); }
-  40%, 100% { transform: translateX(120%); }
+  18%, 100% { transform: translateX(120%); }
 }
 @media (prefers-reduced-motion: reduce) {
   .lab-eyebrow,

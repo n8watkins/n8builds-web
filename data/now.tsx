@@ -30,6 +30,8 @@ export interface NowState {
   /** One line on what the project is; the What's new dialog's subtitle. */
   tagline: string
   status: 'prototype' | 'active' | 'polishing' | 'shipping'
+  /** What the badge says, when the offer itself says more than the status does. */
+  badge?: string
   /** The ad's headline; `accent` is the highlighted end of it. */
   headline: { lead: string; accent: string }
   /** The ad's pitch, one short paragraph. */
@@ -59,6 +61,7 @@ export const nowItems: NowState[] = [
     wordmark: { src: '/brands/appturnity-wordmark-light.png', width: 623, height: 130 },
     tagline: 'Free websites and automation for service businesses',
     status: 'active',
+    badge: 'Free websites',
     headline: { lead: 'Your free website,', accent: 'built for your trade.' },
     pitch:
       'Websites for service businesses, like pool, HVAC and landscaping companies. Pick a template made for your trade, and we build and launch it for free.',

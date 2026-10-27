@@ -31,7 +31,7 @@ export interface LoadoutGroup {
 // First-person intro, no resume energy. Shown as a terminal block in the homepage hero:
 // the name sits in the window's title bar (~/whoami), the body is two short sentences that type out.
 export const whoamiTitle = { path: '~/whoami', name: "Nathan 'N8' Watkins" }
-export const whoami: string[] = ['AI-first software developer.', 'I build apps and tools I wish existed.']
+export const whoami: string[] = ['AI-first software developer.', 'I build apps and tools I wish existed.', 'Shipping with Claude Opus 5.5.']
 
 /**
  * How I work with AI, in the order a piece of work goes through it: decide

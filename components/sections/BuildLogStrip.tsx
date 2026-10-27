@@ -172,7 +172,8 @@ export default async function BuildLogStrip() {
 
             <div className="grid grid-cols-1 overflow-hidden rounded-2xl border border-white/8 bg-[#0a1526]/70 md:grid-cols-[17rem_minmax(0,1fr)]">
               <div className="flex flex-col justify-center border-b border-white/8 px-5 py-4 md:border-r md:border-b-0 md:px-6 md:py-5">
-                <ShippedStats stats={stats} period={isThisMonth ? monthLabel(current) : `Last ${QUIET_DAYS} days`} />
+                {/* The month is named once, here; the rows below only get month headings when they span several. */}
+                <ShippedStats stats={stats} period={isThisMonth ? monthLabel(current).replace(` ${current.slice(0, 4)}`, '') : `Last ${QUIET_DAYS} days`} />
               </div>
 
               <div className="space-y-3 p-3 sm:p-4">
@@ -184,7 +185,11 @@ export default async function BuildLogStrip() {
                   >
                     <h3
                       id={`strip-${group.month}`}
-                      className="mb-1 px-2 pt-1 font-mono text-[0.62rem] font-bold uppercase tracking-[0.18em] text-cyan-400"
+                      className={
+                        groups.length > 1
+                          ? 'mb-1 px-2 pt-1 font-mono text-[0.62rem] font-bold uppercase tracking-[0.18em] text-cyan-400'
+                          : 'sr-only'
+                      }
                     >
                       {monthLabel(group.month).replace(` ${current.slice(0, 4)}`, '')}
                     </h3>

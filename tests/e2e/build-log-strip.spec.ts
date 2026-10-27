@@ -83,7 +83,7 @@ test("the card shows the month's figures, every one in the HTML, the first showi
   await page.goto('/')
   await stats(page).scrollIntoViewIfNeeded()
   await expect(stats(page)).toHaveAttribute('aria-roledescription', 'carousel')
-  await expect(stats(page)).toContainText('October 2026')
+  await expect(stats(page)).toContainText('October')
   const ids = await slides(page).evaluateAll((els) => els.map((el) => el.getAttribute('data-stat')))
   expect(ids.slice(0, 2)).toEqual(['changes', 'builds'])
   expect(ids).toContain('busiest')

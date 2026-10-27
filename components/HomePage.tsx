@@ -16,6 +16,7 @@ import PortfolioAd from '@/components/sections/PortfolioAd'
 import NotionsStrip from '@/components/sections/NotionsStrip'
 import ExtensionsShowcase from '@/components/sections/ExtensionsShowcase'
 import LabSectionNav from '@/components/sections/LabSectionNav'
+import ShimmerWhenSeen from '@/components/ShimmerWhenSeen'
 import HomeStack from '@/components/sections/HomeStack'
 import WorkWithMe from '@/components/sections/WorkWithMe'
 import Footer from '@/components/layout/Footer'
@@ -100,18 +101,30 @@ export default function HomePage({ posts }: { posts: Post[] }) {
         <div id="lab" className="relative z-10 scroll-mt-[-11px] border-t border-white/[0.06]">
           {/* Desktop only: a sticky rail in the left gutter marking the Lab part on screen. */}
           <LabSectionNav />
+          <ShimmerWhenSeen />
           {/* The intro picks up the raised tone the band above ends on and eases it out,
                so the top of the Lab has no lighter strip under the navbar; a faint cyan
                glow sits behind the heading. Centred across the full content width. */}
           <div className="bg-[radial-gradient(50%_320px_at_50%_0,rgb(34_211_238/0.08),transparent_100%),linear-gradient(to_bottom,rgb(255_255_255/0.022),transparent_220px)]">
             <Reveal className="mx-auto flex max-w-6xl flex-col items-center px-5 pt-16 pb-6 text-center sm:px-8 sm:pt-20">
-              <p className="lab-eyebrow mb-5 font-mono text-xs font-bold uppercase tracking-[0.35em] sm:text-sm">Check out the Lab</p>
-              {/* The Lab's mark (the owner's pick, 2026-10-26): a flask in a chip like the rows' app icons. */}
-              <div className="flex items-center gap-4 sm:gap-5">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-300/30 sm:h-16 sm:w-16">
-                  <BubblingFlask className="h-7 w-7 sm:h-9 sm:w-9" />
-                </span>
-                <h2 className="text-5xl font-bold tracking-tight text-slate-50 sm:text-6xl lg:text-7xl">The Lab</h2>
+              {/* "Check out the Lab" spans exactly the flask and title below it: its
+                   letters spread across that width (the owner's ask, 2026-10-27). */}
+              <div className="inline-flex flex-col items-stretch">
+                <p className="lab-eyebrow relative mb-3 flex justify-between font-mono text-sm font-bold uppercase sm:text-lg">
+                  <span className="sr-only">Check out the Lab</span>
+                  {Array.from('Check out the Lab').map((ch, i) => (
+                    <span key={i} aria-hidden="true" className={ch === ' ' ? 'w-2' : undefined}>
+                      {ch === ' ' ? '' : ch}
+                    </span>
+                  ))}
+                </p>
+                {/* The Lab's mark (the owner's pick, 2026-10-26): a flask in a chip like the rows' app icons. */}
+                <div className="flex items-center gap-4 sm:gap-5">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-300/30 sm:h-16 sm:w-16">
+                    <BubblingFlask className="h-7 w-7 sm:h-9 sm:w-9" />
+                  </span>
+                  <h2 className="text-5xl font-bold tracking-tight text-slate-50 sm:text-6xl lg:text-7xl">The Lab</h2>
+                </div>
               </div>
               {/* One line from laptop width up; wraps naturally on phones. */}
               <p className="mt-5 text-balance text-lg text-[#9cadc5] sm:text-xl">
@@ -119,7 +132,7 @@ export default function HomePage({ posts }: { posts: Post[] }) {
               </p>
               {/* Checked points, in the style of the Lab rows' ads. */}
               <ul className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5">
-                {['Public on GitHub', 'Mostly MIT-licensed', 'Star, fork or open an issue'].map((point) => (
+                {['Public on GitHub', 'MIT-licensed', 'Star, fork or open an issue'].map((point) => (
                   <li key={point} className="flex items-center gap-1.5 text-sm font-semibold text-slate-200">
                     <FiCheck className="h-3.5 w-3.5 shrink-0 text-cyan-300" aria-hidden="true" />
                     {point}

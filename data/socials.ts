@@ -31,7 +31,7 @@ export const ALL_SOCIALS: Social[] = [
   // TODO(owner): PLACEHOLDER URL. @n8watkins is not a live channel yet (it
   // 404s); put the real channel URL here before enabling this for good.
   { label: 'YouTube', href: 'https://www.youtube.com/@n8watkins', Icon: FaYoutube, enabled: false, size: 'md' },
-  { label: 'Ko-fi', href: 'https://ko-fi.com/n8watkins', Icon: SiKofi, enabled: true, size: 'md', color: 'text-[#ff5e5b]' },
+  { label: 'Ko-fi', href: 'https://ko-fi.com/n8watkins', Icon: SiKofi, enabled: true, size: 'md' },
 ]
 
 /** The links to show (in ALL_SOCIALS order). */

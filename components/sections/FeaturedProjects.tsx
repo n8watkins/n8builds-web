@@ -109,7 +109,7 @@ const featured: FeaturedProject[] = [
     title: 'Scribe',
     icon: '/builds/scribe/app-icon.png',
     group: 'tools',
-    subtitle: 'Local dictation for Windows',
+    subtitle: 'Speech-to-text for Windows',
     description:
       'I dictate with Scribe every day: hold a hotkey, talk and let go, and your words land at the cursor, transcribed on your own PC.',
     images: [
@@ -187,9 +187,9 @@ const featured: FeaturedProject[] = [
     ),
     icon: '/builds/portfolio-rank/icon.png',
     group: 'featured',
-    subtitle: 'Developer portfolios, ranked',
+    subtitle: 'The developer portfolio leaderboard',
     description:
-      'Nearly 2,000 developer portfolios, ranked by head-to-head votes instead of A to Z, with a real screenshot of every site.',
+      '1,700+ developer portfolios, ranked by head-to-head votes instead of A to Z, with a real screenshot of every site.',
     images: [{ src: '/projects/PortfolioRank-1.png', alt: 'Portfolio Rank - developer portfolio ranker screenshot' }],
     tags: ['Next.js', 'Gemini', 'Turso', 'Vercel'],
     github: 'https://github.com/n8watkins/portfolio-rank',

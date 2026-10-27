@@ -105,7 +105,7 @@ export const builds: Build[] = [
     process: [
       'Deliberately zero-surface: no backend, no analytics, no YouTube OAuth, no Gemini API key. History stays in Chrome local storage, and Gemini responses are never read or stored.',
       'Every build auto-bumps the patch version and copies to the Windows folder Chrome loads from - the version in the popup proves a reload actually picked up the new build.',
-      'Roadmap: a per-search "curiosity field", transcript-aware prompts, and a BYO-key API mode only if response saving earns the extra surface area.',
+      'Roadmap: a per-search "curiosity field" and transcript-aware prompts.',
     ],
     images: [],
     github: 'https://github.com/n8watkins/tl-dw',
@@ -165,7 +165,7 @@ export const builds: Build[] = [
       'The warm-transcriber design is the speed trick: whisper-server holds the model in memory so transcription starts instantly, with whisper-cli as the fallback path.',
       'Live transcription runs phrase-by-phrase in the background while you talk, so text is ready the moment you release the hotkey.',
       'Deliberately Windows x64 only - written into the README as a non-goal rather than over-building for platforms nobody asked for.',
-      'Privacy is mechanical, not a promise: temp audio is deleted after transcription, and the only network access is the one-time model download you trigger yourself.',
+      'Privacy is mechanical, not a promise: speech is transcribed on your PC and audio never leaves it. Recordings stay on the PC for playback until their transcript is cleared (or right away, with saving clips turned off), and the only network calls are update checks, the model you choose to download, and the optional GitHub backup and AI tools.',
     ],
     images: [
       { src: '/builds/scribe/landing.webp', alt: 'Scribe: talk, it types. Private local dictation for Windows' },

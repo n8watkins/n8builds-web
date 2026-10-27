@@ -501,7 +501,7 @@ test.describe('dino easter egg (motion allowed)', () => {
 
   test('is not on /loadout', async ({ page }) => {
     await page.goto('/loadout')
-    await expect(page.getByRole('heading', { level: 1, name: 'The Loadout' })).toBeVisible()
+    await expect(page.getByRole('heading', { level: 1, name: 'My Loadout' })).toBeVisible()
     await page.waitForTimeout(1500)
     await expect(dino(page)).toHaveCount(0)
     await expect(page.locator('[data-dino-panel]')).toHaveCount(0)

@@ -90,7 +90,7 @@ test('the Lab says its builds are public and mostly open source', async ({ page 
   expect(Math.abs(h!.y + h!.height / 2 - (m!.y + m!.height / 2))).toBeLessThan(4)
   // The intro: one line on what the Lab is, then three checked points.
   await expect(page.locator('#lab')).toContainText("Everything I've built and still use: daily tools, favourite builds, Chrome extensions.")
-  for (const point of ['Public on GitHub', 'Mostly MIT-licensed', 'Star, fork or open an issue']) {
+  for (const point of ['Public on GitHub', 'MIT-licensed', 'Star, fork or open an issue']) {
     await expect(page.locator('#lab').getByRole('listitem').filter({ hasText: point }).first()).toBeVisible()
   }
   // The claims every row shares sit once, under each part's heading, not in the rows.
@@ -231,10 +231,14 @@ test('the rows carry no ad boxes: each product\'s colour is in its checks', asyn
 
 test('the homepage advertises the developer portfolio right after the Lab', async ({ page }) => {
   await page.goto('/')
-  const ad = page.getByRole('region', { name: 'Meet the developer behind the builds' })
+  const ad = page.getByRole('region', { name: 'The developer behind the builds' })
   await ad.scrollIntoViewIfNeeded()
   await expect(ad.getByRole('link', { name: /See my portfolio/ })).toHaveAttribute('href', 'https://portfolio.n8builds.dev')
   await expect(ad.getByRole('link', { name: /Jump to the projects/ })).toHaveAttribute('href', 'https://portfolio.n8builds.dev/#projects')
+  // Each AI project named in the sentence links to its page on the portfolio.
+  for (const [name, slug] of [['a realtime voice agent', 'echo'], ['a research agent', 'scout'], ['a chat platform with retrieval', 'geminigpt']]) {
+    await expect(ad.getByRole('link', { name: new RegExp(`^${name}`) })).toHaveAttribute('href', `https://portfolio.n8builds.dev/projects/${slug}`)
+  }
   const order = await page.evaluate(() => {
     const lab = document.getElementById('lab')!
     const adEl = document.getElementById('portfolio-ad-heading')!

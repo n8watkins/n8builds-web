@@ -53,7 +53,7 @@ export default function ShippedStats({ stats, period }: { stats: ShippedStat[]; 
       onFocus={() => setHeld(true)}
       onBlur={() => setHeld(false)}
     >
-      <p className="font-mono text-[0.62rem] font-bold uppercase tracking-[0.16em] text-slate-450">{period}</p>
+      <p className="text-2xl font-bold tracking-tight text-cyan-300">{period}</p>
 
       {/* Every figure in one grid cell; only the current one shows. Clicking
           it moves on to the next figure, like the dots below. */}

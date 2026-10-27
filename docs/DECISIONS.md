@@ -120,7 +120,7 @@ When the owner decides something new, add it here (with the date) in the same ch
     The portfolio runs byte-identical dino files.
   - Copy says "service businesses", never "local".
   - Twitch shows in the navbar only while live; streaming will be on YouTube and X.
-  - Ko-fi appears in its own blue with the red cup.
+  - Ko-fi appears in its own blue with the red cup (replaced in round 12: outlined like Portfolio, white cup).
   - The build log drops the six-month view; "Shipped this month" cycles real figures from the log.
 - **Round 11 (2026-10-27, owner's calls):**
   - The navbar's Ko-fi, Portfolio and Appturnity buttons share one text style (semibold, same size and padding); Appturnity's has no "A" icon.
@@ -130,7 +130,21 @@ When the owner decides something new, add it here (with the date) in the same ch
     Its side rail's heading is "The Lab", and the dot riding the rail is brighter.
   - More room between My tools and Featured.
   - Each Lab row's colour wash swells in as the row scrolls into view and fades as it leaves (steady where the browser can't animate on scroll, and under reduced motion).
-  - The Lab rows' main buttons (Download for Windows, Try the free tools, Find your sun window, Vote in a face-off) have a light sweeping across them every few seconds.
+  - The Lab rows' main buttons (Download for Windows, Try the free tools, Find your sun window, Vote in a face-off) have a light sweeping across them now and then, only while on screen and each on its own rhythm (round 12).
+- **Round 12 (2026-10-27, owner's calls):**
+  - Ko-fi is outlined like Portfolio with a plain white cup, everywhere (navbar, footer, contact); Portfolio gets a briefcase icon.
+  - Appturnity's badge says "Free websites", not a status; its Work with me door shows the wordmark (no gradient text) and says "We help!".
+  - Appturnity today: a free website, online booking, appointment reminders, lead and quote follow-up; coming soon: AI phone receptionist, missed-call text-back, online payments.
+  - "Shipped this month" names the month once, large, on the figures card.
+  - "Check out the Lab" spans the width of the flask and title.
+  - The Lab rail's light locks onto the current part, which changes when the next part reaches the middle of the screen; it never runs past the last part. Rows are further apart.
+  - Taglines: Scribe "Speech-to-text for Windows"; Portfolio Rank "The developer portfolio leaderboard".
+  - The portfolio ad reads "The developer behind the builds" on one line and links each AI project to its portfolio page.
+  - Work with me points stay on one line each; "QA" replaces "Quality built in".
+  - The hero's whoami terminal adds "Shipping with Claude Opus 5.5."
+  - The Loadout is "My Loadout", and its rig, desk and stream kit are one "The setup" section.
+  - Every Lab project is MIT-licensed (Solara and TubeVault got the license); the Lab says "MIT-licensed".
+  - The "Use mine as a template" wash is quieter.
 
 ## Publishing and releases (2026-10-25)
 

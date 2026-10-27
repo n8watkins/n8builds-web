@@ -197,18 +197,18 @@ test.describe('placement at 1440px', () => {
         [id, top] as const
       )
     // The template offer coming in, filling the window, and leaving until its
-    // foot is just under the 40% line: still Featured.
+    // foot is just under the middle of the window: still Featured.
     const height = await page
       .locator('#template')
       .evaluate((el) => el.getBoundingClientRect().height)
-    for (const top of [500, 100, Math.round(380 - height)]) {
+    for (const top of [500, 100, Math.round(470 - height)]) {
       await place('template', top)
       await expect(current, `template at ${top}px`).toHaveAccessibleName('Featured')
     }
-    // Chrome Extensions takes over only once its own top passes 40% of the window.
-    await place('extensions', 400)
+    // Chrome Extensions takes over only once its own top passes the middle of the window.
+    await place('extensions', 500)
     await expect(current).toHaveAccessibleName('Featured')
-    await place('extensions', 300)
+    await place('extensions', 400)
     await expect(current).toHaveAccessibleName('Chrome Extensions')
   })
 

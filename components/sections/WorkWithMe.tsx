@@ -112,10 +112,10 @@ const doors: Door[] = [
     blurb:
       'Everything on this page I designed, built, tested and shipped myself. If your team needs the same, full-stack with AI where it earns its place, my portfolio has the case studies and my experience.',
     points: [
-      { lead: 'Full-stack', text: 'React, Next.js and TypeScript, with Node and Cloudflare Workers behind them' },
-      { lead: 'AI that ships', text: 'realtime voice, research agents and chat with retrieval, each with a live demo' },
-      { lead: 'Client work', text: 'sites for healthcare, HVAC and golf courses, built and launched' },
-      { lead: 'Quality built in', text: 'tests, speed budgets and error monitoring, like this site' },
+      { lead: 'Full-stack', text: 'React, Next.js, TypeScript, Node, Workers, Firebase and SQL' },
+      { lead: 'AI that ships', text: 'live demos of realtime voice, research agents and RAG chat' },
+      { lead: 'Client work', text: 'healthcare, HVAC and golf sites, built and launched' },
+      { lead: 'QA', text: 'tests, speed budgets and error monitoring' },
     ],
     cta: { label: 'See my portfolio', href: 'https://portfolio.n8builds.dev' },
     secondary: { label: 'Or send me a message', href: '/#contact' },
@@ -148,23 +148,18 @@ const doors: Door[] = [
     eyebrow: 'Appturnity',
     // A brand name, so it keeps the brand's own casing (no uppercase eyebrow).
     wordmark: true,
-    title: 'Run a service business? We help.',
+    title: 'Run a service business? We help!',
     blurb:
       'Appturnity is my company. We launch pool, HVAC, landscaping and other service businesses a modern website for free, then build the AI automations that take busywork off their plate.',
     pointsLabel: 'Today',
+    // The owner's call (2026-10-27): booking, reminders and follow-up are live today.
     points: [
       { text: 'A website built and launched for you, free' },
-      { text: 'AI automations that take busywork off your plate' },
+      { text: 'Online booking and appointment reminders' },
+      { text: 'Lead and quote follow-up' },
       { text: 'Paid plans add your own domain and Google Business Profile help' },
     ],
-    soon: [
-      'Online booking',
-      'Appointment reminders',
-      'Lead and quote follow-up',
-      'Missed-call text-back',
-      'Online payments',
-      'AI phone receptionist',
-    ],
+    soon: ['AI phone receptionist', 'Missed-call text-back', 'Online payments'],
     cta: { label: 'Claim your free website', href: 'https://appturnity.com/#free-website' },
     secondary: { label: 'See the plans', href: 'https://appturnity.com/pricing' },
     icon: <Image src="/brands/appturnity.png" alt="" width={152} height={177} className="h-5 w-auto" />,
@@ -211,7 +206,7 @@ const DoorCard = ({ door, index }: { door: Door; index: number }) => {
     <Reveal delay={index * 0.08}>
       <article
         aria-labelledby={`door-${door.id}`}
-        className={`group relative grid items-center gap-7 overflow-hidden rounded-3xl border border-white/8 bg-white/2 p-5 transition-colors duration-200 sm:p-7 lg:grid-cols-[1.05fr_1fr] lg:gap-10 lg:px-10 lg:py-8 ${door.accent.ring}`}
+        className={`group relative grid items-center gap-7 overflow-hidden rounded-3xl border border-white/8 bg-white/2 p-5 transition-colors duration-200 sm:p-7 ${flip ? 'lg:grid-cols-[0.85fr_1.2fr]' : 'lg:grid-cols-[1.2fr_0.85fr]'} lg:gap-10 lg:px-10 lg:py-8 ${door.accent.ring}`}
       >
         <div
           aria-hidden
@@ -232,18 +227,19 @@ const DoorCard = ({ door, index }: { door: Door; index: number }) => {
 
         {/* Copy */}
         <div className="relative flex flex-col">
-          <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/4 text-slate-200">
-              {door.icon}
-            </span>
-            <p
-              className={`bg-linear-to-r ${door.accent.eyebrow} bg-clip-text font-bold text-transparent ${
-                door.wordmark ? 'text-lg tracking-tight sm:text-xl' : 'text-sm uppercase tracking-[0.14em] sm:text-base'
-              }`}
-            >
-              {door.eyebrow}
-            </p>
-          </div>
+          {door.wordmark ? (
+            // A brand: its own wordmark (as on the What I'm working on card), not styled text.
+            <Image src="/brands/appturnity-wordmark-light.png" alt={door.eyebrow} width={623} height={130} className="h-7 w-auto self-start" />
+          ) : (
+            <div className="flex items-center gap-3">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/4 text-slate-200">
+                {door.icon}
+              </span>
+              <p className={`bg-linear-to-r ${door.accent.eyebrow} bg-clip-text text-sm font-bold uppercase tracking-[0.14em] text-transparent sm:text-base`}>
+                {door.eyebrow}
+              </p>
+            </div>
+          )}
 
           <h3
             id={`door-${door.id}`}
