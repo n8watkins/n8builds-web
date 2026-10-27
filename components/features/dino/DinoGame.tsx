@@ -42,6 +42,11 @@ const GRAVITY = 1800 // px/s²
 const STEP_EVERY = 12 // px walked per leg swap
 const STILL = 2 // px/s: a row moving slower than this is paused
 const LANDING = 20 // px past the far edge of a gap that a hop lands
+// Faster than any marquee row ever scrolls, px/s. A row "moving" faster than
+// this in a frame has been laid out again (the window was resized, a font
+// loaded): its tiles jumped, they didn't travel, so the dino doesn't ride the
+// jump (it never teleports) and the rows are measured afresh.
+const MAX_ROW_SPEED = 600
 
 // 'drop' is a jump down through a gap on purpose (a 'miss' is a mistimed
 // one), 'climb' a leap up to the row above, 'away' the moment off the panel
@@ -102,10 +107,11 @@ const ROUND = 30
 // What a click makes it do (from a shuffled bag, so each one comes round
 // soon): a backflip on the spot; a fall straight through its row (to the row
 // below, or off the bottom, coming back in somewhere else); a leap up to the
-// row above; a dash the other way; or a blink to another spot. In the air it
-// only roars.
-type Reaction = 'flip' | 'fall' | 'leap' | 'dash' | 'blink'
-const REACTIONS: Reaction[] = ['flip', 'fall', 'leap', 'dash', 'blink']
+// row above; or a dash the other way. Every one moves it in plain sight: it
+// never vanishes and reappears elsewhere (the owner's call, 2026-10-27). In
+// the air it only roars.
+type Reaction = 'flip' | 'fall' | 'leap' | 'dash'
+const REACTIONS: Reaction[] = ['flip', 'fall', 'leap', 'dash']
 const DASH_T = 0.7 // s of dashing
 const DASH_SPEED = 3 // times its walking speed
 const PACE_PER_CATCH = 0.06
@@ -263,6 +269,7 @@ export default function DinoGame() {
   const roarsRef = useRef<HTMLDivElement>(null)
   const linesRef = useRef<HTMLDivElement>(null)
   const scoreRef = useRef<HTMLDivElement>(null)
+  const bestRef = useRef<HTMLDivElement>(null)
   // The rainbow's gradient id, unique per dino (useId's colons don't belong in url()).
   const rainbowId = `dino-rainbow-${useId().replace(/[^a-zA-Z0-9]/g, '')}`
 
@@ -270,9 +277,10 @@ export default function DinoGame() {
     const dino = dinoRef.current
     const roarEls = [...(roarsRef.current?.children ?? [])] as HTMLElement[]
     const score = scoreRef.current
+    const bestEl = bestRef.current
     const lineEls = [...(linesRef.current?.children ?? [])] as HTMLElement[]
     const panel = dino?.closest<HTMLElement>('[data-dino-panel]')
-    if (!dino || !roarEls.length || !score || !panel) return
+    if (!dino || !roarEls.length || !score || !bestEl || !panel) return
 
     let rows: Row[] = []
     let levels: Level[] = []
@@ -302,6 +310,17 @@ export default function DinoGame() {
         const bottom = rows[0].el.getBoundingClientRect().bottom - box.top
         levels.push({ y: Math.min(bottom + 4, panelH - 6), row: null })
       }
+    }
+
+    // Measure again after the layout changed, and keep the dino on its feet:
+    // standing on a row (or flipping on it), it moves with the row's new top
+    // rather than hanging where the row used to be.
+    const remeasure = () => {
+      measure()
+      const here = levels[level]
+      if (!here) return
+      if (mode === 'walk') y = here.y
+      else if (mode === 'flip') flip.floor = here.y
     }
 
     // Tile intervals of a row right now, in panel coordinates.
@@ -358,28 +377,34 @@ export default function DinoGame() {
     let resultLeft = 0
     let pace = 1
     let best = 0
+    let beatBest = false // this round's catches went past the best so far
     try {
       best = Number(localStorage.getItem(BEST_KEY)) || 0
     } catch {
       // Storage blocked: the best score lasts this page view only.
     }
-    // The scoreboard's text, written straight to the DOM (no re-render per frame).
-    let scoreText = ''
-    const showScore = (text: string) => {
-      if (text === scoreText) return
-      scoreText = text
-      score.textContent = text
-      score.dataset.shown = text ? 'true' : 'false'
+    // The scoreboards' text, written straight to the DOM (no re-render per
+    // frame): the round at the top, the best score at the bottom.
+    const texts = new Map<HTMLElement, string>()
+    const show = (el: HTMLElement, text: string) => {
+      if (texts.get(el) === text) return
+      texts.set(el, text)
+      el.textContent = text
+      el.dataset.shown = text ? 'true' : 'false'
     }
     const scoreboard = () => {
+      const playing = roundLeft > 0 || resultLeft > 0
       if (roundLeft > 0) {
         const secs = Math.ceil(roundLeft)
-        showScore(`Catches ${catches} · 0:${String(secs).padStart(2, '0')}${best ? ` · Best ${best}` : ''}`)
+        show(score, `Catches ${catches} · 0:${String(secs).padStart(2, '0')}`)
       } else if (resultLeft > 0) {
-        showScore(`Time! ${catches} ${catches === 1 ? 'catch' : 'catches'} · Best ${best}`)
+        show(score, `Time! ${catches} ${catches === 1 ? 'catch' : 'catches'}${beatBest ? ' · New best!' : ''}`)
       } else {
-        showScore('')
+        show(score, '')
       }
+      // During a round the best counts this round's catches as they pass it.
+      show(bestEl, playing ? `Best ${Math.max(best, catches)}` : '')
+      bestEl.dataset.new = playing && catches > 0 && (beatBest || catches > best) ? 'true' : 'false'
     }
     // What it says now and then (DINO_LINES), each once per visit.
     let nextLine = 0
@@ -488,6 +513,10 @@ export default function DinoGame() {
       mode = 'climb'
     }
 
+    // A row's speed for a fall to carry, never more than a row can move.
+    const rowSpeed = (row: Row | null | undefined) =>
+      Math.max(-MAX_ROW_SPEED, Math.min(MAX_ROW_SPEED, row?.velocity ?? 0))
+
     const support = (foot: number, spans: [number, number][]) =>
       spans.find(([a, b]) => foot >= a && foot <= b)
 
@@ -551,6 +580,7 @@ export default function DinoGame() {
           roundLeft = 0
           resultLeft = RESULT_FOR
           pace = 1
+          beatBest = catches > best
           if (catches > best) {
             best = catches
             try {
@@ -569,11 +599,11 @@ export default function DinoGame() {
       const panelBox = panel.getBoundingClientRect()
       const panelLeft = panelBox.left
 
-      const current = levels[level]
-
       // Row speeds, and whether the visitor just paused the one the dino is
       // on. A pause of any other row (hovered, tapped or focused) leaves its
       // jumps alone: the row under its feet is still moving.
+      const onRow = levels[level]?.row
+      let relaidOut = false
       for (const row of rows) {
         const left = row.tracks[0].getBoundingClientRect().left
         row.delta = 0
@@ -585,15 +615,22 @@ export default function DinoGame() {
           let delta = left - row.lastLeft
           if (delta > period / 2) delta -= period
           else if (delta < -period / 2) delta += period
-          row.delta = delta
-          row.velocity = delta / realDt
-          const paused = Math.abs(row.velocity) < STILL
-          if (paused && !row.paused && settled > 10 && row === current?.row) missPending = true
-          row.paused = paused
+          if (Math.abs(delta) > Math.max(MAX_ROW_SPEED * realDt, 4)) {
+            // Laid out again, not moved: nothing rides the jump.
+            relaidOut = true
+          } else {
+            row.delta = delta
+            row.velocity = delta / realDt
+            const paused = Math.abs(row.velocity) < STILL
+            if (paused && !row.paused && settled > 10 && row === onRow) missPending = true
+            row.paused = paused
+          }
         }
         row.lastLeft = left
       }
       settled++
+      if (relaidOut) remeasure()
+      const current = levels[level]
 
       const spans = current?.row ? intervals(current.row, panelLeft) : null
       // On a row (walking, hopping off it, flipping), the dino rides along
@@ -643,7 +680,7 @@ export default function DinoGame() {
             // Still off the edge: keep walking.
           } else if (!under) {
             mode = 'fall'
-            carry = current.row?.velocity ?? 0
+            carry = rowSpeed(current.row)
           } else {
             const edge = dir > 0 ? under[1] : under[0]
             const ahead = (edge - foot) * dir
@@ -662,7 +699,7 @@ export default function DinoGame() {
                 const target = edge + dir * gap * 0.5
                 hop = { t: 0, T, h: 6, floor: current.y, vx: (target - foot) / T }
                 mode = 'miss'
-                carry = current.row?.velocity ?? 0
+                carry = rowSpeed(current.row)
                 missPending = false
               } else if (roam && stayLeft <= 0 && !leaving && !reentering && !commit) {
                 // Been here a while: it does something else.
@@ -678,7 +715,7 @@ export default function DinoGame() {
                   const target = edge + dir * gap * 0.5
                   hop = { t: 0, T, h: 10, floor: current.y, vx: (target - foot) / T }
                   mode = 'drop'
-                  carry = current.row?.velocity ?? 0
+                  carry = rowSpeed(current.row)
                 } else if (choice === 'turn') {
                   dir = dir > 0 ? -1 : 1
                 } else {
@@ -713,7 +750,7 @@ export default function DinoGame() {
           } else {
             // A miss already carries the row's speed; a hop that came up
             // short drifts with the row it left.
-            if (mode === 'hop') carry = current?.row?.velocity ?? 0
+            if (mode === 'hop') carry = rowSpeed(current?.row)
             mode = 'fall'
             vy = 0
           }
@@ -868,6 +905,7 @@ export default function DinoGame() {
       } else if (resultLeft < RESULT_FOR - 1.5) {
         roundLeft = ROUND
         resultLeft = 0
+        beatBest = false
         catches = 1
         dino.dataset.game = 'on'
       }
@@ -891,8 +929,8 @@ export default function DinoGame() {
       const current = levels[level]
       if (mode === 'walk' && current) {
         let reaction = nextReaction()
-        // On the top row there is nothing to leap up to: it blinks instead.
-        if (reaction === 'leap' && !levels[level - 1]?.row) reaction = 'blink'
+        // On the top row there is nothing to leap up to: it dashes instead.
+        if (reaction === 'leap' && !levels[level - 1]?.row) reaction = 'dash'
         dino.dataset.reaction = reaction
         if (reaction === 'flip') {
           // The arc stays inside the panel on the top row.
@@ -906,28 +944,9 @@ export default function DinoGame() {
           missPending = false
         } else if (reaction === 'leap') {
           startClimb(level - 1)
-        } else if (reaction === 'dash') {
+        } else {
           dir = dir > 0 ? -1 : 1
           dashLeft = DASH_T
-        } else {
-          // Gone and back in a blink, somewhere else on a row.
-          const floors = levels.flatMap((l, i) => (l.row ? [i] : []))
-          if (floors.length) {
-            level = floors[Math.floor(Math.random() * floors.length)]
-            const spans = intervals(levels[level].row!, panel.getBoundingClientRect().left).filter(
-              ([a, b]) => a > panelW * 0.2 && b < panelW * 0.8
-            )
-            const [a, b] = spans.length
-              ? spans[Math.floor(Math.random() * spans.length)]
-              : [panelW * 0.3, panelW * 0.7]
-            x = a + (b - a) / 2 - W / 2
-            y = levels[level].y
-            dir = Math.random() < 0.5 ? 1 : -1
-            stayLeft = between(stayFor)
-            reentering = false
-            leaving = false
-            dino.animate?.([{ opacity: 0 }, { opacity: 1 }], { duration: 260, easing: 'ease-out' })
-          }
         }
       }
     }
@@ -936,7 +955,7 @@ export default function DinoGame() {
     measure()
     respawn()
     const resize = new ResizeObserver(() => {
-      measure()
+      remeasure()
       if (mode !== 'away' && x > panelW) respawn()
     })
     resize.observe(panel)
@@ -1017,6 +1036,15 @@ export default function DinoGame() {
         data-shown="false"
         aria-hidden="true"
         className="pointer-events-none absolute top-2.5 left-1/2 z-10 -translate-x-1/2 rounded-full whitespace-nowrap border border-white/10 bg-[#081427]/85 px-3 py-1 font-mono text-xs font-semibold text-cyan-200 tabular-nums opacity-0 backdrop-blur-sm transition-opacity duration-300 data-[shown=true]:opacity-100"
+      />
+      {/* The best score, bottom centre, in the same style: shown during a round and after it. A new best lights up. */}
+      <div
+        ref={bestRef}
+        data-dino-best
+        data-shown="false"
+        data-new="false"
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-2.5 left-1/2 z-10 -translate-x-1/2 rounded-full whitespace-nowrap border border-white/10 bg-[#081427]/85 px-3 py-1 font-mono text-xs font-semibold text-slate-300 tabular-nums opacity-0 backdrop-blur-sm transition-[opacity,color,border-color] duration-300 data-[new=true]:border-amber-300/40 data-[new=true]:text-amber-200 data-[shown=true]:opacity-100"
       />
       <div ref={linesRef} className="contents">
         {LINES.map((b, i) => (
