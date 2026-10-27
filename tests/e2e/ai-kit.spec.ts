@@ -100,6 +100,8 @@ const pokeDino = (page: Page) =>
 const roarBubble = (page: Page) => page.locator('[data-dino-bubble^="roar-"]').filter({ visible: true })
 
 // Click it while it walks (a click in the air only roars, without a reaction).
+// After a fall off the bottom row it drops back in from the top first, which
+// on a busy machine can take a while.
 const pokeWalking = (page: Page) =>
   expect
     .poll(() =>
@@ -110,7 +112,8 @@ const pokeWalking = (page: Page) =>
         if (!hit || !el.contains(hit)) return false
         ;(el as HTMLElement).click()
         return true
-      })
+      }),
+      { timeout: 15_000 }
     )
     .toBe(true)
 
@@ -345,7 +348,11 @@ test.describe('dino easter egg (motion allowed)', () => {
       const [a, b] = [moves[i - 1], moves[i]]
       if (!seen(a) || !seen(b)) continue
       // Its fastest move (a dash on a slow frame) is under 50px a frame.
-      const sameRow = a.level === b.level && a.row !== null && b.row !== null
+      // On its row (not falling or leaping between rows), it moves with the row.
+      const onRow = (m: (typeof moves)[number]) => ['walk', 'flip', 'hop', 'drop', 'miss'].includes(m.mode)
+      // (Measured from the frame it starts on: it can move with its row and
+      // step off a tile into a fall in the same frame.)
+      const sameRow = a.level === b.level && a.row !== null && b.row !== null && onRow(a)
       const dy = sameRow ? b.y - b.row! - (a.y - a.row!) : b.y - a.y
       if (Math.abs(b.x - a.x) > 60 || Math.abs(dy) > 60)
         jumps.push(`${a.mode}@${a.level} (${a.x.toFixed(0)}, ${a.y.toFixed(0)}) -> ${b.mode}@${b.level} (${b.x.toFixed(0)}, ${b.y.toFixed(0)})`)

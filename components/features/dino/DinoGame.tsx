@@ -344,9 +344,16 @@ export default function DinoGame() {
     const remeasure = () => {
       measure()
       const here = levels[level]
+      // Mid-leap, it lands on the row it is leaping to, wherever that is now.
+      if (mode === 'climb' && levels[climb.target]) climb.to = levels[climb.target].y
       if (!here) return
       if (mode === 'walk') y = here.y
       else if (mode === 'flip') flip.floor = here.y
+      // A hop, a drop or a miss starts from (and comes down to) its row.
+      else if (mode === 'hop' || mode === 'drop' || mode === 'miss') {
+        y += here.y - hop.floor
+        hop.floor = here.y
+      }
     }
 
     // Tile intervals of a row right now, in panel coordinates.
