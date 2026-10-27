@@ -23,7 +23,9 @@ test.describe('AI kit content', () => {
     }
   })
 
-  test('the loadout names the tool for each step of the work, and the harnesses', async ({ page }) => {
+  test('the loadout names the tool for each step of the work, and the harnesses', async ({
+    page,
+  }) => {
     await page.goto('/loadout')
     const workflow = page.getByRole('region', { name: 'How I work with AI' })
     for (const tool of ['ChatGPT', 'Claude Code', 'Codex and Gemini']) {
@@ -91,7 +93,8 @@ const pokeDino = (page: Page) =>
     .toBe(true)
 
 // The roar bubble showing (one per word; only the current one is visible).
-const roarBubble = (page: Page) => page.locator('[data-dino-bubble^="roar-"]').filter({ visible: true })
+const roarBubble = (page: Page) =>
+  page.locator('[data-dino-bubble^="roar-"]').filter({ visible: true })
 
 // Click it while it walks (a click in the air only roars, without a reaction).
 const pokeWalking = (page: Page) =>
@@ -221,12 +224,21 @@ test.describe('dino easter egg (motion allowed)', () => {
     await page.waitForTimeout(5000)
     await expect(dino(page)).toHaveAttribute('data-level', '1')
     const log = await dinoLog(page)
-    expect(log.filter((entry) => !entry.endsWith('@1')), 'stayed on the bottom row').toEqual([])
-    expect(log.filter((entry) => entry.startsWith('miss')), 'never missed a jump').toEqual([])
+    expect(
+      log.filter((entry) => !entry.endsWith('@1')),
+      'stayed on the bottom row'
+    ).toEqual([])
+    expect(
+      log.filter((entry) => entry.startsWith('miss')),
+      'never missed a jump'
+    ).toEqual([])
     expect(log.filter((entry) => entry.startsWith('hop')).length, 'kept hopping').toBeGreaterThan(0)
   })
 
-  test('a tapped or focused tile pauses only its own row for the dino', async ({ page, hasTouch }) => {
+  test('a tapped or focused tile pauses only its own row for the dino', async ({
+    page,
+    hasTouch,
+  }) => {
     await onTopRow(page)
     // Focus (a keyboard user) or a tap (a touch screen) on a tile of the
     // bottom row pauses that row, not the one the dino is on. Wait for a tile
@@ -259,8 +271,14 @@ test.describe('dino easter egg (motion allowed)', () => {
     await pick(1)
     await page.waitForTimeout(5000)
     const log = await dinoLog(page)
-    expect(log.filter((entry) => !entry.endsWith('@0')), 'stayed on the top row').toEqual([])
-    expect(log.filter((entry) => entry.startsWith('miss')), 'never missed a jump').toEqual([])
+    expect(
+      log.filter((entry) => !entry.endsWith('@0')),
+      'stayed on the top row'
+    ).toEqual([])
+    expect(
+      log.filter((entry) => entry.startsWith('miss')),
+      'never missed a jump'
+    ).toEqual([])
 
     // Moving to the top row pauses the dino's own row: it misses.
     await pick(0)
@@ -268,7 +286,9 @@ test.describe('dino easter egg (motion allowed)', () => {
     await expect(dino(page)).toHaveAttribute('data-dir', 'left')
   })
 
-  test('clicking it makes it roar: a RAWR bubble, a backflip and a new colour', async ({ page }) => {
+  test('clicking it makes it roar: a RAWR bubble, a backflip and a new colour', async ({
+    page,
+  }) => {
     await dinoTiming(page, { reactions: ['flip'] })
     await onTopRow(page)
     const colour = () =>
@@ -335,7 +355,18 @@ test.describe('dino easter egg (motion allowed)', () => {
     await expect(dino(page)).toHaveAttribute('data-rainbow', 'true')
   })
 
-  test('once back in from a side, it walks well into the panel before turning or leaving', async ({ page }) => {
+  test('once back in from a side, it walks well into the panel before turning or leaving', async ({
+    page,
+    browserName,
+  }) => {
+    // A long game-logic check, the same in every engine: Chromium only. In CI,
+    // Firefox and WebKit can deliver animation frames a second or more apart,
+    // and the dino's per-frame step cap (so a stall can't fling it) then slows
+    // its clock far below the test's, so a 45s wait can pass with few moves.
+    test.skip(
+      browserName !== 'chromium',
+      'game logic, checked in Chromium (slow CI frames elsewhere)'
+    )
     // Short stays, so it would turn or leave at once if it could: it leaves,
     // comes back in from a side, and wants to turn straight away.
     await dinoTiming(page, {
@@ -360,8 +391,10 @@ test.describe('dino easter egg (motion allowed)', () => {
         const mode = el.dataset.mode
         const dir = el.dataset.dir!
         const x = xNow()
-        if (last.mode === 'away' && mode === 'walk' && (x < 0 || x > panel.width - 10)) entry = { from: x, dir }
-        else if (entry && mode === 'fall') entry = null // missed a jump: not a choice
+        if (last.mode === 'away' && mode === 'walk' && (x < 0 || x > panel.width - 10))
+          entry = { from: x, dir }
+        else if (entry && mode === 'fall')
+          entry = null // missed a jump: not a choice
         else if (entry && (dir !== entry.dir || ['climb', 'drop', 'away'].includes(mode!))) {
           // Its first choice since coming in: turning round, changing rows or leaving.
           out.push({ from: entry.from, turnedAt: x })
@@ -371,11 +404,21 @@ test.describe('dino easter egg (motion allowed)', () => {
       }).observe(el, { attributes: true })
     })
     const entries = () =>
-      page.evaluate(() => (window as unknown as { dinoEntries: { from: number; turnedAt: number }[] }).dinoEntries)
-    await expect.poll(async () => (await entries()).length, { timeout: 60_000 }).toBeGreaterThanOrEqual(2)
-    const width = await page.locator('[data-dino-panel]').evaluate((el) => el.getBoundingClientRect().width)
+      page.evaluate(
+        () =>
+          (window as unknown as { dinoEntries: { from: number; turnedAt: number }[] }).dinoEntries
+      )
+    await expect
+      .poll(async () => (await entries()).length, { timeout: 60_000 })
+      .toBeGreaterThanOrEqual(2)
+    const width = await page
+      .locator('[data-dino-panel]')
+      .evaluate((el) => el.getBoundingClientRect().width)
     for (const e of await entries()) {
-      expect(Math.abs(e.turnedAt - e.from), `came in at ${e.from.toFixed(0)}, chose at ${e.turnedAt.toFixed(0)}`).toBeGreaterThanOrEqual(width * 0.3)
+      expect(
+        Math.abs(e.turnedAt - e.from),
+        `came in at ${e.from.toFixed(0)}, chose at ${e.turnedAt.toFixed(0)}`
+      ).toBeGreaterThanOrEqual(width * 0.3)
     }
   })
 
@@ -423,7 +466,16 @@ test.describe('dino easter egg (motion allowed)', () => {
 
   test('roams: leaps up, drops down, turns round, and comes back in from elsewhere', async ({
     page,
+    browserName,
   }) => {
+    // A long game-logic check, the same in every engine: Chromium only. In CI,
+    // Firefox and WebKit can deliver animation frames a second or more apart,
+    // and the dino's per-frame step cap (so a stall can't fling it) then slows
+    // its clock far below the test's, so a 45s wait can pass with few moves.
+    test.skip(
+      browserName !== 'chromium',
+      'game logic, checked in Chromium (slow CI frames elsewhere)'
+    )
     // Short stays so it chooses often; no lines to stop it. Its choices and
     // ways back in go round in a fixed order (change rows, turn, change, turn,
     // leave; in from the left, the right, then above), so every move comes up
@@ -450,7 +502,15 @@ test.describe('dino easter egg (motion allowed)', () => {
     })
     const seen = () =>
       page.evaluate(() => [...(window as unknown as { dinoSeen: Set<string> }).dinoSeen])
-    for (const want of ['climb', 'drop', 'away', 'walk@0:right', 'walk@0:left', 'walk@1:right', 'walk@1:left'])
+    for (const want of [
+      'climb',
+      'drop',
+      'away',
+      'walk@0:right',
+      'walk@0:left',
+      'walk@1:right',
+      'walk@1:left',
+    ])
       await expect.poll(seen, { message: `it gets to ${want}`, timeout: 45_000 }).toContain(want)
   })
 
