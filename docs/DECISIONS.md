@@ -126,6 +126,8 @@ When the owner decides something new, add it here (with the date) in the same ch
   Its click reactions are a backflip, a fall, a leap up and a dash, all in plain sight (the "blink" to another spot is gone), and a resize or relayout no longer carries it or flings it across the panel.
   A catch round's scoreboard and its best score (lit when this round beats it) sit in a band across the top of the kit panel that the dino never enters: the panel has twice the room above its rows, the dino is clipped below the band, and its jumps and bubbles stay under it.
   The AI kit's tiles can't be selected (not even by a triple click) or highlighted.
+  A click on the dino is always a catch, so its roars react to being caught (RAWR!, OUCH!, GOT ME!, NO FAIR!, AGAIN?!, HEY!); none claims a miss.
+  The round's countdown has its own pill in the band: bigger digits over a bar that drains with the round, red and pulsing for the last 5 seconds.
 
 ## Publishing and releases (2026-10-25)
 
