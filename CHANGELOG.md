@@ -1,5 +1,40 @@
 # Changelog
 
+## 1.2.0 - 2026-10-27
+
+### Features
+
+- **builds:** OpenPing joins the Tools, with its build page and build log (#27)
+- **lab:** Daily drivers lead the featured rows; portfolio link; Use this as a template (#28)
+- **builds:** Portfolio Rank credits its list and invites visitors to add their portfolio (#29)
+- **lab:** Featured rows and build pages invite visitors to try each build (#30)
+- **lab:** Ads for every featured build, a Scribe download link, and a portfolio ad (#31)
+- **home:** Appturnity ad, Appturnity-branded work card, site-wide footer sitemap (#32)
+- **lab:** My daily tools lead the Lab; icons, Star, and a Details dialog for every build (#33)
+- **blog:** N8's Notions, and consistent fade-ins across the site (#35)
+- **hero:** The portrait fades in with the hero; templates named by site, with the N8 icon (#37)
+- **home:** Homepage refresh from the owner's 2026-10-26 review (#48)
+- **consent:** Bigger cookie bar with an inviting Accept and an exit animation (#49)
+- Owner round 10 (loadout, dino game, build log, brand and contact) (#61)
+
+### Fixes
+
+- **blog:** Post images no longer shift the page as they load (#24)
+- **nav:** A new page opens at its top instead of scrolling up to it (#34)
+- Appturnity contact copy and desktop Lighthouse wording (#43)
+- **a11y:** Build log titles are tap-sized (24px), so /builds passes Lighthouse's target-size audit (#45)
+- **marquee:** WebKit tab-stop test race and pause for pre-hydration focus (#47)
+- **dino:** Ride along with the row so a slow frame can't drop it (#51)
+- **builds:** Fresh Actions screenshot and WebKit keyboard test on the n8builds case study (#55)
+- **dino:** Measure the walk-in after an entry in panel position, not distance walked (#62)
+- **dino:** Drop the walk-in target once it turns (#63)
+
+### Performance
+
+- **builds:** The build log hydrates in place and no longer shifts layout (#36)
+- Lazy Sentry, LazyMotion, filter-free glows, and a mobile Lighthouse pass (#39)
+- **home:** Server-render the homepage and animate with CSS (#44)
+
 ## 1.1.1 - 2026-10-25
 
 ### Fixes
