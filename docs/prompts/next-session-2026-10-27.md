@@ -38,7 +38,8 @@ Merged today, each with full CI green:
 Open:
 
 - **#51 `fix/dino-flaky`** (worktree `n8builds-web-dinoflake`): makes two dino E2E tests reliable (the dino now rides along with its row so a slow frame can't drop it). At handoff it had 2 failing checks; check `gh pr checks 51`, fix, merge when green.
-- **Case study follow-up** (worktree `n8builds-web-ci-shot`, branch unknown at handoff): retake the GitHub Actions screenshot under a new filename and re-enable the case study keyboard test on WebKit. Check `git -C ../n8builds-web-ci-shot log` and `gh pr list`; finish, PR, merge when green.
+- **PR #55 `fix/n8builds-ci-shot`** (worktree `n8builds-web-ci-shot`): fresh GitHub Actions screenshot under a new filename and the case study keyboard test re-enabled on WebKit. At handoff 13 of 15 checks passed and two WebKit groups were still running. If it isn't merged yet: check `gh pr checks 55`, fix anything red, and squash-merge when every check is green (a failing "Vercel" check caused only by the daily build cap may be ignored once the cap resets and a rerun passes).
+- **#51 (dino fix) is merged but not deployed:** Vercel's daily build cap (100 deployments per rolling 24 hours, per account) was hit on 2026-10-26, so production still runs #49. First thing: confirm https://n8builds.dev runs main's latest commit; if not, redeploy main in Vercel (or merge #55, which deploys everything).
 - **Release v1.2.0 not cut.** The Monday release train failed (main moved under it at 20:57 UTC when #47 merged). Starting it publishes a release, which the classifier blocks; the owner runs `gh workflow run release-train.yml -f bump=auto -f dry-run=false`, or next Monday's run does it.
 
 ### dev-portfolio (live at https://portfolio.n8builds.dev)
