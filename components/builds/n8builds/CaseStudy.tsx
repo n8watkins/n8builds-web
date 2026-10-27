@@ -72,7 +72,7 @@ const Accent = ({ children }: { children: ReactNode }) => (
 )
 
 /** A screenshot in a window frame, labelled by what it shows (never a URL). */
-function Shot({ src, alt, label, width, height, sizes, priority, className = '' }: {
+function Shot({ src, alt, label, width, height, sizes, priority, light, className = '' }: {
   src: string
   alt: string
   label: string
@@ -80,11 +80,13 @@ function Shot({ src, alt, label, width, height, sizes, priority, className = '' 
   height: number
   sizes: string
   priority?: boolean
+  /** A light screenshot: the frame fills any spare height with white, so side-by-side shots end level. */
+  light?: boolean
   className?: string
 }) {
   return (
-    <figure className={`overflow-hidden rounded-2xl border border-white/10 bg-[#0b1120] shadow-2xl shadow-black/50 ${className}`}>
-      <div className="flex items-center gap-2 border-b border-white/8 bg-white/[0.03] px-4 py-2.5" aria-hidden="true">
+    <figure className={`overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-black/50 ${light ? 'h-full bg-white' : 'bg-[#0b1120]'} ${className}`}>
+      <div className="flex items-center gap-2 border-b border-white/8 bg-[#121827] px-4 py-2.5" aria-hidden="true">
         <span className="h-2.5 w-2.5 rounded-full bg-red-400/70" />
         <span className="h-2.5 w-2.5 rounded-full bg-amber-400/70" />
         <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/70" />
@@ -239,11 +241,10 @@ function SpeedCard({ result, delay }: { result: SpeedResult; delay: number }) {
 
 export default function CaseStudy({ build, activity }: { build: Build; activity: LogEntry[] }) {
   const repo = build.github ?? 'https://github.com/n8watkins/n8builds-web'
-  const [hero, lighthouse, actions] = [
-    build.images.find((i) => i.src.endsWith('home-hero-2026-10.webp'))!,
-    build.images.find((i) => i.src.endsWith('lighthouse-2026-10.webp'))!,
-    build.images.find((i) => i.src.endsWith('ci-checks.webp'))!,
-  ]
+  // Matched by name prefix: a retaken screenshot gets a new dated file name,
+  // so no image cache keeps serving the old one.
+  const image = (name: string) => build.images.find((i) => i.src.startsWith(`/builds/n8builds/${name}`))!
+  const [hero, lighthouse, actions] = [image('home-hero'), image('lighthouse'), image('ci-checks')]
 
   return (
     <main id="main-content" tabIndex={-1} className="relative min-h-screen overflow-x-clip bg-darkBlue text-slate-100 focus:outline-none">
@@ -383,11 +384,11 @@ export default function CaseStudy({ build, activity }: { build: Build; activity:
             <Pipeline />
           </div>
           <div className="mt-6 grid gap-6 md:grid-cols-2">
-            <Reveal className="min-w-0">
-              <Shot src={actions.src} alt={actions.alt} label="GitHub Actions: a green run" width={1280} height={720} sizes="(max-width: 768px) 100vw, 540px" />
+            <Reveal className="h-full min-w-0">
+              <Shot light src={actions.src} alt={actions.alt} label="GitHub Actions: a green run on main" width={1600} height={742} sizes="(max-width: 768px) 100vw, 540px" />
             </Reveal>
-            <Reveal delay={0.08} className="min-w-0">
-              <Shot src={lighthouse.src} alt={lighthouse.alt} label="Lighthouse: the homepage, from CI" width={1280} height={646} sizes="(max-width: 768px) 100vw, 540px" />
+            <Reveal delay={0.08} className="h-full min-w-0">
+              <Shot light src={lighthouse.src} alt={lighthouse.alt} label="Lighthouse: the homepage, from CI" width={1280} height={646} sizes="(max-width: 768px) 100vw, 540px" />
             </Reveal>
           </div>
         </section>

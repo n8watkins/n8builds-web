@@ -29,16 +29,22 @@ async function expectImagesLoaded(page: Page, selector: string) {
   return count
 }
 
-/** Running animations on the page's CSS-module elements whose class contains `name`. */
-const runningAnimations = (page: Page, name: string) =>
+/**
+ * The play states of the animations on the page's CSS-module elements whose
+ * class contains `name`. A finished animation stays listed (they all fill
+ * both ways), so a fast run can't slip between two polls.
+ */
+const animationStates = (page: Page, name: string) =>
   page.evaluate(
     (name) =>
-      [...document.querySelectorAll(`main [class*="${name}"]`)].reduce(
-        (n, el) => n + el.getAnimations({ subtree: true }).filter((a) => a.playState === 'running').length,
-        0
+      [...document.querySelectorAll(`main [class*="${name}"]`)].flatMap((el) =>
+        el.getAnimations({ subtree: true }).map((a) => a.playState)
       ),
     name
   )
+
+const runningAnimations = async (page: Page, name: string) =>
+  (await animationStates(page, name)).filter((state) => state === 'running').length
 
 test.describe('with reduced motion', () => {
   test.use({ contextOptions: { reducedMotion: 'reduce' } })
@@ -99,8 +105,7 @@ test.describe('with reduced motion', () => {
     expect(serious.map((v) => `${v.id}: ${v.help}`)).toEqual([])
   })
 
-  test('every link on the case study is reachable with the keyboard, with a visible focus ring', async ({ page, browserName }) => {
-    test.skip(browserName === 'webkit', 'WebKit only tabs to links with the "Press Tab to highlight each item" setting')
+  test('every link on the case study is reachable with the keyboard, with a visible focus ring', async ({ page }) => {
     await page.goto(PATH)
     // Number the links, so the two identical Star | GitHub pairs count apart.
     const linkCount = await page.locator('main a[href]').evaluateAll((links) => {
@@ -114,7 +119,7 @@ test.describe('with reduced motion', () => {
         const el = document.activeElement as HTMLElement | null
         if (!el || !el.closest('main') || el.tagName !== 'A') return null
         const style = getComputedStyle(el)
-        return { key: el.dataset.k ?? '', name: el.textContent ?? '', visible: style.outlineStyle !== 'none' || style.boxShadow !== 'none' }
+        return { key: el.dataset.k ?? '', name: (el.textContent ?? '').replace(/\s+/g, ' ').trim(), visible: style.outlineStyle !== 'none' || style.boxShadow !== 'none' }
       })
       if (!focused) continue
       expect(focused.visible, `focus ring on ${focused.name}`).toBe(true)
@@ -139,16 +144,18 @@ test.describe('with motion', () => {
 
   test('the pipeline lights up and the counters count once they scroll into view', async ({ page }) => {
     await page.goto(PATH)
-    // Nothing runs before its section is revealed.
-    expect(await runningAnimations(page, 'count')).toBe(0)
+    // Nothing animates before its section is revealed.
+    expect(await animationStates(page, 'count')).toEqual([])
 
     await page.locator('main figure[aria-label="The CI pipeline every pull request runs"]').scrollIntoViewIfNeeded()
     await expect.poll(() => runningAnimations(page, 'stage')).toBeGreaterThan(0)
 
     await page.locator('#speed').scrollIntoViewIfNeeded()
     await page.locator('main [class*="count"]').first().scrollIntoViewIfNeeded()
-    await expect.poll(() => runningAnimations(page, 'count')).toBeGreaterThan(0)
+    await expect.poll(async () => (await animationStates(page, 'count')).length).toBeGreaterThan(0)
     // And they settle on the final values.
-    await expect.poll(() => runningAnimations(page, 'count'), { timeout: 5000 }).toBe(0)
+    await expect
+      .poll(async () => (await animationStates(page, 'count')).every((state) => state === 'finished'), { timeout: 5000 })
+      .toBe(true)
   })
 })
