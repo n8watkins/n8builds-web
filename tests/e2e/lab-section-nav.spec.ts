@@ -325,7 +325,10 @@ for (const width of [1280, 1366, 1440, 1536, 1920]) {
     }
     for (const part of PARTS) {
       await scrollToPart(page, part.id)
-      await expect(nav).toBeInViewport()
+      // The rail shows from its scroll and intersection callbacks, which a
+      // loaded CI runner's WebKit delivers seconds late (its trace showed the
+      // rail turning visible just after the default 5s), so wait longer here.
+      await expect(nav).toBeInViewport({ timeout: 15_000 })
       const navBox = (await nav.boundingBox())!
       expect(navBox.x, 'inside the window').toBeGreaterThanOrEqual(8)
       // Everything visible in the part starts right of the rail: its text, its
