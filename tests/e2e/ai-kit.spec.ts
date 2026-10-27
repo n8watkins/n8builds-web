@@ -307,23 +307,29 @@ test.describe('dino easter egg (motion allowed)', () => {
   // Every frame's position in the panel, recorded in the page, and the frames
   // where it moved further than it ever can in one frame: a teleport. Only
   // moves seen inside the panel count (its comings and goings off the sides,
-  // the drop-in from above and its time away are out of sight).
+  // the drop-in from above and its time away are out of sight). Up and down
+  // it is measured from the top of the row it is on, so a row that moves (a
+  // card resized around rows anchored to its bottom) carries it fairly.
   const recordMoves = (page: Page) =>
     dino(page).evaluate((el) => {
       const panel = el.closest('[data-dino-panel]')!
-      const moves: { x: number; y: number; w: number; h: number; mode: string; level: string }[] = []
+      const moves: { x: number; y: number; w: number; h: number; mode: string; level: string; row: number | null }[] = []
       ;(window as unknown as { dinoMoves: typeof moves }).dinoMoves = moves
       const step = () => {
         const m = new DOMMatrix(getComputedStyle(el).transform)
         const box = panel.getBoundingClientRect()
-        moves.push({ x: m.m41, y: m.m42, w: box.width, h: box.height, mode: el.dataset.mode!, level: el.dataset.level! })
+        const tile = panel.querySelectorAll('[data-marquee-row]')[Number(el.dataset.level)]?.querySelector('figure')
+        const row = tile ? tile.getBoundingClientRect().top - box.top : null
+        moves.push({ x: m.m41, y: m.m42, w: box.width, h: box.height, mode: el.dataset.mode!, level: el.dataset.level!, row })
         requestAnimationFrame(step)
       }
       requestAnimationFrame(step)
     })
   const teleports = async (page: Page) => {
     const moves = await page.evaluate(
-      () => (window as unknown as { dinoMoves: { x: number; y: number; w: number; h: number; mode: string; level: string }[] }).dinoMoves
+      () =>
+        (window as unknown as { dinoMoves: { x: number; y: number; w: number; h: number; mode: string; level: string; row: number | null }[] })
+          .dinoMoves
     )
     const seen = (m: (typeof moves)[number]) => m.mode !== 'away' && m.level !== '-1' && m.x >= 0 && m.x <= m.w - 48 && m.y >= 0 && m.y <= m.h
     const jumps: string[] = []
@@ -331,7 +337,9 @@ test.describe('dino easter egg (motion allowed)', () => {
       const [a, b] = [moves[i - 1], moves[i]]
       if (!seen(a) || !seen(b)) continue
       // Its fastest move (a dash on a slow frame) is under 50px a frame.
-      if (Math.abs(b.x - a.x) > 60 || Math.abs(b.y - a.y) > 60)
+      const sameRow = a.level === b.level && a.row !== null && b.row !== null
+      const dy = sameRow ? b.y - b.row! - (a.y - a.row!) : b.y - a.y
+      if (Math.abs(b.x - a.x) > 60 || Math.abs(dy) > 60)
         jumps.push(`${a.mode}@${a.level} (${a.x.toFixed(0)}, ${a.y.toFixed(0)}) -> ${b.mode}@${b.level} (${b.x.toFixed(0)}, ${b.y.toFixed(0)})`)
     }
     return jumps
@@ -474,7 +482,7 @@ test.describe('dino easter egg (motion allowed)', () => {
     await expect(dino(page)).toHaveAttribute('data-catches', '1')
     await expect(score).toHaveAttribute('data-shown', 'true')
     await expect(score).toHaveText(/^Catches 1 · 0:(30|29)/)
-    // The best score sits at the bottom while a round is on, lit as this round passes it.
+    // The best score shows beside it while a round is on, lit as this round passes it.
     const best = page.locator('[data-dino-best]')
     await expect(best).toHaveAttribute('data-shown', 'true')
     await expect(best).toHaveText(/^Best \d+$/)
