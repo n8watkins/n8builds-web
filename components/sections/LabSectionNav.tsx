@@ -190,7 +190,7 @@ export default function LabSectionNav() {
         <p className="mb-3 hidden items-center gap-2.5 pl-[calc(0.375rem+var(--chip)/2-0.875rem)] text-xl font-bold tracking-tight min-[90rem]:flex min-[110rem]:text-2xl">
           <BubblingFlask className="size-7 text-cyan-300" />
           <span className="bg-linear-to-r from-cyan-300 via-blue-400 to-blue-500 bg-clip-text text-transparent">
-            In the Lab
+            The Lab
           </span>
         </p>
         <ul ref={listRef} className="relative" style={{ '--fill': 0 } as CSSProperties}>
@@ -206,8 +206,8 @@ export default function LabSectionNav() {
             />
             {/* A small light riding the end of the fill. */}
             <span
-              className={`absolute left-1/2 size-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-200 shadow-[0_0_4px_rgba(34,211,238,0.4)] transition-[top,opacity] duration-150 ease-out motion-reduce:transition-none ${
-                active < 0 ? 'opacity-0' : 'opacity-60'
+              className={`absolute left-1/2 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-100 shadow-[0_0_8px_2px_rgba(34,211,238,0.7)] transition-[top,opacity] duration-150 ease-out motion-reduce:transition-none ${
+                active < 0 ? 'opacity-0' : 'opacity-100'
               }`}
               style={{ top: 'calc(var(--row) * var(--fill))' }}
             />

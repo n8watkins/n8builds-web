@@ -25,6 +25,8 @@ export interface NowState {
   project: string
   /** The project's own mark, shown next to its name. */
   logo?: string
+  /** The project's own wordmark, light on dark, shown in place of the logo and name. */
+  wordmark?: { src: string; width: number; height: number }
   /** One line on what the project is; the What's new dialog's subtitle. */
   tagline: string
   status: 'prototype' | 'active' | 'polishing' | 'shipping'
@@ -53,6 +55,8 @@ export const nowItems: NowState[] = [
   {
     project: 'Appturnity',
     logo: '/brands/appturnity.png',
+    // Appturnity's real wordmark (appturnity.com), its navy letters lightened for the dark card.
+    wordmark: { src: '/brands/appturnity-wordmark-light.png', width: 623, height: 130 },
     tagline: 'Free websites and automation for service businesses',
     status: 'active',
     headline: { lead: 'Your free website,', accent: 'built for your trade.' },

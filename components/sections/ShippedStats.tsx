@@ -55,34 +55,41 @@ export default function ShippedStats({ stats, period }: { stats: ShippedStat[]; 
     >
       <p className="font-mono text-[0.62rem] font-bold uppercase tracking-[0.16em] text-slate-450">{period}</p>
 
-      {/* Every figure in one grid cell; only the current one shows. */}
-      <div className="grid min-h-[4.75rem] items-center md:min-h-[5.5rem]">
+      {/* Every figure in one grid cell; only the current one shows. Clicking
+          it moves on to the next figure, like the dots below. */}
+      <button
+        type="button"
+        onClick={() => pick((index + 1) % stats.length)}
+        disabled={stats.length < 2}
+        title={stats.length > 1 ? 'Next figure' : undefined}
+        className="group -m-2 grid min-h-[4.75rem] items-center rounded-xl p-2 text-left transition-colors enabled:cursor-pointer enabled:hover:bg-white/[0.04] focus-visible:outline-2 focus-visible:outline-cyan-400 md:min-h-[5.5rem]"
+      >
         {stats.map((stat, i) => {
           const current = i === index
           const icon = stat.build ? BUILD_ICONS[stat.build] : undefined
           return (
-            <div
+            <span
               key={stat.id}
               data-stat={stat.id}
               aria-roledescription="slide"
               aria-hidden={!current}
-              className={`col-start-1 row-start-1 transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none ${
+              className={`col-start-1 row-start-1 block transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none ${
                 current ? 'opacity-100' : 'pointer-events-none translate-y-1.5 opacity-0'
               }`}
             >
-              <p className="flex items-center gap-2.5">
+              <span className="flex items-center gap-2.5">
                 {icon && (
                   <Image src={icon} alt="" width={28} height={28} unoptimized={icon.endsWith('.svg')} className="h-7 w-7 shrink-0 rounded-md" />
                 )}
                 <span className={`font-bold tracking-tight text-slate-50 ${stat.id === 'busiest' ? 'text-2xl' : 'text-4xl tabular-nums'}`}>
                   {stat.value}
                 </span>
-              </p>
-              <p className="mt-1 text-sm text-[#9cadc5]">{stat.label}</p>
-            </div>
+              </span>
+              <span className="mt-1 block text-sm text-[#9cadc5] transition-colors group-enabled:group-hover:text-cyan-200">{stat.label}</span>
+            </span>
           )
         })}
-      </div>
+      </button>
 
       {stats.length > 1 && (
         <div className="flex items-center gap-1">

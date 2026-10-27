@@ -105,6 +105,7 @@ export default function HomePage({ posts }: { posts: Post[] }) {
                glow sits behind the heading. Centred across the full content width. */}
           <div className="bg-[radial-gradient(50%_320px_at_50%_0,rgb(34_211_238/0.08),transparent_100%),linear-gradient(to_bottom,rgb(255_255_255/0.022),transparent_220px)]">
             <Reveal className="mx-auto flex max-w-6xl flex-col items-center px-5 pt-16 pb-6 text-center sm:px-8 sm:pt-20">
+              <p className="lab-eyebrow mb-5 font-mono text-xs font-bold uppercase tracking-[0.35em] sm:text-sm">Check out the Lab</p>
               {/* The Lab's mark (the owner's pick, 2026-10-26): a flask in a chip like the rows' app icons. */}
               <div className="flex items-center gap-4 sm:gap-5">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-300/30 sm:h-16 sm:w-16">

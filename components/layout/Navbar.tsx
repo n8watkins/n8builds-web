@@ -242,7 +242,7 @@ const Navbar = () => {
               target="_blank"
               rel="noopener noreferrer"
               title="Support me on Ko-fi"
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-[#0b1324] bg-[#29abe0] border border-[#29abe0] hover:bg-[#4cc1ef] rounded-lg transition-all duration-150 hover:scale-[1.02]"
+              className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-semibold text-[#0b1324] bg-[#29abe0] border border-[#29abe0] hover:bg-[#4cc1ef] rounded-lg transition-all duration-150 hover:scale-[1.02]"
             >
               <SiKofi className="w-4 h-4 text-[#ff5e5b]" aria-hidden />
               Ko-fi
@@ -251,7 +251,7 @@ const Navbar = () => {
               href="https://portfolio.n8builds.dev"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-sm text-slate-400 hover:text-slate-200 border border-white/10 rounded-lg hover:border-white/20 hover:bg-white/5 transition-all duration-150"
+              className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-semibold text-slate-200 hover:text-white border border-white/15 rounded-lg hover:border-white/20 hover:bg-white/5 transition-all duration-150"
             >
               Portfolio
             </a>
@@ -261,7 +261,6 @@ const Navbar = () => {
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-linear-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold text-sm transition-all duration-200 hover:scale-[1.02] shadow-lg shadow-blue-900/30"
             >
-              <Image src="/brands/appturnity-white.png" alt="" width={152} height={177} className="h-4 w-auto" />
               Appturnity
             </a>
             {/* Mobile toggle */}

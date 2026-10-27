@@ -255,7 +255,7 @@ const ActionLinkView = ({ project, link, facts }: { project: FeaturedProject; li
       className={
         isLink
           ? `inline-flex items-center gap-1.5 py-1 text-sm font-semibold text-slate-300 transition-colors ${accent.link}`
-          : `${buttonBase} rounded-lg px-3.5 ${accent.primary}`
+          : `${buttonBase} btn-shimmer rounded-lg px-3.5 ${accent.primary}`
       }
     >
       {link.download ? <FiDownload className="h-4 w-4" aria-hidden="true" /> : null}
@@ -542,7 +542,7 @@ const FeaturedProjects = async () => {
         </Reveal>
         <Rows group="tools" offset={0} facts={facts} />
       </section>
-      <section id="featured" aria-label="Featured builds" className="lab-accent-featured py-10">
+      <section id="featured" aria-label="Featured builds" className="lab-accent-featured mt-10 py-10 md:mt-16">
         <Reveal className={`${container} pb-4`}>
           <LabSubheader title="Featured builds" blurb="Free to use and open source, with no sign-up to start." />
         </Reveal>

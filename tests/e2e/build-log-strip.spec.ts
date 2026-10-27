@@ -136,25 +136,31 @@ test('"See the full build log" goes to /builds', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1, name: 'The build log' })).toBeVisible()
 })
 
-test('works from the keyboard: the button, then each row, then the figures', async ({ page }) => {
+test('works from the keyboard: the button, then the figures, then each row', async ({ page }) => {
   await page.goto('/')
   const button = strip(page).getByRole('link', { name: 'See the full build log' })
   await button.scrollIntoViewIfNeeded()
   const rowCount = await rows(page).count()
+  const dotCount = await dots(page).count()
   await button.focus()
+  // The figures card sits left of the rows: the figure itself (it moves on to
+  // the next one), then its dots, then the rows.
+  await page.keyboard.press('Tab')
+  await expect(stats(page).getByRole('button').first()).toBeFocused()
+  await expect(stats(page).getByRole('button').first()).toHaveAccessibleName(/^\d+\s?changes shipped$/)
+  await page.keyboard.press('Enter')
+  await expect(current(page)).toHaveAttribute('data-stat', 'builds')
+  for (let i = 0; i < dotCount; i++) await page.keyboard.press('Tab')
+  await expect(dots(page).last()).toBeFocused()
   const order: string[] = []
-  for (let i = 0; i < rowCount + 2; i++) {
+  for (let i = 0; i < rowCount; i++) {
     await page.keyboard.press('Tab')
     order.push(await page.evaluate(() => document.activeElement?.getAttribute('href') ?? ''))
   }
-  expect(order.slice(0, rowCount).every((href) => href.startsWith('/builds?build='))).toBe(true)
-  // After the rows, the card's dots (buttons, no href).
-  expect(order.slice(rowCount)).toEqual(['', ''])
-  await expect(dots(page).nth(1)).toBeFocused()
+  expect(order.every((href) => href.startsWith('/builds?build='))).toBe(true)
 
   // The focused row shows a ring.
-  await button.focus()
-  await page.keyboard.press('Tab')
+  await rows(page).first().locator('a').first().focus()
   const ring = await page.evaluate(() => getComputedStyle(document.activeElement!, '::after').boxShadow)
   expect(ring).not.toBe('none')
 })

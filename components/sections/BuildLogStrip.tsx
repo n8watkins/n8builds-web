@@ -170,17 +170,21 @@ export default async function BuildLogStrip() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 overflow-hidden rounded-2xl border border-white/8 bg-[#0a1526]/70 md:grid-cols-[minmax(0,1fr)_17rem]">
+            <div className="grid grid-cols-1 overflow-hidden rounded-2xl border border-white/8 bg-[#0a1526]/70 md:grid-cols-[17rem_minmax(0,1fr)]">
+              <div className="flex flex-col justify-center border-b border-white/8 px-5 py-4 md:border-r md:border-b-0 md:px-6 md:py-5">
+                <ShippedStats stats={stats} period={isThisMonth ? monthLabel(current) : `Last ${QUIET_DAYS} days`} />
+              </div>
+
               <div className="space-y-3 p-3 sm:p-4">
                 {groups.map((group) => (
                   <section
                     key={group.month}
                     aria-labelledby={`strip-${group.month}`}
-                    className={`md:flex md:gap-4 ${group.rows.every((r) => rows.indexOf(r) >= PHONE_ROWS) ? 'max-sm:hidden' : ''}`}
+                    className={`${group.rows.every((r) => rows.indexOf(r) >= PHONE_ROWS) ? 'max-sm:hidden' : ''}`}
                   >
                     <h3
                       id={`strip-${group.month}`}
-                      className="mb-1 px-2 font-mono text-[0.62rem] font-bold uppercase tracking-[0.18em] text-cyan-400 md:mb-0 md:w-20 md:shrink-0 md:px-0 md:pt-3.5 md:text-right"
+                      className="mb-1 px-2 pt-1 font-mono text-[0.62rem] font-bold uppercase tracking-[0.18em] text-cyan-400"
                     >
                       {monthLabel(group.month).replace(` ${current.slice(0, 4)}`, '')}
                     </h3>
@@ -191,10 +195,6 @@ export default async function BuildLogStrip() {
                     </ul>
                   </section>
                 ))}
-              </div>
-
-              <div className="flex flex-col justify-center border-t border-white/8 px-5 py-4 md:border-l md:border-t-0 md:px-6 md:py-5">
-                <ShippedStats stats={stats} period={isThisMonth ? monthLabel(current) : `Last ${QUIET_DAYS} days`} />
               </div>
             </div>
           </section>

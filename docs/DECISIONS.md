@@ -122,6 +122,15 @@ When the owner decides something new, add it here (with the date) in the same ch
   - Twitch shows in the navbar only while live; streaming will be on YouTube and X.
   - Ko-fi appears in its own blue with the red cup.
   - The build log drops the six-month view; "Shipped this month" cycles real figures from the log.
+- **Round 11 (2026-10-27, owner's calls):**
+  - The navbar's Ko-fi, Portfolio and Appturnity buttons share one text style (semibold, same size and padding); Appturnity's has no "A" icon.
+  - Appturnity's card shows Appturnity's own wordmark (from appturnity.com, its navy letters lightened for the dark card), not a font guess.
+  - "Shipped this month": the figures card is on the left and clicking a figure moves to the next; the month heading sits above its rows.
+  - The Lab opens with "Check out the Lab": spaced capitals in the cyan-to-blue gradient with a shimmer.
+    Its side rail's heading is "The Lab", and the dot riding the rail is brighter.
+  - More room between My tools and Featured.
+  - Each Lab row's colour wash swells in as the row scrolls into view and fades as it leaves (steady where the browser can't animate on scroll, and under reduced motion).
+  - The Lab rows' main buttons (Download for Windows, Try the free tools, Find your sun window, Vote in a face-off) have a light sweeping across them every few seconds.
 
 ## Publishing and releases (2026-10-25)
 
