@@ -6,6 +6,12 @@ Updated: October 26, 2026
 - [ ] **Tube Vault + TLDW** — Reproduce the YouTube Shorts bug where comments fail to update when scrolling between Shorts. Isolate which extension causes it; fix and regression-test.
 - [ ] **Portfolio Rank** — Verify Gemini API key configuration without exposing secrets; restore reliable continuous portfolio ELO scoring, automatic refresh, persistence, and error handling.
 
+## Security and CI follow-ups (added October 26, 2026)
+- [ ] **Dependency security round per repo** - Dependabot alerts were switched on for every build repo on October 26. Open alerts then: scribe 68, open-ping 39, portfolio-rank 31 (6 critical), tl-dw 17, piper-tts 6 (1 critical), tube-vault 1. For each repo: update dependencies within their major versions, run its tests, open a PR, merge when CI is green, and list anything that needs a breaking upgrade. The admin dashboard's Security page shows the live counts.
+- [x] **dev-portfolio security round** - PR #6 fixed 82 of 87 alerts (all 7 critical). The last 5 are dev-only, inside `@lhci/cli`, and need either a new `@lhci/cli` release or running it on demand with `npx`.
+- [ ] **TL;DW quality gate** - Failing on master since July 20. Diagnosis and fix plan: `docs/CI_QUALITY_GATE_FAILURE.md` on the tl-dw branch `docs/ci-failure-report` (a timezone-dependent test, a clock-dependent test, and Vite/Vitest advisories; about an hour of work).
+- [ ] **Appturnity Actions minutes** - The Appturnity org used all 2,000 free minutes in October; its private CI stops until November 1 unless a spending budget is set.
+
 ## Product development
 - [ ] **Solara** — Audit and finish functionality, polish UX, and prepare a Google Play release.
 - [ ] **OpenPing** — Support self-hosting plus an optional paid managed hosting offering; review deployment and documentation.
