@@ -424,8 +424,17 @@ test.describe('dino easter egg (motion allowed)', () => {
   test('roams: leaps up, drops down, turns round, and comes back in from elsewhere', async ({
     page,
   }) => {
-    // Short stays so it chooses often; no lines to stop it.
-    await dinoTiming(page, { roam: true, stay: [0.2, 0.4], firstLineAfter: 600 })
+    // Short stays so it chooses often; no lines to stop it. Its choices and
+    // ways back in go round in a fixed order (change rows, turn, change, turn,
+    // leave; in from the left, the right, then above), so every move comes up
+    // within a few cycles instead of whenever the shuffle allows.
+    await dinoTiming(page, {
+      roam: true,
+      stay: [0.2, 0.4],
+      firstLineAfter: 600,
+      choices: ['change', 'turn', 'change', 'turn', 'exit'],
+      entries: ['left', 'right', 'drop'],
+    })
     await page.goto('/')
     await showKit(page, '[data-dino-panel]')
     await expect(dino(page)).toHaveAttribute('data-mode', 'walk', { timeout: 10_000 })
