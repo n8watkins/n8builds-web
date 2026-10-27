@@ -151,12 +151,21 @@ When the owner decides something new, add it here (with the date) in the same ch
   - Each build page has a checklist of what it does, the Details dialog's "How it's built" explainer, and Stack cards with each technology's mark.
   - The Details dialog says what each part does in that app (not what it is), one icon per technology; it links to the full story and straight to the build's part of the log.
   - /builds opens with three figures (builds tracked, updates and releases in the last 12 months); build cards carry their colour and newest version; months count their updates and releases; a release with release-kit notes shows them as patch notes (New, Fixed, Faster, Safer).
+- **Round 13 (2026-10-27, owner's calls): the homepage and My Loadout:**
+  - "Shipped this month" names the month once, at the top of the figures card; the figure and dots sit centred below it.
+  - "Check out the Lab" is one line of plain text, larger, justified to the width of the flask and title.
+  - The Lab rail's line stops at Chrome Extensions; the comet around the current icon turns a little faster.
+  - The portfolio ad's heading is "The developer behind the build".
+  - My Loadout: each setup item shows its brand's mark (AMD, Samsung, Acer, Razer, OBS, Scribe's own) or a plain icon; no "daily driver" badge; the cards animate in.
+  - whisper.cpp is listed on its own with its real (ggml) mark; Piper isn't in the Loadout's in-app AI.
+  - Codex is listed as a harness: OpenAI's coding agent, which comes with its own harness.
+  - Perplexity is off the AI kit (not used).
 
 ## Publishing and releases (2026-10-25)
 
 - **Articles are always site first.** Every article is written and published on n8builds.dev (N8's Notions, in Sanity); posting or reposting it on X is a separate, later step, never the primary copy.
 - **The release train runs Mondays at 16:00 UTC** (confirmed 2026-10-25). It releases only when a `feat` or `fix` landed since the last release.
-- **The owner applies release-kit to the other projects** (TL;DW, TubeVault, Piper TTS, Solara, Portfolio Rank, OpenPing and dev-portfolio) themselves, later. Agents don't, unless asked.
+- **release-kit is a dev dependency in every project** (2026-10-27, the owner's call, replacing "the owner applies it later"): each repo pins `github:n8watkins/release-kit` at a tag, Dependabot opens an update PR on every kit release, and notes default to the plain style (New, Fixed, Faster, Safer).
 - **portfolio.n8builds.dev stays a separate site and a separate repo:** it is the developer-portfolio (hire-me) segment, a repo the owner can share on its own (renamed from Portfolio2.0 to `dev-portfolio` on 2026-10-25); n8builds.dev is the build-in-public workshop. Not a page of n8builds.dev.
 - **The portfolio features Echo, Scout, GeminiGPT and Net-Trailer, not Scribe or Solara** (2026-10-25). It shows more builds as links to their n8builds.dev pages, and the Render demos' live status from OpenPing.
 - **OpenPing and Scribe are featured rows** (2026-10-25): the owner uses both daily.
