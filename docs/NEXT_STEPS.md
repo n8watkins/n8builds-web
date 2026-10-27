@@ -53,6 +53,9 @@ Portfolio Rank's starts with rotating its invalid Gemini API key (nothing has be
 
 ## Part 2: What Claude builds
 
+**Next session:** start from [prompts/next-session-2026-10-27.md](prompts/next-session-2026-10-27.md); it holds the full state of the portfolio refresh, the admin dashboard and the open PRs.
+**Done 2026-10-26 (evening):** the homepage refresh (#48), the WebKit marquee fix (#47), cookie banner v2 (#49) and the security backlog note (#50); dev-portfolio's security update (dev-portfolio #6).
+**Owner, new 2026-10-26:** run the v1.2.0 release (`gh workflow run release-train.yml -f bump=auto -f dry-run=false`) or let Monday's run do it; the admin dashboard's setup steps (its Setup page); Appturnity's Actions minutes are used up until Nov 1; more Chrome extension screenshots; review the Appturnity card's "Coming soon" list.
 **Done 2026-10-26:** the review of the 2026-10-25 work and the homepage speed refactor (see the done log).
 What is left on phone speed: the homepage's simulated LCP (~3.5s) is now mostly the download of React and Next themselves (about 150 KB compressed of the ~270 KB the page loads first), which a page can't drop; the next gains would come from fewer client islands on the page, not from any one of them.
 
