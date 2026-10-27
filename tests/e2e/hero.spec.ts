@@ -244,12 +244,15 @@ test.describe('the hero grid', () => {
     }
 
     test('on a wide screen, lights cells across the full width, which fades out at the sides', async ({ page }) => {
-      test.setTimeout(30_000)
+      test.setTimeout(45_000)
       await page.setViewportSize({ width: 1920, height: 1080 })
       await page.goto('/')
       // Where lit cells sit, as a share of the screen's width, over a while.
+      // The cells light at random, so it samples until it has seen both edges
+      // (up to about 18 seconds) rather than for a fixed few seconds, which
+      // now and then saw no lit cell near one edge.
       const xs: number[] = []
-      for (let i = 0; i < 30; i++) {
+      for (let i = 0; i < 60 && !(xs.some((x) => x < 0.15) && xs.some((x) => x > 0.85)); i++) {
         xs.push(
           ...(await page.locator('#home svg rect[data-cell]').evaluateAll((rects) =>
             rects

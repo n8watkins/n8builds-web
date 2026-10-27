@@ -30,15 +30,24 @@ async function openHome(page: Page) {
   })
 }
 
-/** Scroll so the part's top sits a little under the navbar. */
+/**
+ * Scroll so the part's top sits a little under the navbar, and keep at it
+ * until it stays there: images and reveals above can still shift the layout
+ * just after the jump (on a loaded CI machine), which left the page short of
+ * the Lab, with the rail rightly hidden.
+ */
 async function scrollToPart(page: Page, id: string) {
-  await page.evaluate((id) => {
-    const el = document.getElementById(id)!
-    window.scrollTo({
-      top: el.getBoundingClientRect().top + window.scrollY - 120,
-      behavior: 'instant',
-    })
-  }, id)
+  await expect
+    .poll(() =>
+      page.evaluate((id) => {
+        const el = document.getElementById(id)!
+        const top = el.getBoundingClientRect().top
+        if (Math.abs(top - 120) <= 2) return true
+        window.scrollTo({ top: top + window.scrollY - 120, behavior: 'instant' })
+        return false
+      }, id)
+    )
+    .toBe(true)
 }
 
 test.describe('at 1440px', () => {
