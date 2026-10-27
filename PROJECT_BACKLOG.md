@@ -10,6 +10,7 @@ Updated: October 26, 2026
 - [ ] **Dependency security round per repo** - Dependabot alerts were switched on for every build repo on October 26. Open alerts then: scribe 68, open-ping 39, portfolio-rank 31 (6 critical), tl-dw 17, piper-tts 6 (1 critical), tube-vault 1. For each repo: update dependencies within their major versions, run its tests, open a PR, merge when CI is green, and list anything that needs a breaking upgrade. The admin dashboard's Security page shows the live counts.
 - [x] **dev-portfolio security round** - PR #6 fixed 82 of 87 alerts (all 7 critical). The last 5 are dev-only, inside `@lhci/cli`, and need either a new `@lhci/cli` release or running it on demand with `npx`.
 - [ ] **TL;DW quality gate** - Failing on master since July 20. Diagnosis and fix plan: `docs/CI_QUALITY_GATE_FAILURE.md` on the tl-dw branch `docs/ci-failure-report` (a timezone-dependent test, a clock-dependent test, and Vite/Vitest advisories; about an hour of work).
+- [ ] **GeminiGPT model** - It calls `gemini-3.1-flash-lite` (`lib/websocket/services/GeminiService.js`); the owner wants Gemini 3.5 Flash Lite. Upgrade in the GeminiGPT repo, test, then update the portfolio copy (it says "Gemini 3.1 Flash Lite" to match the code today).
 - [ ] **Appturnity Actions minutes** - The Appturnity org used all 2,000 free minutes in October; its private CI stops until November 1 unless a spending budget is set.
 
 ## Product development
