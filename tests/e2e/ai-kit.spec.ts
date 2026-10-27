@@ -90,6 +90,9 @@ const pokeDino = (page: Page) =>
     )
     .toBe(true)
 
+// The roar bubble showing (one per word; only the current one is visible).
+const roarBubble = (page: Page) => page.locator('[data-dino-bubble^="roar-"]').filter({ visible: true })
+
 // Click it while it walks (a click in the air only roars, without a reaction).
 const pokeWalking = (page: Page) =>
   expect
@@ -113,6 +116,8 @@ interface DinoTiming {
   stay?: [number, number]
   roam?: boolean
   reactions?: ('flip' | 'fall' | 'leap' | 'dash' | 'blink')[]
+  choices?: ('change' | 'turn' | 'exit')[]
+  entries?: ('drop' | 'left' | 'right')[]
 }
 const dinoTiming = (page: Page, timing: DinoTiming) =>
   page.addInitScript((t) => {
@@ -273,11 +278,11 @@ test.describe('dino easter egg (motion allowed)', () => {
     await pokeDino(page)
     await expect(dino(page)).toHaveAttribute('data-roars', '1')
     await expect(dino(page)).toHaveAttribute('data-mode', 'flip')
-    await expect(page.locator('[data-dino-bubble="roar"]')).toBeVisible()
+    await expect(roarBubble(page)).toBeVisible()
     expect(await colour()).not.toBe(before)
     // It lands and walks on, the bubble gone.
     await expect(dino(page)).toHaveAttribute('data-mode', 'walk')
-    await expect(page.locator('[data-dino-bubble="roar"]')).toBeHidden()
+    await expect(roarBubble(page)).toHaveCount(0)
     await pokeDino(page)
     await expect(dino(page)).toHaveAttribute('data-roars', '2')
   })
@@ -311,6 +316,66 @@ test.describe('dino easter egg (motion allowed)', () => {
     await pokeWalking(page)
     await expect(dino(page)).toHaveAttribute('data-reaction', 'leap')
     await expect(dino(page)).toHaveAttribute('data-mode', 'climb')
+  })
+
+  test('shouts a different word each click, and turns rainbow on the 5th', async ({ page }) => {
+    await dinoTiming(page, { reactions: ['dash'] })
+    await onTopRow(page)
+    const words: string[] = []
+    for (let i = 0; i < 5; i++) {
+      await pokeWalking(page)
+      await expect(dino(page)).toHaveAttribute('data-roars', String(i + 1))
+      words.push((await dino(page).getAttribute('data-roar'))!)
+      await expect(roarBubble(page)).toHaveCount(1)
+    }
+    // Never the same word twice in a row, and more than one word in all.
+    for (let i = 1; i < words.length; i++) expect(words[i], words.join(', ')).not.toBe(words[i - 1])
+    expect(new Set(words).size).toBeGreaterThan(1)
+    await expect(dino(page)).toHaveAttribute('data-rainbow', 'true')
+  })
+
+  test('once back in from a side, it walks well into the panel before turning or leaving', async ({ page }) => {
+    // Short stays, so it would turn or leave at once if it could: it leaves,
+    // comes back in from a side, and wants to turn straight away.
+    await dinoTiming(page, {
+      roam: true,
+      stay: [0.05, 0.1],
+      firstLineAfter: 600,
+      choices: ['exit', 'turn'],
+      entries: ['left', 'right'],
+    })
+    await page.goto('/')
+    await showKit(page, '[data-dino-panel]')
+    await expect(dino(page)).toHaveAttribute('data-mode', 'walk', { timeout: 10_000 })
+    // Each side entry: where it came in, and where it made its first choice.
+    await dino(page).evaluate((el) => {
+      const panel = el.closest('[data-dino-panel]')!.getBoundingClientRect()
+      const out: { from: number; turnedAt: number }[] = []
+      ;(window as unknown as { dinoEntries: typeof out }).dinoEntries = out
+      let last = { mode: el.dataset.mode, dir: el.dataset.dir }
+      let entry: { from: number; dir: string } | null = null
+      const xNow = () => new DOMMatrix(getComputedStyle(el).transform).m41
+      new MutationObserver(() => {
+        const mode = el.dataset.mode
+        const dir = el.dataset.dir!
+        const x = xNow()
+        if (last.mode === 'away' && mode === 'walk' && (x < 0 || x > panel.width - 10)) entry = { from: x, dir }
+        else if (entry && mode === 'fall') entry = null // missed a jump: not a choice
+        else if (entry && (dir !== entry.dir || ['climb', 'drop', 'away'].includes(mode!))) {
+          // Its first choice since coming in: turning round, changing rows or leaving.
+          out.push({ from: entry.from, turnedAt: x })
+          entry = null
+        }
+        last = { mode, dir }
+      }).observe(el, { attributes: true })
+    })
+    const entries = () =>
+      page.evaluate(() => (window as unknown as { dinoEntries: { from: number; turnedAt: number }[] }).dinoEntries)
+    await expect.poll(async () => (await entries()).length, { timeout: 60_000 }).toBeGreaterThanOrEqual(2)
+    const width = await page.locator('[data-dino-panel]').evaluate((el) => el.getBoundingClientRect().width)
+    for (const e of await entries()) {
+      expect(Math.abs(e.turnedAt - e.from), `came in at ${e.from.toFixed(0)}, chose at ${e.turnedAt.toFixed(0)}`).toBeGreaterThanOrEqual(width * 0.3)
+    }
   })
 
   test('the first click starts a catch round with a scoreboard', async ({ page }) => {
