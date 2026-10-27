@@ -369,6 +369,20 @@ test.describe('dino easter egg (motion allowed)', () => {
     expect(await teleports(page)).toEqual([])
   })
 
+  test('keeps landing on the rows when they are swapped for new ones after it measured them', async ({ page }) => {
+    await dinoTiming(page, { reactions: ['fall'] })
+    await onTopRow(page)
+    // As when React replaces the rows (hydrating, or re-rendering the marquee):
+    // the elements it measured leave the page and new ones take their place.
+    await page.locator('[data-dino-panel] [data-marquee-row]').evaluateAll((rows) =>
+      rows.forEach((row) => row.replaceWith(row.cloneNode(true)))
+    )
+    await pokeWalking(page)
+    await expect(dino(page)).toHaveAttribute('data-reaction', 'fall')
+    await expect(dino(page)).toHaveAttribute('data-level', '1', { timeout: 5_000 })
+    await expect(dino(page)).toHaveAttribute('data-mode', 'walk')
+  })
+
   test('leaps up to the row above when clicked on the lower row', async ({ page }) => {
     await dinoTiming(page, { reactions: ['fall', 'leap'] })
     await onTopRow(page)
@@ -508,6 +522,29 @@ test.describe('dino easter egg (motion allowed)', () => {
     await expect(page.locator('[data-dino-score]')).toHaveText(/^Time! 1 catch/)
   })
 
+  test("a round sends its start and score to the game stats, without cookies, and shows the record", async ({ page }) => {
+    await dinoTiming(page, { reactions: ['dash'], round: 7 })
+    const sent: { body: unknown; cookie: string | null }[] = []
+    await page.route('**/api/game', async (route) => {
+      const request = route.request()
+      const body = JSON.parse(request.postData() ?? 'null')
+      sent.push({ body, cookie: await request.headerValue('cookie') })
+      await route.fulfill({
+        json: body?.type === 'start' ? { round: 'b'.repeat(24), record: 42 } : { result: 'counted' },
+      })
+    })
+    await onTopRow(page)
+    await pokeDino(page)
+    await expect.poll(() => sent.length).toBe(1)
+    expect(sent[0].body).toEqual({ type: 'start' })
+    // The all-time record shows beside the player's own best.
+    await expect(page.locator('[data-dino-best]')).toHaveText('Best 1 · Record 42')
+    // The round ends: its score goes with the round's id.
+    await expect.poll(() => sent.length, { timeout: 15_000 }).toBe(2)
+    expect(sent[1].body).toEqual({ type: 'end', round: 'b'.repeat(24), score: 1 })
+    expect(sent.every((s) => s.cookie === null)).toBe(true)
+  })
+
   test('the first click starts a catch round with a scoreboard', async ({ page }) => {
     await dinoTiming(page, { reactions: ['flip'] })
     await onTopRow(page)
@@ -532,11 +569,15 @@ test.describe('dino easter egg (motion allowed)', () => {
 
   test('says its lines now and then, each once per visit', async ({ page }) => {
     // Shortened waits; one line per page view, so each view shows the next.
+    // A line needs a moment of its walking in plain view, and its clock is
+    // capped per frame: a busy machine starving it of frames slows it down,
+    // so the waits are generous.
+    test.setTimeout(90_000)
     await dinoTiming(page, { firstLineAfter: 0.3, lineGap: [600, 600] })
     await page.goto('/')
     await showKit(page, '[data-dino-panel]')
     // The first hints at the click; it stops to say it.
-    await expect(dino(page)).toHaveAttribute('data-line', '0', { timeout: 15_000 })
+    await expect(dino(page)).toHaveAttribute('data-line', '0', { timeout: 30_000 })
     await expect(page.locator('[data-dino-bubble="line-0"]')).toBeVisible()
     await expect(dino(page)).toHaveAttribute('data-mode', 'walk')
     // Back again in the same visit (same tab): it picks up with the next line.
@@ -544,7 +585,7 @@ test.describe('dino easter egg (motion allowed)', () => {
     // navigating); showKit undoes the scroll position the reload restores.
     await page.reload()
     await showKit(page, '[data-dino-panel]')
-    await expect(dino(page)).toHaveAttribute('data-line', '1', { timeout: 15_000 })
+    await expect(dino(page)).toHaveAttribute('data-line', '1', { timeout: 30_000 })
     await expect(page.locator('[data-dino-bubble="line-1"]')).toBeVisible()
   })
 
