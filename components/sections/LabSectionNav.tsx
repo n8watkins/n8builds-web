@@ -169,7 +169,7 @@ export default function LabSectionNav() {
   return (
     <div
       ref={columnRef}
-      className="pointer-events-none absolute top-0 bottom-0 left-0 hidden w-[calc((100%-72rem)/2+2rem)] xl:block"
+      className="pointer-events-none absolute top-0 bottom-0 left-0 z-20 hidden w-[calc((100%-72rem)/2+2rem)] xl:block"
       data-testid="lab-section-nav"
       data-lab-rail=""
     >
