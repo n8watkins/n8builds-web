@@ -53,11 +53,11 @@ export const nowItems: NowState[] = [
   {
     project: 'Appturnity',
     logo: '/brands/appturnity.png',
-    tagline: 'Free websites and automation for local service businesses',
+    tagline: 'Free websites and automation for service businesses',
     status: 'active',
     headline: { lead: 'Your free website,', accent: 'built for your trade.' },
     pitch:
-      'Websites for local service businesses, like pool, HVAC and landscaping companies. Pick a template made for your trade, and we build and launch it for free.',
+      'Websites for service businesses, like pool, HVAC and landscaping companies. Pick a template made for your trade, and we build and launch it for free.',
     perks: ['Built and launched for free', 'Templates for your trade', 'Review requests add-on'],
     // Appturnity's own template previews (its home page and /examples use
     // them), copied from apps/hub/public/example-shots in its repo. The phone
@@ -73,7 +73,7 @@ export const nowItems: NowState[] = [
     focus:
       'Appturnity Booking: online booking with arrival windows and job-specific questions, so a pool, HVAC or landscaping customer can book without a phone call.',
     goal:
-      'One account for a local service business: a website we build and launch for free, then the systems that bring in work, like Google review requests and booking, on one bill.',
+      'One account for a service business: a website we build and launch for free, then the systems that bring in work, like Google review requests and booking, on one bill.',
     stack: ['Next.js 16', 'Cloudflare Workers', 'D1', 'Stripe', 'Gemini'],
     // Appturnity's own site is its home; its GitHub repo is never linked.
     ctas: [

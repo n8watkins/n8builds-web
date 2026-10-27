@@ -11,10 +11,9 @@ const ICON_SIZE: Record<Social['size'], string> = { sm: 'h-4 w-4', md: 'h-4.5 w-
 const LINK =
   'text-cyan-400 underline decoration-cyan-400/40 underline-offset-2 transition-colors hover:text-cyan-300 hover:decoration-cyan-300'
 
-// The "Follow the build" links come from the socials list, so a hidden link
+// The streaming links come from the socials list, so a hidden link
 // (enabled: false in data/socials.ts) drops out of the sentence too.
 const pick = (labels: string[]) => SOCIALS.filter((s) => labels.includes(s.label))
-const follow = pick(['GitHub', 'X (Twitter)'])
 const stream = pick(['Twitch', 'YouTube'])
 
 /** "A", "A and B": inline links to some of the socials. */
@@ -63,10 +62,6 @@ const Footer = () => {
             <div className="relative grid grid-cols-[minmax(0,1fr)] gap-6 p-5 sm:p-7 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] md:gap-8 md:p-8">
               {/* Left - branded panel */}
               <div className="flex flex-col gap-5">
-                <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/12 bg-white/4 px-3 py-1 text-xs font-semibold text-slate-300">
-                  <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" /> Building in public
-                </span>
-
                 <div className="flex items-center gap-4">
                   <div className="relative h-16 w-16 shrink-0">
                     <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-cyan-500/30 to-blue-600/30 blur-lg" />
@@ -90,44 +85,34 @@ const Footer = () => {
                     follow the build?
                   </span>
                 </h2>
-                <div className="flex flex-col gap-4 text-[15px] leading-relaxed text-[#9cadc5]">
-                  <div>
-                    <h3 className="mb-1 text-sm font-bold uppercase tracking-[0.14em] text-slate-200">Work together</h3>
-                    <p>
-                      Hiring, a project, or a question about something I built? Send a message with{' '}
-                      <a href="#contact-form" className={LINK}>the form</a> or email{' '}
-                      <a href="mailto:contact@n8builds.dev" className={LINK}>contact@n8builds.dev</a>; I usually
-                      reply within a day. Run a local service business?{' '}
-                      <a href="https://appturnity.com/#free-website" target="_blank" rel="noopener noreferrer" className={LINK}>
-                        Appturnity will build you a free website
-                        <span className="sr-only"> (opens in a new tab)</span>
-                      </a>
-                      .
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="mb-1 text-sm font-bold uppercase tracking-[0.14em] text-slate-200">Follow the build</h3>
-                    <p>
-                      Everything I ship lands in the <Link href="/builds" className={LINK}>build log</Link>, and the
-                      bigger lessons become <Link href="/blog" className={LINK}>N8&apos;s Notions</Link>.
-                      {follow.length > 0 && (
-                        <>
-                          {' '}Follow along on <SocialLinks links={follow} />
-                          {stream.length > 0 && (
-                            <>
-                              , or watch me build live on <SocialLinks links={stream} />
-                            </>
-                          )}
-                          .
-                        </>
-                      )}
-                    </p>
-                  </div>
+                <div className="flex flex-col gap-5 text-[15px] leading-relaxed text-[#9cadc5]">
+                  <p>
+                    Hiring, have a project, or a question about something I built? Message me with{' '}
+                    <a href="#contact-form" className={LINK}>the form</a>, or email me at{' '}
+                    <a href="mailto:contact@n8builds.dev" className={LINK}>contact@n8builds.dev</a>.
+                  </p>
+                  <p>
+                    Run a service business?{' '}
+                    <a href="https://appturnity.com/#free-website" target="_blank" rel="noopener noreferrer" className={LINK}>
+                      Claim your free website
+                      <span className="sr-only"> (opens in a new tab)</span>
+                    </a>{' '}
+                    with Appturnity.
+                  </p>
+                  <p>
+                    Everything I ship lands in the <Link href="/builds" className={LINK}>build log</Link>, and the
+                    bigger lessons become <Link href="/blog" className={LINK}>N8&apos;s Notions</Link>.
+                    {stream.length > 0 && (
+                      <>
+                        {' '}Watch me build live on <SocialLinks links={stream} />.
+                      </>
+                    )}
+                  </p>
                 </div>
 
                 {/* socials */}
                 <nav aria-label="Contact social media links" className="mt-auto flex items-center justify-between gap-1 sm:justify-start sm:gap-2">
-                  {SOCIALS.map(({ label, href, Icon, size }) => (
+                  {SOCIALS.map(({ label, href, Icon, size, color }) => (
                     <a
                       key={label}
                       href={href}
@@ -136,7 +121,7 @@ const Footer = () => {
                       title={label}
                       className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 sm:h-10 sm:w-10 bg-white/4 text-slate-400 transition-all duration-200 hover:scale-[1.05] hover:border-cyan-400/30 hover:text-cyan-300"
                     >
-                      <Icon aria-hidden className={ICON_SIZE[size]} />
+                      <Icon aria-hidden className={`${ICON_SIZE[size]} ${color ?? ''}`} />
                     </a>
                   ))}
                 </nav>

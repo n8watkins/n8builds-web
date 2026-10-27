@@ -112,6 +112,16 @@ When the owner decides something new, add it here (with the date) in the same ch
   Muted text uses `text-slate-450` / `text-slate-475`, not stock slate-500/600, which fail WCAG AA contrast on the dark backgrounds.
 - react-icons are decorative by default (`aria-hidden` via `IconContext` in `app/provider.tsx`).
   An icon-only control needs its own `aria-label`.
+- **Round 10 (2026-10-27, owner's calls):**
+  - The Loadout (`/loadout`) is about the tools, not a tech stack: how I work with AI (decide with ChatGPT, build with Claude Code on Claude Opus 5.5, fix with Codex and Gemini), the harnesses (Claude Code, Pi), the AI inside my apps, then the stream kit, rig and desk.
+    The homepage keeps the AI kit marquee and the dino.
+  - The AI kit tiles are calm: no hover highlight or description reveal (each is still one tab stop, so a row can be paused from the keyboard).
+  - The dino is a game: the first click starts a 30-second catch round with a scoreboard and a best score (kept in the browser); every click is a random colour and one of several reactions and roar lines; the rainbow comes on the 5th click, every 10th catch and 1 in 12 at random.
+    The portfolio runs byte-identical dino files.
+  - Copy says "service businesses", never "local".
+  - Twitch shows in the navbar only while live; streaming will be on YouTube and X.
+  - Ko-fi appears in its own blue with the red cup.
+  - The build log drops the six-month view; "Shipped this month" cycles real figures from the log.
 
 ## Publishing and releases (2026-10-25)
 

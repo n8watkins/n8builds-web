@@ -106,7 +106,7 @@ const SiteFooter = () => (
         </div>
         <p className="text-xs text-slate-450 lg:text-sm">© 2026 n8builds.dev. All rights reserved.</p>
         <nav aria-label="Footer social media links" className="flex items-center gap-1">
-          {SOCIALS.map(({ label, href, Icon, size }) => (
+          {SOCIALS.map(({ label, href, Icon, size, color }) => (
             <a
               key={label}
               href={href}
@@ -115,7 +115,7 @@ const SiteFooter = () => (
               title={label}
               className="flex h-11 w-11 items-center justify-center rounded-full text-slate-400 transition-colors duration-200 hover:bg-white/10 hover:text-slate-200"
             >
-              <Icon aria-hidden className={ICON_SIZE[size]} />
+              <Icon aria-hidden className={`${ICON_SIZE[size]} ${color ?? ''}`} />
             </a>
           ))}
         </nav>

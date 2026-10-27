@@ -79,11 +79,13 @@ test('every row can be starred on GitHub, and Scribe takes Mac and Linux request
 
 test('the Lab says its builds are public and mostly open source', async ({ page }) => {
   await page.goto('/')
-  // Its heading carries the Lab's flask mark, beside it in a chip.
+  // Its heading carries the Lab's flask mark (percolating), beside it in a chip.
   const heading = page.locator('#lab').getByRole('heading', { level: 2, name: 'The Lab' })
-  const mark = heading.locator('xpath=preceding-sibling::span[1]/*[local-name()="svg"]')
+  const flask = heading.locator('xpath=preceding-sibling::span[1]/span')
+  const mark = flask.locator('svg').first()
   await expect(mark).toBeVisible()
-  await expect(mark).toHaveAttribute('aria-hidden', 'true')
+  await expect(flask).toHaveAttribute('aria-hidden', 'true')
+  await expect(flask.locator('.flask-bubble')).toHaveCount(3)
   const [h, m] = await Promise.all([heading.boundingBox(), mark.boundingBox()])
   expect(Math.abs(h!.y + h!.height / 2 - (m!.y + m!.height / 2))).toBeLessThan(4)
   // The intro: one line on what the Lab is, then three checked points.

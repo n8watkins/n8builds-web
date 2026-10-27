@@ -5,8 +5,8 @@ import { pageMetadata } from '@/lib/seo'
 export const metadata = pageMetadata({
   title: 'The Loadout | n8builds',
   description:
-    'The tools, stack, and rig I actually run while building software, and what I use each one for.',
-  shareDescription: 'The tools, stack, and rig I run, and what I use each one for.',
+    'The AI I build with and what each one is for: ChatGPT to decide, Claude Code to build, Codex and Gemini to fix, then the rig and desk.',
+  shareDescription: 'The AI I build with and what each one is for, then the rig and desk.',
   path: '/loadout',
 })
 

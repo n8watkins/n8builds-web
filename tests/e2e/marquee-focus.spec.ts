@@ -14,8 +14,9 @@ test('a tile focused before hydration pauses its marquee', async ({ page }) => {
     await new Promise((resolve) => setTimeout(resolve, 1500))
     await route.continue()
   })
-  await page.goto('/loadout', { waitUntil: 'commit' })
-  const tiles = page.locator('#techstack figure')
+  // The homepage's AI kit, the site's marquee.
+  await page.goto('/', { waitUntil: 'commit' })
+  const tiles = page.locator('[data-dino-panel] figure')
   const tile = tiles.and(page.locator('[tabindex="0"]')).first()
   await tile.waitFor({ state: 'attached' })
   const serverTiles = await tiles.count()

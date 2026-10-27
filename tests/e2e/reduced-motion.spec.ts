@@ -32,8 +32,9 @@ test.describe('reduced motion', () => {
   }
 
   test('marquees list each item once', async ({ page }) => {
-    await page.goto('/loadout')
-    await expect(page.getByText('Claude Code', { exact: true })).toHaveCount(1)
+    // The homepage's AI kit (the only marquee since /loadout dropped its own).
+    await page.goto('/')
+    await expect(page.locator('[data-dino-panel]').getByText('Claude Code', { exact: true })).toHaveCount(1)
   })
 
   test('scrolling jumps instead of animating', async ({ page }) => {
@@ -57,9 +58,11 @@ test.describe('motion allowed', () => {
   })
 
   test('marquees scroll a repeated track', async ({ page }) => {
-    await page.goto('/loadout')
+    await page.goto('/')
     // The server sends one copy of the items; hydration adds the loop's copies.
-    await expect.poll(() => page.getByText('Claude Code', { exact: true }).count()).toBeGreaterThan(1)
+    await expect
+      .poll(() => page.locator('[data-dino-panel]').getByText('Claude Code', { exact: true }).count())
+      .toBeGreaterThan(1)
     // Check the marquee tracks themselves, not just "some infinite animation":
     // pulses elsewhere kept a page-wide count passing while every marquee had
     // an invalid animation (animation-name: none) and stood still.

@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import type { IconType } from 'react-icons'
-import { LuFlaskConical, LuStar, LuWrench } from 'react-icons/lu'
+import { LuStar, LuWrench } from 'react-icons/lu'
+import BubblingFlask from '@/components/ui/BubblingFlask'
 import { SiGooglechrome } from 'react-icons/si'
 
 /**
@@ -181,13 +182,13 @@ export default function LabSectionNav() {
       <nav
         ref={navRef}
         aria-label="Lab contents"
-        className={`pointer-events-auto sticky top-[calc(50vh-var(--nav-h,9rem)/2)] ml-auto mr-3 w-fit [--chip:1.625rem] [--row:2.25rem] transition-[opacity,translate,visibility] duration-700 ease-out motion-reduce:translate-none motion-reduce:transition-[opacity,visibility] 2xl:mr-6 min-[110rem]:[--chip:1.75rem] min-[110rem]:[--row:2.5rem] ${
+        className={`pointer-events-auto sticky top-[calc(50vh-var(--nav-h,9rem)/2)] ml-auto mr-3 w-fit [--chip:1.625rem] [--row:3rem] transition-[opacity,translate,visibility] duration-700 ease-out motion-reduce:translate-none motion-reduce:transition-[opacity,visibility] 2xl:mr-6 min-[110rem]:[--chip:1.75rem] min-[110rem]:[--row:3.25rem] ${
           shown ? 'visible translate-x-0 opacity-100' : 'invisible -translate-x-3 opacity-0'
         }`}
       >
         {/* Heading, wide shape only: the Lab's flask (centred over the icons) and its name in the tagline's gradient. */}
-        <p className="mb-2.5 hidden items-center gap-2 pl-[calc(0.375rem+var(--chip)/2-0.625rem)] text-lg font-bold tracking-tight min-[90rem]:flex min-[110rem]:text-xl">
-          <LuFlaskConical className="size-5 shrink-0 text-cyan-300" aria-hidden="true" />
+        <p className="mb-3 hidden items-center gap-2.5 pl-[calc(0.375rem+var(--chip)/2-0.875rem)] text-xl font-bold tracking-tight min-[90rem]:flex min-[110rem]:text-2xl">
+          <BubblingFlask className="size-7 text-cyan-300" />
           <span className="bg-linear-to-r from-cyan-300 via-blue-400 to-blue-500 bg-clip-text text-transparent">
             In the Lab
           </span>
@@ -205,8 +206,8 @@ export default function LabSectionNav() {
             />
             {/* A small light riding the end of the fill. */}
             <span
-              className={`absolute left-1/2 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-200 shadow-[0_0_6px_rgba(34,211,238,0.6)] transition-[top,opacity] duration-150 ease-out motion-reduce:transition-none ${
-                active < 0 ? 'opacity-0' : 'opacity-80'
+              className={`absolute left-1/2 size-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-200 shadow-[0_0_4px_rgba(34,211,238,0.4)] transition-[top,opacity] duration-150 ease-out motion-reduce:transition-none ${
+                active < 0 ? 'opacity-0' : 'opacity-60'
               }`}
               style={{ top: 'calc(var(--row) * var(--fill))' }}
             />

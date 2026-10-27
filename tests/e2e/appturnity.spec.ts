@@ -12,7 +12,8 @@ test('"What I\'m working on" advertises Appturnity, with its mark and the free-w
   const now = page.locator('#now')
   await expect(now.getByRole('heading', { level: 3, name: 'Appturnity' })).toBeVisible()
   await expect(now.locator('img[src*="appturnity.png"]').first()).toBeVisible()
-  await expect(now).toContainText('local service businesses')
+  await expect(now).toContainText('service businesses')
+  await expect(now).not.toContainText('local service')
   await expect(now.getByRole('link', { name: /Claim your free website/ }).first()).toHaveAttribute('href', 'https://appturnity.com/#free-website')
   await expect(now.getByRole('link', { name: /See example sites/ }).first()).toHaveAttribute('href', 'https://appturnity.com/examples')
   await expect(page.getByRole('link', { name: 'Check out the lab' })).toHaveCount(0)
@@ -20,21 +21,23 @@ test('"What I\'m working on" advertises Appturnity, with its mark and the free-w
 
 test('the project-work card is Appturnity, by name and mark', async ({ page }) => {
   await page.goto('/')
-  const card = page.locator('#work-with-me').getByRole('article', { name: /Run a local service business/ })
+  const card = page.locator('#work-with-me').getByRole('article', { name: /Run a service business\? We help/ })
   await card.scrollIntoViewIfNeeded()
   await expect(card.getByRole('link', { name: /Claim your free website/ })).toHaveAttribute('href', 'https://appturnity.com/#free-website')
   await expect(card).toContainText('Appturnity is my company')
   await expect(card.locator('img[src*="appturnity.png"]')).toHaveCount(1)
 })
 
-test('the contact card offers local service businesses a free Appturnity website, not consulting', async ({ page }) => {
+test('the contact card offers service businesses a free Appturnity website, not consulting', async ({ page }) => {
   await page.goto('/')
   // The card's intro, next to the contact form (whose Topic menu is separate).
-  const intro = page.locator('#contact p', { hasText: 'I usually reply within a day' })
+  const intro = page.locator('#contact p', { hasText: 'Run a service business?' })
   await intro.scrollIntoViewIfNeeded()
   await expect(intro).not.toContainText(/consulting/i)
-  await expect(intro).toContainText('Run a local service business?')
-  await expect(intro.getByRole('link', { name: /free website/ })).toHaveAttribute('href', 'https://appturnity.com/#free-website')
+  await expect(intro).toContainText('with Appturnity.')
+  // Only the offer is the link, so the whole sentence isn't underlined.
+  await expect(intro.getByRole('link')).toHaveText(/^Claim your free website( \(opens in a new tab\))?$/)
+  await expect(intro.getByRole('link')).toHaveAttribute('href', 'https://appturnity.com/#free-website')
 })
 
 test('the footer has a sitemap, the public contact address, and no invented Appturnity logo', async ({ page }) => {

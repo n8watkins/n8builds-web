@@ -25,6 +25,8 @@ interface Shot {
 interface Door {
   id: string
   eyebrow: string
+  /** A brand name: keep its own casing, set larger, instead of an uppercase eyebrow. */
+  wordmark?: boolean
   title: string
   blurb: React.ReactNode
   pointsLabel?: string
@@ -144,13 +146,15 @@ const doors: Door[] = [
   {
     id: 'appturnity',
     eyebrow: 'Appturnity',
-    title: 'Run a local service business?',
+    // A brand name, so it keeps the brand's own casing (no uppercase eyebrow).
+    wordmark: true,
+    title: 'Run a service business? We help.',
     blurb:
-      'Appturnity is my company. We build pool, HVAC, landscaping and other local service businesses a modern website and launch it for free. Next come the tools that run the rest of the business.',
+      'Appturnity is my company. We launch pool, HVAC, landscaping and other service businesses a modern website for free, then build the AI automations that take busywork off their plate.',
     pointsLabel: 'Today',
     points: [
       { text: 'A website built and launched for you, free' },
-      { text: 'Free hosting and 90 days of free edits' },
+      { text: 'AI automations that take busywork off your plate' },
       { text: 'Paid plans add your own domain and Google Business Profile help' },
     ],
     soon: [
@@ -233,7 +237,9 @@ const DoorCard = ({ door, index }: { door: Door; index: number }) => {
               {door.icon}
             </span>
             <p
-              className={`bg-linear-to-r ${door.accent.eyebrow} bg-clip-text text-sm font-bold uppercase tracking-[0.14em] text-transparent sm:text-base`}
+              className={`bg-linear-to-r ${door.accent.eyebrow} bg-clip-text font-bold text-transparent ${
+                door.wordmark ? 'text-lg tracking-tight sm:text-xl' : 'text-sm uppercase tracking-[0.14em] sm:text-base'
+              }`}
             >
               {door.eyebrow}
             </p>

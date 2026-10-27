@@ -2,8 +2,8 @@ import { test, expect, type Page } from '@playwright/test'
 
 /**
  * The homepage's compact build log (#build-log), right under "What I'm working
- * on": this month's newest entries across builds, a six-month activity chart
- * and a link to /builds. Against the recorded GitHub fixture
+ * on": this month's newest entries across builds, a card cycling through the
+ * month's figures, and a link to /builds. Against the recorded GitHub fixture
  * (BUILD_LOG_FIXTURE=1), whose capture time is the strip's "now", so these
  * don't drift as the months pass.
  */
@@ -12,7 +12,10 @@ test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
 const strip = (page: Page) => page.locator('#build-log')
 const rows = (page: Page) => strip(page).getByRole('listitem').filter({ has: page.locator('a[href^="/builds?build="]') })
-const bars = (page: Page) => strip(page).getByRole('list', { name: 'Changes by month' }).getByRole('listitem')
+const stats = (page: Page) => strip(page).getByRole('group', { name: /^Shipped / })
+const slides = (page: Page) => stats(page).locator('[data-stat]')
+const current = (page: Page) => stats(page).locator('[data-stat][aria-hidden="false"]')
+const dots = (page: Page) => stats(page).getByRole('button', { name: /^Show / })
 
 test('sits between "What I\'m working on" and the Lab, in the server-rendered HTML', async ({ page, request }) => {
   const html = await (await request.get('/')).text()
@@ -70,24 +73,60 @@ test('a row opens its build in the full log, filtered', async ({ page }) => {
   await expect(page.locator('#activity li[data-kind]').first()).toHaveAttribute('data-build', build)
 })
 
-test('charts six months of changes; busy months open their part of the log', async ({ page }) => {
+test("the card shows the month's figures, every one in the HTML, the first showing", async ({ page, request }) => {
+  // Server-rendered: the card is complete before any JavaScript runs.
+  const html = await (await request.get('/')).text()
+  expect(html).toContain('changes shipped')
+  expect(html).toContain('builds touched')
+  expect(html).not.toContain('last 6 months')
+
   await page.goto('/')
-  await strip(page).scrollIntoViewIfNeeded()
-  await expect(bars(page)).toHaveCount(6)
-  // Each bar names its month and count for screen readers.
-  await expect(bars(page).last()).toContainText(/October 2026: \d+ changes/)
-  await expect(bars(page).first()).toContainText(/May 2026: \d+ change/)
+  await stats(page).scrollIntoViewIfNeeded()
+  await expect(stats(page)).toHaveAttribute('aria-roledescription', 'carousel')
+  await expect(stats(page)).toContainText('October 2026')
+  const ids = await slides(page).evaluateAll((els) => els.map((el) => el.getAttribute('data-stat')))
+  expect(ids.slice(0, 2)).toEqual(['changes', 'builds'])
+  expect(ids).toContain('busiest')
+  expect(ids).toContain('days')
+  await expect(dots(page)).toHaveCount(ids.length)
+  await expect(current(page)).toHaveCount(1)
+  await expect(current(page)).toHaveAttribute('data-stat', 'changes')
+  await expect(current(page)).toContainText(/^\d+changes shipped$/)
+  // The busiest build shows with its icon.
+  await expect(slides(page).and(page.locator('[data-stat="busiest"]')).locator('img')).toHaveCount(1)
+})
 
-  // Quiet months are not links.
-  for (const quiet of ['August 2026', 'September 2026']) {
-    const bar = bars(page).filter({ hasText: quiet })
-    await expect(bar).toContainText(`${quiet}: 0 changes`)
-    await expect(bar.getByRole('link')).toHaveCount(0)
-  }
+test('reduced motion holds the first figure; a dot picks one and announces it', async ({ page }) => {
+  await page.goto('/')
+  await stats(page).scrollIntoViewIfNeeded()
+  await page.waitForTimeout(4600)
+  await expect(current(page)).toHaveAttribute('data-stat', 'changes')
 
-  await bars(page).last().getByRole('link').click()
-  await expect(page).toHaveURL(/\/builds#month-2026-10$/)
-  await expect(page.locator('#month-2026-10')).toBeInViewport()
+  const live = stats(page).locator('[aria-live="polite"]')
+  await expect(live).toHaveText('')
+  await expect(async () => {
+    await dots(page).nth(1).click()
+    await expect(current(page)).toHaveAttribute('data-stat', 'builds', { timeout: 2000 })
+  }).toPass({ timeout: 15_000 })
+  await expect(dots(page).nth(1)).toHaveAttribute('aria-current', 'true')
+  await expect(live).toHaveText(/^\d+ builds? touched$/)
+})
+
+test.describe('with motion', () => {
+  test.use({ contextOptions: { reducedMotion: 'no-preference' } })
+
+  test('moves on by itself while in view, and holds while hovered', async ({ page }) => {
+    await page.goto('/')
+    await stats(page).scrollIntoViewIfNeeded()
+    await expect(current(page)).toHaveAttribute('data-stat', 'builds', { timeout: 8000 })
+    // The timer never speaks: only a picked figure is announced.
+    await expect(stats(page).locator('[aria-live="polite"]')).toHaveText('')
+
+    await stats(page).hover()
+    const held = await current(page).getAttribute('data-stat')
+    await page.waitForTimeout(5000)
+    await expect(current(page)).toHaveAttribute('data-stat', held!)
+  })
 })
 
 test('"See the full build log" goes to /builds', async ({ page }) => {
@@ -97,7 +136,7 @@ test('"See the full build log" goes to /builds', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1, name: 'The build log' })).toBeVisible()
 })
 
-test('works from the keyboard: the button, then each row, then the busy months', async ({ page }) => {
+test('works from the keyboard: the button, then each row, then the figures', async ({ page }) => {
   await page.goto('/')
   const button = strip(page).getByRole('link', { name: 'See the full build log' })
   await button.scrollIntoViewIfNeeded()
@@ -109,7 +148,9 @@ test('works from the keyboard: the button, then each row, then the busy months',
     order.push(await page.evaluate(() => document.activeElement?.getAttribute('href') ?? ''))
   }
   expect(order.slice(0, rowCount).every((href) => href.startsWith('/builds?build='))).toBe(true)
-  expect(order.slice(rowCount).every((href) => href.startsWith('/builds#month-'))).toBe(true)
+  // After the rows, the card's dots (buttons, no href).
+  expect(order.slice(rowCount)).toEqual(['', ''])
+  await expect(dots(page).nth(1)).toBeFocused()
 
   // The focused row shows a ring.
   await button.focus()
