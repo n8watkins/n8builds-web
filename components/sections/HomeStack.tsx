@@ -1,6 +1,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { FiArrowUpRight } from 'react-icons/fi'
+import { LuBackpack } from 'react-icons/lu'
+import SectionMark from '@/components/ui/SectionMark'
 import AITechStack from '@/components/features/AITechStack'
 import { buildStacks } from '@/data/buildStacks'
 
@@ -23,22 +25,21 @@ export default function HomeStack() {
 
   return (
     <section id="loadout" aria-label="My stack" className="py-16">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-cyan-400">The loadout</p>
-          <h2 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">The AI kit I build with</h2>
-          <p className="mt-2 max-w-[520px] text-[#9cadc5]">
-            The agents and tools doing the heavy lifting right now - hover or tap a tile for what I use it for.
-          </p>
-        </div>
-        <Link
-          href="/loadout"
-          className="group flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8"
-        >
-          See the full loadout
-          <FiArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-        </Link>
-      </div>
+      <SectionMark
+        icon={<LuBackpack aria-hidden="true" />}
+        title="The Loadout"
+        action={
+          <Link
+            href="/loadout"
+            className="group flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8"
+          >
+            See the full loadout
+            <FiArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </Link>
+        }
+      >
+        The AI kit I build with: the agents and tools doing the heavy lifting right now.
+      </SectionMark>
 
       <AITechStack dino />
 
@@ -59,8 +60,9 @@ export default function HomeStack() {
           {turso.tools.map((tool) => {
             const why = WHY[tool]
             return (
-              <li key={tool} className="flex items-start gap-3">
-                <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-[#0a1428] p-2">
+              // A light hover on each piece: its icon grows a touch and lights up, its name turns cyan.
+              <li key={tool} className="group -m-2 flex items-start gap-3 rounded-xl p-2 transition-colors duration-200 hover:bg-white/[0.03]">
+                <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-[#0a1428] p-2 transition-all duration-200 group-hover:scale-110 group-hover:border-cyan-300/40 group-hover:shadow-[0_0_14px_-2px_rgba(34,211,238,0.35)]">
                   {why && (
                     <span className="relative h-full w-full">
                       <Image
@@ -76,7 +78,7 @@ export default function HomeStack() {
                   )}
                 </span>
                 <div className="min-w-0">
-                  <p className="font-semibold text-slate-100">{tool}</p>
+                  <p className="font-semibold text-slate-100 transition-colors duration-200 group-hover:text-cyan-200">{tool}</p>
                   {why && <p className="mt-0.5 text-sm leading-snug text-[#9cadc5]">{why.reason}</p>}
                 </div>
               </li>
