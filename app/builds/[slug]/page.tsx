@@ -194,10 +194,14 @@ export default async function BuildPage({ params }: BuildPageProps) {
 
           {/* The other screenshots */}
           {build.images.length > 1 && (
-            <section className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-3" aria-label="More screenshots">
+            // A single extra shot shows large and centred, not alone in a three-column row.
+            <section
+              className={`mt-10 grid gap-4 ${build.images.length === 2 ? 'mx-auto max-w-3xl grid-cols-1' : 'grid-cols-2 md:grid-cols-3'}`}
+              aria-label="More screenshots"
+            >
               {build.images.slice(1).map((img) => (
                 <div key={img.src} className="relative aspect-video overflow-hidden rounded-xl border border-white/8 bg-white/3">
-                  <Image src={img.src} alt={img.alt} fill sizes="(max-width: 768px) 50vw, 360px" className="object-contain p-2" />
+                  <Image src={img.src} alt={img.alt} fill sizes="(max-width: 768px) 100vw, 768px" className="object-contain p-2" />
                 </div>
               ))}
             </section>

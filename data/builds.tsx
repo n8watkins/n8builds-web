@@ -311,7 +311,7 @@ export const builds: Build[] = [
   {
     slug: 'portfolio-rank',
     name: 'Portfolio Rank',
-    tagline: 'The best developer portfolios, ranked',
+    tagline: 'The developer portfolio leaderboard',
     category: 'Web app',
     tags: ['Next.js', 'TypeScript', 'Open source'],
     highlights: [
