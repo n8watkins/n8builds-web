@@ -20,7 +20,7 @@ export function AITechStack({ dino = false }: { dino?: boolean }) {
   return (
     <div
       data-dino-panel={dino || undefined}
-      className="relative flex w-full flex-col items-center justify-center overflow-hidden motion-safe:gap-6 rounded-3xl border border-white/6 bg-linear-to-br from-[#081427] via-[#0a1a33] to-[#081427] py-8 motion-safe:py-12"
+      className="relative flex w-full flex-col items-center justify-center overflow-hidden select-none [-webkit-tap-highlight-color:transparent] motion-safe:gap-6 rounded-3xl border border-white/6 bg-linear-to-br from-[#081427] via-[#0a1a33] to-[#081427] py-8 motion-safe:pt-24 motion-safe:pb-12"
     >
       <Marquee label="AI agents" reverse pauseOnHover data-marquee-row className="[--duration:45s] motion-safe:[--gap:2.5rem]">
         {ai_agents.map((tech) => (

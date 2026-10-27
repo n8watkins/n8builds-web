@@ -10,6 +10,8 @@ import {
   COMMIT_PAGE_SIZE,
   dayKey,
   entriesForBuild,
+  parseReleaseNotes,
+  normalizeRelease,
   getBuildLog,
   getRecentActivity,
   highlightEntry,
@@ -533,5 +535,53 @@ describe('reading each repo far enough back', () => {
     const pages = [site.slice(0, 100), site.slice(99, 199), site.slice(199, 230)]
     const result = await collectCommits(async (page) => pages[page - 1] ?? [], cutoff)
     expect(result.commits.map((c) => c.sha)).toEqual(site.slice(0, 230).map((c) => c.sha))
+  })
+})
+
+describe('parseReleaseNotes', () => {
+  it("reads release-kit's plain and classic sections as patch notes", () => {
+    const body = [
+      'A quieter Lab and a faster homepage.',
+      '',
+      '### New',
+      '',
+      '- Seven themes, including a light one ([#48](https://github.com/n8watkins/n8builds-web/pull/48))',
+      '- **loadout:** the Loadout rebuilt (#61) (ff3d872)',
+      '',
+      '### Fixes',
+      '',
+      '- `dino` drops its walk-in target once it turns',
+      '',
+      '### Performance',
+      '- lazy [Sentry](https://sentry.io) loading',
+    ].join('\n')
+    expect(parseReleaseNotes(body)).toEqual([
+      { section: 'new', text: 'Seven themes, including a light one' },
+      { section: 'new', text: 'The Loadout rebuilt' },
+      { section: 'fixed', text: 'Dino drops its walk-in target once it turns' },
+      { section: 'faster', text: 'Lazy Sentry loading' },
+    ])
+  })
+
+  it("leaves out GitHub's generated lists, so an older release shows no notes", () => {
+    const body = "## What's Changed\n* Prepare 0.8.0 by @n8watkins in https://github.com/n8watkins/scribe/pull/6\n\n**Full Changelog**: https://github.com/n8watkins/scribe/compare/v0.7.0...v0.8.0"
+    expect(parseReleaseNotes(body)).toEqual([])
+    expect(parseReleaseNotes(null)).toEqual([])
+  })
+
+  it('carries the notes from the release onto its log entry', () => {
+    const release = normalizeRelease({
+      tag_name: 'v1.3.0',
+      name: 'v1.3.0',
+      published_at: '2026-10-28T18:00:00Z',
+      html_url: 'https://github.com/n8watkins/scribe/releases/tag/v1.3.0',
+      draft: false,
+      prerelease: false,
+      body: '### Fixed\n- The pill no longer flickers',
+    })
+    const [entry] = entriesForBuild({ slug: 'scribe', log: 'releases', github: 'https://github.com/n8watkins/scribe' }, { repo: 'n8watkins/scribe', pushedAt: null, releases: [release], commits: [] })
+    expect(entry.kind).toBe('release')
+    expect(entry.notes).toEqual([{ section: 'fixed', text: 'The pill no longer flickers' }])
+    expect(entry.detail).toBeUndefined()
   })
 })

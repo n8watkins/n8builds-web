@@ -36,8 +36,13 @@ test('a post opened from the homepage starts at its top, without scrolling up to
   const frames = await page.evaluate(() => (window as unknown as { __frames: number[] }).__frames)
   const start = frames[0]
   const trace = `scroll positions after the click: ${frames.join(', ')}`
-  const inBetween = new Set(frames.filter((y) => y > 0 && y < start))
-  expect(inBetween.size, trace).toBeLessThanOrEqual(1)
+  // The clamped offset can settle by a pixel or two while the new page lays
+  // out (Firefox measured 5,570 then 5,569), so positions a few pixels apart
+  // count as one stop; an animated scroll's stops are hundreds apart.
+  const stops = [...new Set(frames.filter((y) => y > 0 && y < start))]
+    .sort((a, b) => a - b)
+    .filter((y, i, all) => i === 0 || y - all[i - 1] > 4)
+  expect(stops.length, trace).toBeLessThanOrEqual(1)
   const left = frames.findIndex((y) => y !== start)
   const top = frames.indexOf(0)
   expect(top, trace).toBeGreaterThan(-1)

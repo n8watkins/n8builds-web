@@ -11,28 +11,42 @@ import { BUILD_ICONS } from '@/lib/build-meta'
 export default function BuildIndex({ activity }: { activity: BuildActivity[] }) {
   return (
     <ul className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-label="Builds by latest activity">
-      {activity.map((build) => (
+      {activity.map((build) => {
+        // The newest release in the card's entries, as a chip by the name.
+        const release = build.latest.find((e) => e.kind === 'release')
+        const version = release && /^Shipped (v\S+)$/.exec(release.title)?.[1]
+        return (
         <li
           key={build.slug}
           data-build={build.slug}
           className="group relative isolate flex flex-col overflow-hidden rounded-2xl border border-white/8 bg-white/2 p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-cyan-400/30 hover:bg-white/4"
         >
-          {/* Accent wash */}
-          <div aria-hidden className={`pointer-events-none absolute inset-x-0 top-0 -z-10 h-24 bg-linear-to-b ${build.color} opacity-40 blur-2xl`} />
+          {/* The build's colour: a wash and a bright edge along the top */}
+          <div aria-hidden className={`pointer-events-none absolute inset-x-0 top-0 -z-10 h-28 bg-linear-to-b ${build.color} opacity-60 blur-2xl transition-opacity duration-300 group-hover:opacity-90`} />
+          <div aria-hidden className={`pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r ${build.color} opacity-90`} />
 
-          <span className="font-mono text-xs uppercase tracking-wider text-slate-400">{build.category}</span>
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-mono text-xs uppercase tracking-wider text-slate-400">{build.category}</span>
+            {version && (
+              <span className="rounded-full border border-cyan-400/25 bg-cyan-400/10 px-2 py-px font-mono text-[0.7rem] font-semibold text-cyan-300">
+                {version}
+              </span>
+            )}
+          </div>
 
           <div className="mt-3">
-            <h3 className="flex items-center gap-2.5 text-lg font-bold leading-tight text-slate-50">
+            <h3 className="flex items-center gap-3 text-lg font-bold leading-tight text-slate-50">
               {BUILD_ICONS[build.slug] && (
-                <Image
-                  src={BUILD_ICONS[build.slug]}
-                  alt=""
-                  width={28}
-                  height={28}
-                  unoptimized={BUILD_ICONS[build.slug].endsWith('.svg')}
-                  className="h-7 w-7 shrink-0 rounded-lg"
-                />
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0a1428] ring-1 ring-white/10">
+                  <Image
+                    src={BUILD_ICONS[build.slug]}
+                    alt=""
+                    width={28}
+                    height={28}
+                    unoptimized={BUILD_ICONS[build.slug].endsWith('.svg')}
+                    className="h-7 w-7 rounded-lg"
+                  />
+                </span>
               )}
               {/* Stretched over the card: the whole card opens the build page. */}
               <Link
@@ -74,7 +88,8 @@ export default function BuildIndex({ activity }: { activity: BuildActivity[] }) 
             </span>
           </div>
         </li>
-      ))}
+        )
+      })}
     </ul>
   )
 }

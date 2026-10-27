@@ -53,8 +53,8 @@ type LabPart = { id: string; label: string; short?: string; icon: IconType; icon
  * label showing as a tooltip on hover or keyboard focus.
  *
  * Script: one scroll listener, attached only while the Lab is on screen, that
- * finds the current part (the one whose top has passed 40% of the viewport)
- * and writes the wire's fill straight to a CSS variable (no re-render per
+ * finds the current part (the one whose top has passed the middle of the viewport)
+ * and snaps the wire's fill to its row through a CSS variable (no re-render per
  * frame). Animation is CSS transitions plus Tailwind's spin; under reduced
  * motion nothing moves (the halo jumps, the comet is a still arc).
  */
@@ -115,20 +115,19 @@ export default function LabSectionNav() {
     let frame = 0
     const update = () => {
       frame = 0
-      const line = window.innerHeight * 0.4
+      // A part becomes current once its top reaches the rail's level, the
+      // viewport's middle, and stays current until the next one gets there.
+      const line = window.innerHeight * 0.5
       let index = -1
-      let fraction = 0
       for (let i = 0; i < els.length; i++) {
-        const r = els[i].getBoundingClientRect()
-        if (r.top > line) break
+        if (els[i].getBoundingClientRect().top > line) break
         index = i
-        const end = i + 1 < els.length ? els[i + 1].getBoundingClientRect().top : r.bottom
-        fraction = Math.min(1, Math.max(0, (line - r.top) / Math.max(1, end - r.top)))
       }
       setActive(index)
-      // In rows from the first chip's centre; the wire ends at the list's foot.
-      const fill = index < 0 ? 0 : Math.min(index + fraction, els.length - 0.5)
-      listRef.current?.style.setProperty('--fill', String(fill))
+      // The light locks onto the current part's row (the owner's ask,
+      // 2026-10-27): it moves only when the part changes, never between rows
+      // and never past the last one.
+      listRef.current?.style.setProperty('--fill', String(Math.max(index, 0)))
       // Shown from the moment the first part's heading reaches the rail's
       // centred spot: the rail fades in level with it, after the Lab's intro
       // (whose pills already list the parts) has mostly gone by, and holds there.
@@ -170,7 +169,7 @@ export default function LabSectionNav() {
   return (
     <div
       ref={columnRef}
-      className="pointer-events-none absolute top-0 bottom-0 left-0 hidden w-[calc((100%-72rem)/2+2rem)] xl:block"
+      className="pointer-events-none absolute top-0 bottom-0 left-0 z-20 hidden w-[calc((100%-72rem)/2+2rem)] xl:block"
       data-testid="lab-section-nav"
       data-lab-rail=""
     >
@@ -182,7 +181,7 @@ export default function LabSectionNav() {
       <nav
         ref={navRef}
         aria-label="Lab contents"
-        className={`pointer-events-auto sticky top-[calc(50vh-var(--nav-h,9rem)/2)] ml-auto mr-3 w-fit [--chip:1.625rem] [--row:3rem] transition-[opacity,translate,visibility] duration-700 ease-out motion-reduce:translate-none motion-reduce:transition-[opacity,visibility] 2xl:mr-6 min-[110rem]:[--chip:1.75rem] min-[110rem]:[--row:3.25rem] ${
+        className={`pointer-events-auto sticky top-[calc(50vh-var(--nav-h,9rem)/2)] ml-auto mr-3 w-fit [--chip:1.625rem] [--row:3.75rem] transition-[opacity,translate,visibility] duration-700 ease-out motion-reduce:translate-none motion-reduce:transition-[opacity,visibility] 2xl:mr-6 min-[110rem]:[--chip:1.75rem] min-[110rem]:[--row:4rem] ${
           shown ? 'visible translate-x-0 opacity-100' : 'invisible -translate-x-3 opacity-0'
         }`}
       >
@@ -190,7 +189,7 @@ export default function LabSectionNav() {
         <p className="mb-3 hidden items-center gap-2.5 pl-[calc(0.375rem+var(--chip)/2-0.875rem)] text-xl font-bold tracking-tight min-[90rem]:flex min-[110rem]:text-2xl">
           <BubblingFlask className="size-7 text-cyan-300" />
           <span className="bg-linear-to-r from-cyan-300 via-blue-400 to-blue-500 bg-clip-text text-transparent">
-            In the Lab
+            The Lab
           </span>
         </p>
         <ul ref={listRef} className="relative" style={{ '--fill': 0 } as CSSProperties}>
@@ -198,16 +197,17 @@ export default function LabSectionNav() {
           <span
             aria-hidden="true"
             className="absolute top-[calc(var(--row)/2)] left-[calc(0.375rem+var(--chip)/2)] w-px -translate-x-1/2 bg-cyan-400/15"
-            style={{ height: `calc(var(--row) * ${parts.length - 0.5})` }}
+            // From the first icon's centre to the last one's: nothing past Chrome Extensions.
+            style={{ height: `calc(var(--row) * ${parts.length - 1})` }}
           >
             <span
-              className="absolute inset-x-0 top-0 bg-linear-to-b from-cyan-300/80 to-blue-500/80 transition-[height] duration-150 ease-out motion-reduce:transition-none"
+              className="absolute inset-x-0 top-0 bg-linear-to-b from-cyan-300/80 to-blue-500/80 transition-[height] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
               style={{ height: 'calc(var(--row) * var(--fill))' }}
             />
             {/* A small light riding the end of the fill. */}
             <span
-              className={`absolute left-1/2 size-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-200 shadow-[0_0_4px_rgba(34,211,238,0.4)] transition-[top,opacity] duration-150 ease-out motion-reduce:transition-none ${
-                active < 0 ? 'opacity-0' : 'opacity-60'
+              className={`absolute left-1/2 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-100 shadow-[0_0_8px_2px_rgba(34,211,238,0.7)] transition-[top,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+                active < 0 ? 'opacity-0' : 'opacity-100'
               }`}
               style={{ top: 'calc(var(--row) * var(--fill))' }}
             />
@@ -274,7 +274,7 @@ function Comet() {
     >
       <span
         className="absolute -inset-1/2 animate-spin bg-[conic-gradient(from_0deg,transparent_0_55%,rgba(34,211,238,0.2)_78%,rgba(103,232,249,0.65)_96%,transparent_100%)] motion-reduce:animate-none"
-        style={{ animationDuration: '7s' }}
+        style={{ animationDuration: '5s' }}
       />
     </span>
   )

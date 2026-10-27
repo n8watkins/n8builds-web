@@ -1,12 +1,43 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { FiArrowUpRight } from 'react-icons/fi'
-import type { HighlightKind, LogEntry } from '@/lib/build-log'
+import { RELEASE_NOTES_SHOWN, type HighlightKind, type LogEntry, type ReleaseSection } from '@/lib/build-log'
 
 // One entry on the build log's timeline: a release ("Shipped v0.8.0"), a day's
 // changes, or a hand-written highlight (a featured card). Used by the /builds
 // feed and by each build page's "Recent activity"; renders on the server or
 // the client.
+
+// A release's patch notes, by release-kit section: the label and its colour.
+const SECTION: Record<ReleaseSection, { label: string; className: string }> = {
+  breaking: { label: 'Breaking', className: 'border-rose-400/30 bg-rose-400/10 text-rose-300' },
+  new: { label: 'New', className: 'border-emerald-400/30 bg-emerald-400/10 text-emerald-300' },
+  fixed: { label: 'Fixed', className: 'border-amber-400/30 bg-amber-400/10 text-amber-300' },
+  faster: { label: 'Faster', className: 'border-sky-400/30 bg-sky-400/10 text-sky-300' },
+  safer: { label: 'Safer', className: 'border-violet-400/30 bg-violet-400/10 text-violet-300' },
+}
+
+/** A release's patch notes: each line with its section, the first few only. */
+function PatchNotes({ entry }: { entry: LogEntry }) {
+  const notes = entry.notes ?? []
+  const shown = notes.slice(0, RELEASE_NOTES_SHOWN)
+  const rest = notes.length - shown.length
+  return (
+    <ul aria-label={`What's in ${entry.title.replace(/^Shipped /, '')}`} className="mt-2.5 space-y-1.5">
+      {shown.map((note, i) => (
+        <li key={i} className="flex items-start gap-2 text-sm leading-snug text-slate-300">
+          <span
+            className={`mt-px w-[3.75rem] shrink-0 rounded-full border px-1.5 py-px text-center font-mono text-[0.6rem] font-bold uppercase tracking-wider ${SECTION[note.section].className}`}
+          >
+            {SECTION[note.section].label}
+          </span>
+          <span>{note.text}</span>
+        </li>
+      ))}
+      {rest > 0 && <li className="pl-[4.25rem] font-mono text-[0.7rem] text-slate-450">and {rest} more in the release</li>}
+    </ul>
+  )
+}
 
 const HIGHLIGHT_LABEL: Record<HighlightKind, string> = {
   shipped: 'Shipped',
@@ -57,6 +88,8 @@ export default function LogEntryItem({
   icon?: string
 }) {
   const highlight = entry.kind === 'highlight'
+  // A release with patch notes reads as a card, like a highlight.
+  const card = highlight || (entry.kind === 'release' && (entry.notes?.length ?? 0) > 0)
 
   const body = (
     <>
@@ -88,6 +121,7 @@ export default function LogEntryItem({
         <Title entry={entry} />
       </p>
       {entry.detail && <p className="mt-1 text-sm leading-relaxed text-[#9cadc5]">{entry.detail}</p>}
+      {entry.notes && entry.notes.length > 0 && <PatchNotes entry={entry} />}
       {entry.more > 0 && (
         <p className="mt-1.5 font-mono text-[0.7rem] text-slate-450">
           and {entry.more} more {entry.more === 1 ? 'change' : 'changes'}
@@ -102,7 +136,7 @@ export default function LogEntryItem({
   )
 
   // Level with the meta line, which a highlight's card pads down.
-  const top = highlight ? 'top-[1.35rem] sm:top-[1.6rem]' : 'top-[0.3rem]'
+  const top = card ? 'top-[1.35rem] sm:top-[1.6rem]' : 'top-[0.3rem]'
   return (
     // `log-in` (globals.css) eases the entry in as it scrolls into view.
     <li className={`log-in relative pb-6 last:pb-0 ${icon ? 'pl-8' : 'pl-6'}`} data-kind={entry.kind} data-build={entry.build}>
@@ -115,7 +149,7 @@ export default function LogEntryItem({
           height={24}
           unoptimized={icon.endsWith('.svg')}
           className={`absolute left-0 h-6 w-6 -translate-x-1/2 -translate-y-[0.2rem] rounded-md bg-darkBlue ${
-            highlight ? 'top-[1.35rem] sm:top-[1.6rem]' : 'top-0'
+            card ? 'top-[1.35rem] sm:top-[1.6rem]' : 'top-0'
           } ${entry.kind === 'change' ? 'ring-1 ring-white/10' : 'ring-2 ring-cyan-400/70 shadow-[0_0_10px_rgba(34,211,238,0.45)]'}`}
         />
       ) : (
@@ -129,8 +163,14 @@ export default function LogEntryItem({
           }`}
         />
       )}
-      {highlight ? (
-        <div className="rounded-2xl border border-cyan-400/20 bg-linear-to-br from-cyan-500/[0.07] to-blue-600/[0.07] p-4 sm:p-5">
+      {card ? (
+        <div
+          className={`rounded-2xl border p-4 sm:p-5 ${
+            highlight
+              ? 'border-cyan-400/20 bg-linear-to-br from-cyan-500/[0.07] to-blue-600/[0.07]'
+              : 'border-white/8 bg-linear-to-br from-white/[0.035] to-cyan-500/[0.03]'
+          }`}
+        >
           {body}
         </div>
       ) : (

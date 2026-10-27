@@ -47,64 +47,74 @@ export default function ShippedStats({ stats, period }: { stats: ShippedStat[]; 
       role="group"
       aria-roledescription="carousel"
       aria-label={`Shipped ${period}`}
-      className="flex flex-col gap-3 md:gap-4"
+      className="flex h-full flex-col gap-3 md:gap-4"
       onMouseEnter={() => setHeld(true)}
       onMouseLeave={() => setHeld(false)}
       onFocus={() => setHeld(true)}
       onBlur={() => setHeld(false)}
     >
-      <p className="font-mono text-[0.62rem] font-bold uppercase tracking-[0.16em] text-slate-450">{period}</p>
+      <p className="text-2xl font-bold tracking-tight text-cyan-300">{period}</p>
 
-      {/* Every figure in one grid cell; only the current one shows. */}
-      <div className="grid min-h-[4.75rem] items-center md:min-h-[5.5rem]">
-        {stats.map((stat, i) => {
-          const current = i === index
-          const icon = stat.build ? BUILD_ICONS[stat.build] : undefined
-          return (
-            <div
-              key={stat.id}
-              data-stat={stat.id}
-              aria-roledescription="slide"
-              aria-hidden={!current}
-              className={`col-start-1 row-start-1 transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none ${
-                current ? 'opacity-100' : 'pointer-events-none translate-y-1.5 opacity-0'
-              }`}
-            >
-              <p className="flex items-center gap-2.5">
-                {icon && (
-                  <Image src={icon} alt="" width={28} height={28} unoptimized={icon.endsWith('.svg')} className="h-7 w-7 shrink-0 rounded-md" />
-                )}
-                <span className={`font-bold tracking-tight text-slate-50 ${stat.id === 'busiest' ? 'text-2xl' : 'text-4xl tabular-nums'}`}>
-                  {stat.value}
-                </span>
-              </p>
-              <p className="mt-1 text-sm text-[#9cadc5]">{stat.label}</p>
-            </div>
-          )
-        })}
-      </div>
-
-      {stats.length > 1 && (
-        <div className="flex items-center gap-1">
-          {stats.map((stat, i) => (
-            <button
-              key={stat.id}
-              type="button"
-              aria-label={`Show ${stat.value} ${stat.label}`}
-              aria-current={i === index}
-              onClick={() => pick(i)}
-              // A 24px target (WCAG 2.5.8) around a small bar.
-              className="group flex h-6 items-center rounded-full px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
-            >
+      {/* The month on top; the figure and its dots centred in the space below. */}
+      <div className="flex flex-1 flex-col justify-center gap-3 md:gap-4">
+        {/* Every figure in one grid cell; only the current one shows. Clicking
+            it moves on to the next figure, like the dots below. */}
+        <button
+          type="button"
+          onClick={() => pick((index + 1) % stats.length)}
+          disabled={stats.length < 2}
+          title={stats.length > 1 ? 'Next figure' : undefined}
+          className="group -m-2 grid min-h-[4.75rem] items-center rounded-xl p-2 text-left transition-colors enabled:cursor-pointer enabled:hover:bg-white/[0.04] focus-visible:outline-2 focus-visible:outline-cyan-400 md:min-h-[5.5rem]"
+        >
+          {stats.map((stat, i) => {
+            const current = i === index
+            const icon = stat.build ? BUILD_ICONS[stat.build] : undefined
+            return (
               <span
-                className={`block h-1 rounded-full transition-all duration-300 ${
-                  i === index ? 'w-5 bg-cyan-300' : 'w-2 bg-white/20 group-hover:bg-white/40'
+                key={stat.id}
+                data-stat={stat.id}
+                aria-roledescription="slide"
+                aria-hidden={!current}
+                className={`col-start-1 row-start-1 block transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none ${
+                  current ? 'opacity-100' : 'pointer-events-none translate-y-1.5 opacity-0'
                 }`}
-              />
-            </button>
-          ))}
-        </div>
-      )}
+              >
+                <span className="flex items-center gap-2.5">
+                  {icon && (
+                    <Image src={icon} alt="" width={28} height={28} unoptimized={icon.endsWith('.svg')} className="h-7 w-7 shrink-0 rounded-md" />
+                  )}
+                  <span className={`font-bold tracking-tight text-slate-50 ${stat.id === 'busiest' ? 'text-2xl' : 'text-4xl tabular-nums'}`}>
+                    {stat.value}
+                  </span>
+                </span>
+                <span className="mt-1 block text-sm text-[#9cadc5] transition-colors group-enabled:group-hover:text-cyan-200">{stat.label}</span>
+              </span>
+            )
+          })}
+        </button>
+
+        {stats.length > 1 && (
+          <div className="flex items-center gap-1">
+            {stats.map((stat, i) => (
+              <button
+                key={stat.id}
+                type="button"
+                aria-label={`Show ${stat.value} ${stat.label}`}
+                aria-current={i === index}
+                onClick={() => pick(i)}
+                // A 24px target (WCAG 2.5.8) around a small bar.
+                className="group flex h-6 items-center rounded-full px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
+              >
+                <span
+                  className={`block h-1 rounded-full transition-all duration-300 ${
+                    i === index ? 'w-5 bg-cyan-300' : 'w-2 bg-white/20 group-hover:bg-white/40'
+                  }`}
+                />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
       <p className="sr-only" aria-live="polite">
         {announce}
       </p>

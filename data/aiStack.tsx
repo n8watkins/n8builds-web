@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactElement } from 'react'
-import { SiClaude, SiCursor, SiGooglegemini, SiHuggingface, SiPerplexity } from 'react-icons/si'
+import { SiClaude, SiCursor, SiGooglegemini, SiHuggingface } from 'react-icons/si'
 // Simple Icons dropped the OpenAI mark (react-icons 5.7); Bootstrap Icons has it.
 import { BsOpenai } from 'react-icons/bs'
 
@@ -21,7 +21,7 @@ interface MarkProps {
  * tile uses the mark of ggml-org, the project that makes it: the pixel "GG"
  * badge from its GitHub avatar, the letters cut out of the badge.
  */
-function GgmlMark({ className, style }: MarkProps) {
+export function GgmlMark({ className, style }: MarkProps) {
   const holes = [
     // First G
     [13, 14, 11, 3],
@@ -80,7 +80,6 @@ export const ai_agents: AIStackItem[] = [
   { name: 'Cursor', icon: <SiCursor className={ICON} style={{ color: LIGHT }} />, description: 'Inline, context-aware edits when my hands are on the keys.' },
   { name: 'OpenAI', icon: <BsOpenai className={ICON} style={{ color: LIGHT }} />, description: 'Generation pipelines and structured outputs.' },
   { name: 'Gemini', icon: <SiGooglegemini className={ICON} style={{ color: '#4285F4' }} />, description: 'Long-context summarization in my extensions.' },
-  { name: 'Perplexity', icon: <SiPerplexity className={ICON} style={{ color: '#20B8CD' }} />, description: 'Fast research with sources.' },
 ]
 
 // Row 2 - local-first & tooling (whisper.cpp powers Scribe, Piper powers the Piper TTS extension)

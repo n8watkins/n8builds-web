@@ -120,14 +120,58 @@ When the owner decides something new, add it here (with the date) in the same ch
     The portfolio runs byte-identical dino files.
   - Copy says "service businesses", never "local".
   - Twitch shows in the navbar only while live; streaming will be on YouTube and X.
-  - Ko-fi appears in its own blue with the red cup.
+  - Ko-fi appears in its own blue with the red cup (replaced in round 12: outlined like Portfolio, white cup).
   - The build log drops the six-month view; "Shipped this month" cycles real figures from the log.
+- **Round 11 (2026-10-27, owner's calls):**
+  - The navbar's Ko-fi, Portfolio and Appturnity buttons share one text style (semibold, same size and padding); Appturnity's has no "A" icon.
+  - Appturnity's card shows Appturnity's own wordmark (from appturnity.com, its navy letters lightened for the dark card), not a font guess.
+  - "Shipped this month": the figures card is on the left and clicking a figure moves to the next; the month heading sits above its rows.
+  - The Lab opens with "Check out the Lab": spaced capitals in the cyan-to-blue gradient with a shimmer.
+    Its side rail's heading is "The Lab", and the dot riding the rail is brighter.
+  - More room between My tools and Featured.
+  - Each Lab row's colour wash swells in as the row scrolls into view and fades as it leaves (steady where the browser can't animate on scroll, and under reduced motion).
+  - The Lab rows' main buttons (Download for Windows, Try the free tools, Find your sun window, Vote in a face-off) have a light sweeping across them now and then, only while on screen and each on its own rhythm (round 12).
+- **Round 12 (2026-10-27, owner's calls):**
+  - Ko-fi is outlined like Portfolio with a plain white cup, everywhere (navbar, footer, contact); Portfolio gets a briefcase icon.
+  - Appturnity's badge says "Free websites", not a status; its Work with me door shows the wordmark (no gradient text) and says "We help!".
+  - Appturnity today: a free website, online booking, appointment reminders, lead and quote follow-up; coming soon: AI phone receptionist, missed-call text-back, online payments.
+  - "Shipped this month" names the month once, large, on the figures card.
+  - "Check out the Lab" spans the width of the flask and title.
+  - The Lab rail's light locks onto the current part, which changes when the next part reaches the middle of the screen; it never runs past the last part. Rows are further apart.
+  - Taglines: Scribe "Speech-to-text for Windows"; Portfolio Rank "The developer portfolio leaderboard".
+  - The portfolio ad reads "The developer behind the build" on one line and links each AI project to its portfolio page.
+  - Work with me points stay on one line each; "QA" replaces "Quality built in".
+  - The hero's whoami terminal adds "Shipping with Claude Opus 5.5."
+  - The Loadout is "My Loadout", and its rig, desk and stream kit are one "The setup" section.
+  - Every Lab project is MIT-licensed (Solara and TubeVault got the license); the Lab says "MIT-licensed".
+  - The "Use mine as a template" wash is quieter.
+- **Round 13 (2026-10-27, owner's calls): build pages and the build log:**
+  - A build page opens with the app icon, the title and tagline, then the kind pill and the tech pills (each with its real mark) under them, then the actions; the live site sits on the right of the screenshot.
+  - Scribe's page offers "Download for Windows" at the top (/download/scribe); a download replaces the lower invitation box, so it isn't offered twice.
+  - Each build page has a checklist of what it does, the Details dialog's "How it's built" explainer, and Stack cards with each technology's mark.
+  - The Details dialog says what each part does in that app (not what it is), one icon per technology; it links to the full story and straight to the build's part of the log.
+  - /builds opens with three figures (builds tracked, updates and releases in the last 12 months); build cards carry their colour and newest version; months count their updates and releases; a release with release-kit notes shows them as patch notes (New, Fixed, Faster, Safer).
+- **Round 13 (2026-10-27, owner's calls): the homepage and My Loadout:**
+  - "Shipped this month" names the month once, at the top of the figures card; the figure and dots sit centred below it.
+  - "Check out the Lab" is one line of plain text, larger, justified to the width of the flask and title.
+  - The Lab rail's line stops at Chrome Extensions; the comet around the current icon turns a little faster.
+  - The portfolio ad's heading is "The developer behind the build".
+  - My Loadout: each setup item shows its brand's mark (AMD, Samsung, Acer, Razer, OBS, Scribe's own) or a plain icon; no "daily driver" badge; the cards animate in.
+  - whisper.cpp is listed on its own with its real (ggml) mark; Piper isn't in the Loadout's in-app AI.
+  - Codex is listed as a harness: OpenAI's coding agent, which comes with its own harness.
+  - Perplexity is off the AI kit (not used).
+- **Dino fixes (2026-10-27, owner's calls):** the dino never teleports.
+  Its click reactions are a backflip, a fall, a leap up and a dash, all in plain sight (the "blink" to another spot is gone), and a resize or relayout no longer carries it or flings it across the panel.
+  A catch round's scoreboard and its best score (lit when this round beats it) sit in a band across the top of the kit panel that the dino never enters: the panel has twice the room above its rows, the dino is clipped below the band, and its jumps and bubbles stay under it.
+  The AI kit's tiles can't be selected (not even by a triple click) or highlighted.
+  A click on the dino is always a catch, so its roars react to being caught (RAWR!, OUCH!, GOT ME!, NO FAIR!, AGAIN?!, HEY!); none claims a miss.
+  The round's countdown has its own pill in the band: bigger digits over a bar that drains with the round, red and pulsing for the last 5 seconds.
 
 ## Publishing and releases (2026-10-25)
 
 - **Articles are always site first.** Every article is written and published on n8builds.dev (N8's Notions, in Sanity); posting or reposting it on X is a separate, later step, never the primary copy.
 - **The release train runs Mondays at 16:00 UTC** (confirmed 2026-10-25). It releases only when a `feat` or `fix` landed since the last release.
-- **The owner applies release-kit to the other projects** (TL;DW, TubeVault, Piper TTS, Solara, Portfolio Rank, OpenPing and dev-portfolio) themselves, later. Agents don't, unless asked.
+- **release-kit is a dev dependency in every project** (2026-10-27, the owner's call, replacing "the owner applies it later"): each repo pins `github:n8watkins/release-kit` at a tag, Dependabot opens an update PR on every kit release, and notes default to the plain style (New, Fixed, Faster, Safer).
 - **portfolio.n8builds.dev stays a separate site and a separate repo:** it is the developer-portfolio (hire-me) segment, a repo the owner can share on its own (renamed from Portfolio2.0 to `dev-portfolio` on 2026-10-25); n8builds.dev is the build-in-public workshop. Not a page of n8builds.dev.
 - **The portfolio features Echo, Scout, GeminiGPT and Net-Trailer, not Scribe or Solara** (2026-10-25). It shows more builds as links to their n8builds.dev pages, and the Render demos' live status from OpenPing.
 - **OpenPing and Scribe are featured rows** (2026-10-25): the owner uses both daily.
