@@ -438,6 +438,32 @@ test.describe('dino easter egg (motion allowed)', () => {
     }
   })
 
+  test('the scoreboards sit in a band the dino never enters, even mid-flip during a round', async ({ page }) => {
+    await dinoTiming(page, { reactions: ['flip', 'dash', 'flip', 'fall'] })
+    await onTopRow(page)
+    await recordMoves(page)
+    for (let i = 0; i < 8; i++) {
+      await pokeWalking(page)
+      await page.waitForTimeout(800)
+    }
+    await expect(page.locator('[data-dino-score]')).toHaveAttribute('data-shown', 'true')
+    await expect(page.locator('[data-dino-best]')).toHaveAttribute('data-shown', 'true')
+    const band = await page.evaluate(() => {
+      const panel = document.querySelector('[data-dino-panel]')!.getBoundingClientRect()
+      const box = document.querySelector('[data-dino-score]')!.parentElement!.getBoundingClientRect()
+      return box.bottom - panel.top
+    })
+    const moves = await page.evaluate(
+      () => (window as unknown as { dinoMoves: { y: number; mode: string; level: string }[] }).dinoMoves
+    )
+    // Its top edge (the transform's y) while it is on, or leaping between, the rows.
+    const inBand = moves.filter((m) => m.level !== '-1' && m.mode !== 'away' && m.y < band)
+    expect(inBand.map((m) => `${m.mode}@${m.level} top ${m.y.toFixed(0)} above ${band.toFixed(0)}`)).toEqual([])
+    // And nothing of it can show up there anyway: the stage is clipped below the band.
+    const clip = await dino(page).evaluate((el) => getComputedStyle(el.parentElement!).clipPath)
+    expect(Number(clip.match(/inset\((\d+)/)?.[1])).toBeGreaterThanOrEqual(band)
+  })
+
   test('the first click starts a catch round with a scoreboard', async ({ page }) => {
     await dinoTiming(page, { reactions: ['flip'] })
     await onTopRow(page)
@@ -534,7 +560,7 @@ test.describe('dino easter egg (motion allowed)', () => {
     await expect(dino(page)).toHaveAttribute('data-line', '1', { timeout: 15_000 })
   })
 
-  test('the tiles cannot be selected or highlighted by a click, and still take keyboard focus', async ({ page }) => {
+  test('the tiles cannot be selected by a double or triple click, and still take keyboard focus', async ({ page }) => {
     await page.goto('/')
     await showKit(page, '[data-dino-panel]')
     // Hovering the middle of a row pauses it (it never holds still otherwise),
@@ -554,7 +580,10 @@ test.describe('dino easter egg (motion allowed)', () => {
     expect(
       await page.evaluate(([x, y]) => getComputedStyle(document.elementFromPoint(x, y)!.closest('figure')!).userSelect, [cx, cy])
     ).toBe('none')
+    // A double and a triple click would select a word, then the whole line, anywhere else.
     await page.mouse.dblclick(cx, cy)
+    expect(await page.evaluate(() => String(getSelection()))).toBe('')
+    await page.mouse.click(cx, cy, { clickCount: 3 })
     expect(await page.evaluate(() => String(getSelection()))).toBe('')
     const tile = page.locator('[data-dino-panel] figure[tabindex="0"]').first()
     await tile.focus()

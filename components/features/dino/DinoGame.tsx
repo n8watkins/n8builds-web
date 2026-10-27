@@ -270,6 +270,10 @@ export default function DinoGame() {
   const linesRef = useRef<HTMLDivElement>(null)
   const scoreRef = useRef<HTMLDivElement>(null)
   const bestRef = useRef<HTMLDivElement>(null)
+  // The dino and its bubbles live in a stage that starts below the scoreboards'
+  // band, so the dino can never cross a scoreboard (see measure()).
+  const stageRef = useRef<HTMLDivElement>(null)
+  const bandRef = useRef<HTMLDivElement>(null)
   // The rainbow's gradient id, unique per dino (useId's colons don't belong in url()).
   const rainbowId = `dino-rainbow-${useId().replace(/[^a-zA-Z0-9]/g, '')}`
 
@@ -278,19 +282,27 @@ export default function DinoGame() {
     const roarEls = [...(roarsRef.current?.children ?? [])] as HTMLElement[]
     const score = scoreRef.current
     const bestEl = bestRef.current
+    const stage = stageRef.current
+    const band = bandRef.current
     const lineEls = [...(linesRef.current?.children ?? [])] as HTMLElement[]
     const panel = dino?.closest<HTMLElement>('[data-dino-panel]')
-    if (!dino || !roarEls.length || !score || !bestEl || !panel) return
+    if (!dino || !roarEls.length || !score || !bestEl || !stage || !band || !panel) return
 
     let rows: Row[] = []
     let levels: Level[] = []
     let panelW = 0
     let panelH = 0
+    // The top of the play area, panel px: just under the scoreboards' band.
+    // Nothing of the dino shows above it (the stage is clipped there), and its
+    // arcs and bubbles stay below it.
+    let ceiling = 0
 
     const measure = () => {
       const box = panel.getBoundingClientRect()
       panelW = box.width
       panelH = box.height
+      ceiling = band.getBoundingClientRect().bottom - box.top + 4
+      stage.style.clipPath = `inset(${ceiling.toFixed(0)}px 0 0 0)`
       rows = [...panel.querySelectorAll<HTMLElement>('[data-marquee-row]')].flatMap((el): Row[] => {
         const tracks = [...el.children] as HTMLElement[]
         const first = tracks[0]
@@ -488,7 +500,7 @@ export default function DinoGame() {
         const p = Math.min((4 * hh + d) / (8 * hh), 1)
         return from - d * p - hh * 4 * p * (1 - p)
       }
-      while (h > d / 4 + 1 && peak(h) - H < 2) h -= 2
+      while (h > d / 4 + 1 && peak(h) - H < ceiling) h -= 2
       // Aim for a tile of the row above where it will be on landing (that
       // row moves too), as near as possible to an ordinary forward leap.
       const row = levels[target].row
@@ -557,7 +569,7 @@ export default function DinoGame() {
       if (side === 'right' && x + W + 2 + b.w > panelW - 4) side = 'left'
       else if (side === 'left' && x - 2 - b.w < 4) side = 'right'
       const bx = side === 'right' ? x + W + 2 : x - 2 - b.w
-      const by = Math.max(floor - H - b.h + 12, 2)
+      const by = Math.max(floor - H - b.h + 12, ceiling)
       const scale = Math.max(Math.min(1, 0.5 + (total - left) * 6, left * 8), 0)
       el.dataset.tail = side === 'right' ? 'left' : 'right'
       el.style.transformOrigin = side === 'right' ? 'bottom left' : 'bottom right'
@@ -729,7 +741,7 @@ export default function DinoGame() {
                 const reach = gap + LANDING
                 const T = Math.min(Math.max(reach / (SPEED * 1.4), 0.26), 0.6)
                 // The top row's arc stays inside the panel (which clips).
-                const h = Math.min(8 + gap * 0.4, current.y - H - 2)
+                const h = Math.max(0, Math.min(8 + gap * 0.4, current.y - H - ceiling))
                 hop = { t: 0, T, h, floor: current.y, vx: (dir * reach) / T }
                 mode = 'hop'
               }
@@ -934,7 +946,7 @@ export default function DinoGame() {
         dino.dataset.reaction = reaction
         if (reaction === 'flip') {
           // The arc stays inside the panel on the top row.
-          flip = { t: 0, h: Math.min(44, current.y - H - 2), floor: current.y }
+          flip = { t: 0, h: Math.max(0, Math.min(44, current.y - H - ceiling)), floor: current.y }
           mode = 'flip'
         } else if (reaction === 'fall') {
           // A startled little pop, then straight down through its row.
@@ -977,79 +989,88 @@ export default function DinoGame() {
 
   return (
     <>
-      <div
-        ref={dinoRef}
-        data-dino
-        data-frame="fall"
-        // Its own small box takes clicks (the easter egg); the layer around it
-        // lets everything else through to the tiles.
-        className="group/dino pointer-events-auto absolute top-0 left-0 cursor-pointer will-change-transform"
-        style={{
-          width: W,
-          height: H,
-          transform: `translate3d(-${W * 2}px, -${H * 2}px, 0)`,
-          ['--dino-body' as string]: COLORS.body,
-        }}
-      >
-        <svg
-          viewBox={`0 0 ${DINO_COLS} ${DINO_ROWS}`}
-          width={W}
-          height={H}
-          shapeRendering="crispEdges"
-          className="block overflow-visible"
+      {/* The stage: the dino and its bubbles, clipped below the scoreboards' band. */}
+      <div ref={stageRef} className="absolute inset-0">
+        <div
+          ref={dinoRef}
+          data-dino
+          data-frame="fall"
+          // Its own small box takes clicks (the easter egg); the layer around it
+          // lets everything else through to the tiles.
+          className="group/dino pointer-events-auto absolute top-0 left-0 cursor-pointer will-change-transform"
+          style={{
+            width: W,
+            height: H,
+            transform: `translate3d(-${W * 2}px, -${H * 2}px, 0)`,
+            ['--dino-body' as string]: COLORS.body,
+          }}
         >
-          {/* The rainbow body, its bands turning slowly. */}
-          <defs>
-            <linearGradient id={rainbowId} x1="0" y1="0" x2="1" y2="1">
-              {RAINBOW.map((c, i) => (
-                <stop key={c} offset={i / (RAINBOW.length - 1)} stopColor={c} />
-              ))}
-              <animateTransform
-                attributeName="gradientTransform"
-                type="rotate"
-                from="0 0.5 0.5"
-                to="360 0.5 0.5"
-                dur="3s"
-                repeatCount="indefinite"
-              />
-            </linearGradient>
-          </defs>
-          {FRAMES.map(({ name, paths }) => (
-            <g key={name} className={FRAME_CLASS[name]}>
-              <path d={paths.body} fill="var(--dino-body)" />
-              <path d={paths.eye} fill={COLORS.eye} />
-              <path d={paths.shine} fill={COLORS.shine} />
-            </g>
+          <svg
+            viewBox={`0 0 ${DINO_COLS} ${DINO_ROWS}`}
+            width={W}
+            height={H}
+            shapeRendering="crispEdges"
+            className="block overflow-visible"
+          >
+            {/* The rainbow body, its bands turning slowly. */}
+            <defs>
+              <linearGradient id={rainbowId} x1="0" y1="0" x2="1" y2="1">
+                {RAINBOW.map((c, i) => (
+                  <stop key={c} offset={i / (RAINBOW.length - 1)} stopColor={c} />
+                ))}
+                <animateTransform
+                  attributeName="gradientTransform"
+                  type="rotate"
+                  from="0 0.5 0.5"
+                  to="360 0.5 0.5"
+                  dur="3s"
+                  repeatCount="indefinite"
+                />
+              </linearGradient>
+            </defs>
+            {FRAMES.map(({ name, paths }) => (
+              <g key={name} className={FRAME_CLASS[name]}>
+                <path d={paths.body} fill="var(--dino-body)" />
+                <path d={paths.eye} fill={COLORS.eye} />
+                <path d={paths.shine} fill={COLORS.shine} />
+              </g>
+            ))}
+          </svg>
+        </div>
+        <div ref={roarsRef} className="contents">
+          {ROARS.map((b, i) => (
+            <BubbleView key={ROAR_WORDS[i]} bubble={b} name={`roar-${i}`} />
           ))}
-        </svg>
+        </div>
+        <div ref={linesRef} className="contents">
+          {LINES.map((b, i) => (
+            <BubbleView key={DINO_LINES[i]} bubble={b} name={`line-${i}`} className="opacity-90" />
+          ))}
+        </div>
       </div>
-      <div ref={roarsRef} className="contents">
-        {ROARS.map((b, i) => (
-          <BubbleView key={ROAR_WORDS[i]} bubble={b} name={`roar-${i}`} />
-        ))}
-      </div>
-      {/* The game's scoreboard, top centre of the panel (clear of its side fades): shown during a round and
-          for a moment after it. Decorative, like the dino. */}
+      {/* The scoreboards, in a band across the top of the panel that the dino
+          never enters: the round (catches and clock) and the best score. Shown
+          during a round and for a moment after it. A fixed height, so the band
+          measures the same empty or full. Decorative, like the dino. */}
       <div
-        ref={scoreRef}
-        data-dino-score
-        data-shown="false"
+        ref={bandRef}
         aria-hidden="true"
-        className="pointer-events-none absolute top-2.5 left-1/2 z-10 -translate-x-1/2 rounded-full whitespace-nowrap border border-white/10 bg-[#081427]/85 px-3 py-1 font-mono text-xs font-semibold text-cyan-200 tabular-nums opacity-0 backdrop-blur-sm transition-opacity duration-300 data-[shown=true]:opacity-100"
-      />
-      {/* The best score, bottom centre, in the same style: shown during a round and after it. A new best lights up. */}
-      <div
-        ref={bestRef}
-        data-dino-best
-        data-shown="false"
-        data-new="false"
-        aria-hidden="true"
-        className="pointer-events-none absolute bottom-2.5 left-1/2 z-10 -translate-x-1/2 rounded-full whitespace-nowrap border border-white/10 bg-[#081427]/85 px-3 py-1 font-mono text-xs font-semibold text-slate-300 tabular-nums opacity-0 backdrop-blur-sm transition-[opacity,color,border-color] duration-300 data-[new=true]:border-amber-300/40 data-[new=true]:text-amber-200 data-[shown=true]:opacity-100"
-      />
-      <div ref={linesRef} className="contents">
-        {LINES.map((b, i) => (
-          <BubbleView key={DINO_LINES[i]} bubble={b} name={`line-${i}`} className="opacity-90" />
-        ))}
+        className="pointer-events-none absolute inset-x-0 top-2.5 z-10 flex justify-center gap-2"
+      >
+        <div
+          ref={scoreRef}
+          data-dino-score
+          data-shown="false"
+          className="flex h-[1.625rem] items-center rounded-full whitespace-nowrap border border-white/10 bg-[#081427]/85 px-3 font-mono text-xs font-semibold text-cyan-200 tabular-nums opacity-0 backdrop-blur-sm transition-opacity duration-300 data-[shown=true]:opacity-100"
+        />
+        {/* A new best lights up. */}
+        <div
+          ref={bestRef}
+          data-dino-best
+          data-shown="false"
+          data-new="false"
+          className="flex h-[1.625rem] items-center rounded-full whitespace-nowrap border border-white/10 bg-[#081427]/85 px-3 font-mono text-xs font-semibold text-slate-300 tabular-nums opacity-0 backdrop-blur-sm transition-[opacity,color,border-color] duration-300 data-[new=true]:border-amber-300/40 data-[new=true]:text-amber-200 data-[shown=true]:opacity-100"
+        />
       </div>
     </>
   )
