@@ -44,7 +44,7 @@ Open:
 ### dev-portfolio (live at https://portfolio.n8builds.dev)
 
 - **Merged:** PR #6 `fix(deps)`: 82 of 87 Dependabot alerts fixed (all 7 critical). 5 dev-only alerts remain in `@lhci/cli` (needs a new upstream release, or drop it from devDependencies and run `npx @lhci/cli`; recommended, awaiting the owner).
-- **`feat/portfolio-refresh`** (worktree `dev-portfolio-v2`, preview on port 3829): the big portfolio refresh, in PREVIEW, not approved yet. Round 8 of owner feedback was in progress at handoff; its brief is reproduced below. 23 chromium tests passed at round 7.
+- **`feat/portfolio-refresh`** (worktree `dev-portfolio-v2`, preview on port 3829): the big portfolio refresh, in PREVIEW, not approved yet. Round 8 finished after the handoff was first written (commit `e95e590`): 15 of 17 items done; item 6 shows weekdays and the timezone only (exact hours need the owner or the OpenPing admin token; one constant, `DEMO_HOURS` in `lib/status.ts`); item 12 found GeminiGPT on `gemini-3.1-flash-lite` (noted in `PROJECT_BACKLOG.md`). The owner has not reviewed round 8 yet; its brief is reproduced below. 23 chromium tests passed at round 7.
 - **`feat/consent-banner`** (worktree `dev-portfolio-consent`): the cookie banner ported from n8builds-web (shared `.n8builds.dev` cookie). Ships together with the refresh.
 - When the owner approves the refresh: merge `feat/consent-banner` into it, finish tests at 1280/375/320, open one PR in dev-portfolio, full CI, squash-merge when green.
 
