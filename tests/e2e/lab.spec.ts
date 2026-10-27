@@ -231,7 +231,7 @@ test('the rows carry no ad boxes: each product\'s colour is in its checks', asyn
 
 test('the homepage advertises the developer portfolio right after the Lab', async ({ page }) => {
   await page.goto('/')
-  const ad = page.getByRole('region', { name: 'The developer behind the builds' })
+  const ad = page.getByRole('region', { name: 'The developer behind the build' })
   await ad.scrollIntoViewIfNeeded()
   await expect(ad.getByRole('link', { name: /See my portfolio/ })).toHaveAttribute('href', 'https://portfolio.n8builds.dev')
   await expect(ad.getByRole('link', { name: /Jump to the projects/ })).toHaveAttribute('href', 'https://portfolio.n8builds.dev/#projects')

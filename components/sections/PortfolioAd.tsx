@@ -27,7 +27,7 @@ const PortfolioAd = () => (
       <div>
         <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-cyan-400">Hiring?</p>
         <h2 id="portfolio-ad-heading" className="text-[1.65rem] font-bold tracking-tight text-slate-50 sm:text-3xl lg:whitespace-nowrap">
-          The developer behind the builds
+          The developer behind the build
         </h2>
         <p className="mt-3 leading-relaxed text-[#9cadc5]">
           AI projects with live demos: <ProjectLink slug="echo">a realtime voice agent</ProjectLink>,{' '}

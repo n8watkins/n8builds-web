@@ -139,7 +139,7 @@ When the owner decides something new, add it here (with the date) in the same ch
   - "Check out the Lab" spans the width of the flask and title.
   - The Lab rail's light locks onto the current part, which changes when the next part reaches the middle of the screen; it never runs past the last part. Rows are further apart.
   - Taglines: Scribe "Speech-to-text for Windows"; Portfolio Rank "The developer portfolio leaderboard".
-  - The portfolio ad reads "The developer behind the builds" on one line and links each AI project to its portfolio page.
+  - The portfolio ad reads "The developer behind the build" on one line and links each AI project to its portfolio page.
   - Work with me points stay on one line each; "QA" replaces "Quality built in".
   - The hero's whoami terminal adds "Shipping with Claude Opus 5.5."
   - The Loadout is "My Loadout", and its rig, desk and stream kit are one "The setup" section.
