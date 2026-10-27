@@ -113,7 +113,7 @@ const Loadout = () => {
             <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-300/30 sm:h-16 sm:w-16">
               <LuBackpack className="h-7 w-7 sm:h-9 sm:w-9" aria-hidden="true" />
             </span>
-            <h1 className="text-5xl font-bold tracking-tight text-slate-50 sm:text-6xl lg:text-7xl">The Loadout</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-slate-50 sm:text-6xl lg:text-7xl">The Loadout</h1>
           </div>
           <p className="mt-5 max-w-[600px] text-balance text-lg text-[#9cadc5] sm:text-xl">
             The AI I work with and what each one is for, then the rig and desk it all runs on.
