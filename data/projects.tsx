@@ -230,19 +230,27 @@ export const projects = [
       Frontend: {
         descriptionParts: [
           {
-            text: 'Static-exported Next.js app with personalized safe-sun windows, installable as a PWA',
+            text: 'Safe sun windows for your skin type, sunscreen and activity, worked out in the browser',
             icons: [{ icon: 're.svg' }, { icon: 'next.svg' }, { icon: 'ts.svg' }, { icon: 'tail.svg' }],
+          },
+          {
+            text: 'Installable as an app, with push reminders',
+            icons: [{ icon: 'next.svg' }],
           },
         ],
       },
       Backend: {
         descriptionParts: [
           {
-            text: 'Google sign-in, Firestore sync, push notifications and Functions on Firebase',
+            text: 'Google sign-in, with your plan synced across devices in Firestore',
             icons: [{ icon: 'firebase.png' }],
           },
           {
-            text: 'Stripe-backed Pro plan; live UV and weather from Open-Meteo',
+            text: 'Live UV and weather forecasts from Open-Meteo, no key needed',
+            icons: [{ icon: 'open-meteo.png' }],
+          },
+          {
+            text: 'Pro plan checkout with Stripe, fulfilled by a Firebase Function',
             icons: [{ icon: 'stripe.png' }],
           },
         ],
@@ -250,7 +258,7 @@ export const projects = [
       Cloud: {
         descriptionParts: [
           {
-            text: 'Firebase Hosting, deployed by GitHub Actions after the quality gates pass',
+            text: 'Firebase Hosting, deployed by GitHub Actions once the tests pass',
             icons: [{ icon: 'firebase.png' }, { icon: 'github.png' }],
           },
         ],
@@ -269,11 +277,11 @@ export const projects = [
       Frontend: {
         descriptionParts: [
           {
-            text: 'A React dashboard for history, stats and settings, in TypeScript with Vite',
+            text: 'A dashboard for your history, notes, stats, models, hotkeys and themes',
             icons: [{ icon: 're.svg' }, { icon: 'ts.svg' }, { icon: 'vite.svg' }],
           },
           {
-            text: 'A Tauri 2 shell: tray icon, global hotkeys, autostart and notifications',
+            text: 'Tray menu, global hotkeys, start with Windows, notifications and the floating pill that shows your words as you talk',
             icons: [{ icon: 'tauri.svg' }],
           },
         ],
@@ -281,11 +289,15 @@ export const projects = [
       Backend: {
         descriptionParts: [
           {
-            text: 'Rust captures the audio and types or pastes the text at your cursor; whisper.cpp stays warm in memory',
+            text: 'Records your mic, trims the silence, types the text at your cursor and puts your clipboard back',
             icons: [{ icon: 'rust.svg' }],
           },
           {
-            text: 'Transcript history and stats in a local SQLite database',
+            text: 'Speech to text on your PC, kept warm in memory, on your graphics card or the CPU',
+            icons: [{ icon: 'whisper.png' }],
+          },
+          {
+            text: 'History, notes and stats in a local database, kept for as long as you choose',
             icons: [{ icon: 'sqlite.svg' }],
           },
         ],
@@ -293,7 +305,7 @@ export const projects = [
       Cloud: {
         descriptionParts: [
           {
-            text: 'No cloud for your voice: releases ship on GitHub, with signed auto-updates',
+            text: 'Nothing for your voice: signed installers and updates come from GitHub Releases, and your notes can back up to a private repo you own',
             icons: [{ icon: 'github.png' }],
           },
         ],
@@ -312,7 +324,7 @@ export const projects = [
       Frontend: {
         descriptionParts: [
           {
-            text: 'The admin app, status pages and free tools: an installable React app with React Router',
+            text: 'The dashboard for monitors, incidents, schedules and alerts (installable as an app), plus public status pages, an embeddable widget, an SVG badge and free tools anyone can use',
             icons: [{ icon: 're.svg' }, { icon: 'ts.svg' }, { icon: 'vite.svg' }, { icon: 'tail.svg' }],
           },
         ],
@@ -320,23 +332,31 @@ export const projects = [
       Backend: {
         descriptionParts: [
           {
-            text: 'A Worker API with Hono and Zod, and a scheduled run every 12 minutes',
+            text: 'An API on Hono, with every input checked by Zod',
             icons: [{ icon: 'hono.svg' }, { icon: 'zod.png' }],
           },
           {
-            text: 'Alerts by email, phone notification or Discord; sign-in with GitHub or a magic link',
-            icons: [{ icon: 'resend.svg' }, { icon: 'discord.svg' }, { icon: 'github.png' }],
+            text: 'A check run every 12 minutes: HTTP, TCP, DNS, domain expiry and heartbeats, skipping scheduled off-hours',
+            icons: [{ icon: 'cf-workers.svg' }],
+          },
+          {
+            text: 'Alerts by email, phone notification, Discord or signed webhook',
+            icons: [{ icon: 'resend.svg' }, { icon: 'discord.svg' }],
+          },
+          {
+            text: 'Sign-in with GitHub or a magic link; monitor settings encrypted at rest',
+            icons: [{ icon: 'github.png' }],
           },
         ],
       },
       Cloud: {
         descriptionParts: [
           {
-            text: 'Cloudflare Workers and D1, inside the free plan',
-            icons: [{ icon: 'cf-workers.svg' }],
+            text: 'Runs in your own Cloudflare account on the free plan, with uptime history in D1 rolled up from samples to daily and monthly',
+            icons: [{ icon: 'cloudflare.svg' }, { icon: 'cf-workers.svg' }],
           },
           {
-            text: 'Vitest unit tests plus Worker and D1 integration tests',
+            text: 'Unit tests plus Worker and D1 integration tests',
             icons: [{ icon: 'vitest.svg' }],
           },
         ],
@@ -479,4 +499,6 @@ export const techNameMapping = {
   'dock.svg': 'Docker',
   'kubernetes.png': 'Kubernetes',
   'github.svg': 'GitHub',
+  'whisper.png': 'whisper.cpp',
+  'open-meteo.png': 'Open-Meteo',
 }

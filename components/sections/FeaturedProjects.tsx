@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import type { IconType } from 'react-icons'
 import { FaApple, FaLinux, FaWindows } from 'react-icons/fa6'
-import { FiCheck, FiDownload, FiExternalLink, FiFileText, FiGithub } from 'react-icons/fi'
+import { FiActivity, FiCheck, FiDownload, FiExternalLink, FiFileText, FiGithub } from 'react-icons/fi'
 import Reveal from '@/components/ui/Reveal'
 import RepoButtons from '@/components/ui/RepoButtons'
 import { ProjectDetails, ProjectGallery, type GalleryImage } from '@/components/sections/FeaturedProjectIslands'
@@ -355,7 +355,15 @@ const DetailsBody = ({ project, technologies }: { project: FeaturedProject; tech
         className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-700 px-5 py-2.5 text-[0.95rem] font-semibold text-white transition-colors duration-200 hover:from-blue-700 hover:to-cyan-800"
       >
         <FiFileText className="h-4 w-4 shrink-0" aria-hidden="true" />
-        Full story and build log
+        Full story
+      </Link>
+      {/* Straight to this build's part of the /builds log. */}
+      <Link
+        href={`/builds?build=${project.buildSlug}#activity`}
+        className="flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-5 py-2.5 text-[0.95rem] font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8"
+      >
+        <FiActivity className="h-4 w-4 shrink-0" aria-hidden="true" />
+        Build log
       </Link>
       {project.github && (
         <a

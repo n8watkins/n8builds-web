@@ -185,10 +185,17 @@ export default function LogFeed({ entries, builds, months, recentFrom }: FeedPro
           {groups.map((group) => (
             <section key={group.month} aria-labelledby={`month-${group.month}`}>
               <h3
-                id={`month-${group.month}`}
                 className="sticky top-0 z-10 -mx-4 mb-4 flex items-center gap-3 bg-[#060d1c]/95 px-4 py-3 font-mono text-xs font-bold uppercase tracking-[0.18em] text-cyan-400 backdrop-blur-sm after:h-px after:flex-1 after:bg-white/8 sm:-mx-6 sm:px-6"
               >
-                {months[group.month]}
+                {/* The month alone names its region; the counts follow it. */}
+                <span id={`month-${group.month}`} className="bg-linear-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent">
+                  {months[group.month]}
+                </span>
+                <span className="font-sans text-[0.7rem] font-semibold normal-case tracking-normal text-slate-450">
+                  {updates(group.entries.length)}
+                  {group.entries.some((e) => e.kind === 'release') &&
+                    `, ${group.entries.filter((e) => e.kind === 'release').length} ${group.entries.filter((e) => e.kind === 'release').length === 1 ? 'release' : 'releases'}`}
+                </span>
               </h3>
               <Timeline className="ml-3">
                 {group.entries.map((entry) => (

@@ -1,6 +1,10 @@
+import type { TechKey } from '@/lib/tech-icons'
+
 export interface BuildStackItem {
   name: string
   detail: string
+  /** The technologies' marks, shown on the card and the page's tech pills (lib/tech-icons.tsx). */
+  tech?: TechKey[]
 }
 
 export interface BuildImage {
@@ -20,6 +24,8 @@ export interface Build {
    */
   mine?: boolean
   tags: string[]
+  /** What the build does, as a checklist near the top of its page. */
+  highlights?: string[]
   color: string
   /** The problem the build solves, shown on its page (the n8builds case study has none). */
   problem?: string
@@ -60,16 +66,23 @@ export const builds: Build[] = [
     tagline: 'Fully local read-aloud for Chrome',
     category: 'Chrome extension',
     tags: ['Chrome', 'Piper', 'Local AI'],
+    highlights: [
+      'Right-click any text to hear it read aloud',
+      'Piper neural voices running on your own machine',
+      "Works at once with the browser's voices, before any setup",
+      'Voice profiles for speed and volume',
+      'No cloud and no API keys',
+    ],
     color: 'from-green-500/20 to-teal-600/20',
     problem:
       'Read-aloud tools are cloud-bound: subscriptions, API keys, and your reading habits shipped to someone else\'s server - just to hear a paragraph of text.',
     solution:
       'Highlight text on any page, right-click, and it is read aloud by a Piper TTS model running entirely on your own machine. A browser-TTS fallback works instantly with zero setup, so the extension is useful before the local server is even installed. No cloud, no API keys, no data leaves your computer.',
     stack: [
-      { name: 'Chrome MV3', detail: 'Service worker for the context menu plus an offscreen document for audio playback' },
-      { name: 'React', detail: 'Popup and options UI - profiles, voices, settings, credits' },
-      { name: 'Node.js + Piper', detail: 'Local server wrapping the Piper neural TTS engine and its voice models' },
-      { name: 'esbuild', detail: 'Bundles the React UI into the extension' },
+      { name: 'Chrome MV3', detail: 'Service worker for the context menu plus an offscreen document for audio playback', tech: ['chrome'] },
+      { name: 'React', detail: 'Popup and options UI - profiles, voices, settings, credits', tech: ['react'] },
+      { name: 'Node.js + Piper', detail: 'Local server wrapping the Piper neural TTS engine and its voice models', tech: ['node', 'piper'] },
+      { name: 'esbuild', detail: 'Bundles the React UI into the extension', tech: ['esbuild'] },
     ],
     process: [
       'MV3 killed background audio, so playback runs in an offscreen document - one of those Chrome-platform quirks you only learn by hitting it.',
@@ -92,15 +105,21 @@ export const builds: Build[] = [
     tagline: 'One-keystroke YouTube → Gemini',
     category: 'Chrome extension',
     tags: ['Chrome', 'Gemini', 'TypeScript'],
+    highlights: [
+      'Alt+G on any video or Short sends it to Gemini',
+      'Prompt profiles for summaries, research, tutorials and moments',
+      "A clipboard fallback when Gemini's box can't be filled",
+      'No backend, no analytics and no API key',
+    ],
     color: 'from-orange-500/20 to-yellow-600/20',
     problem:
       'A 40-minute video might hold two minutes of answer. Getting an AI summary means copying the URL, opening a chat tab, retyping the same prompt - every single time.',
     solution:
       'Too Long; Didn\'t Watch: on any YouTube video or Short, press Alt+G. TL;DW opens Gemini, injects a saved prompt profile with the video URL, and submits it. Built-in profiles cover summary, research, learning, tutorial extraction, and moment finding - with a clipboard fallback if Gemini\'s composer can\'t be filled.',
     stack: [
-      { name: 'Chrome MV3 · TypeScript', detail: 'Detects watch pages and Shorts, builds and injects the prompt' },
-      { name: 'Vite', detail: 'Dev server and extension build' },
-      { name: 'Prompt profiles', detail: 'Editable, persistent prompt templates with a default per use case' },
+      { name: 'Chrome MV3 · TypeScript', detail: 'Detects watch pages and Shorts, builds and injects the prompt', tech: ['chrome', 'typescript'] },
+      { name: 'Vite', detail: 'Dev server and extension build', tech: ['vite'] },
+      { name: 'Prompt profiles', detail: 'Editable, persistent prompt templates with a default per use case', tech: ['gemini'] },
     ],
     process: [
       'Deliberately zero-surface: no backend, no analytics, no YouTube OAuth, no Gemini API key. History stays in Chrome local storage, and Gemini responses are never read or stored.',
@@ -117,16 +136,23 @@ export const builds: Build[] = [
     tagline: 'Local-first YouTube archiver',
     category: 'Chrome extension',
     tags: ['Chrome', 'yt-dlp', 'React'],
+    highlights: [
+      'Archive buttons on YouTube watch, Shorts, playlist and channel pages',
+      'Downloads run on your machine with yt-dlp',
+      'Playlists become a visible per-video queue',
+      'Pick video, audio, metadata and thumbnails',
+      'A Setup tab for the local helper',
+    ],
     color: 'from-red-500/20 to-rose-600/20',
     problem:
       'Playlists rot. Videos go private, channels disappear, and the watch-later library you curated for years is one takedown away from gone - unless you hand your whole library to some third-party downloader site.',
     solution:
       'A Chrome extension that adds archive controls directly to YouTube watch, Shorts, playlist, and channel pages, with a native-messaging helper that runs yt-dlp locally in WSL. Pick components (video, audio, metadata, thumbnails), set quality preferences, and playlists expand into per-video jobs in a visible download queue. No remote server involved.',
     stack: [
-      { name: 'Chrome MV3 · React', detail: 'Content script UI on YouTube pages, popup queue, and options/history pages' },
-      { name: 'Node.js helper', detail: 'Native-messaging host that drives yt-dlp in WSL' },
-      { name: 'yt-dlp', detail: 'The actual download engine - videos, thumbnails, and metadata' },
-      { name: 'PowerShell', detail: 'Installer that registers the native messaging host on Windows' },
+      { name: 'Chrome MV3 · React', detail: 'Content script UI on YouTube pages, popup queue, and options/history pages', tech: ['chrome', 'react'] },
+      { name: 'Node.js helper', detail: 'Native-messaging host that drives yt-dlp in WSL', tech: ['node'] },
+      { name: 'yt-dlp', detail: 'The actual download engine - videos, thumbnails, and metadata', tech: ['ytdlp'] },
+      { name: 'PowerShell', detail: 'Installer that registers the native messaging host on Windows', tech: ['powershell'] },
     ],
     process: [
       'The split architecture is the whole trick: the extension never downloads anything itself - it hands jobs across Chrome\'s native-messaging bridge to a local helper, keeping the Web Store surface clean.',
@@ -146,20 +172,29 @@ export const builds: Build[] = [
   {
     slug: 'scribe',
     name: 'Scribe',
-    tagline: 'Privacy-first local speech-to-text',
+    tagline: 'Speech-to-text for Windows',
     category: 'Desktop app',
     mine: true,
     tags: ['Tauri', 'Rust', 'Whisper'],
+    highlights: [
+      'Works in any app: hold Ctrl + Win, talk, let go',
+      'Text appears while you talk, phrase by phrase',
+      '11 Whisper models, on your graphics card or the CPU',
+      'Search, play back and combine your history',
+      'Quick notes, a GitHub backup and Markdown, CSV or JSON export',
+      'Seven themes and shortcuts you can change',
+    ],
     color: 'from-slate-500/20 to-blue-600/20',
     problem:
       'Dictation tools stream your voice to the cloud and charge a subscription for the privilege. For something you might use in every app, all day, that is a lot of audio leaving your machine.',
     solution:
       'Hold a hotkey, talk, release - words are transcribed on your own machine by whisper.cpp and inserted wherever your cursor is. Push-to-talk and hands-free toggle modes, a draggable always-on-top status pill, live transcription while you are still talking, and searchable history in a local SQLite database. No cloud, no account, no audio ever leaves the PC.',
     stack: [
-      { name: 'Tauri v2 · Rust', detail: 'Windows app: global hotkeys, tray, audio capture, text insertion' },
-      { name: 'whisper.cpp', detail: 'Local transcription - whisper-server keeps the model warm in RAM between dictations' },
-      { name: 'SQLite', detail: 'Transcript history and stats with retention controls' },
-      { name: 'WebView2', detail: 'Dashboard UI, bootstrapped automatically by the installer' },
+      { name: 'Tauri 2 · Rust', detail: 'The Windows app: tray menu, global hotkeys, audio capture, and text typed at your cursor with your clipboard put back', tech: ['tauri', 'rust'] },
+      { name: 'whisper.cpp', detail: 'Speech to text on your PC: a warm server keeps the model loaded, on your graphics card (Vulkan) or the CPU', tech: ['whispercpp'] },
+      { name: 'SQLite', detail: 'History, notes and stats, kept for as long as you choose', tech: ['sqlite'] },
+      { name: 'React · TypeScript · Vite', detail: 'The dashboard (history, notes, stats, models, hotkeys, themes), shown in WebView2', tech: ['react', 'typescript', 'vite', 'webview2'] },
+      { name: 'GitHub Actions · Releases', detail: 'Installers built and signed in CI; the app installs signed updates when it starts', tech: ['actions'] },
     ],
     process: [
       'The warm-transcriber design is the speed trick: whisper-server holds the model in memory so transcription starts instantly, with whisper-cli as the fallback path.',
@@ -190,16 +225,24 @@ export const builds: Build[] = [
     category: 'Web tool',
     mine: true,
     tags: ['Cloudflare Workers', 'D1', 'React'],
+    highlights: [
+      'HTTP, TCP, DNS, domain-expiry and heartbeat checks',
+      "A check run every 12 minutes, on Cloudflare's free plan",
+      'Schedule-aware: off-hours never count as downtime',
+      'Public status pages, an embeddable widget and an SVG badge',
+      'Alerts by email, phone notification, Discord or webhook',
+      'Free tools with no sign-up',
+    ],
     color: 'from-sky-500/20 to-blue-600/20',
     problem:
       'Uptime monitors are subscriptions that keep your data on someone else\'s servers, and they count every hour an app is meant to be asleep as downtime. Free hosting like Render sleeps by design, so a plain monitor either reports a fake outage every night or keeps the app awake around the clock.',
     solution:
       'OpenPing deploys into your own Cloudflare account. A Worker runs HTTP, heartbeat, DNS, TCP and domain-expiry checks on a 12-minute schedule, D1 keeps compact uptime history, and public status pages, an embeddable widget and an SVG badge show the results. Checks are schedule-aware: an app is watched (and kept awake) only during its operating hours, and outside them it shows as "Scheduled off" without costing uptime. Anyone can use its free tools without signing up: "Is it down?", uptime and subnet calculators, a cron tester, and DNS and MX lookups.',
     stack: [
-      { name: 'Cloudflare Workers · Hono · Zod', detail: 'The API, the scheduled checks and the public status feed' },
-      { name: 'Cloudflare D1', detail: 'Monitors, incidents and uptime history, rolled up from samples to daily and monthly' },
-      { name: 'React 19 · Vite · Tailwind v4', detail: 'The admin app (an installable PWA), status pages and free tools' },
-      { name: 'Resend · Web Push · Discord', detail: 'Alerts by email, phone notification, Discord or signed webhook' },
+      { name: 'Cloudflare Workers · Hono · Zod', detail: 'The API, the scheduled checks and the public status feed', tech: ['workers', 'hono', 'zod'] },
+      { name: 'Cloudflare D1', detail: 'Monitors, incidents and uptime history, rolled up from samples to daily and monthly', tech: ['d1'] },
+      { name: 'React 19 · Vite · Tailwind v4', detail: 'The admin app (an installable PWA), status pages and free tools', tech: ['react', 'vite', 'tailwind', 'pwa'] },
+      { name: 'Resend · Web Push · Discord', detail: 'Alerts by email, phone notification, Discord or signed webhook', tech: ['resend', 'webpush', 'discord'] },
     ],
     process: [
       'Schedule-aware checking is the idea the rest follows: Render\'s free tier sleeps between visits, so OpenPing keeps the apps awake only when they matter and never counts the off-hours as an outage.',
@@ -228,18 +271,25 @@ export const builds: Build[] = [
     tagline: 'Know your sun window',
     category: 'Web app',
     tags: ['Next.js', 'Firebase', 'Stripe'],
+    highlights: [
+      'Safe sun windows for your skin type, sunscreen and activity',
+      'Live UV forecasts for today and the days ahead',
+      'Google Calendar scheduling and push reminders',
+      'Installable on your phone like an app',
+      'Free to start, with a Pro plan for more profiles and places',
+    ],
     color: 'from-yellow-500/20 to-orange-600/20',
     problem:
       'The UV index is a number, not an answer. Whether you can be outside without sunscreen depends on your skin type, the activity, and how long you will be out - none of which a weather app accounts for.',
     solution:
       'A personalized UV and outdoor-activity planner: sign in with Google, set your location, skin profile, sunscreen and activities, and Solara computes lower-UV windows for today and the days ahead. Windows can flow into Google Calendar, push notifications remind you, and a Pro plan unlocks more profiles, places and activities.',
     stack: [
-      { name: 'Next.js 16 · React 19 · TypeScript', detail: 'App Router with static export, installable as a PWA' },
-      { name: 'Tailwind CSS', detail: 'Dashboard and onboarding UI' },
-      { name: 'Open-Meteo', detail: 'Live UV and weather forecasts (free, no API key)' },
-      { name: 'Firebase', detail: 'Google sign-in, Firestore sync, Cloud Messaging push, Hosting, and Functions' },
-      { name: 'Stripe', detail: 'Pro plan fulfillment through Firebase Functions' },
-      { name: 'Vitest · Playwright · GitHub Actions', detail: 'Unit and browser tests gate every deploy' },
+      { name: 'Next.js 16 · React 19 · TypeScript', detail: 'App Router with static export, installable as a PWA', tech: ['nextjs', 'react', 'typescript', 'pwa'] },
+      { name: 'Tailwind CSS', detail: 'Dashboard and onboarding UI', tech: ['tailwind'] },
+      { name: 'Open-Meteo', detail: 'Live UV and weather forecasts (free, no API key)', tech: ['openmeteo'] },
+      { name: 'Firebase', detail: 'Google sign-in, Firestore sync, Cloud Messaging push, Hosting, and Functions', tech: ['firebase'] },
+      { name: 'Stripe', detail: 'Pro plan fulfillment through Firebase Functions', tech: ['stripe'] },
+      { name: 'Vitest · Playwright · GitHub Actions', detail: 'Unit and browser tests gate every deploy', tech: ['vitest', 'playwright', 'actions'] },
     ],
     process: [
       'Static export keeps hosting fast and cheap: the windows are computed in the browser against the Open-Meteo API.',
@@ -264,19 +314,26 @@ export const builds: Build[] = [
     tagline: 'The best developer portfolios, ranked',
     category: 'Web app',
     tags: ['Next.js', 'TypeScript', 'Open source'],
+    highlights: [
+      '1,700+ developer portfolios, each with a real screenshot',
+      'Head-to-head voting with ELO rankings',
+      'One vote per matchup, with GitHub sign-in',
+      'Lighthouse scores for every site',
+      'Synced daily from the open developer-portfolios list',
+    ],
     color: 'from-cyan-500/20 to-blue-600/20',
     problem:
       'Developer portfolios live in scattered lists and Twitter threads, sorted alphabetically at best. There is no good way to browse the genuinely great ones or learn what makes them work.',
     solution:
       '1,700+ community-curated developer portfolios, browsable, searchable, and ranked by head-to-head human votes plus AI scoring instead of alphabetical order. Each site gets a screenshot, Lighthouse scores, and an AI review. Built on Emma Bostian\'s open developer-portfolios list.',
     stack: [
-      { name: 'Next.js · React · TypeScript', detail: 'Face-off voting, leaderboard, and the searchable catalog' },
-      { name: 'Tailwind CSS', detail: 'Browse UI and portfolio cards' },
-      { name: 'NextAuth (GitHub)', detail: 'Sign-in so each person gets one vote per matchup' },
-      { name: 'Turso (libSQL)', detail: 'Votes, ELO scores, and the catalog' },
-      { name: 'Gemini', detail: 'Pairwise judging to seed the rankings, plus a 6-axis rubric grade per site' },
-      { name: 'Playwright · Cloudflare R2', detail: 'Screenshots of every portfolio, stored in R2' },
-      { name: 'Vercel · GitHub Actions', detail: 'Hosting, plus daily jobs that sync the list, judge, and refresh' },
+      { name: 'Next.js · React · TypeScript', detail: 'Face-off voting, leaderboard, and the searchable catalog', tech: ['nextjs', 'react', 'typescript'] },
+      { name: 'Tailwind CSS', detail: 'Browse UI and portfolio cards', tech: ['tailwind'] },
+      { name: 'NextAuth (GitHub)', detail: 'Sign-in so each person gets one vote per matchup', tech: ['nextauth'] },
+      { name: 'Turso (libSQL)', detail: 'Votes, ELO scores, and the catalog', tech: ['turso'] },
+      { name: 'Gemini', detail: 'Pairwise judging to seed the rankings, plus a 6-axis rubric grade per site', tech: ['gemini'] },
+      { name: 'Playwright · Cloudflare R2', detail: 'Screenshots of every portfolio, stored in R2', tech: ['playwright', 'r2'] },
+      { name: 'Vercel · GitHub Actions', detail: 'Hosting, plus daily jobs that sync the list, judge, and refresh', tech: ['vercel', 'actions'] },
     ],
     process: [
       'Open source and community-built - the catalog grows from the same public list it started from.',
@@ -319,14 +376,14 @@ export const builds: Build[] = [
     solution:
       "n8builds.dev holds my builds, the N8's Notions blog and the Loadout, and it is run like a product. Every pull request runs lint, type checks and more than 200 unit tests, then more than 450 Playwright tests across six browser projects in parallel (the APIs, plus Chromium, Firefox, WebKit, a Pixel 7 and an iPhone 14), then Lighthouse budgets on five pages. Branch protection holds every merge until it is green (a docs-only change skips the browser suite), and the source is public.",
     stack: [
-      { name: 'Next.js 16 · React 19 · TypeScript', detail: 'App Router in strict mode; build pages are static, and blog posts revalidate hourly' },
-      { name: 'Tailwind CSS 4 · Motion', detail: 'Theme tokens in CSS, scroll reveals, and reduced motion honored on every animation' },
-      { name: 'Sanity', detail: "N8's Notions posts, read through the CDN client, so a new post needs no deploy" },
-      { name: 'Vercel · Cloudflare', detail: 'Auto-deploys from main and an edge rate limit on Vercel; DNS, email routing and Turnstile on Cloudflare' },
-      { name: 'Upstash Redis', detail: 'Contact-form rate limits shared by every serverless instance, failing closed when unreachable' },
-      { name: 'Sentry', detail: 'Errors and CSP violation reports, through a same-origin tunnel that forwards only this project' },
-      { name: 'Playwright · Vitest', detail: 'Browser, accessibility (axe), security-header and API tests, plus unit tests, on every pull request' },
-      { name: 'Lighthouse 13', detail: 'Three runs per page; CI fails if the median misses a performance, accessibility, FCP, LCP or CLS budget' },
+      { name: 'Next.js 16 · React 19 · TypeScript', detail: 'App Router in strict mode; build pages are static, and blog posts revalidate hourly', tech: ['nextjs', 'react', 'typescript'] },
+      { name: 'Tailwind CSS 4 · Motion', detail: 'Theme tokens in CSS, scroll reveals, and reduced motion honored on every animation', tech: ['tailwind'] },
+      { name: 'Sanity', detail: "N8's Notions posts, read through the CDN client, so a new post needs no deploy", tech: ['sanity'] },
+      { name: 'Vercel · Cloudflare', detail: 'Auto-deploys from main and an edge rate limit on Vercel; DNS, email routing and Turnstile on Cloudflare', tech: ['vercel', 'cloudflare'] },
+      { name: 'Upstash Redis', detail: 'Contact-form rate limits shared by every serverless instance, failing closed when unreachable', tech: ['upstash'] },
+      { name: 'Sentry', detail: 'Errors and CSP violation reports, through a same-origin tunnel that forwards only this project', tech: ['sentry'] },
+      { name: 'Playwright · Vitest', detail: 'Browser, accessibility (axe), security-header and API tests, plus unit tests, on every pull request', tech: ['playwright', 'vitest'] },
+      { name: 'Lighthouse 13', detail: 'Three runs per page; CI fails if the median misses a performance, accessibility, FCP, LCP or CLS budget', tech: ['lighthouse'] },
     ],
     process: [
       'The nightly Lighthouse run failed the homepage on layout shift (CLS 0.29). Slowing the CPU 6x reproduced it at 0.91: the browser painted the vertically centered hero before the page finished streaming in, and the hero re-centered as it grew. The hero is now top-aligned and its glows mount after hydration, and CLS measures 0.000 at 1x, 4x and 6x slowdown.',
