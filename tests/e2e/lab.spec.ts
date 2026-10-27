@@ -53,7 +53,8 @@ test('Details opens the stack and the build log in a dialog, and closes with Esc
   const dialog = page.getByRole('dialog', { name: 'Scribe' })
   await expect(dialog).toBeVisible()
   await expect(dialog.getByText("How it's built")).toBeVisible()
-  await expect(dialog.getByRole('link', { name: /Full story and build log/ })).toHaveAttribute('href', '/builds/scribe')
+  await expect(dialog.getByRole('link', { name: /Full story/ })).toHaveAttribute('href', '/builds/scribe')
+  await expect(dialog.getByRole('link', { name: 'Build log' })).toHaveAttribute('href', '/builds?build=scribe#activity')
   await page.keyboard.press('Escape')
   await expect(dialog).toBeHidden()
   // The tech stack lives only in the dialog now, not in the row.
@@ -164,7 +165,9 @@ test('every featured row and its build page invite the visitor to try it', async
   await expect(page.locator('#lab')).toContainText('I check OpenPing every day')
   for (const [, slug] of tries) {
     await page.goto(`/builds/${slug}`)
-    await expect(page.locator('#cta-heading'), slug).toBeVisible()
+    // A download is the page's first action, up top; any other invitation gets its own box.
+    if (slug === 'scribe') await expect(page.locator('main header').getByRole('link', { name: 'Download for Windows' })).toBeVisible()
+    else await expect(page.locator('#cta-heading'), slug).toBeVisible()
   }
   // A build without one shows none.
   await page.goto('/builds/tubevault')

@@ -145,6 +145,12 @@ When the owner decides something new, add it here (with the date) in the same ch
   - The Loadout is "My Loadout", and its rig, desk and stream kit are one "The setup" section.
   - Every Lab project is MIT-licensed (Solara and TubeVault got the license); the Lab says "MIT-licensed".
   - The "Use mine as a template" wash is quieter.
+- **Round 13 (2026-10-27, owner's calls): build pages and the build log:**
+  - A build page opens with the app icon, the title and tagline, then the kind pill and the tech pills (each with its real mark) under them, then the actions; the live site sits on the right of the screenshot.
+  - Scribe's page offers "Download for Windows" at the top (/download/scribe); a download replaces the lower invitation box, so it isn't offered twice.
+  - Each build page has a checklist of what it does, the Details dialog's "How it's built" explainer, and Stack cards with each technology's mark.
+  - The Details dialog says what each part does in that app (not what it is), one icon per technology; it links to the full story and straight to the build's part of the log.
+  - /builds opens with three figures (builds tracked, updates and releases in the last 12 months); build cards carry their colour and newest version; months count their updates and releases; a release with release-kit notes shows them as patch notes (New, Fixed, Faster, Safer).
 
 ## Publishing and releases (2026-10-25)
 
