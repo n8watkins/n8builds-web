@@ -96,6 +96,7 @@ When the owner decides something new, add it here (with the date) in the same ch
 - **No Resend**: Nodemailer + Gmail SMTP (rationale in `~/docs/faq/email-and-domains.md`).
 - contact@n8builds.dev is the public address (Cloudflare Email Routing forwards it to Gmail).
 - Email template structure and copy are owner-approved; change only on request.
+- **The contact emails' redesign** (owner's ask, 2026-10-28): both emails in the site's dark navy and cyan (`lib/email/templates.ts`). The notification leads with the topic, the sender and a "Reply to {name}" button; the auto-reply greets by first name, says what happens next (a reply within 24 hours, the promise the old copy made) and links the Lab, the portfolio and Appturnity. The auto-reply never repeats the visitor's message: it goes to whatever address was typed, so echoing it would let anyone send their own text from contact@n8builds.dev. Images are inline attachments, never remote.
 - **appturnity.com** is the canonical Appturnity URL.
 - Keep the three brands on separate sites.
   Footer, navbar and redirect links to the portfolio and Appturnity are intentional bridges.

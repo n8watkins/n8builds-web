@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { createAutoReplyHtml, createContactEmailHtml, greetingName } from '@/lib/email/templates'
+import {
+  autoReplySubject,
+  contactEmailSubject,
+  createAutoReplyHtml,
+  createAutoReplyText,
+  createContactEmailHtml,
+  createContactEmailText,
+  greetingName,
+} from '@/lib/email/templates'
 import { contactFormSchema } from '@/lib/validations/contact'
 import type { ContactFormData } from '@/lib/validations/contact'
 
@@ -28,19 +36,19 @@ describe('email templates escape user input', () => {
     const html = createAutoReplyHtml({ ...hostile, name: '<b>Eve</b>' })
 
     expect(html).not.toContain('<b>Eve</b>')
-    expect(html).toContain('Hey there,')
+    expect(html).toContain('Got your message <span')
   })
 
   it('escapes names exactly once (no double-encoded apostrophes)', () => {
     const html = createAutoReplyHtml({ ...hostile, name: "O'Brien Smith" })
 
-    expect(html).toContain('Hey O&#39;Brien,')
+    expect(html).toContain('Got your message, O&#39;Brien')
     expect(html).not.toContain('&amp;#39;')
   })
 
-  it('never echoes the visitor message into the auto-reply', () => {
-    const html = createAutoReplyHtml(hostile)
-    expect(html).not.toContain('alert(1)')
+  it('never echoes the visitor message into the auto-reply, in HTML or text', () => {
+    expect(createAutoReplyHtml(hostile)).not.toContain('alert(1)')
+    expect(createAutoReplyText(hostile)).not.toContain('alert(1)')
   })
 })
 
@@ -70,5 +78,50 @@ describe('contact name validation', () => {
 
   it('rejects newlines, tabs and the punctuation an old character range let through', () => {
     for (const name of ['Bob\nBcc', 'Bob\tX', 'Bob (admin)', 'a*b', 'a+b', 'a,b']) expect(parse(name), name).toBe(false)
+  })
+})
+
+describe('email subjects and plain text', () => {
+  const maya: ContactFormData = { ...hostile, name: 'Maya Lin', email: 'maya@example.com', subject: 'project_opportunity', message: 'Hello\nthere' }
+
+  it("leads the owner's subject with the topic and the sender", () => {
+    expect(contactEmailSubject(maya)).toBe('🚀 New project: Maya Lin')
+    expect(contactEmailSubject({ ...maya, subject: 'consulting' })).toBe('🎯 Consulting: Maya Lin')
+    expect(contactEmailSubject({ ...maya, subject: 'networking' })).toBe('🤝 Networking: Maya Lin')
+  })
+
+  it("greets by first name in the auto-reply's subject, only when it's a plain word", () => {
+    expect(autoReplySubject(maya)).toBe('👋 Got your message, Maya')
+    expect(autoReplySubject({ ...maya, name: 'www.evil.com Offer' })).toBe('👋 Got your message')
+  })
+
+  it('gives both emails a plain-text version with the essentials', () => {
+    const owner = createContactEmailText(maya, { autoReply: false, receivedAt: new Date('2026-10-28T23:12:00Z') })
+    expect(owner).toContain('Email:  maya@example.com')
+    expect(owner).toContain('Hello\nthere')
+    expect(owner).toContain('Oct 28, 2026, 4:12 PM PDT')
+    expect(owner).toContain('already got one today')
+    const visitor = createAutoReplyText(maya)
+    expect(visitor).toContain('Hey Maya,')
+    expect(visitor).toContain('within 24 hours')
+  })
+
+  it('shows the time in Pacific and says whether an auto-reply went out', () => {
+    const html = createContactEmailHtml(maya, { receivedAt: new Date('2026-10-28T23:12:00Z') })
+    expect(html).toContain('Oct 28, 2026, 4:12 PM PDT')
+    expect(html).toContain('An auto-reply went to maya@example.com.')
+    expect(html).toContain('mailto:maya@example.com?subject=Re%3A%20New%20project%20(n8builds.dev)')
+  })
+
+  it('never uses an em dash in either email', () => {
+    for (const out of [createContactEmailHtml(maya), createContactEmailText(maya), createAutoReplyHtml(maya), createAutoReplyText(maya)]) {
+      expect(out).not.toContain('\u2014')
+    }
+  })
+
+  it('loads no remote images: only inline attachments', () => {
+    for (const html of [createContactEmailHtml(maya), createAutoReplyHtml(maya)]) {
+      for (const [, src] of html.matchAll(/<img[^>]+src="([^"]+)"/g)) expect(src).toMatch(/^cid:icon-/)
+    }
   })
 })
