@@ -17,7 +17,7 @@ describe('the release train', () => {
     for (const file of config.train.checks) expect(existsSync(`.github/workflows/${file}`)).toBe(true)
     expect(read('.github/workflows/commits.yml')).toMatch(/^ {2}check:$/m)
     // The train starts each of them with workflow_dispatch.
-    expect(read('.github/workflows/commits.yml')).toMatch(/^ {2}workflow_dispatch:$/m)
+    expect(read('.github/workflows/commits.yml')).toMatch(/^ {2}workflow_dispatch:( #.*)?$/m)
   })
 
   it('dates releases in Los Angeles and checks with the Node version CI uses', () => {

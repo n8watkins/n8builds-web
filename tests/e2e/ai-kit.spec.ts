@@ -256,8 +256,13 @@ test.describe('dino easter egg (motion allowed)', () => {
       })
     const pick = async (index: number) => {
       // On a phone a tile is fully in view only part of the time as the row drifts: allow it a while.
-      await expect.poll(() => findTile(index), { message: 'a tile fully on screen', timeout: 20_000 }).not.toBeNull()
-      const target = (await findTile(index))!
+      // Use the tile the poll found: asked again a moment later, it may have drifted off the edge.
+      const found: { current: Awaited<ReturnType<typeof findTile>> } = { current: null }
+      await expect
+        .poll(async () => (found.current = await findTile(index)), { message: 'a tile fully on screen', timeout: 20_000 })
+        .not.toBeNull()
+      const target = found.current
+      if (!target) throw new Error('no tile fully on screen')
       if (hasTouch) await page.touchscreen.tap(target.x, target.y)
       else
         await rowsEl
