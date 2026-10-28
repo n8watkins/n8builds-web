@@ -220,6 +220,8 @@ test.describe('dino easter egg (motion allowed)', () => {
   })
 
   test('pausing a row it is not on leaves its jumps alone', async ({ page }) => {
+    // No lines: it stands still while it talks, and this watches it hop.
+    await dinoTiming(page, { firstLineAfter: 999 })
     await onTopRow(page)
     await hoverRow(page, 0)
     // It misses at the next gap it reaches, walking on its capped clock: a
@@ -239,6 +241,37 @@ test.describe('dino easter egg (motion allowed)', () => {
     expect(log.filter((entry) => !entry.endsWith('@1')), 'stayed on the bottom row').toEqual([])
     expect(log.filter((entry) => entry.startsWith('miss')), 'never missed a jump').toEqual([])
     expect(log.filter((entry) => entry.startsWith('hop')).length, 'kept hopping').toBeGreaterThan(0)
+  })
+
+  test('a row paused the moment it appears still makes it miss', async ({ page }) => {
+    await page.goto('/')
+    await showKit(page, '[data-dino-panel]')
+    // Hold the top row before the game has measured the rows: the pause counts
+    // once it has, rather than being taken for how the row always was.
+    await hoverRow(page, 0)
+    await expect(dino(page)).toHaveCount(1, { timeout: 15_000 })
+    await expect(dino(page)).toHaveAttribute('data-level', '1', { timeout: 20_000 })
+  })
+
+  test('dropping back onto a row that is already paused, it misses there too', async ({ page }) => {
+    await onTopRow(page)
+    // Down to the bottom row (pausing the top one), then hold the top row
+    // still by focusing one of its tiles, as a keyboard user would.
+    await hoverRow(page, 0)
+    await expect(dino(page)).toHaveAttribute('data-level', '1', { timeout: 20_000 })
+    await page.mouse.move(5, 5)
+    await page
+      .locator('[data-dino-panel] [data-marquee-row]')
+      .first()
+      .locator('figure')
+      .first()
+      .evaluate((tile) => tile.focus({ preventScroll: true }))
+    // Pausing the bottom row drops it off the panel and back in on the top
+    // row, which never paused while it was there: it misses all the same.
+    await hoverRow(page, 1)
+    await expect(dino(page)).toHaveAttribute('data-level', '0', { timeout: 20_000 })
+    await page.mouse.move(5, 5)
+    await expect(dino(page)).toHaveAttribute('data-level', '1', { timeout: 20_000 })
   })
 
   test('a tapped or focused tile pauses only its own row for the dino', async ({ page, hasTouch }) => {
@@ -383,11 +416,9 @@ test.describe('dino easter egg (motion allowed)', () => {
     expect(await teleports(page)).toEqual([])
   })
 
-  test('never teleports or gets flung when the window is resized', async ({ page }) => {
-    // A desktop window being resized, on every project: starting from a
-    // phone's width, the first resize would reflow the page and scroll the
-    // panel away, and the dino rightly stands still while out of sight.
-    await page.setViewportSize({ width: 1440, height: 900 })
+  test('never teleports or gets flung when the window is resized', async ({ page, isMobile }) => {
+    // A desktop window being resized: a phone's window doesn't resize like this.
+    test.skip(isMobile, 'desktop windows only')
     await onTopRow(page)
     await recordMoves(page)
     for (const width of [1100, 1440, 1000, 1440, 1200, 1440]) {
