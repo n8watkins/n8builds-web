@@ -50,6 +50,9 @@ async function scrollToPart(page: Page, id: string) {
       { timeout: 20_000 }
     )
     .toBe(true)
+  // A visitor's scroll always fires a scroll event; an instant programmatic one
+  // may not in every engine, so send one, as the rail listens for it.
+  await page.evaluate(() => window.dispatchEvent(new Event('scroll')))
 }
 
 test.describe('at 1440px', () => {
