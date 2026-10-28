@@ -1,5 +1,5 @@
 # AI Agent Project Review Backlog
-Updated: October 27, 2026
+Updated: October 28, 2026
 
 This is the one backlog for general work across every project (the owner's call, 2026-10-27).
 Each project keeps its own detailed plans in its repo; this file points to them.
@@ -29,8 +29,9 @@ All are fixed in Next.js 16.4.1 and later.
   - Both handoffs (October 27) name the suspects: TubeVault's `mountShortsButton()` in `extension/src/content-script.tsx` (it mounts into YouTube's recycled action bar, which holds the comments button); TL;DW's 500 ms `onNavigate()` in `src/content/youtube.ts` and `handleNav()` in `src/content/sponsorblock.ts`.
 - [ ] **Portfolio Rank** - Verify Gemini API key configuration without exposing secrets; restore reliable continuous portfolio ELO scoring, automatic refresh, persistence, and error handling.
   - Blocked on the owner's new Gemini key (grading has been off since July). The "AI reviews" claim stays on n8builds.dev and the portfolio until then, by the owner's call (2026-10-27).
-- [ ] **Dino game stats** - In progress: plays, unique players (cookie-free), attempts and high scores per site and overall, by country, in the admin dashboard.
-- [ ] **Vercel Analytics** - Switched on in Vercel (2026-10-27); n8builds-web still needs `@vercel/analytics` added to load it. Runs alongside GA4 (cookie-free, so it also counts visitors who decline cookies).
+- [ ] **Dino game stats** - Built (n8builds-web #73, dev-portfolio #14, n8builds-admin #2): plays, unique players (cookie-free), attempts and high scores per site and overall, by country, in the admin dashboard.
+  Waits on the owner's second Upstash Redis database (`ANALYTICS_REDIS_REST_URL` and `_TOKEN` on the n8builds-web and n8builds-admin Vercel projects); until then the panel shows "not connected".
+- [x] **Vercel Analytics** - Live on n8builds.dev since n8builds-web #76 (2026-10-28), alongside GA4 (cookie-free, so it also counts visitors who decline cookies).
 - [ ] **Projects audit follow-ups** - Report: https://claude.ai/artifact/8noJtJsWvWBefJ9jBE2qwu. Em dashes in the live titles of Portfolio Rank, Echo and Scout; Scribe has had no release since v0.8.0; Solara isn't on release-kit yet.
 
 ## Security and CI follow-ups (added October 26, 2026)
@@ -44,7 +45,8 @@ All are fixed in Next.js 16.4.1 and later.
 - [ ] **Scribe zip advisories** - `.cargo/audit.toml` ignores RUSTSEC-2026-0367, 0368 and 0369 (zip 4.x extract), whose only user is tauri-plugin-updater 2.x. The updater checks an archive's signature before it extracts it. Remove the ignores when tauri-plugin-updater 3 (zip 9) is stable.
 - [ ] **Scribe glib alert** - The last open scribe alert is glib 0.18 (RUSTSEC-2024-0429, an unsound iterator), which comes in through Tauri 2's Linux GTK stack. It needs Tauri to move to glib 0.20. Scribe ships on Windows, which never compiles glib.
 - [ ] **open-ping deploy** (owner) - Round 2 (redesign, app UI, free-plan scheduler limits, analytics CSP, no em dashes) and Hosted stage 1 (pricing section, waitlist, /install guide) are merged but not live. Set `WAITLIST_ENABLED` to "true" for the production deploy, run `npm run db:migrate` (migration 0010), then `npm run deploy`. Optional: `RESEND_API_KEY` for waitlist confirmations.
-- [x] **dev-portfolio security round** - PR #6 fixed 82 of 87 alerts (all 7 critical). The last 5 are dev-only, inside `@lhci/cli`, and need either a new `@lhci/cli` release or running it on demand with `npx`.
+- [x] **dev-portfolio security round** - PR #6 fixed 82 of 87 alerts (all 7 critical).
+- [ ] **dev-portfolio `@lhci/cli`** (low) - Its last 5 alerts are dev-only, inside `@lhci/cli`: drop the dev dependency and run it on demand with `npx`, or wait for a fixed `@lhci/cli` release.
 - [x] **TL;DW quality gate** - Fixed by tl-dw #3 (October 27); the diagnosis is on master as `docs/CI_QUALITY_GATE_FAILURE.md` (#5).
 - [ ] **GeminiGPT model** - It calls `gemini-3.1-flash-lite` (`lib/websocket/services/GeminiService.js`); the owner wants Gemini 3.5 Flash Lite. Upgrade in the GeminiGPT repo, test, then update the portfolio copy (it says "Gemini 3.1 Flash Lite" to match the code today).
 - [ ] **Appturnity Actions minutes** - The Appturnity org used all 2,000 free minutes in October; its private CI stops until November 1 unless a spending budget is set.
