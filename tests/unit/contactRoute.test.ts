@@ -32,12 +32,12 @@ const validForm = {
   honeypot: '',
 }
 
-async function post(body: unknown, contentType = 'application/json') {
+async function post(body: unknown, contentType = 'application/json', extraHeaders: Record<string, string> = {}) {
   const response = await POST(
     new NextRequest('http://localhost/api/contact', {
       method: 'POST',
       body: JSON.stringify(body),
-      headers: { 'content-type': contentType },
+      headers: { 'content-type': contentType, ...extraHeaders },
     })
   )
   return { status: response.status, json: await response.json() }
@@ -58,9 +58,16 @@ describe('POST /api/contact', () => {
       ['recipient', 'hash:john.doe@example.com'],
     ])
     expect(verifyTurnstile).toHaveBeenCalledWith('token', '1.2.3.4')
+    // No geo header (local, tests): the template leaves the country row out.
     expect(sendContactEmails).toHaveBeenCalledWith(expect.objectContaining({ email: 'john.doe@example.com' }), {
       autoReply: true,
+      country: 'XX',
     })
+  })
+
+  it("passes the sender's country from Vercel's geo header, never the IP", async () => {
+    await post(validForm, 'application/json', { 'x-vercel-ip-country': 'gb' })
+    expect(sendContactEmails).toHaveBeenCalledWith(expect.anything(), { autoReply: true, country: 'GB' })
   })
 
   it('checks Turnstile before any rate limiter, so junk never reaches Redis', async () => {
@@ -147,7 +154,7 @@ describe('POST /api/contact', () => {
 
     const { status } = await post(validForm)
     expect(status).toBe(200)
-    expect(sendContactEmails).toHaveBeenCalledWith(expect.anything(), { autoReply: false })
+    expect(sendContactEmails).toHaveBeenCalledWith(expect.anything(), { autoReply: false, country: 'XX' })
   })
 
   it('returns 500 with the sender error when email delivery fails', async () => {

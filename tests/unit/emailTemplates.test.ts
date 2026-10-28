@@ -6,6 +6,7 @@ import {
   createAutoReplyText,
   createContactEmailHtml,
   createContactEmailText,
+  countryFor,
   greetingName,
 } from '@/lib/email/templates'
 import { contactFormSchema } from '@/lib/validations/contact'
@@ -97,7 +98,7 @@ describe('email subjects and plain text', () => {
 
   it('gives both emails a plain-text version with the essentials', () => {
     const owner = createContactEmailText(maya, { autoReply: false, receivedAt: new Date('2026-10-28T23:12:00Z') })
-    expect(owner).toContain('Email:  maya@example.com')
+    expect(owner).toContain('Email:   maya@example.com')
     expect(owner).toContain('Hello\nthere')
     expect(owner).toContain('Oct 28, 2026, 4:12 PM PDT')
     expect(owner).toContain('already got one today')
@@ -123,5 +124,27 @@ describe('email subjects and plain text', () => {
     for (const html of [createContactEmailHtml(maya), createAutoReplyHtml(maya)]) {
       for (const [, src] of html.matchAll(/<img[^>]+src="([^"]+)"/g)) expect(src).toMatch(/^cid:icon-/)
     }
+  })
+})
+
+describe("the sender's country, in the owner notification only", () => {
+  const data: ContactFormData = { ...hostile, name: 'Maya Lin', email: 'maya@example.com', subject: 'consulting', message: 'Hi' }
+
+  it('shows a flag and the English name for a valid code, in HTML and text', () => {
+    expect(countryFor('GB')).toEqual({ flag: '🇬🇧', name: 'United Kingdom' })
+    expect(createContactEmailHtml(data, { country: 'GB' })).toContain('🇬🇧 United Kingdom</td>')
+    expect(createContactEmailText(data, { country: 'GB' })).toContain('Country: 🇬🇧 United Kingdom')
+  })
+
+  it('leaves the row out when the code is missing, unknown or malformed', () => {
+    for (const country of [undefined, '', 'XX', 'gb', 'GBR', 'G1', '<b>', 'ZZ']) {
+      expect(countryFor(country), String(country)).toBeNull()
+      expect(createContactEmailHtml(data, { country })).not.toContain('>Country<')
+      expect(createContactEmailText(data, { country })).not.toContain('Country:')
+    }
+  })
+
+  it('never reaches the auto-reply', () => {
+    expect(createAutoReplyHtml(data)).not.toContain('Country')
   })
 })

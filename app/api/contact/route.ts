@@ -11,6 +11,7 @@ import {
 import { verifyTurnstile } from '@/lib/security/turnstile'
 import { validateRequestSize, parseJsonBody } from '@/lib/security/validation'
 import { sendContactEmails } from '@/lib/email/sender'
+import { placeFrom } from '@/lib/game/stats'
 
 const DIRECT_EMAIL = 'contact@n8builds.dev'
 
@@ -102,7 +103,9 @@ export async function POST(request: NextRequest) {
     if (!autoReply) logger.warn('⚠️ Skipping auto-reply:', recipientLimit.reason)
 
     // STEP 7: Send emails
-    const emailResult = await sendContactEmails(validatedData, { autoReply })
+    // The owner's notification shows the sender's country (never the IP).
+    const { country } = placeFrom(request.headers)
+    const emailResult = await sendContactEmails(validatedData, { autoReply, country })
 
     if (!emailResult.success) {
       return NextResponse.json(

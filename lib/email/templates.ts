@@ -59,6 +59,24 @@ export function topicFor(subject: string): Topic {
   }
 }
 
+/**
+ * The sender's country from Vercel's geo header (an ISO code, never the IP),
+ * as a flag and an English name, or null when it's missing or unknown
+ * (local runs, "XX"), so the row is left out.
+ */
+export function countryFor(code: string | undefined): { flag: string; name: string } | null {
+  if (!code || !/^[A-Z]{2}$/.test(code) || code === 'XX') return null
+  let name: string | undefined
+  try {
+    name = new Intl.DisplayNames(['en'], { type: 'region' }).of(code)
+  } catch {
+    return null
+  }
+  if (!name || name === code || /unknown/i.test(name)) return null
+  const flag = String.fromCodePoint(...[...code].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65))
+  return { flag, name }
+}
+
 /** "Oct 28, 2026, 4:12 PM PDT": the owner reads these in Pacific time. */
 function pacificTime(date: Date): string {
   return date.toLocaleString('en-US', {
@@ -162,11 +180,14 @@ export function contactEmailSubject(data: ContactFormData): string {
   return `${topic.emoji} ${topic.short}: ${data.name}`
 }
 
+type NotificationOptions = { autoReply?: boolean; receivedAt?: Date; country?: string }
+
 export function createContactEmailHtml(
   data: ContactFormData,
-  { autoReply = true, receivedAt = new Date() }: { autoReply?: boolean; receivedAt?: Date } = {}
+  { autoReply = true, receivedAt = new Date(), country }: NotificationOptions = {}
 ): string {
   const topic = topicFor(data.subject)
+  const place = countryFor(country)
   const name = sanitizeHtml(data.name)
   const email = sanitizeHtml(data.email)
   const first = sanitizeHtml(greetingName(data.name) === 'there' ? data.name : greetingName(data.name))
@@ -194,6 +215,7 @@ export function createContactEmailHtml(
                       ${row('From', name)}
                       ${row('Email', `<a href="mailto:${email}" style="color:${C.cyan};text-decoration:none;">${email}</a>`)}
                       ${row('Topic', sanitizeHtml(topic.label))}
+                      ${place ? row('Country', `${place.flag} ${sanitizeHtml(place.name)}`) : ''}
                     </table>
                   </td>
                 </tr>
@@ -231,16 +253,18 @@ export function createContactEmailHtml(
 
 export function createContactEmailText(
   data: ContactFormData,
-  { autoReply = true, receivedAt = new Date() }: { autoReply?: boolean; receivedAt?: Date } = {}
+  { autoReply = true, receivedAt = new Date(), country }: NotificationOptions = {}
 ): string {
   const topic = topicFor(data.subject)
+  const place = countryFor(country)
   return [
     `${topic.emoji} ${topic.short}: new message from ${data.name}`,
     '',
-    `From:   ${data.name}`,
-    `Email:  ${data.email}`,
-    `Topic:  ${topic.label}`,
-    `When:   ${pacificTime(receivedAt)}`,
+    `From:    ${data.name}`,
+    `Email:   ${data.email}`,
+    `Topic:   ${topic.label}`,
+    ...(place ? [`Country: ${place.flag} ${place.name}`] : []),
+    `When:    ${pacificTime(receivedAt)}`,
     '',
     data.message,
     '',

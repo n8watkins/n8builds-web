@@ -42,6 +42,8 @@ export interface EmailResult {
  * @param data - Validated contact form data
  * @param options.autoReply - false sends only the owner notification (the
  *   recipient has already had an auto-reply today)
+ * @param options.country - the sender's ISO country code from Vercel's geo
+ *   header, shown in the owner notification only (never the IP)
  * @returns EmailResult with success status and email IDs or error message
  *
  * @example
@@ -54,7 +56,7 @@ export interface EmailResult {
  */
 export async function sendContactEmails(
   data: ContactFormData,
-  { autoReply = true }: { autoReply?: boolean } = {}
+  { autoReply = true, country }: { autoReply?: boolean; country?: string } = {}
 ): Promise<EmailResult> {
   try {
     const transporter = getTransporter()
@@ -73,8 +75,8 @@ export async function sendContactEmails(
       to: EMAIL_CONFIG.to,
       replyTo: data.email,
       subject: contactEmailSubject(data),
-      html: createContactEmailHtml(data, { autoReply, receivedAt }),
-      text: createContactEmailText(data, { autoReply, receivedAt }),
+      html: createContactEmailHtml(data, { autoReply, receivedAt, country }),
+      text: createContactEmailText(data, { autoReply, receivedAt, country }),
       attachments: inlineImages(['logo']),
     })
 
