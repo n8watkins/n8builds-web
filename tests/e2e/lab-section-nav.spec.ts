@@ -66,6 +66,7 @@ test.describe('at 1440px', () => {
     // Above the Lab (the hero) it is hidden.
     await expect(nav).toBeHidden()
     await scrollToPart(page, PARTS[0].id)
+    await expect(nav).toBeVisible(SHOW)
     for (const [i, part] of PARTS.entries())
       await expect(nav.getByRole('link').nth(i)).toHaveAccessibleName(part.label)
 
@@ -80,6 +81,25 @@ test.describe('at 1440px', () => {
     // Past the Lab it scrolls away with it.
     await page.locator('#contact').scrollIntoViewIfNeeded()
     await expect(nav).not.toBeInViewport()
+  })
+
+  test('is visible, so clickable and named, the moment it shows', async ({ page }) => {
+    await openHome(page)
+    const nav = rail(page)
+    // Note the nav's computed visibility in the same task its classes switch to
+    // shown: a visibility transition would still read "hidden" there, and
+    // stays hidden until its first frame, which a busy device can delay.
+    // By CSS: the role query skips the rail while it is hidden.
+    await page.locator('nav[aria-label="Lab contents"]').evaluate((el) => {
+      const w = window as unknown as { __shownVisibility?: string }
+      new MutationObserver(() => {
+        if (w.__shownVisibility === undefined && el.classList.contains('opacity-100'))
+          w.__shownVisibility = getComputedStyle(el).visibility
+      }).observe(el, { attributes: true, attributeFilter: ['class'] })
+    })
+    await scrollToPart(page, PARTS[0].id)
+    await expect(nav).toBeVisible(SHOW)
+    expect(await page.evaluate(() => (window as unknown as { __shownVisibility?: string }).__shownVisibility)).toBe('visible')
   })
 
   test('a click jumps to the part, below the sticky navbar', async ({ page }) => {
@@ -129,6 +149,7 @@ test.describe('placement at 1440px', () => {
         top: h.getBoundingClientRect().top + window.scrollY - top,
         behavior: 'instant',
       })
+      window.dispatchEvent(new Event('scroll')) // see scrollToPart
     }, top)
   }
   const headingTop = (page: Page) =>
@@ -170,6 +191,7 @@ test.describe('placement at 1440px', () => {
           top: el.getBoundingClientRect().top + window.scrollY - 300,
           behavior: 'instant',
         })
+        window.dispatchEvent(new Event('scroll')) // see scrollToPart
       }, part.id)
       await expect(nav).toBeVisible(SHOW)
       const box = (await nav.boundingBox())!
@@ -182,6 +204,7 @@ test.describe('placement at 1440px', () => {
         top: lab.getBoundingClientRect().bottom + window.scrollY - 300,
         behavior: 'instant',
       })
+      window.dispatchEvent(new Event('scroll')) // see scrollToPart
     })
     const box = (await nav.boundingBox())!
     const labBottom = await page.locator('#lab').evaluate((l) => l.getBoundingClientRect().bottom)
@@ -203,6 +226,7 @@ test.describe('placement at 1440px', () => {
             top: el.getBoundingClientRect().top + window.scrollY - (top as number),
             behavior: 'instant',
           })
+          window.dispatchEvent(new Event('scroll')) // see scrollToPart
         },
         [id, top] as const
       )
@@ -213,6 +237,9 @@ test.describe('placement at 1440px', () => {
       .evaluate((el) => el.getBoundingClientRect().height)
     for (const top of [500, 100, Math.round(470 - height)]) {
       await place('template', top)
+      // Until the rail fades in it is invisible, so its links have no
+      // accessible name yet; a loaded WebKit can take longer than the default wait.
+      await expect(nav).toBeVisible(SHOW)
       await expect(current, `template at ${top}px`).toHaveAccessibleName('Featured')
     }
     // Chrome Extensions takes over only once its own top passes the middle of the window.
