@@ -89,7 +89,7 @@ Suggested order: 1 and 2 now (they need nothing), 4 next, then 6-9 as your answe
 - **VibeLog:** hidden, record kept; comes back when it's ready.
 - **YouTube link:** removed until the channel is live; returns with build 3.
 
-## Done recently (2026-10-22 to 2026-10-27)
+## Done recently (2026-10-22 to 2026-10-28)
 
 Everything here is merged and live.
 To review it later, paste [prompts/review-2026-10-24-changes.md](prompts/review-2026-10-24-changes.md) into a fresh session.
@@ -156,6 +156,16 @@ To review it later, paste [prompts/review-2026-10-24-changes.md](prompts/review-
 - dev-portfolio: release-kit 2 (#10), dino parity with n8builds.dev (#11, #13, #14), taglines and the Appturnity offer matched (#12), npm 12 can install the release-kit git dependency (`.npmrc` `allow-git=root`, #15), OpenPing's card uses "Uptime monitoring on your own Cloudflare" (#16), 0 lint warnings (#17).
   Production had been stuck at #10 by the deploy limit; everything through #19 is live as of 2026-10-27 23:55.
 - n8builds-admin: the "Dino game" panel (#2), a start-here handoff (#4); its deploy-skip change (#3) goes live with the next push to `main`.
+
+**2026-10-28:**
+
+- Every site's production caught up with `main`; a local `vercel deploy` no longer uploads build caches (`.vercelignore`, #86, dev-portfolio#22, admin#6).
+- Next.js 16.4.3 everywhere (#87, admin#7); the portfolio on React 19.3, Motion 14, ESLint 10, Playwright 1.64 and Tailwind 4 (dev-portfolio#23, #24); the admin gets CI (admin#7).
+- Dino: a catch round lasts its real 30 seconds on slow devices (#88), pausing its row always trips it (#90); the portfolio's bottom tiles take taps and its CI runs five browsers (dev-portfolio#28).
+- Vercel deploys `main` only on every project, no automatic previews (#89, dev-portfolio#27, admin#8, scribe-web#14, portfolio-rank#14), after previews used half the 100-deploys-a-day limit.
+- The portfolio's map arcs hold still under reduced motion (dev-portfolio#26); Dependabot can't offer release-kit downgrades (dev-portfolio#25, portfolio-rank#15).
+- The admin reports its own server errors and watches the daily snapshot in Sentry (admin#9); dino stats are saved now that the analytics database exists.
+- The hero grid test waits for the cells to wander (#86); Vercel's toolbar is off on production for the three sites.
 
 **Outside this repo:**
 
