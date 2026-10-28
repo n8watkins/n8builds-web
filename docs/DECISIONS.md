@@ -205,3 +205,4 @@ When the owner decides something new, add it here (with the date) in the same ch
 - **HSTS preload:** not adding it. Vercel already sends `max-age=63072000`; preload would force HTTPS on every subdomain and is slow to undo.
 - **Branch protection:** reversed (with #20): `main` now requires CI through pull requests (see HANDOFF, "Branch protection on `main`"). Docs-only changes skip the browser suite.
 - **Indigo accents:** kept. Tailwind 4 kept the original (approved) hue; it is only slightly more saturated.
+- **Vercel deploys `main` only** (2026-10-28): `git.deploymentEnabled` in `vercel.json` turns off automatic preview deployments on every other branch, here, on the portfolio and on the admin. Previews used about half of the Hobby plan's 100 deployments a day, shared by every project on the account, and CI already builds and tests each pull request. For a preview by hand: `vercel deploy` from the branch.
