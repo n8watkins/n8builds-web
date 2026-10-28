@@ -1,6 +1,43 @@
 # HANDOFF - n8builds (n8builds-web)
 
 _Last updated: 2026-10-24._
+## Current state and open work (2026-10-27): start here
+
+This section is current; the sections below it date from 2026-10-24 and are kept for detail.
+This repo also covers the admin dashboard's context (its own repo `n8watkins/n8builds-admin` has a matching handoff).
+
+### Read first
+
+1. `docs/DECISIONS.md` (rounds 10 to 13 and the dino entries are the newest calls).
+2. `PROJECT_BACKLOG.md`: the one backlog for every project, including other repos' security findings (outdated Next.js on four live sites, GeminiGPT's keys, Render problems).
+3. `docs/OWNER_TODO.md`, "Pending as of 2026-10-27": what only the owner can do.
+4. Gotchas: rebuild from a clean `.next` before previews or E2E (stale Tailwind CSS from `.next/cache`); kill stale servers on the E2E port; commit headers at most 100 characters; `npm run test` also runs E2E, use `npm run test:unit` for unit tests.
+
+### State
+
+- Live on `main`: homepage rounds 11 to 13 (#69), My Loadout, levelled-up build pages and /builds with patch notes, dino fixes (#68, #71), release-kit 2 (#67; the `main` rule requires "check / check" and "CI result"), test stabilisation (#74), dino game stats (`POST /api/game`, #73), the Lab rail fix for Safari (#75).
+- Docs-only and Dependabot changes skip Vercel builds (#77).
+- Backlog updates #72, #78, #79, #80 (merged).
+- Vercel's free plan allows 100 deployments per rolling 24 hours across the account; it was exhausted on 2026-10-27, so a PR's Vercel check can fail with "Deployment rate limited". Vercel isn't a required check.
+- Vercel Web Analytics is switched on in the dashboard, but the site doesn't load it yet.
+
+### Next
+
+1. Add `@vercel/analytics` (`<Analytics />` in `app/layout.tsx`, next to Speed Insights), keep GA4; record the decision in `docs/DECISIONS.md`.
+2. Intermittent E2E failures in CI's WebKit and mobile Safari shards: the Lab rail tests and `navigation-scroll.spec.ts` ("a post opened from the homepage starts at its top"). Reproduce, then fix the cause, not with retries.
+3. When the owner sets up subdomains (rank, trailers, echo), update the links (list: https://claude.ai/artifact/8noJtJsWvWBefJ9jBE2qwu).
+4. The Lab says Solara needs "no sign-up" while Solara has a Pro plan; change it to "free to start".
+5. Once GeminiGPT moves to Gemini 3.5 Flash Lite (GeminiGPT #3), update any copy here that names its model.
+6. Local housekeeping: about 48 stale local branches; before deleting `fix/ci-*` and `preview/all`, confirm their changes reached `main` (the rest were squash-merged).
+7. Content: the audit's article ideas and stale-source fixes (https://claude.ai/artifact/2YNW1cpd8uvMzGwmuHUTH1); the blog's last post was 19 June.
+
+### Blocked on the owner
+
+- A second Upstash Redis database; `ANALYTICS_REDIS_REST_URL` and `ANALYTICS_REDIS_REST_TOKEN` on both the n8builds-web and n8builds-admin Vercel projects (dino stats are dropped until then).
+- The Sentry read token for the admin dashboard; one sign-in at admin.n8builds.dev.
+- Vercel retention (previews 7 days) for n8builds-web, portfolio and portfolio-rank.
+- Subdomain DNS for rank, trailers and echo.
+
 This file describes the current state only.
 Session-by-session history up to 2026-06-25 lives in `docs/archive/HANDOFF-2026-06.md`.
 Manual steps that need the owner (logins, dashboards) live in `docs/OWNER_TODO.md`.
