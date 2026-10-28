@@ -56,6 +56,36 @@ test.describe('the Ko-fi link', () => {
   })
 })
 
+/** "Contact" in the navbar and the mobile menu (2026-10-28): it jumps to the homepage's contact form. */
+test.describe('the Contact link', () => {
+  const form = (page: Page) => page.locator('#contact form')
+
+  test('scrolls to the form on the homepage', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto('/')
+    await expect(form(page)).not.toBeInViewport()
+    await page.locator('nav[aria-label="Primary"]').getByRole('link', { name: 'Contact', exact: true }).click()
+    await expect(form(page)).toBeInViewport()
+    await expect(page).toHaveURL(/\/#contact$/)
+  })
+
+  test('takes you to the form from another page', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto('/loadout')
+    await page.locator('nav[aria-label="Primary"]').getByRole('link', { name: 'Contact', exact: true }).click()
+    await expect(page).toHaveURL(/\/#contact$/)
+    await expect(form(page)).toBeInViewport()
+  })
+
+  test('is in the mobile menu', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/')
+    await openMenu(page)
+    await page.locator('#mobile-menu').getByRole('link', { name: 'Contact', exact: true }).click()
+    await expect(form(page)).toBeInViewport()
+  })
+})
+
 test.describe('tablet width', () => {
   test.use({ viewport: { width: 810, height: 1080 } })
 

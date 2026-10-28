@@ -107,6 +107,8 @@ const Navbar = () => {
   const navLinks = [
     { label: 'Notions', href: '/#notions' },
     { label: 'Loadout', href: '/#loadout' },
+    // The contact form is at the foot of the homepage.
+    { label: 'Contact', href: '/#contact' },
   ]
   // Twitch shows only while live (with a live dot, pointing at the stream):
   // the owner streams on YouTube and X, so it stays hidden otherwise.
@@ -220,7 +222,8 @@ const Navbar = () => {
                 {l.label}
               </Link>
             ))}
-            <span className="w-px h-4 bg-white/12 mx-2" />
+            {/* Divides the live stream links from the rest; nothing to divide while none is live. */}
+            {socialLinks.length > 0 && <span className="w-px h-4 bg-white/12 mx-2" />}
             {socialLinks.map((l) => (
               <a
                 key={l.label}

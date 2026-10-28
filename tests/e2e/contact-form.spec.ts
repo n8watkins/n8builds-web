@@ -25,7 +25,7 @@ async function fillForm(page: Page) {
   const form = page.locator('#contact form')
   await form.getByLabel('Name').fill('Test Visitor')
   await form.getByLabel('Email').fill('visitor@example.com')
-  await form.getByLabel('Topic').selectOption('consulting')
+  await form.getByRole('group', { name: 'Topic' }).getByText('Consulting', { exact: true }).click()
   await form.getByLabel('Message').fill('Hello! This is an end-to-end test message.')
 }
 
@@ -212,6 +212,36 @@ test('Send shows a focus indicator when reached by keyboard', async ({ page }) =
   expect(await send.evaluate((el) => getComputedStyle(el).boxShadow)).not.toBe('none')
 })
 
+test('the topic is three cards: Tab reaches them, arrow keys choose, a click chooses', async ({ page }) => {
+  await openContactForm(page)
+  await expect(page.getByRole('button', { name: /Send Message/ })).toBeEnabled() // hydrated
+  const form = page.locator('#contact form')
+  const topics = form.getByRole('group', { name: 'Topic' })
+  const radio = (name: RegExp) => topics.getByRole('radio', { name })
+  await expect(topics.getByRole('radio')).toHaveCount(3)
+
+  // From Email, Tab lands on the first card (none chosen yet), with a visible ring.
+  await form.getByLabel('Email').focus()
+  await page.keyboard.press('Tab')
+  await expect(radio(/^New project/)).toBeFocused()
+  const ring = (name: RegExp) =>
+    radio(name).evaluate((input) => getComputedStyle(input.closest('label')!).boxShadow)
+  expect(await ring(/^New project/)).not.toBe('none')
+
+  // Arrow keys move and choose, as in any radio group.
+  await page.keyboard.press('ArrowRight')
+  await expect(radio(/^Consulting/)).toBeChecked()
+  await expect(radio(/^Consulting/)).toBeFocused()
+  // Tab leaves the group for the message.
+  await page.keyboard.press('Tab')
+  await expect(form.getByLabel('Message')).toBeFocused()
+
+  // A click on a card chooses it, and only it.
+  await form.getByText('Just saying hi').click()
+  await expect(radio(/^Networking/)).toBeChecked()
+  await expect(topics.getByRole('radio', { checked: true })).toHaveCount(1)
+})
+
 test('client-side validation blocks an empty submission', async ({ page }) => {
   let calls = 0
   await page.route('/api/contact', (route) => {
@@ -223,11 +253,11 @@ test('client-side validation blocks an empty submission', async ({ page }) => {
   // The widget only renders after hydration; clicking before then would hit a
   // button with no handler yet (flaky under load).
   await waitForTurnstileToken(page)
-  // No subject is pre-selected; leaving it blank is an error, not a silent default.
-  await expect(page.locator('#contact form').getByLabel('Topic')).toHaveValue('')
+  // No topic is pre-selected; leaving it blank is an error, not a silent default.
+  await expect(page.locator('#contact form').getByRole('radio', { checked: true })).toHaveCount(0)
   await page.getByRole('button', { name: /Send Message/ }).click()
   await expect(page.getByText('Name must be at least 2 characters')).toBeVisible()
-  await expect(page.getByText('Please select a subject')).toBeVisible()
+  await expect(page.getByText('Please choose a topic')).toBeVisible()
   expect(calls).toBe(0)
 })
 
@@ -246,16 +276,17 @@ test('validation errors are tied to their fields for screen readers', async ({ p
   await page.getByRole('button', { name: /Send Message/ }).click()
 
   const form = page.locator('#contact form')
-  for (const [label, message] of [
-    ['Name', 'Name must be at least 2 characters'],
-    ['Topic', 'Please select a subject'],
-  ]) {
-    const field = form.getByLabel(label)
-    await expect(field).toHaveAttribute('aria-invalid', 'true')
-    await expect(field).toHaveAccessibleDescription(message)
+  const name = form.getByLabel('Name')
+  await expect(name).toHaveAttribute('aria-invalid', 'true')
+  await expect(name).toHaveAccessibleDescription('Name must be at least 2 characters')
+  // Every topic radio carries the group's error.
+  const topics = form.getByRole('group', { name: 'Topic' }).getByRole('radio')
+  await expect(topics).toHaveCount(3)
+  for (const radio of await topics.all()) {
+    await expect(radio).toHaveAttribute('aria-invalid', 'true')
+    await expect(radio).toHaveAccessibleDescription('Please choose a topic')
   }
   // The first invalid field is focused, and its label clears the fixed navbar.
-  const name = form.getByLabel('Name')
   await expect(name).toBeFocused()
   const navBottom = await page.locator('nav[aria-label="Primary"]').evaluate((el) => el.getBoundingClientRect().bottom)
   const labelTop = await form.locator('label[for="name"]').evaluate((el) => el.getBoundingClientRect().top)

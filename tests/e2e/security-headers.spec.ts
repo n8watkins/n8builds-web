@@ -112,7 +112,7 @@ test.describe('the CSP blocks nothing the site uses', () => {
 
     await form.getByLabel('Name').fill('Test Visitor')
     await form.getByLabel('Email').fill('visitor@example.com')
-    await form.getByLabel('Topic').selectOption('consulting')
+    await form.getByRole('group', { name: 'Topic' }).getByText('Consulting', { exact: true }).click()
     await form.getByLabel('Message').fill('Hello! This is an end-to-end CSP test message.')
     await page.getByRole('button', { name: /Send Message/ }).click()
     await expect(page.getByText('Message sent successfully!')).toBeVisible({ timeout: SEND_TIMEOUT })

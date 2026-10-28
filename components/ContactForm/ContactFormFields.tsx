@@ -1,11 +1,11 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import FadeIn from '@/components/ui/FadeIn'
 import { Turnstile } from '@marsidev/react-turnstile'
 import { ContactInput } from '@/components/ui/ContactInput'
-import { ContactSelect } from '@/components/ui/ContactSelect'
+import { ContactTopicCards } from '@/components/ui/ContactTopicCards'
 import { ContactTextarea } from '@/components/ui/ContactTextarea'
 import type { ContactFormData } from '@/lib/validations/contact'
 import { subjectOptions } from '@/lib/validations/contactOptions'
@@ -37,7 +37,8 @@ export function ContactFormFields({
   const {
     register,
     watch,
-    formState: { errors, isSubmitting },
+    setValue,
+    formState: { errors, isSubmitting, isSubmitted },
   } = form
 
   const charCount = watch('message')?.length || 0
@@ -45,6 +46,16 @@ export function ContactFormFields({
   // The server-rendered button has no click handler until hydration, so a
   // click before then would be silently lost.
   const hydrated = useHydrated()
+
+  // The topic radios are uncontrolled (ContactTopicCards): one picked before
+  // hydration, on a slow connection, is only in the DOM, so adopt it.
+  const topicsRef = useRef<HTMLFieldSetElement>(null)
+  useEffect(() => {
+    const picked = topicsRef.current?.querySelector<HTMLInputElement>('input:checked')?.value
+    if (picked) setValue('subject', picked as ContactFormData['subject'])
+  }, [setValue])
+  const pickTopic = (value: string) =>
+    setValue('subject', value as ContactFormData['subject'], { shouldDirty: true, shouldValidate: isSubmitted })
 
   const handleFieldFocus = (fieldName: string) => {
     trackContactEvent('field_focus', fieldName)
@@ -105,12 +116,11 @@ export function ContactFormFields({
       </FadeIn>
 
       <FadeIn delay={0.3}>
-        <ContactSelect
-          {...register('subject')}
+        <ContactTopicCards
+          ref={topicsRef}
           id="subject"
-          // Start on the placeholder: without this the browser silently
-          // pre-selects the first subject.
-          defaultValue=""
+          name="subject"
+          onChange={pickTopic}
           label="Topic"
           options={subjectOptions}
           error={errors.subject?.message}
