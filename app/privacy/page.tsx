@@ -11,7 +11,7 @@ export const metadata = pageMetadata({
   path: '/privacy',
 })
 
-const UPDATED = 'October 26, 2026'
+const UPDATED = 'October 27, 2026'
 
 export default function PrivacyPolicy() {
   return (
@@ -58,6 +58,17 @@ export default function PrivacyPolicy() {
                       Cookies and your choices
                     </a>
                     ).
+                  </li>
+                  <li>
+                    <span className="text-slate-100">The dino game.</span> If you play the catch game
+                    in the AI kit (here or on my developer portfolio), the site counts the round and
+                    its score, with your country and region from the request. To count players
+                    without tracking anyone, it turns your IP address and browser name into a code
+                    with a random key that changes every day and is deleted after two days, so the
+                    code can&rsquo;t be traced back to you or linked across days. Your IP address
+                    and browser are never stored, no cookie is set, and nothing is saved on your
+                    device for this. The high scores keep only the score, the site, the country and
+                    the date.
                   </li>
                   <li>
                     <span className="text-slate-100">Bot protection.</span> The contact form is

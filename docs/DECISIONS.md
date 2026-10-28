@@ -166,6 +166,10 @@ When the owner decides something new, add it here (with the date) in the same ch
   The AI kit's tiles can't be selected (not even by a triple click) or highlighted.
   A click on the dino is always a catch, so its roars react to being caught (RAWR!, OUCH!, GOT ME!, NO FAIR!, AGAIN?!, HEY!); none claims a miss.
   The round's countdown has its own pill in the band: bigger digits over a bar that drains with the round, red and pulsing for the last 5 seconds.
+- **Dino game stats (2026-10-27, owner's call):** rounds and scores from n8builds.dev and the portfolio go to `/api/game` here and land in the admin dashboard's analytics database (aggregates only).
+  Privacy first, no consent banner needed: no cookies, nothing stored in the browser, no IP or user agent stored; a player is a hash of IP and browser with a random salt that rotates daily and is deleted after two days.
+  Only the listed origins are answered, each player is rate limited, a score counts only for a round that player started at least 29 seconds earlier and is capped at 60, and the privacy page says all of this.
+  The best pill shows the all-time record next to the player's own best.
 
 ## Publishing and releases (2026-10-25)
 
