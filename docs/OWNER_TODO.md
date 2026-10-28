@@ -70,14 +70,16 @@ The build repos don't yet, so the build log still shows filtered commits for mos
 - Claude then proposes a few past milestones to backfill as releases (for example TL;DW 1.0.0); you approve the list before anything is tagged.
 - About an hour in total; nothing is needed from you beyond the go-ahead and the milestone list.
 
-## 5e. Pending as of 2026-10-27
+## 5e. Pending as of 2026-10-27 (n8builds part done 2026-10-28)
 
 **n8builds.dev and the admin dashboard**
-- Sign in once at https://admin.n8builds.dev.
-- Sentry: create a read-only token (`org:read`, `project:read`, `event:read`; org `nathan-watkins`) and add it to the admin project in Vercel.
-- Upstash: a second Redis database for the admin dashboard, and its URL and token in the admin project's Vercel settings.
-- Vercel: in n8builds-web, portfolio and portfolio-rank, set deployment retention for previews, cancelled and failed builds to 7 days (production stays at 30).
-- Optional: rename Sentry's portfolio project from `javascript-nextjs` (then update `next.config.mjs` and `SENTRY_PROJECTS`).
+- [x] Signed in at https://admin.n8builds.dev (2026-10-28).
+- [x] Sentry: personal read token (`org:read`, `project:read`, `event:read`) as `SENTRY_AUTH_TOKEN`, with `SENTRY_ORG` and `SENTRY_PROJECTS` (`n8builds,portfolio,n8builds-admin`) on the admin project; a new `n8builds-admin` Sentry project whose DSN (`SENTRY_DSN`) reports the admin's server errors and the daily snapshot's cron monitor (2026-10-28).
+- [x] Upstash: a second database, `n8builds-analytics` (N. Virginia, free, in the owner's own Upstash account, since Vercel's free Upstash plan allows one database), as `ANALYTICS_REDIS_REST_URL` and `ANALYTICS_REDIS_REST_TOKEN` on n8builds-web and the admin; dino rounds from both sites verified landing (2026-10-28).
+- [x] GitHub: `n8builds-admin billing`, a fine-grained token on Appturnity (Administration read-only), as `GITHUB_ORG_TOKEN` on the admin, for the Actions minutes card. Expires 2027-10-28 (2026-10-28).
+- [x] Sentry's portfolio project renamed to `portfolio`, and the portfolio's config updated (dev-portfolio#29).
+- Dropped: a 7-day deployment retention. Hobby projects already delete previews, cancelled and failed builds after 30 days, and previews are off on every project now (`git.deploymentEnabled`).
+- Still open: the real contact-form send in section 2. An automated browser can't do it: Turnstile withholds its token from one (checked again 2026-10-28), which is it working.
 
 **OpenPing**
 - Deploy round 2 and Hosted stage 1: set `WAITLIST_ENABLED` to "true" for the production deploy, run `npm run db:migrate`, then `npm run deploy`.
