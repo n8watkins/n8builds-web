@@ -4,11 +4,27 @@ Updated: October 27, 2026
 This is the one backlog for general work across every project (the owner's call, 2026-10-27).
 Each project keeps its own detailed plans in its repo; this file points to them.
 The owner's manual steps live in `docs/OWNER_TODO.md`.
+Since 2026-10-27 every project repo also has its own start-here section in `docs/HANDOFF.md`, so a session started in that repo's folder has what it needs.
+
+## Security: outdated Next.js and Node on live sites (found October 27, 2026; owner will address)
+Checked against GitHub's advisory database on 2026-10-27.
+Four live public sites run Next.js versions with critical advisories, including unauthenticated remote code execution (`use cache`, Image Optimization, `next/og`).
+All are fixed in Next.js 16.4.1 and later.
+- [ ] **GeminiGPT** - next 16.0.0: 4 critical, 15 high, 16 moderate, 3 low. Its Dockerfile uses `node:20-alpine` (Node 20 is end-of-life since April 2026) while `render.yaml` pins Node 22; confirm which one Render uses.
+- [ ] **Echo** - next 16.2.9: 5 critical, 6 high, 8 moderate, 1 low. Node 24 on Render.
+- [ ] **Scout** - next 16.2.9: same advisories as Echo. Node 22 on Render.
+- [ ] **Net Trailers** - next 16.2.7: same advisories as Echo. Vercel builds on Node 22 (supported until April 2027); move to 24 with the upgrade.
+- [ ] **Node 20 in CI** (low) - portfolio-rank, tl-dw and scribe run CI on Node 20, which no longer gets security fixes; move them to Node 24.
+- Clean: Portfolio Rank (next 15.5.28), Solara (next 16.4.3).
+- The fix for each: upgrade next to the latest 16.x, run lint, build and tests, deploy, then check the live site. Each repo's handoff lists it as its first open problem.
 
 ## Priority: code reviews and known bugs
-- [ ] **Portfolio projects (3–4)** — Audit all code featured on the portfolio, including architecture, security, bugs, tests, dependencies, and modernization. Identify each project and create an action plan.
-- [ ] **Tube Vault + TLDW** — Reproduce the YouTube Shorts bug where comments fail to update when scrolling between Shorts. Isolate which extension causes it; fix and regression-test.
-- [ ] **Portfolio Rank** — Verify Gemini API key configuration without exposing secrets; restore reliable continuous portfolio ELO scoring, automatic refresh, persistence, and error handling.
+- [ ] **OpenPing off-hours bug** - The public feed, status page and widget report a monitor in scheduled off-hours as "operational", so the portfolio shows sleeping Render apps as up. Report: `docs/BUG-public-scheduled-off.md` in open-ping (#13). Fix before the owner's next `npm run deploy`, so one deploy ships it with round 2.
+- [ ] **Gemini 3.5 Flash Lite** (owner's call, 2026-10-27) - GeminiGPT and Portfolio Rank move to Gemini 3.5 Flash Lite; Echo, Scout and Net Trailers where it fits; TL;DW is on 3.1 Flash Lite too. The switches are open PRs in each repo, waiting on the owner's new Gemini keys, then a live check.
+- [ ] **Portfolio projects (3–4)** - Audit all code featured on the portfolio, including architecture, security, bugs, tests, dependencies, and modernization. Identify each project and create an action plan.
+- [ ] **Tube Vault + TLDW** - Reproduce the YouTube Shorts bug where comments fail to update when scrolling between Shorts. Isolate which extension causes it; fix and regression-test.
+  - Both handoffs (October 27) name the suspects: TubeVault's `mountShortsButton()` in `extension/src/content-script.tsx` (it mounts into YouTube's recycled action bar, which holds the comments button); TL;DW's 500 ms `onNavigate()` in `src/content/youtube.ts` and `handleNav()` in `src/content/sponsorblock.ts`.
+- [ ] **Portfolio Rank** - Verify Gemini API key configuration without exposing secrets; restore reliable continuous portfolio ELO scoring, automatic refresh, persistence, and error handling.
   - Blocked on the owner's new Gemini key (grading has been off since July). The "AI reviews" claim stays on n8builds.dev and the portfolio until then, by the owner's call (2026-10-27).
 - [ ] **Dino game stats** - In progress: plays, unique players (cookie-free), attempts and high scores per site and overall, by country, in the admin dashboard.
 - [ ] **Vercel Analytics** - Switched on in Vercel (2026-10-27); n8builds-web still needs `@vercel/analytics` added to load it. Runs alongside GA4 (cookie-free, so it also counts visitors who decline cookies).
@@ -26,31 +42,29 @@ The owner's manual steps live in `docs/OWNER_TODO.md`.
 - [ ] **Scribe glib alert** - The last open scribe alert is glib 0.18 (RUSTSEC-2024-0429, an unsound iterator), which comes in through Tauri 2's Linux GTK stack. It needs Tauri to move to glib 0.20. Scribe ships on Windows, which never compiles glib.
 - [ ] **open-ping deploy** (owner) - Round 2 (redesign, app UI, free-plan scheduler limits, analytics CSP, no em dashes) and Hosted stage 1 (pricing section, waitlist, /install guide) are merged but not live. Set `WAITLIST_ENABLED` to "true" for the production deploy, run `npm run db:migrate` (migration 0010), then `npm run deploy`. Optional: `RESEND_API_KEY` for waitlist confirmations.
 - [x] **dev-portfolio security round** - PR #6 fixed 82 of 87 alerts (all 7 critical). The last 5 are dev-only, inside `@lhci/cli`, and need either a new `@lhci/cli` release or running it on demand with `npx`.
-- [ ] **TL;DW quality gate** - Failing on master since July 20. Diagnosis and fix plan: `docs/CI_QUALITY_GATE_FAILURE.md` on the tl-dw branch `docs/ci-failure-report` (a timezone-dependent test, a clock-dependent test, and Vite/Vitest advisories; about an hour of work).
+- [x] **TL;DW quality gate** - Fixed by tl-dw #3 (October 27); the diagnosis is on master as `docs/CI_QUALITY_GATE_FAILURE.md` (#5).
 - [ ] **GeminiGPT model** - It calls `gemini-3.1-flash-lite` (`lib/websocket/services/GeminiService.js`); the owner wants Gemini 3.5 Flash Lite. Upgrade in the GeminiGPT repo, test, then update the portfolio copy (it says "Gemini 3.1 Flash Lite" to match the code today).
 - [ ] **Appturnity Actions minutes** - The Appturnity org used all 2,000 free minutes in October; its private CI stops until November 1 unless a spending budget is set.
 
 ## Product development
-- [ ] **Solara** — Audit and finish functionality, polish UX, and prepare a Google Play release.
-- [ ] **OpenPing** — Support self-hosting plus an optional paid managed hosting offering; review deployment and documentation.
+- [ ] **Solara** - Audit and finish functionality, polish UX, and prepare a Google Play release.
+- [ ] **OpenPing** - Support self-hosting plus an optional paid managed hosting offering; review deployment and documentation.
   - Plan: `docs/HOSTED_PLAN.md` in open-ping (stages 0 to 7). Stages 0 and 1 are done; the gate is about 20 waitlist sign-ups in 8 weeks before building Hosted ($24 a year, +$12 for 1-minute checks).
   - Product report: https://claude.ai/artifact/BARzBrjwkQMgtZs2HWgjAk (short) and https://claude.ai/artifact/C67YiUApqTAGcsR7VHxiEN (full).
-- [ ] **im-committed** (private) — Correctly count and display GitHub commits made today, accounting for timezone, API pagination, and refresh.
-- [ ] **Scribe app** — Review Rust application code, architecture, performance, security, bugs, and tests.
-- [ ] **Scribe website** — Update to accurately reflect the current application.
-  - Rounds 4 to 10 are on scribe-web's branch `feat/landing-level-up` (worktree `~/projects/tools/scribe/scribe-web-lvl`), awaiting the owner's approval, then a PR and deploy. Its to-do list: `docs/TODO.md` on that branch.
-  - Redo the videos as real recordings of the app on Windows; real screenshots of every theme and view.
+- [x] **im-committed** (private) - A scheduled bot that commits daily. Since October 27 (#1) it commits every day, usually 100 to 150 times, with no overlapping runs and retried pushes.
+- [ ] **Scribe app** - Review Rust application code, architecture, performance, security, bugs, and tests (plan: `docs/ASSESSMENT_PLAN_2026-10.md`). The security fixes from #40 reach users only with a release, which needs the owner's go-ahead. The local checkout's branch `feat/rust-storage-profiles` holds 5 commits not on main (its PR #18 was closed); revive or drop it with the owner.
+- [ ] **Scribe website** - The rework is live (scribe-web #11, October 27). Left: real Windows screenshots and recordings (from the Scribe app assessment), a "What's new" page from app releases, and a phone version of the app tour. To-do list: `docs/TODO.md` in scribe-web.
 
 ## Assess for future work
-- [ ] **T-Hub** — Assess product feasibility and code quality; recommend whether to continue.
-- [ ] **Pivot** — Review inactive project, identify problems and next steps.
-- [ ] **Cutely Ask Me** — Evaluate product potential and path to a polished release.
-- [ ] **Fit Flow 7** — Assess code, usability, and missing functionality.
-- [ ] **Felium** — Determine whether still used; maintain, archive, or retire.
+- [ ] **T-Hub** - Assess product feasibility and code quality; recommend whether to continue.
+- [ ] **Pivot** - Review inactive project, identify problems and next steps.
+- [ ] **Cutely Ask Me** - Evaluate product potential and path to a polished release.
+- [ ] **Fit Flow 7** - Assess code, usability, and missing functionality.
+- [ ] **Felium** - Determine whether still used; maintain, archive, or retire.
 
 ## Cleanup and low-priority assessments
-- [ ] **Net Trailers** — Clean up code, dependencies, structure, and technical debt.
-- [ ] **Repo Steward** — Evaluate usefulness before committing to more development.
+- [ ] **Net Trailers** - Clean up code, dependencies, structure, and technical debt.
+- [ ] **Repo Steward** - Evaluate usefulness before committing to more development.
 
 ## AI agent workflow
 1. Audit the repo, dependencies, documentation, tests, and recent development.
