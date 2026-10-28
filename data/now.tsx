@@ -2,6 +2,8 @@
 // ad for Appturnity, the company the owner runs. Keep it current: what is
 // shipping right now, from Appturnity's own repo (Appturnity/appturnity).
 
+import { refHref } from '@/lib/referrals'
+
 export interface NowUpdate {
   date: string // e.g. "Oct 25"
   text: string
@@ -84,8 +86,8 @@ export const nowItems: NowState[] = [
     stack: ['Next.js 16', 'Cloudflare Workers', 'D1', 'Stripe', 'Gemini'],
     // Appturnity's own site is its home; its GitHub repo is never linked.
     ctas: [
-      { label: 'Claim your free website', href: 'https://appturnity.com/#free-website' },
-      { label: 'See example sites', href: 'https://appturnity.com/examples' },
+      { label: 'Claim your free website', href: refHref('appturnity', 'lab', 'free-website') },
+      { label: 'See example sites', href: refHref('appturnity', 'lab', 'examples') },
     ],
     updates: [
       { date: 'Oct 25', text: 'Google review requests are now included in the Care and Pro plans.' },

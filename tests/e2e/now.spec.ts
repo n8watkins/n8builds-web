@@ -18,8 +18,8 @@ test('the card reads like an ad: headline, selling points, both buttons and real
   for (const perk of ['Built and launched for free', 'Templates for your trade', 'Review requests add-on']) {
     await expect(section.getByRole('listitem').filter({ hasText: perk })).toBeVisible()
   }
-  await expect(section.getByRole('link', { name: /Claim your free website/ })).toHaveAttribute('href', 'https://appturnity.com/#free-website')
-  await expect(section.getByRole('link', { name: /See example sites/ })).toHaveAttribute('href', 'https://appturnity.com/examples')
+  await expect(section.getByRole('link', { name: /Claim your free website/ })).toHaveAttribute('href', '/appturnity?from=lab&to=free-website')
+  await expect(section.getByRole('link', { name: /See example sites/ })).toHaveAttribute('href', '/appturnity?from=lab&to=examples')
 
   // Appturnity's own template previews, loaded and laid out in their frames.
   for (const name of ['pool-clearline-template', 'hvac-phone-full']) {

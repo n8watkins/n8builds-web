@@ -111,7 +111,8 @@ describe('email subjects and plain text', () => {
     const html = createContactEmailHtml(maya, { receivedAt: new Date('2026-10-28T23:12:00Z') })
     expect(html).toContain('Oct 28, 2026, 4:12 PM PDT')
     expect(html).toContain('An auto-reply went to maya@example.com.')
-    expect(html).toContain('mailto:maya@example.com?subject=Re%3A%20New%20project%20(n8builds.dev)')
+    // Addressed, titled with the topic, and greeted: "Hi Maya," and a blank line.
+    expect(html).toContain('mailto:maya@example.com?subject=Re%3A%20New%20project%20opportunity&amp;body=Hi%20Maya%2C%0A%0A')
   })
 
   it('never uses an em dash in either email', () => {
@@ -146,5 +147,22 @@ describe("the sender's country, in the owner notification only", () => {
 
   it('never reaches the auto-reply', () => {
     expect(createAutoReplyHtml(data)).not.toContain('Country')
+  })
+})
+
+describe("the auto-reply's cards", () => {
+  for (const subject of ['project_opportunity', 'consulting', 'networking'] as const) {
+    it(`link through n8builds.dev's counted links, with icons (${subject})`, () => {
+      const html = createAutoReplyHtml({ ...hostile, name: 'Maya', subject })
+      expect(html).toContain('href="https://n8builds.dev/portfolio?from=email"')
+      expect(html).toContain('href="https://n8builds.dev/appturnity?from=email"')
+      expect(html).toContain('href="https://n8builds.dev/?utm_source=contact-email&utm_medium=email"')
+      for (const icon of ['lab', 'portfolio', 'appturnity', 'logo', 'github']) expect(html).toContain(`cid:icon-${icon}`)
+      expect(createAutoReplyText({ ...hostile, name: 'Maya', subject })).toContain('https://n8builds.dev/appturnity?from=email')
+    })
+  }
+
+  it('greets "there" in the reply button when the name is not a plain word', () => {
+    expect(createContactEmailHtml({ ...hostile, name: 'www.evil.com Offer' })).toContain('body=Hi%20there%2C%0A%0A')
   })
 })

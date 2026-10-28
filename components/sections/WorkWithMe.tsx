@@ -5,6 +5,7 @@ import Reveal from '@/components/ui/Reveal'
 import PauseOffscreen from '@/components/ui/PauseOffscreen'
 import { FiArrowUpRight, FiCheck, FiCode } from 'react-icons/fi'
 import styles from './WorkWithMe.module.css'
+import { isOutbound, refHref } from '@/lib/referrals'
 
 /** One highlight line: an optional bold lead-in, then what it is. */
 interface Point {
@@ -160,8 +161,8 @@ const doors: Door[] = [
       { text: 'Paid plans add your own domain and Google Business Profile help' },
     ],
     soon: ['AI phone receptionist', 'Missed-call text-back', 'Online payments'],
-    cta: { label: 'Claim your free website', href: 'https://appturnity.com/#free-website' },
-    secondary: { label: 'See the plans', href: 'https://appturnity.com/pricing' },
+    cta: { label: 'Claim your free website', href: refHref('appturnity', 'card', 'free-website') },
+    secondary: { label: 'See the plans', href: refHref('appturnity', 'card', 'pricing') },
     icon: <Image src="/brands/appturnity.png" alt="" width={152} height={177} className="h-5 w-auto" />,
     // Appturnity's own template shots (its apps/hub/public/example-shots).
     desktop: {
@@ -290,7 +291,7 @@ const DoorCard = ({ door, index }: { door: Door; index: number }) => {
               <FiArrowUpRight aria-hidden className="h-4 w-4" />
             </External>
             {door.secondary &&
-              (door.secondary.href.startsWith('/') ? (
+              (!isOutbound(door.secondary.href) ? (
                 <Link href={door.secondary.href} className={SECONDARY}>
                   {door.secondary.label}
                 </Link>

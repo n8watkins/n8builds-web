@@ -160,14 +160,12 @@ test('retired routes redirect permanently', async ({ request }) => {
   }
 })
 
-test('temporary redirects: builds on hold (so they can come back at the same URL), Tools, and the portfolio shortcut', async ({ request }) => {
+test('temporary redirects: builds on hold (so they can come back at the same URL) and Tools', async ({ request }) => {
   for (const [path, target] of [
     ['/builds/chrome-extension-kit', '/#extensions'],
     ['/builds/vibelog', '/#lab'],
     // Tools are the owner's daily tools now, at the top of the Lab.
     ['/tools', '/#my-tools'],
-    // The short address for the developer portfolio.
-    ['/portfolio', 'https://portfolio.n8builds.dev/'],
   ]) {
     const response = await request.get(path, { maxRedirects: 0 })
     expect(response.status(), path).toBe(307)
@@ -189,4 +187,21 @@ test("Appturnity's old build page goes to appturnity.com", async ({ request }) =
   const response = await request.get('/builds/appturnity', { maxRedirects: 0 })
   expect(response.status()).toBe(308)
   expect(response.headers().location).toBe('https://appturnity.com/')
+})
+
+// n8builds.dev/portfolio and /appturnity are counted short links (lib/referrals.ts):
+// a 302 to a known page, with UTM tags, never cached, and never to a page a visitor names.
+test('the counted short links land on known pages only', async ({ request }) => {
+  for (const [path, target] of [
+    ['/portfolio', 'https://portfolio.n8builds.dev/?utm_source=n8builds.dev&utm_medium=referral&utm_content=other'],
+    ['/portfolio?from=email', 'https://portfolio.n8builds.dev/?utm_source=n8builds.dev&utm_medium=referral&utm_content=email'],
+    ['/appturnity?from=navbar', 'https://appturnity.com/?utm_source=n8builds.dev&utm_medium=referral&utm_content=navbar'],
+    ['/appturnity?from=card&to=free-website', 'https://appturnity.com/?utm_source=n8builds.dev&utm_medium=referral&utm_content=card#free-website'],
+    ['/appturnity?from=evil&to=https://evil.example', 'https://appturnity.com/?utm_source=n8builds.dev&utm_medium=referral&utm_content=other'],
+  ]) {
+    const response = await request.get(path, { maxRedirects: 0 })
+    expect(response.status(), path).toBe(302)
+    expect(response.headers().location, path).toBe(target)
+    expect(response.headers()['cache-control'], path).toContain('no-store')
+  }
 })

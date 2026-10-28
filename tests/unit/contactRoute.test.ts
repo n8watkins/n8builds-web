@@ -17,6 +17,18 @@ vi.mock('@/lib/security/turnstile', () => ({
 vi.mock('@/lib/email/sender', () => ({
   sendContactEmails: (...args: unknown[]) => sendContactEmails(...args),
 }))
+// after() needs a live request scope: run its callback at once instead.
+const afterCallbacks: (() => unknown)[] = []
+vi.mock('next/server', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('next/server')>()),
+  after: (fn: () => unknown) => afterCallbacks.push(fn),
+}))
+const countContactSent = vi.fn(async () => {})
+let store: object | null = {}
+vi.mock('@/lib/analyticsStore', () => ({
+  analyticsStore: () => store,
+  countContactSent: (...args: unknown[]) => countContactSent(...(args as [])),
+}))
 vi.mock('@/lib/logger', () => ({
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }))
@@ -47,6 +59,9 @@ beforeEach(() => {
   checkRateLimit.mockReset().mockResolvedValue({ allowed: true })
   verifyTurnstile.mockReset().mockResolvedValue(true)
   sendContactEmails.mockReset().mockResolvedValue({ success: true })
+  countContactSent.mockClear()
+  afterCallbacks.length = 0
+  store = {}
 })
 
 describe('POST /api/contact', () => {
@@ -161,5 +176,20 @@ describe('POST /api/contact', () => {
     sendContactEmails.mockResolvedValue({ success: false, error: 'SMTP down' })
 
     expect(await post(validForm)).toEqual({ status: 500, json: { error: 'SMTP down' } })
+  })
+
+  it("counts a delivered message for the admin's monthly total, after the response", async () => {
+    await post(validForm)
+    expect(countContactSent).not.toHaveBeenCalled()
+    await Promise.all(afterCallbacks.map((fn) => fn()))
+    expect(countContactSent).toHaveBeenCalledOnce()
+  })
+
+  it("doesn't count a message that failed to send, or when the analytics database isn't set", async () => {
+    sendContactEmails.mockResolvedValueOnce({ success: false, error: 'nope' })
+    expect((await post(validForm)).status).toBe(500)
+    store = null
+    expect((await post(validForm)).status).toBe(200)
+    expect(afterCallbacks).toHaveLength(0)
   })
 })

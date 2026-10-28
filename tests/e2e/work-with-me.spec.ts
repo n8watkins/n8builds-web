@@ -68,8 +68,8 @@ test.describe('desktop', () => {
     await expect(dev.getByRole('link', { name: 'Or send me a message' })).toHaveAttribute('href', '/#contact')
 
     const apt = card(page, /Run a service business/)
-    await expect(apt.getByRole('link', { name: /Claim your free website/ })).toHaveAttribute('href', 'https://appturnity.com/#free-website')
-    await expect(apt.getByRole('link', { name: /See the plans/ })).toHaveAttribute('href', 'https://appturnity.com/pricing')
+    await expect(apt.getByRole('link', { name: /Claim your free website/ })).toHaveAttribute('href', '/appturnity?from=card&to=free-website')
+    await expect(apt.getByRole('link', { name: /See the plans/ })).toHaveAttribute('href', '/appturnity?from=card&to=pricing')
     // Planned features are labelled as such, never as included; booking, reminders and follow-up are live today.
     await expect(apt.getByRole('list', { name: 'Coming soon' }).getByRole('listitem')).toHaveText([
       'AI phone receptionist',

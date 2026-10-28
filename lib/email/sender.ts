@@ -101,7 +101,7 @@ export async function sendContactEmails(
       subject: autoReplySubject(data),
       html: createAutoReplyHtml(data),
       text: createAutoReplyText(data),
-      attachments: inlineImages(['logo', 'github', 'linkedin', 'x']),
+      attachments: inlineImages(['logo', 'lab', 'portfolio', 'appturnity', 'github', 'linkedin', 'x']),
     })
 
     logger.info('✅ Auto-reply email sent successfully')

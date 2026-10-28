@@ -111,6 +111,7 @@ function shell({ title, preheader, body }: { title: string; preheader: string; b
       .h1 { font-size: 24px !important; line-height: 30px !important; }
       .stack, .stack > tbody, .stack > tbody > tr, .stack > tbody > tr > td { display: block !important; width: 100% !important; }
       .meta-label { padding-bottom: 2px !important; }
+      .hide-sm { display: none !important; }
     }
   </style>
 </head>
@@ -191,7 +192,9 @@ export function createContactEmailHtml(
   const name = sanitizeHtml(data.name)
   const email = sanitizeHtml(data.email)
   const first = sanitizeHtml(greetingName(data.name) === 'there' ? data.name : greetingName(data.name))
-  const replyHref = `mailto:${email}?subject=${encodeURIComponent(`Re: ${topic.short} (n8builds.dev)`)}`
+  // Opens a reply already addressed, titled and greeted: "Hi Maya," and a blank line.
+  const replyQuery = new URLSearchParams({ subject: `Re: ${topic.label.replace(/^\S+\s+/, '')}`, body: `Hi ${greetingName(data.name)},\n\n` })
+  const replyHref = `mailto:${email}?${sanitizeHtml(replyQuery.toString().replace(/\+/g, '%20'))}`
   const row = (label: string, value: string) => `
                 <tr>
                   <td class="meta-label" valign="top" style="width:96px;padding:0 12px 10px 0;font-family:${MONO};font-size:11px;letter-spacing:1px;text-transform:uppercase;color:${C.faint};">${label}</td>
@@ -318,21 +321,26 @@ export function autoReplySubject(data: ContactFormData): string {
   return first === 'there' ? '👋 Got your message' : `👋 Got your message, ${first}`
 }
 
+// The links count clicks: /portfolio and /appturnity are n8builds.dev's
+// counted short links (lib/referrals.ts); the Lab link carries UTM tags.
 const PLACES = [
   {
-    href: EMAIL_CONFIG.siteUrl,
+    href: `${EMAIL_CONFIG.siteUrl}/?utm_source=contact-email&utm_medium=email`,
+    icon: 'lab',
     title: 'The Lab',
     domain: 'n8builds.dev',
     text: 'Everything I build, in public: apps, tools and AI experiments.',
   },
   {
-    href: 'https://portfolio.n8builds.dev',
+    href: `${EMAIL_CONFIG.siteUrl}/portfolio?from=email`,
+    icon: 'portfolio',
     title: 'Developer portfolio',
     domain: 'portfolio.n8builds.dev',
     text: 'My projects, experience and the stack behind them.',
   },
   {
-    href: EMAIL_CONFIG.appturnityUrl,
+    href: `${EMAIL_CONFIG.siteUrl}/appturnity?from=email`,
+    icon: 'appturnity',
     title: 'Appturnity',
     domain: 'appturnity.com',
     text: 'My company: free websites and AI automations for service businesses.',
@@ -362,14 +370,14 @@ export function createAutoReplyHtml(data: ContactFormData): string {
                       </tr>`
   const place = (p: (typeof PLACES)[number]) => `
                       <tr>
-                        <td style="padding:0 0 10px;">
+                        <td style="padding:0 0 6px;">
                           <a href="${p.href}" style="display:block;text-decoration:none;">
                             <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border:1px solid ${C.line};border-radius:12px;background:${C.panel};" bgcolor="${C.panel}">
                               <tr>
-                                <td style="padding:14px 18px;font-family:${FONT};">
-                                  <p style="margin:0;font-size:15px;font-weight:700;color:${C.white};">${p.title} <span style="font-weight:400;color:${C.cyan};">&rarr;</span></p>
-                                  <p style="margin:3px 0 0;font-size:13px;line-height:20px;color:${C.muted};">${p.text}</p>
-                                  <p style="margin:5px 0 0;font-family:${MONO};font-size:11px;letter-spacing:0.5px;color:${C.faint};">${p.domain}</p>
+                                <td valign="middle" style="width:32px;padding:8px 0 8px 10px;"><img src="cid:icon-${p.icon}" width="32" height="32" alt="" style="display:block;border:0;border-radius:8px;"></td>
+                                <td valign="middle" style="padding:7px 14px 7px 12px;font-family:${FONT};">
+                                  <p style="margin:0;font-size:14px;line-height:18px;font-weight:700;color:${C.white};">${p.title} <span style="font-weight:400;color:${C.cyan};">&rarr;</span> <span class="hide-sm" style="padding-left:4px;font-family:${MONO};font-size:10px;font-weight:400;letter-spacing:0.3px;color:${C.faint};">${p.domain}</span></p>
+                                  <p style="margin:1px 0 0;font-size:13px;line-height:17px;color:${C.muted};">${p.text}</p>
                                 </td>
                               </tr>
                             </table>

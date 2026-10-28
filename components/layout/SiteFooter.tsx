@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Reveal from '@/components/ui/Reveal'
 import CookieSettingsButton from '@/components/consent/CookieSettingsButton'
 import { SOCIALS, isExternal, type Social } from '@/data/socials'
+import { isOutbound, refHref } from '@/lib/referrals'
 
 /**
  * The footer on every page: a sitemap (every page and section, so the build
@@ -33,7 +34,7 @@ const SITEMAP: { heading: string; links: { label: string; href: string; icon?: s
     heading: 'Work with me',
     links: [
       { label: 'Developer portfolio', href: 'https://portfolio.n8builds.dev' },
-      { label: 'Appturnity', href: 'https://appturnity.com', icon: '/brands/appturnity.png' },
+      { label: 'Appturnity', href: refHref('appturnity', 'footer'), icon: '/brands/appturnity.png' },
       { label: 'Contact form', href: '/#contact' },
       { label: 'contact@n8builds.dev', href: 'mailto:contact@n8builds.dev' },
     ],
@@ -61,7 +62,7 @@ const SiteFooter = () => (
             <ul className="flex flex-col gap-2">
               {group.links.map((link) => (
                 <li key={link.href}>
-                  {link.href.startsWith('http') ? (
+                  {isOutbound(link.href) ? (
                     <a
                       href={link.href}
                       target="_blank"
