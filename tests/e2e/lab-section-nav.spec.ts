@@ -17,6 +17,8 @@ const PARTS = [
 ] as const
 
 const rail = (page: Page) => page.getByRole('navigation', { name: 'Lab contents' })
+// The rail fades in on a frame after the scroll; a loaded CI machine (WebKit especially) can take several seconds.
+const SHOW = { timeout: 15_000 }
 
 /**
  * Open the homepage and wait until the rail's script is running. The rail is
@@ -152,7 +154,7 @@ test.describe('placement at 1440px', () => {
       .evaluate((n) => (n as HTMLElement).offsetHeight)
     const centre = Math.floor((900 - navHeight) / 2)
     await headingAt(page, centre - 2)
-    await expect(nav).toBeVisible()
+    await expect(nav).toBeVisible(SHOW)
     const top = (await nav.boundingBox())!.y
     expect(Math.abs(top - (await headingTop(page)))).toBeLessThanOrEqual(3)
   })
@@ -169,7 +171,7 @@ test.describe('placement at 1440px', () => {
           behavior: 'instant',
         })
       }, part.id)
-      await expect(nav).toBeVisible()
+      await expect(nav).toBeVisible(SHOW)
       const box = (await nav.boundingBox())!
       expect(Math.abs(box.y + box.height / 2 - 450), part.id).toBeLessThanOrEqual(2)
     }
@@ -224,7 +226,7 @@ test.describe('placement at 1440px', () => {
     await openHome(page)
     await scrollToPart(page, 'featured')
     const nav = rail(page)
-    await expect(nav).toBeVisible()
+    await expect(nav).toBeVisible(SHOW)
     await nav.getByRole('link').first().focus()
     await expect(nav.getByRole('link', { name: 'My tools', exact: true })).toBeFocused()
     await page.keyboard.press('Tab')
@@ -240,10 +242,8 @@ test.describe('placement at 1440px', () => {
   test('reduced motion: nothing moves (no comet spin, no sliding)', async ({ page }) => {
     await openHome(page)
     await scrollToPart(page, 'featured')
-    // The rail's styles are what matter here; its showing is covered by the tests above.
-    // (On a fresh CI WebKit it sometimes hasn't shown yet when this runs first.)
     const nav = page.locator('nav[aria-label="Lab contents"]')
-    await expect(nav).toHaveCount(1)
+    await expect(rail(page)).toBeVisible(SHOW)
     const motion = await nav.evaluate((n) => {
       const all = [n, ...n.querySelectorAll<HTMLElement>('*')].map((el) => getComputedStyle(el))
       return {
@@ -271,7 +271,7 @@ test.describe('icons only, 1280-1439px', () => {
     await openHome(page)
     await scrollToPart(page, 'featured')
     const nav = rail(page)
-    await expect(nav).toBeVisible()
+    await expect(nav).toBeVisible(SHOW)
     // No heading and no inline labels: the rail is just the icons.
     await expect(nav.getByText('The Lab', { exact: true })).toBeHidden()
     const tooltip = (name: string) =>

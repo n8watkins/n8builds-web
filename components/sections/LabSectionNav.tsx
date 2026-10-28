@@ -52,7 +52,7 @@ type LabPart = { id: string; label: string; short?: string; icon: IconType; icon
  * where it must, so nothing wraps); between 1280px and 1440px icons only, the
  * label showing as a tooltip on hover or keyboard focus.
  *
- * Script: one scroll listener, attached only while the Lab is on screen, that
+ * Script: one scroll listener, throttled to a frame and idle while the Lab is off screen, that
  * finds the current part (the one whose top has passed the middle of the viewport)
  * and snaps the wire's fill to its row through a CSS variable (no re-render per
  * frame). Animation is CSS transitions plus Tailwind's spin; under reduced
@@ -115,6 +115,12 @@ export default function LabSectionNav() {
     let frame = 0
     const update = () => {
       frame = 0
+      // Nothing to do while the Lab is off screen (the rail is hidden then).
+      const box = lab.getBoundingClientRect()
+      if (box.bottom <= 0 || box.top >= window.innerHeight) {
+        setShown(false)
+        return
+      }
       // A part becomes current once its top reaches the rail's level, the
       // viewport's middle, and stays current until the next one gets there.
       const line = window.innerHeight * 0.5
@@ -138,27 +144,17 @@ export default function LabSectionNav() {
       if (!frame) frame = requestAnimationFrame(update)
     }
 
-    // The scroll listener runs only while the Lab is on screen.
-    const observer = new IntersectionObserver(([entry]) => {
-      // Drops any part missing from the page, on the first callback.
-      setParts((prev) =>
-        prev.map((p) => p.id).join() === present.map((p) => p.id).join() ? prev : present
-      )
-      if (entry.isIntersecting) {
-        update()
-        window.addEventListener('scroll', onScroll, { passive: true })
-        window.addEventListener('resize', onScroll, { passive: true })
-      } else {
-        setShown(false)
-        window.removeEventListener('scroll', onScroll)
-        window.removeEventListener('resize', onScroll)
-      }
-    })
-    observer.observe(lab)
+    // Drops any part missing from the page.
+    setParts((prev) => (prev.map((p) => p.id).join() === present.map((p) => p.id).join() ? prev : present))
+    // One scroll listener for the page's life, throttled to a frame. It isn't
+    // gated on an IntersectionObserver: WebKit could report the Lab late after
+    // an instant jump, leaving the rail hidden until the next scroll.
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll, { passive: true })
+    update()
     // Hydrated and measuring: the rail can show from here on (tests wait for this).
     column.dataset.ready = ''
     return () => {
-      observer.disconnect()
       resize.disconnect()
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onScroll)

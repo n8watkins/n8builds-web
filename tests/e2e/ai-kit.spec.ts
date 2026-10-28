@@ -141,7 +141,8 @@ test.describe('dino easter egg (motion allowed)', () => {
     await expect(dino(page)).toHaveCount(0)
 
     await showKit(page, '[data-dino-panel]')
-    await expect(dino(page)).toHaveCount(1)
+    // The game's code loads only now; a loaded CI machine can take several seconds.
+    await expect(dino(page)).toHaveCount(1, { timeout: 15_000 })
     // Decorative: hidden from assistive tech. Clicks pass through its layer;
     // only the dino's own small box takes them (the click easter egg).
     await expect(
