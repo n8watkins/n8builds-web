@@ -101,6 +101,9 @@ When the owner decides something new, add it here (with the date) in the same ch
   Footer, navbar and redirect links to the portfolio and Appturnity are intentional bridges.
 - The N8 neon icon is the brand mark and favicon for both n8builds and the portfolio.
 - One GA4 property (`G-JZQGKY9Q37`) covers the whole n8builds.dev domain, subdomains included.
+- **Vercel Web Analytics** (2026-10-27): loaded on every page next to Speed Insights, only on Vercel builds, and outside the consent banner, because it sets no cookies and keeps no visitor identifier past a day.
+  GA4 stays as it is and remains the main analytics; Vercel's is a cookie-free count that also covers visitors who decline.
+  The privacy page's "Hosting" item names both Vercel tools.
 - **Analytics consent** (2026-10-26): Google Consent Mode v2 with region defaults (analytics denied for the EEA, UK, Switzerland and Quebec `CA-QC`, granted elsewhere; ad signals denied everywhere, as the site runs no ads).
   Visitors whose time zone is in Europe or covers Quebec (`America/Toronto` and friends, so Ontario is asked too) get the banner, and GA doesn't load at all until they accept (basic mode); everyone else gets analytics by default, with "Cookie settings" in the footer.
   Global Privacy Control counts as a decline everywhere until the visitor chooses.

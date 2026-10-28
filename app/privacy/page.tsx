@@ -143,7 +143,9 @@ export default function PrivacyPolicy() {
                   </li>
                   <li>
                     <span className="text-slate-100">Hosting.</span> The site is hosted on Vercel,
-                    which may process basic request logs to serve and secure the site.
+                    which may process basic request logs to serve and secure the site. Vercel Web
+                    Analytics and Speed Insights also count page views and measure page speed
+                    without cookies, and Vercel discards the visitor counts it uses after a day.
                   </li>
                 </ul>
               </section>
