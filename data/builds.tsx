@@ -221,7 +221,7 @@ export const builds: Build[] = [
   {
     slug: 'openping',
     name: 'OpenPing',
-    tagline: 'Uptime monitoring that runs in your own Cloudflare account',
+    tagline: 'Uptime monitoring on your own Cloudflare',
     category: 'Web tool',
     mine: true,
     tags: ['Cloudflare Workers', 'D1', 'React'],

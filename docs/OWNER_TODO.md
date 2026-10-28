@@ -58,7 +58,10 @@ The build log reads GitHub with a fine-grained token, `n8builds-web build log` (
 - **Optional:** add the same token as a repository secret named `BUILD_LOG_GITHUB_TOKEN` (GitHub, n8builds-web, Settings, Secrets and variables, Actions). The nightly "Build log repos" check then fails as soon as that token stops working, instead of when the live page goes stale.
 - **A new tracked repo** needs adding to the token's repository list, or the log leaves it out.
 
-## 5d. Roll the release standard out to the build repos (when you're ready)
+## 5d. Roll the release standard out to the build repos (done 2026-10-27)
+
+Done: every project uses release-kit as a dev dependency (v2.0.1) except Solara, and TubeVault has it only on its review branch.
+The notes below are kept for history.
 
 n8builds-web follows the release standard (https://github.com/n8watkins/release-kit) since 2026-10-25 and shipped v1.1.0 with it.
 The build repos don't yet, so the build log still shows filtered commits for most of them instead of "Shipped vX" releases.
@@ -66,6 +69,27 @@ The build repos don't yet, so the build log still shows filtered commits for mos
 - Tell Claude "roll out the release kit". Claude applies it to TL;DW, TubeVault, Piper TTS, Solara and Portfolio Rank (one commit each, a baseline tag, workflows checked on GitHub). Scribe already meets the standard.
 - Claude then proposes a few past milestones to backfill as releases (for example TL;DW 1.0.0); you approve the list before anything is tagged.
 - About an hour in total; nothing is needed from you beyond the go-ahead and the milestone list.
+
+## 5e. Pending as of 2026-10-27
+
+**n8builds.dev and the admin dashboard**
+- Sign in once at https://admin.n8builds.dev.
+- Sentry: create a read-only token (`org:read`, `project:read`, `event:read`; org `nathan-watkins`) and add it to the admin project in Vercel.
+- Upstash: a second Redis database for the admin dashboard, and its URL and token in the admin project's Vercel settings.
+- Vercel: in n8builds-web, portfolio and portfolio-rank, set deployment retention for previews, cancelled and failed builds to 7 days (production stays at 30).
+- Optional: rename Sentry's portfolio project from `javascript-nextjs` (then update `next.config.mjs` and `SENTRY_PROJECTS`).
+
+**OpenPing**
+- Deploy round 2 and Hosted stage 1: set `WAITLIST_ENABLED` to "true" for the production deploy, run `npm run db:migrate`, then `npm run deploy`.
+- Check the Worker's `ADMIN_GITHUB_LOGIN` secret is your GitHub username, then sign in at https://openping.n8builds.dev/login.
+- If your Cloudflare account is on Workers Paid, set `WORKERS_PLAN` to "paid".
+- For automatic deploys: repo secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, repo variable `D1_DATABASE_ID`.
+- Optional: `RESEND_API_KEY` for waitlist confirmation emails.
+
+**Other projects**
+- Portfolio Rank: a new Gemini API key, so grading and AI reviews work again.
+- Subdomains: `rank.n8builds.dev`, `trailers.n8builds.dev` and `echo.n8builds.dev` (DNS on Cloudflare, domains on Vercel and Render), then Claude updates the links.
+- Scribe: approve the site preview; code signing for the installer (a certificate).
 
 ## 6. Optional
 

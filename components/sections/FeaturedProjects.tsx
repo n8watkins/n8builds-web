@@ -139,7 +139,7 @@ const featured: FeaturedProject[] = [
     title: 'OpenPing',
     icon: '/builds/openping/icon.svg',
     group: 'tools',
-    subtitle: 'Self-hosted uptime monitoring',
+    subtitle: 'Uptime monitoring on your own Cloudflare',
     description:
       'I check OpenPing every day: it watches my live demos from my own Cloudflare account, and off-hours never count as downtime.',
     images: [
