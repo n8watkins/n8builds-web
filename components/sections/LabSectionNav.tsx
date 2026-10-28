@@ -177,8 +177,13 @@ export default function LabSectionNav() {
       <nav
         ref={navRef}
         aria-label="Lab contents"
-        className={`pointer-events-auto sticky top-[calc(50vh-var(--nav-h,9rem)/2)] ml-auto mr-3 w-fit [--chip:1.625rem] [--row:3.75rem] transition-[opacity,translate,visibility] duration-700 ease-out motion-reduce:translate-none motion-reduce:transition-[opacity,visibility] 2xl:mr-6 min-[110rem]:[--chip:1.75rem] min-[110rem]:[--row:4rem] ${
-          shown ? 'visible translate-x-0 opacity-100' : 'invisible -translate-x-3 opacity-0'
+        // Visibility flips at once when the rail shows (a transition would keep
+        // it hidden, unclickable and unnamed until its first frame), and waits
+        // out the fade when it hides.
+        className={`pointer-events-auto sticky top-[calc(50vh-var(--nav-h,9rem)/2)] ml-auto mr-3 w-fit [--chip:1.625rem] [--row:3.75rem] duration-700 ease-out motion-reduce:translate-none 2xl:mr-6 min-[110rem]:[--chip:1.75rem] min-[110rem]:[--row:4rem] ${
+          shown
+            ? 'visible translate-x-0 opacity-100 transition-[opacity,translate] motion-reduce:transition-opacity'
+            : 'invisible -translate-x-3 opacity-0 transition-[opacity,translate,visibility] motion-reduce:transition-[opacity,visibility]'
         }`}
       >
         {/* Heading, wide shape only: the Lab's flask (centred over the icons) and its name in the tagline's gradient. */}
