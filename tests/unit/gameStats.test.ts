@@ -203,6 +203,34 @@ describe('POST /api/game', () => {
     expect((await send('{"type":"start","pad":"' + 'x'.repeat(600) + '"}')).status).toBe(413)
   })
 
+  it('limits each address too, whatever user agent it sends, without storing the address', async () => {
+    const keys: string[] = []
+    limit.mockImplementation(async (key: string) => {
+      keys.push(key)
+      return { success: true }
+    })
+    for (const agent of ['A/1', 'B/2']) {
+      await POST(
+        new NextRequest('http://localhost/api/game', {
+          method: 'POST',
+          body: '{"type":"start"}',
+          headers: { origin: 'https://n8builds.dev', 'x-real-ip': '203.0.113.7', 'user-agent': agent },
+        })
+      )
+    }
+    // Each request checks the address first, then the player.
+    const [ipA, playerA, ipB, playerB] = keys
+    expect(ipA).toBe(ipB)
+    expect(playerA).not.toBe(playerB)
+    expect(keys.join(' ')).not.toContain('203.0.113.7')
+    // Over the address limit: refused before anything is counted.
+    const writes = fake.writes.length
+    limit.mockReset().mockResolvedValueOnce({ success: false })
+    expect((await send('{"type":"start"}')).status).toBe(429)
+    expect(limit).toHaveBeenCalledTimes(1)
+    expect(fake.writes.slice(writes).filter((w) => !w.includes('game:salt:'))).toEqual([])
+  })
+
   it('limits each player', async () => {
     limit.mockResolvedValue({ success: false })
     expect((await send('{"type":"start"}')).status).toBe(429)

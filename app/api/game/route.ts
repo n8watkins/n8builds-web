@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { Ratelimit } from '@upstash/ratelimit'
 import { Redis } from '@upstash/redis'
@@ -31,6 +32,16 @@ let limiter: Ratelimit | null = null
 function rateLimit(store: Redis) {
   limiter ??= new Ratelimit({ redis: store, limiter: Ratelimit.slidingWindow(12, '1 m'), prefix: 'game:rl' })
   return limiter
+}
+
+// Per IP as well (its /64 for IPv6): a player is IP plus user agent, so a
+// script changing its user agent on every request would otherwise pass the
+// per-player limit and pile up fake players. 60 events a minute is five
+// players at their own cap: a household or an office sharing one address.
+let ipLimiter: Ratelimit | null = null
+function ipRateLimit(store: Redis) {
+  ipLimiter ??= new Ratelimit({ redis: store, limiter: Ratelimit.slidingWindow(60, '1 m'), prefix: 'game:rl:ip' })
+  return ipLimiter
 }
 
 /** The site an origin belongs to; local and preview builds count as n8builds.dev outside production. */
@@ -77,6 +88,9 @@ export async function POST(request: NextRequest) {
     const now = new Date()
     // IPv6 by its /64, as for every other limit on the site; hashed, never stored.
     const ip = rateLimitIpKey(getClientIp(request.headers))
+    // Checked before anything is counted, under a hash so no IP is stored.
+    const byIp = await ipRateLimit(store).limit(createHash('sha256').update(`game-ip\n${ip}`).digest('hex').slice(0, 24))
+    if (!byIp.success) return NextResponse.json({ error: 'limited' }, { status: 429, headers })
     const player = await playerHash(store as unknown as GameStore, now, ip, request.headers.get('user-agent') ?? '')
     const { success } = await rateLimit(store).limit(player)
     if (!success) return NextResponse.json({ error: 'limited' }, { status: 429, headers })
