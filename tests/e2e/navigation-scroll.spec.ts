@@ -9,9 +9,14 @@ import { test, expect } from '@playwright/test'
 test('a post opened from the homepage starts at its top, without scrolling up to it', async ({ page }) => {
   await page.goto('/')
   const strip = page.locator('#notions')
-  await strip.scrollIntoViewIfNeeded()
   const link = strip.locator('a[href^="/blog/"]').first()
-  await expect(link).toBeVisible()
+  // Centre the link itself, as a visitor would see it before tapping. Scrolling
+  // only the strip into view can leave the link's middle under the sticky
+  // navbar on phones; the click then scrolls the page first (Playwright's
+  // actionability), and that scroll used to count as the glide this test
+  // catches (mobile Safari, about 1 run in 30).
+  await link.evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
+  await expect(link).toBeInViewport({ ratio: 1 })
   expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(1000)
 
   // Record the scroll position on every frame from the click on.
