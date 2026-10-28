@@ -188,13 +188,16 @@ test.describe('the hero grid', () => {
     test.use({ contextOptions: { reducedMotion: 'no-preference' } })
 
     test('lights many cells, and no two lit cells ever touch', async ({ page }) => {
-      test.setTimeout(45_000)
+      test.setTimeout(60_000)
       await page.goto('/')
       expect(await page.locator('#home svg rect[data-cell]').count()).toBeGreaterThanOrEqual(30)
       let most = 0
       const moved = new Set<string>()
-      // ~17s: the warm-up, then long enough for the (fewer) cells to wander.
-      for (let i = 0; i < 110; i++) {
+      // At least ~17s (the warm-up, then some wandering), and on until they
+      // have wandered: with few cells lit, MAX_OUT lets only one move at a
+      // time (one every ~2-4s), so a fixed window is a coin toss.
+      const deadline = Date.now() + 40_000
+      for (let i = 0; i < 110 || (moved.size <= most + 3 && Date.now() < deadline); i++) {
         const cells = await litCells(page)
         most = Math.max(most, cells.length)
         cells.forEach((c) => moved.add(String(c)))
