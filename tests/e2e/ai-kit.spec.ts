@@ -641,9 +641,12 @@ test.describe('dino easter egg (motion allowed)', () => {
 
   test('says its first line soon after it comes into view', async ({ page }) => {
     // The real wait, not a shortened one: a visitor scrolling to it sees it.
+    // It talks after a second of walking in clear view, counted on its own
+    // capped clock, so where frames come slowly (WebKit without a GPU, about
+    // 10 fps) the walk in and that second take twice as long: allow 12 s.
     await page.goto('/')
     await showKit(page, '[data-dino-panel]')
-    await expect(dino(page)).toHaveAttribute('data-line', '0', { timeout: 6_000 })
+    await expect(dino(page)).toHaveAttribute('data-line', '0', { timeout: 12_000 })
     await expect(page.locator('[data-dino-bubble="line-0"]')).toBeVisible()
   })
 
