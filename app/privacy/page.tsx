@@ -47,6 +47,8 @@ export default function PrivacyPolicy() {
                   <li>
                     <span className="text-slate-100">Contact form.</span> When you submit the
                     contact form, I collect your name, email address, and message so I can reply.
+                    The email I receive also shows your approximate country, worked out from your
+                    connection, but never your IP address.
                   </li>
                   <li>
                     <span className="text-slate-100">Usage analytics.</span> With your permission

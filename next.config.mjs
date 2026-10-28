@@ -34,17 +34,8 @@ const nextConfig = {
     optimizePackageImports: ['motion/react', 'react-icons'],
   },
   async redirects() {
+    // /portfolio and /appturnity are counted short links: route handlers, not redirects here.
     return [
-      {
-        source: '/portfolio',
-        destination: 'https://portfolio.n8builds.dev',
-        permanent: false,
-      },
-      {
-        source: '/appturnity',
-        destination: 'https://appturnity.com',
-        permanent: false,
-      },
       // The shelf pages were folded into the homepage Lab section — redirect the
       // old routes to their on-page anchors so existing links/bookmarks still land.
       // Permanent (308), so search engines move these URLs over instead of keeping them.
@@ -52,8 +43,6 @@ const nextConfig = {
       { source: '/extensions', destination: '/#extensions', permanent: true },
       // Tools are the owner's daily tools now: Scribe and OpenPing, at the top of the Lab.
       { source: '/tools', destination: '/#my-tools', permanent: false },
-      // A short, sayable address for the developer portfolio.
-      { source: '/portfolio', destination: 'https://portfolio.n8builds.dev/', permanent: false },
       // The Resources section was dropped; send old links to the Lab.
       { source: '/resources', destination: '/#lab', permanent: true },
       // Builds dropped from the site (2026-10-21 and 2026-10-22); their old detail pages were in the sitemap.

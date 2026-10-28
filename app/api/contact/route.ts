@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { after, NextRequest, NextResponse } from 'next/server'
 import { contactFormSchema } from '@/lib/validations/contact'
 import { logger } from '@/lib/logger'
 import {
@@ -11,6 +11,8 @@ import {
 import { verifyTurnstile } from '@/lib/security/turnstile'
 import { validateRequestSize, parseJsonBody } from '@/lib/security/validation'
 import { sendContactEmails } from '@/lib/email/sender'
+import { placeFrom } from '@/lib/game/stats'
+import { analyticsStore, countContactSent } from '@/lib/analyticsStore'
 
 const DIRECT_EMAIL = 'contact@n8builds.dev'
 
@@ -102,7 +104,9 @@ export async function POST(request: NextRequest) {
     if (!autoReply) logger.warn('⚠️ Skipping auto-reply:', recipientLimit.reason)
 
     // STEP 7: Send emails
-    const emailResult = await sendContactEmails(validatedData, { autoReply })
+    // The owner's notification shows the sender's country (never the IP).
+    const { country } = placeFrom(request.headers)
+    const emailResult = await sendContactEmails(validatedData, { autoReply, country })
 
     if (!emailResult.success) {
       return NextResponse.json(
@@ -110,6 +114,10 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       )
     }
+
+    // The admin's "messages this month" count; after the response, never blocking it.
+    const stats = analyticsStore()
+    if (stats) after(() => countContactSent(stats))
 
     logger.info('🎉 Contact form submission successful!')
     return NextResponse.json(

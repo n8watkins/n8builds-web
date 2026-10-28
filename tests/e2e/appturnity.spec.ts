@@ -15,8 +15,8 @@ test('"What I\'m working on" advertises Appturnity, with its mark and the free-w
   await expect(now.locator('img[src*="appturnity-wordmark-light"]').first()).toBeVisible()
   await expect(now).toContainText('service businesses')
   await expect(now).not.toContainText('local service')
-  await expect(now.getByRole('link', { name: /Claim your free website/ }).first()).toHaveAttribute('href', 'https://appturnity.com/#free-website')
-  await expect(now.getByRole('link', { name: /See example sites/ }).first()).toHaveAttribute('href', 'https://appturnity.com/examples')
+  await expect(now.getByRole('link', { name: /Claim your free website/ }).first()).toHaveAttribute('href', '/appturnity?from=lab&to=free-website')
+  await expect(now.getByRole('link', { name: /See example sites/ }).first()).toHaveAttribute('href', '/appturnity?from=lab&to=examples')
   await expect(page.getByRole('link', { name: 'Check out the lab' })).toHaveCount(0)
 })
 
@@ -24,7 +24,7 @@ test('the project-work card is Appturnity, by name and mark', async ({ page }) =
   await page.goto('/')
   const card = page.locator('#work-with-me').getByRole('article', { name: /Run a service business\? We help/ })
   await card.scrollIntoViewIfNeeded()
-  await expect(card.getByRole('link', { name: /Claim your free website/ })).toHaveAttribute('href', 'https://appturnity.com/#free-website')
+  await expect(card.getByRole('link', { name: /Claim your free website/ })).toHaveAttribute('href', '/appturnity?from=card&to=free-website')
   await expect(card).toContainText('Appturnity is my company')
   await expect(card.locator('img[src*="appturnity-wordmark-light"]')).toHaveCount(1)
 })
@@ -38,7 +38,7 @@ test('the contact card offers service businesses a free Appturnity website, not 
   await expect(intro).toContainText('with Appturnity.')
   // Only the offer is the link, so the whole sentence isn't underlined.
   await expect(intro.getByRole('link')).toHaveText(/^Claim your free website( \(opens in a new tab\))?$/)
-  await expect(intro.getByRole('link')).toHaveAttribute('href', 'https://appturnity.com/#free-website')
+  await expect(intro.getByRole('link')).toHaveAttribute('href', '/appturnity?from=card&to=free-website')
 })
 
 test('the footer has a sitemap, the public contact address, and no invented Appturnity logo', async ({ page }) => {

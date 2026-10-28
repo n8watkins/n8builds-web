@@ -17,6 +17,18 @@ vi.mock('@/lib/security/turnstile', () => ({
 vi.mock('@/lib/email/sender', () => ({
   sendContactEmails: (...args: unknown[]) => sendContactEmails(...args),
 }))
+// after() needs a live request scope: run its callback at once instead.
+const afterCallbacks: (() => unknown)[] = []
+vi.mock('next/server', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('next/server')>()),
+  after: (fn: () => unknown) => afterCallbacks.push(fn),
+}))
+const countContactSent = vi.fn(async () => {})
+let store: object | null = {}
+vi.mock('@/lib/analyticsStore', () => ({
+  analyticsStore: () => store,
+  countContactSent: (...args: unknown[]) => countContactSent(...(args as [])),
+}))
 vi.mock('@/lib/logger', () => ({
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }))
@@ -32,12 +44,12 @@ const validForm = {
   honeypot: '',
 }
 
-async function post(body: unknown, contentType = 'application/json') {
+async function post(body: unknown, contentType = 'application/json', extraHeaders: Record<string, string> = {}) {
   const response = await POST(
     new NextRequest('http://localhost/api/contact', {
       method: 'POST',
       body: JSON.stringify(body),
-      headers: { 'content-type': contentType },
+      headers: { 'content-type': contentType, ...extraHeaders },
     })
   )
   return { status: response.status, json: await response.json() }
@@ -47,6 +59,9 @@ beforeEach(() => {
   checkRateLimit.mockReset().mockResolvedValue({ allowed: true })
   verifyTurnstile.mockReset().mockResolvedValue(true)
   sendContactEmails.mockReset().mockResolvedValue({ success: true })
+  countContactSent.mockClear()
+  afterCallbacks.length = 0
+  store = {}
 })
 
 describe('POST /api/contact', () => {
@@ -58,9 +73,16 @@ describe('POST /api/contact', () => {
       ['recipient', 'hash:john.doe@example.com'],
     ])
     expect(verifyTurnstile).toHaveBeenCalledWith('token', '1.2.3.4')
+    // No geo header (local, tests): the template leaves the country row out.
     expect(sendContactEmails).toHaveBeenCalledWith(expect.objectContaining({ email: 'john.doe@example.com' }), {
       autoReply: true,
+      country: 'XX',
     })
+  })
+
+  it("passes the sender's country from Vercel's geo header, never the IP", async () => {
+    await post(validForm, 'application/json', { 'x-vercel-ip-country': 'gb' })
+    expect(sendContactEmails).toHaveBeenCalledWith(expect.anything(), { autoReply: true, country: 'GB' })
   })
 
   it('checks Turnstile before any rate limiter, so junk never reaches Redis', async () => {
@@ -147,12 +169,27 @@ describe('POST /api/contact', () => {
 
     const { status } = await post(validForm)
     expect(status).toBe(200)
-    expect(sendContactEmails).toHaveBeenCalledWith(expect.anything(), { autoReply: false })
+    expect(sendContactEmails).toHaveBeenCalledWith(expect.anything(), { autoReply: false, country: 'XX' })
   })
 
   it('returns 500 with the sender error when email delivery fails', async () => {
     sendContactEmails.mockResolvedValue({ success: false, error: 'SMTP down' })
 
     expect(await post(validForm)).toEqual({ status: 500, json: { error: 'SMTP down' } })
+  })
+
+  it("counts a delivered message for the admin's monthly total, after the response", async () => {
+    await post(validForm)
+    expect(countContactSent).not.toHaveBeenCalled()
+    await Promise.all(afterCallbacks.map((fn) => fn()))
+    expect(countContactSent).toHaveBeenCalledOnce()
+  })
+
+  it("doesn't count a message that failed to send, or when the analytics database isn't set", async () => {
+    sendContactEmails.mockResolvedValueOnce({ success: false, error: 'nope' })
+    expect((await post(validForm)).status).toBe(500)
+    store = null
+    expect((await post(validForm)).status).toBe(200)
+    expect(afterCallbacks).toHaveLength(0)
   })
 })

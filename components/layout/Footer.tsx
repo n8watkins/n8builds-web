@@ -5,6 +5,7 @@ import ContactForm from '@/components/ContactForm'
 import { ContactFormErrorBoundary } from '@/components/ContactFormErrorBoundary'
 import Reveal from '@/components/ui/Reveal'
 import { SOCIALS, isExternal, type Social } from '@/data/socials'
+import { refHref } from '@/lib/referrals'
 
 const ICON_SIZE: Record<Social['size'], string> = { sm: 'h-4 w-4', md: 'h-4.5 w-4.5', lg: 'h-[1.35rem] w-[1.35rem]' }
 
@@ -93,7 +94,7 @@ const Footer = () => {
                   </p>
                   <p>
                     Run a service business?{' '}
-                    <a href="https://appturnity.com/#free-website" target="_blank" rel="noopener noreferrer" className={LINK}>
+                    <a href={refHref('appturnity', 'card', 'free-website')} target="_blank" rel="noopener noreferrer" className={LINK}>
                       Claim your free website
                       <span className="sr-only"> (opens in a new tab)</span>
                     </a>{' '}
