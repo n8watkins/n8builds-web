@@ -147,6 +147,15 @@ To review it later, paste [prompts/review-2026-10-24-changes.md](prompts/review-
   The portfolio does send GA4 hits after consent (`g/collect` with analytics granted); the visit on the old address was this alias, which now redirects.
 - Admin dashboard live at https://admin.n8builds.dev with its GitHub, GA4 and session settings in Vercel.
 - OpenPing security fixes deployed; Vercel's AI Bots ruleset in Log mode on n8builds-web and the portfolio.
+- Homepage rounds 11 to 13, My Loadout, richer build pages and the build log (#69); release-kit 2.0.0 as a dev dependency (#67).
+- Dino: no more teleports, best score at the bottom, unselectable AI kit tiles (#68); catches never shout a miss, a bigger countdown with a draining bar (#71); private game stats via `POST /api/game` and the all-time record beside your best (#73).
+- The Lab rail shows reliably in Safari after a jump to the Lab (#75); the tile-tap test uses the tile it found (#74).
+- One backlog for every project (`PROJECT_BACKLOG.md`), the owner's pending steps (`docs/OWNER_TODO.md`) and OpenPing's shorter tagline (#72); backlog updates on outdated Next.js, GeminiGPT's leaked keys (now dead and purged) and Echo's duplicate Render service (#78 to #80); the handoff (#81).
+- Vercel Web Analytics loads next to Speed Insights, cookie-free and outside the consent banner (#76; closes the bot draft #70).
+- Vercel skips preview builds of Dependabot commits and any build where only docs, Markdown or LICENSE changed since the branch's last successful deployment (#77; the same script in dev-portfolio#18 and n8builds-admin#3), after the account hit Vercel's 100-deploys-a-day limit twice.
+- dev-portfolio: release-kit 2 (#10), dino parity with n8builds.dev (#11, #13, #14), taglines and the Appturnity offer matched (#12), npm 12 can install the release-kit git dependency (`.npmrc` `allow-git=root`, #15), OpenPing's card uses "Uptime monitoring on your own Cloudflare" (#16), 0 lint warnings (#17).
+  Production had been stuck at #10 by the deploy limit; everything through #19 is live as of 2026-10-27 23:55.
+- n8builds-admin: the "Dino game" panel (#2), a start-here handoff (#4); its deploy-skip change (#3) goes live with the next push to `main`.
 
 **Outside this repo:**
 
