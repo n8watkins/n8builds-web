@@ -10,17 +10,20 @@ Since 2026-10-27 every project repo also has its own start-here section in `docs
 Checked against GitHub's advisory database on 2026-10-27.
 Four live public sites run Next.js versions with critical advisories, including unauthenticated remote code execution (`use cache`, Image Optimization, `next/og`).
 All are fixed in Next.js 16.4.1 and later.
-- [ ] **GeminiGPT** - next 16.0.0: 4 critical, 15 high, 16 moderate, 3 low. Its Dockerfile uses `node:20-alpine` (Node 20 is end-of-life since April 2026) while `render.yaml` pins Node 22; confirm which one Render uses.
-- [ ] **Echo** - next 16.2.9: 5 critical, 6 high, 8 moderate, 1 low. Node 24 on Render.
-- [ ] **Scout** - next 16.2.9: same advisories as Echo. Node 22 on Render.
+- [ ] **GeminiGPT** - next 16.0.0: 4 critical, 15 high, 16 moderate, 3 low. Render runs it on native Node 24 (the Dockerfile's `node:20-alpine` isn't used). Render auto-deploy hasn't fired since June 14, so merged commits aren't live.
+- [ ] **Echo** - next 16.2.9: 5 critical, 6 high, 8 moderate, 1 low. Node 22 on Render.
+- [ ] **Scout** - next 16.2.9: same advisories as Echo. Node 22 on Render; auto-deploy hasn't worked since June.
 - [ ] **Net Trailers** - next 16.2.7: same advisories as Echo. Vercel builds on Node 22 (supported until April 2027); move to 24 with the upgrade.
 - [ ] **Node 20 in CI** (low) - portfolio-rank, tl-dw and scribe run CI on Node 20, which no longer gets security fixes; move them to Node 24.
 - Clean: Portfolio Rank (next 15.5.28), Solara (next 16.4.3).
 - The fix for each: upgrade next to the latest 16.x, run lint, build and tests, deploy, then check the live site. Each repo's handoff lists it as its first open problem.
 
 ## Priority: code reviews and known bugs
+- [ ] **Leaked keys in GeminiGPT** (owner, urgent) - Two full API keys were committed to the public GeminiGPT repo (a Gemini key ending `6C4w`, a Google Search key ending `0cpQ`). GeminiGPT #4 removed them from the files, but they remain in git history; revoke both in Google Cloud.
+- [ ] **Echo duplicate Render service** (owner) - Echo's `render.yaml` names the service `echo`, but the real one is `echo-genai-voice-agent`, so every Blueprint sync creates a stray `echo` service (live now at echo-a8ec.onrender.com, `srv-dbgp1j1srm7s73eejav0`). Delete it, then delete the Blueprint or link it to the real service. Don't edit Echo's `render.yaml` until then.
+- [ ] **Render and Vercel housekeeping** (owner) - Fix auto-deploy for GeminiGPT and Scout (likely the Render GitHub app's repo access) and deploy each once; disconnect the leftover `gemini-gpt` Vercel project and net_trailers' GitHub Pages and Netlify (`silly-palmier-862249`) integrations, which fail on every push; Echo's `ECHO_MODEL` Render variable pins 3.1 and must change with its model PR.
 - [ ] **OpenPing off-hours bug** - The public feed, status page and widget report a monitor in scheduled off-hours as "operational", so the portfolio shows sleeping Render apps as up. Report: `docs/BUG-public-scheduled-off.md` in open-ping (#13). Fix before the owner's next `npm run deploy`, so one deploy ships it with round 2.
-- [ ] **Gemini 3.5 Flash Lite** (owner's call, 2026-10-27) - GeminiGPT and Portfolio Rank move to Gemini 3.5 Flash Lite; Echo, Scout and Net Trailers where it fits; TL;DW is on 3.1 Flash Lite too. The switches are open PRs in each repo, waiting on the owner's new Gemini keys, then a live check.
+- [ ] **Gemini 3.5 Flash Lite** (owner's call, 2026-10-27) - GeminiGPT and Portfolio Rank move to Gemini 3.5 Flash Lite; Echo, Scout and Net Trailers where it fits; TL;DW is on 3.1 Flash Lite too. The ID is `gemini-3.5-flash-lite` (stable). Open PRs: GeminiGPT #3, Echo #3, Scout #3, portfolio-rank #10, net_trailers #5; each waits on the owner's new key (Render for the demos, Vercel for Net Trailers, the GitHub Actions secret for Portfolio Rank), then a live check. Echo's realtime voice model has no Flash Lite version; moving it off the legacy live preview is an owner decision.
 - [ ] **Portfolio projects (3–4)** - Audit all code featured on the portfolio, including architecture, security, bugs, tests, dependencies, and modernization. Identify each project and create an action plan.
 - [ ] **Tube Vault + TLDW** - Reproduce the YouTube Shorts bug where comments fail to update when scrolling between Shorts. Isolate which extension causes it; fix and regression-test.
   - Both handoffs (October 27) name the suspects: TubeVault's `mountShortsButton()` in `extension/src/content-script.tsx` (it mounts into YouTube's recycled action bar, which holds the comments button); TL;DW's 500 ms `onNavigate()` in `src/content/youtube.ts` and `handleNav()` in `src/content/sponsorblock.ts`.
