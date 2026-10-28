@@ -380,6 +380,10 @@ test.describe('dino easter egg (motion allowed)', () => {
   })
 
   test('never teleports or gets flung when the window is resized', async ({ page }) => {
+    // A desktop window being resized, on every project: starting from a
+    // phone's width, the first resize would reflow the page and scroll the
+    // panel away, and the dino rightly stands still while out of sight.
+    await page.setViewportSize({ width: 1440, height: 900 })
     await onTopRow(page)
     await recordMoves(page)
     for (const width of [1100, 1440, 1000, 1440, 1200, 1440]) {
@@ -540,6 +544,32 @@ test.describe('dino easter egg (motion allowed)', () => {
     // Time: the countdown goes, the result shows.
     await expect(timer).toHaveAttribute('data-shown', 'false', { timeout: 10_000 })
     await expect(page.locator('[data-dino-score]')).toHaveText(/^Time! 1 catch/)
+  })
+
+  test('a round lasts its full time and no longer, even when frames come slowly', async ({ page }) => {
+    // A device that can't keep up: every frame spends 150 ms of main-thread
+    // work, so frames come about three times slower than the dino's capped
+    // step. The round runs on real time, so 7 s is still 7 s.
+    await page.addInitScript(() => {
+      const hog = () => {
+        const end = performance.now() + 150
+        while (performance.now() < end) {
+          // Busy: a slow frame.
+        }
+        requestAnimationFrame(hog)
+      }
+      requestAnimationFrame(hog)
+    })
+    await dinoTiming(page, { reactions: ['dash'], round: 7 })
+    await onTopRow(page)
+    const timer = page.locator('[data-dino-timer]')
+    await pokeDino(page)
+    await expect(timer).toHaveAttribute('data-shown', 'true')
+    const started = Date.now()
+    await expect(timer).toHaveAttribute('data-shown', 'false', { timeout: 20_000 })
+    const took = (Date.now() - started) / 1000
+    expect(took, 'seconds the 7 s round took').toBeGreaterThan(6)
+    expect(took, 'seconds the 7 s round took').toBeLessThan(9)
   })
 
   test("a round sends its start and score to the game stats, without cookies, and shows the record", async ({ page }) => {
