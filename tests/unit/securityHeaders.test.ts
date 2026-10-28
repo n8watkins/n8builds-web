@@ -46,6 +46,8 @@ describe('buildContentSecurityPolicy', () => {
     expect(directive(csp, 'frame-src')).toContain('https://challenges.cloudflare.com')
     expect(directive(csp, 'script-src')).toContain('https://www.googletagmanager.com')
     expect(directive(csp, 'connect-src')).toContain('https://*.google-analytics.com')
+    // GA4's /g/collect hits on www.google.com (Sentry N8BUILDS-3, 2026-10-28).
+    expect(directive(csp, 'connect-src')).toContain('https://www.google.com')
     expect(directive(csp, 'img-src')).toContain('https://cdn.sanity.io')
   })
 
