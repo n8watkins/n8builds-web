@@ -237,7 +237,7 @@ test('the topic is three cards: Tab reaches them, arrow keys choose, a click cho
   await expect(form.getByLabel('Message')).toBeFocused()
 
   // A click on a card chooses it, and only it.
-  await form.getByText('Just saying hi').click()
+  await form.getByText('Say hi', { exact: true }).click()
   await expect(radio(/^Networking/)).toBeChecked()
   await expect(topics.getByRole('radio', { checked: true })).toHaveCount(1)
 })
@@ -310,4 +310,35 @@ test("Vercel's firewall 429 gets a readable message, not the raw error object", 
   const form = page.locator('#contact form')
   await expect(form.getByText(/too many messages/i)).toBeVisible()
   await expect(form.getByText('[object Object]')).toHaveCount(0)
+})
+
+test.describe('on a phone', () => {
+  test.use({ viewport: { width: 375, height: 760 }, hasTouch: true })
+
+  test('the scroll-to-top button never covers the form or the contact email', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.getByRole('button', { name: /Send Message/ })).toBeEnabled() // hydrated
+    const covered = await page.evaluate(async () => {
+      const frame = () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+      const email = document.querySelector<HTMLElement>('#contact form a[href="mailto:contact@n8builds.dev"]')!
+      const send = document.querySelector<HTMLElement>('#contact button[type="submit"]')!
+      const max = document.documentElement.scrollHeight - innerHeight
+      const hits: string[] = []
+      // Through the whole contact band, 10px at a time, to the very bottom.
+      for (let y = max - 2000; y <= max; y += 10) {
+        window.scrollTo(0, y)
+        await frame()
+        const button = document.querySelector<HTMLElement>('button[aria-label="Scroll to top of page"]')
+        // Skip only while it is hidden or has stepped aside (the old button had no state, so it is checked).
+        if (!button || getComputedStyle(button).opacity === '0' || button.dataset.state === 'aside') continue
+        const b = button.getBoundingClientRect()
+        for (const [name, el] of [['email', email], ['Send', send]] as const) {
+          const r = el.getBoundingClientRect()
+          if (r.right > b.left && r.left < b.right && r.bottom > b.top && r.top < b.bottom) hits.push(`${name} at scrollY ${y}`)
+        }
+      }
+      return hits
+    })
+    expect(covered).toEqual([])
+  })
 })

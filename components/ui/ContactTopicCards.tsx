@@ -5,11 +5,32 @@ import { cn } from '@/lib/utils'
 import { controlProps, errorId } from './FieldWrapper'
 
 // The cards' faces, by subject value (the values and the emails' labels live
-// in lib/validations/contactOptions.ts).
-const CARDS: Record<string, { label: string; hint: string; icon: IconType }> = {
-  project_opportunity: { label: 'New project', hint: 'Something to build', icon: LuRocket },
-  consulting: { label: 'Consulting', hint: 'Advice or a review', icon: LuCompass },
-  networking: { label: 'Networking', hint: 'Just saying hi', icon: LuHandshake },
+// in lib/validations/contactOptions.ts). Each topic has its own accent: `icon`
+// colours the icon and its tile; `picked` the card's border and tint, and (via
+// --dot) the filled mark, once chosen. Spelled out in full so Tailwind finds them.
+type Card = { label: string; hint: string; icon: IconType; iconTone: string; picked: string }
+const CARDS: Record<string, Card> = {
+  project_opportunity: {
+    label: 'New project',
+    hint: 'Build with me',
+    icon: LuRocket,
+    iconTone: 'bg-amber-400/12 text-amber-300',
+    picked: 'has-checked:border-amber-400 has-checked:bg-amber-400/8 dark:has-checked:border-amber-400 dark:has-checked:bg-amber-400/8 [--dot:var(--color-amber-400)]',
+  },
+  consulting: {
+    label: 'Consulting',
+    hint: 'Get advice',
+    icon: LuCompass,
+    iconTone: 'bg-sky-400/12 text-sky-300',
+    picked: 'has-checked:border-sky-400 has-checked:bg-sky-400/8 dark:has-checked:border-sky-400 dark:has-checked:bg-sky-400/8 [--dot:var(--color-sky-400)]',
+  },
+  networking: {
+    label: 'Networking',
+    hint: 'Say hi',
+    icon: LuHandshake,
+    iconTone: 'bg-violet-400/14 text-violet-300',
+    picked: 'has-checked:border-violet-400 has-checked:bg-violet-400/8 dark:has-checked:border-violet-400 dark:has-checked:bg-violet-400/8 [--dot:var(--color-violet-400)]',
+  },
 }
 
 interface ContactTopicCardsProps {
@@ -25,29 +46,29 @@ interface ContactTopicCardsProps {
 }
 
 /**
- * The topic as three cards, one click each: a native radio group (arrow keys
- * move between them, Tab enters and leaves it), styled like the other fields.
- * The radios are uncontrolled and report changes through onChange, so a card
- * picked before hydration stays picked (the ref on the fieldset lets the form
- * read it).
+ * The topic as three compact cards, one click each: a native radio group
+ * (arrow keys move between them, Tab enters and leaves it), styled like the
+ * other fields. The radios are uncontrolled and report changes through
+ * onChange, so a card picked before hydration stays picked (the ref on the
+ * fieldset lets the form read it).
  */
 export const ContactTopicCards = forwardRef<HTMLFieldSetElement, ContactTopicCardsProps>(
   ({ id, name, label, error, options, disabled, className, onFocus, onChange }, ref) => (
     <fieldset ref={ref} className={cn('space-y-2', className)}>
       <legend className="mb-2 text-sm font-medium text-slate-800 dark:text-slate-200">{label}</legend>
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-2.5">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
         {options.map((option, i) => {
-          const card = CARDS[option.value] ?? { label: option.label, hint: '', icon: LuRocket }
+          const card = CARDS[option.value] ?? { ...CARDS.consulting, label: option.label, hint: '' }
           const Icon = card.icon
           return (
             <label
               key={option.value}
               className={cn(
-                'group relative flex cursor-pointer items-center gap-3 rounded-lg border px-3.5 py-2.5 sm:flex-col sm:items-start sm:gap-2 sm:px-3.5 sm:py-3',
+                'group relative flex min-w-0 cursor-pointer items-center gap-2.5 rounded-lg border py-2 pr-3 pl-2',
                 'border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-800',
                 'transition-[border-color,background-color,box-shadow] duration-200 motion-reduce:transition-none',
                 'hover:border-slate-400 dark:hover:border-slate-500',
-                'has-checked:border-cyan-400 has-checked:bg-cyan-400/8 dark:has-checked:border-cyan-400 dark:has-checked:bg-cyan-400/8',
+                card.picked,
                 'has-focus-visible:ring-2 has-focus-visible:ring-cyan-400/60',
                 'has-disabled:cursor-not-allowed has-disabled:opacity-60',
                 error && 'border-red-500 dark:border-red-400'
@@ -68,28 +89,23 @@ export const ContactTopicCards = forwardRef<HTMLFieldSetElement, ContactTopicCar
               />
               <span
                 aria-hidden="true"
-                className={cn(
-                  'flex size-8 shrink-0 items-center justify-center rounded-md',
-                  'bg-slate-100 text-slate-500 dark:bg-slate-700/60 dark:text-slate-300',
-                  'transition-colors duration-200 motion-reduce:transition-none',
-                  'group-has-checked:bg-cyan-400/15 group-has-checked:text-cyan-300 dark:group-has-checked:bg-cyan-400/15 dark:group-has-checked:text-cyan-300'
-                )}
+                className={cn('flex size-8 shrink-0 items-center justify-center rounded-md', card.iconTone)}
               >
                 <Icon className="size-4" />
               </span>
-              <span className="flex min-w-0 flex-col">
-                <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">{card.label}</span>
+              <span className="flex min-w-0 flex-1 flex-col leading-tight">
+                <span className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">{card.label}</span>
                 {card.hint && (
-                  <span className="text-xs text-slate-500 dark:text-slate-400">{card.hint}</span>
+                  <span className="truncate text-xs text-slate-500 dark:text-slate-400">{card.hint}</span>
                 )}
               </span>
-              {/* The selected mark: a filled dot, top right. */}
+              {/* The picked mark: a ring that fills with the card's accent. */}
               <span
                 aria-hidden="true"
                 className={cn(
-                  'absolute top-1/2 right-3.5 size-4 -translate-y-1/2 rounded-full border sm:top-3 sm:right-3 sm:translate-y-0',
-                  'border-slate-300 dark:border-slate-500',
-                  'group-has-checked:border-cyan-400 group-has-checked:bg-cyan-400 group-has-checked:shadow-[inset_0_0_0_3px_#1e293b] dark:group-has-checked:border-cyan-400'
+                  'size-3.5 shrink-0 rounded-full border border-slate-300 dark:border-slate-500',
+                  'group-has-checked:border-(--dot) group-has-checked:bg-(--dot) group-has-checked:shadow-[inset_0_0_0_2.5px_#1e293b]',
+                  'dark:group-has-checked:border-(--dot)'
                 )}
               />
             </label>
@@ -97,8 +113,7 @@ export const ContactTopicCards = forwardRef<HTMLFieldSetElement, ContactTopicCar
         })}
       </div>
       {error && (
-        <p id={errorId(id)} className="flex items-center gap-1 text-sm text-red-600 dark:text-red-400">
-          <span aria-hidden="true">⚠️</span>
+        <p id={errorId(id)} className="text-sm text-red-600 dark:text-red-400">
           {error}
         </p>
       )}

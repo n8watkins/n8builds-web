@@ -129,7 +129,8 @@ const Footer = () => {
               </div>
 
               {/* Right - form */}
-              <div className="relative flex flex-col justify-center rounded-2xl border border-white/10 bg-[#050c18]/60 p-4 backdrop-blur-xs sm:p-5">
+              {/* data-scroll-top-avoid: the scroll-to-top button steps aside while it would cover the form. */}
+              <div data-scroll-top-avoid className="relative flex flex-col justify-center rounded-2xl border border-white/10 bg-[#050c18]/60 p-4 backdrop-blur-xs sm:p-5">
                 <ContactFormErrorBoundary>
                   <ContactForm />
                 </ContactFormErrorBoundary>
