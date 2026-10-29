@@ -38,7 +38,7 @@ export default function HomeStack() {
           </Link>
         }
       >
-        The AI kit I build with: the agents and tools doing the heavy lifting right now.
+        The AI kit and stack I build with, in daily use right now.
       </SectionMark>
 
       <AITechStack dino />

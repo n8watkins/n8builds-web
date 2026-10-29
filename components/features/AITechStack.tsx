@@ -3,7 +3,7 @@ import React from 'react'
 import Marquee from '@/components/magicui/marquee'
 import StackTile from '@/components/ui/StackTile'
 import DinoEasterEgg from '@/components/features/dino/DinoEasterEgg'
-import { ai_agents, ai_tools } from '@/data/aiStack'
+import { ai_agents, ai_tools, dev_stack } from '@/data/aiStack'
 
 /**
  * The homepage's AI kit marquee: hovering a tile (or focusing or tapping it)
@@ -24,7 +24,7 @@ export function AITechStack({ dino = false }: { dino?: boolean }) {
       data-dino-stats={dino ? '/api/game' : undefined}
       className="relative flex w-full flex-col items-center justify-center overflow-hidden select-none [-webkit-tap-highlight-color:transparent] motion-safe:gap-6 rounded-3xl border border-white/6 bg-linear-to-br from-[#081427] via-[#0a1a33] to-[#081427] py-8 motion-safe:pt-24 motion-safe:pb-12"
     >
-      <Marquee label="AI agents" reverse pauseOnHover data-marquee-row className="[--duration:45s] motion-safe:[--gap:2.5rem]">
+      <Marquee label="AI agents" reverse pauseOnHover data-marquee-row className="[--duration:90s] motion-safe:[--gap:2.5rem]">
         {ai_agents.map((tech) => (
           <StackTile
             key={tech.name}
@@ -42,6 +42,11 @@ export function AITechStack({ dino = false }: { dino?: boolean }) {
             icon={tech.icon}
             description={tech.description}
           />
+        ))}
+      </Marquee>
+      <Marquee label="Dev stack" reverse pauseOnHover data-marquee-row className="[--duration:140s] motion-safe:[--gap:2.5rem]">
+        {dev_stack.map((tech) => (
+          <StackTile key={tech.name} name={tech.name} icon={tech.icon} description={tech.description} />
         ))}
       </Marquee>
       {dino && <DinoEasterEgg />}
