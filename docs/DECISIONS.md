@@ -119,7 +119,8 @@ When the owner decides something new, add it here (with the date) in the same ch
 - **Round 10 (2026-10-27, owner's calls):**
   - The Loadout (`/loadout`) is about the tools, not a tech stack: how I work with AI (decide with ChatGPT, build with Claude Code on Claude Opus 5.5, fix with Codex and Gemini), the harnesses (Claude Code, Pi), the AI inside my apps, then the stream kit, rig and desk.
     The homepage keeps the AI kit marquee and the dino.
-  - The AI kit tiles are calm: no hover highlight or description reveal (each is still one tab stop, so a row can be paused from the keyboard).
+  - The AI kit tiles show what each tool is for on hover (owner, 2026-10-28; calm tiles from round 10 dropped), and on focus or a tap on touch screens.
+    A mouse click on a tile does nothing: only hovering pauses its row (each tile is still one tab stop, so a row can be paused from the keyboard).
   - The dino is a game: the first click starts a 30-second catch round with a scoreboard and a best score (kept in the browser); every click is a random colour and one of several reactions and roar lines; the rainbow comes on the 5th click, every 10th catch and 1 in 12 at random.
     The portfolio runs byte-identical dino files.
   - Copy says "service businesses", never "local".

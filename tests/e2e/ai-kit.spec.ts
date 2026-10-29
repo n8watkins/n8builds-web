@@ -777,6 +777,70 @@ test.describe('dino easter egg (motion allowed)', () => {
     await expect(tile).toBeFocused()
   })
 
+  // The middle of the tile nearest the middle of a row (paused by hovering it first).
+  const middleTile = async (page: Page, index: number) => {
+    await hoverRow(page, index)
+    await page.waitForTimeout(300)
+    return page.evaluate((index) => {
+      const row = document.querySelectorAll('[data-dino-panel] [data-marquee-row]')[index]
+      const mid = innerWidth / 2
+      const box = [...row.querySelectorAll('figure')]
+        .map((el) => el.getBoundingClientRect())
+        .sort((a, b) => Math.abs(a.x + a.width / 2 - mid) - Math.abs(b.x + b.width / 2 - mid))[0]
+      return { x: box.x + box.width / 2, y: box.y + box.height / 2 }
+    }, index)
+  }
+  const rowPlayStates = (page: Page, index: number) =>
+    page.evaluate(
+      (index) =>
+        [...document.querySelectorAll('[data-dino-panel] [data-marquee-row]')[index].children].map(
+          (track) => getComputedStyle(track).animationPlayState
+        ),
+      index
+    )
+
+  test('hovering a tile shows what it is for', async ({ page, hasTouch }) => {
+    test.skip(hasTouch, 'no hover on a touch screen (a tap shows it, below)')
+    await page.goto('/')
+    await showKit(page, '[data-dino-panel]')
+    const at = await middleTile(page, 1)
+    await page.mouse.move(at.x, at.y)
+    const description = page.locator('[data-dino-panel] figure:hover .description')
+    await expect(description).toHaveCSS('opacity', '1')
+    await expect(description).not.toBeEmpty()
+  })
+
+  test('clicking a tile does nothing: its row runs again once the pointer leaves', async ({ page, hasTouch }) => {
+    test.skip(hasTouch, 'a tap pauses the row on purpose (see above)')
+    await page.goto('/')
+    await showKit(page, '[data-dino-panel]')
+    const at = await middleTile(page, 0)
+    await page.mouse.click(at.x, at.y)
+    expect(await rowPlayStates(page, 0)).toContain('paused')
+    // The click left no focus behind to hold the row (or its description) open.
+    await page.mouse.move(5, 5)
+    await expect.poll(() => rowPlayStates(page, 0)).not.toContain('paused')
+    expect(await page.evaluate(() => document.activeElement?.tagName)).not.toBe('FIGURE')
+  })
+
+  test('a tapped tile shows what it is for and holds its row', async ({ page, hasTouch }) => {
+    test.skip(!hasTouch, 'touch screens only')
+    await page.goto('/')
+    await showKit(page, '[data-dino-panel]')
+    // The tile nearest the middle of the bottom row (copies included: any tile takes a tap).
+    const at = await page.evaluate(() => {
+      const row = document.querySelectorAll('[data-dino-panel] [data-marquee-row]')[1]
+      const mid = innerWidth / 2
+      const box = [...row.querySelectorAll('figure')]
+        .map((el) => el.getBoundingClientRect())
+        .sort((a, b) => Math.abs(a.x + a.width / 2 - mid) - Math.abs(b.x + b.width / 2 - mid))[0]
+      return { x: box.x + box.width / 2, y: box.y + box.height / 2 }
+    })
+    await page.touchscreen.tap(at.x, at.y)
+    await expect(page.locator('[data-dino-panel] figure:focus .description')).toHaveCSS('opacity', '1')
+    await expect.poll(() => rowPlayStates(page, 1)).not.toContain('running')
+  })
+
   test('the gaps it hops and falls through are clearly wider than it is', async ({ page }) => {
     await page.goto('/')
     await showKit(page, '[data-dino-panel]')
