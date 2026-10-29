@@ -35,6 +35,8 @@ const NowCarousel = ({ labels, cards }: { labels: string[]; cards: React.ReactNo
     if (!el) return
     const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting))
     observer.observe(el)
+    // Watching from here on: until now the card is held as off screen (tests wait for this).
+    el.dataset.watching = ''
     return () => observer.disconnect()
   }, [])
 
