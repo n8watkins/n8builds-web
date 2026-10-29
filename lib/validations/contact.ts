@@ -24,7 +24,7 @@ export const contactFormSchema = z.object({
     }, 'Please enter a valid email address'),
 
   subject: z.enum(['project_opportunity', 'consulting', 'networking'], {
-    error: 'Please select a subject',
+    error: 'Please choose a topic',
   }),
 
   message: z

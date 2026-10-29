@@ -57,8 +57,7 @@ export const FieldWrapper = ({
       </div>
       {children}
       {error && (
-        <p id={id && errorId(id)} className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
-          <span aria-hidden="true">⚠️</span>
+        <p id={id && errorId(id)} className="text-sm text-red-600 dark:text-red-400">
           {error}
         </p>
       )}
