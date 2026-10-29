@@ -19,6 +19,15 @@ test.describe('AI kit content', () => {
       for (const dropped of ['Ollama', 'LangChain', 'Perplexity']) {
         await expect(page.getByText(dropped)).toHaveCount(0)
       }
+      // The rest of the AI kit (2026-10-29), and a third row: the stack I ship with.
+      const agents = page.getByRole('region', { name: 'AI agents' })
+      for (const tool of ['Claude Opus 5.5', 'ChatGPT', 'Codex', 'Pi']) {
+        await expect(agents.getByText(tool, { exact: true })).toBeVisible()
+      }
+      const dev = page.getByRole('region', { name: 'Dev stack' })
+      for (const tool of ['Next.js', 'Playwright', 'GitHub Actions', 'Upstash']) {
+        await expect(dev.getByText(tool, { exact: true })).toBeVisible()
+      }
     }
   })
 
@@ -201,7 +210,7 @@ test.describe('dino easter egg (motion allowed)', () => {
   }) => {
     await onTopRow(page)
 
-    // Hovering the top row pauses it: the dino misses, lands on the bottom
+    // Hovering the top row pauses it: the dino misses, lands on the middle
     // row and turns around.
     await hoverRow(page, 0)
     // It misses at the next gap it reaches, walking on its capped clock: a
@@ -210,11 +219,18 @@ test.describe('dino easter egg (motion allowed)', () => {
     await expect(dino(page)).toHaveAttribute('data-dir', 'left')
     await expect(dino(page)).toHaveAttribute('data-mode', 'walk')
 
-    // Pausing the bottom row (leave, then hover it) makes it miss again: off
-    // the last row, it drops back in at the top left, walking right.
+    // Pausing the middle row (leave, then hover it) makes it miss again, down
+    // to the bottom row, turning round once more.
     await page.mouse.move(5, 5)
     await page.waitForTimeout(300)
     await hoverRow(page, 1)
+    await expect(dino(page)).toHaveAttribute('data-level', '2', { timeout: 20_000 })
+    await expect(dino(page)).toHaveAttribute('data-dir', 'right')
+
+    // Off the last row, it drops back in at the top left, walking right.
+    await page.mouse.move(5, 5)
+    await page.waitForTimeout(300)
+    await hoverRow(page, 2)
     await expect(dino(page)).toHaveAttribute('data-level', '0', { timeout: 20_000 })
     await expect(dino(page)).toHaveAttribute('data-dir', 'right')
   })
@@ -230,7 +246,7 @@ test.describe('dino easter egg (motion allowed)', () => {
     await expect(dino(page)).toHaveAttribute('data-mode', 'walk')
 
     // Leave, then hover the top row again: it pauses, but the dino is on the
-    // bottom row, still moving at full speed, so it keeps clearing the gaps.
+    // middle row, still moving at full speed, so it keeps clearing the gaps.
     await page.mouse.move(5, 5)
     await page.waitForTimeout(300)
     await recordDino(page)
@@ -238,7 +254,7 @@ test.describe('dino easter egg (motion allowed)', () => {
     await page.waitForTimeout(5000)
     await expect(dino(page)).toHaveAttribute('data-level', '1')
     const log = await dinoLog(page)
-    expect(log.filter((entry) => !entry.endsWith('@1')), 'stayed on the bottom row').toEqual([])
+    expect(log.filter((entry) => !entry.endsWith('@1')), 'stayed on the middle row').toEqual([])
     expect(log.filter((entry) => entry.startsWith('miss')), 'never missed a jump').toEqual([])
     expect(log.filter((entry) => entry.startsWith('hop')).length, 'kept hopping').toBeGreaterThan(0)
   })
@@ -255,10 +271,15 @@ test.describe('dino easter egg (motion allowed)', () => {
 
   test('dropping back onto a row that is already paused, it misses there too', async ({ page }) => {
     await onTopRow(page)
-    // Down to the bottom row (pausing the top one), then hold the top row
-    // still by focusing one of its tiles, as a keyboard user would.
+    // Down to the middle row (pausing the top one), then on to the bottom row,
+    // and hold the top row still by focusing one of its tiles, as a keyboard
+    // user would.
     await hoverRow(page, 0)
     await expect(dino(page)).toHaveAttribute('data-level', '1', { timeout: 20_000 })
+    await page.mouse.move(5, 5)
+    await page.waitForTimeout(300)
+    await hoverRow(page, 1)
+    await expect(dino(page)).toHaveAttribute('data-level', '2', { timeout: 20_000 })
     await page.mouse.move(5, 5)
     await page
       .locator('[data-dino-panel] [data-marquee-row]')
@@ -268,7 +289,7 @@ test.describe('dino easter egg (motion allowed)', () => {
       .evaluate((tile) => tile.focus({ preventScroll: true }))
     // Pausing the bottom row drops it off the panel and back in on the top
     // row, which never paused while it was there: it misses all the same.
-    await hoverRow(page, 1)
+    await hoverRow(page, 2)
     await expect(dino(page)).toHaveAttribute('data-level', '0', { timeout: 20_000 })
     await page.mouse.move(5, 5)
     await expect(dino(page)).toHaveAttribute('data-level', '1', { timeout: 20_000 })
