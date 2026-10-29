@@ -38,9 +38,10 @@ test.describe('reduced motion', () => {
   })
 
   test('scrolling jumps instead of animating', async ({ page }) => {
-    // Landing mid-page (as from a /#contact link) shows the button without
-    // any further scrolling.
-    await page.goto('/#contact')
+    // Landing mid-page (as from a /#featured link) shows the button without
+    // any further scrolling. Not /#contact: there the button steps aside so it
+    // never covers the form (components/ui/ScrollToTop.tsx).
+    await page.goto('/#featured')
     expect(await htmlScrollBehavior(page)).toBe('auto')
 
     await page.getByRole('button', { name: 'Scroll to top of page' }).click()
