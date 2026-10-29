@@ -178,15 +178,22 @@ test.describe('the phone mockup', () => {
       await page.setViewportSize({ width: 1280, height: 900 })
       await page.goto('/')
       const img = phone(page)
+      const playState = () => img.evaluate((el) => getComputedStyle(el).animationPlayState)
+      // The card's on-screen watcher (NowCarousel) starts at hydration, which a
+      // loaded machine can delay; until then the card is held as off screen.
+      await expect(now(page).locator('[data-watching]')).toHaveCount(1, { timeout: 20_000 })
+      // Instant jumps: with motion allowed the site scrolls smoothly, and a smooth
+      // scroll still running can carry the page past the card (or back off it).
+      const toBottom = () => page.evaluate(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' }))
       // Scrolled past it: paused.
-      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
-      await expect.poll(() => img.evaluate((el) => getComputedStyle(el).animationPlayState)).toBe('paused')
-      await now(page).scrollIntoViewIfNeeded()
-      await expect.poll(() => img.evaluate((el) => getComputedStyle(el).animationPlayState)).toBe('running')
+      await toBottom()
+      await expect.poll(playState).toBe('paused')
+      await now(page).evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
+      await expect.poll(playState).toBe('running')
       expect(await img.evaluate((el) => getComputedStyle(el).animationName)).toBe('now-phone-scroll')
       // Scrolled away again: it holds still again.
-      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
-      await expect.poll(() => img.evaluate((el) => getComputedStyle(el).animationPlayState)).toBe('paused')
+      await toBottom()
+      await expect.poll(playState).toBe('paused')
 
       // The image is the tall page, clipped by its frame.
       const sizes = await img.evaluate((el) => ({
