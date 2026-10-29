@@ -28,6 +28,23 @@ test.describe('AI kit tiles (motion allowed)', () => {
       .toBe(true)
   })
 
+  test('every row moves at the same pace, however many tiles it has', async ({ page }) => {
+    await page.goto('/')
+    // px/s of each row: one copy's width (plus the gap) over its loop time.
+    const speeds = () =>
+      page.locator('[data-dino-panel] [data-marquee-row]').evaluateAll((rows) =>
+        rows.map((row) => {
+          const track = row.children[0] as HTMLElement
+          const gap = parseFloat(getComputedStyle(row).columnGap)
+          return (track.offsetWidth + gap) / parseFloat(getComputedStyle(track).animationDuration)
+        })
+      )
+    await expect.poll(async () => (await speeds()).length).toBe(3)
+    const pace = await speeds()
+    for (const speed of pace) expect(speed, `row speeds ${pace.map(Math.round).join(', ')} px/s`).toBeGreaterThan(18)
+    for (const speed of pace) expect(speed, `row speeds ${pace.map(Math.round).join(', ')} px/s`).toBeLessThan(26)
+  })
+
   test('each item is a single tab stop', async ({ page }) => {
     await page.goto('/')
     const panel = page.locator('[data-dino-panel]')

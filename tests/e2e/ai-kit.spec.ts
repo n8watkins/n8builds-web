@@ -25,8 +25,13 @@ test.describe('AI kit content', () => {
         await expect(agents.getByText(tool, { exact: true })).toBeVisible()
       }
       const dev = page.getByRole('region', { name: 'Dev stack' })
-      for (const tool of ['Next.js', 'Playwright', 'GitHub Actions', 'Upstash']) {
+      for (const tool of ['Next.js', 'Playwright', 'GitHub Actions', 'Upstash', 'Firebase', 'AWS', 'Figma']) {
         await expect(dev.getByText(tool, { exact: true })).toBeVisible()
+      }
+      // The list is shared with the portfolio (data/stack.tsx); its dated and
+      // filler entries were dropped (the owner's call, 2026-10-29).
+      for (const dropped of ['HTML5', 'CSS3', 'ES6+', 'Recoil', 'Material-UI', 'Paypal API', 'Postman', 'Jest', 'MySQL', 'Stripe API', 'GraphQL', 'AWS Amplify', 'Prisma', 'REST APIs']) {
+        await expect(dev.getByText(dropped, { exact: true })).toHaveCount(0)
       }
     }
   })

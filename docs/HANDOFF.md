@@ -296,7 +296,7 @@ The owner's standing decisions live in [DECISIONS.md](DECISIONS.md), the one pla
 - `components/blog/`, `lib/sanity.ts`, `lib/blog-utils.ts`: N8's Notions.
   Posts without a cover image get a generated "signal" cover: `lib/blog-cover.ts` (art and topic colours), served as cached SVG files by `app/notions-cover/[version]/[topic]/[file]/route.ts`.
   The files are cached forever, so bump `COVER_VERSION` whenever the drawing changes.
-- `data/`: `builds.tsx` (source of truth), `shelves.ts`, `loadout.tsx`, `aiStack.tsx`, `buildStacks.tsx`, `techStack.tsx`, `projects.tsx`.
+- `data/`: `builds.tsx` (source of truth), `shelves.ts`, `loadout.tsx`, `stack.tsx` (shared with the portfolio), `buildStacks.tsx`, `techStack.tsx`, `projects.tsx`.
 - `lib/security/`: `rateLimiter.ts`, `turnstile.ts`, `validation.ts`, `testMode.ts`.
 - `lib/email/`: `smtp.ts` (transport + `EMAIL_CONFIG`), `sender.ts`, `templates.ts`, `icons.ts` (generated).
 - `lib/seo.ts`: `pageMetadata()`, `summarize()`, JSON-LD builders; `lib/og-card.tsx`: share-card renderer.

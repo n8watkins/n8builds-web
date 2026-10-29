@@ -1,26 +1,46 @@
+// The AI kit and stack I build with: the tiles of n8builds.dev's homepage
+// marquee (three rows) and the portfolio's tech stack card (two rows).
+//
+// Shared with the portfolio (portfolio.n8builds.dev): this file is a
+// byte-identical copy there, checked by its `npm run check:sync`. Keep it free
+// of site-specific wording ("this blog", "this site") and of imports either
+// repo lacks; edit it here, then copy it over.
 import type { CSSProperties, ReactElement } from 'react'
 import Image from 'next/image'
 import {
   SiAnthropic,
   SiClaude,
+  SiClerk,
   SiCloudflare,
   SiCursor,
   SiDrizzle,
+  SiEslint,
+  SiFigma,
+  SiFirebase,
+  SiGit,
   SiGithubactions,
+  SiGoogleanalytics,
+  SiGooglecloud,
   SiGooglegemini,
   SiHuggingface,
   SiNextdotjs,
+  SiPostgresql,
+  SiPrettier,
   SiReact,
   SiSanity,
   SiSentry,
+  SiShadcnui,
   SiTailwindcss,
   SiTurso,
   SiTypescript,
   SiUpstash,
   SiVercel,
+  SiVite,
+  SiZod,
 } from 'react-icons/si'
-// Simple Icons dropped the OpenAI mark (react-icons 5.7); Bootstrap Icons has it.
+// Simple Icons dropped the OpenAI and AWS marks; Bootstrap Icons and Font Awesome have them.
 import { BsOpenai } from 'react-icons/bs'
+import { FaAws } from 'react-icons/fa6'
 
 export interface AIStackItem {
   name: string
@@ -104,6 +124,14 @@ function PiMark({ className, style }: MarkProps) {
 // tiles (Cursor, OpenAI and ggml are black-and-white marks: light here).
 const LIGHT = '#e6edf6'
 
+/**
+ * A marquee row's loop time, so every row moves at the same pace (~22px/s)
+ * however many tiles it has: a tile is 13rem wide plus the 2.5rem gap the
+ * moving rows use, about 248px, so 11.3s per tile. Pass it as the row's
+ * `--duration`.
+ */
+export const rowDuration = (tiles: number) => `${Math.round(tiles * 11.3)}s`
+
 // Row 1 - agents & models (the heavy lifters)
 export const ai_agents: AIStackItem[] = [
   { name: 'Claude Code', icon: <SiClaude className={ICON} style={{ color: '#D97757' }} />, description: 'My pair-programmer - I build most things here now.' },
@@ -123,24 +151,39 @@ export const ai_tools: AIStackItem[] = [
   { name: 'Hugging Face', icon: <SiHuggingface className={ICON} style={{ color: '#FFD21E' }} />, description: 'Models and datasets to pull from.' },
 ]
 
-// Row 3 - the stack I ship with (Turso and Drizzle are My default stack's,
-// the rest runs n8builds.dev itself).
+// Row 3 (the portfolio's second row) - the stack I ship with, roughly
+// frameworks, then data, infra and tooling. Purple marks (Clerk, ESLint, Vite)
+// show light or in another of their brand colours: the sites use no purple.
 export const dev_stack: AIStackItem[] = [
   { name: 'Next.js', icon: <SiNextdotjs className={ICON} style={{ color: LIGHT }} />, description: 'Every web app I make starts here.' },
   { name: 'React', icon: <SiReact className={ICON} style={{ color: '#61DAFB' }} />, description: 'The UI layer under all of it.' },
   { name: 'TypeScript', icon: <SiTypescript className={ICON} style={{ color: '#3178C6' }} />, description: 'Strict mode everywhere.' },
   { name: 'Tailwind CSS', icon: <SiTailwindcss className={ICON} style={{ color: '#06B6D4' }} />, description: 'Styling right in the markup.' },
+  { name: 'Zod', icon: <SiZod className={ICON} style={{ color: '#3E67B1' }} />, description: 'Validates forms and API input, typed end to end.' },
+  { name: 'ShadCN', icon: <SiShadcnui className={ICON} style={{ color: LIGHT }} />, description: 'Accessible components I own and restyle.' },
+  { name: 'Vite', icon: <SiVite className={ICON} style={{ color: '#FFC517' }} />, description: 'Fast builds for my apps and extensions outside Next.js.' },
+  { name: 'PostgreSQL', icon: <SiPostgresql className={ICON} style={{ color: '#6B9BD8' }} />, description: 'A full relational database when SQLite is not enough.' },
   { name: 'Turso', icon: <SiTurso className={ICON} style={{ color: '#4FF8D2' }} />, description: 'SQLite at the edge for my apps.' },
   { name: 'Drizzle', icon: <SiDrizzle className={ICON} style={{ color: '#C5F74F' }} />, description: 'Type-safe queries, checked against the schema.' },
+  { name: 'Firebase', icon: <SiFirebase className={ICON} style={{ color: '#FFCA28' }} />, description: 'Auth and realtime data for quick builds.' },
+  { name: 'AWS', icon: <FaAws className={ICON} style={{ color: '#FF9900' }} />, description: 'Cloud hosting and storage when a project needs it.' },
+  { name: 'Google Cloud', icon: <SiGooglecloud className={ICON} style={{ color: '#4285F4' }} />, description: 'Google APIs and cloud services.' },
   { name: 'Vercel', icon: <SiVercel className={ICON} style={{ color: LIGHT }} />, description: 'Push to main and it ships.' },
   { name: 'Cloudflare', icon: <SiCloudflare className={ICON} style={{ color: '#F38020' }} />, description: 'R2 file storage and Turnstile spam checks.' },
-  { name: 'Sanity', icon: <SiSanity className={ICON} style={{ color: '#F03E2F' }} />, description: 'The CMS behind this blog.' },
+  { name: 'Sanity', icon: <SiSanity className={ICON} style={{ color: '#F03E2F' }} />, description: 'The CMS behind my blog.' },
   { name: 'Upstash', icon: <SiUpstash className={ICON} style={{ color: '#00E9A3' }} />, description: 'Redis for rate limits and the dino scores.' },
+  { name: 'Clerk', icon: <SiClerk className={ICON} style={{ color: LIGHT }} />, description: 'Drop-in sign-in and user management.' },
+  { name: 'NextAuth', icon: <SiNextdotjs className={ICON} style={{ color: LIGHT }} />, description: 'Sign-in for Next.js apps I host myself.' },
   { name: 'Sentry', icon: <SiSentry className={ICON} style={{ color: LIGHT }} />, description: 'Tells me when something breaks in production.' },
+  { name: 'Google Analytics', icon: <SiGoogleanalytics className={ICON} style={{ color: '#E37400' }} />, description: 'Visitor numbers, only with consent.' },
   {
     name: 'Playwright',
     icon: <Image src="/projectIcons/playwright.svg" alt="" width={28} height={28} unoptimized className={ICON} />,
     description: 'End-to-end tests in five browsers.',
   },
   { name: 'GitHub Actions', icon: <SiGithubactions className={ICON} style={{ color: '#2088FF' }} />, description: 'CI on every pull request.' },
+  { name: 'ESLint', icon: <SiEslint className={ICON} style={{ color: LIGHT }} />, description: 'Lint that fails the build on any warning.' },
+  { name: 'Prettier', icon: <SiPrettier className={ICON} style={{ color: '#F7B93E' }} />, description: 'One code style, never argued about.' },
+  { name: 'Git', icon: <SiGit className={ICON} style={{ color: '#F05032' }} />, description: 'Small commits, every change on a branch.' },
+  { name: 'Figma', icon: <SiFigma className={ICON} style={{ color: '#F24E1E' }} />, description: 'Mockups before the code, when a design needs it.' },
 ]

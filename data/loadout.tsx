@@ -2,7 +2,7 @@ import type { ReactElement } from 'react'
 import { BsOpenai } from 'react-icons/bs'
 import { LuCircuitBoard, LuKeyboard, LuMemoryStick, LuMic } from 'react-icons/lu'
 import { SiAcer, SiAmd, SiClaude, SiGooglegemini, SiObsstudio, SiRazer, SiSamsung } from 'react-icons/si'
-import { GgmlMark } from '@/data/aiStack'
+import { GgmlMark } from '@/data/stack'
 
 // The Loadout - "who I am" without a resume. You ARE your loadout.
 // Each item: what it is + what I use it for + my one-line take.
