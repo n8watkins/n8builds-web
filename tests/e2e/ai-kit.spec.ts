@@ -43,6 +43,11 @@ test.describe('AI kit content', () => {
     await expect(page.locator('[data-marquee-row]')).toHaveCount(0)
   })
 
+  test('the AI kit says it is the kit and stack in daily use', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.locator('#loadout')).toContainText('The AI kit and stack I build with, in daily use right now.')
+  })
+
   test('the default stack says why each piece is in it', async ({ page }) => {
     await page.goto('/')
     const stack = page.getByRole('group', { name: 'The Turso Stack' })

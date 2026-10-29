@@ -123,6 +123,7 @@ When the owner decides something new, add it here (with the date) in the same ch
     A mouse click on a tile does nothing: only hovering pauses its row (each tile is still one tab stop, so a row can be paused from the keyboard).
   - The AI kit has three rows (owner, 2026-10-29): agents and models (Claude Code, Claude Opus 5.5, ChatGPT, Codex, Pi, Cursor, OpenAI, Gemini), AI tools (whisper.cpp, Piper, Hugging Face), and the dev stack (Next.js, React, TypeScript, Tailwind CSS, Turso, Drizzle, Vercel, Cloudflare, Sanity, Upstash, Sentry, Playwright, GitHub Actions).
     Row durations scale with tile count, so every row moves at the old speed (about 22px/s).
+    Its intro reads "The AI kit and stack I build with, in daily use right now." (owner, 2026-10-29).
     Pi shows a π (it has no mark of its own), ChatGPT and Codex use OpenAI's mark, and Playwright's logo is `public/projectIcons/playwright.svg`, from playwright.dev.
   - The dino is a game: the first click starts a 30-second catch round with a scoreboard and a best score (kept in the browser); every click is a random colour and one of several reactions and roar lines; the rainbow comes on the 5th click, every 10th catch and 1 in 12 at random.
     The portfolio runs byte-identical dino files.
