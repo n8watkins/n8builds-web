@@ -1,5 +1,24 @@
 import type { CSSProperties, ReactElement } from 'react'
-import { SiClaude, SiCursor, SiGooglegemini, SiHuggingface } from 'react-icons/si'
+import Image from 'next/image'
+import {
+  SiAnthropic,
+  SiClaude,
+  SiCloudflare,
+  SiCursor,
+  SiDrizzle,
+  SiGithubactions,
+  SiGooglegemini,
+  SiHuggingface,
+  SiNextdotjs,
+  SiReact,
+  SiSanity,
+  SiSentry,
+  SiTailwindcss,
+  SiTurso,
+  SiTypescript,
+  SiUpstash,
+  SiVercel,
+} from 'react-icons/si'
 // Simple Icons dropped the OpenAI mark (react-icons 5.7); Bootstrap Icons has it.
 import { BsOpenai } from 'react-icons/bs'
 
@@ -70,6 +89,17 @@ function PiperMark({ className, style }: MarkProps) {
   )
 }
 
+/**
+ * Pi, the coding-agent harness, has no mark of its own: its name's letter.
+ */
+function PiMark({ className, style }: MarkProps) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={className} style={style}>
+      <path d="M3 6.5h18v3H16v8.5c0 .8.4 1.2 1.2 1.2H19V22h-2.6C14.2 22 13 20.8 13 18.6V9.5h-3V15c0 4-1.3 7-4.6 7H4.5v-2.8h.6C6.6 19.2 7 17.6 7 15V9.5H3z" fill="currentColor" />
+    </svg>
+  )
+}
+
 // Colours: the brands' own, lifted where a dark mark would vanish on the dark
 // tiles (Cursor, OpenAI and ggml are black-and-white marks: light here).
 const LIGHT = '#e6edf6'
@@ -77,6 +107,10 @@ const LIGHT = '#e6edf6'
 // Row 1 - agents & models (the heavy lifters)
 export const ai_agents: AIStackItem[] = [
   { name: 'Claude Code', icon: <SiClaude className={ICON} style={{ color: '#D97757' }} />, description: 'My pair-programmer - I build most things here now.' },
+  { name: 'Claude Opus 5.5', icon: <SiAnthropic className={ICON} style={{ color: '#F0EEE6' }} />, description: 'The model behind Claude Code when I build.' },
+  { name: 'ChatGPT', icon: <BsOpenai className={ICON} style={{ color: LIGHT }} />, description: 'Where I talk a problem through before building.' },
+  { name: 'Codex', icon: <BsOpenai className={ICON} style={{ color: LIGHT }} />, description: 'A second opinion when a fix gets stubborn.' },
+  { name: 'Pi', icon: <PiMark className={ICON} style={{ color: LIGHT }} />, description: 'A minimal agent harness that runs any model.' },
   { name: 'Cursor', icon: <SiCursor className={ICON} style={{ color: LIGHT }} />, description: 'Inline, context-aware edits when my hands are on the keys.' },
   { name: 'OpenAI', icon: <BsOpenai className={ICON} style={{ color: LIGHT }} />, description: 'Generation pipelines and structured outputs.' },
   { name: 'Gemini', icon: <SiGooglegemini className={ICON} style={{ color: '#4285F4' }} />, description: 'Long-context summarization in my extensions.' },
@@ -87,4 +121,26 @@ export const ai_tools: AIStackItem[] = [
   { name: 'whisper.cpp', icon: <GgmlMark className={ICON} style={{ color: LIGHT }} />, description: 'Local speech-to-text (powers Scribe).' },
   { name: 'Piper', icon: <PiperMark className={ICON} style={{ color: LIGHT }} />, description: 'Local text-to-speech (powers my Piper TTS extension).' },
   { name: 'Hugging Face', icon: <SiHuggingface className={ICON} style={{ color: '#FFD21E' }} />, description: 'Models and datasets to pull from.' },
+]
+
+// Row 3 - the stack I ship with (Turso and Drizzle are My default stack's,
+// the rest runs n8builds.dev itself).
+export const dev_stack: AIStackItem[] = [
+  { name: 'Next.js', icon: <SiNextdotjs className={ICON} style={{ color: LIGHT }} />, description: 'Every web app I make starts here.' },
+  { name: 'React', icon: <SiReact className={ICON} style={{ color: '#61DAFB' }} />, description: 'The UI layer under all of it.' },
+  { name: 'TypeScript', icon: <SiTypescript className={ICON} style={{ color: '#3178C6' }} />, description: 'Strict mode everywhere.' },
+  { name: 'Tailwind CSS', icon: <SiTailwindcss className={ICON} style={{ color: '#06B6D4' }} />, description: 'Styling right in the markup.' },
+  { name: 'Turso', icon: <SiTurso className={ICON} style={{ color: '#4FF8D2' }} />, description: 'SQLite at the edge for my apps.' },
+  { name: 'Drizzle', icon: <SiDrizzle className={ICON} style={{ color: '#C5F74F' }} />, description: 'Type-safe queries, checked against the schema.' },
+  { name: 'Vercel', icon: <SiVercel className={ICON} style={{ color: LIGHT }} />, description: 'Push to main and it ships.' },
+  { name: 'Cloudflare', icon: <SiCloudflare className={ICON} style={{ color: '#F38020' }} />, description: 'R2 file storage and Turnstile spam checks.' },
+  { name: 'Sanity', icon: <SiSanity className={ICON} style={{ color: '#F03E2F' }} />, description: 'The CMS behind this blog.' },
+  { name: 'Upstash', icon: <SiUpstash className={ICON} style={{ color: '#00E9A3' }} />, description: 'Redis for rate limits and the dino scores.' },
+  { name: 'Sentry', icon: <SiSentry className={ICON} style={{ color: LIGHT }} />, description: 'Tells me when something breaks in production.' },
+  {
+    name: 'Playwright',
+    icon: <Image src="/projectIcons/playwright.svg" alt="" width={28} height={28} unoptimized className={ICON} />,
+    description: 'End-to-end tests in five browsers.',
+  },
+  { name: 'GitHub Actions', icon: <SiGithubactions className={ICON} style={{ color: '#2088FF' }} />, description: 'CI on every pull request.' },
 ]
