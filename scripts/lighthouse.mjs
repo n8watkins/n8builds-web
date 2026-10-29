@@ -14,6 +14,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import * as chromeLauncher from 'chrome-launcher'
 import lighthouse, { desktopConfig } from 'lighthouse'
+import { throttling } from 'lighthouse/core/config/constants.js'
 
 const PORT = Number(process.env.LIGHTHOUSE_PORT) || 3747
 const BASE = `http://localhost:${PORT}`
@@ -53,10 +54,29 @@ const MOBILE_BUDGETS = [
   ['TBT (ms)', (lhr) => lhr.audits['total-blocking-time'].numericValue, 'warn', 400, 'max'],
 ]
 
+// The mobile preset slows the CPU 4x, but 4x of what depends on the machine.
+// GitHub runs us on two runner types, benchmarkIndex ~4400 and ~2300: the slow
+// one scored the homepage 0.79-0.83 against 0.87-0.90 on the fast one, with
+// the same LCP and TBT 440ms vs 69ms (2026-10-28). So the slowdown scales with
+// the machine's benchmark (the median of the runs so far), making every runner
+// act like the same phone: 4x on the ~4400 runner, ~2x on the slow one.
+const REFERENCE_BENCHMARK = 4400
+
+/** The mobile config with its CPU slowdown scaled to this machine's benchmark. */
+function mobileConfig(benchmark) {
+  const scaled = (throttling.mobileSlow4G.cpuSlowdownMultiplier * benchmark) / REFERENCE_BENCHMARK
+  const cpuSlowdownMultiplier = Math.max(1, Math.round(scaled * 10) / 10)
+  console.log(`\nMobile CPU slowdown ${cpuSlowdownMultiplier}x (benchmarkIndex ${Math.round(benchmark)}, reference ${REFERENCE_BENCHMARK})`)
+  return {
+    extends: 'lighthouse:default',
+    settings: { throttling: { ...throttling.mobileSlow4G, cpuSlowdownMultiplier } },
+  }
+}
+
 const FORMS = [
-  { name: 'desktop', config: desktopConfig, pages: PAGES, budgets: BUDGETS, runs: RUNS },
+  { name: 'desktop', config: () => desktopConfig, pages: PAGES, budgets: BUDGETS, runs: RUNS },
   // Three runs: its budgets are loose regression guards, and CI time matters.
-  { name: 'mobile', config: undefined, pages: MOBILE_PAGES, budgets: MOBILE_BUDGETS, runs: 3 },
+  { name: 'mobile', config: mobileConfig, pages: MOBILE_PAGES, budgets: MOBILE_BUDGETS, runs: 3 },
 ]
 
 /** Why a Lighthouse run can't be scored (its own runtime error, or empty metrics), or null. */
@@ -131,14 +151,20 @@ async function main() {
     chrome = await launchChrome(profile)
     mkdirSync(REPORT_DIR, { recursive: true })
 
+    // Each scored run's benchmarkIndex: the mobile form calibrates on the runs before it.
+    const benchmarks = []
     for (const form of FORMS) for (const path of form.pages) {
+      const config = form.config(median(benchmarks))
       const runs = []
       for (let i = 0; i < form.runs; i++) {
         let result
         for (let attempt = 0; attempt <= RETRIES; attempt++) {
-          result = await lighthouse(`${BASE}${path}`, { port: chrome.port, output: 'html', logLevel: 'error' }, form.config)
+          result = await lighthouse(`${BASE}${path}`, { port: chrome.port, output: 'html', logLevel: 'error' }, config)
           const problem = runProblem(result, form.budgets)
-          if (!problem) break
+          if (!problem) {
+            benchmarks.push(result.lhr.environment.benchmarkIndex)
+            break
+          }
           console.log(`  retry ${path} (${form.name}) run ${i + 1}: ${problem}`)
           if (attempt === RETRIES) throw new Error(`Lighthouse could not audit ${path} (${form.name}): ${problem}`)
         }
