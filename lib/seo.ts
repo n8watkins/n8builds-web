@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { techForProsHref } from '@/lib/techForPros'
+import { TECH_FOR_PROS } from '@/lib/techForPros'
 
 /**
  * Per-page search and share metadata.
@@ -122,7 +122,7 @@ export const siteJsonLd = {
         'https://www.linkedin.com/in/n8watkins',
         'https://twitch.tv/n8watkins',
         'https://portfolio.n8builds.dev',
-        ...(techForProsHref ? [techForProsHref] : []),
+        TECH_FOR_PROS.url,
       ],
     },
   ],

@@ -9,6 +9,7 @@ import { useLiveStatus } from '@/components/live/liveStore'
 import NavLiveDot from '@/components/live/NavLiveDot'
 import { refHref } from '@/lib/referrals'
 import { TECH_FOR_PROS } from '@/lib/techForPros'
+import TechForProsMark from '@/components/ui/TechForProsMark'
 
 // The owner's Ko-fi page (the same one Portfolio Rank links in its header).
 const KOFI_URL = 'https://ko-fi.com/n8watkins'
@@ -261,13 +262,22 @@ const Navbar = () => {
               <FiBriefcase className="w-4 h-4" aria-hidden />
               Portfolio
             </a>
+            {/* My company, by its address: its icon and techforpros.com,
+                underlined as a link (owner, 2026-11-01). Shown at every
+                width; on a 320px phone it still fits between the logo and
+                the menu button (tests/e2e/navigation.spec.ts). */}
             <a
               href={refHref('techforpros', 'navbar')}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-linear-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold text-sm transition-all duration-200 hover:scale-[1.02] shadow-lg shadow-blue-900/30"
+              data-nav-techforpros
+              className="group/tfp flex shrink-0 items-center gap-2 rounded-lg py-1.5 pl-1 pr-1.5 text-sm font-semibold text-slate-100 transition-colors duration-150 hover:text-white sm:ml-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300"
             >
-              {TECH_FOR_PROS.name}
+              <TechForProsMark className="h-7 w-7 transition-transform duration-200 group-hover/tfp:scale-105 motion-reduce:transition-none motion-reduce:group-hover/tfp:scale-100" />
+              <span className="underline decoration-cyan-300/60 decoration-[1.5px] underline-offset-[5px] transition-colors group-hover/tfp:decoration-cyan-200">
+                {TECH_FOR_PROS.domain}
+              </span>
+              <span className="sr-only"> ({TECH_FOR_PROS.name}, opens in a new tab)</span>
             </a>
             {/* Mobile toggle */}
             <button

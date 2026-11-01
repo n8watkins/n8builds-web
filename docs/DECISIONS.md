@@ -15,9 +15,14 @@ When the owner decides something new, add it here (with the date) in the same ch
   Tech for Pros is the owner's SaaS for service businesses: it turns a few details about a business into a launch-ready website, then takes the follow-up off their plate (lead capture, reviews, reminders, missed-call text-back).
   Appturnity was his consulting firm, and ended in June 2026; the site no longer links to it.
   It takes Appturnity's place in "What I'm working on", the Work with me card, the contact card, the footer and the structured data.
-  techforpros.com isn't live yet: `lib/techForPros.ts` holds the URL and a `live` flag, and while it's false nothing links there (the cards say "Coming soon" or "Launching soon", the navbar button and footer link are left out, and `tests/e2e/tech-for-pros.spec.ts` checks).
-  Going live is setting `live: true` there, and in dev-portfolio's copy.
-  It has no logo yet: the cards show a plain wrench, and reuse the Appturnity-era template screenshots.
+  **The site treats it as live** (owner, 2026-11-01, before the domain is registered): no "Coming soon", "Launching soon" or "will soon" for it anywhere, and the `live` flag is gone from `lib/techForPros.ts`.
+  Every on-site link goes through the counted short link (`/techforpros?from=navbar|hero|card|footer`); the structured data's `sameAs` lists https://techforpros.com.
+  The navbar's top right is its icon and "techforpros.com", underlined, in place of the gradient button, at every width.
+  "What I'm working on" is headed by its icon and "techforpros.com", with no badge, a "Visit techforpros.com" button (`from=hero`) and screenshots that link there too.
+  The Work with me card lists its planned features under "Next up", never "Coming soon".
+  The footer sitemap has "techforpros.com" with the icon under Work with me, and the contact card says it "puts your business online", linked.
+  Its icon (a worker in a cap holding a blue gear) is `public/brands/techforpros.png`, 256px, made from the owner's 1254px master by `scripts/gen-techforpros-icon.mjs` (the master stays out of the repo). On the site's dark navy it always sits on a light rounded tile (`components/ui/TechForProsMark.tsx`), because its navy outlines vanish on dark.
+  The cards still reuse the Appturnity-era template screenshots.
   It never claims "free websites" or AI voice agents, which were Appturnity's offer.
   `n8builds.dev/appturnity` still counts and redirects for links already out there (sent emails); the admin's `ref:appturnity` counter keeps working.
   The Appturnity entries below are history.

@@ -86,13 +86,44 @@ test.describe('the Contact link', () => {
   })
 })
 
+/** The navbar's Tech for Pros link (2026-11-01): its icon and techforpros.com, underlined. */
+const techForPros = (page: Page) => page.locator('nav[aria-label="Primary"]').getByRole('link', { name: /^techforpros\.com/ })
+
+test('the navbar links techforpros.com by its icon and address, through the counted short link', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/')
+  const link = techForPros(page)
+  await expect(link).toHaveAttribute('href', '/techforpros?from=navbar')
+  await expect(link).toHaveAttribute('target', '_blank')
+  await expect(link.locator('img[src*="techforpros"]')).toBeVisible()
+  const text = link.getByText('techforpros.com', { exact: true })
+  await expect(text).toHaveCSS('text-decoration-line', 'underline')
+  // No gradient button any more.
+  expect(await link.evaluate((el) => getComputedStyle(el).backgroundImage)).toBe('none')
+})
+
+// On phones the link sits between the logo and the menu button, on one line.
+for (const width of [320, 375, 390]) {
+  test(`at ${width}px the techforpros.com link fits between the logo and the menu button`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 800 })
+    await page.goto('/')
+    const link = (await techForPros(page).boundingBox())!
+    const logo = (await page.getByRole('link', { name: 'n8builds.dev home' }).boundingBox())!
+    const menu = (await menuButton(page).boundingBox())!
+    expect(link.x).toBeGreaterThan(logo.x + logo.width)
+    expect(link.x + link.width).toBeLessThanOrEqual(menu.x)
+    expect(menu.x + menu.width).toBeLessThanOrEqual(width)
+    // One line: as tall as its icon tile, not wrapped.
+    expect(link.height).toBeLessThan(44)
+  })
+}
+
 test.describe('tablet width', () => {
   test.use({ viewport: { width: 810, height: 1080 } })
 
   test('nothing in the navbar is pushed off-screen, and the menu button is there', async ({ page }) => {
     await page.goto('/')
-    const cta = page.locator('nav[aria-label="Primary"]').getByRole('link', { name: 'Tech for Pros', exact: true })
-    const box = await cta.boundingBox()
+    const box = await techForPros(page).boundingBox()
     expect(box!.x + box!.width).toBeLessThanOrEqual(810)
     await expect(menuButton(page)).toBeVisible()
     // Ko-fi fits too, clear of the logo.

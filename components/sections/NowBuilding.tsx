@@ -77,7 +77,7 @@ const Showcase = ({ desktop, phone }: { desktop: NowShot; phone: NowShot }) => (
 
 const DetailsHeader = ({ now }: { now: NowState }) => (
   <>
-    {now.logo && <Image src={now.logo} alt="" width={152} height={177} className="h-9 w-auto shrink-0 sm:h-11" />}
+    {now.mark && <span className="h-9 w-9 shrink-0 sm:h-11 sm:w-11">{now.mark}</span>}
     <div className="min-w-0 flex-1">
       <h4 id={`${slugOf(now)}-now-title`} className="text-xl font-bold sm:text-2xl tracking-tight text-slate-50">
         What&apos;s new at {now.project}
@@ -151,13 +151,15 @@ const Card = ({ now }: { now: NowState }) => (
           </h3>
         ) : (
           <>
-            {now.logo && <Image src={now.logo} alt="" width={152} height={177} className="h-8 w-auto shrink-0 sm:h-9" />}
-            <h3 className="text-[1.4rem] font-extrabold sm:text-2xl tracking-tight text-slate-50">{now.project}</h3>
+            {now.mark && <span className="h-9 w-9 shrink-0 sm:h-10 sm:w-10">{now.mark}</span>}
+            <h3 className="text-[1.4rem] font-extrabold sm:text-2xl tracking-tight text-slate-50">{now.title ?? now.project}</h3>
           </>
         )}
-        <span className={`rounded-full border px-2.5 py-0.5 text-[0.62rem] font-bold uppercase tracking-wider ${statusStyles[now.status]}`}>
-          {now.badge ?? now.status}
-        </span>
+        {now.badge && (
+          <span className={`rounded-full border px-2.5 py-0.5 text-[0.62rem] font-bold uppercase tracking-wider ${statusStyles[now.status]}`}>
+            {now.badge}
+          </span>
+        )}
       </div>
 
       <div className="lg:col-start-1">
@@ -185,7 +187,7 @@ const Card = ({ now }: { now: NowState }) => (
             </div>
           </a>
         ) : (
-          // No site to go to yet: the picture, not a link.
+          // No site to go to: the picture, not a link.
           <div aria-hidden className="my-2 block lg:col-start-2 lg:row-span-3 lg:row-start-1 lg:my-0 lg:self-center">
             <Showcase desktop={now.showcase.desktop} phone={now.showcase.phone} />
           </div>
@@ -222,13 +224,6 @@ const Card = ({ now }: { now: NowState }) => (
             <span className="sr-only"> (opens in a new tab)</span>
           </a>
         ))}
-        {!now.ctas?.length && (
-          // Its site isn't live yet: say so where the buttons go.
-          <span data-now-soon className="flex items-center justify-center gap-2 rounded-xl border border-white/12 bg-white/4 px-5 py-2.5 text-sm font-semibold text-slate-300">
-            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-cyan-300" />
-            Coming soon
-          </span>
-        )}
         <div className="sm:ml-auto">
           <NowDetails project={now.project} labelledBy={`${slugOf(now)}-now-title`} header={<DetailsHeader now={now} />}>
             <DetailsBody now={now} />

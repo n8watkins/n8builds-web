@@ -1,17 +1,15 @@
 /**
  * Tech for Pros, the owner's SaaS for service businesses (it took over from
- * Appturnity, the owner's consulting firm, in 2026). Its buttons (the navbar's
- * and the work-with-me card's) link to it already, through the counted
- * n8builds.dev/techforpros short link, as Appturnity's did (owner, 2026-11-01).
- * Until techforpros.com is live (`live`), nothing else links there: the
- * footer, the structured data and the copy that says "soon".
- * Going live is flipping `live` here, and in dev-portfolio's copy.
+ * Appturnity, the owner's consulting firm, in 2026). The site links to it
+ * everywhere (owner, 2026-11-01): the on-site buttons go through the counted
+ * n8builds.dev/techforpros short link (lib/referrals.ts), so the admin sees
+ * the clicks; the footer and the structured data use the plain URL.
  */
 export const TECH_FOR_PROS = {
   name: 'Tech for Pros',
+  /** How the site writes its address, as a link's text. */
+  domain: 'techforpros.com',
   url: 'https://techforpros.com',
-  live: false as boolean,
-}
-
-/** The plain link to Tech for Pros, or undefined while the site isn't live. */
-export const techForProsHref: string | undefined = TECH_FOR_PROS.live ? TECH_FOR_PROS.url : undefined
+  /** Its icon (a worker holding a gear), made by scripts/gen-techforpros-icon.mjs. */
+  icon: '/brands/techforpros.png',
+} as const

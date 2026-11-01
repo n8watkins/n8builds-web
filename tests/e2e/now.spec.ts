@@ -2,17 +2,17 @@ import { test, expect, type Page } from '@playwright/test'
 import { APP_JS } from './app-js'
 
 /**
- * "What I'm working on" (#now): an ad for Tech for Pros with template
- * screenshots, "Coming soon" where its button goes until techforpros.com is
- * live (lib/techForPros.ts), and the build detail behind a What's new dialog
- * instead of on the card face.
+ * "What I'm working on" (#now): an ad for Tech for Pros, headed by its icon
+ * and techforpros.com, with template screenshots and a button to the site
+ * (2026-11-01), and the build detail behind a What's new dialog instead of
+ * on the card face.
  */
 
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
 const now = (page: Page) => page.locator('#now')
 
-test('the card reads like an ad: headline, selling points, both buttons and real template screenshots', async ({ page }) => {
+test('the card reads like an ad: headline, selling points, its button and real template screenshots', async ({ page }) => {
   await page.goto('/')
   const section = now(page)
   await section.scrollIntoViewIfNeeded()
@@ -20,8 +20,14 @@ test('the card reads like an ad: headline, selling points, both buttons and real
   for (const perk of ['Templates for your trade', 'Lead capture and reviews']) {
     await expect(section.getByRole('listitem').filter({ hasText: perk })).toBeVisible()
   }
-  // No site to send anyone to yet: no link, and it says so.
-  await expect(section.locator('[data-now-soon]')).toHaveText('Coming soon')
+  // Headed by its icon and address, with no badge (it said "Launching soon").
+  const title = section.getByRole('heading', { level: 3, name: 'techforpros.com' })
+  await expect(title).toBeVisible()
+  await expect(title.locator('xpath=..').locator('img[src*="techforpros"]')).toBeVisible()
+  await expect(section).not.toContainText(/launching soon|coming soon/i)
+  // Its button, and the screenshots, go to the site through the counted link.
+  await expect(section.getByRole('link', { name: /Visit techforpros\.com/ })).toHaveAttribute('href', '/techforpros?from=hero')
+  await expect(section.locator('a[aria-hidden="true"][tabindex="-1"]')).toHaveAttribute('href', '/techforpros?from=hero')
   await expect(section.locator('a[href*="techforpros.com"], a[href*="appturnity"]')).toHaveCount(0)
   await expect(section).not.toContainText(/free website/i)
 
