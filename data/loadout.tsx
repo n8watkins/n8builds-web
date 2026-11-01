@@ -1,4 +1,5 @@
 import type { ReactElement } from 'react'
+import Image from 'next/image'
 import { BsOpenai } from 'react-icons/bs'
 import {
   LuChartColumn,
@@ -11,7 +12,6 @@ import {
   LuMemoryStick,
   LuMic,
   LuNewspaper,
-  LuPanelsTopLeft,
   LuShieldCheck,
   LuShip,
   LuTag,
@@ -477,7 +477,10 @@ export const honorableMentions: UsedTool[] = [
       'The runtime my coding agents live on: persistent terminal sessions, every pane marked working, blocked or idle, and an API agents can drive.',
     href: 'https://herdr.dev',
     maker: { name: 'Can Celik', href: 'https://github.com/ogulcancelik' },
-    icon: <LuPanelsTopLeft />,
+    // herdr's own app icon (the ram on its light tile), as herdr.dev's navbar
+    // shows it (herdr.dev/live/icons/herdr.png, trimmed to the tile), kept in
+    // public/brands/. A tile already, so it fills the chip, padding and all.
+    icon: <Image src="/brands/herdr.png" alt="" width={130} height={130} sizes="42px" className="-m-2.5 size-[42px] max-w-none rounded-[11px]" />,
   },
   {
     id: 'firstmate',

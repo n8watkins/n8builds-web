@@ -156,6 +156,11 @@ test.describe('Loadout tools and people', () => {
     await expect(mentions.locator('#herdr h3')).toContainText(', by Can Celik')
     await expect(mentions.getByRole('link', { name: 'herdr (opens in a new tab)', exact: true })).toHaveAttribute('href', 'https://herdr.dev')
     await expect(mentions.getByRole('link', { name: 'Can Celik' })).toHaveAttribute('href', 'https://github.com/ogulcancelik')
+    // herdr shows its own app icon (2026-11-01), self-hosted, not a generic glyph.
+    const icon = mentions.locator('#herdr img[src*="herdr.png"]')
+    await expect(icon).toBeVisible()
+    await expect.poll(() => icon.evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0)
+    await expect(mentions.locator('#herdr svg')).toHaveCount(0)
     for (const id of ['firstmate', 'treehouse']) {
       await expect(mentions.locator(`#${id} h3`)).toContainText(', by Kun Chen')
       await expect(mentions.locator(`#${id}`).getByRole('link', { name: 'Kun Chen' })).toHaveAttribute('href', '#kun-chen')
