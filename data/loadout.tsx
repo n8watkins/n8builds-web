@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react'
 import { BsOpenai } from 'react-icons/bs'
-import { LuCircuitBoard, LuKeyboard, LuMemoryStick, LuMic } from 'react-icons/lu'
-import { SiAcer, SiAmd, SiClaude, SiGooglegemini, SiObsstudio, SiRazer, SiSamsung } from 'react-icons/si'
+import { LuCircuitBoard, LuFileCode, LuGlobe, LuKeyRound, LuKeyboard, LuMemoryStick, LuMic, LuShieldCheck, LuTag } from 'react-icons/lu'
+import { SiAcer, SiAmd, SiClaude, SiGithub, SiGooglegemini, SiObsstudio, SiRazer, SiSamsung } from 'react-icons/si'
 import { GgmlMark } from '@/data/stack'
 
 // The Loadout - "who I am" without a resume. You ARE your loadout.
@@ -118,6 +118,193 @@ export const inApps: { name: string; icon: ReactElement; color: string; whatFor:
     color: '#e6edf6',
     whatFor: 'Local speech-to-text: Scribe runs OpenAI\'s Whisper models on your own PC with it, no cloud involved.',
     tag: 'local-first',
+  },
+]
+
+/** A person or organisation, linked. */
+export interface NamedLink {
+  name: string
+  href: string
+}
+
+/**
+ * The dev tools I built: small public CLIs, not apps (those are the Lab's
+ * builds in data/builds.tsx). One entry per tool; adding a tool is adding an
+ * entry here.
+ */
+export interface BuiltTool {
+  /** The anchor id on /loadout. */
+  id: string
+  name: string
+  /** One line: what it does for you. */
+  pitch: string
+  /** Two short sentences on how. */
+  detail: string
+  /** The public repo; it feeds the Star | GitHub button. */
+  github: string
+  /** For a fork: who made the original, and what my fork adds. */
+  credit?: { author: NamedLink; org?: NamedLink; note: string }
+  tags: string[]
+  icon: ReactElement
+}
+
+export const toolsIBuilt: BuiltTool[] = [
+  {
+    id: 'pass-env',
+    name: 'pass-env',
+    pitch: 'Your AI coding agents use your API keys without ever seeing them.',
+    detail:
+      'The keys stay encrypted in pass, and each project lists only their names. Agents can run the app and push secrets to production, and the values never land in files, terminals or transcripts.',
+    github: 'https://github.com/n8watkins/pass-env',
+    credit: {
+      author: { name: 'Phaedrus Raznikov', href: 'https://github.com/moomooskycow' },
+      org: { name: 'Misty Step', href: 'https://github.com/misty-step' },
+      note: 'my fork adds import, generate, doctor and more.',
+    },
+    tags: ['CLI', 'pass', 'GPG', 'Bun'],
+    icon: <LuKeyRound />,
+  },
+  {
+    id: 'release-kit',
+    name: 'release-kit',
+    pitch: 'Conventional Commits, SemVer tags and GitHub Releases on any repo, with one command.',
+    detail:
+      'Release notes are written from the commits. An optional release train ships on a schedule, only when there is work a user would notice. This site releases with it.',
+    github: 'https://github.com/n8watkins/release-kit',
+    tags: ['CLI', 'Node', 'GitHub Actions'],
+    icon: <LuTag />,
+  },
+]
+
+/**
+ * People I follow: what each one is working on in public. One entry per
+ * person; adding one is adding an entry here. `id` is the anchor the tools
+ * below link to ("no-mistakes, by Kun Chen").
+ *
+ * The cards are static for now. Later a JSON feed (from pr-post) fills each
+ * person's `activity` with their recent public work: replace this array with
+ * the fetched one, or merge the feed's items in by `id`. Only public events
+ * belong here (public pull requests, releases, new repos), never counts of
+ * private activity.
+ */
+export interface Person {
+  id: string
+  name: string
+  /** Shown in the avatar circle. */
+  initials: string
+  /** Who they are, in one sentence. */
+  role: string
+  /** What they are working on in public, in one or two plain sentences. */
+  note: string
+  /** Their own links only (from their channels or profiles); never a guessed one. */
+  links: PersonLink[]
+  /** Their recent public activity, newest first; none until the feed exists. */
+  activity?: PublicActivity[]
+}
+
+export interface PersonLink {
+  kind: 'youtube' | 'x' | 'substack' | 'github' | 'website' | 'community'
+  href: string
+  /** The button's text, when the kind's default (YouTube, X, Website...) isn't enough. */
+  label?: string
+}
+
+/** One public event, as the feed will send it. */
+export interface PublicActivity {
+  kind: 'pull-request' | 'release' | 'new-repo'
+  /** The PR title, the release name or the repo's description. */
+  title: string
+  /** `owner/name`. */
+  repo: string
+  href: string
+  /** ISO 8601. */
+  date: string
+}
+
+export const people: Person[] = [
+  {
+    id: 'kun-chen',
+    name: 'Kun Chen',
+    initials: 'KC',
+    role: 'Former L8 principal engineer at Meta, Microsoft and Atlassian.',
+    // A non-breaking hyphen (U+2011) keeps "no-mistakes" from splitting across lines.
+    note: 'Building agent tools in the open: no\u2011mistakes, firstmate, gnhf, treehouse and the AXI interfaces.',
+    links: [
+      { kind: 'youtube', href: 'https://www.youtube.com/channel/UCb69t9ZkE5z1KvCmfJoaifA' },
+      { kind: 'x', href: 'https://x.com/kunchenguid' },
+      { kind: 'substack', href: 'https://kunchenguid.substack.com' },
+      { kind: 'github', href: 'https://github.com/kunchenguid' },
+    ],
+  },
+  {
+    id: 'phaedrus',
+    name: 'Phaedrus Raznikov',
+    initials: 'PR',
+    role: 'Runs Misty Step, an AI-native software agency.',
+    note: 'Building tooling for fleets of coding agents. He created pass-env.',
+    links: [
+      { kind: 'x', href: 'https://x.com/moomooskycow' },
+      { kind: 'github', href: 'https://github.com/moomooskycow' },
+      { kind: 'website', href: 'https://www.mistystep.io/', label: 'Misty Step' },
+    ],
+  },
+  {
+    id: 'nate-herk',
+    name: 'Nate Herk',
+    initials: 'NH',
+    role: 'AI automation educator.',
+    note: 'Teaching AI automation on YouTube and running the AI Automation Society community.',
+    links: [
+      { kind: 'youtube', href: 'https://www.youtube.com/@nateherk' },
+      { kind: 'x', href: 'https://x.com/nateherk' },
+      { kind: 'website', href: 'https://nateherk.com', label: 'nateherk.com' },
+      { kind: 'community', href: 'https://www.skool.com/ai-automation-society/about', label: 'AI Automation Society' },
+    ],
+  },
+]
+
+/**
+ * The agent tools I use on top of Claude Code and Codex. Only tools in real
+ * use: each one is installed and wired into my agents as a skill. `by` names
+ * its maker from `people` when they are listed there.
+ */
+export interface UsedTool {
+  name: string
+  whatFor: string
+  href: string
+  /** A `people` id: the maker. */
+  by?: string
+  icon: ReactElement
+}
+
+export const toolsIUse: UsedTool[] = [
+  {
+    name: 'no-mistakes',
+    whatFor: 'A git remote that checks my work first: an AI pipeline reviews, tests and fixes a branch before it is pushed, then opens the pull request.',
+    href: 'https://github.com/kunchenguid/no-mistakes',
+    by: 'kun-chen',
+    icon: <LuShieldCheck />,
+  },
+  {
+    name: 'chrome-devtools-axi',
+    whatFor: 'A browser my agents can drive: they open pages, click through flows and take screenshots to check their own UI work.',
+    href: 'https://github.com/kunchenguid/chrome-devtools-axi',
+    by: 'kun-chen',
+    icon: <LuGlobe />,
+  },
+  {
+    name: 'gh-axi',
+    whatFor: 'The GitHub CLI, reshaped for agents: issues, pull requests and CI runs in short output they can act on.',
+    href: 'https://github.com/kunchenguid/gh-axi',
+    by: 'kun-chen',
+    icon: <SiGithub />,
+  },
+  {
+    name: 'Lavish',
+    whatFor: 'Opens an agent\'s HTML report in my browser, so I can mark up any part of it and send the notes back.',
+    href: 'https://github.com/kunchenguid/lavish-axi',
+    by: 'kun-chen',
+    icon: <LuFileCode />,
   },
 ]
 
