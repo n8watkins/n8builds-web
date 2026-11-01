@@ -100,7 +100,10 @@ When the owner decides something new, add it here (with the date) in the same ch
 - **appturnity.com** is the canonical Appturnity URL.
 - Keep the three brands on separate sites.
   Footer, navbar and redirect links to the portfolio and Appturnity are intentional bridges.
-- The N8 neon icon is the brand mark and favicon for both n8builds and the portfolio.
+- **The brand mark is the lowercase "n8"** (owner, 2026-11-01): a white "n" flowing into a blue "8", replacing the N8 neon icon on n8builds and the portfolio.
+  The master is `public/brand/n8-mark.png` (transparent, trimmed); `scripts/gen-brand-icons.mjs` makes the tab, app and Apple icons from it (the mark on a dark navy rounded tile with a faint sky edge), and `scripts/gen-email-icons.mjs` the emails' logo.
+  The navbar and footer show the mark on its own, without a tile.
+  The admin dashboard still has the old N8 mark.
 - One GA4 property (`G-JZQGKY9Q37`) covers the whole n8builds.dev domain, subdomains included.
 - **Vercel Web Analytics** (2026-10-27): loaded on every page next to Speed Insights, only on Vercel builds, and outside the consent banner, because it sets no cookies and keeps no visitor identifier past a day.
   GA4 stays as it is and remains the main analytics; Vercel's is a cookie-free count that also covers visitors who decline.

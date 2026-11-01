@@ -138,15 +138,15 @@ const Navbar = () => {
         <div className="max-w-6xl mx-auto px-5 sm:px-8 h-[68px] flex items-center justify-between gap-6">
           {/* Brand */}
           <Link href="/" aria-label="n8builds.dev home" className="flex items-center gap-2.5 shrink-0 group">
-            <div className="w-9 h-9 rounded-xl overflow-hidden ring-1 ring-white/10 group-hover:ring-white/20 transition-all duration-200">
-              <Image
-                src="/tab/n8-logo.png"
-                alt=""
-                width={36}
-                height={36}
-                className="w-full h-full object-cover"
-              />
-            </div>
+            {/* The brand mark on its own (the tab icon puts it on a tile). */}
+            <Image
+              src="/brand/n8-mark.png"
+              alt=""
+              width={1086}
+              height={826}
+              sizes="34px"
+              className="h-[26px] w-auto transition-opacity duration-200 group-hover:opacity-85"
+            />
             <span className="font-bold text-slate-100 tracking-tight text-[0.95rem] hidden sm:block">
               n8builds.dev
             </span>
