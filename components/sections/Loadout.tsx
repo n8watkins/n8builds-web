@@ -17,8 +17,8 @@ import { DevSetup, HonorableMentions, PeopleIFollow, SectionHead, ToolsIBuilt, T
  * tech stack. It leads with how I work with AI (decide, build, fix: the tool
  * and model for each step), after my dev setup, then the tools I use,
  * honorable mentions, the people I follow, the
- * tools I built, the AI inside the apps I build, and the physical
- * setup in one section (rig, desk, stream). A server component: its
+ * tools I built, the AI inside the apps I build, and the gear in one
+ * section (rig, desk, stream kit). A server component: its
  * interactive parts (the scroll reveals) are client islands.
  */
 
@@ -31,7 +31,7 @@ const PARTS = [
   { label: 'People I follow', href: '#people' },
   { label: 'Tools I built', href: '#tools-i-built' },
   { label: 'Inside my apps', href: '#in-apps' },
-  { label: 'The setup', href: '#setup' },
+  { label: 'The gear', href: '#gear' },
 ]
 
 /** One step of the workflow: its number and verb, the tool in its brand colour, the model, why. */
@@ -70,13 +70,19 @@ const StepCard = ({ step, index }: { step: WorkflowStep; index: number }) => (
 )
 
 /**
- * The physical setup in one place (the owner found three spec sheets
- * repetitive, 2026-10-27): a column each for the rig, the desk and the stream,
- * one line per item.
+ * The gear in one place (the owner found three spec sheets repetitive,
+ * 2026-10-27): a column each for the rig, the desk and the stream kit, one
+ * line per item. Called "The setup" until 2026-11-01, renamed so it doesn't
+ * clash with "My dev setup"; "gear" rather than "hardware" because the stream
+ * kit includes OBS and Scribe.
  */
-const Setup = ({ groups }: { groups: LoadoutGroup[] }) => (
-  <Reveal as="section" id="setup" aria-labelledby="setup-title" className="scroll-mt-24">
-    <SectionHead id="setup-title" path="~/loadout/setup" title="The setup">
+const Gear = ({ groups }: { groups: LoadoutGroup[] }) => (
+  // Reveal renders no aria attributes, so the labelled section sits inside it.
+  <Reveal>
+    <section id="gear" aria-labelledby="gear-title" className="scroll-mt-24">
+    {/* The old anchor, so /loadout#setup links already out there still land here. */}
+    <span id="setup" aria-hidden="true" className="block scroll-mt-24" />
+    <SectionHead id="gear-title" path="~/loadout/gear" title="The gear">
       What it all runs on, from the PC to the mic.
     </SectionHead>
     <div className="grid gap-4 md:grid-cols-3">
@@ -114,6 +120,7 @@ const Setup = ({ groups }: { groups: LoadoutGroup[] }) => (
         </Reveal>
       ))}
     </div>
+    </section>
   </Reveal>
 )
 
@@ -144,7 +151,7 @@ const Loadout = () => {
             <h1 className="text-4xl font-bold tracking-tight text-slate-50 sm:text-6xl lg:text-7xl">My Loadout</h1>
           </div>
           <p className="mt-5 max-w-[600px] text-balance text-lg text-[#9cadc5] sm:text-xl">
-            My dev setup, the AI I work with, the tools I use and built, the people I follow, and the hardware it all runs on.
+            My dev setup, the AI I work with, the tools I use and built, the people I follow, and the gear it all runs on.
           </p>
           <nav aria-label="Loadout sections" className="mt-7 flex flex-wrap justify-center gap-2">
             {PARTS.map((part) => (
@@ -215,8 +222,9 @@ const Loadout = () => {
         </div>
 
         {/* The AI inside the apps I build */}
-        <Reveal as="section" id="in-apps" className="mt-20 scroll-mt-24">
-          <SectionHead path="~/loadout/in-apps" title="Inside the apps I build">
+        <Reveal className="mt-20">
+          <section id="in-apps" aria-labelledby="in-apps-title" className="scroll-mt-24">
+          <SectionHead id="in-apps-title" path="~/loadout/in-apps" title="Inside the apps I build">
             What the AI in my own apps and extensions runs on.
           </SectionHead>
           <ul className="grid gap-4 md:grid-cols-3">
@@ -243,11 +251,12 @@ const Loadout = () => {
               </li>
             ))}
           </ul>
+          </section>
         </Reveal>
 
-        {/* The physical kit, in one section */}
+        {/* The gear (rig, desk, stream kit), in one section */}
         <div className="mt-20">
-          <Setup groups={kit} />
+          <Gear groups={kit} />
         </div>
 
         <p className="mt-16 border-t border-white/6 pt-8 text-center font-mono text-xs text-slate-475">

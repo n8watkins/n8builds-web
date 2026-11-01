@@ -183,10 +183,17 @@ test.describe('Loadout tools and people', () => {
   test('the header pills jump to every part of the page', async ({ page }) => {
     await page.goto('/loadout')
     const pills = page.getByRole('navigation', { name: 'Loadout sections' }).getByRole('link')
-    await expect(pills).toHaveText(['Dev setup', 'How I work', 'Tools I use', 'Honorable mentions', 'People I follow', 'Tools I built', 'Inside my apps', 'The setup'])
+    await expect(pills).toHaveText(['Dev setup', 'How I work', 'Tools I use', 'Honorable mentions', 'People I follow', 'Tools I built', 'Inside my apps', 'The gear'])
     for (const href of await pills.evaluateAll((els) => els.map((el) => el.getAttribute('href')))) {
       await expect(page.locator(href!)).toHaveCount(1)
     }
+  })
+
+  test('the gear section (once "The setup") keeps its old #setup anchor working', async ({ page }) => {
+    await page.goto('/loadout#setup')
+    const gear = page.getByRole('region', { name: 'The gear' })
+    await expect(gear.getByRole('heading', { name: 'The gear', level: 2 })).toBeInViewport()
+    await expect(page.getByRole('heading', { name: 'The setup' })).toHaveCount(0)
   })
 
   test('fits a 320px phone without sideways scrolling', async ({ page }) => {

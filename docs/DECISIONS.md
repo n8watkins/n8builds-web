@@ -92,7 +92,7 @@ When the owner decides something new, add it here (with the date) in the same ch
   Their repos and Vercel projects still exist; do not re-add them unless asked.
 - The **Loadout** is the identity device ("who I am without a resume"); PC hardware lives there as "The Rig".
   /loadout has no whoami terminal (2026-10-26); the whoami lives in the homepage hero only.
-- **My Loadout has the dev tools and the people** (owner, 2026-11-01): the page opens with "My dev setup", then "How I work with AI", "Tools I use", "Honorable mentions", "People I follow" and "Tools I built", then "Inside the apps I build" and "The setup" (the hardware), with pills under the header jumping to each part (`components/sections/LoadoutDevTools.tsx`, lists in `data/loadout.tsx`).
+- **My Loadout has the dev tools and the people** (owner, 2026-11-01): the page opens with "My dev setup", then "How I work with AI", "Tools I use", "Honorable mentions", "People I follow" and "Tools I built", then "Inside the apps I build" and "The gear" (the rig, desk and stream kit; renamed from "The setup" with the owner's approval on 2026-11-01 so it doesn't clash with "My dev setup", "gear" rather than "hardware" because the stream kit includes OBS and Scribe; its id is `gear`, and the old `#setup` anchor still lands there), with pills under the header jumping to each part (`components/sections/LoadoutDevTools.tsx`, lists in `data/loadout.tsx`).
   "My dev setup" (`devSetup`) groups the machine (Ryzen 7 9700X, 31 GB RAM, Windows 11 Pro), WSL2 (Ubuntu 24.04, capped at 20 GB RAM and 16 GB swap, 8 processors, mirrored networking, dropcache memory reclaim, sparse VHD, with the `.wslconfig` shown), the terminal (Windows Terminal, zsh and oh-my-zsh with zsh-autosuggestions, tmux, herdr), editors (Neovim, VS Code, Cursor), agents (Claude Code, Codex), agent tooling (linking the Tools I use cards, not repeating them), runtimes (Node 24 with nvm, pnpm, Bun, Python 3.12 with uv, Rust), the owner's own tools in daily use (T-Hub, Scribe linking its build page, devguard, pass-env, release-kit, and N8 Tray, which is private and unlinked) and shipping (Vercel, Cloudflare with Wrangler, Turso).
   "Honorable mentions" (`honorableMentions`) are other people's tools the owner recommends, not already in Tools I use: herdr (by Can Celik, in daily use), firstmate and treehouse (Kun Chen) and ccusage (ryoppippi). gnhf stays off (no code changes since 3 October 2026).
   Kun Chen's card says how he works (macOS with nix-darwin, WezTerm, Neovim and tmux or herdr; Claude Code interactive, Codex for background runs) and links his workflow video.
@@ -176,7 +176,7 @@ When the owner decides something new, add it here (with the date) in the same ch
   - The portfolio ad reads "The developer behind the build" on one line and links each AI project to its portfolio page.
   - Work with me points stay on one line each; "QA" replaces "Quality built in".
   - The hero's whoami terminal adds "Shipping with Claude Opus 5.5."
-  - The Loadout is "My Loadout", and its rig, desk and stream kit are one "The setup" section.
+  - The Loadout is "My Loadout", and its rig, desk and stream kit are one "The setup" section (renamed "The gear" on 2026-11-01).
   - Every Lab project is MIT-licensed (Solara and TubeVault got the license); the Lab says "MIT-licensed".
   - The "Use mine as a template" wash is quieter.
 - **Round 13 (2026-10-27, owner's calls): build pages and the build log:**
