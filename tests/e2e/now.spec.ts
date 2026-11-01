@@ -1,9 +1,10 @@
 import { test, expect, type Page } from '@playwright/test'
 
 /**
- * "What I'm working on" (#now): an ad for Appturnity with real template
- * screenshots, its two buttons, and the build detail (recent activity) behind
- * a What's new dialog instead of on the card face.
+ * "What I'm working on" (#now): an ad for Tech for Pros with template
+ * screenshots, "Coming soon" where its button goes until techforpros.com is
+ * live (lib/techForPros.ts), and the build detail behind a What's new dialog
+ * instead of on the card face.
  */
 
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
@@ -14,14 +15,16 @@ test('the card reads like an ad: headline, selling points, both buttons and real
   await page.goto('/')
   const section = now(page)
   await section.scrollIntoViewIfNeeded()
-  await expect(section).toContainText('Your free website, built for your trade.')
-  for (const perk of ['Built and launched for free', 'Templates for your trade', 'Review requests add-on']) {
+  await expect(section).toContainText('Your website, built for your trade.')
+  for (const perk of ['Templates for your trade', 'Lead capture and reviews']) {
     await expect(section.getByRole('listitem').filter({ hasText: perk })).toBeVisible()
   }
-  await expect(section.getByRole('link', { name: /Claim your free website/ })).toHaveAttribute('href', '/appturnity?from=lab&to=free-website')
-  await expect(section.getByRole('link', { name: /See example sites/ })).toHaveAttribute('href', '/appturnity?from=lab&to=examples')
+  // No site to send anyone to yet: no link, and it says so.
+  await expect(section.locator('[data-now-soon]')).toHaveText('Coming soon')
+  await expect(section.locator('a[href*="techforpros.com"], a[href*="appturnity"]')).toHaveCount(0)
+  await expect(section).not.toContainText(/free website/i)
 
-  // Appturnity's own template previews, loaded and laid out in their frames.
+  // The template previews, loaded and laid out in their frames.
   for (const name of ['pool-clearline-template', 'hvac-phone-full']) {
     const img = section.locator(`img[src*="${name}"]`)
     await expect(img, name).toBeVisible()
@@ -30,7 +33,7 @@ test('the card reads like an ad: headline, selling points, both buttons and real
     await expect.poll(() => img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0), { message: name }).toBe(true)
   }
 
-  // Appturnity's repo is never linked.
+  // No repo is linked.
   await expect(section.locator('a[href*="github.com"]')).toHaveCount(0)
 })
 
@@ -38,19 +41,17 @@ test('recent activity is not on the card face; What\'s new opens it in a labelle
   await page.goto('/')
   const section = now(page)
   await section.scrollIntoViewIfNeeded()
-  await expect(section.getByText('Recent activity', { exact: true })).toBeHidden()
-  await expect(section.getByText(/Booking data layer landed/)).toBeHidden()
+  await expect(section.getByText(/Automated follow-up for leads/)).toBeHidden()
 
-  const button = section.getByRole('button', { name: "What's new at Appturnity" })
+  const button = section.getByRole('button', { name: "What's new at Tech for Pros" })
   await expect(button).toBeEnabled()
   await button.click()
-  const dialog = page.getByRole('dialog', { name: "What's new at Appturnity" })
+  const dialog = page.getByRole('dialog', { name: "What's new at Tech for Pros" })
   await expect(dialog).toBeVisible()
-  await expect(dialog.getByText('Recent activity', { exact: true })).toBeVisible()
-  await expect(dialog.getByText(/Booking data layer landed/)).toBeVisible()
+  await expect(dialog.getByText(/Automated follow-up for leads/)).toBeVisible()
   await expect(dialog).toContainText('Right now')
   await expect(dialog).toContainText('The goal')
-  await expect(dialog.getByRole('listitem').filter({ hasText: 'Cloudflare Workers' })).toBeVisible()
+  await expect(dialog.getByRole('listitem').filter({ hasText: 'Cloudflare' })).toBeVisible()
   // Focus moved into the modal.
   expect(await dialog.evaluate((el) => el.contains(document.activeElement))).toBe(true)
 
@@ -72,14 +73,14 @@ test('What\'s new waits for hydration instead of swallowing an early click', asy
     await route.continue()
   })
   await page.goto('/', { waitUntil: 'commit' })
-  const button = now(page).getByRole('button', { name: "What's new at Appturnity" })
+  const button = now(page).getByRole('button', { name: "What's new at Tech for Pros" })
   await expect(button).toBeDisabled()
   // The dialog's content is in the server HTML, even before it opens.
-  await expect(page.locator('#now dialog')).toContainText('Booking data layer landed')
+  await expect(page.locator('#now dialog')).toContainText('missed-call text-back')
   release()
   await expect(button).toBeEnabled()
   await button.click()
-  await expect(page.getByRole('dialog', { name: "What's new at Appturnity" })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: "What's new at Tech for Pros" })).toBeVisible()
 })
 
 test('the section heading stays at the top of #now', async ({ page }) => {
@@ -97,7 +98,7 @@ for (const width of [1280, 1440]) {
     await page.goto('/')
     const section = now(page)
     await section.scrollIntoViewIfNeeded()
-    const cta = await section.getByRole('link', { name: /Claim your free website/ }).boundingBox()
+    const cta = await section.locator('[data-now-soon]').boundingBox()
     const shot = await section.locator('img[src*="pool-clearline-template"]').boundingBox()
     // The screenshots sit beside the copy, not under it.
     expect(shot!.x).toBeGreaterThan(cta!.x + cta!.width)
@@ -138,9 +139,9 @@ test('What\'s new is on the buttons\' row, at its far right, and there is no "Bu
   const section = now(page)
   await section.scrollIntoViewIfNeeded()
   await expect(section.getByText(/Building now/)).toHaveCount(0)
-  const cta = (await section.getByRole('link', { name: /Claim your free website/ }).boundingBox())!
-  const examples = (await section.getByRole('link', { name: /See example sites/ }).boundingBox())!
-  const button = section.getByRole('button', { name: "What's new at Appturnity" })
+  const cta = (await section.locator('[data-now-soon]').boundingBox())!
+  const examples = (await section.locator('[data-now-soon]').boundingBox())!
+  const button = section.getByRole('button', { name: "What's new at Tech for Pros" })
   const box = (await button.boundingBox())!
   // Same row, same height as the buttons.
   expect(Math.abs(box.y + box.height / 2 - (cta.y + cta.height / 2))).toBeLessThanOrEqual(1)
@@ -156,8 +157,8 @@ test('on a phone What\'s new is a full-width button under the other two', async 
   await page.goto('/')
   const section = now(page)
   await section.scrollIntoViewIfNeeded()
-  const examples = (await section.getByRole('link', { name: /See example sites/ }).boundingBox())!
-  const box = (await section.getByRole('button', { name: "What's new at Appturnity" }).boundingBox())!
+  const examples = (await section.locator('[data-now-soon]').boundingBox())!
+  const box = (await section.getByRole('button', { name: "What's new at Tech for Pros" }).boundingBox())!
   expect(box.y).toBeGreaterThan(examples.y + examples.height)
   expect(Math.abs(box.width - examples.width)).toBeLessThanOrEqual(1)
   expect(Math.abs(box.x - examples.x)).toBeLessThanOrEqual(1)
@@ -165,7 +166,7 @@ test('on a phone What\'s new is a full-width button under the other two', async 
 
 /**
  * The phone shows the full-length HVAC page scrolling inside its frame (as on
- * Appturnity's own site), in CSS: it pauses while the card is off screen and
+ * the template's own site), in CSS: it pauses while the card is off screen and
  * holds still under reduced motion. The frame keeps its size meanwhile.
  */
 test.describe('the phone mockup', () => {

@@ -74,7 +74,6 @@ export default function RootLayout({
 
         {/* Project external links */}
         <link rel="dns-prefetch" href="//github.com" />
-        <link rel="dns-prefetch" href="//appturnity.com" />
         <link rel="dns-prefetch" href="//vercel.app" />
 
         {/* Google Analytics with Consent Mode v2 (lib/consent.ts): the

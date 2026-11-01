@@ -10,7 +10,17 @@ When the owner decides something new, add it here (with the date) in the same ch
 - Blue/cyan accents, **no purple** (except the Twitch brand hover in the navbar).
   Indigo (between blue and violet) is allowed and stays: the Loadout "indigo" group and the Chrome extensions part's wash and bar.
 - The site is a **build-in-public workshop, not a portfolio**.
-  The hire-me lane is portfolio.n8builds.dev; client work is appturnity.com.
+  The hire-me lane is portfolio.n8builds.dev; the owner's company is Tech for Pros (techforpros.com).
+- **Tech for Pros replaces Appturnity** (owner, 2026-11-01).
+  Tech for Pros is the owner's SaaS for service businesses: it turns a few details about a business into a launch-ready website, then takes the follow-up off their plate (lead capture, reviews, reminders, missed-call text-back).
+  Appturnity was his consulting firm, and ended in June 2026; the site no longer links to it.
+  It takes Appturnity's place in "What I'm working on", the Work with me card, the contact card, the footer and the structured data.
+  techforpros.com isn't live yet: `lib/techForPros.ts` holds the URL and a `live` flag, and while it's false nothing links there (the cards say "Coming soon" or "Launching soon", the navbar button and footer link are left out, and `tests/e2e/tech-for-pros.spec.ts` checks).
+  Going live is setting `live: true` there, and in dev-portfolio's copy.
+  It has no logo yet: the cards show a plain wrench, and reuse the Appturnity-era template screenshots.
+  It never claims "free websites" or AI voice agents, which were Appturnity's offer.
+  `n8builds.dev/appturnity` still counts and redirects for links already out there (sent emails); the admin's `ref:appturnity` counter keeps working.
+  The Appturnity entries below are history.
 - **Projects and Lab are one.**
   The Lab (`#lab`) is one homepage section in three parts (2026-10-25): "My daily drivers" (`#my-tools`: Scribe and OpenPing, the owner's daily tools, marked `mine: true` in `data/builds.tsx`), "Featured builds" (`#featured`: Solara, Portfolio Rank) and Chrome Extensions (`#extensions`). No "The bench" eyebrow; no "Featured" eyebrow over "Featured builds".
   The part headings have no eyebrow (the "Browser tools" label is gone, 2026-10-26), each with its part's colour bar. The claims every row shares (free, open source, no sign-up to start) are one short line under "My daily drivers" and "Featured builds", never repeated in the rows; Chrome Extensions has no subtext. The intro says everything is public and mostly MIT open source.
@@ -97,9 +107,9 @@ When the owner decides something new, add it here (with the date) in the same ch
 - contact@n8builds.dev is the public address (Cloudflare Email Routing forwards it to Gmail).
 - Email template structure and copy are owner-approved; change only on request.
 - **The contact emails' redesign** (owner's ask, 2026-10-28): both emails in the site's dark navy and cyan (`lib/email/templates.ts`). The notification leads with the topic, the sender and a "Reply to {name}" button; the auto-reply greets by first name, says what happens next (a reply within 24 hours, the promise the old copy made) and links the Lab, the portfolio and Appturnity. The auto-reply never repeats the visitor's message: it goes to whatever address was typed, so echoing it would let anyone send their own text from contact@n8builds.dev. Images are inline attachments, never remote.
-- **appturnity.com** is the canonical Appturnity URL.
+- **appturnity.com** is the canonical Appturnity URL (history: the site no longer links to it, 2026-11-01).
 - Keep the three brands on separate sites.
-  Footer, navbar and redirect links to the portfolio and Appturnity are intentional bridges.
+  Footer, navbar and redirect links to the portfolio and Tech for Pros are intentional bridges.
 - **The brand mark is the lowercase "n8"** (owner, 2026-11-01): a white "n" flowing into a blue "8", replacing the N8 neon icon on n8builds and the portfolio.
   The master is `public/brand/n8-mark.png` (transparent, trimmed); `scripts/gen-brand-icons.mjs` makes the tab, app and Apple icons from it (the mark on a dark navy rounded tile with a faint sky edge), and `scripts/gen-email-icons.mjs` the emails' logo.
   The navbar and footer show the mark on its own, without a tile.

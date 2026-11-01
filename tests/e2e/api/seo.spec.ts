@@ -189,12 +189,14 @@ test("Appturnity's old build page goes to appturnity.com", async ({ request }) =
   expect(response.headers().location).toBe('https://appturnity.com/')
 })
 
-// n8builds.dev/portfolio and /appturnity are counted short links (lib/referrals.ts):
+// n8builds.dev/portfolio, /techforpros and /appturnity are counted short links (lib/referrals.ts):
 // a 302 to a known page, with UTM tags, never cached, and never to a page a visitor names.
 test('the counted short links land on known pages only', async ({ request }) => {
   for (const [path, target] of [
     ['/portfolio', 'https://portfolio.n8builds.dev/?utm_source=n8builds.dev&utm_medium=referral&utm_content=other'],
     ['/portfolio?from=email', 'https://portfolio.n8builds.dev/?utm_source=n8builds.dev&utm_medium=referral&utm_content=email'],
+    ['/techforpros?from=navbar', 'https://techforpros.com/?utm_source=n8builds.dev&utm_medium=referral&utm_content=navbar'],
+    ['/techforpros?from=card&to=https://evil.example', 'https://techforpros.com/?utm_source=n8builds.dev&utm_medium=referral&utm_content=card'],
     ['/appturnity?from=navbar', 'https://appturnity.com/?utm_source=n8builds.dev&utm_medium=referral&utm_content=navbar'],
     ['/appturnity?from=card&to=free-website', 'https://appturnity.com/?utm_source=n8builds.dev&utm_medium=referral&utm_content=card#free-website'],
     ['/appturnity?from=evil&to=https://evil.example', 'https://appturnity.com/?utm_source=n8builds.dev&utm_medium=referral&utm_content=other'],

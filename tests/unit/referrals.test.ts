@@ -14,6 +14,7 @@ const { countContactSent, countReferral } = await import('@/lib/analyticsStore')
 const analytics = await import('@/lib/analyticsStore')
 const { GET: appturnity } = await import('@/app/appturnity/route')
 const { GET: portfolio } = await import('@/app/portfolio/route')
+const { GET: techforpros } = await import('@/app/techforpros/route')
 
 /** A fake Upstash client that records its calls. */
 function fakeStore({ fail = false, hang = false } = {}) {
@@ -46,6 +47,8 @@ describe('counted short links', () => {
     expect(refHref('appturnity', 'card', 'free-website')).toBe('/appturnity?from=card&to=free-website')
     expect(isOutbound('/appturnity?from=navbar')).toBe(true)
     expect(isOutbound('/portfolio')).toBe(true)
+    expect(refHref('techforpros', 'navbar')).toBe('/techforpros?from=navbar')
+    expect(isOutbound('/techforpros?from=card')).toBe(true)
     expect(isOutbound('https://x.com')).toBe(true)
     expect(isOutbound('/builds/scribe')).toBe(false)
     expect(isOutbound('/portfolio-rank')).toBe(false)
@@ -81,6 +84,16 @@ describe('counted short links', () => {
     expect(get(portfolio, '/portfolio?from=email').headers.get('location')).toMatch(/^https:\/\/portfolio\.n8builds\.dev\/\?utm_source=n8builds\.dev/)
     await Promise.all(afterCallbacks.map((fn) => fn()))
     expect(calls[0]).toMatch(/^hincrby ref:portfolio:\d{4}-\d{2}-\d{2} email 1$/)
+  })
+
+  it('counts the Tech for Pros link under its own key', async () => {
+    const { calls, store } = fakeStore()
+    vi.spyOn(analytics, 'analyticsStore').mockReturnValue(store as never)
+    expect(get(techforpros, '/techforpros?from=navbar&to=https://evil.example').headers.get('location')).toBe(
+      'https://techforpros.com/?utm_source=n8builds.dev&utm_medium=referral&utm_content=navbar'
+    )
+    await Promise.all(afterCallbacks.map((fn) => fn()))
+    expect(calls[0]).toMatch(/^hincrby ref:techforpros:\d{4}-\d{2}-\d{2} navbar 1$/)
   })
 
   it('still redirects when the database is missing, and skips bots', () => {

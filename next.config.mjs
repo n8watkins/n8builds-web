@@ -34,7 +34,7 @@ const nextConfig = {
     optimizePackageImports: ['motion/react', 'react-icons'],
   },
   async redirects() {
-    // /portfolio and /appturnity are counted short links: route handlers, not redirects here.
+    // /portfolio, /techforpros and /appturnity are counted short links: route handlers, not redirects here.
     return [
       // The shelf pages were folded into the homepage Lab section — redirect the
       // old routes to their on-page anchors so existing links/bookmarks still land.

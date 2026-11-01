@@ -35,7 +35,7 @@ const Showcase = ({ desktop, phone }: { desktop: NowShot; phone: NowShot }) => (
       </div>
       <Image
         src={desktop.src}
-        alt={`${desktop.label}: an example site Appturnity builds`}
+        alt={`${desktop.label}: an example site template`}
         width={desktop.width}
         height={desktop.height}
         sizes="(min-width: 1280px) 400px, (min-width: 1024px) 34vw, (min-width: 640px) 390px, 75vw"
@@ -100,16 +100,20 @@ const DetailsBody = ({ now }: { now: NowState }) => (
       </div>
     </div>
 
-    <p className="mt-7 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-slate-450">Recent activity</p>
-    <ol className="mt-4 space-y-4 border-l border-white/8 pl-5">
-      {now.updates.map((u, i) => (
-        <li key={i} className="relative">
-          <span aria-hidden className="absolute left-[-1.42rem] top-1.5 h-2 w-2 rounded-full bg-cyan-400/80 ring-4 ring-[#0a1220]" />
-          <p className="font-mono text-[0.68rem] uppercase tracking-wider text-slate-475">{u.date}</p>
-          <p className="mt-0.5 leading-relaxed text-[#9cadc5]">{u.text}</p>
-        </li>
-      ))}
-    </ol>
+    {now.updates.length > 0 && (
+      <>
+        <p className="mt-7 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-slate-450">Recent activity</p>
+        <ol className="mt-4 space-y-4 border-l border-white/8 pl-5">
+          {now.updates.map((u, i) => (
+            <li key={i} className="relative">
+              <span aria-hidden className="absolute left-[-1.42rem] top-1.5 h-2 w-2 rounded-full bg-cyan-400/80 ring-4 ring-[#0a1220]" />
+              <p className="font-mono text-[0.68rem] uppercase tracking-wider text-slate-475">{u.date}</p>
+              <p className="mt-0.5 leading-relaxed text-[#9cadc5]">{u.text}</p>
+            </li>
+          ))}
+        </ol>
+      </>
+    )}
 
     <p className="mt-7 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-slate-450">Built with</p>
     <ul className="mt-3 flex flex-wrap gap-1.5">
@@ -164,22 +168,28 @@ const Card = ({ now }: { now: NowState }) => (
         <p className="mt-4 max-w-xl leading-relaxed text-[#9cadc5] md:text-lg">{now.pitch}</p>
       </div>
 
-      {now.showcase && (
-        <a
-          href={now.ctas?.[1]?.href ?? now.ctas?.[0]?.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          // The picture is a second way to the examples, not a separate stop
-          // for keyboard and screen-reader users (the buttons say it).
-          tabIndex={-1}
-          aria-hidden
-          className="group my-2 block lg:col-start-2 lg:row-span-3 lg:row-start-1 lg:my-0 lg:self-center"
-        >
-          <div className="transition-transform duration-300 ease-out group-hover:scale-[1.02] motion-reduce:transition-none motion-reduce:group-hover:scale-100">
+      {now.showcase &&
+        (now.ctas?.length ? (
+          <a
+            href={now.ctas[1]?.href ?? now.ctas[0].href}
+            target="_blank"
+            rel="noopener noreferrer"
+            // The picture is a second way to the examples, not a separate stop
+            // for keyboard and screen-reader users (the buttons say it).
+            tabIndex={-1}
+            aria-hidden
+            className="group my-2 block lg:col-start-2 lg:row-span-3 lg:row-start-1 lg:my-0 lg:self-center"
+          >
+            <div className="transition-transform duration-300 ease-out group-hover:scale-[1.02] motion-reduce:transition-none motion-reduce:group-hover:scale-100">
+              <Showcase desktop={now.showcase.desktop} phone={now.showcase.phone} />
+            </div>
+          </a>
+        ) : (
+          // No site to go to yet: the picture, not a link.
+          <div aria-hidden className="my-2 block lg:col-start-2 lg:row-span-3 lg:row-start-1 lg:my-0 lg:self-center">
             <Showcase desktop={now.showcase.desktop} phone={now.showcase.phone} />
           </div>
-        </a>
-      )}
+        ))}
 
       <ul className="grid gap-1.5 lg:col-start-1">
         {now.perks.map((perk) => (
@@ -212,6 +222,13 @@ const Card = ({ now }: { now: NowState }) => (
             <span className="sr-only"> (opens in a new tab)</span>
           </a>
         ))}
+        {!now.ctas?.length && (
+          // Its site isn't live yet: say so where the buttons go.
+          <span data-now-soon className="flex items-center justify-center gap-2 rounded-xl border border-white/12 bg-white/4 px-5 py-2.5 text-sm font-semibold text-slate-300">
+            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-cyan-300" />
+            Coming soon
+          </span>
+        )}
         <div className="sm:ml-auto">
           <NowDetails project={now.project} labelledBy={`${slugOf(now)}-now-title`} header={<DetailsHeader now={now} />}>
             <DetailsBody now={now} />

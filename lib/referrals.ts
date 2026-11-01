@@ -1,6 +1,6 @@
 /**
- * Counted short links to the owner's other sites: n8builds.dev/appturnity and
- * n8builds.dev/portfolio (app/appturnity/route.ts, app/portfolio/route.ts).
+ * Counted short links to the owner's other sites: n8builds.dev/techforpros,
+ * n8builds.dev/portfolio and the retired n8builds.dev/appturnity (each in app/<name>/route.ts).
  * Each click adds one to a per-day, per-placement count the admin dashboard
  * reads; nothing about the visitor is kept. Safe to import from client
  * components: the counting itself lives in lib/analyticsStore.ts.
@@ -24,6 +24,9 @@ export const DESTINATIONS = {
   },
   portfolio: {
     home: 'https://portfolio.n8builds.dev/',
+  },
+  techforpros: {
+    home: 'https://techforpros.com/',
   },
 } as const
 
@@ -55,5 +58,5 @@ export function refDestination(target: RefTarget, from: RefSource, page: string 
  * whose prefetch would hit the short link and count a click nobody made.
  */
 export function isOutbound(href: string): boolean {
-  return /^https?:\/\//.test(href) || /^\/(appturnity|portfolio)(\?|$)/.test(href)
+  return /^https?:\/\//.test(href) || /^\/(appturnity|portfolio|techforpros)(\?|$)/.test(href)
 }

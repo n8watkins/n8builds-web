@@ -4,8 +4,10 @@ import Link from 'next/link'
 import Reveal from '@/components/ui/Reveal'
 import PauseOffscreen from '@/components/ui/PauseOffscreen'
 import { FiArrowUpRight, FiCheck, FiCode } from 'react-icons/fi'
+import { LuWrench } from 'react-icons/lu'
 import styles from './WorkWithMe.module.css'
 import { isOutbound, refHref } from '@/lib/referrals'
+import { TECH_FOR_PROS } from '@/lib/techForPros'
 
 /** One highlight line: an optional bold lead-in, then what it is. */
 interface Point {
@@ -26,14 +28,13 @@ interface Shot {
 interface Door {
   id: string
   eyebrow: string
-  /** A brand name: keep its own casing, set larger, instead of an uppercase eyebrow. */
-  wordmark?: boolean
   title: string
   blurb: React.ReactNode
   pointsLabel?: string
   points: Point[]
   /** planned features, shown as "Coming soon" chips */
   soon?: string[]
+  /** No href: the site isn't live yet, and the button says so instead. */
   cta: { label: string; href: string }
   secondary?: { label: string; href: string }
   icon: React.ReactNode
@@ -99,9 +100,9 @@ const Showcase = ({ desktop, phone }: { desktop: Shot; phone: Shot }) => (
 )
 
 // Two doors off the workshop. n8builds is the top of the funnel; it feeds the
-// portfolio (developer work) and Appturnity (client work), never replaces
-// them. Copy is grounded in the portfolio's projects and Appturnity's own
-// offer (docs/strategy/OFFER.md in its repo); planned features say so.
+// portfolio (developer work) and Tech for Pros (my company), never replaces
+// them. Copy is grounded in the portfolio's projects and Tech for Pros' own
+// features (the owner's resume); planned features say so.
 const doors: Door[] = [
   {
     // The second hiring door (the first is PortfolioAd, right after the Lab,
@@ -145,41 +146,37 @@ const doors: Door[] = [
     },
   },
   {
-    id: 'appturnity',
-    eyebrow: 'Appturnity',
-    // A brand name, so it keeps the brand's own casing (no uppercase eyebrow).
-    wordmark: true,
-    title: 'Run a service business? We help!',
+    id: 'techforpros',
+    eyebrow: TECH_FOR_PROS.name,
+    title: 'Run a service business? I built this for you.',
     blurb:
-      'Appturnity is my company. We launch pool, HVAC, landscaping and other service businesses a modern website for free, then build the AI automations that take busywork off their plate.',
-    pointsLabel: 'Today',
-    // The owner's call (2026-10-27): booking, reminders and follow-up are live today.
+      'Tech for Pros is my company. It turns a few details about a pool, HVAC or landscaping business into a launch-ready website, then takes the follow-up off their plate.',
+    pointsLabel: 'What it does',
     points: [
-      { text: 'A website built and launched for you, free' },
-      { text: 'Online booking and appointment reminders' },
-      { text: 'Lead and quote follow-up' },
-      { text: 'Paid plans add your own domain and Google Business Profile help' },
+      { text: 'A website for your trade, drafted from a few details in minutes' },
+      { text: 'Lead capture, and review display and requests' },
+      { text: 'An instant site-health check: speed, mobile, SEO and accessibility' },
     ],
-    soon: ['AI phone receptionist', 'Missed-call text-back', 'Online payments'],
-    cta: { label: 'Claim your free website', href: refHref('appturnity', 'card', 'free-website') },
-    secondary: { label: 'See the plans', href: refHref('appturnity', 'card', 'pricing') },
-    icon: <Image src="/brands/appturnity.png" alt="" width={152} height={177} className="h-5 w-auto" />,
-    // Appturnity's own template shots (its apps/hub/public/example-shots).
+    soon: ['Lead and quote follow-up', 'Appointment reminders', 'Missed-call text-back'],
+    cta: { label: 'Visit Tech for Pros', href: refHref('techforpros', 'card') },
+    // No logo yet: a plain wrench.
+    icon: <LuWrench className="h-5 w-5" />,
+    // Template shots from the Appturnity days, until Tech for Pros has its own.
     desktop: {
       src: '/work/landscaping-verdant.webp',
-      alt: "Appturnity's landscaping website template",
+      alt: 'A landscaping website template',
       width: 1200,
       height: 750,
     },
     phone: {
       src: '/work/landscaping-verdant-mobile.webp',
-      alt: "Appturnity's landscaping template on a phone",
+      alt: 'The landscaping template on a phone',
       width: 320,
       height: 7136,
       duration: 40,
     },
     accent: {
-      // Appturnity's brand: white to light blue, and its own blue (#1066f4) on the button.
+      // White to light blue, and a strong blue (#1066f4) on the button.
       eyebrow: 'from-white to-sky-300',
       check: 'text-sky-300',
       button: 'from-[#1066f4] to-[#1066f4] hover:from-[#3b82f6] hover:to-[#3b82f6]',
@@ -221,6 +218,7 @@ const DoorCard = ({ door, index }: { door: Door; index: number }) => {
           rel="noopener noreferrer"
           tabIndex={-1}
           aria-hidden
+          data-shots
           className={`relative block transition-transform duration-500 group-hover:-translate-y-1 ${flip ? 'lg:order-first' : 'lg:order-last'}`}
         >
           <Showcase desktop={door.desktop} phone={door.phone} />
@@ -228,19 +226,14 @@ const DoorCard = ({ door, index }: { door: Door; index: number }) => {
 
         {/* Copy */}
         <div className="relative flex flex-col">
-          {door.wordmark ? (
-            // A brand: its own wordmark (as on the What I'm working on card), not styled text.
-            <Image src="/brands/appturnity-wordmark-light.png" alt={door.eyebrow} width={623} height={130} className="h-7 w-auto self-start" />
-          ) : (
-            <div className="flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/4 text-slate-200">
-                {door.icon}
-              </span>
-              <p className={`bg-linear-to-r ${door.accent.eyebrow} bg-clip-text text-sm font-bold uppercase tracking-[0.14em] text-transparent sm:text-base`}>
-                {door.eyebrow}
-              </p>
-            </div>
-          )}
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/4 text-slate-200">
+              {door.icon}
+            </span>
+            <p className={`bg-linear-to-r ${door.accent.eyebrow} bg-clip-text text-sm font-bold uppercase tracking-[0.14em] text-transparent sm:text-base`}>
+              {door.eyebrow}
+            </p>
+          </div>
 
           <h3
             id={`door-${door.id}`}
@@ -316,7 +309,7 @@ const WorkWithMe = () => {
         <h2 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">Two ways to put me to work</h2>
         <p className="mt-2 text-[#9cadc5]">
           This is where I build in public. If you like what you see, here&apos;s where it goes next:
-          hire me, or let Appturnity put your business online.
+          hire me, or let Tech for Pros put your business online.
         </p>
       </div>
 

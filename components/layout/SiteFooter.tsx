@@ -4,6 +4,7 @@ import Reveal from '@/components/ui/Reveal'
 import CookieSettingsButton from '@/components/consent/CookieSettingsButton'
 import { SOCIALS, isExternal, type Social } from '@/data/socials'
 import { isOutbound, refHref } from '@/lib/referrals'
+import { TECH_FOR_PROS, techForProsHref } from '@/lib/techForPros'
 
 /**
  * The footer on every page: a sitemap (every page and section, so the build
@@ -34,7 +35,8 @@ const SITEMAP: { heading: string; links: { label: string; href: string; icon?: s
     heading: 'Work with me',
     links: [
       { label: 'Developer portfolio', href: 'https://portfolio.n8builds.dev' },
-      { label: 'Appturnity', href: refHref('appturnity', 'footer'), icon: '/brands/appturnity.png' },
+      // Only once techforpros.com is live (lib/techForPros.ts).
+      ...(techForProsHref ? [{ label: TECH_FOR_PROS.name, href: techForProsHref }] : []),
       { label: 'Contact form', href: '/#contact' },
       { label: 'contact@n8builds.dev', href: 'mailto:contact@n8builds.dev' },
     ],

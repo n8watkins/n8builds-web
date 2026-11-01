@@ -53,7 +53,7 @@ test.describe('desktop', () => {
       [dev, true],
       [apt, false],
     ] as const) {
-      const shots = await box(c.locator('a[aria-hidden="true"]'))
+      const shots = await box(c.locator('[data-shots]'))
       const heading = await box(c.getByRole('heading', { level: 3 }))
       if (shotsOnRight) expect(shots.x).toBeGreaterThan(heading.x)
       else expect(shots.x).toBeLessThan(heading.x)
@@ -68,22 +68,22 @@ test.describe('desktop', () => {
     await expect(dev.getByRole('link', { name: 'Or send me a message' })).toHaveAttribute('href', '/#contact')
 
     const apt = card(page, /Run a service business/)
-    await expect(apt.getByRole('link', { name: /Claim your free website/ })).toHaveAttribute('href', '/appturnity?from=card&to=free-website')
-    await expect(apt.getByRole('link', { name: /See the plans/ })).toHaveAttribute('href', '/appturnity?from=card&to=pricing')
-    // Planned features are labelled as such, never as included; booking, reminders and follow-up are live today.
+    // Its button goes through the counted short link, as Appturnity's did.
+    await expect(apt.getByRole('link', { name: /Visit Tech for Pros/ })).toHaveAttribute('href', '/techforpros?from=card')
+    // Planned features are labelled as such, never as included.
     await expect(apt.getByRole('list', { name: 'Coming soon' }).getByRole('listitem')).toHaveText([
-      'AI phone receptionist',
+      'Lead and quote follow-up',
+      'Appointment reminders',
       'Missed-call text-back',
-      'Online payments',
     ])
-    await expect(apt.getByText('Online booking and appointment reminders')).toBeVisible()
-    // Appturnity's own wordmark, not gradient text.
-    await expect(apt.getByRole('img', { name: 'Appturnity' })).toBeVisible()
+    await expect(apt.getByText('Lead capture, and review display and requests')).toBeVisible()
+    await expect(apt.getByText('Tech for Pros', { exact: true })).toBeVisible()
   })
 
   test('the screenshot links stay out of the tab order; the buttons are reachable', async ({ page }) => {
     await page.goto('/')
     const dev = card(page, /Like the builds/)
+    // Both cards' screenshots.
     await expect(section(page).locator('a[aria-hidden="true"][tabindex="-1"]')).toHaveCount(2)
     const portfolio = dev.getByRole('link', { name: /See my portfolio/ })
     await portfolio.focus()
@@ -99,7 +99,7 @@ test.describe('desktop', () => {
 
     test('the full-length screenshots scroll in view and pause off screen', async ({ page }) => {
       await page.goto('/')
-      // Desktop and phone shots of the portfolio, and Appturnity's phone shot.
+      // Desktop and phone shots of the portfolio, and the landscaping template's phone shot.
       await expect(section(page).locator('img[class*="scroll"]')).toHaveCount(3)
 
       // At the top of the page the cards are off screen: paused.
@@ -140,7 +140,7 @@ test.describe('phone', () => {
     for (const name of [/Like the builds/, /Run a service business/]) {
       const c = card(page, name)
       await c.scrollIntoViewIfNeeded()
-      const shots = await box(c.locator('a[aria-hidden="true"]'))
+      const shots = await box(c.locator('[data-shots]'))
       const heading = await box(c.getByRole('heading', { level: 3 }))
       expect(shots.y + shots.height).toBeLessThanOrEqual(heading.y)
     }

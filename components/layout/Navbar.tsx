@@ -8,6 +8,7 @@ import { FiMenu, FiX, FiChevronDown, FiBriefcase } from 'react-icons/fi'
 import { useLiveStatus } from '@/components/live/liveStore'
 import NavLiveDot from '@/components/live/NavLiveDot'
 import { refHref } from '@/lib/referrals'
+import { TECH_FOR_PROS } from '@/lib/techForPros'
 
 // The owner's Ko-fi page (the same one Portfolio Rank links in its header).
 const KOFI_URL = 'https://ko-fi.com/n8watkins'
@@ -153,7 +154,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop nav. From lg up: below that the links and the right-hand
-              buttons don't fit on one row (tablets got the Appturnity CTA
+              buttons don't fit on one row (tablets got the CTA
               pushed off-screen), so the menu button takes over. */}
           <div className="hidden lg:flex items-center gap-1">
             {/* Lab dropdown */}
@@ -261,12 +262,12 @@ const Navbar = () => {
               Portfolio
             </a>
             <a
-              href={refHref('appturnity', 'navbar')}
+              href={refHref('techforpros', 'navbar')}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-linear-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold text-sm transition-all duration-200 hover:scale-[1.02] shadow-lg shadow-blue-900/30"
             >
-              Appturnity
+              {TECH_FOR_PROS.name}
             </a>
             {/* Mobile toggle */}
             <button
