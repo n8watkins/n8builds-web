@@ -117,7 +117,12 @@ test.describe('with motion', () => {
 
   test('moves on by itself while in view, and holds while hovered', async ({ page }) => {
     await page.goto('/')
-    await stats(page).scrollIntoViewIfNeeded()
+    // An instant jump: with motion allowed the site scrolls smoothly.
+    await stats(page).evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
+    // The timer starts once the hydrated watcher sees the card, which a loaded
+    // CI runner can delay by seconds (the mobile-chrome flake on #112); wait
+    // for that, then give the 4s timer its margin.
+    await expect(stats(page)).toHaveAttribute('data-in-view', '', { timeout: 20_000 })
     await expect(current(page)).toHaveAttribute('data-stat', 'builds', { timeout: 8000 })
     // The timer never speaks: only a picked figure is announced.
     await expect(stats(page).locator('[aria-live="polite"]')).toHaveText('')
