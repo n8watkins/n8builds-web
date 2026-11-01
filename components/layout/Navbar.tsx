@@ -262,20 +262,49 @@ const Navbar = () => {
               <FiBriefcase className="w-4 h-4" aria-hidden />
               Portfolio
             </a>
-            {/* My company, by its address: its icon and techforpros.com,
-                underlined as a link (owner, 2026-11-01). Shown at every
-                width; on a 320px phone it still fits between the logo and
-                the menu button (tests/e2e/navigation.spec.ts). */}
+            {/* My company, by its address (owner, 2026-11-01): a bordered pill
+                like Ko-fi and Portfolio (same height, radius and border, with a
+                faint brand tint), holding its icon and techforpros.com over a
+                hand-drawn swoosh that draws itself in on load and again on hover
+                or focus (.tfp-swoosh, app/globals.css; drawn at once under
+                reduced motion). Shown at every width; on a 320px phone it still
+                fits between the logo and the menu button
+                (tests/e2e/navigation.spec.ts). */}
             <a
               href={refHref('techforpros', 'navbar')}
               target="_blank"
               rel="noopener noreferrer"
               data-nav-techforpros
-              className="group/tfp flex shrink-0 items-center gap-2 rounded-lg py-1.5 pl-1 pr-1.5 text-sm font-semibold text-slate-100 transition-colors duration-150 hover:text-white sm:ml-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300"
+              className="group/tfp flex shrink-0 items-center gap-2 rounded-lg border border-white/15 bg-cyan-400/[0.05] py-1.5 pl-1.5 pr-3 text-sm font-semibold text-slate-100 transition-all duration-150 hover:border-cyan-300/35 hover:bg-cyan-400/[0.09] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 min-[360px]:pr-3.5"
             >
-              <TechForProsMark className="h-7 w-7 transition-transform duration-200 group-hover/tfp:scale-105 motion-reduce:transition-none motion-reduce:group-hover/tfp:scale-100" />
-              <span className="underline decoration-cyan-300/60 decoration-[1.5px] underline-offset-[5px] transition-colors group-hover/tfp:decoration-cyan-200">
+              <TechForProsMark className="h-5 w-5 rounded-[6px] shadow-none" sizes="20px" />
+              <span className="relative">
                 {TECH_FOR_PROS.domain}
+                <svg
+                  aria-hidden="true"
+                  className="tfp-swoosh pointer-events-none absolute -bottom-[5px] left-0 h-[6px] w-full overflow-visible"
+                  viewBox="0 0 116 6"
+                  preserveAspectRatio="none"
+                >
+                  <defs>
+                    <linearGradient id="tfp-swoosh-gradient" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0" stopColor="#22d3ee" />
+                      <stop offset="1" stopColor="#3b82f6" />
+                    </linearGradient>
+                  </defs>
+                  {/* A loose, hand-drawn curve: dips under the start, lifts at the end.
+                      The viewBox is the text's own size (about 116 by 6 px), so
+                      the stretch is near 1:1 and the stroke stays even without
+                      vector-effect, which breaks pathLength dashes in Chrome. */}
+                  <path
+                    d="M1.2 4.2 C 21 5.6, 39.5 2.6, 60.3 3.4 S 99.8 4.6, 114.8 1.2"
+                    fill="none"
+                    stroke="url(#tfp-swoosh-gradient)"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                    pathLength={100}
+                  />
+                </svg>
               </span>
               <span className="sr-only"> ({TECH_FOR_PROS.name}, opens in a new tab)</span>
             </a>

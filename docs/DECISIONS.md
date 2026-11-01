@@ -17,7 +17,7 @@ When the owner decides something new, add it here (with the date) in the same ch
   It takes Appturnity's place in "What I'm working on", the Work with me card, the contact card, the footer and the structured data.
   **The site treats it as live** (owner, 2026-11-01, before the domain is registered): no "Coming soon", "Launching soon" or "will soon" for it anywhere, and the `live` flag is gone from `lib/techForPros.ts`.
   Every on-site link goes through the counted short link (`/techforpros?from=navbar|hero|card|footer`); the structured data's `sameAs` lists https://techforpros.com.
-  The navbar's top right is its icon and "techforpros.com", underlined, in place of the gradient button, at every width.
+  The navbar's top right is its icon and "techforpros.com" in place of the gradient button, at every width: a bordered pill like Ko-fi and Portfolio (same height, radius and border, a faint cyan tint), with a hand-drawn cyan-to-blue swoosh under the text instead of a straight underline. The swoosh draws itself in on load and again on hover or focus, and shows fully drawn under reduced motion (owner, 2026-11-01).
   "What I'm working on" is headed by its icon and "techforpros.com", with no badge, a "Visit techforpros.com" button (`from=hero`) and screenshots that link there too.
   The Work with me card lists its planned features under "Next up", never "Coming soon".
   The footer sitemap has "techforpros.com" with the icon under Work with me, and the contact card says it "puts your business online", linked.

@@ -86,20 +86,63 @@ test.describe('the Contact link', () => {
   })
 })
 
-/** The navbar's Tech for Pros link (2026-11-01): its icon and techforpros.com, underlined. */
+/**
+ * The navbar's Tech for Pros link (2026-11-01): a bordered pill like Ko-fi and
+ * Portfolio, holding its icon and techforpros.com over a hand-drawn swoosh
+ * that draws itself in (drawn at once under reduced motion).
+ */
 const techForPros = (page: Page) => page.locator('nav[aria-label="Primary"]').getByRole('link', { name: /^techforpros\.com/ })
+const swoosh = (page: Page) => techForPros(page).locator('svg.tfp-swoosh path')
 
-test('the navbar links techforpros.com by its icon and address, through the counted short link', async ({ page }) => {
+test('the navbar links techforpros.com in a pill like Ko-fi and Portfolio, through the counted short link', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
   const link = techForPros(page)
   await expect(link).toHaveAttribute('href', '/techforpros?from=navbar')
   await expect(link).toHaveAttribute('target', '_blank')
   await expect(link.locator('img[src*="techforpros"]')).toBeVisible()
-  const text = link.getByText('techforpros.com', { exact: true })
-  await expect(text).toHaveCSS('text-decoration-line', 'underline')
-  // No gradient button any more.
+  // The same height, radius and border as the buttons beside it.
+  const kofi = page.locator('nav[aria-label="Primary"]').getByRole('link', { name: 'Ko-fi', exact: true })
+  const style = (el: HTMLElement | SVGElement) => {
+    const s = getComputedStyle(el)
+    return { radius: s.borderTopLeftRadius, border: s.borderTopWidth, style: s.borderTopStyle, height: el.getBoundingClientRect().height }
+  }
+  expect(await link.evaluate(style)).toEqual(await kofi.evaluate(style))
+  // A swoosh under the text, not a straight text underline, and no gradient fill.
+  await expect(link.getByText('techforpros.com', { exact: true })).not.toHaveCSS('text-decoration-line', 'underline')
   expect(await link.evaluate((el) => getComputedStyle(el).backgroundImage)).toBe('none')
+  const text = (await link.getByText('techforpros.com', { exact: true }).boundingBox())!
+  const curve = (await swoosh(page).boundingBox())!
+  // Under the letters: its lowest point is below the text's line box.
+  expect(curve.y + curve.height).toBeGreaterThan(text.y + text.height)
+  expect(curve.y).toBeGreaterThan(text.y + text.height / 2)
+  expect(curve.width).toBeGreaterThan(text.width * 0.95)
+})
+
+test.describe('the techforpros.com swoosh', () => {
+  test.describe('with motion', () => {
+    test.use({ contextOptions: { reducedMotion: 'no-preference' } })
+
+    test('draws itself in on load, then again on hover', async ({ page }) => {
+      await page.setViewportSize({ width: 1440, height: 900 })
+      await page.goto('/')
+      await expect(swoosh(page)).toHaveCSS('animation-name', 'tfp-swoosh-draw')
+      // Drawn by the end.
+      await expect.poll(() => swoosh(page).evaluate((el) => parseFloat(getComputedStyle(el).strokeDashoffset)), { timeout: 5000 }).toBe(0)
+      await techForPros(page).hover()
+      await expect(techForPros(page).locator('svg.tfp-swoosh')).toHaveCSS('animation-name', 'tfp-swoosh-wipe')
+    })
+  })
+
+  test('shows fully drawn, with no animation, under reduced motion', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/', { waitUntil: 'domcontentloaded' })
+    await expect(swoosh(page)).toHaveCSS('animation-name', 'none')
+    expect(await swoosh(page).evaluate((el) => parseFloat(getComputedStyle(el).strokeDashoffset))).toBe(0)
+    await techForPros(page).hover()
+    await expect(techForPros(page).locator('svg.tfp-swoosh')).toHaveCSS('animation-name', 'none')
+    await expect(techForPros(page).locator('svg.tfp-swoosh')).toBeVisible()
+  })
 })
 
 // On phones the link sits between the logo and the menu button, on one line.
@@ -113,8 +156,8 @@ for (const width of [320, 375, 390]) {
     expect(link.x).toBeGreaterThan(logo.x + logo.width)
     expect(link.x + link.width).toBeLessThanOrEqual(menu.x)
     expect(menu.x + menu.width).toBeLessThanOrEqual(width)
-    // One line: as tall as its icon tile, not wrapped.
-    expect(link.height).toBeLessThan(44)
+    // One line, the pill's height, not wrapped.
+    expect(link.height).toBeLessThan(40)
   })
 }
 
