@@ -6,8 +6,8 @@ import PauseOffscreen from '@/components/ui/PauseOffscreen'
 import { FiArrowUpRight, FiCheck, FiCode } from 'react-icons/fi'
 import { LuWrench } from 'react-icons/lu'
 import styles from './WorkWithMe.module.css'
-import { isOutbound } from '@/lib/referrals'
-import { TECH_FOR_PROS, techForProsHref } from '@/lib/techForPros'
+import { isOutbound, refHref } from '@/lib/referrals'
+import { TECH_FOR_PROS } from '@/lib/techForPros'
 
 /** One highlight line: an optional bold lead-in, then what it is. */
 interface Point {
@@ -35,7 +35,7 @@ interface Door {
   /** planned features, shown as "Coming soon" chips */
   soon?: string[]
   /** No href: the site isn't live yet, and the button says so instead. */
-  cta: { label: string; href?: string }
+  cta: { label: string; href: string }
   secondary?: { label: string; href: string }
   icon: React.ReactNode
   desktop: Shot
@@ -158,8 +158,7 @@ const doors: Door[] = [
       { text: 'An instant site-health check: speed, mobile, SEO and accessibility' },
     ],
     soon: ['Lead and quote follow-up', 'Appointment reminders', 'Missed-call text-back'],
-    // Only once techforpros.com is live (lib/techForPros.ts).
-    cta: { label: 'Visit Tech for Pros', href: techForProsHref },
+    cta: { label: 'Visit Tech for Pros', href: refHref('techforpros', 'card') },
     // No logo yet: a plain wrench.
     icon: <LuWrench className="h-5 w-5" />,
     // Template shots from the Appturnity days, until Tech for Pros has its own.
@@ -213,27 +212,17 @@ const DoorCard = ({ door, index }: { door: Door; index: number }) => {
         />
 
         {/* Screenshots */}
-        {door.cta.href ? (
-          <a
-            href={door.cta.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            tabIndex={-1}
-            aria-hidden
-            data-shots
-            className={`relative block transition-transform duration-500 group-hover:-translate-y-1 ${flip ? 'lg:order-first' : 'lg:order-last'}`}
-          >
-            <Showcase desktop={door.desktop} phone={door.phone} />
-          </a>
-        ) : (
-          <div
-            aria-hidden
-            data-shots
-            className={`relative block transition-transform duration-500 group-hover:-translate-y-1 ${flip ? 'lg:order-first' : 'lg:order-last'}`}
-          >
-            <Showcase desktop={door.desktop} phone={door.phone} />
-          </div>
-        )}
+        <a
+          href={door.cta.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          tabIndex={-1}
+          aria-hidden
+          data-shots
+          className={`relative block transition-transform duration-500 group-hover:-translate-y-1 ${flip ? 'lg:order-first' : 'lg:order-last'}`}
+        >
+          <Showcase desktop={door.desktop} phone={door.phone} />
+        </a>
 
         {/* Copy */}
         <div className="relative flex flex-col">
@@ -287,21 +276,13 @@ const DoorCard = ({ door, index }: { door: Door; index: number }) => {
           )}
 
           <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
-            {door.cta.href ? (
-              <External
-                href={door.cta.href}
-                className={`inline-flex items-center gap-2 rounded-xl bg-linear-to-r ${door.accent.button} px-5 py-2.5 text-sm font-bold text-white transition-all duration-200 hover:scale-[1.02] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400`}
-              >
-                {door.cta.label}
-                <FiArrowUpRight aria-hidden className="h-4 w-4" />
-              </External>
-            ) : (
-              // The site isn't live yet: say so, in place of the button.
-              <span className="inline-flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-5 py-2.5 text-sm font-bold text-slate-300">
-                <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-sky-300" />
-                Launching soon
-              </span>
-            )}
+            <External
+              href={door.cta.href}
+              className={`inline-flex items-center gap-2 rounded-xl bg-linear-to-r ${door.accent.button} px-5 py-2.5 text-sm font-bold text-white transition-all duration-200 hover:scale-[1.02] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400`}
+            >
+              {door.cta.label}
+              <FiArrowUpRight aria-hidden className="h-4 w-4" />
+            </External>
             {door.secondary &&
               (!isOutbound(door.secondary.href) ? (
                 <Link href={door.secondary.href} className={SECONDARY}>

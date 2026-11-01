@@ -68,9 +68,8 @@ test.describe('desktop', () => {
     await expect(dev.getByRole('link', { name: 'Or send me a message' })).toHaveAttribute('href', '/#contact')
 
     const apt = card(page, /Run a service business/)
-    // techforpros.com isn't live yet (lib/techForPros.ts): no link, it says so.
-    await expect(apt.getByRole('link')).toHaveCount(0)
-    await expect(apt.getByText('Launching soon')).toBeVisible()
+    // Its button goes through the counted short link, as Appturnity's did.
+    await expect(apt.getByRole('link', { name: /Visit Tech for Pros/ })).toHaveAttribute('href', '/techforpros?from=card')
     // Planned features are labelled as such, never as included.
     await expect(apt.getByRole('list', { name: 'Coming soon' }).getByRole('listitem')).toHaveText([
       'Lead and quote follow-up',
@@ -84,8 +83,8 @@ test.describe('desktop', () => {
   test('the screenshot links stay out of the tab order; the buttons are reachable', async ({ page }) => {
     await page.goto('/')
     const dev = card(page, /Like the builds/)
-    // The portfolio's screenshots (Tech for Pros' are no link until its site is live).
-    await expect(section(page).locator('a[aria-hidden="true"][tabindex="-1"]')).toHaveCount(1)
+    // Both cards' screenshots.
+    await expect(section(page).locator('a[aria-hidden="true"][tabindex="-1"]')).toHaveCount(2)
     const portfolio = dev.getByRole('link', { name: /See my portfolio/ })
     await portfolio.focus()
     await expect(portfolio).toBeFocused()

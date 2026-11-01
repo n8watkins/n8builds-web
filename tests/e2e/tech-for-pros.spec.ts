@@ -3,19 +3,22 @@ import { test, expect } from '@playwright/test'
 /**
  * Tech for Pros (the owner's SaaS for service businesses) took over from
  * Appturnity on 2026-11-01: "What I'm working on" is its ad, the work-with-me
- * card and the contact card name it. techforpros.com isn't live yet
- * (lib/techForPros.ts), so nothing links to it, and nothing links to
- * Appturnity any more (n8builds.dev/appturnity still redirects for old links).
+ * card and the contact card name it. Its buttons take Appturnity's place,
+ * through the counted n8builds.dev/techforpros short link; nothing else
+ * links to techforpros.com until it is live (lib/techForPros.ts), and nothing
+ * links to Appturnity any more (n8builds.dev/appturnity still redirects).
  */
 
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
-test('nothing on the homepage links to techforpros.com before it is live, or to Appturnity', async ({ page }) => {
+test("Tech for Pros' buttons take Appturnity's place, and nothing links to Appturnity", async ({ page }) => {
   await page.goto('/')
+  await expect(page.locator('nav[aria-label="Primary"]').getByRole('link', { name: 'Tech for Pros', exact: true })).toHaveAttribute(
+    'href',
+    '/techforpros?from=navbar'
+  )
   await expect(page.locator('a[href*="techforpros.com"]')).toHaveCount(0)
   await expect(page.locator('a[href*="appturnity"]')).toHaveCount(0)
-  // The navbar's company button waits for the site too.
-  await expect(page.locator('nav[aria-label="Primary"]').getByText('Tech for Pros')).toHaveCount(0)
 })
 
 test('"What I\'m working on" advertises Tech for Pros for service businesses', async ({ page }) => {
@@ -27,13 +30,12 @@ test('"What I\'m working on" advertises Tech for Pros for service businesses', a
   await expect(page.getByRole('link', { name: 'Check out the lab' })).toHaveCount(0)
 })
 
-test('the project-work card is Tech for Pros, and says it is launching soon', async ({ page }) => {
+test('the project-work card is Tech for Pros, with its button', async ({ page }) => {
   await page.goto('/')
   const card = page.locator('#work-with-me').getByRole('article', { name: /Run a service business\? I built this for you/ })
   await card.scrollIntoViewIfNeeded()
   await expect(card).toContainText('Tech for Pros is my company')
-  await expect(card.getByText('Launching soon')).toBeVisible()
-  await expect(card.getByRole('link')).toHaveCount(0)
+  await expect(card.getByRole('link', { name: /Visit Tech for Pros/ })).toHaveAttribute('href', '/techforpros?from=card')
   await expect(card).not.toContainText(/free website/i)
 })
 

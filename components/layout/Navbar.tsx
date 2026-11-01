@@ -8,7 +8,7 @@ import { FiMenu, FiX, FiChevronDown, FiBriefcase } from 'react-icons/fi'
 import { useLiveStatus } from '@/components/live/liveStore'
 import NavLiveDot from '@/components/live/NavLiveDot'
 import { refHref } from '@/lib/referrals'
-import { TECH_FOR_PROS, techForProsHref } from '@/lib/techForPros'
+import { TECH_FOR_PROS } from '@/lib/techForPros'
 
 // The owner's Ko-fi page (the same one Portfolio Rank links in its header).
 const KOFI_URL = 'https://ko-fi.com/n8watkins'
@@ -261,17 +261,14 @@ const Navbar = () => {
               <FiBriefcase className="w-4 h-4" aria-hidden />
               Portfolio
             </a>
-            {/* Tech for Pros, once techforpros.com is live (lib/techForPros.ts). */}
-            {techForProsHref && (
-              <a
-                href={techForProsHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-linear-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold text-sm transition-all duration-200 hover:scale-[1.02] shadow-lg shadow-blue-900/30"
-              >
-                {TECH_FOR_PROS.name}
-              </a>
-            )}
+            <a
+              href={refHref('techforpros', 'navbar')}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-linear-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold text-sm transition-all duration-200 hover:scale-[1.02] shadow-lg shadow-blue-900/30"
+            >
+              {TECH_FOR_PROS.name}
+            </a>
             {/* Mobile toggle */}
             <button
               ref={menuButton}
