@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { APP_JS } from './app-js'
 
 /**
  * The homepage Lab and its ends: the featured rows lead with the owner's daily
@@ -254,7 +255,7 @@ test('Details waits for hydration instead of swallowing an early click', async (
   // Hold the JS: the server-rendered button must not look ready while it can't respond.
   let release!: () => void
   const held = new Promise<void>((resolve) => (release = resolve))
-  await page.route('**/_next/static/chunks/**', async (route) => {
+  await page.route(APP_JS, async (route) => {
     await held
     await route.continue()
   })

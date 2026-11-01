@@ -1,10 +1,5 @@
-import bundleAnalyzer from '@next/bundle-analyzer'
 import { withSentryConfig } from '@sentry/nextjs/config'
 import { securityHeaders } from './lib/security/headers.mjs'
-
-const withBundleAnalyzer = bundleAnalyzer({
-  enabled: process.env.ANALYZE === 'true',
-})
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -30,6 +25,18 @@ const nextConfig = {
   },
   compress: true,
   poweredByHeader: false,
+  compiler: {
+    // Sentry's bundleSizeOptimizations only reach webpack builds, so the same
+    // flags are set here, where Turbopack (and webpack) inline them and drop the
+    // SDK code this site never runs: debug logging, and Session Replay's iframe
+    // and shadow-DOM recording (no iframes or shadow roots of ours to replay).
+    // Replay itself, tracing, and error capture are unchanged.
+    define: {
+      __SENTRY_DEBUG__: false,
+      __RRWEB_EXCLUDE_IFRAME__: true,
+      __RRWEB_EXCLUDE_SHADOW_DOM__: true,
+    },
+  },
   experimental: {
     optimizePackageImports: ['motion/react', 'react-icons'],
   },
@@ -76,21 +83,13 @@ const nextConfig = {
 }
 
 // Wrap with Sentry. Source-map upload runs only when SENTRY_AUTH_TOKEN (+ ORG/
-// PROJECT) are set — without them the build still succeeds, you just get
+// PROJECT) are set; without them the build still succeeds, you just get
 // minified stack traces. The runtime SDK stays inert until NEXT_PUBLIC_SENTRY_DSN
 // is set, so this is safe to ship before the Sentry project exists.
-export default withSentryConfig(withBundleAnalyzer(nextConfig), {
+export default withSentryConfig(nextConfig, {
   org: 'nathan-watkins',
   project: 'n8builds',
   authToken: process.env.SENTRY_AUTH_TOKEN,
   widenClientFileUpload: true,
   silent: !process.env.CI,
-  // Drop SDK code this site never runs: debug logging, and Session Replay's
-  // iframe and shadow-DOM recording (no iframes or shadow roots of ours to
-  // replay). Replay itself, tracing, and error capture are unchanged.
-  bundleSizeOptimizations: {
-    excludeDebugStatements: true,
-    excludeReplayIframe: true,
-    excludeReplayShadowDom: true,
-  },
 })

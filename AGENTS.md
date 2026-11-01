@@ -21,3 +21,12 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 - The owner's standing rules (brand, content, publishing, releases, operations) are in `docs/DECISIONS.md`. Read it before changing content, design or workflow; never re-ask a settled question.
 - Record every new owner decision there, with its date, in the same change.
+
+## Bundler: Turbopack everywhere
+
+- Dev servers and tests run on Turbopack; never add `--webpack` to `next dev`, and never cap the heap (`NODE_OPTIONS=--max-old-space-size`): a capped heap makes Next restart and fail requests instead of saving memory.
+- The production build (`npm run build`, Playwright's test build, Lighthouse, Vercel) runs on Turbopack too (owner decision, 2026-11-01, in `docs/DECISIONS.md`).
+  Add `--webpack` back only for something that genuinely needs it, and write the reason here.
+- Webpack-only settings do nothing under Turbopack, so they live where both bundlers read them:
+  Sentry's bundle-size flags are `compiler.define` in `next.config.mjs` (its `bundleSizeOptimizations` and `webpack` options reach webpack builds only), and the bundle analyzer is `npm run analyze` (`next analyze`), not `@next/bundle-analyzer`.
+- A worktree needs its own `npm ci`: Turbopack refuses a `node_modules` symlinked from outside the project.

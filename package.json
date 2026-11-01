@@ -15,7 +15,7 @@
   },
   "scripts": {
     "dev": "next dev -p 3737",
-    "build": "next build --webpack",
+    "build": "next build",
     "start": "next start -p 3737",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
@@ -28,7 +28,7 @@
     "test:ui": "playwright test --ui",
     "test:report": "playwright show-report",
     "lighthouse": "node scripts/lighthouse.mjs",
-    "analyze": "ANALYZE=true npm run build",
+    "analyze": "next analyze",
     "prepare": "husky",
     "release": "release-kit release",
     "release:check": "release-kit check && npm run lint && npm run type-check && npm run test:unit"
@@ -60,7 +60,6 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",
-    "@next/bundle-analyzer": "^16.4.3",
     "@playwright/test": "^1.56.1",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^24.19.2",

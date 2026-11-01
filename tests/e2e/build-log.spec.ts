@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
+import { APP_JS } from './app-js'
 
 /**
  * The /builds log, against the recorded GitHub fixture (BUILD_LOG_FIXTURE=1 in
@@ -136,7 +137,7 @@ test('before the page is interactive, a filtered link shows no unfiltered feed',
   // and the inline scripts run.
   let release = () => {}
   const held = new Promise<void>((resolve) => (release = resolve))
-  await page.route('**/_next/static/chunks/**', async (route) => {
+  await page.route(APP_JS, async (route) => {
     await held
     await route.continue()
   })
@@ -160,7 +161,7 @@ test('the feed is in the HTML, visible before any JavaScript, and hydrated in pl
   // Hold back the app's JavaScript, as on a slow phone.
   let release = () => {}
   const held = new Promise<void>((resolve) => (release = resolve))
-  await page.route('**/_next/static/chunks/**', async (route) => {
+  await page.route(APP_JS, async (route) => {
     await held
     await route.continue()
   })
