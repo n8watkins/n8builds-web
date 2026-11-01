@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { FiGitPullRequest, FiPackage, FiPlusSquare } from 'react-icons/fi'
-import { LuGlobe, LuUsers } from 'react-icons/lu'
+import { LuExternalLink, LuGlobe, LuUsers } from 'react-icons/lu'
 import { SiGithub, SiSubstack, SiX, SiYoutube } from 'react-icons/si'
 import {
   people,
@@ -55,6 +55,10 @@ const External = ({ link }: { link: NamedLink }) => (
   </a>
 )
 
+// A secondary button: a person's links, a tool's live demo.
+const linkButton =
+  'inline-flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-3.5 py-2 text-sm font-semibold text-slate-300 transition-colors duration-200 hover:border-cyan-300/35 hover:bg-white/8 hover:text-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 [&_svg]:h-3.5 [&_svg]:w-3.5'
+
 const iconChip =
   'flex shrink-0 items-center justify-center rounded-xl border border-white/10 bg-[#081427] text-cyan-300 transition-transform duration-200 group-hover:scale-105'
 
@@ -104,8 +108,22 @@ const BuiltToolCard = ({ tool }: { tool: BuiltTool }) => (
         ; {tool.credit.note}
       </p>
     )}
-    <div className="relative mt-auto pt-1">
+    <div className="relative mt-auto flex flex-wrap gap-2 pt-1">
       <RepoButtons href={tool.github} name={tool.name} className="w-full sm:w-auto" />
+      {tool.demo && (
+        <a
+          href={tool.demo}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`${linkButton} w-full justify-center sm:w-auto`}
+        >
+          <span aria-hidden="true">
+            <LuExternalLink />
+          </span>
+          Live demo
+          <span className="sr-only"> of {tool.name} (opens in a new tab)</span>
+        </a>
+      )}
     </div>
   </article>
 )
@@ -114,7 +132,7 @@ export const ToolsIBuilt = () => (
   <Reveal>
     <section id="tools-i-built" aria-labelledby="tools-i-built-title" className="scroll-mt-24">
       <SectionHead id="tools-i-built-title" path="~/loadout/built" title="Tools I built">
-        Small command-line tools for coding agents. Open source, MIT-licensed.
+        Small open-source tools I made because I wanted them. All MIT-licensed.
       </SectionHead>
       <ul className="grid gap-5 md:grid-cols-2">
         {toolsIBuilt.map((tool) => (
@@ -253,7 +271,7 @@ export const PersonCard = ({ person }: { person: Person }) => (
               href={link.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-3.5 py-2 text-sm font-semibold text-slate-300 transition-colors duration-200 hover:border-cyan-300/35 hover:bg-white/8 hover:text-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 [&_svg]:h-3.5 [&_svg]:w-3.5"
+              className={linkButton}
             >
               <span aria-hidden="true">{icon}</span>
               {link.label ?? label}
@@ -279,9 +297,17 @@ export const PeopleIFollow = () => (
           </li>
         ))}
       </ul>
-      {/* pr-post isn't public yet: plain text, no link, until its repo is. */}
-      <p className="mt-4 font-mono text-xs text-slate-475" data-pr-post>
-        {'// soon this list updates itself from pr-post, my open-source tool for following what builders ship (coming soon).'}
+      {/* Static cards for now; pr-post's feed.json will fill each person's activity. */}
+      <p className="mt-4 text-sm leading-relaxed text-slate-450" data-pr-post>
+        These cards will update themselves from{' '}
+        <a href="https://github.com/n8watkins/pr-post" target="_blank" rel="noopener noreferrer" className={textLink}>
+          pr-post
+        </a>
+        , my open-source tool for following what builders ship (see the{' '}
+        <a href="https://n8watkins.github.io/pr-post/" target="_blank" rel="noopener noreferrer" className={textLink}>
+          live demo
+        </a>
+        ).
       </p>
     </section>
   </Reveal>

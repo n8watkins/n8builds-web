@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react'
 import { BsOpenai } from 'react-icons/bs'
-import { LuCircuitBoard, LuFileCode, LuGlobe, LuKeyRound, LuKeyboard, LuMemoryStick, LuMic, LuShieldCheck, LuTag } from 'react-icons/lu'
+import { LuCircuitBoard, LuCpu, LuFileCode, LuGlobe, LuKeyRound, LuKeyboard, LuMemoryStick, LuMic, LuNewspaper, LuShieldCheck, LuTag } from 'react-icons/lu'
 import { SiAcer, SiAmd, SiClaude, SiGithub, SiGooglegemini, SiObsstudio, SiRazer, SiSamsung } from 'react-icons/si'
 import { GgmlMark } from '@/data/stack'
 
@@ -142,6 +142,8 @@ export interface BuiltTool {
   detail: string
   /** The public repo; it feeds the Star | GitHub button. */
   github: string
+  /** A live demo, linked next to the repo button. */
+  demo?: string
   /** For a fork: who made the original, and what my fork adds. */
   credit?: { author: NamedLink; org?: NamedLink; note: string }
   tags: string[]
@@ -174,6 +176,27 @@ export const toolsIBuilt: BuiltTool[] = [
     tags: ['CLI', 'Node', 'GitHub Actions'],
     icon: <LuTag />,
   },
+  {
+    id: 'devguard',
+    name: 'devguard',
+    pitch: 'Run many AI coding agents in parallel on one machine without running out of memory, ports or disk.',
+    detail:
+      'A watchdog stops runaway and finished dev servers, each worktree gets a stable port, heavy jobs wait for a free slot, and a sweep finds build output you can delete. Plain Python, no dependencies.',
+    github: 'https://github.com/n8watkins/devguard',
+    tags: ['CLI', 'Python', 'WSL'],
+    icon: <LuCpu />,
+  },
+  {
+    id: 'pr-post',
+    name: 'pr-post',
+    pitch: 'Follow what your favorite builders ship.',
+    detail:
+      'It turns their public GitHub and YouTube work into a small newspaper, The Pull Request Post, plus a feed.json for your own site. GitHub Actions prints a new edition twice a week.',
+    github: 'https://github.com/n8watkins/pr-post',
+    demo: 'https://n8watkins.github.io/pr-post/',
+    tags: ['Python', 'GitHub Actions', 'GitHub Pages'],
+    icon: <LuNewspaper />,
+  },
 ]
 
 /**
@@ -181,7 +204,7 @@ export const toolsIBuilt: BuiltTool[] = [
  * person; adding one is adding an entry here. `id` is the anchor the tools
  * below link to ("no-mistakes, by Kun Chen").
  *
- * The cards are static for now. Later a JSON feed (from pr-post) fills each
+ * The cards are static for now. Later pr-post's feed.json fills each
  * person's `activity` with their recent public work: replace this array with
  * the fetched one, or merge the feed's items in by `id`. Only public events
  * belong here (public pull requests, releases, new repos), never counts of

@@ -21,6 +21,8 @@ describe('the loadout dev-tool lists', () => {
     for (const tool of toolsIBuilt) {
       expect(tool.github).toMatch(/^https:\/\/github\.com\/n8watkins\/[\w.-]+$/)
     }
+    expect(toolsIBuilt.map((t) => t.id)).toEqual(['pass-env', 'release-kit', 'devguard', 'pr-post'])
+    for (const tool of toolsIBuilt) if (tool.demo) expect(tool.demo).toMatch(/^https:\/\//)
     const passEnv = toolsIBuilt.find((t) => t.id === 'pass-env')
     expect(passEnv?.pitch).toBe('Your AI coding agents use your API keys without ever seeing them.')
     expect(passEnv?.credit?.author.name).toBe('Phaedrus Raznikov')

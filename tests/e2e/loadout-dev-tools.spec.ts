@@ -13,18 +13,24 @@ test.describe('Loadout tools and people', () => {
     await page.goto('/loadout')
     const built = page.getByRole('region', { name: 'Tools I built' })
     await expect(built.getByRole('heading', { name: 'pass-env', exact: true })).toBeVisible()
-    await expect(built.getByRole('heading', { name: 'release-kit', exact: true })).toBeVisible()
+    await expect(built.getByRole('article').getByRole('heading', { level: 3 })).toHaveText(['pass-env', 'release-kit', 'devguard', 'pr-post'])
     await expect(built.getByText('Your AI coding agents use your API keys without ever seeing them.')).toBeVisible()
     await expect(built.locator('[data-credit]')).toHaveText(
       'Created by Phaedrus Raznikov at Misty Step; my fork adds import, generate, doctor and more.',
     )
     await expect(built.getByRole('link', { name: 'Phaedrus Raznikov' })).toHaveAttribute('href', 'https://github.com/moomooskycow')
     await expect(built.getByRole('link', { name: 'Misty Step' })).toHaveAttribute('href', 'https://github.com/misty-step')
-    for (const repo of ['pass-env', 'release-kit']) {
+    for (const repo of ['pass-env', 'release-kit', 'devguard', 'pr-post']) {
       const link = built.getByRole('link', { name: `${repo} on GitHub (opens in a new tab)`, exact: true })
       await expect(link).toHaveAttribute('href', `https://github.com/n8watkins/${repo}`)
       await expect(link).toHaveAttribute('target', '_blank')
     }
+    // pr-post links its live demo too; the others have none.
+    await expect(built.getByRole('link', { name: /^Live demo/ })).toHaveCount(1)
+    await expect(built.getByRole('link', { name: 'Live demo of pr-post (opens in a new tab)' })).toHaveAttribute(
+      'href',
+      'https://n8watkins.github.io/pr-post/',
+    )
   })
 
   test('lists the tools I use, each credited inline to its maker', async ({ page }) => {
@@ -68,10 +74,14 @@ test.describe('Loadout tools and people', () => {
         'Misty Step': 'https://www.mistystep.io/',
       },
     }
-    // Static cards for now: no activity until the pr-post feed exists, and pr-post isn't linked yet.
+    // Static cards for now: no activity until the pr-post feed is wired in.
     await expect(creators.getByText('Recently shipped')).toHaveCount(0)
-    await expect(creators.locator('[data-pr-post]')).toContainText('pr-post')
-    await expect(creators.locator('[data-pr-post] a')).toHaveCount(0)
+    const note = creators.locator('[data-pr-post]')
+    await expect(note).toHaveText(
+      'These cards will update themselves from pr-post, my open-source tool for following what builders ship (see the live demo).',
+    )
+    await expect(note.getByRole('link', { name: 'pr-post' })).toHaveAttribute('href', 'https://github.com/n8watkins/pr-post')
+    await expect(note.getByRole('link', { name: 'live demo' })).toHaveAttribute('href', 'https://n8watkins.github.io/pr-post/')
     for (const [name, byLabel] of Object.entries(links)) {
       const list = creators.getByRole('list', { name: `${name} online` })
       // Exactly these links (Nate Herk has no public GitHub, so none is shown).
