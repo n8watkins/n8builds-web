@@ -145,14 +145,14 @@ for (const [width, height] of [
       // The whole heading is on screen...
       expect(box.y + box.height, 'heading on screen').toBeLessThanOrEqual(height)
       // ...and so is the card's top edge (its gradient border and the start of
-      // the logo row), but only the top of it.
+      // the title row), but only the top of it.
       const card = await page.locator('#now h2').evaluate((h2) => h2.closest('div.mb-8')!.nextElementSibling!.getBoundingClientRect().top)
       expect(card, 'card top edge on screen').toBeLessThanOrEqual(height - 16)
       expect(card, 'only the top of the card').toBeGreaterThanOrEqual(height - 140)
-      // From 800px tall, the card's logo row shows too.
+      // From 800px tall, the card's title row (the project's name) shows too.
       if (height >= 800) {
-        const logo = await page.locator('#now h2').evaluate((h2) => h2.closest('div.mb-8')!.nextElementSibling!.querySelector('img')!.getBoundingClientRect().bottom)
-        expect(logo, 'logo row on screen').toBeLessThanOrEqual(height)
+        const title = await page.locator('#now h2').evaluate((h2) => h2.closest('div.mb-8')!.nextElementSibling!.querySelector('h3')!.getBoundingClientRect().bottom)
+        expect(title, 'title row on screen').toBeLessThanOrEqual(height)
       }
     })
   })
