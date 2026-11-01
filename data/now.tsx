@@ -1,8 +1,8 @@
 // "What I'm working on" - the homepage's first section after the hero, and the
-// ad for Appturnity, the company the owner runs. Keep it current: what is
-// shipping right now, from Appturnity's own repo (Appturnity/appturnity).
+// ad for Tech for Pros, the owner's SaaS for service businesses. Keep it
+// current: what is shipping right now.
 
-import { refHref } from '@/lib/referrals'
+import { TECH_FOR_PROS, techForProsHref } from '@/lib/techForPros'
 
 export interface NowUpdate {
   date: string // e.g. "Oct 25"
@@ -57,42 +57,30 @@ export interface NowState {
 
 export const nowItems: NowState[] = [
   {
-    project: 'Appturnity',
-    logo: '/brands/appturnity.png',
-    // Appturnity's real wordmark (appturnity.com), its navy letters lightened for the dark card.
-    wordmark: { src: '/brands/appturnity-wordmark-light.png', width: 623, height: 130 },
-    tagline: 'Free websites and automation for service businesses',
+    project: TECH_FOR_PROS.name,
+    tagline: 'Websites and follow-up for service businesses',
     status: 'active',
-    badge: 'Free websites',
-    headline: { lead: 'Your free website,', accent: 'built for your trade.' },
+    badge: TECH_FOR_PROS.live ? undefined : 'Launching soon',
+    headline: { lead: 'Your website,', accent: 'built for your trade.' },
     pitch:
-      'Websites for service businesses, like pool, HVAC and landscaping companies. Pick a template made for your trade, and we build and launch it for free.',
-    perks: ['Built and launched for free', 'Templates for your trade', 'Review requests add-on'],
-    // Appturnity's own template previews (its home page and /examples use
-    // them), copied from apps/hub/public/example-shots in its repo. The phone
-    // is the full-length HVAC page (hvac-prism-mobile.webp, resized to 280px
-    // wide), scrolling in its frame the way Appturnity's own site shows it.
-    // A new filename, not the old crop's: image caches (next/image's, the
-    // CDN's, browsers') key on the URL, and kept serving the short crop,
-    // squashing the page into the frame.
+      'Tech for Pros turns a few details about a pool, HVAC or landscaping business into a launch-ready website, then takes the follow-up off their plate.',
+    perks: ['Templates made for your trade', 'Lead capture and review requests', 'Reminders and missed-call text-back, next'],
+    // Template previews from the Appturnity days, until Tech for Pros has its
+    // own. The phone is the full-length HVAC page (resized to 280px wide),
+    // scrolling in its frame. A new filename, not the old crop's: image
+    // caches (next/image's, the CDN's, browsers') key on the URL, and kept
+    // serving the short crop, squashing the page into the frame.
     showcase: {
       desktop: { src: '/now/pool-clearline-template.webp', width: 1200, height: 750, label: 'Pool template' },
       phone: { src: '/now/hvac-phone-full.webp', width: 280, height: 7685, frameHeight: 700, label: 'HVAC template' },
     },
     focus:
-      'Appturnity Booking: online booking with arrival windows and job-specific questions, so a pool, HVAC or landscaping customer can book without a phone call.',
+      'Automated follow-up for leads and quotes, appointment and maintenance reminders, referrals and missed-call text-back.',
     goal:
-      'One account for a service business: a website we build and launch for free, then the systems that bring in work, like Google review requests and booking, on one bill.',
-    stack: ['Next.js 16', 'Cloudflare Workers', 'D1', 'Stripe', 'Gemini'],
-    // Appturnity's own site is its home; its GitHub repo is never linked.
-    ctas: [
-      { label: 'Claim your free website', href: refHref('appturnity', 'lab', 'free-website') },
-      { label: 'See example sites', href: refHref('appturnity', 'lab', 'examples') },
-    ],
-    updates: [
-      { date: 'Oct 25', text: 'Google review requests are now included in the Care and Pro plans.' },
-      { date: 'Oct 25', text: 'Booking data layer landed: tenant-scoped bookings for Appturnity Booking.' },
-      { date: 'Oct 25', text: '"I want this" on planned features, with an email the day they launch.' },
-    ],
+      'One place for a service business: a launch-ready website from a few details, then the follow-up that brings customers in and keeps them.',
+    stack: ['Next.js', 'Cloudflare'],
+    // Only once techforpros.com is live (lib/techForPros.ts).
+    ctas: techForProsHref ? [{ label: 'Visit Tech for Pros', href: techForProsHref }] : [],
+    updates: [],
   },
 ]

@@ -91,7 +91,8 @@ test.describe('tablet width', () => {
 
   test('nothing in the navbar is pushed off-screen, and the menu button is there', async ({ page }) => {
     await page.goto('/')
-    const cta = page.locator('nav[aria-label="Primary"]').getByRole('link', { name: /Appturnity/ })
+    // The right-most button (Tech for Pros joins it once its site is live).
+    const cta = page.locator('nav[aria-label="Primary"]').getByRole('link', { name: 'Portfolio', exact: true })
     const box = await cta.boundingBox()
     expect(box!.x + box!.width).toBeLessThanOrEqual(810)
     await expect(menuButton(page)).toBeVisible()

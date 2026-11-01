@@ -292,8 +292,8 @@ export function getSubjectSpecificLine(subject: string): { html: string; text: s
       }
     case 'consulting':
       return {
-        html: `A quick note on your goals and timeline helps me show up prepared. For a feel of how I work, see ${link(EMAIL_CONFIG.appturnityUrl, 'appturnity.com')}.`,
-        text: `A quick note on your goals and timeline helps me show up prepared. For a feel of how I work, see appturnity.com.`,
+        html: `A quick note on your goals and timeline helps me show up prepared. For a feel of how I work, see ${link(`${EMAIL_CONFIG.siteUrl}/portfolio?from=email`, 'my portfolio')}.`,
+        text: `A quick note on your goals and timeline helps me show up prepared. For a feel of how I work, see my portfolio: ${EMAIL_CONFIG.siteUrl}/portfolio?from=email`,
       }
     case 'networking':
       return {
@@ -321,8 +321,11 @@ export function autoReplySubject(data: ContactFormData): string {
   return first === 'there' ? '👋 Got your message' : `👋 Got your message, ${first}`
 }
 
-// The links count clicks: /portfolio and /appturnity are n8builds.dev's
-// counted short links (lib/referrals.ts); the Lab link carries UTM tags.
+// The links count clicks: /portfolio is n8builds.dev's counted short link
+// (lib/referrals.ts); the Lab link carries UTM tags. Tech for Pros joins them
+// once techforpros.com is live (lib/techForPros.ts), with its own icon.
+// (Appturnity's place went with it, 2026-11-01; /appturnity still counts and
+// redirects for mails already sent.)
 const PLACES = [
   {
     href: `${EMAIL_CONFIG.siteUrl}/?utm_source=contact-email&utm_medium=email`,
@@ -337,13 +340,6 @@ const PLACES = [
     title: 'Developer portfolio',
     domain: 'portfolio.n8builds.dev',
     text: 'My projects, experience and the stack behind them.',
-  },
-  {
-    href: `${EMAIL_CONFIG.siteUrl}/appturnity?from=email`,
-    icon: 'appturnity',
-    title: 'Appturnity',
-    domain: 'appturnity.com',
-    text: 'My company: free websites and AI automations for service businesses.',
   },
 ]
 

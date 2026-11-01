@@ -50,7 +50,7 @@ Manual steps that need the owner (logins, dashboards) live in `docs/OWNER_TODO.m
 |---|---|---|
 | **n8builds** (this repo) | audience and attention ("building software in public") | https://n8builds.dev, github.com/n8watkins/n8builds-web (public) |
 | dev-portfolio | developer credibility | https://portfolio.n8builds.dev, github.com/n8watkins/dev-portfolio (public), `~/n8builds/dev-portfolio` |
-| Appturnity | client work and consulting | https://appturnity.com |
+| Tech for Pros | the owner's SaaS for service businesses (took over from Appturnity, 2026-11-01) | https://techforpros.com (not live yet: `lib/techForPros.ts`) |
 
 n8builds feeds the other two through bridge links and never replaces them.
 Strategy and IA: `docs/N8BUILDS_PLAN.md`.

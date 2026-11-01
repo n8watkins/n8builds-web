@@ -15,8 +15,8 @@ import { shippedStats } from '@/lib/log-stats'
 // client code and the page stays static. If the log can't be read at all, the
 // strip is left out; it never breaks the page.
 //
-// It sits right under "What I'm working on" (the Appturnity ad, whose "What's
-// new" dialog is Appturnity's own news): this is everything else, across
+// It sits right under "What I'm working on" (the Tech for Pros ad, whose "What's
+// new" dialog is its own news): this is everything else, across
 // builds, so it reads as a log (mono dates, the feed's timeline dots), not a
 // second ad.
 

@@ -6,6 +6,7 @@ import { ContactFormErrorBoundary } from '@/components/ContactFormErrorBoundary'
 import Reveal from '@/components/ui/Reveal'
 import { SOCIALS, isExternal, type Social } from '@/data/socials'
 import { refHref } from '@/lib/referrals'
+import { TECH_FOR_PROS, techForProsHref } from '@/lib/techForPros'
 
 const ICON_SIZE: Record<Social['size'], string> = { sm: 'h-4 w-4', md: 'h-4.5 w-4.5', lg: 'h-[1.35rem] w-[1.35rem]' }
 
@@ -94,11 +95,15 @@ const Footer = () => {
                   </p>
                   <p>
                     Run a service business?{' '}
-                    <a href={refHref('appturnity', 'card', 'free-website')} target="_blank" rel="noopener noreferrer" className={LINK}>
-                      Claim your free website
-                      <span className="sr-only"> (opens in a new tab)</span>
-                    </a>{' '}
-                    with Appturnity.
+                    {techForProsHref ? (
+                      <a href={techForProsHref} target="_blank" rel="noopener noreferrer" className={LINK}>
+                        {TECH_FOR_PROS.name}
+                        <span className="sr-only"> (opens in a new tab)</span>
+                      </a>
+                    ) : (
+                      TECH_FOR_PROS.name
+                    )}{' '}
+                    {techForProsHref ? 'puts' : 'will soon put'} your business online, and takes the follow-up off your plate.
                   </p>
                   <p>
                     Everything I ship lands in the <Link href="/builds" className={LINK}>build log</Link>, and the

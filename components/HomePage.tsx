@@ -196,7 +196,7 @@ export default function HomePage({ posts }: { posts: Post[] }) {
           </SectionErrorBoundary>
         </Band>
 
-        {/* Bridge: the portfolio (hire me) + Appturnity (client work) */}
+        {/* Bridge: the portfolio (hire me) + Tech for Pros (my company) */}
         <Band tone="raised">
           <SectionErrorBoundary sectionName="Work With Me">
             <WorkWithMe />
