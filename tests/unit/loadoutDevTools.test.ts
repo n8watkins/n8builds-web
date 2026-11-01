@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { people, toolsIBuilt, toolsIUse, type Person } from '@/data/loadout'
@@ -55,6 +57,13 @@ describe('the loadout dev-tool lists', () => {
     expect(people.map((c) => c.name)).toEqual(['Kun Chen', 'Phaedrus Raznikov', 'Nate Herk'])
     // Nate Herk has no public GitHub; never add a guessed one.
     expect(people.find((c) => c.id === 'nate-herk')?.links.some((l) => l.kind === 'github')).toBe(false)
+  })
+
+  it('self-hosts every avatar in public/people/', () => {
+    for (const person of people) {
+      expect(person.avatar).toMatch(/^\/people\/[a-z0-9-]+\.webp$/)
+      expect(existsSync(join(process.cwd(), 'public', person.avatar!))).toBe(true)
+    }
   })
 
   it('never uses an em dash in its copy', () => {

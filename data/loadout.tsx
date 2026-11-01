@@ -213,8 +213,13 @@ export const toolsIBuilt: BuiltTool[] = [
 export interface Person {
   id: string
   name: string
-  /** Shown in the avatar circle. */
+  /** Shown in the avatar circle, and behind the photo if it fails to load. */
   initials: string
+  /**
+   * Their avatar, self-hosted in public/people/ (256x256 WebP, the same
+   * picture they use on their own channels), so no new image host is needed.
+   */
+  avatar?: string
   /** Who they are, in one sentence. */
   role: string
   /** What they are working on in public, in one or two plain sentences. */
@@ -249,6 +254,7 @@ export const people: Person[] = [
     id: 'kun-chen',
     name: 'Kun Chen',
     initials: 'KC',
+    avatar: '/people/kun-chen.webp',
     role: 'Former L8 principal engineer at Meta, Microsoft and Atlassian.',
     // A non-breaking hyphen (U+2011) keeps "no-mistakes" from splitting across lines.
     note: 'Building agent tools in the open: no\u2011mistakes, firstmate, gnhf, treehouse and the AXI interfaces.',
@@ -263,6 +269,7 @@ export const people: Person[] = [
     id: 'phaedrus',
     name: 'Phaedrus Raznikov',
     initials: 'PR',
+    avatar: '/people/phaedrus.webp',
     role: 'Runs Misty Step, an AI-native software agency.',
     note: 'Building tooling for fleets of coding agents. He created pass-env.',
     links: [
@@ -275,6 +282,7 @@ export const people: Person[] = [
     id: 'nate-herk',
     name: 'Nate Herk',
     initials: 'NH',
+    avatar: '/people/nate-herk.webp',
     role: 'AI automation educator.',
     note: 'Teaching AI automation on YouTube and running the AI Automation Society community.',
     links: [

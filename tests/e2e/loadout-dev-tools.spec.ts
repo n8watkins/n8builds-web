@@ -93,6 +93,31 @@ test.describe('Loadout tools and people', () => {
     }
   })
 
+  test('shows each person\'s self-hosted avatar, with the initials behind it as a fallback', async ({ page }) => {
+    await page.goto('/loadout')
+    const people = page.getByRole('region', { name: 'People I follow' })
+    for (const name of ['Kun Chen', 'Phaedrus Raznikov', 'Nate Herk']) {
+      const img = people.getByRole('img', { name, exact: true })
+      await img.scrollIntoViewIfNeeded()
+      await expect(img).toBeVisible()
+      await expect.poll(() => img.evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0)
+      // Served from this site (next/image), never another host.
+      expect(new URL(await img.evaluate((el) => (el as HTMLImageElement).currentSrc)).origin).toBe(new URL(page.url()).origin)
+    }
+  })
+
+  test('falls back to the initials when an avatar fails to load', async ({ page }) => {
+    await page.route(/people%2Fkun-chen\.webp|people\/kun-chen\.webp/, (route) => route.fulfill({ status: 404, body: '' }))
+    await page.goto('/loadout')
+    const card = page.locator('#kun-chen')
+    await card.scrollIntoViewIfNeeded()
+    const img = card.getByRole('img', { name: 'Kun Chen' })
+    await expect.poll(() => img.evaluate((el) => (el as HTMLImageElement).complete && (el as HTMLImageElement).naturalWidth === 0)).toBe(true)
+    await expect(card.getByText('KC', { exact: true })).toBeVisible()
+    // The broken image's alt text doesn't paint over the initials.
+    expect(await img.evaluate((el) => getComputedStyle(el).color)).toBe('rgba(0, 0, 0, 0)')
+  })
+
   test('the header pills jump to every part of the page', async ({ page }) => {
     await page.goto('/loadout')
     const pills = page.getByRole('navigation', { name: 'Loadout sections' }).getByRole('link')

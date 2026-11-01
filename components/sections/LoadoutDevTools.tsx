@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import Image from 'next/image'
 import { FiGitPullRequest, FiPackage, FiPlusSquare } from 'react-icons/fi'
 import { LuExternalLink, LuGlobe, LuUsers } from 'react-icons/lu'
 import { SiGithub, SiSubstack, SiX, SiYoutube } from 'react-icons/si'
@@ -247,11 +248,20 @@ export const PersonCard = ({ person }: { person: Person }) => (
     className="flex h-full scroll-mt-24 flex-col gap-4 rounded-3xl border border-white/8 bg-linear-to-b from-white/[0.045] to-white/[0.01] p-6 target:border-cyan-300/40"
   >
     <div className="flex items-center gap-4">
-      <span
-        aria-hidden="true"
-        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-cyan-400/25 to-blue-600/25 font-mono text-lg font-bold text-cyan-100 ring-1 ring-cyan-300/30"
-      >
-        {person.initials}
+      {/* The photo sits over the initials: if it fails to load, its alt text
+           is hidden (transparent, no size) and the initials show through. */}
+      <span className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-linear-to-br from-cyan-400/25 to-blue-600/25 font-mono text-lg font-bold text-cyan-100 ring-1 ring-cyan-300/30">
+        <span aria-hidden="true">{person.initials}</span>
+        {person.avatar && (
+          <Image
+            src={person.avatar}
+            alt={person.name}
+            width={56}
+            height={56}
+            sizes="56px"
+            className="absolute inset-0 h-full w-full rounded-full object-cover text-[0px] text-transparent"
+          />
+        )}
       </span>
       <div className="min-w-0">
         <h3 id={`${person.id}-name`} className="text-xl font-extrabold tracking-tight text-slate-50">
