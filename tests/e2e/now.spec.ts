@@ -16,7 +16,7 @@ test('the card reads like an ad: headline, selling points, both buttons and real
   const section = now(page)
   await section.scrollIntoViewIfNeeded()
   await expect(section).toContainText('Your website, built for your trade.')
-  for (const perk of ['Templates made for your trade', 'Lead capture and review requests']) {
+  for (const perk of ['Templates for your trade', 'Lead capture and reviews']) {
     await expect(section.getByRole('listitem').filter({ hasText: perk })).toBeVisible()
   }
   // No site to send anyone to yet: no link, and it says so.

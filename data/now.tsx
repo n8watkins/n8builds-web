@@ -64,7 +64,8 @@ export const nowItems: NowState[] = [
     headline: { lead: 'Your website,', accent: 'built for your trade.' },
     pitch:
       'Tech for Pros turns a few details about a pool, HVAC or landscaping business into a launch-ready website, then takes the follow-up off their plate.',
-    perks: ['Templates made for your trade', 'Lead capture and review requests', 'Reminders and missed-call text-back, next'],
+    // Short enough for one line on a 320px phone (tests/e2e/now.spec.ts).
+    perks: ['Templates for your trade', 'Lead capture and reviews', 'Reminders, coming next'],
     // Template previews from the Appturnity days, until Tech for Pros has its
     // own. The phone is the full-length HVAC page (resized to 280px wide),
     // scrolling in its frame. A new filename, not the old crop's: image
