@@ -22,6 +22,7 @@ When the owner decides something new, add it here (with the date) in the same ch
   The Work with me card lists its planned features under "Next up", never "Coming soon".
   The footer sitemap has "techforpros.com" with the icon under Work with me, and the contact card says it "puts your business online", linked.
   Its icon (a worker in a cap holding a blue gear) is `public/brands/techforpros.png`, 256px, made from the owner's 1254px master by `scripts/gen-techforpros-icon.mjs` (the master stays out of the repo). On the site's dark navy it always sits on a light rounded tile (`components/ui/TechForProsMark.tsx`), because its navy outlines vanish on dark.
+  The contact auto-reply's "While you wait" cards add Tech for Pros (its icon on a light tile, `n8builds.dev/techforpros?from=email`) after the Lab and the portfolio.
   The cards still reuse the Appturnity-era template screenshots.
   It never claims "free websites" or AI voice agents, which were Appturnity's offer.
   `n8builds.dev/appturnity` still counts and redirects for links already out there (sent emails); the admin's `ref:appturnity` counter keeps working.

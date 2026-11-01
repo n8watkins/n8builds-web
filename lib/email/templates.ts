@@ -321,11 +321,10 @@ export function autoReplySubject(data: ContactFormData): string {
   return first === 'there' ? '👋 Got your message' : `👋 Got your message, ${first}`
 }
 
-// The links count clicks: /portfolio is n8builds.dev's counted short link
-// (lib/referrals.ts); the Lab link carries UTM tags. Tech for Pros joins them
-// once techforpros.com is live (lib/techForPros.ts), with its own icon.
-// (Appturnity's place went with it, 2026-11-01; /appturnity still counts and
-// redirects for mails already sent.)
+// The links count clicks: /portfolio and /techforpros are n8builds.dev's
+// counted short links (lib/referrals.ts); the Lab link carries UTM tags.
+// Tech for Pros took Appturnity's place on 2026-11-01, with its own icon
+// (/appturnity still counts and redirects for mails already sent).
 const PLACES = [
   {
     href: `${EMAIL_CONFIG.siteUrl}/?utm_source=contact-email&utm_medium=email`,
@@ -340,6 +339,13 @@ const PLACES = [
     title: 'Developer portfolio',
     domain: 'portfolio.n8builds.dev',
     text: 'My projects, experience and the stack behind them.',
+  },
+  {
+    href: `${EMAIL_CONFIG.siteUrl}/techforpros?from=email`,
+    icon: 'techforpros',
+    title: 'Tech for Pros',
+    domain: 'techforpros.com',
+    text: 'My company: websites and follow-up for service businesses.',
   },
 ]
 
