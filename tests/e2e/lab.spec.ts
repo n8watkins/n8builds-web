@@ -588,3 +588,32 @@ test.describe('the Lab rows on a 320px phone', () => {
     expect(box.x + box.width).toBeLessThanOrEqual(320)
   })
 })
+
+/**
+ * The Lab's eyebrow (2026-11-01): just "Check out", a size larger, its letters
+ * spread so it spans exactly the flask and "The Lab" under it, at every width.
+ */
+for (const width of [1440, 390, 320]) {
+  test(`at ${width}px "Check out" spans the flask and title`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto('/')
+    const eyebrow = page.locator('#lab .lab-eyebrow')
+    await expect(eyebrow).toHaveText('Check out')
+    const { text, row, lines } = await eyebrow.evaluate((p) => {
+      const span = p.firstElementChild!
+      // The glyphs' edges: the last letter's trailing spacing isn't ink.
+      const range = document.createRange()
+      range.selectNodeContents(span)
+      const rects = [...range.getClientRects()]
+      const spacing = parseFloat(getComputedStyle(span).letterSpacing)
+      const box = range.getBoundingClientRect()
+      const title = p.parentElement!.querySelector('h2')!.parentElement!.getBoundingClientRect()
+      return { text: [box.left, box.right - spacing], row: [title.left, title.right], lines: new Set(rects.map((r) => Math.round(r.top))).size }
+    })
+    expect(lines, 'one line').toBe(1)
+    expect(Math.abs(text[0] - row[0]), 'starts at the flask').toBeLessThan(2)
+    expect(Math.abs(text[1] - row[1]), 'ends at the title').toBeLessThan(2)
+    // A size larger than the old 1rem / 1.25rem.
+    expect(parseFloat(await eyebrow.evaluate((el) => getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(width >= 640 ? 24 : 18)
+  })
+}

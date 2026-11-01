@@ -194,6 +194,7 @@ When the owner decides something new, add it here (with the date) in the same ch
 - **Round 13 (2026-10-27, owner's calls): the homepage and My Loadout:**
   - "Shipped this month" names the month once, at the top of the figures card; the figure and dots sit centred below it.
   - "Check out the Lab" is one line of plain text, larger, justified to the width of the flask and title.
+  - (2026-11-01) The eyebrow is just "Check out", a size larger (1.125rem, 1.5rem from sm), its letters spaced so it still spans exactly the flask and title (container units, `components/HomePage.tsx`).
   - The Lab rail's line stops at Chrome Extensions; the comet around the current icon turns a little faster.
   - The portfolio ad's heading is "The developer behind the build".
   - My Loadout: each setup item shows its brand's mark (AMD, Samsung, Acer, Razer, OBS, Scribe's own) or a plain icon; no "daily driver" badge; the cards animate in.
