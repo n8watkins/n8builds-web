@@ -11,6 +11,8 @@ import { APP_JS } from './app-js'
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
 const now = (page: Page) => page.locator('#now')
+/** The ad's button to techforpros.com. */
+const visit = (page: Page) => now(page).getByRole('link', { name: /Visit techforpros\.com/ })
 
 test('the card reads like an ad: headline, selling points, its button and real template screenshots', async ({ page }) => {
   await page.goto('/')
@@ -105,7 +107,7 @@ for (const width of [1280, 1440]) {
     await page.goto('/')
     const section = now(page)
     await section.scrollIntoViewIfNeeded()
-    const cta = await section.locator('[data-now-soon]').boundingBox()
+    const cta = await visit(page).boundingBox()
     const shot = await section.locator('img[src*="pool-clearline-template"]').boundingBox()
     // The screenshots sit beside the copy, not under it.
     expect(shot!.x).toBeGreaterThan(cta!.x + cta!.width)
@@ -146,8 +148,8 @@ test('What\'s new is on the buttons\' row, at its far right, and there is no "Bu
   const section = now(page)
   await section.scrollIntoViewIfNeeded()
   await expect(section.getByText(/Building now/)).toHaveCount(0)
-  const cta = (await section.locator('[data-now-soon]').boundingBox())!
-  const examples = (await section.locator('[data-now-soon]').boundingBox())!
+  const cta = (await visit(page).boundingBox())!
+  const examples = cta
   const button = section.getByRole('button', { name: "What's new at Tech for Pros" })
   const box = (await button.boundingBox())!
   // Same row, same height as the buttons.
@@ -159,12 +161,12 @@ test('What\'s new is on the buttons\' row, at its far right, and there is no "Bu
   expect(box.x + box.width).toBeGreaterThanOrEqual(shot.x + shot.width - 2)
 })
 
-test('on a phone What\'s new is a full-width button under the other two', async ({ page }) => {
+test('on a phone What\'s new is a full-width button under the Visit button', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 })
   await page.goto('/')
   const section = now(page)
   await section.scrollIntoViewIfNeeded()
-  const examples = (await section.locator('[data-now-soon]').boundingBox())!
+  const examples = (await visit(page).boundingBox())!
   const box = (await section.getByRole('button', { name: "What's new at Tech for Pros" }).boundingBox())!
   expect(box.y).toBeGreaterThan(examples.y + examples.height)
   expect(Math.abs(box.width - examples.width)).toBeLessThanOrEqual(1)

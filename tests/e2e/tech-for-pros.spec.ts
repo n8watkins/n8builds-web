@@ -50,7 +50,7 @@ test('the contact card names Tech for Pros for service businesses, not consultin
   const intro = page.locator('#contact p', { hasText: 'Run a service business?' })
   await intro.scrollIntoViewIfNeeded()
   await expect(intro).not.toContainText(/consulting/i)
-  await expect(intro).toContainText('Tech for Pros puts your business online')
+  await expect(intro).toContainText(/Tech for Pros( \(opens in a new tab\))? puts your business online/)
   await expect(intro.getByRole('link', { name: /Tech for Pros/ })).toHaveAttribute('href', '/techforpros?from=footer')
 })
 

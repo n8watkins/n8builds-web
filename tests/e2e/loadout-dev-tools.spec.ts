@@ -54,7 +54,12 @@ test.describe('Loadout tools and people', () => {
   test('the homepage follows Kun Chen, Phaedrus and Nate Herk, in that order, with their own links', async ({ page }) => {
     await page.goto('/')
     const creators = page.getByRole('region', { name: 'People I follow' })
-    await expect(creators.getByRole('article').getByRole('heading')).toHaveText(['Kun Chen', 'Phaedrus Raznikov', 'Nate Herk'])
+    // The person cards (The Pull Request Post's card follows them).
+    await expect(creators.getByRole('listitem').getByRole('article').getByRole('heading', { level: 3 })).toHaveText([
+      'Kun Chen',
+      'Phaedrus Raznikov',
+      'Nate Herk',
+    ])
     await expect(creators.getByText('Former L8 principal engineer at Meta, Microsoft and Atlassian.')).toBeVisible()
     const links: Record<string, Record<string, string>> = {
       'Kun Chen': {
