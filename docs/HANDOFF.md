@@ -306,7 +306,7 @@ The owner's standing decisions live in [DECISIONS.md](DECISIONS.md), the one pla
   The browser SDK posts to `/monitoring` (`app/monitoring/route.ts`), which forwards only envelopes for our own DSN; the SDK's `tunnelRoute` rewrite was an open relay to any Sentry project.
   The server SDK sends no stack-frame locals and drops contact-route request bodies (`lib/sentry-scrub.ts`).
 - `tests/unit/`, `tests/e2e/`, `playwright.config.ts`, `vitest.config.mts`.
-- `public/builds/<slug>/`: build icons and screenshots (`n8builds/` holds this site's own); `public/tab/`: favicons and OG image.
+- `public/builds/<slug>/`: build icons and screenshots (`n8builds/` holds this site's own); `public/tab/`: favicons and OG image, generated from `public/brand/n8-mark.png` by `node scripts/gen-brand-icons.mjs` (rerun it after changing the mark, then `node scripts/gen-email-icons.mjs` for the emails' logo).
 - `docs/`: this file, `OWNER_TODO.md`, `prompts/review-and-improve.md` (ready-to-paste prompt for the next review pass), `prompts/review-2026-10-22-changes.md` (the 2026-10-22/23 review prompt, already run), `prompts/review-2026-10-24-changes.md` (the next review, not yet run), `N8BUILDS_PLAN.md` (vision, IA and content inventory), `NEXT_STEPS.md` (the checklist), `BUILDS_LOG_PLAN.md`, `LIVE_STREAM_PLAN.md`, `X_ARTICLES_PLAN.md`, `CLOUDFLARE_SECURITY.md`, `archive/` (old handoffs, the blog implementation record).
 - `docs/WEB_VITALS.md`: Web Vitals reporting, the dev HUD and GA events.
 

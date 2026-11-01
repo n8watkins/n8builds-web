@@ -100,9 +100,7 @@ const SiteFooter = () => (
 
       <div className="mt-10 flex flex-col-reverse items-center justify-between gap-6 border-t border-white/8 pt-6 lg:flex-row">
         <div className="flex items-center gap-2.5">
-          <span className="h-7 w-7 overflow-hidden rounded-lg ring-1 ring-white/10">
-            <Image src="/tab/n8-logo.png" alt="" width={28} height={28} className="h-full w-full object-cover" />
-          </span>
+          <Image src="/brand/n8-mark.png" alt="" width={1086} height={826} sizes="27px" className="h-5 w-auto" />
           <span className="text-sm font-bold text-slate-200">n8builds</span>
         </div>
         <p className="text-xs text-slate-450 lg:text-sm">© 2026 n8builds.dev. All rights reserved.</p>
