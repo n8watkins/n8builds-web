@@ -23,6 +23,7 @@ const SITEMAP: { heading: string; links: { label: string; href: string; mark?: R
       { label: 'Chrome extensions', href: '/#extensions' },
       { label: 'Build log', href: '/builds' },
       { label: 'Use as a template', href: '/#template' },
+      { label: 'Tools I built', href: '/#tools-i-built' },
     ],
   },
   {
@@ -30,6 +31,7 @@ const SITEMAP: { heading: string; links: { label: string; href: string; mark?: R
     links: [
       { label: 'Notions', href: '/blog' },
       { label: 'Live', href: '/live' },
+      { label: 'People I follow', href: '/#people' },
       { label: 'Loadout', href: '/#loadout' },
     ],
   },

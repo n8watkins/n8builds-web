@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test'
 
 /**
- * /loadout's dev-tool parts (2026-11-01): the tools I use (each credited to
- * its maker), the people I follow, and the tools I built (with the fork's
- * credit and the Star | GitHub button), plus the header pills.
+ * /loadout's dev-tool parts (2026-11-01): the tools I built (with the fork's
+ * credit and the Star | GitHub button), then the tools I use (each credited
+ * to its maker), plus the header pills; and the homepage's People I follow
+ * (moved from /loadout), The Pull Request Post under it, and Tools I built.
  */
 
 test.describe('Loadout tools and people', () => {
@@ -44,14 +45,14 @@ test.describe('Loadout tools and people', () => {
       'href',
       'https://github.com/kunchenguid/no-mistakes',
     )
-    // "by Kun Chen" jumps to his card further down.
+    // "by Kun Chen" goes to his card in People I follow, on the homepage.
     await used.getByRole('link', { name: 'Kun Chen' }).first().click()
-    await expect(page).toHaveURL(/#kun-chen$/)
+    await expect(page).toHaveURL(/\/#kun-chen$/)
     await expect(page.locator('#kun-chen')).toBeInViewport()
   })
 
-  test('follows Kun Chen, Phaedrus and Nate Herk, in that order, with their own links', async ({ page }) => {
-    await page.goto('/loadout')
+  test('the homepage follows Kun Chen, Phaedrus and Nate Herk, in that order, with their own links', async ({ page }) => {
+    await page.goto('/')
     const creators = page.getByRole('region', { name: 'People I follow' })
     await expect(creators.getByRole('article').getByRole('heading')).toHaveText(['Kun Chen', 'Phaedrus Raznikov', 'Nate Herk'])
     await expect(creators.getByText('Former L8 principal engineer at Meta, Microsoft and Atlassian.')).toBeVisible()
@@ -76,12 +77,6 @@ test.describe('Loadout tools and people', () => {
     }
     // Static cards for now: no activity until the pr-post feed is wired in.
     await expect(creators.getByText('Recently shipped')).toHaveCount(0)
-    const note = creators.locator('[data-pr-post]')
-    await expect(note).toHaveText(
-      'These cards will update themselves from pr-post, my open-source tool for following what builders ship (see the live demo).',
-    )
-    await expect(note.getByRole('link', { name: 'pr-post' })).toHaveAttribute('href', 'https://github.com/n8watkins/pr-post')
-    await expect(note.getByRole('link', { name: 'live demo' })).toHaveAttribute('href', 'https://n8watkins.github.io/pr-post/')
     for (const [name, byLabel] of Object.entries(links)) {
       const list = creators.getByRole('list', { name: `${name} online` })
       // Exactly these links (Nate Herk has no public GitHub, so none is shown).
@@ -94,7 +89,7 @@ test.describe('Loadout tools and people', () => {
   })
 
   test('shows each person\'s self-hosted avatar, with the initials behind it as a fallback', async ({ page }) => {
-    await page.goto('/loadout')
+    await page.goto('/')
     const people = page.getByRole('region', { name: 'People I follow' })
     for (const name of ['Kun Chen', 'Phaedrus Raznikov', 'Nate Herk']) {
       const img = people.getByRole('img', { name, exact: true })
@@ -108,7 +103,7 @@ test.describe('Loadout tools and people', () => {
 
   test('falls back to the initials when an avatar fails to load', async ({ page }) => {
     await page.route(/people%2Fkun-chen\.webp|people\/kun-chen\.webp/, (route) => route.fulfill({ status: 404, body: '' }))
-    await page.goto('/loadout')
+    await page.goto('/')
     const card = page.locator('#kun-chen')
     await card.scrollIntoViewIfNeeded()
     const img = card.getByRole('img', { name: 'Kun Chen' })
@@ -163,14 +158,14 @@ test.describe('Loadout tools and people', () => {
     await expect(mentions.locator('#herdr svg')).toHaveCount(0)
     for (const id of ['firstmate', 'treehouse']) {
       await expect(mentions.locator(`#${id} h3`)).toContainText(', by Kun Chen')
-      await expect(mentions.locator(`#${id}`).getByRole('link', { name: 'Kun Chen' })).toHaveAttribute('href', '#kun-chen')
+      await expect(mentions.locator(`#${id}`).getByRole('link', { name: 'Kun Chen' })).toHaveAttribute('href', '/#kun-chen')
     }
     await expect(mentions.locator('#ccusage h3')).toContainText(', by ryoppippi')
     await expect(mentions.getByText('gnhf')).toHaveCount(0)
   })
 
   test('Kun Chen\'s card says how he works and links the video', async ({ page }) => {
-    await page.goto('/loadout')
+    await page.goto('/')
     const card = page.locator('#kun-chen')
     await expect(card.getByText(/Runs macOS with nix-darwin, WezTerm, Neovim/)).toBeVisible()
     await expect(card.getByRole('link', { name: 'How he works (a video, opens in a new tab)' })).toHaveAttribute('href', 'https://youtu.be/iQyg-KypKAA')
@@ -188,7 +183,7 @@ test.describe('Loadout tools and people', () => {
   test('the header pills jump to every part of the page', async ({ page }) => {
     await page.goto('/loadout')
     const pills = page.getByRole('navigation', { name: 'Loadout sections' }).getByRole('link')
-    await expect(pills).toHaveText(['Dev setup', 'How I work', 'Tools I use', 'Honorable mentions', 'People I follow', 'Tools I built', 'Inside my apps', 'The gear'])
+    await expect(pills).toHaveText(['Dev setup', 'How I work', 'Tools I built', 'Tools I use', 'Honorable mentions', 'Inside my apps', 'The gear'])
     for (const href of await pills.evaluateAll((els) => els.map((el) => el.getAttribute('href')))) {
       await expect(page.locator(href!)).toHaveCount(1)
     }
@@ -203,9 +198,57 @@ test.describe('Loadout tools and people', () => {
 
   test('fits a 320px phone without sideways scrolling', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 640 })
+    for (const [path, part] of [['/loadout', '#tools-i-built'], ['/', '#pr-post-edition']]) {
+      await page.goto(path)
+      await page.locator(part).scrollIntoViewIfNeeded()
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
+      expect(overflow, path).toBeLessThanOrEqual(0)
+    }
+  })
+
+  test('/loadout puts Tools I built before Tools I use, and People I follow is no longer there', async ({ page }) => {
     await page.goto('/loadout')
-    await page.locator('#people').scrollIntoViewIfNeeded()
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
-    expect(overflow).toBeLessThanOrEqual(0)
+    const order = await page.locator('main h2').allTextContents()
+    expect(order.indexOf('Tools I built')).toBeGreaterThan(-1)
+    expect(order.indexOf('Tools I built')).toBeLessThan(order.indexOf('Tools I use'))
+    await expect(page.getByRole('region', { name: 'People I follow' })).toHaveCount(0)
+    await expect(page.locator('#people, #kun-chen')).toHaveCount(0)
+  })
+
+  test('under People I follow, the homepage has The Pull Request Post, with its live demo and repo', async ({ page }) => {
+    await page.goto('/')
+    const people = page.getByRole('region', { name: 'People I follow' })
+    const card = people.getByRole('article', { name: 'The Pull Request Post' })
+    await card.scrollIntoViewIfNeeded()
+    // Right under the person cards.
+    const lastPerson = (await people.locator('#nate-herk').boundingBox())!
+    const box = (await card.boundingBox())!
+    expect(box.y).toBeGreaterThan(lastPerson.y + lastPerson.height)
+    await expect(card).toContainText('The public GitHub activity of the developers I follow, printed as a newspaper.')
+    await expect(card.getByRole('link', { name: 'Live demo of The Pull Request Post (opens in a new tab)' })).toHaveAttribute(
+      'href',
+      'https://n8watkins.github.io/pr-post/',
+    )
+    await expect(card.getByRole('link', { name: 'pr-post on GitHub (opens in a new tab)', exact: true })).toHaveAttribute(
+      'href',
+      'https://github.com/n8watkins/pr-post',
+    )
+    // The front page beside it links the demo too, out of the tab order.
+    const shot = card.locator('a[aria-hidden="true"][tabindex="-1"]')
+    await expect(shot).toHaveAttribute('href', 'https://n8watkins.github.io/pr-post/')
+    await expect.poll(() => shot.locator('img').evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0)
+  })
+
+  test('the homepage shows Tools I built too, leaving pr-post to The Pull Request Post above it', async ({ page }) => {
+    await page.goto('/')
+    const built = page.getByRole('region', { name: 'Tools I built' })
+    await expect(built.getByRole('article').getByRole('heading', { level: 3 })).toHaveText(['pass-env', 'release-kit', 'devguard'])
+    await expect(built.locator('[data-credit]')).toContainText('Created by Phaedrus Raznikov at Misty Step')
+    // After People I follow, and linked from the footer's sitemap with it.
+    const people = (await page.locator('#people').boundingBox())!
+    expect((await built.boundingBox())!.y).toBeGreaterThan(people.y)
+    const sitemap = page.getByRole('navigation', { name: 'Sitemap' })
+    await expect(sitemap.getByRole('link', { name: 'Tools I built' })).toHaveAttribute('href', '/#tools-i-built')
+    await expect(sitemap.getByRole('link', { name: 'People I follow' })).toHaveAttribute('href', '/#people')
   })
 })

@@ -217,7 +217,8 @@ export const toolsIBuilt: BuiltTool[] = [
 
 /**
  * People I follow: what each one is working on in public. One entry per
- * person; adding one is adding an entry here. `id` is the anchor the tools
+ * person; adding one is adding an entry here. `id` is the anchor (on the
+ * homepage, where People I follow lives since 2026-11-01) the tools
  * below link to ("no-mistakes, by Kun Chen").
  *
  * The cards are static for now. Later pr-post's feed.json fills each

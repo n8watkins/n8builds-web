@@ -18,6 +18,8 @@ import ExtensionsShowcase from '@/components/sections/ExtensionsShowcase'
 import LabSectionNav from '@/components/sections/LabSectionNav'
 import ShimmerWhenSeen from '@/components/ShimmerWhenSeen'
 import HomeStack from '@/components/sections/HomeStack'
+import HomePeople from '@/components/sections/HomePeople'
+import HomeToolsIBuilt from '@/components/sections/HomeToolsIBuilt'
 import WorkWithMe from '@/components/sections/WorkWithMe'
 import Footer from '@/components/layout/Footer'
 import type { Post } from '@/lib/sanity'
@@ -193,6 +195,20 @@ export default function HomePage({ posts }: { posts: Post[] }) {
         <Band tone="raised">
           <SectionErrorBoundary sectionName="N8's Notions">
             <NotionsStrip posts={posts} />
+          </SectionErrorBoundary>
+        </Band>
+
+        {/* People I follow, and The Pull Request Post right under them (moved from /loadout, 2026-11-01) */}
+        <Band>
+          <SectionErrorBoundary sectionName="People I Follow">
+            <HomePeople />
+          </SectionErrorBoundary>
+        </Band>
+
+        {/* The small open-source tools I built (also on /loadout) */}
+        <Band tone="raised">
+          <SectionErrorBoundary sectionName="Tools I Built">
+            <HomeToolsIBuilt />
           </SectionErrorBoundary>
         </Band>
 
