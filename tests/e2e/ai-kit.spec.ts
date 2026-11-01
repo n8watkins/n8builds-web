@@ -25,8 +25,13 @@ test.describe('AI kit content', () => {
         await expect(agents.getByText(tool, { exact: true })).toBeVisible()
       }
       const dev = page.getByRole('region', { name: 'Dev stack' })
-      for (const tool of ['Next.js', 'Playwright', 'GitHub Actions', 'Upstash']) {
+      for (const tool of ['Next.js', 'Playwright', 'GitHub Actions', 'Upstash', 'Firebase', 'AWS', 'Figma']) {
         await expect(dev.getByText(tool, { exact: true })).toBeVisible()
+      }
+      // The list is shared with the portfolio (data/stack.tsx); its dated and
+      // filler entries were dropped (the owner's call, 2026-10-29).
+      for (const dropped of ['HTML5', 'CSS3', 'ES6+', 'Recoil', 'Material-UI', 'Paypal API', 'Postman', 'Jest', 'MySQL', 'Stripe API', 'GraphQL', 'AWS Amplify', 'Prisma', 'REST APIs']) {
+        await expect(dev.getByText(dropped, { exact: true })).toHaveCount(0)
       }
     }
   })
@@ -803,13 +808,15 @@ test.describe('dino easter egg (motion allowed)', () => {
     await expect(tile).toBeFocused()
   })
 
-  // The middle of the tile nearest the middle of a row (paused by hovering it first).
+  // The middle of the tile nearest the middle of a row (paused by hovering it
+  // first), measured in the panel: the row runs far past its edges, clipped.
   const middleTile = async (page: Page, index: number) => {
     await hoverRow(page, index)
     await page.waitForTimeout(300)
     return page.evaluate((index) => {
+      const panel = document.querySelector('[data-dino-panel]')!.getBoundingClientRect()
       const row = document.querySelectorAll('[data-dino-panel] [data-marquee-row]')[index]
-      const mid = innerWidth / 2
+      const mid = panel.left + panel.width / 2
       const box = [...row.querySelectorAll('figure')]
         .map((el) => el.getBoundingClientRect())
         .sort((a, b) => Math.abs(a.x + a.width / 2 - mid) - Math.abs(b.x + b.width / 2 - mid))[0]
@@ -842,7 +849,8 @@ test.describe('dino easter egg (motion allowed)', () => {
     await showKit(page, '[data-dino-panel]')
     const at = await middleTile(page, 0)
     await page.mouse.click(at.x, at.y)
-    expect(await rowPlayStates(page, 0)).toContain('paused')
+    // Held by the hover (WebKit can take a frame or two to apply it).
+    await expect.poll(() => rowPlayStates(page, 0)).toContain('paused')
     // The click left no focus behind to hold the row (or its description) open.
     await page.mouse.move(5, 5)
     await expect.poll(() => rowPlayStates(page, 0)).not.toContain('paused')
@@ -855,8 +863,9 @@ test.describe('dino easter egg (motion allowed)', () => {
     await showKit(page, '[data-dino-panel]')
     // The tile nearest the middle of the bottom row (copies included: any tile takes a tap).
     const at = await page.evaluate(() => {
+      const panel = document.querySelector('[data-dino-panel]')!.getBoundingClientRect()
       const row = document.querySelectorAll('[data-dino-panel] [data-marquee-row]')[1]
-      const mid = innerWidth / 2
+      const mid = panel.left + panel.width / 2
       const box = [...row.querySelectorAll('figure')]
         .map((el) => el.getBoundingClientRect())
         .sort((a, b) => Math.abs(a.x + a.width / 2 - mid) - Math.abs(b.x + b.width / 2 - mid))[0]

@@ -28,15 +28,40 @@ test.describe('AI kit tiles (motion allowed)', () => {
       .toBe(true)
   })
 
+  test('every row moves at the same pace, however many tiles it has', async ({ page }) => {
+    await page.goto('/')
+    // px/s of each row: one copy's width (plus the gap) over its loop time.
+    const speeds = () =>
+      page.locator('[data-dino-panel] [data-marquee-row]').evaluateAll((rows) =>
+        rows.map((row) => {
+          const track = row.children[0] as HTMLElement
+          const gap = parseFloat(getComputedStyle(row).columnGap)
+          return (track.offsetWidth + gap) / parseFloat(getComputedStyle(track).animationDuration)
+        })
+      )
+    await expect.poll(async () => (await speeds()).length).toBe(3)
+    const pace = await speeds()
+    for (const speed of pace) expect(speed, `row speeds ${pace.map(Math.round).join(', ')} px/s`).toBeGreaterThan(18)
+    for (const speed of pace) expect(speed, `row speeds ${pace.map(Math.round).join(', ')} px/s`).toBeLessThan(26)
+  })
+
   test('each item is a single tab stop', async ({ page }) => {
     await page.goto('/')
     const panel = page.locator('[data-dino-panel]')
-    const tiles = panel.locator('figure')
-    await expect.poll(() => tiles.count()).toBeGreaterThan(10)
+    // Hydration adds the loop's copies (four of a short row, two of the long dev stack).
+    await expect.poll(() => panel.locator('[aria-hidden="true"] figure').count()).toBeGreaterThan(10)
     // Only the first copy of each item is in the tab order.
-    const focusable = panel.locator('figure[tabindex="0"]')
-    await expect.poll(async () => (await tiles.count()) / (await focusable.count())).toBe(4)
-    await expect(panel.locator('[aria-hidden="true"] [tabindex="0"]')).toHaveCount(0)
+    const rows = await panel.locator('[data-marquee-row]').evaluateAll((rows) =>
+      rows.map((row) => {
+        const [first, ...copies] = [...row.children]
+        return {
+          tiles: first.querySelectorAll('figure').length,
+          focusable: first.querySelectorAll('figure[tabindex="0"]').length,
+          copiesFocusable: copies.reduce((n, copy) => n + copy.querySelectorAll('[tabindex="0"]').length, 0),
+        }
+      })
+    )
+    for (const row of rows) expect(row).toEqual({ tiles: row.tiles, focusable: row.tiles, copiesFocusable: 0 })
   })
 
   test("each tile's description is there for screen readers", async ({ page }) => {

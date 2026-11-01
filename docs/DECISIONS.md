@@ -121,8 +121,12 @@ When the owner decides something new, add it here (with the date) in the same ch
     The homepage keeps the AI kit marquee and the dino.
   - The AI kit tiles show what each tool is for on hover (owner, 2026-10-28; calm tiles from round 10 dropped), and on focus or a tap on touch screens.
     A mouse click on a tile does nothing: only hovering pauses its row (each tile is still one tab stop, so a row can be paused from the keyboard).
-  - The AI kit has three rows (owner, 2026-10-29): agents and models (Claude Code, Claude Opus 5.5, ChatGPT, Codex, Pi, Cursor, OpenAI, Gemini), AI tools (whisper.cpp, Piper, Hugging Face), and the dev stack (Next.js, React, TypeScript, Tailwind CSS, Turso, Drizzle, Vercel, Cloudflare, Sanity, Upstash, Sentry, Playwright, GitHub Actions).
-    Row durations scale with tile count, so every row moves at the old speed (about 22px/s).
+  - The AI kit has three rows (owner, 2026-10-29): agents and models (Claude Code, Claude Opus 5.5, ChatGPT, Codex, Pi, Cursor, OpenAI, Gemini), AI tools (whisper.cpp, Piper, Hugging Face), and the dev stack.
+    **One list for both sites** (owner, 2026-10-29): `data/stack.tsx` is shared with the portfolio byte for byte (its `npm run check:sync`), which shows the same tiles in two rows (the AI kit, then the dev stack).
+    The dev stack is Next.js, React, TypeScript, Tailwind CSS, Zod, ShadCN, Vite, PostgreSQL, Turso, Drizzle, Firebase, AWS, Google Cloud, Vercel, Cloudflare, Sanity, Upstash, Clerk, NextAuth, Sentry, Google Analytics, Playwright, GitHub Actions, ESLint, Prettier, Git and Figma.
+    Dropped as filler or dated: HTML5, CSS3, ES6+, React-Icons, Context API, Recoil, Material-UI, PayPal, Postman, Jest, MySQL, Stripe, GraphQL, AWS Amplify, Prisma and REST APIs.
+    Row durations come from the tile count (`rowDuration`), so every row moves at the old speed (about 22px/s) on both sites.
+    Purple marks (Clerk, ESLint, Vite) show light or in another brand colour.
     Its intro reads "The AI kit and stack I build with, in daily use right now." (owner, 2026-10-29).
     Pi shows a π (it has no mark of its own), ChatGPT and Codex use OpenAI's mark, and Playwright's logo is `public/projectIcons/playwright.svg`, from playwright.dev.
   - The dino is a game: the first click starts a 30-second catch round with a scoreboard and a best score (kept in the browser); every click is a random colour and one of several reactions and roar lines; the rainbow comes on the 5th click, every 10th catch and 1 in 12 at random.
