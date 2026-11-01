@@ -48,12 +48,20 @@ test.describe('AI kit tiles (motion allowed)', () => {
   test('each item is a single tab stop', async ({ page }) => {
     await page.goto('/')
     const panel = page.locator('[data-dino-panel]')
-    const tiles = panel.locator('figure')
-    await expect.poll(() => tiles.count()).toBeGreaterThan(10)
+    // Hydration adds the loop's copies (four of a short row, two of the long dev stack).
+    await expect.poll(() => panel.locator('[aria-hidden="true"] figure').count()).toBeGreaterThan(10)
     // Only the first copy of each item is in the tab order.
-    const focusable = panel.locator('figure[tabindex="0"]')
-    await expect.poll(async () => (await tiles.count()) / (await focusable.count())).toBe(4)
-    await expect(panel.locator('[aria-hidden="true"] [tabindex="0"]')).toHaveCount(0)
+    const rows = await panel.locator('[data-marquee-row]').evaluateAll((rows) =>
+      rows.map((row) => {
+        const [first, ...copies] = [...row.children]
+        return {
+          tiles: first.querySelectorAll('figure').length,
+          focusable: first.querySelectorAll('figure[tabindex="0"]').length,
+          copiesFocusable: copies.reduce((n, copy) => n + copy.querySelectorAll('[tabindex="0"]').length, 0),
+        }
+      })
+    )
+    for (const row of rows) expect(row).toEqual({ tiles: row.tiles, focusable: row.tiles, copiesFocusable: 0 })
   })
 
   test("each tile's description is there for screen readers", async ({ page }) => {
