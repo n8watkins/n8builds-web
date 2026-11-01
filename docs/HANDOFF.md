@@ -290,7 +290,7 @@ The owner's standing decisions live in [DECISIONS.md](DECISIONS.md), the one pla
 - `app/layout.tsx`: site-wide metadata defaults, GA (gated on `NEXT_PUBLIC_GA_ID`), Speed Insights (Vercel only), providers.
 - `app/api/contact/route.ts`, `app/api/health/route.ts` (liveness ping), `app/api/live/route.ts` (live status).
 - `lib/live.ts`, `lib/live-shared.ts`, `components/live/`, `app/live/page.tsx`: live streams (see "Live streams").
-- `components/sections/`: `Hero`, `NowBuilding`, `FeaturedProjects`, `ShelfSection`, `LabSubheader`, `ExtensionsShowcase`, `HomeStack`, `NotionsStrip`, `WorkWithMe`, `Loadout`, `BuildStacks`, `TechStackBento`, `BuildCard`.
+- `components/sections/`: `Hero`, `NowBuilding`, `FeaturedProjects`, `ShelfSection`, `LabSubheader`, `ExtensionsShowcase`, `HomeStack`, `NotionsStrip`, `WorkWithMe`, `Loadout` (with `LoadoutDevTools`: tools I use, people I follow, tools I built), `BuildStacks`, `TechStackBento`, `BuildCard`.
 - `components/layout/`: `Navbar` (`labMenu[]` drives the Lab dropdown), `Footer` (contact card and form).
 - `components/ContactForm/`: form UI and `useContactFormSubmit` (submission and Turnstile handling).
 - `components/blog/`, `lib/sanity.ts`, `lib/blog-utils.ts`: N8's Notions.
