@@ -104,10 +104,10 @@ test.describe('the hero text column', () => {
     await expect(hero.getByText(/See what I.m building/)).toHaveCount(0)
   })
 
-  test('shows "Hiring? See my developer portfolio" above the social links', async ({ page }) => {
+  test('shows "Hiring? Check out my dev portfolio" above the social links', async ({ page }) => {
     await page.goto('/')
     const hero = page.locator('#home')
-    const hiring = await hero.getByRole('link', { name: 'See my developer portfolio' }).boundingBox()
+    const hiring = await hero.getByRole('link', { name: 'Check out my dev portfolio' }).boundingBox()
     const socials = await hero.getByRole('navigation', { name: 'Social links' }).boundingBox()
     expect(hiring!.y + hiring!.height).toBeLessThanOrEqual(socials!.y)
   })
@@ -366,6 +366,9 @@ test.describe('the whoami terminal', () => {
     await expect(terminal.getByText('I build apps and tools I wish existed.', { exact: true })).toBeVisible()
     await expect(terminal).not.toContainText('in LA')
     await expect(terminal).not.toContainText('heavy lifting')
+    // Two lines: "Shipping with Claude Opus 5.5." went on 2026-11-01.
+    await expect(terminal.locator('.whoami-type')).toHaveCount(2)
+    await expect(terminal).not.toContainText('Shipping with')
     const first = await terminal.getByText('AI-first software developer.', { exact: true }).evaluate((el) => {
       const range = document.createRange()
       range.selectNodeContents(el)
@@ -490,7 +493,7 @@ test.describe('the whoami typing', () => {
     test('types each line out from the server HTML, without JavaScript, then shows the prompt', async ({ page }) => {
       await page.context().route('**/*.js', (route) => route.abort())
       await page.goto('/')
-      await expect(lines(page)).toHaveText(['AI-first software developer.', 'I build apps and tools I wish existed.', 'Shipping with Claude Opus 5.5.'])
+      await expect(lines(page)).toHaveText(['AI-first software developer.', 'I build apps and tools I wish existed.'])
       // Pause every animation early on: line 1 part typed, line 2 and the prompt not yet.
       await page.evaluate(() => {
         // Time-based animations only: the Lab's scroll-driven washes run on scroll progress.

@@ -105,7 +105,7 @@ test('the Lab says its builds are public and mostly open source', async ({ page 
 
 test('the hero gives someone hiring a direct link to the developer portfolio', async ({ page }) => {
   await page.goto('/')
-  const link = page.getByRole('link', { name: 'See my developer portfolio' })
+  const link = page.getByRole('link', { name: 'Check out my dev portfolio' })
   await expect(link).toBeVisible()
   await expect(link).toHaveAttribute('href', 'https://portfolio.n8builds.dev')
 })
