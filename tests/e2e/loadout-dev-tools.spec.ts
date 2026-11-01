@@ -118,10 +118,72 @@ test.describe('Loadout tools and people', () => {
     expect(await img.evaluate((el) => getComputedStyle(el).color)).toBe('rgba(0, 0, 0, 0)')
   })
 
+  test('My dev setup groups the machine, WSL, terminal and the rest, linking what has a card here', async ({ page }) => {
+    await page.goto('/loadout')
+    const setup = page.getByRole('region', { name: 'My dev setup' })
+    await expect(setup.getByRole('heading', { level: 3 })).toHaveText([
+      'Machine',
+      'WSL2',
+      'Terminal',
+      'Editors',
+      'Agents',
+      'Agent tooling',
+      'Runtimes',
+      'My own tools, in daily use',
+      'Shipping',
+    ])
+    await expect(setup.locator('pre')).toHaveText(
+      '[wsl2]\nnetworkingMode=mirrored\nmemory=20GB\nprocessors=8\nswap=16GB\n\n[experimental]\nautoMemoryReclaim=dropcache\nsparseVhd=true',
+    )
+    // Agent tooling points at the Tools I use cards instead of repeating them.
+    for (const [name, id] of [['no-mistakes', 'no-mistakes'], ['gh-axi', 'gh-axi'], ['chrome-devtools-axi', 'chrome-devtools-axi'], ['Lavish', 'lavish']]) {
+      await expect(setup.getByRole('link', { name, exact: true })).toHaveAttribute('href', `#${id}`)
+      await expect(page.locator(`#tools-i-use #${id}`)).toHaveCount(1)
+    }
+    await expect(setup.getByRole('link', { name: /^Scribe/ })).toHaveAttribute('href', '/builds/scribe')
+    await expect(setup.getByRole('link', { name: /^herdr/ })).toHaveAttribute('href', '#herdr')
+    // T-Hub has no public page and N8 Tray is private: neither is a link.
+    for (const name of ['T-Hub', 'N8 Tray']) {
+      await expect(setup.getByText(name, { exact: true })).toBeVisible()
+      await expect(setup.getByRole('link', { name: new RegExp(`^${name}`) })).toHaveCount(0)
+    }
+  })
+
+  test('Honorable mentions credits each maker, and leaves gnhf out', async ({ page }) => {
+    await page.goto('/loadout')
+    const mentions = page.getByRole('region', { name: 'Honorable mentions' })
+    await expect(mentions.locator('h3')).toHaveCount(4)
+    await expect(mentions.locator('#herdr h3')).toContainText(', by Can Celik')
+    await expect(mentions.getByRole('link', { name: 'herdr (opens in a new tab)', exact: true })).toHaveAttribute('href', 'https://herdr.dev')
+    await expect(mentions.getByRole('link', { name: 'Can Celik' })).toHaveAttribute('href', 'https://github.com/ogulcancelik')
+    for (const id of ['firstmate', 'treehouse']) {
+      await expect(mentions.locator(`#${id} h3`)).toContainText(', by Kun Chen')
+      await expect(mentions.locator(`#${id}`).getByRole('link', { name: 'Kun Chen' })).toHaveAttribute('href', '#kun-chen')
+    }
+    await expect(mentions.locator('#ccusage h3')).toContainText(', by ryoppippi')
+    await expect(mentions.getByText('gnhf')).toHaveCount(0)
+  })
+
+  test('Kun Chen\'s card says how he works and links the video', async ({ page }) => {
+    await page.goto('/loadout')
+    const card = page.locator('#kun-chen')
+    await expect(card.getByText(/Runs macOS with nix-darwin, WezTerm, Neovim/)).toBeVisible()
+    await expect(card.getByRole('link', { name: 'How he works (a video, opens in a new tab)' })).toHaveAttribute('href', 'https://youtu.be/iQyg-KypKAA')
+  })
+
+  test('the homepage teases my setup and links to it', async ({ page }) => {
+    await page.goto('/')
+    const teaser = page.locator('[data-setup-teaser]')
+    await expect(teaser).toContainText('Windows 11 + WSL2 · Claude Code + Codex · herdr + T-Hub')
+    await teaser.getByRole('link', { name: 'See my dev setup' }).click()
+    await expect(page).toHaveURL(/\/loadout#dev-setup$/)
+    await expect(page.getByRole('heading', { name: 'My dev setup' })).toBeVisible()
+  })
+
   test('the header pills jump to every part of the page', async ({ page }) => {
     await page.goto('/loadout')
     const pills = page.getByRole('navigation', { name: 'Loadout sections' }).getByRole('link')
-    await expect(pills).toHaveText(['How I work', 'Tools I use', 'People I follow', 'Tools I built', 'Inside my apps', 'The setup'])
+    await expect(pills).toHaveText(['Dev setup', 'How I work', 'Tools I use', 'Honorable mentions', 'People I follow', 'Tools I built', 'Inside my apps', 'The setup'])
     for (const href of await pills.evaluateAll((els) => els.map((el) => el.getAttribute('href')))) {
       await expect(page.locator(href!)).toHaveCount(1)
     }

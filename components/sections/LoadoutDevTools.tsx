@@ -1,9 +1,12 @@
 import type { ReactNode } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { FiGitPullRequest, FiPackage, FiPlusSquare } from 'react-icons/fi'
 import { LuExternalLink, LuGlobe, LuUsers } from 'react-icons/lu'
 import { SiGithub, SiSubstack, SiX, SiYoutube } from 'react-icons/si'
 import {
+  devSetup,
+  honorableMentions,
   people,
   toolsIBuilt,
   toolsIUse,
@@ -11,14 +14,17 @@ import {
   type Person,
   type PersonLink,
   type PublicActivity,
+  type SetupEntry,
+  type UsedTool,
   type NamedLink,
 } from '@/data/loadout'
 import RepoButtons from '@/components/ui/RepoButtons'
 import Reveal from '@/components/ui/Reveal'
 
 /**
- * The dev-tool parts of /loadout (2026-11-01): the tools I use (each
- * credited to its maker), the people I follow, and the tools I built. Each reads its list from
+ * The dev-tool parts of /loadout (2026-11-01): my dev setup, the tools I use
+ * (each credited to its maker), honorable mentions, the people I follow and
+ * the tools I built. Each reads its list from
  * data/loadout.tsx, so adding a tool or a person is one entry there.
  * Server components: RepoButtons fetches its star count on the server. Out
  * of the app's IconContext, so every icon is aria-hidden by hand.
@@ -146,6 +152,57 @@ export const ToolsIBuilt = () => (
   </Reveal>
 )
 
+const makerLink = 'font-medium text-slate-300 underline decoration-white/20 underline-offset-4 transition-colors hover:text-cyan-200'
+
+/**
+ * One tool someone else made: "no-mistakes, by Kun Chen". The tool links to
+ * its page; a maker in People I follow links to their card, any other maker
+ * to their own profile.
+ */
+const ToolItem = ({ tool }: { tool: UsedTool }) => {
+  const person = tool.by ? people.find((p) => p.id === tool.by) : undefined
+  return (
+    <li
+      id={tool.id}
+      className="group flex scroll-mt-24 items-start gap-4 rounded-2xl border border-white/8 bg-white/[0.02] p-5 transition-colors duration-200 target:border-cyan-300/40 hover:border-cyan-300/30 hover:bg-white/[0.04]"
+    >
+      <span aria-hidden="true" className={`${iconChip} h-11 w-11 p-2.5 [&_svg]:h-full [&_svg]:w-full`}>
+        {tool.icon}
+      </span>
+      <div className="min-w-0">
+        <h3 className="text-[15px] text-slate-450">
+          <a
+            href={tool.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-mono font-bold text-slate-100 underline decoration-white/0 underline-offset-4 transition-colors hover:text-cyan-200 hover:decoration-cyan-200/50"
+          >
+            {tool.name}
+            <span className="sr-only">{tool.href.startsWith('https://github.com/') ? ' on GitHub' : ''} (opens in a new tab)</span>
+          </a>
+          {person && (
+            <>
+              , by{' '}
+              <a href={`#${person.id}`} className={makerLink}>
+                {person.name}
+              </a>
+            </>
+          )}
+          {!person && tool.maker && (
+            <>
+              , by{' '}
+              <a href={tool.maker.href} target="_blank" rel="noopener noreferrer" className={makerLink}>
+                {tool.maker.name}
+              </a>
+            </>
+          )}
+        </h3>
+        <p className="mt-1 text-sm leading-relaxed text-[#9cadc5]">{tool.whatFor}</p>
+      </div>
+    </li>
+  )
+}
+
 export const ToolsIUse = () => (
   <Reveal>
     <section id="tools-i-use" aria-labelledby="tools-i-use-title" className="scroll-mt-24">
@@ -153,46 +210,89 @@ export const ToolsIUse = () => (
         What I add on top of Claude Code and Codex, so the agents can check their own work.
       </SectionHead>
       <ul className="grid gap-4 md:grid-cols-2">
-        {toolsIUse.map((tool) => {
-          const maker = tool.by ? people.find((p) => p.id === tool.by) : undefined
-          return (
-            <li
-              key={tool.name}
-              className="group flex items-start gap-4 rounded-2xl border border-white/8 bg-white/[0.02] p-5 transition-colors duration-200 hover:border-cyan-300/30 hover:bg-white/[0.04]"
-            >
-              <span aria-hidden="true" className={`${iconChip} h-11 w-11 p-2.5 [&_svg]:h-full [&_svg]:w-full`}>{tool.icon}</span>
-              <div className="min-w-0">
-                {/* "no-mistakes, by Kun Chen": the tool links to its repo, the maker to their card below. */}
-                <h3 className="text-[15px] text-slate-450">
-                  <a
-                    href={tool.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-mono font-bold text-slate-100 underline decoration-white/0 underline-offset-4 transition-colors hover:text-cyan-200 hover:decoration-cyan-200/50"
-                  >
-                    {tool.name}
-                    <span className="sr-only"> on GitHub (opens in a new tab)</span>
-                  </a>
-                  {maker && (
-                    <>
-                      , by{' '}
-                      <a
-                        href={`#${maker.id}`}
-                        className="font-medium text-slate-300 underline decoration-white/20 underline-offset-4 transition-colors hover:text-cyan-200"
-                      >
-                        {maker.name}
-                      </a>
-                    </>
-                  )}
-                </h3>
-                <p className="mt-1 text-sm leading-relaxed text-[#9cadc5]">{tool.whatFor}</p>
-              </div>
-            </li>
-          )
-        })}
+        {toolsIUse.map((tool) => (
+          <ToolItem key={tool.id} tool={tool} />
+        ))}
       </ul>
     </section>
   </Reveal>
+)
+
+export const HonorableMentions = () => (
+  <Reveal>
+    <section id="honorable-mentions" aria-labelledby="honorable-mentions-title" className="scroll-mt-24">
+      <SectionHead id="honorable-mentions-title" path="~/loadout/mentions" title="Honorable mentions">
+        Other people&apos;s tools I recommend.
+      </SectionHead>
+      <ul className="grid gap-4 md:grid-cols-2">
+        {honorableMentions.map((tool) => (
+          <ToolItem key={tool.id} tool={tool} />
+        ))}
+      </ul>
+    </section>
+  </Reveal>
+)
+
+/** One item in My dev setup, as a chip: a link when it has a page or a card here. */
+const SetupChip = ({ entry }: { entry: SetupEntry }) => {
+  const body = (
+    <>
+      <span className="font-semibold text-slate-100">{entry.name}</span>
+      {entry.note && <span className="text-slate-450">{entry.note}</span>}
+    </>
+  )
+  const chip = 'inline-flex flex-wrap items-baseline gap-x-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1 text-sm'
+  if (!entry.href) return <span className={chip}>{body}</span>
+  const linked = `${chip} transition-colors hover:border-cyan-300/40 hover:bg-white/[0.06] [&>span:first-child]:underline [&>span:first-child]:decoration-white/20 [&>span:first-child]:underline-offset-4`
+  return entry.href.startsWith('/') ? (
+    <Link href={entry.href} className={linked}>
+      {body}
+    </Link>
+  ) : (
+    <a href={entry.href} className={linked}>
+      {body}
+    </a>
+  )
+}
+
+/** My dev setup: what I work on and with, grouped so it scans in seconds. */
+export const DevSetup = () => (
+  <section id="dev-setup" aria-labelledby="dev-setup-title" className="scroll-mt-24">
+    <SectionHead id="dev-setup-title" path="~/loadout/dev-setup" title="My dev setup">
+      Windows 11 with WSL2, Claude Code and Codex, and the tools around them.
+    </SectionHead>
+    <ul className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {devSetup.map((group) => (
+        <li
+          key={group.id}
+          className={`rounded-2xl border border-white/8 bg-white/[0.02] p-5 ${group.wide ? 'lg:col-span-2' : ''}`}
+        >
+          <div className={group.code ? 'grid gap-4 sm:grid-cols-2' : ''}>
+            <div>
+              <h3 id={`setup-${group.id}-title`} className="font-mono text-xs font-bold tracking-[0.16em] text-cyan-300 uppercase">
+                {group.title}
+              </h3>
+              <ul className="mt-3 flex flex-wrap gap-2">
+                {group.items.map((entry) => (
+                  <li key={entry.name}>
+                    <SetupChip entry={entry} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {group.code && (
+              <figure className="min-w-0">
+                <figcaption className="font-mono text-xs text-slate-475">{group.code.label}</figcaption>
+                <pre className="mt-1.5 overflow-x-auto rounded-xl border border-white/8 bg-[#050b17] px-4 py-3 font-mono text-[0.8rem] leading-snug text-slate-300">
+                  <code>{group.code.text}</code>
+                </pre>
+              </figure>
+            )}
+          </div>
+        </li>
+      ))}
+    </ul>
+  </section>
 )
 
 const LINKS: Record<PersonLink['kind'], { label: string; icon: ReactNode }> = {
@@ -271,6 +371,18 @@ export const PersonCard = ({ person }: { person: Person }) => (
       </div>
     </div>
     <p className="text-[15px] leading-relaxed text-pretty text-[#9cadc5]">{person.note}</p>
+    {person.howTheyWork && (
+      <p className="-mt-1 text-sm leading-relaxed text-slate-400">
+        {person.howTheyWork.summary}{' '}
+        <a href={person.howTheyWork.href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-semibold whitespace-nowrap text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 hover:text-cyan-200">
+          <span aria-hidden="true" className="[&_svg]:h-3.5 [&_svg]:w-3.5">
+            <SiYoutube />
+          </span>
+          How he works
+          <span className="sr-only"> (a video, opens in a new tab)</span>
+        </a>
+      </p>
+    )}
     <RecentActivity person={person} />
     <ul className="mt-auto flex flex-wrap gap-2" aria-label={`${person.name} online`}>
       {person.links.map((link) => {

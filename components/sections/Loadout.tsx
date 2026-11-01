@@ -6,7 +6,7 @@ import { LuBackpack } from 'react-icons/lu'
 import { harnesses, inApps, loadout, workflow, type LoadoutGroup, type WorkflowStep } from '@/data/loadout'
 import Reveal from '@/components/ui/Reveal'
 import FadeIn from '@/components/ui/FadeIn'
-import { PeopleIFollow, SectionHead, ToolsIBuilt, ToolsIUse } from '@/components/sections/LoadoutDevTools'
+import { DevSetup, HonorableMentions, PeopleIFollow, SectionHead, ToolsIBuilt, ToolsIUse } from '@/components/sections/LoadoutDevTools'
 
 // A server component, so react-icons don't get the app's IconContext
 // (aria-hidden by default, app/provider.tsx): every icon here is hidden from
@@ -15,7 +15,8 @@ import { PeopleIFollow, SectionHead, ToolsIBuilt, ToolsIUse } from '@/components
 /**
  * The Loadout (/loadout): the tools I use and what each one is for, not a
  * tech stack. It leads with how I work with AI (decide, build, fix: the tool
- * and model for each step), then the tools I use, the people I follow, the
+ * and model for each step), after my dev setup, then the tools I use,
+ * honorable mentions, the people I follow, the
  * tools I built, the AI inside the apps I build, and the physical
  * setup in one section (rig, desk, stream). A server component: its
  * interactive parts (the scroll reveals) are client islands.
@@ -23,8 +24,10 @@ import { PeopleIFollow, SectionHead, ToolsIBuilt, ToolsIUse } from '@/components
 
 // The page's parts, as pills under the header (like the Lab's), in page order.
 const PARTS = [
+  { label: 'Dev setup', href: '#dev-setup' },
   { label: 'How I work', href: '#workflow' },
   { label: 'Tools I use', href: '#tools-i-use' },
+  { label: 'Honorable mentions', href: '#honorable-mentions' },
   { label: 'People I follow', href: '#people' },
   { label: 'Tools I built', href: '#tools-i-built' },
   { label: 'Inside my apps', href: '#in-apps' },
@@ -141,7 +144,7 @@ const Loadout = () => {
             <h1 className="text-4xl font-bold tracking-tight text-slate-50 sm:text-6xl lg:text-7xl">My Loadout</h1>
           </div>
           <p className="mt-5 max-w-[600px] text-balance text-lg text-[#9cadc5] sm:text-xl">
-            The AI I work with, the tools I use and built, the people I follow, and the setup it all runs on.
+            My dev setup, the AI I work with, the tools I use and built, the people I follow, and the hardware it all runs on.
           </p>
           <nav aria-label="Loadout sections" className="mt-7 flex flex-wrap justify-center gap-2">
             {PARTS.map((part) => (
@@ -156,8 +159,14 @@ const Loadout = () => {
           </nav>
         </FadeIn>
 
+        {/* My dev setup first: the machine and everything on it, at a glance.
+             Just under the header, so it fades in with it (no scroll reveal). */}
+        <FadeIn className="mt-16" delay={0.1}>
+          <DevSetup />
+        </FadeIn>
+
         {/* How I work with AI: a sequence, so the steps are numbered and joined by arrows. */}
-        <Reveal className="mt-16">
+        <Reveal className="mt-20">
           <section id="workflow" aria-labelledby="workflow-title" className="scroll-mt-24">
           <SectionHead id="workflow-title" path="~/loadout/workflow" title="How I work with AI">
             One tool for each part of the job. A piece of work goes through them in this order.
@@ -194,6 +203,9 @@ const Loadout = () => {
         {/* The tools I use, the people who make them and others I follow, then the tools I built */}
         <div className="mt-20">
           <ToolsIUse />
+        </div>
+        <div className="mt-20">
+          <HonorableMentions />
         </div>
         <div className="mt-20">
           <PeopleIFollow />

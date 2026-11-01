@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { people, toolsIBuilt, toolsIUse, type Person } from '@/data/loadout'
+import { devSetup, honorableMentions, people, toolsIBuilt, toolsIUse, type Person } from '@/data/loadout'
 import { PersonCard } from '@/components/sections/LoadoutDevTools'
 
 /**
@@ -15,6 +15,8 @@ import { PersonCard } from '@/components/sections/LoadoutDevTools'
 const allCopy = [
   ...toolsIBuilt.flatMap((t) => [t.name, t.pitch, t.detail, t.credit?.note ?? '']),
   ...toolsIUse.flatMap((t) => [t.name, t.whatFor]),
+  ...honorableMentions.flatMap((t) => [t.name, t.whatFor]),
+  ...devSetup.flatMap((g) => [g.title, ...g.items.flatMap((i) => [i.name, i.note ?? ''])]),
   ...people.flatMap((c) => [c.name, c.role, c.note]),
 ]
 
@@ -33,7 +35,7 @@ describe('the loadout dev-tool lists', () => {
   })
 
   it('gives every built tool and creator a unique anchor id', () => {
-    const ids = [...toolsIBuilt.map((t) => t.id), ...people.map((c) => c.id)]
+    const ids = [...toolsIBuilt.map((t) => t.id), ...people.map((c) => c.id), ...toolsIUse.map((t) => t.id), ...honorableMentions.map((t) => t.id)]
     expect(new Set(ids).size).toBe(ids.length)
     for (const id of ids) expect(id).toMatch(/^[a-z0-9-]+$/)
   })
@@ -64,6 +66,28 @@ describe('the loadout dev-tool lists', () => {
       expect(person.avatar).toMatch(/^\/people\/[a-z0-9-]+\.webp$/)
       expect(existsSync(join(process.cwd(), 'public', person.avatar!))).toBe(true)
     }
+  })
+
+  it('links My dev setup only to anchors that exist on the page, or to site pages', () => {
+    const anchors = new Set([
+      'workflow',
+      ...toolsIBuilt.map((t) => t.id),
+      ...toolsIUse.map((t) => t.id),
+      ...honorableMentions.map((t) => t.id),
+      ...people.map((p) => p.id),
+    ])
+    for (const entry of devSetup.flatMap((g) => g.items)) {
+      if (!entry.href) continue
+      if (entry.href.startsWith('#')) expect(anchors, entry.name).toContain(entry.href.slice(1))
+      else expect(entry.href).toMatch(/^\/[a-z]/)
+    }
+  })
+
+  it('keeps honorable mentions out of Tools I use, and gnhf off the list', () => {
+    const used = new Set(toolsIUse.map((t) => t.name))
+    for (const tool of honorableMentions) expect(used.has(tool.name)).toBe(false)
+    expect(honorableMentions.map((t) => t.id)).not.toContain('gnhf')
+    for (const tool of honorableMentions) if (tool.by) expect(people.map((p) => p.id)).toContain(tool.by)
   })
 
   it('never uses an em dash in its copy', () => {
