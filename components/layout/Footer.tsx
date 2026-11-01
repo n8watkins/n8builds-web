@@ -103,7 +103,9 @@ const Footer = () => {
                     ) : (
                       TECH_FOR_PROS.name
                     )}{' '}
-                    {techForProsHref ? 'puts' : 'will soon put'} your business online, and takes the follow-up off your plate.
+                    {techForProsHref
+                      ? 'puts your business online and takes the follow-up off your plate.'
+                      : 'will soon put your business online and take the follow-up off your plate.'}
                   </p>
                   <p>
                     Everything I ship lands in the <Link href="/builds" className={LINK}>build log</Link>, and the
