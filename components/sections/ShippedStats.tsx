@@ -47,6 +47,9 @@ export default function ShippedStats({ stats, period }: { stats: ShippedStat[]; 
       role="group"
       aria-roledescription="carousel"
       aria-label={`Shipped ${period}`}
+      // Marks that the on-screen watcher (hydrated) sees the card, so tests can
+      // wait for it instead of guessing how long a loaded machine takes to hydrate.
+      data-in-view={inView ? '' : undefined}
       className="flex h-full flex-col gap-3 md:gap-4"
       onMouseEnter={() => setHeld(true)}
       onMouseLeave={() => setHeld(false)}

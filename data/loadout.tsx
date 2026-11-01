@@ -1,7 +1,23 @@
 import type { ReactElement } from 'react'
 import { BsOpenai } from 'react-icons/bs'
-import { LuCircuitBoard, LuKeyboard, LuMemoryStick, LuMic } from 'react-icons/lu'
-import { SiAcer, SiAmd, SiClaude, SiGooglegemini, SiObsstudio, SiRazer, SiSamsung } from 'react-icons/si'
+import {
+  LuChartColumn,
+  LuCircuitBoard,
+  LuCpu,
+  LuFileCode,
+  LuGlobe,
+  LuKeyRound,
+  LuKeyboard,
+  LuMemoryStick,
+  LuMic,
+  LuNewspaper,
+  LuPanelsTopLeft,
+  LuShieldCheck,
+  LuShip,
+  LuTag,
+  LuTrees,
+} from 'react-icons/lu'
+import { SiAcer, SiAmd, SiClaude, SiGithub, SiGooglegemini, SiObsstudio, SiRazer, SiSamsung } from 'react-icons/si'
 import { GgmlMark } from '@/data/stack'
 
 // The Loadout - "who I am" without a resume. You ARE your loadout.
@@ -121,6 +137,238 @@ export const inApps: { name: string; icon: ReactElement; color: string; whatFor:
   },
 ]
 
+/** A person or organisation, linked. */
+export interface NamedLink {
+  name: string
+  href: string
+}
+
+/**
+ * The dev tools I built: small public CLIs, not apps (those are the Lab's
+ * builds in data/builds.tsx). One entry per tool; adding a tool is adding an
+ * entry here.
+ */
+export interface BuiltTool {
+  /** The anchor id on /loadout. */
+  id: string
+  name: string
+  /** One line: what it does for you. */
+  pitch: string
+  /** Two short sentences on how. */
+  detail: string
+  /** The public repo; it feeds the Star | GitHub button. */
+  github: string
+  /** A live demo, linked next to the repo button. */
+  demo?: string
+  /** For a fork: who made the original, and what my fork adds. */
+  credit?: { author: NamedLink; org?: NamedLink; note: string }
+  tags: string[]
+  icon: ReactElement
+}
+
+export const toolsIBuilt: BuiltTool[] = [
+  {
+    id: 'pass-env',
+    name: 'pass-env',
+    pitch: 'Your AI coding agents use your API keys without ever seeing them.',
+    detail:
+      'The keys stay encrypted in pass, and each project lists only their names. Agents can run the app and push secrets to production, and the values never land in files, terminals or transcripts.',
+    github: 'https://github.com/n8watkins/pass-env',
+    credit: {
+      author: { name: 'Phaedrus Raznikov', href: 'https://github.com/moomooskycow' },
+      org: { name: 'Misty Step', href: 'https://github.com/misty-step' },
+      note: 'my fork adds import, generate, doctor and more.',
+    },
+    tags: ['CLI', 'pass', 'GPG', 'Bun'],
+    icon: <LuKeyRound />,
+  },
+  {
+    id: 'release-kit',
+    name: 'release-kit',
+    pitch: 'Conventional Commits, SemVer tags and GitHub Releases on any repo, with one command.',
+    detail:
+      'Release notes are written from the commits. An optional release train ships on a schedule, only when there is work a user would notice. This site releases with it.',
+    github: 'https://github.com/n8watkins/release-kit',
+    tags: ['CLI', 'Node', 'GitHub Actions'],
+    icon: <LuTag />,
+  },
+  {
+    id: 'devguard',
+    name: 'devguard',
+    pitch: 'Run many AI coding agents in parallel on one machine without running out of memory, ports or disk.',
+    detail:
+      'A watchdog stops runaway and finished dev servers, each worktree gets a stable port, heavy jobs wait for a free slot, and a sweep finds build output you can delete. Plain Python, no dependencies.',
+    github: 'https://github.com/n8watkins/devguard',
+    tags: ['CLI', 'Python', 'WSL'],
+    icon: <LuCpu />,
+  },
+  {
+    id: 'pr-post',
+    name: 'pr-post',
+    pitch: 'Follow what your favorite builders ship.',
+    detail:
+      'It turns their public GitHub and YouTube work into a small newspaper, The Pull Request Post, plus a feed.json for your own site. GitHub Actions prints a new edition twice a week.',
+    github: 'https://github.com/n8watkins/pr-post',
+    demo: 'https://n8watkins.github.io/pr-post/',
+    tags: ['Python', 'GitHub Actions', 'GitHub Pages'],
+    icon: <LuNewspaper />,
+  },
+]
+
+/**
+ * People I follow: what each one is working on in public. One entry per
+ * person; adding one is adding an entry here. `id` is the anchor the tools
+ * below link to ("no-mistakes, by Kun Chen").
+ *
+ * The cards are static for now. Later pr-post's feed.json fills each
+ * person's `activity` with their recent public work: replace this array with
+ * the fetched one, or merge the feed's items in by `id`. Only public events
+ * belong here (public pull requests, releases, new repos), never counts of
+ * private activity.
+ */
+export interface Person {
+  id: string
+  name: string
+  /** Shown in the avatar circle, and behind the photo if it fails to load. */
+  initials: string
+  /**
+   * Their avatar, self-hosted in public/people/ (256x256 WebP, the same
+   * picture they use on their own channels), so no new image host is needed.
+   */
+  avatar?: string
+  /** Who they are, in one sentence. */
+  role: string
+  /** What they are working on in public, in one or two plain sentences. */
+  note: string
+  /** Their own links only (from their channels or profiles); never a guessed one. */
+  links: PersonLink[]
+  /** How they work, in one line, and where they show it (a video). */
+  howTheyWork?: { summary: string; href: string }
+  /** Their recent public activity, newest first; none until the feed exists. */
+  activity?: PublicActivity[]
+}
+
+export interface PersonLink {
+  kind: 'youtube' | 'x' | 'substack' | 'github' | 'website' | 'community'
+  href: string
+  /** The button's text, when the kind's default (YouTube, X, Website...) isn't enough. */
+  label?: string
+}
+
+/** One public event, as the feed will send it. */
+export interface PublicActivity {
+  kind: 'pull-request' | 'release' | 'new-repo'
+  /** The PR title, the release name or the repo's description. */
+  title: string
+  /** `owner/name`. */
+  repo: string
+  href: string
+  /** ISO 8601. */
+  date: string
+}
+
+export const people: Person[] = [
+  {
+    id: 'kun-chen',
+    name: 'Kun Chen',
+    initials: 'KC',
+    avatar: '/people/kun-chen.webp',
+    role: 'Former L8 principal engineer at Meta, Microsoft and Atlassian.',
+    // A non-breaking hyphen (U+2011) keeps "no-mistakes" from splitting across lines.
+    note: 'Building agent tools in the open: no\u2011mistakes, firstmate, gnhf, treehouse and the AXI interfaces.',
+    howTheyWork: {
+      summary: 'Runs macOS with nix-darwin, WezTerm, Neovim and tmux or herdr; Claude Code for interactive work, Codex for background runs.',
+      href: 'https://youtu.be/iQyg-KypKAA',
+    },
+    links: [
+      { kind: 'youtube', href: 'https://www.youtube.com/channel/UCb69t9ZkE5z1KvCmfJoaifA' },
+      { kind: 'x', href: 'https://x.com/kunchenguid' },
+      { kind: 'substack', href: 'https://kunchenguid.substack.com' },
+      { kind: 'github', href: 'https://github.com/kunchenguid' },
+    ],
+  },
+  {
+    id: 'phaedrus',
+    name: 'Phaedrus Raznikov',
+    initials: 'PR',
+    avatar: '/people/phaedrus.webp',
+    role: 'Runs Misty Step, an AI-native software agency.',
+    note: 'Building tooling for fleets of coding agents. He created pass-env.',
+    links: [
+      { kind: 'x', href: 'https://x.com/moomooskycow' },
+      { kind: 'github', href: 'https://github.com/moomooskycow' },
+      { kind: 'website', href: 'https://www.mistystep.io/', label: 'Misty Step' },
+    ],
+  },
+  {
+    id: 'nate-herk',
+    name: 'Nate Herk',
+    initials: 'NH',
+    avatar: '/people/nate-herk.webp',
+    role: 'AI automation educator.',
+    note: 'Teaching AI automation on YouTube and running the AI Automation Society community.',
+    links: [
+      { kind: 'youtube', href: 'https://www.youtube.com/@nateherk' },
+      { kind: 'x', href: 'https://x.com/nateherk' },
+      { kind: 'website', href: 'https://nateherk.com', label: 'nateherk.com' },
+      { kind: 'community', href: 'https://www.skool.com/ai-automation-society/about', label: 'AI Automation Society' },
+    ],
+  },
+]
+
+/**
+ * The agent tools I use on top of Claude Code and Codex. Only tools in real
+ * use: each one is installed and wired into my agents as a skill. `by` names
+ * its maker from `people` when they are listed there.
+ */
+export interface UsedTool {
+  /** The anchor id on /loadout (My dev setup links to it). */
+  id: string
+  name: string
+  whatFor: string
+  href: string
+  /** A `people` id: the maker, linked to their card. */
+  by?: string
+  /** A maker who isn't in `people`, linked to their own profile. */
+  maker?: NamedLink
+  icon: ReactElement
+}
+
+export const toolsIUse: UsedTool[] = [
+  {
+    id: 'no-mistakes',
+    name: 'no-mistakes',
+    whatFor: 'A git remote that checks my work first: an AI pipeline reviews, tests and fixes a branch before it is pushed, then opens the pull request.',
+    href: 'https://github.com/kunchenguid/no-mistakes',
+    by: 'kun-chen',
+    icon: <LuShieldCheck />,
+  },
+  {
+    id: 'chrome-devtools-axi',
+    name: 'chrome-devtools-axi',
+    whatFor: 'A browser my agents can drive: they open pages, click through flows and take screenshots to check their own UI work.',
+    href: 'https://github.com/kunchenguid/chrome-devtools-axi',
+    by: 'kun-chen',
+    icon: <LuGlobe />,
+  },
+  {
+    id: 'gh-axi',
+    name: 'gh-axi',
+    whatFor: 'The GitHub CLI, reshaped for agents: issues, pull requests and CI runs in short output they can act on.',
+    href: 'https://github.com/kunchenguid/gh-axi',
+    by: 'kun-chen',
+    icon: <SiGithub />,
+  },
+  {
+    id: 'lavish',
+    name: 'Lavish',
+    whatFor: 'Opens an agent\'s HTML report in my browser, so I can mark up any part of it and send the notes back.',
+    href: 'https://github.com/kunchenguid/lavish-axi',
+    by: 'kun-chen',
+    icon: <LuFileCode />,
+  },
+]
+
 export const loadout: LoadoutGroup[] = [
   {
     id: 'stream',
@@ -214,5 +462,151 @@ export const loadout: LoadoutGroup[] = [
         take: 'Good audio is the cheapest upgrade to sounding like you know what you\'re doing - no interface needed.',
       },
     ],
+  },
+]
+
+/**
+ * Tools I recommend that aren't mine and aren't in "Tools I use" above:
+ * one entry each. herdr is in daily use (My dev setup links to it).
+ */
+export const honorableMentions: UsedTool[] = [
+  {
+    id: 'herdr',
+    name: 'herdr',
+    whatFor:
+      'The runtime my coding agents live on: persistent terminal sessions, every pane marked working, blocked or idle, and an API agents can drive.',
+    href: 'https://herdr.dev',
+    maker: { name: 'Can Celik', href: 'https://github.com/ogulcancelik' },
+    icon: <LuPanelsTopLeft />,
+  },
+  {
+    id: 'firstmate',
+    name: 'firstmate',
+    whatFor: 'Talk to one agent, ship with a crew: it runs several project tasks in parallel, so you stop juggling terminal tabs.',
+    href: 'https://github.com/kunchenguid/firstmate',
+    by: 'kun-chen',
+    icon: <LuShip />,
+  },
+  {
+    id: 'treehouse',
+    name: 'treehouse',
+    whatFor:
+      'Manage worktrees without managing worktrees: a pool of reusable ones, so each agent starts in its own copy with dependencies and build cache intact.',
+    href: 'https://github.com/kunchenguid/treehouse',
+    by: 'kun-chen',
+    icon: <LuTrees />,
+  },
+  {
+    id: 'ccusage',
+    name: 'ccusage',
+    whatFor: 'Token and cost reports for Claude Code and other coding agent CLIs, read from their local logs.',
+    href: 'https://github.com/ccusage/ccusage',
+    maker: { name: 'ryoppippi', href: 'https://github.com/ryoppippi' },
+    icon: <LuChartColumn />,
+  },
+]
+
+/** One thing in My dev setup: a link when it has a page here or a card on /loadout. */
+export interface SetupEntry {
+  name: string
+  /** A few words after the name: what it is or what it does. */
+  note?: string
+  href?: string
+}
+
+/**
+ * My dev setup: the machine, WSL, terminal, editors, agents and the rest,
+ * grouped and scannable. `wide` groups take two columns on large screens
+ * (the order is set so every row fills).
+ */
+export interface DevSetupGroup {
+  id: string
+  title: string
+  items: SetupEntry[]
+  /** A config file shown under the items. */
+  code?: { label: string; text: string }
+  wide?: boolean
+}
+
+export const devSetup: DevSetupGroup[] = [
+  {
+    id: 'machine',
+    title: 'Machine',
+    items: [{ name: 'AMD Ryzen 7 9700X', note: '8 cores' }, { name: '31 GB RAM' }, { name: 'Windows 11 Pro' }],
+  },
+  {
+    id: 'wsl',
+    title: 'WSL2',
+    wide: true,
+    items: [
+      { name: 'Ubuntu 24.04' },
+      { name: '20 GB RAM', note: '+ 16 GB swap' },
+      { name: '8 processors' },
+      { name: 'Mirrored networking' },
+      { name: 'Memory reclaim', note: 'dropcache' },
+      { name: 'Sparse VHD' },
+    ],
+    code: {
+      label: '.wslconfig',
+      text: ['[wsl2]', 'networkingMode=mirrored', 'memory=20GB', 'processors=8', 'swap=16GB', '', '[experimental]', 'autoMemoryReclaim=dropcache', 'sparseVhd=true'].join('\n'),
+    },
+  },
+  {
+    id: 'terminal',
+    title: 'Terminal',
+    wide: true,
+    items: [
+      { name: 'Windows Terminal' },
+      { name: 'zsh + oh-my-zsh', note: 'zsh-autosuggestions' },
+      { name: 'tmux' },
+      { name: 'herdr', note: 'agent multiplexer', href: '#herdr' },
+    ],
+  },
+  {
+    id: 'editors',
+    title: 'Editors',
+    items: [{ name: 'Neovim' }, { name: 'VS Code' }, { name: 'Cursor' }],
+  },
+  {
+    id: 'agents',
+    title: 'Agents',
+    items: [
+      { name: 'Claude Code', href: '#workflow' },
+      { name: 'Codex', href: '#workflow' },
+    ],
+  },
+  {
+    id: 'agent-tooling',
+    title: 'Agent tooling',
+    items: [
+      { name: 'no-mistakes', href: '#no-mistakes' },
+      { name: 'gh-axi', href: '#gh-axi' },
+      { name: 'chrome-devtools-axi', href: '#chrome-devtools-axi' },
+      { name: 'Lavish', href: '#lavish' },
+    ],
+  },
+  {
+    id: 'runtimes',
+    title: 'Runtimes',
+    items: [{ name: 'Node 24', note: 'nvm' }, { name: 'pnpm' }, { name: 'Bun' }, { name: 'Python 3.12', note: 'uv' }, { name: 'Rust' }],
+  },
+  {
+    id: 'own-tools',
+    title: 'My own tools, in daily use',
+    wide: true,
+    items: [
+      { name: 'T-Hub', note: 'supervises my Claude Code sessions' },
+      // The site presents Scribe through its build page, not its site's repo.
+      { name: 'Scribe', note: 'local dictation for Windows', href: '/builds/scribe' },
+      { name: 'devguard', href: '#devguard' },
+      { name: 'pass-env', href: '#pass-env' },
+      { name: 'release-kit', href: '#release-kit' },
+      { name: 'N8 Tray', note: 'private' },
+    ],
+  },
+  {
+    id: 'shipping',
+    title: 'Shipping',
+    items: [{ name: 'Vercel' }, { name: 'Cloudflare', note: 'Wrangler' }, { name: 'Turso' }],
   },
 ]

@@ -1,4 +1,3 @@
-'use client'
 import React, { type CSSProperties } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -7,22 +6,33 @@ import { LuBackpack } from 'react-icons/lu'
 import { harnesses, inApps, loadout, workflow, type LoadoutGroup, type WorkflowStep } from '@/data/loadout'
 import Reveal from '@/components/ui/Reveal'
 import FadeIn from '@/components/ui/FadeIn'
+import { DevSetup, HonorableMentions, PeopleIFollow, SectionHead, ToolsIBuilt, ToolsIUse } from '@/components/sections/LoadoutDevTools'
+
+// A server component, so react-icons don't get the app's IconContext
+// (aria-hidden by default, app/provider.tsx): every icon here is hidden from
+// assistive tech by its wrapper or its own aria-hidden.
 
 /**
  * The Loadout (/loadout): the tools I use and what each one is for, not a
  * tech stack. It leads with how I work with AI (decide, build, fix: the tool
- * and model for each step), then the AI inside the apps I build, then the
- * physical setup in one section (rig, desk, stream).
+ * and model for each step), after my dev setup, then the tools I use,
+ * honorable mentions, the people I follow, the
+ * tools I built, the AI inside the apps I build, and the gear in one
+ * section (rig, desk, stream kit). A server component: its
+ * interactive parts (the scroll reveals) are client islands.
  */
 
-// A section's small mono path and title, left-aligned over its content.
-const SectionHead = ({ id, path, title, children }: { id?: string; path: string; title: string; children?: React.ReactNode }) => (
-  <div className="mb-6 flex flex-col gap-1.5">
-    <span className="font-mono text-xs text-slate-475">{path}</span>
-    <h2 id={id} className="text-2xl font-extrabold tracking-tight text-slate-50 sm:text-3xl">{title}</h2>
-    {children && <p className="max-w-[620px] text-[15px] leading-relaxed text-[#9cadc5]">{children}</p>}
-  </div>
-)
+// The page's parts, as pills under the header (like the Lab's), in page order.
+const PARTS = [
+  { label: 'Dev setup', href: '#dev-setup' },
+  { label: 'How I work', href: '#workflow' },
+  { label: 'Tools I use', href: '#tools-i-use' },
+  { label: 'Honorable mentions', href: '#honorable-mentions' },
+  { label: 'People I follow', href: '#people' },
+  { label: 'Tools I built', href: '#tools-i-built' },
+  { label: 'Inside my apps', href: '#in-apps' },
+  { label: 'The gear', href: '#gear' },
+]
 
 /** One step of the workflow: its number and verb, the tool in its brand colour, the model, why. */
 const StepCard = ({ step, index }: { step: WorkflowStep; index: number }) => (
@@ -39,7 +49,7 @@ const StepCard = ({ step, index }: { step: WorkflowStep; index: number }) => (
       <span className="text-cyan-300">0{index + 1}</span> {step.step}
     </p>
     <div className="relative flex items-center gap-4">
-      <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-[#081427] p-3 text-(--brand) transition-transform duration-300 group-hover:scale-105">
+      <span aria-hidden="true" className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-[#081427] p-3 text-(--brand) transition-transform duration-300 group-hover:scale-105">
         {step.icon}
       </span>
       <div className="min-w-0">
@@ -60,13 +70,19 @@ const StepCard = ({ step, index }: { step: WorkflowStep; index: number }) => (
 )
 
 /**
- * The physical setup in one place (the owner found three spec sheets
- * repetitive, 2026-10-27): a column each for the rig, the desk and the stream,
- * one line per item.
+ * The gear in one place (the owner found three spec sheets repetitive,
+ * 2026-10-27): a column each for the rig, the desk and the stream kit, one
+ * line per item. Called "The setup" until 2026-11-01, renamed so it doesn't
+ * clash with "My dev setup"; "gear" rather than "hardware" because the stream
+ * kit includes OBS and Scribe.
  */
-const Setup = ({ groups }: { groups: LoadoutGroup[] }) => (
-  <Reveal as="section" id="setup" aria-labelledby="setup-title" className="scroll-mt-24">
-    <SectionHead id="setup-title" path="~/loadout/setup" title="The setup">
+const Gear = ({ groups }: { groups: LoadoutGroup[] }) => (
+  // Reveal renders no aria attributes, so the labelled section sits inside it.
+  <Reveal>
+    <section id="gear" aria-labelledby="gear-title" className="scroll-mt-24">
+    {/* The old anchor, so /loadout#setup links already out there still land here. */}
+    <span id="setup" aria-hidden="true" className="block scroll-mt-24" />
+    <SectionHead id="gear-title" path="~/loadout/gear" title="The gear">
       What it all runs on, from the PC to the mic.
     </SectionHead>
     <div className="grid gap-4 md:grid-cols-3">
@@ -83,7 +99,7 @@ const Setup = ({ groups }: { groups: LoadoutGroup[] }) => (
             <ul className="mt-4 space-y-3.5">
               {group.items.map((item) => (
                 <li key={item.name} className="group/item flex gap-3">
-                  <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-200 transition-colors group-hover/item:text-cyan-200 [&_svg]:h-4 [&_svg]:w-4">
+                  <span aria-hidden="true" className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-200 transition-colors group-hover/item:text-cyan-200 [&_svg]:h-4 [&_svg]:w-4">
                     {item.icon ?? (item.name === 'Scribe' ? <Image src="/builds/scribe/app-icon.png" alt="" width={18} height={18} /> : null)}
                   </span>
                   <div className="min-w-0">
@@ -104,6 +120,7 @@ const Setup = ({ groups }: { groups: LoadoutGroup[] }) => (
         </Reveal>
       ))}
     </div>
+    </section>
   </Reveal>
 )
 
@@ -121,7 +138,7 @@ const Loadout = () => {
           href="/"
           className="inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition-colors hover:text-cyan-300"
         >
-          <FiArrowLeft className="h-4 w-4" />
+          <FiArrowLeft className="h-4 w-4" aria-hidden="true" />
           Back to the bench
         </Link>
 
@@ -134,12 +151,29 @@ const Loadout = () => {
             <h1 className="text-4xl font-bold tracking-tight text-slate-50 sm:text-6xl lg:text-7xl">My Loadout</h1>
           </div>
           <p className="mt-5 max-w-[600px] text-balance text-lg text-[#9cadc5] sm:text-xl">
-            The AI I work with and what each one is for, then the setup it all runs on.
+            My dev setup, the AI I work with, the tools I use and built, the people I follow, and the gear it all runs on.
           </p>
+          <nav aria-label="Loadout sections" className="mt-7 flex flex-wrap justify-center gap-2">
+            {PARTS.map((part) => (
+              <a
+                key={part.href}
+                href={part.href}
+                className="rounded-full border border-white/12 bg-white/4 px-3.5 py-1.5 text-sm font-medium text-slate-300 transition-all duration-150 hover:border-cyan-400/40 hover:bg-white/[0.07] hover:text-cyan-200"
+              >
+                {part.label}
+              </a>
+            ))}
+          </nav>
+        </FadeIn>
+
+        {/* My dev setup first: the machine and everything on it, at a glance.
+             Just under the header, so it fades in with it (no scroll reveal). */}
+        <FadeIn className="mt-16" delay={0.1}>
+          <DevSetup />
         </FadeIn>
 
         {/* How I work with AI: a sequence, so the steps are numbered and joined by arrows. */}
-        <Reveal className="mt-16">
+        <Reveal className="mt-20">
           <section id="workflow" aria-labelledby="workflow-title" className="scroll-mt-24">
           <SectionHead id="workflow-title" path="~/loadout/workflow" title="How I work with AI">
             One tool for each part of the job. A piece of work goes through them in this order.
@@ -173,9 +207,24 @@ const Loadout = () => {
           </section>
         </Reveal>
 
+        {/* The tools I use, the people who make them and others I follow, then the tools I built */}
+        <div className="mt-20">
+          <ToolsIUse />
+        </div>
+        <div className="mt-20">
+          <HonorableMentions />
+        </div>
+        <div className="mt-20">
+          <PeopleIFollow />
+        </div>
+        <div className="mt-20">
+          <ToolsIBuilt />
+        </div>
+
         {/* The AI inside the apps I build */}
-        <Reveal as="section" id="in-apps" className="mt-20 scroll-mt-24">
-          <SectionHead path="~/loadout/in-apps" title="Inside the apps I build">
+        <Reveal className="mt-20">
+          <section id="in-apps" aria-labelledby="in-apps-title" className="scroll-mt-24">
+          <SectionHead id="in-apps-title" path="~/loadout/in-apps" title="Inside the apps I build">
             What the AI in my own apps and extensions runs on.
           </SectionHead>
           <ul className="grid gap-4 md:grid-cols-3">
@@ -185,7 +234,7 @@ const Loadout = () => {
                 className="group flex items-start gap-4 rounded-2xl border border-white/8 bg-white/[0.02] p-5 transition-all duration-200 hover:border-(--brand)/35 hover:bg-white/[0.04]"
                 style={{ '--brand': item.color } as CSSProperties}
               >
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-[#081427] p-2.5 text-(--brand) transition-transform duration-200 group-hover:scale-105">
+                <span aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-[#081427] p-2.5 text-(--brand) transition-transform duration-200 group-hover:scale-105">
                   {item.icon}
                 </span>
                 <div className="min-w-0">
@@ -202,11 +251,12 @@ const Loadout = () => {
               </li>
             ))}
           </ul>
+          </section>
         </Reveal>
 
-        {/* The physical kit, in one section */}
+        {/* The gear (rig, desk, stream kit), in one section */}
         <div className="mt-20">
-          <Setup groups={kit} />
+          <Gear groups={kit} />
         </div>
 
         <p className="mt-16 border-t border-white/6 pt-8 text-center font-mono text-xs text-slate-475">

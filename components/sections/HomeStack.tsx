@@ -86,6 +86,26 @@ export default function HomeStack() {
           })}
         </ul>
       </div>
+      {/* A one-line teaser for My dev setup on /loadout. */}
+      <p className="mt-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-center text-sm text-[#9cadc5]" data-setup-teaser>
+        <span className="font-mono text-[0.68rem] font-bold tracking-[0.16em] text-cyan-400 uppercase">My setup</span>
+        {/* Each pair stays on one line; the dots between them are where it wraps. */}
+        <span>
+          {['Windows 11 + WSL2', 'Claude Code + Codex', 'herdr + T-Hub'].map((pair, i) => (
+            <span key={pair}>
+              {i > 0 && ' · '}
+              <span className="whitespace-nowrap">{pair}</span>
+            </span>
+          ))}
+        </span>
+        <Link
+          href="/loadout#dev-setup"
+          className="group inline-flex items-center gap-1 font-semibold text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 transition-colors hover:text-cyan-200"
+        >
+          See my dev setup
+          <FiArrowUpRight aria-hidden="true" className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+        </Link>
+      </p>
     </section>
   )
 }
