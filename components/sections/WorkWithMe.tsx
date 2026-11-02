@@ -77,7 +77,7 @@ const Screen = ({ shot, aspect, sizes }: { shot: Shot; aspect: number; sizes: st
           scrolls
             ? {
                 ['--travel' as string]: `${(-(1 - shown) * 100).toFixed(3)}%`,
-                ['--duration' as string]: `${shot.duration ?? 30}s`,
+                ['--duration' as string]: `${shot.duration ?? 20}s`,
               }
             : undefined
         }
@@ -146,7 +146,7 @@ const doors: Door[] = [
       alt: 'The projects on my developer portfolio',
       width: 900,
       height: 1893,
-      duration: 24,
+      duration: 15,
     },
     accent: {
       eyebrow: 'from-emerald-300 to-cyan-300',
