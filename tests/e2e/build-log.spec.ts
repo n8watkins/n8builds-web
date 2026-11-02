@@ -40,7 +40,7 @@ test('the build log leads with the builds, most recently active first', async ({
     'scribe',
     'portfolio-rank',
     'tubevault',
-    'piper-tts',
+    'voicedock',
   ])
   await expect(cards.first()).toContainText('Last shipped Oct 2026')
   // Quiet builds read as finished, not abandoned.
@@ -101,10 +101,10 @@ test('the kind filter narrows the feed and its build chips, and lives in the URL
   await expect(page).toHaveURL(/\/builds\?kind=extensions$/)
   const builds = await feedEntries(page).evaluateAll((els) => [...new Set(els.map((el) => el.getAttribute('data-build')))])
   expect(builds.length).toBeGreaterThan(0)
-  expect(builds.every((b) => ['tldw', 'tubevault', 'piper-tts'].includes(b!))).toBe(true)
+  expect(builds.every((b) => ['tldw', 'tubevault', 'voicedock'].includes(b!))).toBe(true)
   // Only that kind's builds are offered, each with its icon.
   const offered = feed(page).getByRole('group', { name: 'Filter by build' }).getByRole('button')
-  expect(await offered.allInnerTexts()).toEqual(['TL;DW', 'TubeVault', 'Piper TTS'])
+  expect(await offered.allInnerTexts()).toEqual(['TL;DW', 'TubeVault', 'VoiceDock'])
   expect(await offered.evaluateAll((els) => els.every((el) => !!el.querySelector('img')))).toBe(true)
 
   // A build within the kind narrows further; unpicking it goes back to the kind.
