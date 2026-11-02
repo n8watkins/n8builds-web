@@ -46,14 +46,21 @@ export function streak(entries: LogEntry[], asOf: string): number {
  * The card's figures for `period` (the entries of the month it covers), in
  * order. The streak is left out under two days, where it says nothing.
  */
-export function shippedStats(period: LogEntry[], all: LogEntry[], asOf: string, names: Record<string, string>): ShippedStat[] {
+export function shippedStats(
+  period: LogEntry[],
+  all: LogEntry[],
+  asOf: string,
+  names: Record<string, string>,
+  /** A past month's card leaves out today's streak, which says nothing about it. */
+  { streak: withStreak = true } = {},
+): ShippedStat[] {
   const changes = period.reduce((n, e) => n + weight(e), 0)
   const perBuild = new Map<string, number>()
   for (const e of period) perBuild.set(e.build, (perBuild.get(e.build) ?? 0) + weight(e))
   const releases = period.filter((e) => e.kind === 'release').length
   const days = new Set(period.map((e) => e.day)).size
   const busiest = [...perBuild].sort((a, b) => b[1] - a[1])[0]
-  const run = streak(all, asOf)
+  const run = withStreak ? streak(all, asOf) : 0
 
   const stats: ShippedStat[] = [
     { id: 'changes', value: String(changes), label: plural(changes, 'change shipped', 'changes shipped') },

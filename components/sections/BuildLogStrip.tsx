@@ -3,8 +3,7 @@ import Link from 'next/link'
 import { FiArrowUpRight } from 'react-icons/fi'
 import Reveal from '@/components/ui/Reveal'
 import LabSubheader from '@/components/sections/LabSubheader'
-import BuildLogPages from '@/components/sections/BuildLogPages'
-import ShippedStats from '@/components/sections/ShippedStats'
+import BuildLogMonths, { type LogMonth } from '@/components/sections/BuildLogMonths'
 import { allBuilds, dayKey, getBuildLog, monthLabel, type LogEntry } from '@/lib/build-log'
 import { BUILD_ICONS } from '@/lib/build-meta'
 import { dailyCounts, shippedStats } from '@/lib/log-stats'
@@ -12,7 +11,8 @@ import { dailyCounts, shippedStats } from '@/lib/log-stats'
 // The homepage's compact build log: the newest month of /builds at a glance.
 // The month's updates as rows, a page of them at a time, moving on every few
 // seconds (BuildLogPages), and a card that cycles through the month's figures
-// (ShippedStats). Rendered on the server from the same hourly-cached GitHub log
+// (ShippedStats), with arrows back to the months before (BuildLogMonths, round 5
+// of 2026-11-02). Rendered on the server from the same hourly-cached GitHub log
 // as /builds (lib/build-log.ts), so the page stays static; only the pages' and
 // the figures' timers run in the browser. If the log can't be read at all, the
 // strip is left out; it never breaks the page.
@@ -118,8 +118,9 @@ function Row({ entry }: { entry: LogEntry }) {
 export default async function BuildLogStrip() {
   let entries: LogEntry[]
   let asOf: string
+  let recentFrom: string | null
   try {
-    ;({ entries, asOf } = await getBuildLog())
+    ;({ entries, asOf, recentFrom } = await getBuildLog())
   } catch {
     // GitHub unreachable with nothing cached: leave the strip out.
     return null
@@ -129,16 +130,42 @@ export default async function BuildLogStrip() {
   const current = dayKey(asOf).slice(0, 7)
   const thisMonth = entries.filter((e) => e.month === current)
   const isThisMonth = thisMonth.length >= MONTH_MIN
-  // The whole month (or, in a quiet one, the latest from every build), paged through.
-  const rows = isThisMonth ? pickRows(thisMonth) : pickRows(entries, true)
-  // The card's figures: this month, or a quiet month's last 30 days.
   const today = dayKey(asOf)
+  const year = current.slice(0, 4)
+  // "October", or "December 2025" for another year.
+  const shortName = (month: string) => monthLabel(month).replace(` ${year}`, '')
+  const view = (rows: LogEntry[]) => ({ rows: rows.map((entry) => <Row key={entry.id} entry={entry} />), labels: rows.map(rowLabel) })
+
+  // The first view: this month, or in a quiet one the last 30 days (the latest from every build).
   const cutoff = daysBefore(today, QUIET_DAYS - 1)
-  const period = isThisMonth ? thisMonth : entries.filter((e) => e.day >= cutoff)
-  const stats = shippedStats(period, entries, asOf, names)
-  // The card's activity bars: every day of the month (the days still to come
-  // as empty slots), or a quiet month's last 30 days.
-  const days = isThisMonth ? dailyCounts(period, `${current}-01`, lastDayOf(current), today) : dailyCounts(period, cutoff, today, today)
+  const firstPeriod = isThisMonth ? thisMonth : entries.filter((e) => e.day >= cutoff)
+  const first: LogMonth = {
+    id: isThisMonth ? current : 'recent',
+    period: isThisMonth ? shortName(current) : `Last ${QUIET_DAYS} days`,
+    name: isThisMonth ? monthLabel(current) : `the last ${QUIET_DAYS} days`,
+    stats: shippedStats(firstPeriod, entries, asOf, names),
+    // Every day of the month (the days still to come as empty slots), or a quiet month's last 30 days.
+    days: isThisMonth ? dailyCounts(firstPeriod, `${current}-01`, lastDayOf(current), today) : dailyCounts(firstPeriod, cutoff, today, today),
+    ...view(isThisMonth ? pickRows(thisMonth) : pickRows(entries, true)),
+    listLabel: isThisMonth ? 'Updates this month' : 'Recent updates',
+  }
+  // Then each month before it with something shipped, back to the /builds feed's 12-month window
+  // (round 5 of 2026-11-02): the same card and rows, for that whole month.
+  const earlier = [...new Set(entries.map((e) => e.month))]
+    .filter((m) => m < current && (!recentFrom || m >= recentFrom))
+    .sort((x, y) => y.localeCompare(x))
+    .map((m): LogMonth => {
+      const period = entries.filter((e) => e.month === m)
+      return {
+        id: m,
+        period: shortName(m),
+        name: monthLabel(m),
+        stats: shippedStats(period, entries, asOf, names, { streak: false }),
+        days: dailyCounts(period, `${m}-01`, lastDayOf(m), today),
+        ...view(pickRows(period)),
+        listLabel: `Updates in ${monthLabel(m)}`,
+      }
+    })
 
   return (
     // A full-bleed part of the Lab in its own green wash (`.lab-accent-buildlog` in
@@ -163,22 +190,7 @@ export default async function BuildLogStrip() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 overflow-hidden rounded-2xl border border-white/8 bg-[#0a1526]/70 md:grid-cols-[17rem_minmax(0,1fr)]">
-            <div className="flex flex-col border-b border-white/8 px-5 py-4 md:border-r md:border-b-0 md:px-6 md:py-5">
-              {/* The month is named once, here; each row carries its own day. */}
-              <ShippedStats stats={stats} days={days} period={isThisMonth ? monthLabel(current).replace(` ${current.slice(0, 4)}`, '') : `Last ${QUIET_DAYS} days`} />
-            </div>
-
-            <div className="p-3 sm:p-4">
-              <BuildLogPages
-                rows={rows.map((entry) => (
-                  <Row key={entry.id} entry={entry} />
-                ))}
-                labels={rows.map(rowLabel)}
-                label={isThisMonth ? 'Updates this month' : 'Recent updates'}
-              />
-            </div>
-          </div>
+          <BuildLogMonths months={[first, ...earlier]} />
         </Reveal>
       </div>
     </section>

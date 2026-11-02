@@ -1,6 +1,6 @@
 'use client'
 import Image from 'next/image'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import { BUILD_ICONS } from '@/lib/build-meta'
 import type { DayCount, ShippedStat } from '@/lib/log-stats'
@@ -29,7 +29,18 @@ const ORDER: ShippedStat['id'][] = ['busiest', 'streak', 'releases', 'builds', '
 const shortDay = (day: string) =>
   new Date(`${day}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })
 
-export default function ShippedStats({ stats, days, period }: { stats: ShippedStat[]; days: DayCount[]; period: string }) {
+export default function ShippedStats({
+  stats,
+  days,
+  period,
+  header,
+}: {
+  stats: ShippedStat[]
+  days: DayCount[]
+  period: string
+  /** Shown at the top in place of the period's name (the month switcher, BuildLogMonths.tsx). */
+  header?: ReactNode
+}) {
   const headline = stats.find((s) => s.id === 'changes')
   const facts = ORDER.map((id) => stats.find((s) => s.id === id)).filter((s): s is ShippedStat => !!s)
   const total = Number(headline?.value ?? 0)
@@ -124,7 +135,7 @@ export default function ShippedStats({ stats, days, period }: { stats: ShippedSt
       onFocus={() => setHeld(true)}
       onBlur={() => setHeld(false)}
     >
-      <p className="text-2xl font-bold tracking-tight text-cyan-300">{period}</p>
+      {header ?? <p className="text-2xl font-bold tracking-tight text-cyan-300">{period}</p>}
 
       {headline && (
         <p className="mt-2 flex items-baseline gap-2" data-headline>

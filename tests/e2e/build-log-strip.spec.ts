@@ -201,6 +201,54 @@ test.describe('with motion', () => {
   })
 })
 
+/**
+ * The months before (round 5 of 2026-11-02): arrows beside the card's month
+ * go back through the months with updates, as far as the /builds feed's
+ * 12-month window, and forward again; each is a whole month, its own figures,
+ * bars and rows four to a page. Only the month on screen is mounted.
+ */
+test('the month arrows show the months before, each whole, and come back', async ({ page }) => {
+  await page.goto('/')
+  await expect(strip(page).locator('[aria-roledescription="carousel"][aria-label^="Updates"]')).toHaveCount(1)
+  await stats(page).scrollIntoViewIfNeeded()
+  const months = strip(page).getByRole('group', { name: 'Months' })
+  const back = months.getByRole('button', { name: /^Previous month/ })
+  const forward = months.getByRole('button', { name: /^Next month/ })
+  // The newest month: nothing newer.
+  await expect(forward).toBeDisabled()
+  await expect(forward).toHaveAccessibleName('Next month')
+  await expect(back).toHaveAccessibleName(/^Previous month: \w+ 2026$/)
+  const previous = (await back.getAttribute('title'))!
+  const octoberRows = await allRows(page).count()
+
+  await expect(async () => {
+    await back.click()
+    await expect(strip(page).locator('[data-month]')).toHaveText(previous.replace(' 2026', ''), { timeout: 2000 })
+  }).toPass({ timeout: 15_000 })
+  // Its own rows, newest first, every one of them that month; its own card.
+  const earlier = strip(page).getByRole('group', { name: `Updates in ${previous}` })
+  await expect(earlier).toBeVisible()
+  const month = previous.split(' ')[0].slice(0, 3).toUpperCase()
+  const days = await earlier.locator('li[data-row]:not([data-wrap]) time').allInnerTexts()
+  expect(days.length).toBeGreaterThan(0)
+  expect(days.every((d) => d.startsWith(month))).toBe(true)
+  await expect(stats(page)).toHaveAccessibleName(`Shipped ${previous}`)
+  // A past month has no "days in a row, and counting".
+  await expect(stats(page).locator('[data-stat="streak"]')).toHaveCount(0)
+  await expect(strip(page).locator('[aria-live="polite"]').filter({ hasText: `Showing ${previous}` })).toHaveCount(1)
+  await expect(forward).toBeEnabled()
+
+  // Back to the newest month as it was.
+  await forward.click()
+  await expect(strip(page).locator('[data-month]')).toHaveText('October')
+  await expect(list(page)).toBeVisible()
+  await expect(allRows(page)).toHaveCount(octoberRows)
+
+  // As far back as the window goes, then the way back stops.
+  for (let i = 0; i < 12 && (await back.isEnabled()); i++) await back.click()
+  await expect(back).toBeDisabled()
+})
+
 test('"See the full build log" goes to /builds', async ({ page }) => {
   await page.goto('/')
   await strip(page).getByRole('link', { name: 'See the full build log' }).click()
@@ -215,11 +263,14 @@ test('works from the keyboard: the button, the figures, each row, then the arrow
   const rowCount = await rows(page).count()
   const dotCount = await dots(page).count()
   await button.focus()
-  // The figures card sits left of the rows: the figure itself (it moves on to
-  // the next one), then its dots, then the rows.
+  // The figures card sits left of the rows: the month's arrows (only the way
+  // back, from the newest month), the figure itself (it moves on to the next
+  // one), then its dots, then the rows.
   await page.keyboard.press('Tab')
-  await expect(stats(page).getByRole('button').first()).toBeFocused()
-  await expect(stats(page).getByRole('button').first()).toHaveAccessibleName(/busiest build/)
+  await expect(stats(page).getByRole('button', { name: /^Previous month: / })).toBeFocused()
+  await page.keyboard.press('Tab')
+  const figure = stats(page).getByRole('button', { name: /^n8builds.dev busiest build/ })
+  await expect(figure).toBeFocused()
   await page.keyboard.press('Enter')
   await expect(current(page)).toHaveAttribute('data-stat', (await slides(page).nth(1).getAttribute('data-stat'))!)
   for (let i = 0; i < dotCount; i++) await page.keyboard.press('Tab')
@@ -498,3 +549,4 @@ test('reduced motion: nothing moves by itself, and the arrows swap pages without
     await list(page).evaluate((el) => [...el.querySelectorAll('li')].flatMap((li) => li.getAnimations().filter((a) => !(a instanceof CSSTransition))).length),
   ).toBe(0)
 })
+

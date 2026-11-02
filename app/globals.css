@@ -867,6 +867,19 @@
   }
 }
 
+/* Another month of the homepage's build log fades in (components/sections/BuildLogMonths.tsx). */
+@keyframes log-month-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .log-month-in {
+    animation: log-month-in 260ms cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+}
+
 /* A build log entry eases in as it scrolls into view (components/log/LogEntryItem.tsx).
    Driven by the scroll position itself (a view timeline), not a script: an entry
    already on screen is simply there, nothing waits on an observer, and browsers
