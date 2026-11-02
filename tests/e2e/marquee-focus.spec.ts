@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { APP_JS } from './app-js'
 
 /**
  * The marquee pauses while focus is inside it, so a focused tile doesn't slide
@@ -10,14 +11,11 @@ test.use({ contextOptions: { reducedMotion: 'no-preference' } })
 
 test('a tile focused before hydration pauses its marquee', async ({ page }) => {
   // Hold the page's scripts back until the tile has focus, so the focus always
-  // lands before hydration. Scripts only: Turbopack serves the stylesheets from
-  // /_next/static/chunks/ too, and React reveals streamed HTML only once its
-  // stylesheets load, so holding those kept the tiles out of the page until
-  // after hydration (the old fixed 1.5s delay on every chunk failed that way).
+  // lands before hydration (a fixed delay raced the page on a slow runner).
   let release!: () => void
-  const scriptsHeld = new Promise<void>((resolve) => (release = resolve))
-  await page.route('**/_next/static/chunks/**/*.js', async (route) => {
-    await scriptsHeld
+  const held = new Promise<void>((resolve) => (release = resolve))
+  await page.route(APP_JS, async (route) => {
+    await held
     await route.continue()
   })
   // The homepage's AI kit, the site's marquee.
