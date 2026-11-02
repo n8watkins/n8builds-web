@@ -104,7 +104,7 @@ E2E details:
 
 CI (`.github/workflows/`):
 
-- `ci.yml` on every push to `main` and every PR: lint, type-check, unit tests; E2E on all six Playwright projects as parallel jobs (each builds the app in test mode; WebKit and mobile Safari, the slowest, run as two shards each); Lighthouse budgets. About 6 minutes end to end.
+- `ci.yml` on every push to `main` and every PR: lint, type-check, unit tests; E2E on all six Playwright projects as parallel jobs (each builds the app in test mode; WebKit and mobile Safari, the slowest, run as three shards each); Lighthouse budgets. About 6 minutes end to end.
 - **Docs-only changes skip the browser suite and Lighthouse** (only Markdown, `docs/` or `LICENSE` changed; the "What changed" job decides). Lint, types, unit tests and the commit check still run. `vercel.json`'s `ignoreCommand` skips Vercel builds for the same changes, so a docs-only merge doesn't redeploy.
 - **Branch protection on `main`** is the ruleset "release-kit: protect main" (Settings, Rules; made by the kit's protect command, now `npx release-kit protect`, replacing classic protection on 2026-10-25).
   It requires two checks: "CI result" (a summary job that passes when every CI job passed or was skipped on purpose) and "check" (commit messages), and blocks deletion and force pushes.
