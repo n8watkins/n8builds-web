@@ -159,6 +159,8 @@ test.describe('Loadout tools and people', () => {
     // herdr shows its own app icon (2026-11-01), self-hosted, not a generic glyph.
     const icon = mentions.locator('#herdr img[src*="herdr.png"]')
     await expect(icon).toBeVisible()
+    // It's lazy: Firefox and WebKit only fetch it once it's near the screen, as a visitor scrolling would.
+    await icon.scrollIntoViewIfNeeded()
     await expect.poll(() => icon.evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0)
     await expect(mentions.locator('#herdr svg')).toHaveCount(0)
     for (const id of ['firstmate', 'treehouse']) {
