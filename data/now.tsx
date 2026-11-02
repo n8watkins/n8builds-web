@@ -2,7 +2,10 @@
 // ad for Tech for Pros, the owner's SaaS for service businesses. Keep it
 // current: what is shipping right now.
 
-import { TECH_FOR_PROS, techForProsHref } from '@/lib/techForPros'
+import type { ReactNode } from 'react'
+import TechForProsMark from '@/components/ui/TechForProsMark'
+import { refHref } from '@/lib/referrals'
+import { TECH_FOR_PROS } from '@/lib/techForPros'
 
 export interface NowUpdate {
   date: string // e.g. "Oct 25"
@@ -24,15 +27,18 @@ export interface NowShot {
 }
 
 export interface NowState {
+  /** Its name: the carousel's label and the What's new dialog's title. */
   project: string
-  /** The project's own mark, shown next to its name. */
-  logo?: string
-  /** The project's own wordmark, light on dark, shown in place of the logo and name. */
+  /** The card's heading, when it isn't the name (a site's address, say). */
+  title?: string
+  /** The project's own mark, beside its heading and the dialog's; it fills the box it's given. */
+  mark?: ReactNode
+  /** The project's own wordmark, light on dark, shown in place of the mark and name. */
   wordmark?: { src: string; width: number; height: number }
   /** One line on what the project is; the What's new dialog's subtitle. */
   tagline: string
   status: 'prototype' | 'active' | 'polishing' | 'shipping'
-  /** What the badge says, when the offer itself says more than the status does. */
+  /** A badge beside the heading, in the status's colour; none without it. */
   badge?: string
   /** The ad's headline; `accent` is the highlighted end of it. */
   headline: { lead: string; accent: string }
@@ -47,7 +53,10 @@ export interface NowState {
   /** the target I'm building toward (in the What's new dialog) */
   goal: string
   stack: string[]
-  /** The ad's buttons; the first is the primary one. All open the project's own site. */
+  /**
+   * The ad's buttons; the first is the primary one. All open the project's
+   * own site, and so does the picture (the second button's page, if any).
+   */
   ctas?: { label: string; href: string }[]
   /** Its page on this site (/builds/<slug>), from data/builds.tsx. */
   buildSlug?: string
@@ -58,9 +67,11 @@ export interface NowState {
 export const nowItems: NowState[] = [
   {
     project: TECH_FOR_PROS.name,
+    // Its address as the heading, beside its icon (owner, 2026-11-01).
+    title: TECH_FOR_PROS.domain,
+    mark: <TechForProsMark className="h-full w-full" sizes="44px" />,
     tagline: 'Websites and follow-up for service businesses',
     status: 'active',
-    badge: TECH_FOR_PROS.live ? undefined : 'Launching soon',
     headline: { lead: 'Your website,', accent: 'built for your trade.' },
     pitch:
       'Tech for Pros turns a few details about a pool, HVAC or landscaping business into a launch-ready website, then takes the follow-up off their plate.',
@@ -80,8 +91,8 @@ export const nowItems: NowState[] = [
     goal:
       'One place for a service business: a launch-ready website from a few details, then the follow-up that brings customers in and keeps them.',
     stack: ['Next.js', 'Cloudflare'],
-    // Only once techforpros.com is live (lib/techForPros.ts).
-    ctas: techForProsHref ? [{ label: 'Visit Tech for Pros', href: techForProsHref }] : [],
+    // Counted under "hero": this card is the first screen's sneak peek.
+    ctas: [{ label: `Visit ${TECH_FOR_PROS.domain}`, href: refHref('techforpros', 'hero') }],
     updates: [],
   },
 ]

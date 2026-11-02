@@ -31,18 +31,18 @@ const Hero = () => {
           moves after load). Its min-height (100svh - 250px) leaves room under
           it for a sneak peek of "What I'm working on": the heading (~65px
           below the hero, ~60px tall) and the top of its card down to the
-          logo row (~238px below the hero). The ~473px text column sits a
+          logo row (~238px below the hero). The ~447px text column sits a
           little low in the space between the navbar (68px) and the next
           section's eyebrow (~47px below the hero): 60% of the spare height
           above it, 40% below, so on a big screen the gap down to "What I'm
           working on" stays small. Top padding
-          68 + 0.6 * (100svh - 250 + 47 - 68 - 473) = 60svh - 379px, less 10px for
-          the whoami's third line, so 60svh - 389px, with no
-          bottom padding; short screens keep at least 5.5rem. Capped where
+          68 + 0.6 * (100svh - 250 + 47 - 68 - 447) = 60svh - 363px (the whoami
+          has two lines again since 2026-11-01), with no bottom padding;
+          short screens keep at least 5.5rem. Capped where
           the hero's height is (1000px), so a very tall screen doesn't get an
           empty hero. tests/e2e/hero.spec.ts checks the laptop and tablet
           sizes. */}
-      <div className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 w-full flex flex-col items-center pt-24 md:pt-[clamp(5.5rem,calc(60svh-389px),24rem)] pb-16 md:pb-0">
+      <div className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 w-full flex flex-col items-center pt-24 md:pt-[clamp(5.5rem,calc(60svh-363px),24rem)] pb-16 md:pb-0">
 
 
         {/* On phones the portrait comes first (order-first), above the
@@ -64,12 +64,12 @@ const Hero = () => {
                 as="p"
                 delay={0.16}
                 // One line on every phone: the font scales with the screen
-                // (the line is ~16.75em wide; 100vw less the 2.5rem gutter),
+                // (the line is ~12.1em wide; 100vw less the 2.5rem gutter),
                 // up to the usual 1.5rem. On tablets (md) the text column
-                // shares the row with the portrait, so it drops to 1.2rem there.
-                className="mt-3 whitespace-nowrap text-[min(1.5rem,calc((100vw-2.5rem)/17.5))] sm:text-3xl md:text-[1.2rem] lg:text-3xl font-bold tracking-tight bg-linear-to-r from-cyan-400 via-blue-400 to-blue-600 bg-clip-text text-transparent"
+                // shares the row with the portrait, so it drops to 1.5rem there.
+                className="mt-3 whitespace-nowrap text-[min(1.5rem,calc((100vw-2.5rem)/12.75))] sm:text-3xl md:text-2xl lg:text-3xl font-bold tracking-tight bg-linear-to-r from-cyan-400 via-blue-400 to-blue-600 bg-clip-text text-transparent"
               >
-                Spending tokens, shipping features.
+                Think bigger. Ship sooner.
               </FadeIn>
             </div>
 
@@ -150,7 +150,7 @@ const Hero = () => {
                 href="https://portfolio.n8builds.dev"
                 className="font-semibold text-cyan-300 underline decoration-cyan-300/40 underline-offset-4 transition-colors hover:text-cyan-200 hover:decoration-cyan-200"
               >
-                See my developer portfolio
+                Check out my dev portfolio
               </a>
             </FadeIn>
 

@@ -3,28 +3,33 @@ import { test, expect } from '@playwright/test'
 /**
  * Tech for Pros (the owner's SaaS for service businesses) took over from
  * Appturnity on 2026-11-01: "What I'm working on" is its ad, the work-with-me
- * card and the contact card name it. Its buttons take Appturnity's place,
- * through the counted n8builds.dev/techforpros short link; nothing else
- * links to techforpros.com until it is live (lib/techForPros.ts), and nothing
- * links to Appturnity any more (n8builds.dev/appturnity still redirects).
+ * card and the contact card name it. The site links to it everywhere
+ * (2026-11-01): the navbar, the cards, the contact card and the footer, each
+ * through the counted n8builds.dev/techforpros short link, and nothing links
+ * to Appturnity any more (n8builds.dev/appturnity still redirects).
  */
 
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
 test("Tech for Pros' buttons take Appturnity's place, and nothing links to Appturnity", async ({ page }) => {
   await page.goto('/')
-  await expect(page.locator('nav[aria-label="Primary"]').getByRole('link', { name: 'Tech for Pros', exact: true })).toHaveAttribute(
+  await expect(page.locator('nav[aria-label="Primary"]').getByRole('link', { name: /^techforpros\.com/ })).toHaveAttribute(
     'href',
     '/techforpros?from=navbar'
   )
+  // Every link to it is counted: none goes straight to techforpros.com.
   await expect(page.locator('a[href*="techforpros.com"]')).toHaveCount(0)
+  expect(await page.locator('a[href^="/techforpros"]').count()).toBeGreaterThanOrEqual(5)
   await expect(page.locator('a[href*="appturnity"]')).toHaveCount(0)
+  // Live: nothing says it is on its way.
+  for (const part of ['#now', '#work-with-me', '#contact'])
+    await expect(page.locator(part), part).not.toContainText(/coming soon|launching soon|will soon/i)
 })
 
 test('"What I\'m working on" advertises Tech for Pros for service businesses', async ({ page }) => {
   await page.goto('/')
   const now = page.locator('#now')
-  await expect(now.getByRole('heading', { level: 3, name: 'Tech for Pros' })).toBeVisible()
+  await expect(now.getByRole('heading', { level: 3, name: 'techforpros.com' })).toBeVisible()
   await expect(now).toContainText('service businesses')
   await expect(now).not.toContainText('local service')
   await expect(page.getByRole('link', { name: 'Check out the lab' })).toHaveCount(0)
@@ -45,8 +50,8 @@ test('the contact card names Tech for Pros for service businesses, not consultin
   const intro = page.locator('#contact p', { hasText: 'Run a service business?' })
   await intro.scrollIntoViewIfNeeded()
   await expect(intro).not.toContainText(/consulting/i)
-  await expect(intro).toContainText('Tech for Pros will soon put your business online')
-  await expect(intro.getByRole('link')).toHaveCount(0)
+  await expect(intro).toContainText(/Tech for Pros( \(opens in a new tab\))? puts your business online/)
+  await expect(intro.getByRole('link', { name: /Tech for Pros/ })).toHaveAttribute('href', '/techforpros?from=footer')
 })
 
 test('the footer has a sitemap and the public contact address', async ({ page }) => {
@@ -60,6 +65,10 @@ test('the footer has a sitemap and the public contact address', async ({ page })
     await expect(sitemap.getByRole('link', { name: new RegExp(name) }), name).toBeAttached()
   }
   await expect(sitemap.getByRole('link', { name: /Appturnity/ })).toHaveCount(0)
+  // Tech for Pros, with its icon, under Work with me (2026-11-01).
+  const tfp = sitemap.getByRole('link', { name: /^techforpros\.com/ })
+  await expect(tfp).toHaveAttribute('href', '/techforpros?from=footer')
+  await expect(tfp.locator('img[src*="techforpros"]')).toBeAttached()
   await expect(footer.locator('a[href^="mailto:"]').first()).toHaveAttribute('href', 'mailto:contact@n8builds.dev')
   await expect(footer.locator('a[href*="gmail"]')).toHaveCount(0)
 })

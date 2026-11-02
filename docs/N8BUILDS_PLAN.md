@@ -118,7 +118,7 @@ have projects/extensions/tools/experiments all derive from it.
 
 `components/HomePage.tsx`, each section in a full-width band and a `SectionErrorBoundary`, most lazy-loaded via `next/dynamic`:
 
-1. **Hero** (`Hero.tsx`): "n8builds", "Spending tokens, shipping features.", the `whoami` terminal, the prompt -> build -> ship -> repeat circuit, the "Hiring?" line, socials, and a background grid that warms up and wanders.
+1. **Hero** (`Hero.tsx`): "n8builds", "Think bigger. Ship sooner.", the `whoami` terminal, the prompt -> build -> ship -> repeat circuit, the "Hiring?" line, socials, and a background grid that warms up and wanders.
 2. **What I'm working on** (`NowBuilding.tsx`, data in `data/now.tsx`): Appturnity only, linking appturnity.com.
 3. **The Lab**: Featured web apps (`FeaturedProjects.tsx`: Portfolio Rank, Solara), Chrome extensions (`ExtensionsShowcase.tsx`) and Tools (`ShelfSection shelf="tool"`).
 4. **N8's Notions strip** (`NotionsStrip.tsx`).
@@ -157,7 +157,7 @@ have projects/extensions/tools/experiments all derive from it.
 **Hidden (on hold, records kept):** VibeLog, the OBS/telemetry streaming tool, and the Chrome Extension Launch Kit, in `hiddenBuilds`.
 **Not a build page:** Appturnity is the "What I'm working on" card; `/builds/appturnity` redirects to appturnity.com.
 
-Dropped from the site (repos still exist, do not re-add unless asked): CanIHost, FreeStack, APIScout (2026-10-21); Suggestion Box, Repo Steward, Sprite Arsenal, Quizmatic, Asset Arsenal, JobSignal (2026-10-22).
+Dropped from the site (do not re-add unless asked): CanIHost, FreeStack, APIScout (2026-10-21; retired 2026-11-01: sites taken down, Vercel projects deleted, repos archived on GitHub); Suggestion Box, Repo Steward, Sprite Arsenal, Quizmatic, Asset Arsenal, JobSignal (2026-10-22).
 Their old `/builds/<slug>` URLs redirect to `/#lab`.
 
 ---

@@ -1,10 +1,12 @@
+import type { ReactNode } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import Reveal from '@/components/ui/Reveal'
 import CookieSettingsButton from '@/components/consent/CookieSettingsButton'
 import { SOCIALS, isExternal, type Social } from '@/data/socials'
 import { isOutbound, refHref } from '@/lib/referrals'
-import { TECH_FOR_PROS, techForProsHref } from '@/lib/techForPros'
+import { TECH_FOR_PROS } from '@/lib/techForPros'
+import TechForProsMark from '@/components/ui/TechForProsMark'
 
 /**
  * The footer on every page: a sitemap (every page and section, so the build
@@ -12,7 +14,7 @@ import { TECH_FOR_PROS, techForProsHref } from '@/lib/techForPros'
  * The homepage's contact card sits just above it.
  */
 
-const SITEMAP: { heading: string; links: { label: string; href: string; icon?: string }[]; cookieSettings?: boolean }[] = [
+const SITEMAP: { heading: string; links: { label: string; href: string; mark?: ReactNode }[]; cookieSettings?: boolean }[] = [
   {
     heading: 'The Lab',
     links: [
@@ -21,6 +23,7 @@ const SITEMAP: { heading: string; links: { label: string; href: string; icon?: s
       { label: 'Chrome extensions', href: '/#extensions' },
       { label: 'Build log', href: '/builds' },
       { label: 'Use as a template', href: '/#template' },
+      { label: 'Tools I built', href: '/#tools-i-built' },
     ],
   },
   {
@@ -28,6 +31,7 @@ const SITEMAP: { heading: string; links: { label: string; href: string; icon?: s
     links: [
       { label: 'Notions', href: '/blog' },
       { label: 'Live', href: '/live' },
+      { label: 'People I follow', href: '/#people' },
       { label: 'Loadout', href: '/#loadout' },
     ],
   },
@@ -35,8 +39,8 @@ const SITEMAP: { heading: string; links: { label: string; href: string; icon?: s
     heading: 'Work with me',
     links: [
       { label: 'Developer portfolio', href: 'https://portfolio.n8builds.dev' },
-      // Only once techforpros.com is live (lib/techForPros.ts).
-      ...(techForProsHref ? [{ label: TECH_FOR_PROS.name, href: techForProsHref }] : []),
+      // Counted, like the navbar's (lib/referrals.ts).
+      { label: TECH_FOR_PROS.domain, href: refHref('techforpros', 'footer'), mark: <TechForProsMark className="h-[18px] w-[18px] shadow-none" sizes="18px" /> },
       { label: 'Contact form', href: '/#contact' },
       { label: 'contact@n8builds.dev', href: 'mailto:contact@n8builds.dev' },
     ],
@@ -69,9 +73,10 @@ const SiteFooter = () => (
                       href={link.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-sm text-slate-300 transition-colors hover:text-cyan-200"
+                      className="flex h-6 w-fit items-center gap-1.5 text-sm text-slate-300 transition-colors hover:text-cyan-200"
                     >
-                      {link.icon && <Image src={link.icon} alt="" width={152} height={177} className="h-4 w-auto" />}
+                      {/* A 24px flex row, the height of the other links' lines, so an icon doesn't nudge the text off them. */}
+                      {link.mark}
                       {/* One text run, so a wrapped label keeps its arrow on the last line. */}
                       <span>
                         {link.label}

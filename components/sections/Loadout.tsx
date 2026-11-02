@@ -6,7 +6,7 @@ import { LuBackpack } from 'react-icons/lu'
 import { harnesses, inApps, loadout, workflow, type LoadoutGroup, type WorkflowStep } from '@/data/loadout'
 import Reveal from '@/components/ui/Reveal'
 import FadeIn from '@/components/ui/FadeIn'
-import { DevSetup, HonorableMentions, PeopleIFollow, SectionHead, ToolsIBuilt, ToolsIUse } from '@/components/sections/LoadoutDevTools'
+import { DevSetup, HonorableMentions, SectionHead, ToolsIBuilt, ToolsIUse } from '@/components/sections/LoadoutDevTools'
 
 // A server component, so react-icons don't get the app's IconContext
 // (aria-hidden by default, app/provider.tsx): every icon here is hidden from
@@ -15,10 +15,11 @@ import { DevSetup, HonorableMentions, PeopleIFollow, SectionHead, ToolsIBuilt, T
 /**
  * The Loadout (/loadout): the tools I use and what each one is for, not a
  * tech stack. It leads with how I work with AI (decide, build, fix: the tool
- * and model for each step), after my dev setup, then the tools I use,
- * honorable mentions, the people I follow, the
- * tools I built, the AI inside the apps I build, and the gear in one
- * section (rig, desk, stream kit). A server component: its
+ * and model for each step), after my dev setup, then the tools I built
+ * (before the ones I use, 2026-11-01), the tools I use, honorable
+ * mentions, the AI inside the apps I build, and the gear in one section
+ * (rig, desk, stream kit). The people I follow moved to the homepage
+ * (2026-11-01). A server component: its
  * interactive parts (the scroll reveals) are client islands.
  */
 
@@ -26,10 +27,9 @@ import { DevSetup, HonorableMentions, PeopleIFollow, SectionHead, ToolsIBuilt, T
 const PARTS = [
   { label: 'Dev setup', href: '#dev-setup' },
   { label: 'How I work', href: '#workflow' },
+  { label: 'Tools I built', href: '#tools-i-built' },
   { label: 'Tools I use', href: '#tools-i-use' },
   { label: 'Honorable mentions', href: '#honorable-mentions' },
-  { label: 'People I follow', href: '#people' },
-  { label: 'Tools I built', href: '#tools-i-built' },
   { label: 'Inside my apps', href: '#in-apps' },
   { label: 'The gear', href: '#gear' },
 ]
@@ -151,7 +151,7 @@ const Loadout = () => {
             <h1 className="text-4xl font-bold tracking-tight text-slate-50 sm:text-6xl lg:text-7xl">My Loadout</h1>
           </div>
           <p className="mt-5 max-w-[600px] text-balance text-lg text-[#9cadc5] sm:text-xl">
-            My dev setup, the AI I work with, the tools I use and built, the people I follow, and the gear it all runs on.
+            My dev setup, the AI I work with, the tools I built and use, and the gear it all runs on.
           </p>
           <nav aria-label="Loadout sections" className="mt-7 flex flex-wrap justify-center gap-2">
             {PARTS.map((part) => (
@@ -207,18 +207,15 @@ const Loadout = () => {
           </section>
         </Reveal>
 
-        {/* The tools I use, the people who make them and others I follow, then the tools I built */}
+        {/* The tools I built, then the ones I use and recommend (their makers link to People I follow, on the homepage) */}
+        <div className="mt-20">
+          <ToolsIBuilt />
+        </div>
         <div className="mt-20">
           <ToolsIUse />
         </div>
         <div className="mt-20">
           <HonorableMentions />
-        </div>
-        <div className="mt-20">
-          <PeopleIFollow />
-        </div>
-        <div className="mt-20">
-          <ToolsIBuilt />
         </div>
 
         {/* The AI inside the apps I build */}

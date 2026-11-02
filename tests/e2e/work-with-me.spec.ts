@@ -70,14 +70,17 @@ test.describe('desktop', () => {
     const apt = card(page, /Run a service business/)
     // Its button goes through the counted short link, as Appturnity's did.
     await expect(apt.getByRole('link', { name: /Visit Tech for Pros/ })).toHaveAttribute('href', '/techforpros?from=card')
-    // Planned features are labelled as such, never as included.
-    await expect(apt.getByRole('list', { name: 'Coming soon' }).getByRole('listitem')).toHaveText([
+    // Planned features are labelled as such, never as included, and never
+    // "Coming soon": the site is live (2026-11-01).
+    await expect(apt.getByText('Coming soon')).toHaveCount(0)
+    await expect(apt.getByRole('list', { name: 'Next up' }).getByRole('listitem')).toHaveText([
       'Lead and quote follow-up',
       'Appointment reminders',
       'Missed-call text-back',
     ])
     await expect(apt.getByText('Lead capture, and review display and requests')).toBeVisible()
     await expect(apt.getByText('Tech for Pros', { exact: true })).toBeVisible()
+    await expect(apt.locator('img[src*="techforpros"]').first()).toBeVisible()
   })
 
   test('the screenshot links stay out of the tab order; the buttons are reachable', async ({ page }) => {
