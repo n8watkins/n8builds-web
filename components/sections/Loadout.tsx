@@ -6,7 +6,15 @@ import { LuBackpack } from 'react-icons/lu'
 import { harnesses, inApps, loadout, loadoutParts, workflow, type LoadoutGroup, type WorkflowStep } from '@/data/loadout'
 import Reveal from '@/components/ui/Reveal'
 import FadeIn from '@/components/ui/FadeIn'
-import { DevSetup, HonorableMentions, SectionHead, ToolsIBuilt, ToolsIUse } from '@/components/sections/LoadoutDevTools'
+import {
+  BuiltToolsGrid,
+  DevSetup,
+  HonorableMentions,
+  SectionHead,
+  TOOLS_I_BUILT_BLURB,
+  TOOLS_I_BUILT_TITLE,
+  ToolsIUse,
+} from '@/components/sections/LoadoutDevTools'
 import LoadoutSectionNav from '@/components/sections/LoadoutSectionNav'
 import { DailyDriverRows } from '@/components/sections/FeaturedProjects'
 
@@ -17,16 +25,16 @@ import { DailyDriverRows } from '@/components/sections/FeaturedProjects'
 /**
  * The Loadout (/loadout): the tools I use and what each one is for, not a
  * tech stack. It leads with how I work with AI (decide, build, fix: the tool
- * and model for each step), after my dev setup, then my daily drivers (the
- * apps I built and use every day, out of the homepage Lab, 2026-11-01), the
- * tools I built (before the ones I use, 2026-11-01), the tools I use, honorable
+ * and model for each step), after my dev setup, then the tools I built and
+ * use (Scribe, out of the homepage Lab, then the small CLIs, 2026-11-01;
+ * before the ones I use), the tools I use, honorable
  * mentions, the AI inside the apps I build, and the gear in one section
  * (rig, desk, stream kit). The people I follow moved to the homepage
  * (2026-11-01). A server component: its
  * interactive parts (the scroll reveals) are client islands.
  */
 
-/** The page's content column (the daily drivers' rows run full-bleed, between two of these). */
+/** The page's content column (Scribe's row runs full-bleed, out of it, in Tools I built and use). */
 const column = 'relative mx-auto max-w-6xl px-5 sm:px-8'
 
 // The page's parts, as pills under the header (like the Lab's), in page order:
@@ -154,7 +162,7 @@ const Loadout = () => {
             <h1 className="text-4xl font-bold tracking-tight text-slate-50 sm:text-6xl lg:text-7xl">My Loadout</h1>
           </div>
           <p className="mt-5 max-w-[600px] text-balance text-lg text-[#9cadc5] sm:text-xl">
-            My dev setup, the AI I work with, the apps and tools I built and use, and the gear it all runs on.
+            My dev setup, the AI I work with, the tools I built and use, and the gear it all runs on.
           </p>
           <nav aria-label="Loadout sections" className="mt-7 flex flex-wrap justify-center gap-2">
             {PARTS.map((part) => (
@@ -215,30 +223,31 @@ const Loadout = () => {
         </div>
       </div>
 
-      {/* My daily drivers: the apps I built and use every day, as the Lab's
-           rows (FeaturedProjects.tsx). Out of the content column, so each
-           row's colour wash reaches the page edge; each row sets the column
-           inside. */}
-      <div id="daily-drivers" className="mt-20">
-        <section aria-labelledby="daily-drivers-title">
+      {/* The tools I built and use: Scribe as the Lab's row (FeaturedProjects.tsx),
+           out of the content column so its colour wash reaches the page edge
+           (the row sets the column inside), then the small CLIs' cards. */}
+      <div id="tools-i-built" className="mt-20">
+        {/* "My daily drivers" (#daily-drivers) was its own part for a day:
+             links to it still land here. */}
+        <span id="daily-drivers" aria-hidden="true" className="block" />
+        <section aria-labelledby="tools-i-built-title">
           <Reveal className={column}>
-            <SectionHead id="daily-drivers-title" path="~/loadout/daily" title="My daily drivers">
-              Apps I built for myself and run every day. Free and open source.
+            <SectionHead id="tools-i-built-title" path="~/loadout/built" title={TOOLS_I_BUILT_TITLE}>
+              {TOOLS_I_BUILT_BLURB}
             </SectionHead>
           </Reveal>
-          {/* Pulled up to the heading: the rows' padding is their wash's room. */}
+          {/* Pulled up to the heading: the row's padding is its wash's room. */}
           <div className="-mt-4 md:-mt-6">
             <DailyDriverRows />
           </div>
+          <Reveal className={`${column} mt-2 md:mt-4`}>
+            <BuiltToolsGrid />
+          </Reveal>
         </section>
       </div>
 
       <div className={`${column} pb-10 md:pb-16`}>
-        {/* The tools I built, then the ones I use and recommend (their makers link to People I follow, on the homepage) */}
-        {/* The rows' own padding makes up the rest of the usual gap. */}
-        <div id="tools-i-built" className="mt-14 md:mt-12">
-          <ToolsIBuilt />
-        </div>
+        {/* The tools I use and recommend (their makers link to People I follow, on the homepage) */}
         <div id="tools-i-use" className="mt-20">
           <ToolsIUse />
         </div>

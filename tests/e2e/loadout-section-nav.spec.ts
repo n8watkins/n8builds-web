@@ -15,8 +15,7 @@ test.use({ contextOptions: { reducedMotion: 'reduce' } })
 const PARTS = [
   { id: 'dev-setup', label: 'Dev setup' },
   { id: 'workflow', label: 'How I work' },
-  { id: 'daily-drivers', label: 'Daily drivers' },
-  { id: 'tools-i-built', label: 'Tools I built' },
+  { id: 'tools-i-built', label: 'Tools I built and use' },
   { id: 'tools-i-use', label: 'Tools I use' },
   { id: 'honorable-mentions', label: 'Honorable mentions' },
   { id: 'in-apps', label: 'Inside my apps' },
@@ -99,7 +98,7 @@ test.describe('at 1440px', () => {
     const current = rail(page).locator('[aria-current]')
     await place(page, 'tools-i-use', 500)
     await expect(rail(page)).toBeVisible(SHOW)
-    await expect(current).toHaveAccessibleName('Tools I built')
+    await expect(current).toHaveAccessibleName('Tools I built and use')
     await place(page, 'tools-i-use', 400)
     await expect(current).toHaveAccessibleName('Tools I use')
   })
@@ -113,7 +112,7 @@ test.describe('at 1440px', () => {
     await expect(nav).toBeVisible(SHOW)
     // Inside my apps is short, so The gear passes the middle as soon as it
     // lands: the part jumped to must still be the one marked.
-    for (const part of [PARTS[6], PARTS[7], PARTS[6], PARTS[2], PARTS[0]]) {
+    for (const part of [PARTS[5], PARTS[6], PARTS[5], PARTS[2], PARTS[0]]) {
       await nav.getByRole('link', { name: part.label, exact: true }).click()
       await expect(page).toHaveURL(new RegExp(`#${part.id}$`))
       // Lands at the page's scroll-padding-top (80px), clear of the 68px navbar, like the Lab's parts.

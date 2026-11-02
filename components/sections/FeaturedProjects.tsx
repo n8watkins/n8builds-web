@@ -68,8 +68,8 @@ interface FeaturedProject {
   /** The app's own icon, shown left of its name. */
   icon: string
   /**
-   * Where the row lives: the owner's daily drivers on /loadout (Scribe), or
-   * the Lab's featured builds.
+   * Where the row lives: the owner's daily drivers, leading "Tools I built
+   * and use" (Scribe), or the Lab's featured builds.
    */
   group: 'daily' | 'featured'
   /** A few words; the features carry the detail. */
@@ -103,8 +103,8 @@ interface FeaturedProject {
   actions: ActionLink[]
 }
 
-// Scribe, the owner's daily driver, is a row on /loadout ("My daily drivers",
-// the owner's call, 2026-11-01); the rest are the Lab's featured builds,
+// Scribe, the owner's daily driver, leads "Tools I built and use" on /loadout
+// and in the homepage's Loadout (the owner's call, 2026-11-01); the rest are the Lab's featured builds,
 // OpenPing first. n8builds itself is not a row: how it is built and tested
 // lives in the Lab's template part, right after these rows (UseAsTemplate.tsx).
 // Features come from each project's README and live site.
@@ -531,7 +531,9 @@ const container = 'mx-auto max-w-6xl px-5 sm:px-8'
 // Each row sits in its own full-bleed wash in its product's colour, a glow from
 // the page edge on its screenshot's side (`.lab-row-wash` in app/globals.css). The
 // washes fade out at their edges, so the rows' padding doubles as the gap between them.
-const Rows = ({ group, facts }: { group: FeaturedProject['group']; facts: DownloadFacts }) => (
+// `bleed` off: a row inside a page's own content column (the homepage's
+// Loadout), with no wash, since a glow cut off at the column's edge would show a seam.
+const Rows = ({ group, facts, bleed = true }: { group: FeaturedProject['group']; facts: DownloadFacts; bleed?: boolean }) => (
   <div className="flex flex-col">
     {featured
       .filter((p) => p.group === group)
@@ -543,11 +545,15 @@ const Rows = ({ group, facts }: { group: FeaturedProject['group']; facts: Downlo
           <article
             key={p.title}
             aria-labelledby={`${slugOf(p)}-title`}
-            className={`lab-row-wash lab-accent-${p.accent} py-6 md:py-8 ${flipped ? '[--lab-x:100%]' : '[--lab-x:0%]'}`}
+            className={bleed ? `lab-row-wash lab-accent-${p.accent} py-6 md:py-8 ${flipped ? '[--lab-x:100%]' : '[--lab-x:0%]'}` : undefined}
           >
-            <div className={container}>
+            {bleed ? (
+              <div className={container}>
+                <ProjectRow project={p} flipped={flipped} facts={facts} />
+              </div>
+            ) : (
               <ProjectRow project={p} flipped={flipped} facts={facts} />
-            </div>
+            )}
           </article>
         )
       })}
@@ -568,10 +574,14 @@ const FeaturedProjects = async () => {
 }
 
 /**
- * The owner's daily drivers as Lab rows, for /loadout's "My daily drivers":
- * full-bleed (each row's wash reaches the page edge), so the page renders them
- * outside its content column; each row sets the same column inside.
+ * The owner's daily drivers (Scribe) as Lab rows, leading "Tools I built and
+ * use". On /loadout they are full-bleed (each row's wash reaches the page
+ * edge), so the page renders them outside its content column and each row
+ * sets the same column inside; `bleed={false}` puts them in a column as they
+ * are, with no wash (the homepage's Loadout).
  */
-export const DailyDriverRows = async () => <Rows group="daily" facts={await downloadFacts()} />
+export const DailyDriverRows = async ({ bleed = true }: { bleed?: boolean }) => (
+  <Rows group="daily" facts={await downloadFacts()} bleed={bleed} />
+)
 
 export default FeaturedProjects

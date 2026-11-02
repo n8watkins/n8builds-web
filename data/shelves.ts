@@ -4,10 +4,10 @@ import type { Build } from './builds'
 // single source of truth (data/builds.tsx), so adding a build = it shows up on
 // the right shelf. No parallel dataset, no duplicated links.
 
-// The owner's daily drivers are on /loadout ("My daily drivers"); every other
+// The owner's daily drivers lead /loadout's "Tools I built and use"; every other
 // build is in the homepage Lab: extensions in their showcase, everything else
 // (web apps and tools alike) a featured row. The Lab has no tools part (the
-// owner's call, 2026-11-01): the small CLIs are /loadout's "Tools I built".
+// owner's call, 2026-11-01): the tools I built and use are in the Loadout.
 export type Shelf = 'mine' | 'featured' | 'extension'
 
 export interface ShelfMeta {
@@ -18,7 +18,7 @@ export interface ShelfMeta {
 }
 
 export const shelfMeta: Record<Shelf, ShelfMeta> = {
-  mine: { id: 'mine', href: '/loadout#daily-drivers', label: 'My daily drivers' },
+  mine: { id: 'mine', href: '/loadout#tools-i-built', label: 'Tools I built and use' },
   featured: { id: 'featured', href: '/#featured', label: 'Featured' },
   extension: { id: 'extension', href: '/#extensions', label: 'Extensions' },
 }

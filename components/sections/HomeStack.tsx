@@ -5,10 +5,13 @@ import { LuBackpack } from 'react-icons/lu'
 import SectionMark from '@/components/ui/SectionMark'
 import AITechStack from '@/components/features/AITechStack'
 import { buildStacks } from '@/data/buildStacks'
+import HomeToolsIBuilt from '@/components/sections/HomeToolsIBuilt'
 
-// Homepage "stack" section: lead with the AI kit (the differentiator), then the
-// default build stack with one line on why each piece is in it. The full
-// generic tech marquee lives on /loadout.
+// Homepage "stack" section, the homepage's Loadout: lead with the AI kit (the
+// differentiator), then the default build stack with one line on why each
+// piece is in it, then the tools I built and use (2026-11-01), and last the
+// one-line teaser for my dev setup, the way out to /loadout. The full generic
+// tech marquee lives on /loadout.
 
 // Why each tool is in the default stack. Keep these true to the loadout
 // (data/loadout.tsx) and the builds that use them (data/builds.tsx).
@@ -38,7 +41,7 @@ export default function HomeStack() {
           </Link>
         }
       >
-        The AI kit and stack I build with, in daily use right now.
+        The AI kit and stack I build with, and the tools I built for myself, all in daily use.
       </SectionMark>
 
       <AITechStack dino />
@@ -86,8 +89,10 @@ export default function HomeStack() {
           })}
         </ul>
       </div>
-      {/* A one-line teaser for My dev setup on /loadout. */}
-      <p className="mt-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-center text-sm text-[#9cadc5]" data-setup-teaser>
+      <HomeToolsIBuilt />
+
+      {/* A one-line teaser for My dev setup on /loadout, closing the Loadout. */}
+      <p className="mt-10 flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-center text-sm text-[#9cadc5]" data-setup-teaser>
         <span className="font-mono text-[0.68rem] font-bold tracking-[0.16em] text-cyan-400 uppercase">My setup</span>
         {/* Each pair stays on one line; the dots between them are where it wraps. */}
         <span>

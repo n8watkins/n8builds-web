@@ -19,7 +19,6 @@ import LabSectionNav from '@/components/sections/LabSectionNav'
 import ShimmerWhenSeen from '@/components/ShimmerWhenSeen'
 import HomeStack from '@/components/sections/HomeStack'
 import HomePeople from '@/components/sections/HomePeople'
-import HomeToolsIBuilt from '@/components/sections/HomeToolsIBuilt'
 import WorkWithMe from '@/components/sections/WorkWithMe'
 import Footer from '@/components/layout/Footer'
 import type { Post } from '@/lib/sanity'
@@ -67,12 +66,12 @@ function Band({
  * downloads and hydrates those, not every section's code.
  */
 /**
- * The Lab's "My tools" part (#my-tools) moved to /loadout as "My daily
- * drivers" (2026-11-01). A hash never reaches the server, so this inline
+ * The Lab's "My tools" part (#my-tools) moved to /loadout's "Tools I built
+ * and use" (2026-11-01). A hash never reaches the server, so this inline
  * script sends links to /#my-tools out there on to it, as the page starts to
  * parse: before anything paints, and without waiting for hydration.
  */
-const MY_TOOLS_MOVED = "if(location.hash==='#my-tools')location.replace('/loadout#daily-drivers')"
+const MY_TOOLS_MOVED = "if(location.hash==='#my-tools')location.replace('/loadout#tools-i-built')"
 
 export default function HomePage({ posts }: { posts: Post[] }) {
   return (
@@ -217,22 +216,16 @@ export default function HomePage({ posts }: { posts: Post[] }) {
           </SectionErrorBoundary>
         </Band>
 
-        {/* The small open-source tools I built (also on /loadout) */}
+        {/* Homepage stack, the homepage's Loadout: AI marquee + Turso TL;DR, the
+             tools I built and use, and the dev setup teaser -> /loadout */}
         <Band tone="raised">
-          <SectionErrorBoundary sectionName="Tools I Built">
-            <HomeToolsIBuilt />
-          </SectionErrorBoundary>
-        </Band>
-
-        {/* Homepage stack: AI marquee + Turso TL;DR -> /loadout */}
-        <Band>
           <SectionErrorBoundary sectionName="My Stack">
             <HomeStack />
           </SectionErrorBoundary>
         </Band>
 
         {/* Bridge: the portfolio (hire me) + Tech for Pros (my company) */}
-        <Band tone="raised">
+        <Band>
           <SectionErrorBoundary sectionName="Work With Me">
             <WorkWithMe />
           </SectionErrorBoundary>

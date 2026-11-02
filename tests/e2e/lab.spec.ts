@@ -5,7 +5,7 @@ import { APP_JS } from './app-js'
  * The homepage Lab and its ends: the featured rows (OpenPing first), the hero
  * gives a hiring visitor a direct route to the portfolio, and the page closes
  * with "Use this as a template". Scribe's row is the same component, on
- * /loadout's "My daily drivers" (2026-11-01), so the row tests cover it there.
+ * /loadout's "Tools I built and use" (2026-11-01), so the row tests cover it there.
  */
 
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
@@ -27,7 +27,7 @@ test('the Lab leads with the featured builds, OpenPing first, each with its icon
   await featured.scrollIntoViewIfNeeded()
   // The part's own heading, then one per row.
   await expect(featured.getByRole('heading', { level: 3 })).toHaveText(['Featured builds', 'OpenPing', 'Solara', 'Portfolio Rank'])
-  // The Featured part comes first, right under the Lab's intro: no "My daily drivers" (moved to /loadout).
+  // The Featured part comes first, right under the Lab's intro: no "My daily drivers" (Scribe moved to the Loadout).
   await expect(page.locator('#my-tools')).toHaveCount(0)
   await expect(page.locator('#lab').getByRole('article', { name: 'Scribe' })).toHaveCount(0)
   await expect(page.locator('#lab')).not.toContainText('My daily drivers')
@@ -54,9 +54,9 @@ test('the Lab has no tools part any more, in its own links, the navbar menu or t
   await expect(page.getByRole('link', { name: /^My tools/ })).toHaveCount(0)
 })
 
-test('Scribe\'s build page leads back to My daily drivers on /loadout; OpenPing and Solara back to Featured', async ({ page }) => {
+test('Scribe\'s build page leads back to Tools I built and use on /loadout; OpenPing and Solara back to Featured', async ({ page }) => {
   await page.goto('/builds/scribe')
-  await expect(page.getByRole('link', { name: 'Back to My daily drivers' })).toHaveAttribute('href', '/loadout#daily-drivers')
+  await expect(page.getByRole('link', { name: 'Back to Tools I built and use' })).toHaveAttribute('href', '/loadout#tools-i-built')
   for (const slug of ['openping', 'solara']) {
     await page.goto(`/builds/${slug}`)
     await expect(page.getByRole('link', { name: 'Back to Featured' })).toHaveAttribute('href', '/#featured')

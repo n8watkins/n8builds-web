@@ -22,11 +22,11 @@ import RepoButtons from '@/components/ui/RepoButtons'
 import Reveal from '@/components/ui/Reveal'
 
 /**
- * The dev-tool parts of /loadout (2026-11-01): my dev setup, the tools I
- * built, the tools I use (each credited to its maker) and honorable
- * mentions; and the parts the homepage shows (components/sections/
- * HomePeople.tsx, HomeToolsIBuilt.tsx): the people I follow, The Pull
- * Request Post and the tool cards. Each reads its list from
+ * The dev-tool parts of /loadout (2026-11-01): my dev setup, the tool
+ * cards of "Tools I built and use", the tools I use (each credited to its
+ * maker) and honorable mentions; and the parts the homepage shows
+ * (components/sections/HomePeople.tsx, HomeToolsIBuilt.tsx): the people I
+ * follow, The Pull Request Post and the tool cards. Each reads its list from
  * data/loadout.tsx, so adding a tool or a person is one entry there.
  * Server components: RepoButtons fetches its star count on the server. Out
  * of the app's IconContext, so every icon is aria-hidden by hand.
@@ -151,18 +151,13 @@ export const BuiltToolsGrid = ({ tools = toolsIBuilt }: { tools?: BuiltTool[] })
   </ul>
 )
 
-export const TOOLS_I_BUILT_BLURB = 'Small open-source tools I made because I wanted them. All MIT-licensed.'
-
-export const ToolsIBuilt = () => (
-  <Reveal>
-    <section aria-labelledby="tools-i-built-title">
-      <SectionHead id="tools-i-built-title" path="~/loadout/built" title="Tools I built">
-        {TOOLS_I_BUILT_BLURB}
-      </SectionHead>
-      <BuiltToolsGrid />
-    </section>
-  </Reveal>
-)
+/**
+ * "Tools I built and use" (the owner's call, 2026-11-01): Scribe's row, then
+ * these cards, on /loadout and in the homepage's Loadout. Everything in it is
+ * MIT-licensed (Scribe included).
+ */
+export const TOOLS_I_BUILT_TITLE = 'Tools I built and use'
+export const TOOLS_I_BUILT_BLURB = 'Tools I made for myself and use every day. All open source and MIT-licensed.'
 
 const makerLink = 'font-medium text-slate-300 underline decoration-white/20 underline-offset-4 transition-colors hover:text-cyan-200'
 

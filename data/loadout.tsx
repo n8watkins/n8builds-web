@@ -2,7 +2,6 @@ import type { ReactElement } from 'react'
 import Image from 'next/image'
 import { BsOpenai } from 'react-icons/bs'
 import {
-  LuAppWindow,
   LuAward,
   LuBot,
   LuChartColumn,
@@ -42,8 +41,7 @@ import type { RailPart } from '@/components/ui/SectionRail'
 export const loadoutParts: readonly RailPart[] = [
   { id: 'dev-setup', label: 'Dev setup', icon: LuSquareTerminal },
   { id: 'workflow', label: 'How I work', icon: LuWorkflow },
-  { id: 'daily-drivers', label: 'Daily drivers', icon: LuAppWindow },
-  { id: 'tools-i-built', label: 'Tools I built', icon: LuHammer },
+  { id: 'tools-i-built', label: 'Tools I built and use', short: 'My tools', icon: LuHammer },
   { id: 'tools-i-use', label: 'Tools I use', icon: LuWrench },
   { id: 'honorable-mentions', label: 'Honorable mentions', short: 'Mentions', icon: LuAward },
   { id: 'in-apps', label: 'Inside my apps', icon: LuBot },
@@ -170,9 +168,9 @@ export interface NamedLink {
 }
 
 /**
- * The dev tools I built: small public CLIs, not apps (those are the Lab's
- * builds in data/builds.tsx). One entry per tool; adding a tool is adding an
- * entry here.
+ * The dev tools I built: small public CLIs, the cards in "Tools I built and
+ * use" after Scribe's row (Scribe is an app, a build in data/builds.tsx). One
+ * entry per tool; adding a tool is adding an entry here.
  */
 export interface BuiltTool {
   /** The anchor id on /loadout. */

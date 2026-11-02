@@ -1,20 +1,21 @@
 import { test, expect } from '@playwright/test'
 
 /**
- * /loadout's dev-tool parts (2026-11-01): the tools I built (with the fork's
- * credit and the Star | GitHub button), then the tools I use (each credited
- * to its maker), plus the header pills; and the homepage's People I follow
- * (moved from /loadout), The Pull Request Post under it, and Tools I built.
+ * /loadout's dev-tool parts (2026-11-01): the tools I built and use (Scribe's
+ * row, then the CLIs, with the fork's credit and the Star | GitHub button),
+ * then the tools I use (each credited to its maker), plus the header pills;
+ * and the homepage's People I follow (moved from /loadout), The Pull Request
+ * Post under it, and Tools I built and use in its Loadout.
  */
 
 test.describe('Loadout tools and people', () => {
   test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
-  test('lists the tools I built, credits the pass-env fork and links each repo', async ({ page }) => {
+  test('lists the tools I built and use, Scribe first, credits the pass-env fork and links each repo', async ({ page }) => {
     await page.goto('/loadout')
-    const built = page.getByRole('region', { name: 'Tools I built' })
+    const built = page.getByRole('region', { name: 'Tools I built and use' })
     await expect(built.getByRole('heading', { name: 'pass-env', exact: true })).toBeVisible()
-    await expect(built.getByRole('article').getByRole('heading', { level: 3 })).toHaveText(['pass-env', 'release-kit', 'devguard', 'pr-post'])
+    await expect(built.getByRole('article').getByRole('heading', { level: 3 })).toHaveText(['Scribe', 'pass-env', 'release-kit', 'devguard', 'pr-post'])
     await expect(built.getByText('Your AI coding agents use your API keys without ever seeing them.')).toBeVisible()
     await expect(built.locator('[data-credit]')).toHaveText(
       'Created by Phaedrus Raznikov at Misty Step; my fork adds import, generate, doctor and more.',
@@ -199,7 +200,7 @@ test.describe('Loadout tools and people', () => {
   test('the header pills jump to every part of the page', async ({ page }) => {
     await page.goto('/loadout')
     const pills = page.getByRole('navigation', { name: 'Loadout sections' }).getByRole('link')
-    await expect(pills).toHaveText(['Dev setup', 'How I work', 'Daily drivers', 'Tools I built', 'Tools I use', 'Honorable mentions', 'Inside my apps', 'The gear'])
+    await expect(pills).toHaveText(['Dev setup', 'How I work', 'Tools I built and use', 'Tools I use', 'Honorable mentions', 'Inside my apps', 'The gear'])
     for (const href of await pills.evaluateAll((els) => els.map((el) => el.getAttribute('href')))) {
       await expect(page.locator(href!)).toHaveCount(1)
     }
@@ -222,11 +223,11 @@ test.describe('Loadout tools and people', () => {
     }
   })
 
-  test('/loadout puts Tools I built before Tools I use, and People I follow is no longer there', async ({ page }) => {
+  test('/loadout puts Tools I built and use before Tools I use, and People I follow is no longer there', async ({ page }) => {
     await page.goto('/loadout')
     const order = await page.locator('main h2').allTextContents()
-    expect(order.indexOf('Tools I built')).toBeGreaterThan(-1)
-    expect(order.indexOf('Tools I built')).toBeLessThan(order.indexOf('Tools I use'))
+    expect(order.indexOf('Tools I built and use')).toBeGreaterThan(-1)
+    expect(order.indexOf('Tools I built and use')).toBeLessThan(order.indexOf('Tools I use'))
     await expect(page.getByRole('region', { name: 'People I follow' })).toHaveCount(0)
     await expect(page.locator('#people, #kun-chen')).toHaveCount(0)
   })
@@ -255,16 +256,27 @@ test.describe('Loadout tools and people', () => {
     await expect.poll(() => shot.locator('img').evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0)
   })
 
-  test('the homepage shows Tools I built too, leaving pr-post to The Pull Request Post above it', async ({ page }) => {
+  test('the homepage has Tools I built and use inside its Loadout, every tool with Scribe first', async ({ page }) => {
     await page.goto('/')
-    const built = page.getByRole('region', { name: 'Tools I built' })
-    await expect(built.getByRole('article').getByRole('heading', { level: 3 })).toHaveText(['pass-env', 'release-kit', 'devguard'])
+    const built = page.getByRole('region', { name: 'Tools I built and use' })
+    // Every tool, pr-post too: The Pull Request Post's card is a section above now.
+    await expect(built.getByRole('article').getByRole('heading', { level: 3 })).toHaveText(['Scribe', 'pass-env', 'release-kit', 'devguard', 'pr-post'])
     await expect(built.locator('[data-credit]')).toContainText('Created by Phaedrus Raznikov at Misty Step')
+    // A part of the Loadout (#loadout): after the default stack, before the setup teaser that closes it.
+    const loadout = page.locator('#loadout')
+    await expect(loadout.locator('#tools-i-built')).toHaveCount(1)
+    const [stack, tools, teaser] = await Promise.all(
+      [loadout.getByRole('heading', { name: 'The Turso Stack' }), built, loadout.locator('[data-setup-teaser]')].map((el) => el.boundingBox()),
+    )
+    expect(tools!.y).toBeGreaterThan(stack!.y)
+    expect(teaser!.y).toBeGreaterThan(tools!.y + tools!.height - 1)
+    // Scribe's row sits in the Loadout's column, without the Lab's full-bleed wash.
+    await expect(built.locator('.lab-row-wash')).toHaveCount(0)
     // After People I follow, and linked from the footer's sitemap with it.
     const people = (await page.locator('#people').boundingBox())!
     expect((await built.boundingBox())!.y).toBeGreaterThan(people.y)
     const sitemap = page.getByRole('navigation', { name: 'Sitemap' })
-    await expect(sitemap.getByRole('link', { name: 'Tools I built' })).toHaveAttribute('href', '/#tools-i-built')
+    await expect(sitemap.getByRole('link', { name: 'Tools I built and use' })).toHaveAttribute('href', '/#tools-i-built')
     await expect(sitemap.getByRole('link', { name: 'People I follow' })).toHaveAttribute('href', '/#people')
   })
 })
