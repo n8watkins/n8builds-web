@@ -177,7 +177,7 @@ test('every featured row and its build page invite the visitor to try it', async
     expect(button!.x, `${name}: action right of the pills`).toBeGreaterThan(pills!.x)
   }
   // The two the owner uses every day say so.
-  await expect(page.locator('#lab')).toContainText('I check OpenPing every day')
+  await expect(page.locator('#lab')).toContainText('from your own Cloudflare account. I check it every day.')
   await expect(await rowOf(page, 'Scribe')).toContainText('I dictate with Scribe every day')
   for (const [, slug] of tries) {
     await page.goto(`/builds/${slug}`)

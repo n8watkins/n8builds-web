@@ -62,7 +62,9 @@ test.describe('Loadout tools and people', () => {
       if (mark.name !== 'AMD Ryzen 7 9700X') expect(mark.height, `${mark.name}: 16px`).toBe(16)
       expect(Math.abs(mark.offset), `${mark.name}: centred on its line`).toBeLessThanOrEqual(1)
     }
-    // The app icons are real files.
+    // The app icons are real files. They load lazily, and a phone's WebKit
+    // fetches one only near the screen, so bring each into view first.
+    for (const img of await chips.locator('img').all()) await img.scrollIntoViewIfNeeded()
     await expect.poll(() => chips.locator('img').evaluateAll((imgs) => imgs.every((i) => (i as HTMLImageElement).naturalWidth > 0))).toBe(true)
     for (const src of ['/brands/windows-terminal.svg', '/brands/herdr.png', '/builds/scribe/app-icon.png']) {
       await expect(chips.locator(`img[src*="${src.split('/').pop()}"]`), src).toHaveCount(1)
@@ -130,10 +132,13 @@ test.describe('Loadout tools and people', () => {
       await expect(link).toHaveAttribute('target', '_blank')
     }
     // The buttons sit at each card's foot, level across a row.
+    // Measured on the buttons' row (Star | GitHub, and herdr's herdr.dev,
+    // which wraps under them on a phone), within a pixel: a phone's fractional
+    // layout rounds a card's edge either way.
     const feet = await used.locator(':scope > ul > li').evaluateAll((cards) =>
-      cards.map((card) => Math.round(card.querySelector('[role="group"]')!.getBoundingClientRect().bottom - card.getBoundingClientRect().bottom)),
+      cards.map((card) => card.querySelector('[role="group"]')!.parentElement!.getBoundingClientRect().bottom - card.getBoundingClientRect().bottom),
     )
-    expect(new Set(feet).size, 'every button the same distance from its card foot').toBe(1)
+    expect(Math.max(...feet) - Math.min(...feet), 'every button the same distance from its card foot').toBeLessThanOrEqual(1)
     // "by Kun Chen" goes to his card in People I follow, on the homepage.
     await used.getByRole('link', { name: 'Kun Chen' }).first().click()
     await expect(page).toHaveURL(/\/#kun-chen$/)

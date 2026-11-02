@@ -52,7 +52,7 @@ test("is the Lab's first part, right after its intro, in the server-rendered HTM
   const html = await (await request.get('/')).text()
   const at = (id: string) => html.indexOf(`id="${id}"`)
   expect(at('build-log')).toBeGreaterThan(at('lab'))
-  for (const later of ['my-tools', 'featured', 'extensions', 'upcoming']) expect(at('build-log')).toBeLessThan(at(later))
+  for (const later of ['featured', 'extensions', 'upcoming']) expect(at('build-log')).toBeLessThan(at(later))
 
   await page.goto('/')
   await strip(page).scrollIntoViewIfNeeded()

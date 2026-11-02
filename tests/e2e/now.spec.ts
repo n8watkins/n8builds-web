@@ -101,7 +101,8 @@ test('Request a quote fills the contact form in place: the New project topic and
   await expect(page).toHaveURL(/\/#contact$/)
   await expect(page.locator('#contact-form input[value="project_opportunity"]')).toBeChecked()
   await expect(page.getByRole('textbox', { name: 'Message' })).toHaveValue(/^I'd like a quote from Tech for Pros\./)
-  await expect(page.getByRole('textbox', { name: 'Message' })).toBeInViewport()
+  // Scrolled to the contact part (on a phone the message box is further down it).
+  await expect(page.locator('#contact')).toBeInViewport()
 })
 
 test('a link to the quote preset from elsewhere fills the form on arrival, then tidies the address', async ({ page }) => {
@@ -199,6 +200,8 @@ for (const width of [1024, 820, 390, 375, 320]) {
       const right = el.getBoundingClientRect().right
       return [...el.querySelectorAll('a, button, p, li, img')]
         .filter((n) => !n.closest('dialog'))
+        // The templates waiting off stage, clipped by their frame, aren't on screen.
+        .filter((n) => !n.closest('[data-slide][aria-hidden="true"]'))
         .filter((n) => n.getBoundingClientRect().right > right + 0.5)
         .map((n) => n.textContent?.trim().slice(0, 40) || n.tagName)
     })
