@@ -57,8 +57,8 @@ export default function PrivacyPolicy() {
                     <Link href="/upcoming" className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2">
                       upcoming page
                     </Link>
-                    , I keep your email address, the projects you picked, your note if you wrote
-                    one, when you signed up and confirmed, and where you came from (the project
+                    {' '}or the homepage, I keep your email address, the projects you picked, when
+                    you signed up and confirmed, and where you came from (the project
                     you arrived interested in, and the page that linked you, without its query
                     string). I email you a link to confirm, and an unconfirmed request is deleted
                     after 7 days. Once you confirm, I keep it until you leave, and use it only to

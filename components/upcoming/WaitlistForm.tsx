@@ -5,13 +5,11 @@ import Link from 'next/link'
 import { Turnstile } from '@marsidev/react-turnstile'
 import { FiCheck, FiMail } from 'react-icons/fi'
 import { ContactInput } from '@/components/ui/ContactInput'
-import { ContactTextarea } from '@/components/ui/ContactTextarea'
 import { errorId } from '@/components/ui/FieldWrapper'
 import { useHydrated } from '@/hooks/useHydrated'
 import { UPCOMING, interestSlug, isUpcomingSlug, type UpcomingSlug } from '@/data/upcoming'
 import { PICK_EVENT } from './JoinButton'
 
-const NOTE_MAX = 500
 // How long to wait for Turnstile to issue a token after the visitor clicks Join.
 const TURNSTILE_WAIT_MS = 15_000
 const DIRECT_EMAIL = 'contact@n8builds.dev'
@@ -21,17 +19,25 @@ const VERIFY_ERROR = `We couldn't verify your browser (an ad or privacy blocker 
 type State = { kind: 'idle' } | { kind: 'sending' } | { kind: 'error'; message: string } | { kind: 'done'; email: string }
 
 /**
- * The waitlist form on /upcoming: email, projects, an optional note, a hidden
- * honeypot and invisible Turnstile (as the contact form). It ticks the project
+ * The waitlist form on /upcoming and the homepage: email, projects, a hidden
+ * honeypot and invisible Turnstile (as the contact form). No note field (owner,
+ * 2026-11-02); the API still accepts an entry with or without one. It ticks the project
  * from `?interest=` (the projects' landing pages link here with it) and from
  * a card's "Join" button, and sends where the visitor came from with the entry.
  * No zod on the client: the browser checks the email and the server checks it all.
  */
-export default function WaitlistForm({ turnstileSiteKey }: { turnstileSiteKey: string }) {
+export default function WaitlistForm({
+  turnstileSiteKey,
+  layout = 'page',
+}: {
+  turnstileSiteKey: string
+  /** "side": beside the homepage cards from 1024px, so one column of picks there. */
+  layout?: 'page' | 'side'
+}) {
+  const side = layout === 'side'
   const hydrated = useHydrated()
   const [email, setEmail] = useState('')
   const [projects, setProjects] = useState<UpcomingSlug[]>([])
-  const [note, setNote] = useState('')
   const [honeypot, setHoneypot] = useState('')
   const [state, setState] = useState<State>({ kind: 'idle' })
   const [errors, setErrors] = useState<{ email?: string; projects?: string }>({})
@@ -108,7 +114,7 @@ export default function WaitlistForm({ turnstileSiteKey }: { turnstileSiteKey: s
       const response = await fetch('/api/waitlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), projects, note: note.trim(), source: source.current, turnstile, honeypot }),
+        body: JSON.stringify({ email: email.trim(), projects, source: source.current, turnstile, honeypot }),
       })
       const data = await response.json().catch(() => ({}))
       if (!response.ok) {
@@ -147,7 +153,7 @@ export default function WaitlistForm({ turnstileSiteKey }: { turnstileSiteKey: s
         e.preventDefault()
         if (hydrated && !busy) submit()
       }}
-      className="space-y-6"
+      className={side ? 'space-y-6 lg:space-y-4' : 'space-y-6'}
       // The scroll-to-top button steps aside instead of covering a field (components/ui/ScrollToTop.tsx).
       data-scroll-top-avoid
       aria-describedby={state.kind === 'error' ? 'waitlist-error' : undefined}
@@ -187,14 +193,14 @@ export default function WaitlistForm({ turnstileSiteKey }: { turnstileSiteKey: s
         aria-invalid={errors.projects ? true : undefined}
       >
         <legend className="text-sm font-medium text-slate-200">Which projects?</legend>
-        <div className="mt-2 grid gap-2.5 sm:grid-cols-2">
+        <div className={`mt-2 grid gap-2.5 sm:grid-cols-2 ${side ? 'lg:grid-cols-1 lg:gap-2' : ''}`}>
           {UPCOMING.map((p) => {
             const checked = projects.includes(p.slug)
             return (
               <label
                 key={p.slug}
                 style={{ '--accent': p.accent } as CSSProperties}
-                className={`group relative flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition-colors duration-150 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-(--accent) ${
+                className={`group relative flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 ${side ? 'lg:py-2' : ''} transition-colors duration-150 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-(--accent) ${
                   checked ? 'border-(--accent)/60 bg-(--accent)/10' : 'border-slate-600 bg-slate-800/60 hover:border-slate-500'
                 }`}
               >
@@ -231,19 +237,6 @@ export default function WaitlistForm({ turnstileSiteKey }: { turnstileSiteKey: s
         )}
       </fieldset>
 
-      <ContactTextarea
-        id="waitlist-note"
-        name="note"
-        label="Note (optional)"
-        placeholder="What would you use it for? Anything it must do?"
-        rows={3}
-        maxChars={NOTE_MAX}
-        charCount={note.length}
-        value={note}
-        onChange={(e) => setNote(e.target.value)}
-        disabled={busy}
-      />
-
       {state.kind === 'error' && (
         <p
           id="waitlist-error"
@@ -275,7 +268,7 @@ export default function WaitlistForm({ turnstileSiteKey }: { turnstileSiteKey: s
         <button
           type="submit"
           disabled={!hydrated || busy}
-          className={`relative inline-flex h-12 w-full shrink-0 overflow-hidden rounded-lg p-px focus:outline-hidden focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 sm:w-60 ${
+          className={`relative inline-flex h-12 w-full shrink-0 overflow-hidden rounded-lg p-px focus:outline-hidden focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 sm:w-60 ${side ? 'lg:h-11 lg:w-full' : ''} ${
             busy ? 'cursor-not-allowed opacity-75' : ''
           }`}
         >
@@ -284,7 +277,7 @@ export default function WaitlistForm({ turnstileSiteKey }: { turnstileSiteKey: s
             {busy ? 'Joining...' : 'Join the waitlist'}
           </span>
         </button>
-        <p className="text-center text-sm text-balance text-slate-400">
+        <p className={`text-center text-sm text-balance text-slate-400 ${side ? 'lg:text-xs lg:leading-relaxed' : ''}`}>
           An email when there is something to try. No newsletter, and you can leave any time.{' '}
           <Link href="/privacy#waitlist" className="text-cyan-400 underline underline-offset-2 hover:text-cyan-300">
             How sign-ups are kept

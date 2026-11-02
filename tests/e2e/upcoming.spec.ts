@@ -93,12 +93,14 @@ test('a visitor can join the waitlist', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Email' }).fill(uniqueEmail())
   await page.locator('#waitlist-projects label', { hasText: 'Strollz' }).click()
   await expect(project(page, 'Strollz')).toBeChecked()
-  await page.getByLabel('Note (optional)').fill('For my blog, which moves a lot.')
+  // No note field (owner, 2026-11-02): email and projects are all it asks.
+  await expect(page.locator('#waitlist textarea')).toHaveCount(0)
 
   const request = page.waitForRequest('/api/waitlist')
   await page.getByRole('button', { name: 'Join the waitlist' }).click()
   const body = (await request).postDataJSON()
   expect(body).toMatchObject({ projects: ['relink', 'strollz'], source: { interest: 'relink' }, honeypot: '' })
+  expect(body).not.toHaveProperty('note')
 
   await expect(page.getByRole('heading', { name: 'Check your inbox' })).toBeVisible({ timeout: SEND_TIMEOUT })
   await expect(page.getByRole('heading', { name: 'Check your inbox' })).toBeFocused()
@@ -205,28 +207,27 @@ test("Relink's card says plainly what it does", async ({ page }) => {
   await expect(page.locator('article#relink')).toContainText('Turns broken links into the right page')
 })
 
-test("the homepage Lab ends with a short What's cookin' part: each project's summary, landing page and Join, then the waitlist", async ({ page }) => {
+test("the homepage Lab ends with a short What's cookin' part: each project's summary and landing page, beside the waitlist", async ({ page }) => {
   await page.goto('/')
   const band = page.locator('#lab section#upcoming')
   await expect(band.getByRole('heading', { level: 3 })).toHaveText('What’s cookin’')
   await expect(band.getByText('Upcoming', { exact: true })).toBeVisible()
-  await expect(band.getByRole('listitem')).toHaveCount(4)
-  // The same form as /upcoming, picking several projects (owner, 2026-11-02).
+  await expect(band.locator('ul > li')).toHaveCount(4)
+  // The same form as /upcoming, picking several projects (owner, 2026-11-02), without the note.
   await expect(band.locator('#waitlist').getByRole('heading', { level: 4, name: 'Join the waitlist' })).toBeVisible()
   await expect(band.locator('#waitlist').getByRole('checkbox')).toHaveCount(4)
-  const cards = band.locator('> div > ul > li')
+  await expect(band.locator('#waitlist textarea')).toHaveCount(0)
+  const cards = band.locator('ul > li')
   for (const [i, [slug, href]] of Object.entries(LANDING).entries()) {
     const name = NAMES[slug]
     const card = cards.nth(i)
     await expect(card.getByRole('heading', { level: 4 })).toHaveText(name)
     // A plain summary under the tagline: what it does, for whom.
     await expect(card.locator('p').nth(1)).toHaveText(/^\S.{40,}\.$/)
-    // The landing page is the main button, Join the second.
-    const actions = card.getByRole('link', { name: /landing page|Join the waitlist/ })
-    await expect(actions.nth(0)).toHaveAccessibleName(new RegExp(`landing page for ${name} \\(opens in a new tab\\)$`))
-    await expect(actions.nth(0)).toHaveAttribute('href', href)
-    await expect(actions.nth(1)).toHaveAccessibleName(`Join the waitlist for ${name}`)
-    await expect(actions.nth(1)).toHaveAttribute('href', '#waitlist')
+    // The landing page is the one button; the visitor picks projects in the form, so no per-card Join.
+    const landing = card.getByRole('link', { name: new RegExp(`landing page for ${name} \\(opens in a new tab\\)$`) })
+    await expect(landing).toHaveAttribute('href', href)
+    await expect(card.getByRole('link', { name: /Join the waitlist/ })).toHaveCount(0)
     const code = card.getByRole('link', { name: /^View the code/ })
     if (CODE[slug]) await expect(code).toHaveAttribute('href', CODE[slug]!)
     else await expect(code).toHaveCount(0)
@@ -238,32 +239,27 @@ test("the homepage Lab ends with a short What's cookin' part: each project's sum
   await expect(page).toHaveURL(/\/upcoming$/)
 })
 
-test("a homepage card's Join ticks that project in the waitlist below and scrolls to it", async ({ page }) => {
-  await page.goto('/')
-  const band = page.locator('#lab section#upcoming')
-  await band.getByRole('link', { name: 'Join the waitlist for KeysReady' }).click()
-  await expect(band.locator('#waitlist input[value="keysready"]')).toBeChecked()
-  await band.getByRole('link', { name: 'Join the waitlist for Relink' }).click()
-  // Several at once: the first pick stays.
-  await expect(band.locator('#waitlist input[value="relink"]')).toBeChecked()
-  await expect(band.locator('#waitlist input[value="keysready"]')).toBeChecked()
-  await expect(page).toHaveURL(/#waitlist$/)
-  await expect(band.locator('#waitlist-email')).toBeInViewport()
+test('a landing page link to the homepage ticks its project in the waitlist there', async ({ page }) => {
+  await page.goto('/?interest=strollz#waitlist')
+  const form = page.locator('#lab section#upcoming #waitlist')
+  await expect(form.locator('input[value="strollz"]')).toBeChecked()
+  await expect(form.locator('input[value="relink"]')).not.toBeChecked()
 })
 
-// Four items: four across from 1024px, two by two on tablets, one column on phones.
-for (const [width, columns] of [
-  [1440, 4],
-  [1280, 4],
-  [1024, 4],
-  [810, 2],
-  [390, 1],
-  [320, 1],
-]) {
-  test(`What's cookin' lays its four items out evenly at ${width}px`, async ({ page }) => {
-    await page.setViewportSize({ width, height: 900 })
+// Cards two by two beside the waitlist from 1024px, two by two above it on tablets, one column on phones.
+for (const [width, height, columns, beside] of [
+  [1440, 900, 2, true],
+  [1280, 800, 2, true],
+  [1024, 768, 2, true],
+  [810, 1080, 2, false],
+  [390, 844, 1, false],
+  [320, 640, 1, false],
+] as const) {
+  test(`What's cookin' lays its cards and waitlist out evenly at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height })
     await page.goto('/')
-    const items = page.locator('#lab section#upcoming > div > ul > li')
+    const band = page.locator('#lab section#upcoming')
+    const items = band.locator('ul > li')
     await expect(items).toHaveCount(4)
     await items.first().scrollIntoViewIfNeeded()
     const boxes = await items.evaluateAll((list) =>
@@ -274,18 +270,37 @@ for (const [width, columns] of [
     // A balanced grid: every row full, so no card is left alone, and the cards in a row the same height.
     expect([...rows.values()].map((row) => row.length)).toEqual(Array(4 / columns).fill(columns))
     for (const heights of rows.values()) expect(Math.max(...heights) - Math.min(...heights)).toBeLessThan(1)
-    // Each button's label stays on one line inside it, the buttons level across a row, and nothing spills past the page.
+    // Each button's label stays on one line inside it, the buttons level across a row.
     const buttons = await items
-      .getByRole('link', { name: /Join the waitlist|landing page/ })
+      .getByRole('link', { name: /landing page/ })
       .evaluateAll((links) =>
         links.map((a) => ({ height: a.getBoundingClientRect().height, fits: a.scrollWidth <= a.clientWidth, top: Math.round(a.getBoundingClientRect().top) }))
       )
-    expect(buttons).toHaveLength(8)
+    expect(buttons).toHaveLength(4)
     for (const { height, fits } of buttons) {
       expect(height).toBeLessThanOrEqual(44)
       expect(fits).toBe(true)
     }
-    if (columns === 4) expect(new Set(buttons.map((b) => b.top)).size).toBe(2)
+    if (columns === 2) expect(new Set(buttons.map((b) => b.top)).size).toBe(2)
+
+    const grid = await items.evaluateAll((list) => {
+      const r = list.map((li) => li.getBoundingClientRect())
+      return { top: Math.min(...r.map((b) => b.top)), bottom: Math.max(...r.map((b) => b.bottom)), right: Math.max(...r.map((b) => b.right)) }
+    })
+    const panel = (await band.locator('#waitlist').boundingBox())!
+    if (beside) {
+      // The waitlist sits to the right of the cards, level with them top and bottom.
+      expect(panel.x).toBeGreaterThan(grid.right)
+      expect(Math.abs(panel.y - grid.top)).toBeLessThan(1)
+      expect(Math.abs(panel.y + panel.height - grid.bottom)).toBeLessThan(1)
+      // Cards and waitlist read as one screen: together they fit under the navbar.
+      const navbar = (await page.getByRole('navigation', { name: 'Primary' }).first().boundingBox())!.height
+      expect(grid.bottom - grid.top).toBeLessThanOrEqual(height - navbar)
+      // At 1440x900 the whole part, heading included, fits too.
+      if (width === 1440) expect((await band.boundingBox())!.height).toBeLessThanOrEqual(height - navbar)
+    } else {
+      expect(panel.y).toBeGreaterThan(grid.bottom)
+    }
     expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0)
   })
 }

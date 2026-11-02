@@ -112,6 +112,13 @@ describe('POST /api/waitlist', () => {
     expect(saved()).toMatchObject({ requested: ['keysready'], interest: 'keysready' })
   })
 
+  it('accepts an entry without a note (the form no longer has one)', async () => {
+    const { note: _note, ...withoutNote } = valid
+    const response = await call(join, withoutNote)
+    expect(response.status).toBe(200)
+    expect(saved()).toMatchObject({ requested: ['relink'], requestedNote: '' })
+  })
+
   it('keeps an interest only when it names a project', async () => {
     await call(join, { ...valid, source: { interest: '<script>' } })
     expect(saved()).toMatchObject({ interest: '', referrer: '' })

@@ -6,25 +6,36 @@ import { isWaitlistOpen } from '@/lib/waitlist/store'
  * waitlist is closed. Shared by /upcoming and the homepage's What's cookin'
  * (owner, 2026-11-02), so both pick projects the same way. Server-rendered;
  * the caller wraps it in the section the cards' Join buttons scroll to.
+ * `layout="side"` is the homepage's: beside the cards from 1024px up, so it
+ * tightens there (one column of picks, less padding) to keep both on one screen.
  */
-export default function WaitlistPanel({ heading: Heading = 'h2' }: { heading?: 'h2' | 'h4' }) {
+export default function WaitlistPanel({
+  heading: Heading = 'h2',
+  layout = 'page',
+}: {
+  heading?: 'h2' | 'h4'
+  layout?: 'page' | 'side'
+}) {
+  const side = layout === 'side'
   const open = isWaitlistOpen()
   // As the contact form: under `next dev` the server skips Turnstile.
   const turnstileSiteKey = process.env.NODE_ENV === 'development' ? '' : process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''
 
   return (
-    <div className="rounded-2xl border border-white/8 bg-linear-to-br from-cyan-500/[0.06] to-blue-600/[0.03] p-6 sm:p-8">
+    <div
+      className={`h-full rounded-2xl border border-white/8 bg-linear-to-br from-cyan-500/[0.06] to-blue-600/[0.03] p-5 sm:p-8 ${side ? 'lg:p-5 xl:p-6' : ''}`}
+    >
       {/* h4 on the homepage, under the Lab's h3 "What's cookin'". */}
-      <Heading className="text-2xl font-bold tracking-tight text-slate-50 sm:text-3xl">
+      <Heading className={`text-2xl font-bold tracking-tight text-slate-50 sm:text-3xl ${side ? 'lg:text-[1.75rem]' : ''}`}>
         Join the <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">waitlist</span>
       </Heading>
       {open ? (
         <>
-          <p className="mt-2 text-sm leading-relaxed text-slate-300 sm:text-base">
+          <p className={`mt-2 text-sm leading-relaxed text-slate-300 sm:text-base ${side ? 'lg:text-sm' : ''}`}>
             Pick the projects you want to hear about. I&rsquo;ll email a link to confirm, so nobody can sign you up but you.
           </p>
-          <div className="mt-6">
-            <WaitlistForm turnstileSiteKey={turnstileSiteKey} />
+          <div className={side ? 'mt-6 lg:mt-4' : 'mt-6'}>
+            <WaitlistForm turnstileSiteKey={turnstileSiteKey} layout={layout} />
           </div>
         </>
       ) : (

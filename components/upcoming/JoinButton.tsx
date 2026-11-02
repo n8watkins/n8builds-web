@@ -19,7 +19,7 @@ export default function JoinButton({
   slug: UpcomingSlug
   name: string
   accent: string
-  /** The homepage's narrow cards: "Join the waitlist", the name read out but not shown. */
+  /** /upcoming's cards: "Join the waitlist", the name read out but not shown. */
   compact?: boolean
 }) {
   return (
