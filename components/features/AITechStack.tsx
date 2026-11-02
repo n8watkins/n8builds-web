@@ -22,7 +22,10 @@ export function AITechStack({ dino = false }: { dino?: boolean }) {
       data-dino-panel={dino || undefined}
       // The dino game sends its rounds here (app/api/game): counts only, no cookies.
       data-dino-stats={dino ? '/api/game' : undefined}
-      className="relative flex w-full flex-col items-center justify-center overflow-hidden select-none [-webkit-tap-highlight-color:transparent] motion-safe:gap-6 rounded-3xl border border-white/6 bg-linear-to-br from-[#081427] via-[#0a1a33] to-[#081427] py-8 motion-safe:pt-24 motion-safe:pb-12"
+      // With the dino, the music toggle sits in the top right corner: under
+      // reduced motion (no dino, but the music still plays) the grid starts
+      // below it.
+      className={`relative flex w-full flex-col items-center justify-center overflow-hidden select-none [-webkit-tap-highlight-color:transparent] motion-safe:gap-6 rounded-3xl border border-white/6 bg-linear-to-br from-[#081427] via-[#0a1a33] to-[#081427] py-8 motion-safe:pt-24 motion-safe:pb-12 ${dino ? 'motion-reduce:pt-12' : ''}`}
     >
       <Marquee
         label="AI agents"
