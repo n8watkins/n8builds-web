@@ -187,6 +187,34 @@ test.describe('Loadout tools and people', () => {
     }
   })
 
+  for (const width of [1440, 1024, 390, 320]) {
+    test(`at ${width}px each person's links sit in two columns, two rows at most, inside the card`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 })
+      await page.goto('/')
+      for (const name of ['Kun Chen', 'Phaedrus Raznikov', 'Nate Herk']) {
+        const list = page.getByRole('list', { name: `${name} online` })
+        await list.scrollIntoViewIfNeeded()
+        const boxes = await list.getByRole('link').evaluateAll((links) =>
+          links.map((a) => {
+            const r = a.getBoundingClientRect()
+            return { x: Math.round(r.x), top: Math.round(r.top), height: r.height, fits: a.scrollWidth <= a.clientWidth }
+          })
+        )
+        expect(new Set(boxes.map((b) => b.top)).size, name).toBeLessThanOrEqual(2)
+        expect(new Set(boxes.map((b) => b.x)).size, name).toBeLessThanOrEqual(2)
+        // The buttons in a row are as tall as each other, and nothing spills out of one.
+        for (const top of new Set(boxes.map((b) => b.top))) {
+          const row = boxes.filter((b) => b.top === top)
+          expect(Math.max(...row.map((b) => b.height)) - Math.min(...row.map((b) => b.height)), name).toBeLessThan(1)
+        }
+        expect(boxes.every((b) => b.fits), name).toBe(true)
+        const card = (await page.locator('article', { has: list }).boundingBox())!
+        const ul = (await list.boundingBox())!
+        expect(ul.x + ul.width).toBeLessThanOrEqual(card.x + card.width)
+      }
+    })
+  }
+
   test('shows each person\'s self-hosted avatar, with the initials behind it as a fallback', async ({ page }) => {
     await page.goto('/')
     const people = page.getByRole('region', { name: 'People I follow' })

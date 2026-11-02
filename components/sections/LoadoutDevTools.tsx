@@ -89,6 +89,10 @@ const External = ({ link }: { link: NamedLink }) => (
 const linkButton =
   'inline-flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-3.5 py-2 text-sm font-semibold text-slate-300 transition-colors duration-200 hover:border-cyan-300/35 hover:bg-white/8 hover:text-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 [&_svg]:h-3.5 [&_svg]:w-3.5'
 
+/** A person's link: a smaller linkButton, so four fit two columns of a card (PersonCard). */
+const personLink =
+  'inline-flex w-full min-w-0 items-center gap-1.5 rounded-xl border border-white/12 bg-white/4 px-2 py-1.5 text-xs leading-tight font-semibold text-slate-300 transition-colors duration-200 hover:border-cyan-300/35 hover:bg-white/8 hover:text-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 min-[360px]:px-2.5 [&_svg]:h-3.5 [&_svg]:w-3.5'
+
 const iconChip =
   'flex shrink-0 items-center justify-center rounded-xl border border-white/10 bg-[#081427] text-cyan-300 transition-transform duration-200 group-hover:scale-105'
 
@@ -413,7 +417,7 @@ export const PersonCard = ({ person }: { person: Person }) => (
   <article
     id={person.id}
     aria-labelledby={`${person.id}-name`}
-    className="flex h-full scroll-mt-24 flex-col gap-4 rounded-3xl border border-white/8 bg-linear-to-b from-white/[0.045] to-white/[0.01] p-6 target:border-cyan-300/40"
+    className="flex h-full scroll-mt-24 flex-col gap-4 rounded-3xl border border-white/8 bg-linear-to-b from-white/[0.045] to-white/[0.01] p-5 target:border-cyan-300/40 sm:p-6 lg:p-5 xl:p-6"
   >
     <div className="flex items-center gap-4">
       {/* The photo sits over the initials: if it fails to load, its alt text
@@ -452,19 +456,28 @@ export const PersonCard = ({ person }: { person: Person }) => (
       </p>
     )}
     <RecentActivity person={person} />
-    <ul className="mt-auto flex flex-wrap gap-2" aria-label={`${person.name} online`}>
+    {/* Two rows at most (round 3 of 2026-11-02): the links fill two columns,
+        top to bottom (YouTube over X, then nateherk.com over AI Automation
+        Society), each column as wide as its longest link. In a narrow card a
+        long name wraps inside its button, and the buttons in a row share its height. */}
+    <ul
+      className="mt-auto grid auto-cols-[minmax(min-content,max-content)] grid-flow-col grid-rows-[auto_auto] justify-start gap-1.5 sm:gap-2"
+      aria-label={`${person.name} online`}
+    >
       {person.links.map((link) => {
         const { label, icon } = LINKS[link.kind]
         return (
-          <li key={link.href}>
+          <li key={link.href} className="flex min-w-0">
             <a
               href={link.href}
               target="_blank"
               rel="noopener noreferrer"
-              className={linkButton}
+              className={personLink}
             >
-              <span aria-hidden="true">{icon}</span>
-              {link.label ?? label}
+              <span aria-hidden="true" className="shrink-0">
+                {icon}
+              </span>
+              <span className="min-w-0 text-balance">{link.label ?? label}</span>
               <span className="sr-only"> ({person.name}, opens in a new tab)</span>
             </a>
           </li>

@@ -366,9 +366,10 @@ export const people: Person[] = [
     name: 'Kun Chen',
     initials: 'KC',
     avatar: '/people/kun-chen.webp',
-    role: 'Former L8 principal engineer at Meta, Microsoft and Atlassian.',
+    // Non-breaking spaces keep the last words together (no one-word last line).
+    role: 'Former L8 principal engineer at Meta, Microsoft and\u00a0Atlassian.',
     // A non-breaking hyphen (U+2011) keeps "no-mistakes" from splitting across lines.
-    note: 'Building agent tools in the open: no\u2011mistakes, firstmate, gnhf, treehouse and the AXI interfaces.',
+    note: 'Building agent tools in the open: no\u2011mistakes, firstmate, gnhf, treehouse and the AXI\u00a0interfaces.',
     howTheyWork: { href: 'https://youtu.be/iQyg-KypKAA' },
     links: [
       { kind: 'youtube', href: 'https://www.youtube.com/channel/UCb69t9ZkE5z1KvCmfJoaifA' },
