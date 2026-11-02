@@ -37,7 +37,7 @@ test.describe('Loadout tools and people', () => {
   test('lists the tools I use, each credited inline to its maker', async ({ page }) => {
     await page.goto('/loadout')
     const used = page.getByRole('region', { name: 'Tools I use' })
-    for (const tool of ['no-mistakes', 'chrome-devtools-axi', 'gh-axi', 'Lavish']) {
+    for (const tool of ['no-mistakes', 'chrome-devtools-axi', 'gh-axi']) {
       await expect(used.getByRole('heading', { name: new RegExp(`^${tool}`) })).toBeVisible()
     }
     await expect(used.locator('h3').first()).toContainText(', by Kun Chen')
@@ -136,7 +136,7 @@ test.describe('Loadout tools and people', () => {
       '[wsl2]\nnetworkingMode=mirrored\nmemory=20GB\nprocessors=8\nswap=16GB\n\n[experimental]\nautoMemoryReclaim=dropcache\nsparseVhd=true',
     )
     // Agent tooling points at the Tools I use cards instead of repeating them.
-    for (const [name, id] of [['no-mistakes', 'no-mistakes'], ['gh-axi', 'gh-axi'], ['chrome-devtools-axi', 'chrome-devtools-axi'], ['Lavish', 'lavish']]) {
+    for (const [name, id] of [['no-mistakes', 'no-mistakes'], ['gh-axi', 'gh-axi'], ['chrome-devtools-axi', 'chrome-devtools-axi']]) {
       await expect(setup.getByRole('link', { name, exact: true })).toHaveAttribute('href', `#${id}`)
       await expect(page.locator(`#tools-i-use #${id}`)).toHaveCount(1)
     }
