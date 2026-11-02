@@ -30,6 +30,7 @@ function clearBackendEnv() {
     'UPSTASH_REDIS_REST_TOKEN',
     'CONTACT_TEST_MODE',
     'CONTACT_DAILY_LIMIT',
+    'WAITLIST_DAILY_LIMIT',
     'VERCEL',
     'VERCEL_ENV',
   ]) {
@@ -120,6 +121,21 @@ describe('checkRateLimit backend selection', () => {
     for (let i = 0; i < 50; i++) expect(await checkRateLimit('global', 'all')).toEqual({ allowed: true })
     expect(await checkRateLimit('global', 'all')).toMatchObject({ allowed: false })
   })
+
+  it('counts the waitlist apart from the contact form', async () => {
+    vi.stubEnv('NODE_ENV', 'production')
+    vi.stubEnv('CONTACT_TEST_MODE', '1')
+    vi.stubEnv('WAITLIST_DAILY_LIMIT', '1')
+    const { checkRateLimit } = await loadLimiter()
+
+    for (let i = 0; i < 5; i++) expect(await checkRateLimit('ip', '1.2.3.4')).toEqual({ allowed: true })
+    expect(await checkRateLimit('waitlist-ip', '1.2.3.4')).toEqual({ allowed: true })
+    expect(await checkRateLimit('waitlist-global', 'all')).toEqual({ allowed: true })
+    expect(await checkRateLimit('waitlist-global', 'all')).toEqual({ allowed: false, reason: 'limited' })
+    for (let i = 0; i < 3; i++) expect(await checkRateLimit('waitlist-recipient', 'a')).toEqual({ allowed: true })
+    expect(await checkRateLimit('waitlist-recipient', 'a')).toEqual({ allowed: false, reason: 'limited' })
+    expect(await checkRateLimit('recipient', 'a')).toEqual({ allowed: true })
+  })
 })
 
 describe('Upstash-backed limiting', () => {
@@ -160,7 +176,14 @@ describe('Upstash-backed limiting', () => {
     upstashLimit.mockResolvedValue({ success: true })
     const { checkRateLimit } = await loadLimiter()
     await checkRateLimit('ip', '1.2.3.4')
-    expect(upstashPrefixes).toEqual(['contact:ip', 'contact:global', 'contact:recipient'])
+    expect(upstashPrefixes).toEqual([
+      'contact:ip',
+      'contact:global',
+      'contact:recipient',
+      'contact:waitlist-ip',
+      'contact:waitlist-global',
+      'contact:waitlist-recipient',
+    ])
   })
 
   it('namespaces preview deployments away from production counters', async () => {
@@ -169,14 +192,28 @@ describe('Upstash-backed limiting', () => {
     upstashLimit.mockResolvedValue({ success: true })
     const { checkRateLimit } = await loadLimiter()
     await checkRateLimit('ip', '1.2.3.4')
-    expect(upstashPrefixes).toEqual(['contact:preview:ip', 'contact:preview:global', 'contact:preview:recipient'])
+    expect(upstashPrefixes).toEqual([
+      'contact:preview:ip',
+      'contact:preview:global',
+      'contact:preview:recipient',
+      'contact:preview:waitlist-ip',
+      'contact:preview:waitlist-global',
+      'contact:preview:waitlist-recipient',
+    ])
   })
 
   it('namespaces local runs away from production counters', async () => {
     upstashLimit.mockResolvedValue({ success: true })
     const { checkRateLimit } = await loadLimiter()
     await checkRateLimit('ip', '1.2.3.4')
-    expect(upstashPrefixes).toEqual(['contact:local:ip', 'contact:local:global', 'contact:local:recipient'])
+    expect(upstashPrefixes).toEqual([
+      'contact:local:ip',
+      'contact:local:global',
+      'contact:local:recipient',
+      'contact:local:waitlist-ip',
+      'contact:local:waitlist-global',
+      'contact:local:waitlist-recipient',
+    ])
   })
 
   it('never touches Upstash in test mode, even when it is configured', async () => {

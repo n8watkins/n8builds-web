@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import type { IconType } from 'react-icons'
-import { LuStar, LuWrench } from 'react-icons/lu'
+import { LuCookingPot, LuStar, LuWrench } from 'react-icons/lu'
 import BubblingFlask from '@/components/ui/BubblingFlask'
 import { SiGooglechrome } from 'react-icons/si'
 
@@ -25,6 +25,8 @@ const SECTIONS: readonly LabPart[] = [
     icon: SiGooglechrome,
     iconSize: 'size-3 min-[110rem]:size-3.5',
   },
+  // What's next (components/sections/UpcomingStrip.tsx); "Upcoming" where the gutter is narrow.
+  { id: 'upcoming', label: "What's cookin'", short: 'Upcoming', icon: LuCookingPot },
 ]
 
 // iconSize: a filled brand glyph reads heavier than the outline icons, so it runs a size smaller.
@@ -198,7 +200,7 @@ export default function LabSectionNav() {
           <span
             aria-hidden="true"
             className="absolute top-[calc(var(--row)/2)] left-[calc(0.375rem+var(--chip)/2)] w-px -translate-x-1/2 bg-cyan-400/15"
-            // From the first icon's centre to the last one's: nothing past Chrome Extensions.
+            // From the first icon's centre to the last one's: nothing past the last part.
             style={{ height: `calc(var(--row) * ${parts.length - 1})` }}
           >
             <span

@@ -5,9 +5,10 @@ import { logger } from '@/lib/logger'
 import { isContactTestMode } from '@/lib/security/testMode'
 
 /**
- * Contact-form rate limiting
+ * Contact-form and waitlist rate limiting
  *
- * Three limits:
+ * The contact form has three limits (the waitlist's mirror them, see
+ * RateLimitScope):
  * - Per IP: 5 submissions per hour (50 in `next dev`); IPv6 per /64, since
  *   one subscriber usually holds a whole /64
  * - Site-wide: CONTACT_DAILY_LIMIT verified submissions per day (default 50),
@@ -33,7 +34,19 @@ const RECIPIENT_LIMIT = 1
 const IP_LIMIT = process.env.NODE_ENV === 'development' ? 50 : 5
 const DEFAULT_GLOBAL_LIMIT = 50
 
-export type RateLimitScope = 'ip' | 'global' | 'recipient'
+const WAITLIST_IP_LIMIT = process.env.NODE_ENV === 'development' ? 50 : 5
+// Confirmation and removal-link emails to one address per day.
+const WAITLIST_RECIPIENT_LIMIT = 3
+const DEFAULT_WAITLIST_DAILY_LIMIT = 100
+
+/**
+ * - 'ip', 'global', 'recipient': the contact form (above)
+ * - 'waitlist-ip': waitlist requests per IP (5/hour, IPv6 per /64)
+ * - 'waitlist-global': waitlist emails per day site-wide (WAITLIST_DAILY_LIMIT,
+ *   default 100), so the waitlist can't use up Gmail's sending quota
+ * - 'waitlist-recipient': waitlist emails per address per day (3)
+ */
+export type RateLimitScope = 'ip' | 'global' | 'recipient' | 'waitlist-ip' | 'waitlist-global' | 'waitlist-recipient'
 
 export type RateLimitResult =
   | { allowed: true }
@@ -43,9 +56,17 @@ interface Limiter {
   limit(key: string): Promise<RateLimitResult>
 }
 
+function positiveInt(value: string | undefined, fallback: number): number {
+  const parsed = Number(value)
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback
+}
+
 function globalLimit(): number {
-  const parsed = Number(process.env.CONTACT_DAILY_LIMIT)
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : DEFAULT_GLOBAL_LIMIT
+  return positiveInt(process.env.CONTACT_DAILY_LIMIT, DEFAULT_GLOBAL_LIMIT)
+}
+
+function waitlistDailyLimit(): number {
+  return positiveInt(process.env.WAITLIST_DAILY_LIMIT, DEFAULT_WAITLIST_DAILY_LIMIT)
 }
 
 /**
@@ -137,6 +158,9 @@ function memoryLimiters(): Record<RateLimitScope, Limiter> {
     ip: new MemoryLimiter(IP_LIMIT, IP_WINDOW_MS),
     global: new MemoryLimiter(globalLimit(), GLOBAL_WINDOW_MS),
     recipient: new MemoryLimiter(RECIPIENT_LIMIT, RECIPIENT_WINDOW_MS),
+    'waitlist-ip': new MemoryLimiter(WAITLIST_IP_LIMIT, IP_WINDOW_MS),
+    'waitlist-global': new MemoryLimiter(waitlistDailyLimit(), GLOBAL_WINDOW_MS),
+    'waitlist-recipient': new MemoryLimiter(WAITLIST_RECIPIENT_LIMIT, RECIPIENT_WINDOW_MS),
   }
 }
 
@@ -151,13 +175,23 @@ function createLimiters(): Record<RateLimitScope, Limiter> {
       ip: new UpstashLimiter(redis, IP_LIMIT, '1 h', `${prefix}:ip`),
       global: new UpstashLimiter(redis, globalLimit(), '1 d', `${prefix}:global`),
       recipient: new UpstashLimiter(redis, RECIPIENT_LIMIT, '1 d', `${prefix}:recipient`),
+      'waitlist-ip': new UpstashLimiter(redis, WAITLIST_IP_LIMIT, '1 h', `${prefix}:waitlist-ip`),
+      'waitlist-global': new UpstashLimiter(redis, waitlistDailyLimit(), '1 d', `${prefix}:waitlist-global`),
+      'waitlist-recipient': new UpstashLimiter(redis, WAITLIST_RECIPIENT_LIMIT, '1 d', `${prefix}:waitlist-recipient`),
     }
   }
 
   if (process.env.NODE_ENV === 'development') return memoryLimiters()
 
-  logger.error('Upstash Redis is not configured - contact form is disabled')
-  return { ip: unavailable, global: unavailable, recipient: unavailable }
+  logger.error('Upstash Redis is not configured - contact form and waitlist are disabled')
+  return {
+    ip: unavailable,
+    global: unavailable,
+    recipient: unavailable,
+    'waitlist-ip': unavailable,
+    'waitlist-global': unavailable,
+    'waitlist-recipient': unavailable,
+  }
 }
 
 let limiters: Record<RateLimitScope, Limiter> | null = null
@@ -168,6 +202,7 @@ let limiters: Record<RateLimitScope, Limiter> | null = null
  * - 'ip': keyed by rateLimitIpKey()
  * - 'global': keyed by 'all'
  * - 'recipient': keyed by recipientKey(), before sending the auto-reply
+ * - 'waitlist-ip', 'waitlist-global', 'waitlist-recipient': the same keys, for the waitlist
  */
 export function checkRateLimit(scope: RateLimitScope, key: string): Promise<RateLimitResult> {
   limiters ??= createLimiters()

@@ -3,7 +3,7 @@ import { test, expect, type Page } from '@playwright/test'
 /**
  * The Lab's floating side nav (components/sections/LabSectionNav.tsx): a
  * desktop-only rail in the left gutter that marks the Lab part on screen
- * (My tools, Featured, Chrome Extensions) and jumps to it. It appears once
+ * (My tools, Featured, Chrome Extensions, What's cookin') and jumps to it. It appears once
  * the first part's heading reaches the middle of the window (level with it,
  * not beside the Lab's intro), then holds there while the Lab scrolls by.
  */
@@ -14,6 +14,7 @@ const PARTS = [
   { id: 'my-tools', label: 'My tools' },
   { id: 'featured', label: 'Featured' },
   { id: 'extensions', label: 'Chrome Extensions' },
+  { id: 'upcoming', label: "What's cookin'" },
 ] as const
 
 const rail = (page: Page) => page.getByRole('navigation', { name: 'Lab contents' })
@@ -186,9 +187,11 @@ test.describe('placement at 1440px', () => {
     for (const part of PARTS) {
       await page.evaluate((id) => {
         const el = document.getElementById(id)!
-        // The part's top at 300px: being read, with the Lab well below the window's foot.
+        // The part's top at 200px: being read, its heading above the rail's centred
+        // spot (a taller rail, with four parts, centres higher), and the Lab
+        // still reaching past the rail's foot.
         window.scrollTo({
-          top: el.getBoundingClientRect().top + window.scrollY - 300,
+          top: el.getBoundingClientRect().top + window.scrollY - 200,
           behavior: 'instant',
         })
         window.dispatchEvent(new Event('scroll')) // see scrollToPart
@@ -425,7 +428,7 @@ for (const width of [1280, 1366, 1440, 1536, 1920]) {
         return positions.size
       })
     )
-    expect(lines, 'lines per label').toEqual([1, 1, 1])
+    expect(lines, 'lines per label').toEqual(PARTS.map(() => 1))
     // Where the gutter is tight, the long label shows its short form instead of wrapping.
     const extensions = nav.getByRole('link', { name: 'Chrome Extensions' })
     await expect(extensions).toHaveAccessibleName('Chrome Extensions')

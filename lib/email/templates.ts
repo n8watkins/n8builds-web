@@ -7,7 +7,7 @@ import { EMAIL_CONFIG } from '@/lib/email/smtp'
 // whose dependency chain breaks Vercel's serverless runtime
 // (ERR_REQUIRE_ESM in html-encoding-sniffer). Newlines in the message
 // still render via `white-space: pre-wrap` on the message box.
-function sanitizeHtml(input: string): string {
+export function sanitizeHtml(input: string): string {
   return input
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -24,7 +24,7 @@ function sanitizeHtml(input: string): string {
  * The `color-scheme: dark` meta stops Apple Mail and Outlook from inverting
  * them in dark mode.
  */
-const C = {
+export const C = {
   page: '#050a14',
   card: '#0b1220',
   panel: '#0f1a2e',
@@ -36,8 +36,8 @@ const C = {
   blue: '#3b82f6',
   white: '#ffffff',
 }
-const FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif"
-const MONO = "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace"
+export const FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif"
+export const MONO = "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace"
 
 type Topic = { value: string; label: string; emoji: string; short: string; noun: string }
 
@@ -94,7 +94,7 @@ function pacificTime(date: Date): string {
 // Shared pieces
 // ---------------------------------------------------------------------------
 
-function shell({ title, preheader, body }: { title: string; preheader: string; body: string }): string {
+export function shell({ title, preheader, body }: { title: string; preheader: string; body: string }): string {
   return `<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -131,7 +131,7 @@ ${body}
 }
 
 /** The N8 mark, the site's name, and a right-hand label, above the card. */
-function brandBar(right: string): string {
+export function brandBar(right: string): string {
   return `          <tr>
             <td style="padding:0 4px 16px;">
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
@@ -150,7 +150,7 @@ function pill(text: string): string {
 }
 
 /** A bulletproof button: a padded link inside a cell, with a solid fallback under the gradient. */
-function button(href: string, label: string): string {
+export function button(href: string, label: string): string {
   return `<table role="presentation" cellspacing="0" cellpadding="0" border="0">
                 <tr>
                   <td bgcolor="${C.blue}" style="border-radius:12px;background:${C.blue};background-image:linear-gradient(135deg,#06b6d4,#2563eb);">

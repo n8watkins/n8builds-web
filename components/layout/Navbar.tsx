@@ -20,6 +20,8 @@ const labMenu = [
   { label: 'My tools', href: '/#my-tools', desc: 'Scribe and OpenPing: I use them every day' },
   { label: 'Featured', href: '/#featured', desc: 'Solara and Portfolio Rank' },
   { label: 'Chrome Extensions', href: '/#extensions', desc: 'Browser tools, local-first' },
+  // The Lab's last part: upcoming projects, each with a waitlist (full detail on /upcoming).
+  { label: "What's cookin'", href: '/#upcoming', desc: 'Upcoming projects, with a waitlist' },
   // The build log is a page, not a section: it lives here and in the footer, not as its own top-level link.
   { label: 'Build log', href: '/builds', desc: 'What shipped, pulled from GitHub' },
 ]

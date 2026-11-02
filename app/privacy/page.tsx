@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import Navbar from '@/components/layout/Navbar'
 import { pageMetadata } from '@/lib/seo'
 import FadeIn from '@/components/ui/FadeIn'
@@ -11,7 +12,7 @@ export const metadata = pageMetadata({
   path: '/privacy',
 })
 
-const UPDATED = 'October 27, 2026'
+const UPDATED = 'November 1, 2026'
 
 export default function PrivacyPolicy() {
   return (
@@ -38,7 +39,7 @@ export default function PrivacyPolicy() {
                 This Privacy Policy explains how{' '}
                 <strong className="text-slate-100">n8builds.dev</strong> (&ldquo;n8builds,&rdquo;
                 operated by Nathan Watkins) collects, uses, and protects your information when you
-                visit the site or get in touch.
+                visit the site, get in touch, or join a waitlist.
               </p>
 
               <section className="space-y-3">
@@ -49,6 +50,25 @@ export default function PrivacyPolicy() {
                     contact form, I collect your name, email address, and message so I can reply.
                     The email I receive also shows your approximate country, worked out from your
                     connection, but never your IP address.
+                  </li>
+                  <li id="waitlist" className="scroll-mt-24">
+                    <span className="text-slate-100">Waitlist.</span> If you join the waitlist for
+                    an upcoming project on the{' '}
+                    <Link href="/upcoming" className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2">
+                      upcoming page
+                    </Link>
+                    , I keep your email address, the projects you picked, your note if you wrote
+                    one, when you signed up and confirmed, and where you came from (the project
+                    you arrived interested in, and the page that linked you, without its query
+                    string). I email you a link to confirm, and an unconfirmed request is deleted
+                    after 7 days. Once you confirm, I keep it until you leave, and use it only to
+                    email you about those projects. Every waitlist email has a link to leave, which
+                    deletes your entry and everything stored with it at once; you can also ask for
+                    that link on the{' '}
+                    <Link href="/upcoming/leave" className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2">
+                      leave page
+                    </Link>
+                    . Sign-ups are kept in a private Upstash Redis database that only I can read.
                   </li>
                   <li>
                     <span className="text-slate-100">Usage analytics.</span> With your permission
@@ -73,8 +93,8 @@ export default function PrivacyPolicy() {
                     the date.
                   </li>
                   <li>
-                    <span className="text-slate-100">Bot protection.</span> The contact form is
-                    protected by Cloudflare Turnstile, which collects limited device and interaction
+                    <span className="text-slate-100">Bot protection.</span> The contact form and the
+                    waitlist are protected by Cloudflare Turnstile, which collects limited device and interaction
                     signals to confirm you are a human and to block automated abuse.
                   </li>
                   <li>
@@ -90,8 +110,9 @@ export default function PrivacyPolicy() {
               <section className="space-y-3">
                 <h2 className="text-xl font-bold text-slate-100">How I use it</h2>
                 <p>
-                  I use this information to respond to your inquiries, understand and improve the
-                  site, and protect it from spam and abuse. I do not sell your personal information.
+                  I use this information to respond to your inquiries, email waitlist members about
+                  the projects they joined for, understand and improve the site, and protect it from
+                  spam and abuse. I do not sell your personal information.
                 </p>
               </section>
 
@@ -141,7 +162,21 @@ export default function PrivacyPolicy() {
                   </li>
                   <li>
                     <span className="text-slate-100">Email.</span> Contact-form submissions are
-                    delivered to me by email so I can respond directly.
+                    delivered to me by email so I can respond directly. Replies and waitlist emails
+                    are sent through Gmail.
+                  </li>
+                  <li>
+                    <span className="text-slate-100">Upstash.</span> The waitlist and the site&rsquo;s
+                    anonymous counters are stored with Upstash (Redis) under the{' '}
+                    <a
+                      href="https://upstash.com/trust/privacy.pdf"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
+                    >
+                      Upstash Privacy Policy
+                    </a>
+                    .
                   </li>
                   <li>
                     <span className="text-slate-100">Hosting.</span> The site is hosted on Vercel,
@@ -249,7 +284,11 @@ export default function PrivacyPolicy() {
                 </h2>
                 <p>
                   I keep contact-form submissions only as long as needed to respond and maintain our
-                  correspondence. To request access to or deletion of your information, email me at{' '}
+                  correspondence. Waitlist sign-ups are kept until you leave (see{' '}
+                  <a href="#waitlist" className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2">
+                    Waitlist
+                  </a>
+                  ). To request access to or deletion of your information, email me at{' '}
                   <a
                     href="mailto:contact@n8builds.dev"
                     className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
