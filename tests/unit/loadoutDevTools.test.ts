@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { devSetup, people, toolsIBuilt, toolsIUse, type Person } from '@/data/loadout'
+import { OWN_TOOL_ICONS, devSetup, loadout, people, toolsIBuilt, toolsIUse, type Person } from '@/data/loadout'
 import { PersonCard } from '@/components/sections/LoadoutDevTools'
 
 /**
@@ -135,5 +135,38 @@ describe('the loadout dev-tool lists', () => {
     expect(html).toContain('New repo: </span>A new tool')
     expect(html).toContain('Oct 30')
     expect(html).not.toContain('v1.9.0')
+  })
+})
+
+describe('one icon per tool of mine, everywhere', () => {
+  const setupItems = devSetup.flatMap((t) => t.groups).flatMap((g) => g.items)
+  const mine = Object.values(OWN_TOOL_ICONS) as unknown[]
+  const typeOf = (icon: unknown) => (icon as { type?: unknown } | undefined)?.type
+
+  it('gives a tool the same mark in My dev setup and in Tools I built and use', () => {
+    for (const [id, Icon] of Object.entries(OWN_TOOL_ICONS)) {
+      const card = toolsIBuilt.find((t) => t.id === id)
+      if (card) expect(typeOf(card.icon), `${id}'s card`).toBe(Icon)
+    }
+    for (const [name, id] of [
+      ['devguard', 'devguard'],
+      ['pass-env', 'pass-env'],
+      ['release-kit', 'release-kit'],
+      ['N8 Tray', 'n8-tray'],
+      ['T-Hub', 't-hub'],
+    ] as const) {
+      const chip = setupItems.find((i) => i.name === name)
+      expect(chip, name).toBeDefined()
+      expect(typeOf(chip!.icon), `${name}'s chip`).toBe(OWN_TOOL_ICONS[id])
+    }
+  })
+
+  it('never lends one of those marks to anything else', () => {
+    const own = new Set(['devguard', 'pass-env', 'release-kit', 'N8 Tray', 'T-Hub', 'pr-post'])
+    const others = [
+      ...setupItems.filter((i) => !own.has(i.name)).map((i) => [i.name, i.icon] as const),
+      ...loadout.flatMap((g) => g.items).map((i) => [i.name, i.icon] as const),
+    ]
+    for (const [name, icon] of others) expect(mine, name).not.toContain(typeOf(icon))
   })
 })

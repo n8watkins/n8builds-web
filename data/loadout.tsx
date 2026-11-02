@@ -23,6 +23,7 @@ import {
   LuNewspaper,
   LuPanelBottom,
   LuRecycle,
+  LuGauge,
   LuShieldCheck,
   LuShip,
   LuSquareTerminal,
@@ -203,6 +204,31 @@ export const inApps: { name: string; icon: ReactElement; color: string; whatFor:
   },
 ]
 
+/**
+ * The marks of the tools I made, defined once and used wherever a tool
+ * appears (owner, 2026-11-02: one icon per tool everywhere): My dev setup's
+ * chips, the Tools I built and use cards on /loadout and in the homepage's
+ * Loadout. None has a logo of its own, so each has a glyph no other item uses
+ * (devguard was the processor chip, which "8 processors" in the WSL2 tile also
+ * showed, so it is a gauge now).
+ */
+export const OWN_TOOL_ICONS = {
+  devguard: LuGauge,
+  'pass-env': LuKeyRound,
+  'release-kit': LuTag,
+  'pr-post': LuNewspaper,
+  'n8-tray': LuPanelBottom,
+  't-hub': LuLayoutDashboard,
+} as const satisfies Record<string, IconType>
+
+export type OwnTool = keyof typeof OWN_TOOL_ICONS
+
+/** A tool's mark, as an element. */
+export function ownToolIcon(tool: OwnTool): ReactElement {
+  const Icon = OWN_TOOL_ICONS[tool]
+  return <Icon />
+}
+
 /** A person or organisation, linked. */
 export interface NamedLink {
   name: string
@@ -246,7 +272,7 @@ export const toolsIBuilt: BuiltTool[] = [
       note: 'my fork adds import, generate, doctor and more.',
     },
     tags: ['CLI', 'pass', 'GPG', 'Bun'],
-    icon: <LuKeyRound />,
+    icon: ownToolIcon('pass-env'),
   },
   {
     id: 'release-kit',
@@ -256,7 +282,7 @@ export const toolsIBuilt: BuiltTool[] = [
       'Release notes are written from the commits. An optional release train ships on a schedule, only when there is work a user would notice. This site releases with it.',
     github: 'https://github.com/n8watkins/release-kit',
     tags: ['CLI', 'Node', 'GitHub Actions'],
-    icon: <LuTag />,
+    icon: ownToolIcon('release-kit'),
   },
   {
     id: 'devguard',
@@ -266,7 +292,7 @@ export const toolsIBuilt: BuiltTool[] = [
       'A watchdog stops runaway and finished dev servers, each worktree gets a stable port, heavy jobs wait for a free slot, and a sweep finds build output you can delete. Plain Python, no dependencies.',
     github: 'https://github.com/n8watkins/devguard',
     tags: ['CLI', 'Python', 'WSL'],
-    icon: <LuCpu />,
+    icon: ownToolIcon('devguard'),
   },
   {
     id: 'pr-post',
@@ -277,7 +303,7 @@ export const toolsIBuilt: BuiltTool[] = [
     github: 'https://github.com/n8watkins/pr-post',
     demo: 'https://n8watkins.github.io/pr-post/',
     tags: ['Python', 'GitHub Actions', 'GitHub Pages'],
-    icon: <LuNewspaper />,
+    icon: ownToolIcon('pr-post'),
   },
 ]
 
@@ -681,15 +707,14 @@ export const devSetup: DevSetupTile[] = [
         id: 'own-tools',
         title: 'My own tools, in daily use',
         items: [
-          // T-Hub and N8 Tray have no public icon: a plain glyph each.
-          { name: 'T-Hub', note: 'supervises my Claude Code sessions', icon: <LuLayoutDashboard /> },
+          // My own tools' marks come from OWN_TOOL_ICONS, the same as their cards in Tools I built and use.
+          { name: 'T-Hub', note: 'supervises my Claude Code sessions', icon: ownToolIcon('t-hub') },
           // The site presents Scribe through its build page, not its site's repo.
           { name: 'Scribe', note: 'local dictation for Windows', href: '/builds/scribe', icon: appIcon('/builds/scribe/app-icon.png') },
-          // The marks their cards in Tools I built and use carry.
-          { name: 'devguard', href: '#devguard', icon: <LuCpu /> },
-          { name: 'pass-env', href: '#pass-env', icon: <LuKeyRound /> },
-          { name: 'release-kit', href: '#release-kit', icon: <LuTag /> },
-          { name: 'N8 Tray', note: 'private', icon: <LuPanelBottom /> },
+          { name: 'devguard', href: '#devguard', icon: ownToolIcon('devguard') },
+          { name: 'pass-env', href: '#pass-env', icon: ownToolIcon('pass-env') },
+          { name: 'release-kit', href: '#release-kit', icon: ownToolIcon('release-kit') },
+          { name: 'N8 Tray', note: 'private', icon: ownToolIcon('n8-tray') },
         ],
       },
     ],
