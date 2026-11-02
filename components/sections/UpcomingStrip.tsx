@@ -26,7 +26,15 @@ export default function UpcomingStrip() {
           <LabSubheader
             eyebrow="Upcoming"
             eyebrowClass="text-orange-300"
-            title={<>What&rsquo;s cookin&rsquo;</>}
+            // A pot on the stove (round 5 of 2026-11-02; there's no crockpot emoji), for the eye only.
+            title={
+              <>
+                What&rsquo;s cookin&rsquo;{' '}
+                <span aria-hidden="true" className="inline-block translate-y-[-0.04em]">
+                  🍲
+                </span>
+              </>
+            }
             blurb="Things I’m outlining in public, each with a waitlist."
           />
           <Link

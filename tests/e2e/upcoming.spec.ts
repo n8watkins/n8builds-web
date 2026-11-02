@@ -215,7 +215,9 @@ test("Relink's card says plainly what it does", async ({ page }) => {
 test("the homepage Lab ends with a short What's cookin' part: each project's summary and landing page, beside the waitlist", async ({ page }) => {
   await page.goto('/')
   const band = page.locator('#lab section#upcoming')
-  await expect(band.getByRole('heading', { level: 3 })).toHaveText('What’s cookin’')
+  // With a pot of food beside it, for the eye only (round 5 of 2026-11-02).
+  await expect(band.getByRole('heading', { level: 3 })).toHaveText('What’s cookin’ 🍲')
+  await expect(band.getByRole('heading', { level: 3 })).toHaveAccessibleName('What’s cookin’')
   await expect(band.getByText('Upcoming', { exact: true })).toBeVisible()
   await expect(band.locator('ul > li')).toHaveCount(4)
   // The same form as /upcoming, picking several projects (owner, 2026-11-02), without the note.
