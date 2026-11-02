@@ -104,10 +104,10 @@ describe('the loadout dev-tool lists', () => {
       'own-tools',
       'editors',
       'agents',
-      'workspace',
       'agent-tooling',
       'runtimes',
       'shipping',
+      'workspace',
     ])
     expect(devSetup.filter((t) => t.full).map((t) => t.id)).toEqual(['machine'])
     // Two to a row on a tablet and three on a laptop, after the full-width tile: every row fills.
