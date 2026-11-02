@@ -341,29 +341,50 @@ test.describe('Loadout tools and people', () => {
     }
   })
 
-  test('Stacks I build with names each stack and chains its tools, each with its own mark', async ({ page }) => {
+  test('Stacks I build with names each stack, gives each tool its role and mark, and says why in one line', async ({ page }) => {
     await page.goto('/loadout')
     const stacks = page.getByRole('region', { name: 'Stacks I build with' })
     // How I build, right after Inside the apps I build (2026-11-02).
     const order = await page.locator('main h2').allTextContents()
     expect(order.indexOf('Stacks I build with')).toBe(order.indexOf('Inside the apps I build') + 1)
-    await expect(stacks.getByRole('heading', { level: 3 })).toHaveText(['The Turso Stack', 'The Firebase Stack', 'The Local-First Stack', 'The Extension Stack'])
-    await expect(stacks.getByRole('list', { name: 'The Turso Stack tools' }).getByRole('listitem')).toHaveText([
-      'Next.js',
-      '+TypeScript',
-      '+Turso',
-      '+Drizzle',
-      '+Cloudflare R2',
-      '+Vercel',
+    await expect(stacks.getByRole('heading', { level: 3 })).toHaveText([
+      'The Turso Stack',
+      'The Cloudflare Stack',
+      'The Firebase Stack',
+      'The Local-First Stack',
+      'The Extension Stack',
     ])
+    // Each tool with its role in the stack, no "+" chain (owner, 2026-11-02).
+    const turso = stacks.getByRole('list', { name: 'The Turso Stack tools' }).getByRole('listitem')
+    await expect(turso.locator('[data-stack-role]')).toHaveText(['Framework', 'Language', 'Database', 'ORM', 'Files', 'Hosting'])
+    await expect(turso.locator('[data-stack-tool]')).toHaveText(['Next.js', 'TypeScript', 'Turso', 'Drizzle', 'Cloudflare R2', 'Vercel'])
+    await expect(stacks).not.toContainText('+TypeScript')
+    // The extensions really built with: no WXT.
+    await expect(stacks.getByRole('list', { name: 'The Extension Stack tools' }).locator('[data-stack-tool]')).toHaveText([
+      'Chrome MV3',
+      'React',
+      'TypeScript',
+      'Vite + CRXJS',
+      'esbuild',
+    ])
+    await expect(stacks).not.toContainText('WXT')
+    // The owner's reasons, one short line per stack.
+    await expect(stacks.getByRole('article').first()).toContainText("Turso's free tier is generous, and Vercel gets new Next.js releases first.")
+    await expect(stacks.getByRole('article').nth(1)).toContainText('vinext')
+    await expect(stacks.getByRole('article').nth(2)).toContainText('I prefer Firebase here - I avoid Supabase.')
     // Every tool carries its mark, 16px.
     const icons = stacks.locator('[data-stack-icon] svg')
-    await expect(icons).toHaveCount(18)
+    await expect(icons).toHaveCount(25)
     for (const height of await icons.evaluateAll((svgs) => svgs.map((svg) => Math.round(svg.getBoundingClientRect().height)))) expect(height).toBe(16)
-    // The cards in a row are the same height.
-    const cards = await stacks.getByRole('article').evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().height)))
-    expect(cards[0]).toBe(cards[1])
-    expect(cards[2]).toBe(cards[3])
+    // Every tool name stays on one line, and the cards in a row are the same height.
+    for (const height of await stacks.locator('[data-stack-tool]').evaluateAll((els) => els.map((el) => el.getBoundingClientRect().height)))
+      expect(height).toBeLessThan(24)
+    const cards = await stacks.getByRole('article').evaluateAll((els) =>
+      els.map((el) => ({ top: Math.round(el.getBoundingClientRect().top), height: Math.round(el.getBoundingClientRect().height) }))
+    )
+    const rows = new Map<number, number[]>()
+    for (const { top, height } of cards) rows.set(top, [...(rows.get(top) ?? []), height])
+    for (const heights of rows.values()) expect(Math.max(...heights) - Math.min(...heights)).toBeLessThanOrEqual(1)
   })
 
   test('the gear section (once "The setup") keeps its old #setup anchor working', async ({ page }) => {

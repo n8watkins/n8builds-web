@@ -18,10 +18,10 @@ import HomeToolsIBuilt from '@/components/sections/HomeToolsIBuilt'
 const WHY: Record<string, { icon: string; reason: string }> = {
   'Next.js': { icon: 'next.svg', reason: 'Every web app I make starts here: server components, and Vercel ships it.' },
   TypeScript: { icon: 'ts.svg', reason: 'Strict mode everywhere. If it compiles, half my bugs never happened.' },
-  Turso: { icon: 'turso.svg', reason: 'SQLite at the edge: one small database that scales globally and is cheap to run.' },
+  Turso: { icon: 'turso.svg', reason: 'SQLite at the edge, with a generous free tier: one small database that scales globally.' },
   Drizzle: { icon: 'drizzle.png', reason: 'A type-safe ORM, so queries are checked against the schema.' },
   'Cloudflare R2': { icon: 'cloudflare.svg', reason: 'File storage with no egress fees (where Portfolio Rank keeps its screenshots).' },
-  Vercel: { icon: 'vercel.png', reason: 'Push to main and it ships, so I build instead of babysitting infra.' },
+  Vercel: { icon: 'vercel.png', reason: 'It gets new Next.js releases first, and a push to main ships itself.' },
 }
 export default function HomeStack() {
   const turso = buildStacks.find((s) => s.name === 'The Turso Stack') ?? buildStacks[0]
@@ -64,7 +64,7 @@ export default function HomeStack() {
           <p className="mt-0.5 text-sm font-semibold text-blue-300">My first pick for new web apps</p>
         </div>
         <ul className="mt-5 grid gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
-          {turso.tools.map((tool) => {
+          {turso.tools.map(({ name: tool }) => {
             const why = WHY[tool]
             return (
               // A light hover on each piece: its icon grows a touch and lights up, its name turns cyan.

@@ -90,7 +90,7 @@ export function GgmlMark({ className, style }: MarkProps) {
  * Piper's mark (from its README logo): the "P" of PIPER wearing a jester's
  * cap, its three points tipped with bells.
  */
-function PiperMark({ className, style }: MarkProps) {
+export function PiperMark({ className, style }: MarkProps) {
   return (
     <svg viewBox="0 0 48 52" aria-hidden="true" className={className} style={style}>
       <g fill="currentColor">
