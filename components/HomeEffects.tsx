@@ -1,22 +1,13 @@
 'use client'
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { useSectionTracking } from '@/hooks/useSectionTracking'
 import { useScrollTracking } from '@/hooks/useScrollTracking'
 import { useHydrated } from '@/hooks/useHydrated'
 
 /**
  * The homepage's script that belongs to no one section: section and scroll
- * analytics, the ambient color glows behind the page, and old anchors that
- * moved to another page.
+ * analytics, and the ambient color glows behind the page.
  */
 export default function HomeEffects() {
-  const router = useRouter()
-  // The Lab's "My tools" part (#my-tools) moved to /loadout as "My daily
-  // drivers" (2026-11-01): links to /#my-tools out there still land on it.
-  useEffect(() => {
-    if (window.location.hash === '#my-tools') router.replace('/loadout#daily-drivers')
-  }, [router])
   useSectionTracking()
   useScrollTracking()
   const hydrated = useHydrated()
