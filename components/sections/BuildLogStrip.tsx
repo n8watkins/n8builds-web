@@ -115,6 +115,42 @@ function Row({ entry }: { entry: LogEntry }) {
   )
 }
 
+const RELEASE_KIT = 'https://github.com/n8watkins/release-kit'
+
+/**
+ * Under the log, a small ad for what writes it (round 5 of 2026-11-02): every
+ * project here runs release-kit, so its Conventional Commits and releases
+ * become this log on their own. One line of pitch and a link to the repo.
+ */
+function ReleaseKitAd() {
+  return (
+    <aside
+      aria-labelledby="release-kit-ad"
+      className="mt-4 flex flex-col gap-3 rounded-2xl border border-white/8 bg-linear-to-r from-cyan-400/[0.06] via-white/[0.02] to-transparent px-4 py-3.5 sm:flex-row sm:items-center sm:gap-4 sm:px-5"
+    >
+      <div className="flex min-w-0 flex-1 items-start gap-3 sm:items-center">
+        <Image src="/log/release-kit.svg" alt="" width={36} height={36} unoptimized className="h-9 w-9 shrink-0 rounded-lg" />
+        <p className="min-w-0 text-sm leading-snug text-[#9cadc5]">
+          <span id="release-kit-ad" className="font-semibold text-slate-100">
+            This log writes itself, with <span className="font-mono whitespace-nowrap text-cyan-300">release-kit</span>.
+          </span>{' '}
+          Write Conventional Commits and it cuts the versions, release notes and every update above. No changelog to keep by hand: one command adds it to any repo.
+        </p>
+      </div>
+      <a
+        href={RELEASE_KIT}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="group flex shrink-0 items-center justify-center gap-2 self-stretch rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-200 transition-all duration-200 hover:border-cyan-400/40 hover:bg-white/8 hover:text-cyan-200 sm:self-auto"
+      >
+        Get release-kit
+        <FiArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
+        <span className="sr-only"> on GitHub (opens in a new tab)</span>
+      </a>
+    </aside>
+  )
+}
+
 export default async function BuildLogStrip() {
   let entries: LogEntry[]
   let asOf: string
@@ -191,6 +227,7 @@ export default async function BuildLogStrip() {
           </div>
 
           <BuildLogMonths months={[first, ...earlier]} />
+          <ReleaseKitAd />
         </Reveal>
       </div>
     </section>

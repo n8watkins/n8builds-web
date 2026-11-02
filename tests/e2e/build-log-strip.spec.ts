@@ -550,3 +550,15 @@ test('reduced motion: nothing moves by itself, and the arrows swap pages without
   ).toBe(0)
 })
 
+test('under the log, a small ad says release-kit writes it and links its repo', async ({ page }) => {
+  await page.goto('/')
+  const ad = strip(page).getByRole('complementary', { name: /This log writes itself, with release-kit/ })
+  await ad.scrollIntoViewIfNeeded()
+  await expect(ad).toContainText('Conventional Commits')
+  const link = ad.getByRole('link', { name: /^Get release-kit/ })
+  await expect(link).toHaveAttribute('href', 'https://github.com/n8watkins/release-kit')
+  await expect(link).toHaveAttribute('target', '_blank')
+  // "release-kit" never breaks at its hyphen.
+  const lines = await ad.locator('.font-mono').evaluate((el) => new Set([...el.getClientRects()].map((r) => Math.round(r.top))).size)
+  expect(lines).toBe(1)
+})
