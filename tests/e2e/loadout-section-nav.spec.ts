@@ -38,9 +38,11 @@ async function openLoadout(page: Page) {
 /**
  * Scroll so the element's top sits `top` px from the window's top, and keep
  * at it until it stays there: the scroll reveals above can still shift the
- * layout just after the jump on a loaded machine.
+ * layout just after the jump on a loaded machine. By default a part sits
+ * where a jump to it lands it (the page's scroll-padding-top, 80px), its
+ * heading a band's padding below that.
  */
-async function place(page: Page, id: string, top = 120) {
+async function place(page: Page, id: string, top = 80) {
   await expect
     .poll(
       () =>

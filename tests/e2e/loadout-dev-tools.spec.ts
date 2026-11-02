@@ -68,10 +68,41 @@ test.describe('Loadout tools and people', () => {
       await expect(chips.locator(`img[src*="${src.split('/').pop()}"]`), src).toHaveCount(1)
     }
     // Editors: Neovim and VS Code, no Cursor (the owner's call, 2026-11-01).
-    const editors = setup.locator('li').filter({ has: page.getByRole('heading', { name: 'Editors' }) })
-    await expect(editors.locator('[data-setup-name]')).toHaveText(['Neovim', 'VS Code'])
+    await expect(setup.locator('#setup-editors-title + ul [data-setup-name]')).toHaveText(['Neovim', 'VS Code'])
     await expect(setup.getByText('Cursor', { exact: true })).toHaveCount(0)
   })
+
+  for (const { width, perRow } of [
+    { width: 1440, perRow: 3 },
+    { width: 1024, perRow: 2 },
+    { width: 820, perRow: 2 },
+  ]) {
+    test(`at ${width}px My dev setup's bento fills every row, its tiles filled (${perRow} to a row)`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 })
+      await page.goto('/loadout')
+      const grid = page.locator('#setup-tiles')
+      const tiles = await grid.locator(':scope > li').evaluateAll((els) =>
+        els.map((el) => {
+          const box = el.getBoundingClientRect()
+          const chips = [...el.querySelectorAll('.setup-chip, pre')].map((c) => c.getBoundingClientRect().bottom)
+          // How much of the tile its content fills, down to the padding (20px) under the last chip.
+          return { top: Math.round(box.top), left: Math.round(box.left), right: Math.round(box.right), height: box.height, fill: (Math.max(...chips) + 20 - box.top) / box.height }
+        }),
+      )
+      const gridBox = (await grid.boundingBox())!
+      // Machine and WSL2 share the first tile, across the full width.
+      expect(tiles[0].right - tiles[0].left).toBeCloseTo(gridBox.width, 0)
+      const rows = new Map<number, typeof tiles>()
+      for (const tile of tiles.slice(1)) rows.set(tile.top, [...(rows.get(tile.top) ?? []), tile])
+      for (const row of rows.values()) {
+        expect(row.length, 'tiles in the row').toBe(perRow)
+        // The row reaches the grid's right edge, and its tiles are the same height.
+        expect(Math.max(...row.map((t) => t.right))).toBeCloseTo(gridBox.x + gridBox.width, 0)
+        expect(new Set(row.map((t) => Math.round(t.height))).size).toBe(1)
+      }
+      for (const [i, tile] of tiles.entries()) expect(tile.fill, `tile ${i} is mostly filled`).toBeGreaterThan(0.6)
+    })
+  }
 
   test('lists the tools I use, each credited inline to its maker, each with its GitHub repo', async ({ page }) => {
     await page.goto('/loadout')
@@ -93,7 +124,8 @@ test.describe('Loadout tools and people', () => {
     for (const [name, repo] of Object.entries(repos)) {
       const link = used.getByRole('link', { name: `${name} on GitHub (opens in a new tab)`, exact: true })
       await expect(link).toBeVisible()
-      await expect(link).toHaveText('GitHub')
+      // Its visible label (the rest of its name is for screen readers).
+      expect(await link.evaluate((a) => [...a.querySelectorAll('span')].filter((el) => !el.closest('.sr-only')).map((el) => [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join('')).join(''))).toBe('GitHub')
       await expect(link).toHaveAttribute('href', `https://github.com/${repo}`)
       await expect(link).toHaveAttribute('target', '_blank')
     }
@@ -182,11 +214,11 @@ test.describe('Loadout tools and people', () => {
       'Machine',
       'WSL2',
       'Terminal',
+      'My own tools, in daily use',
       'Editors',
       'Agents',
       'Agent tooling',
       'Runtimes',
-      'My own tools, in daily use',
       'Shipping',
     ])
     await expect(setup.locator('pre')).toHaveText(

@@ -598,122 +598,167 @@ const appIcon = (src: string) => <Image src={src} alt="" width={16} height={16} 
 
 /**
  * My dev setup: the machine, WSL, terminal, editors, agents and the rest,
- * grouped and scannable. `wide` groups take two columns on large screens
- * (the order is set so every row fills).
+ * grouped and scannable, as a bento of tiles; a tile holds one group or a
+ * few that belong together. Rebalanced on 2026-11-02 (the owner's ask: the
+ * Machine tile was mostly empty beside a tall WSL2 one, and Editors and
+ * Agents were near-empty tiles): the order is set so that, three tiles to a
+ * row from 1280px and two below, the tiles sharing a row hold about as much,
+ * and every row fills.
  */
 export interface DevSetupGroup {
   id: string
   title: string
   items: SetupEntry[]
-  /** A config file shown under the items. */
-  code?: { label: string; text: string }
-  wide?: boolean
 }
 
-export const devSetup: DevSetupGroup[] = [
+export interface DevSetupTile {
+  id: string
+  groups: DevSetupGroup[]
+  /** A config file shown beside the groups (under them on a phone). */
+  code?: { label: string; text: string }
+  /** The full width of the grid, at every size. */
+  full?: boolean
+}
+
+export const devSetup: DevSetupTile[] = [
   {
+    // The machine and the Linux it runs, with WSL's config beside them.
     id: 'machine',
-    title: 'Machine',
-    items: [
-      // AMD's mark is its wordmark, a thin band across a square: drawn wider (its
-      // height still the chips' 16px) so it reads.
-      { name: 'AMD Ryzen 7 9700X', note: '8 cores', icon: <SiAmd style={{ color: LIGHT }} className="-my-[7px] size-[30px]!" /> },
-      { name: '31 GB RAM', icon: <LuMemoryStick /> },
-      { name: 'Windows 11 Pro', icon: mark(FaWindows, '#0078d4') },
-    ],
-  },
-  {
-    id: 'wsl',
-    title: 'WSL2',
-    wide: true,
-    items: [
-      { name: 'Ubuntu 24.04', icon: mark(SiUbuntu, '#e95420') },
-      { name: '20 GB RAM', note: '+ 16 GB swap', icon: <LuMemoryStick /> },
-      { name: '8 processors', icon: <LuCpu /> },
-      { name: 'Mirrored networking', icon: <LuNetwork /> },
-      { name: 'Memory reclaim', note: 'dropcache', icon: <LuRecycle /> },
-      { name: 'Sparse VHD', icon: <LuHardDrive /> },
-    ],
+    full: true,
     code: {
       label: '.wslconfig',
       text: ['[wsl2]', 'networkingMode=mirrored', 'memory=20GB', 'processors=8', 'swap=16GB', '', '[experimental]', 'autoMemoryReclaim=dropcache', 'sparseVhd=true'].join('\n'),
     },
+    groups: [
+      {
+        id: 'machine',
+        title: 'Machine',
+        items: [
+          // AMD's mark is its wordmark, a thin band across a square: drawn wider (its
+          // height still the chips' 16px) so it reads.
+          { name: 'AMD Ryzen 7 9700X', note: '8 cores', icon: <SiAmd style={{ color: LIGHT }} className="-my-[7px] size-[30px]!" /> },
+          { name: '31 GB RAM', icon: <LuMemoryStick /> },
+          { name: 'Windows 11 Pro', icon: mark(FaWindows, '#0078d4') },
+        ],
+      },
+      {
+        id: 'wsl',
+        title: 'WSL2',
+        items: [
+          { name: 'Ubuntu 24.04', icon: mark(SiUbuntu, '#e95420') },
+          { name: '20 GB RAM', note: '+ 16 GB swap', icon: <LuMemoryStick /> },
+          { name: '8 processors', icon: <LuCpu /> },
+          { name: 'Mirrored networking', icon: <LuNetwork /> },
+          { name: 'Memory reclaim', note: 'dropcache', icon: <LuRecycle /> },
+          { name: 'Sparse VHD', icon: <LuHardDrive /> },
+        ],
+      },
+    ],
   },
   {
     id: 'terminal',
-    title: 'Terminal',
-    wide: true,
-    items: [
-      // Windows Terminal's own icon, from its repo (microsoft/terminal, res/terminal/Terminal.svg).
-      { name: 'Windows Terminal', icon: appIcon('/brands/windows-terminal.svg') },
-      { name: 'zsh + oh-my-zsh', note: 'zsh-autosuggestions', icon: mark(SiZsh, '#f15a24') },
-      { name: 'tmux', icon: mark(SiTmux, '#1bb91f') },
-      { name: 'herdr', note: 'agent multiplexer', href: '#herdr', icon: appIcon('/brands/herdr.png') },
-    ],
-  },
-  {
-    id: 'editors',
-    title: 'Editors',
-    // No Cursor (the owner's call, 2026-11-01).
-    items: [
-      { name: 'Neovim', icon: mark(SiNeovim, '#57a143') },
-      // VS Code's own mark, from Microsoft's codicons (Simple Icons has no Microsoft logos).
-      { name: 'VS Code', icon: mark(VscVscode, '#22a6f2') },
-    ],
-  },
-  {
-    id: 'agents',
-    title: 'Agents',
-    items: [
-      { name: 'Claude Code', href: '#workflow', icon: mark(SiClaude, '#d97757') },
-      { name: 'Codex', href: '#workflow', icon: mark(BsOpenai, LIGHT) },
-    ],
-  },
-  {
-    id: 'agent-tooling',
-    title: 'Agent tooling',
-    items: [
-      // The marks their cards in Tools I use carry.
-      { name: 'no-mistakes', href: '#no-mistakes', icon: <LuShieldCheck /> },
-      { name: 'gh-axi', href: '#gh-axi', icon: <SiGithub /> },
-      { name: 'chrome-devtools-axi', href: '#chrome-devtools-axi', icon: <LuGlobe /> },
-      { name: 'Lavish', href: '#lavish', icon: <LuFileCode /> },
-    ],
-  },
-  {
-    id: 'runtimes',
-    title: 'Runtimes',
-    items: [
-      { name: 'Node 24', note: 'nvm', icon: mark(SiNodedotjs, '#5fa04e') },
-      { name: 'pnpm', icon: mark(SiPnpm, '#f69220') },
-      { name: 'Bun', icon: mark(SiBun, '#fbf0df') },
-      { name: 'Python 3.12', note: 'uv', icon: mark(SiPython, '#4b8bbe') },
-      { name: 'Rust', icon: mark(SiRust, LIGHT) },
+    groups: [
+      {
+        id: 'terminal',
+        title: 'Terminal',
+        items: [
+          // Windows Terminal's own icon, from its repo (microsoft/terminal, res/terminal/Terminal.svg).
+          { name: 'Windows Terminal', icon: appIcon('/brands/windows-terminal.svg') },
+          { name: 'zsh + oh-my-zsh', note: 'zsh-autosuggestions', icon: mark(SiZsh, '#f15a24') },
+          { name: 'tmux', icon: mark(SiTmux, '#1bb91f') },
+          { name: 'herdr', note: 'agent multiplexer', href: '#herdr', icon: appIcon('/brands/herdr.png') },
+        ],
+      },
     ],
   },
   {
     id: 'own-tools',
-    title: 'My own tools, in daily use',
-    wide: true,
-    items: [
-      // T-Hub and N8 Tray have no public icon: a plain glyph each.
-      { name: 'T-Hub', note: 'supervises my Claude Code sessions', icon: <LuLayoutDashboard /> },
-      // The site presents Scribe through its build page, not its site's repo.
-      { name: 'Scribe', note: 'local dictation for Windows', href: '/builds/scribe', icon: appIcon('/builds/scribe/app-icon.png') },
-      // The marks their cards in Tools I built and use carry.
-      { name: 'devguard', href: '#devguard', icon: <LuCpu /> },
-      { name: 'pass-env', href: '#pass-env', icon: <LuKeyRound /> },
-      { name: 'release-kit', href: '#release-kit', icon: <LuTag /> },
-      { name: 'N8 Tray', note: 'private', icon: <LuPanelBottom /> },
+    groups: [
+      {
+        id: 'own-tools',
+        title: 'My own tools, in daily use',
+        items: [
+          // T-Hub and N8 Tray have no public icon: a plain glyph each.
+          { name: 'T-Hub', note: 'supervises my Claude Code sessions', icon: <LuLayoutDashboard /> },
+          // The site presents Scribe through its build page, not its site's repo.
+          { name: 'Scribe', note: 'local dictation for Windows', href: '/builds/scribe', icon: appIcon('/builds/scribe/app-icon.png') },
+          // The marks their cards in Tools I built and use carry.
+          { name: 'devguard', href: '#devguard', icon: <LuCpu /> },
+          { name: 'pass-env', href: '#pass-env', icon: <LuKeyRound /> },
+          { name: 'release-kit', href: '#release-kit', icon: <LuTag /> },
+          { name: 'N8 Tray', note: 'private', icon: <LuPanelBottom /> },
+        ],
+      },
+    ],
+  },
+  {
+    // Two small groups, one tile: what I edit in and the agents that edit with me.
+    id: 'editors-agents',
+    groups: [
+      {
+        id: 'editors',
+        title: 'Editors',
+        // No Cursor (the owner's call, 2026-11-01).
+        items: [
+          { name: 'Neovim', icon: mark(SiNeovim, '#57a143') },
+          // VS Code's own mark, from Microsoft's codicons (Simple Icons has no Microsoft logos).
+          { name: 'VS Code', icon: mark(VscVscode, '#22a6f2') },
+        ],
+      },
+      {
+        id: 'agents',
+        title: 'Agents',
+        items: [
+          { name: 'Claude Code', href: '#workflow', icon: mark(SiClaude, '#d97757') },
+          { name: 'Codex', href: '#workflow', icon: mark(BsOpenai, LIGHT) },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'agent-tooling',
+    groups: [
+      {
+        id: 'agent-tooling',
+        title: 'Agent tooling',
+        items: [
+          // The marks their cards in Tools I use carry.
+          { name: 'no-mistakes', href: '#no-mistakes', icon: <LuShieldCheck /> },
+          { name: 'gh-axi', href: '#gh-axi', icon: <SiGithub /> },
+          { name: 'chrome-devtools-axi', href: '#chrome-devtools-axi', icon: <LuGlobe /> },
+          { name: 'Lavish', href: '#lavish', icon: <LuFileCode /> },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'runtimes',
+    groups: [
+      {
+        id: 'runtimes',
+        title: 'Runtimes',
+        items: [
+          { name: 'Node 24', note: 'nvm', icon: mark(SiNodedotjs, '#5fa04e') },
+          { name: 'pnpm', icon: mark(SiPnpm, '#f69220') },
+          { name: 'Bun', icon: mark(SiBun, '#fbf0df') },
+          { name: 'Python 3.12', note: 'uv', icon: mark(SiPython, '#4b8bbe') },
+          { name: 'Rust', icon: mark(SiRust, LIGHT) },
+        ],
+      },
     ],
   },
   {
     id: 'shipping',
-    title: 'Shipping',
-    items: [
-      { name: 'Vercel', icon: mark(SiVercel, LIGHT) },
-      { name: 'Cloudflare', note: 'Wrangler', icon: mark(SiCloudflare, '#f38020') },
-      { name: 'Turso', icon: mark(SiTurso, '#4ff8d2') },
+    groups: [
+      {
+        id: 'shipping',
+        title: 'Shipping',
+        items: [
+          { name: 'Vercel', icon: mark(SiVercel, LIGHT) },
+          { name: 'Cloudflare', note: 'Wrangler', icon: mark(SiCloudflare, '#f38020') },
+          { name: 'Turso', icon: mark(SiTurso, '#4ff8d2') },
+        ],
+      },
     ],
   },
 ]

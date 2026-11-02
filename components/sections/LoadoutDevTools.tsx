@@ -304,50 +304,60 @@ const SetupChip = ({ entry }: { entry: SetupEntry }) => {
 }
 
 /**
- * My dev setup: what I work on and with, grouped so it scans in seconds. Its
- * tiles rise in one by one, then their chips (`.setup-tile` in
- * app/globals.css, SetupTilesMotion), and lift a little on hover or focus.
+ * My dev setup: what I work on and with, grouped so it scans in seconds, as a
+ * bento: three tiles to a row from xl (1280px), two from md, the machine's
+ * tile across the full width (data/loadout.tsx sets the order so each row's
+ * tiles hold about as much). A tile with a few groups stacks them. Its tiles rise in one
+ * by one, then their chips (`.setup-tile` in app/globals.css,
+ * SetupTilesMotion), and lift a little on hover or focus.
  */
 export const DevSetup = () => (
   <section aria-labelledby="dev-setup-title">
     <SectionHead id="dev-setup-title" part="dev-setup" path="~/loadout/dev-setup" title="My dev setup">
       Windows 11 with WSL2, Claude Code and Codex, and the tools around them.
     </SectionHead>
-    <ul id="setup-tiles" className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {devSetup.map((group, i) => (
-        <li
-          key={group.id}
-          // --d: its place in the entrance (SetupTilesMotion renumbers the tiles still off screen).
-          style={{ '--d': i } as CSSProperties}
-          className={`setup-tile rounded-2xl border border-white/8 bg-white/[0.02] p-5 transition-[border-color,translate] duration-300 hover:-translate-y-1 hover:border-cyan-300/25 focus-within:-translate-y-1 focus-within:border-cyan-300/25 motion-reduce:hover:translate-y-0 motion-reduce:focus-within:translate-y-0 ${group.wide ? 'lg:col-span-2' : ''}`}
-        >
-          {/* A config file sits beside the items where the tile is wide (a phone's
-               full width, or two columns from lg); on a tablet's half-width tile, under them. */}
-          <div className={group.code ? 'grid gap-4 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2' : ''}>
-            <div>
-              <h3 id={`setup-${group.id}-title`} className="font-mono text-xs font-bold tracking-[0.16em] text-cyan-300 uppercase">
-                {group.title}
-              </h3>
-              <ul className="mt-3 flex flex-wrap gap-2">
-                {group.items.map((entry, c) => (
-                  // --c: the chip's place in its tile's entrance (capped, so a long tile doesn't drag).
-                  <li key={entry.name} style={{ '--c': Math.min(c, 6) } as CSSProperties}>
-                    <SetupChip entry={entry} />
-                  </li>
+    <ul id="setup-tiles" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      {devSetup.map((tile, i) => {
+        // --c: each chip's place in its tile's entrance, counted across the tile's groups.
+        let chip = 0
+        return (
+          <li
+            key={tile.id}
+            // --d: its place in the entrance (SetupTilesMotion renumbers the tiles still off screen).
+            style={{ '--d': i } as CSSProperties}
+            className={`setup-tile rounded-2xl border border-white/8 bg-white/[0.02] p-5 transition-[border-color,translate] duration-300 hover:-translate-y-1 hover:border-cyan-300/25 focus-within:-translate-y-1 focus-within:border-cyan-300/25 motion-reduce:hover:translate-y-0 motion-reduce:focus-within:translate-y-0 ${tile.full ? 'md:col-span-2 xl:col-span-3' : ''}`}
+          >
+            {/* A config file sits beside the groups, under them on a phone. */}
+            <div className={tile.code ? 'grid gap-5 sm:grid-cols-[1.4fr_1fr] xl:gap-8' : ''}>
+              <div className="flex flex-col gap-5">
+                {tile.groups.map((group) => (
+                  <div key={group.id}>
+                    <h3 id={`setup-${group.id}-title`} className="font-mono text-xs font-bold tracking-[0.16em] text-cyan-300 uppercase">
+                      {group.title}
+                    </h3>
+                    <ul className="mt-3 flex flex-wrap gap-2">
+                      {group.items.map((entry) => (
+                        // Capped, so a long tile doesn't drag.
+                        <li key={entry.name} style={{ '--c': Math.min(chip++, 6) } as CSSProperties}>
+                          <SetupChip entry={entry} />
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 ))}
-              </ul>
+              </div>
+              {tile.code && (
+                <figure className="min-w-0">
+                  <figcaption className="font-mono text-xs text-slate-475">{tile.code.label}</figcaption>
+                  <pre className="mt-1.5 overflow-x-auto rounded-xl border border-white/8 bg-[#050b17] px-4 py-3 font-mono text-[0.8rem] leading-snug text-slate-300">
+                    <code>{tile.code.text}</code>
+                  </pre>
+                </figure>
+              )}
             </div>
-            {group.code && (
-              <figure className="min-w-0">
-                <figcaption className="font-mono text-xs text-slate-475">{group.code.label}</figcaption>
-                <pre className="mt-1.5 overflow-x-auto rounded-xl border border-white/8 bg-[#050b17] px-4 py-3 font-mono text-[0.8rem] leading-snug text-slate-300">
-                  <code>{group.code.text}</code>
-                </pre>
-              </figure>
-            )}
-          </div>
-        </li>
-      ))}
+          </li>
+        )
+      })}
     </ul>
     <SetupTilesMotion gridId="setup-tiles" />
   </section>

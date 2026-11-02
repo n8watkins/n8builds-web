@@ -29,8 +29,9 @@ const bringIn = (locator: Locator) =>
     window.scrollTo({ top: box.top + window.scrollY - window.innerHeight / 2 + box.height / 2, behavior: 'instant' })
   })
 
-test('on a laptop the tiles rise in from the first screen and end fully shown, chips too', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 })
+test('on a desktop the tiles rise in from the first screen and end fully shown, chips too', async ({ page }) => {
+  // Tall enough that the first screen holds the machine's full-width tile and the row under it.
+  await page.setViewportSize({ width: 1440, height: 1200 })
   await page.goto('/loadout')
   const first = tiles(page).first()
   await expect(first).toHaveCSS('animation-name', 'setup-rise')

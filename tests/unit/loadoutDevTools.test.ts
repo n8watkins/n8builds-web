@@ -15,7 +15,7 @@ import { PersonCard } from '@/components/sections/LoadoutDevTools'
 const allCopy = [
   ...toolsIBuilt.flatMap((t) => [t.name, t.pitch, t.detail, t.credit?.note ?? '']),
   ...toolsIUse.flatMap((t) => [t.name, t.whatFor]),
-  ...devSetup.flatMap((g) => [g.title, ...g.items.flatMap((i) => [i.name, i.note ?? ''])]),
+  ...devSetup.flatMap((t) => t.groups).flatMap((g) => [g.title, ...g.items.flatMap((i) => [i.name, i.note ?? ''])]),
   ...people.flatMap((c) => [c.name, c.role, c.note]),
 ]
 
@@ -77,7 +77,7 @@ describe('the loadout dev-tool lists', () => {
       ...toolsIUse.map((t) => t.id),
       ...people.map((p) => p.id),
     ])
-    for (const entry of devSetup.flatMap((g) => g.items)) {
+    for (const entry of devSetup.flatMap((t) => t.groups).flatMap((g) => g.items)) {
       if (!entry.href) continue
       if (entry.href.startsWith('#')) expect(anchors, entry.name).toContain(entry.href.slice(1))
       else expect(entry.href).toMatch(/^\/[a-z]/)
@@ -87,6 +87,25 @@ describe('the loadout dev-tool lists', () => {
   it('folds the honorable mentions into Tools I use, herdr first, and leaves gnhf off the list', () => {
     expect(toolsIUse.map((t) => t.id)).toEqual(['herdr', 'no-mistakes', 'chrome-devtools-axi', 'gh-axi', 'lavish', 'firstmate', 'treehouse', 'ccusage'])
     expect(toolsIUse.map((t) => t.id)).not.toContain('gnhf')
+  })
+
+  it('keeps every dev setup group, each in one tile, the machine\'s tile first', () => {
+    expect(devSetup.flatMap((t) => t.groups.map((g) => g.id))).toEqual([
+      'machine',
+      'wsl',
+      'terminal',
+      'own-tools',
+      'editors',
+      'agents',
+      'agent-tooling',
+      'runtimes',
+      'shipping',
+    ])
+    expect(devSetup.filter((t) => t.full).map((t) => t.id)).toEqual(['machine'])
+    // Two to a row on a tablet and three on a laptop, after the full-width tile: every row fills.
+    const rest = devSetup.filter((t) => !t.full).length
+    expect(rest % 2).toBe(0)
+    expect(rest % 3).toBe(0)
   })
 
   it('never uses an em dash in its copy', () => {
