@@ -31,3 +31,14 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   the bundle analyzer is `npm run analyze` (`next analyze`), not `@next/bundle-analyzer`, and Sentry's `webpack` options are ignored.
   Sentry's `bundleSizeOptimizations` in `next.config.mjs` do apply: since v11 the SDK turns them into Turbopack `compiler.define` flags itself.
 - A worktree needs its own `npm ci`: Turbopack refuses a `node_modules` symlinked from outside the project.
+
+## Where things live
+
+- `docs/NEXT_STEPS.md`: the owner's to-dos (decisions, keys), what agents build next, and a done log with PR numbers.
+- `docs/DECISIONS.md`: the owner's standing decisions; `docs/HANDOFF.md`: current state and conventions.
+
+## Before pushing and before local previews
+
+- Keep every commit header at 100 characters or less: the commit check runs on every commit in a PR, and force pushes are blocked, so a long header means a fresh branch and new PR. Check with `git log --format=%s origin/main.. | awk 'length>100'`.
+- Build from a clean `.next` (`rm -rf .next`) before a local preview or Playwright run: a reused build cache once shipped stale Tailwind CSS that wasn't on the live site.
+- Stop any old server on the E2E port first: `reuseExistingServer` silently tests a stale build.
