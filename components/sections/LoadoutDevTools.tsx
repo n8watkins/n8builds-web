@@ -6,6 +6,7 @@ import { LuExternalLink, LuGlobe, LuUsers } from 'react-icons/lu'
 import { SiGithub, SiSubstack, SiX, SiYoutube } from 'react-icons/si'
 import {
   devSetup,
+  loadoutPart,
   people,
   toolsIBuilt,
   toolsIUse,
@@ -32,28 +33,48 @@ import SetupTilesMotion from '@/components/sections/SetupTilesMotion'
  * of the app's IconContext, so every icon is aria-hidden by hand.
  */
 
-// A section's small mono path and title, left-aligned over its content.
+/**
+ * A part's heading on /loadout: the part's icon (the one its pill and the
+ * side rail show) in a chip of its colour, its small mono path and its title,
+ * then one line on what's inside. Stronger than a plain title, so each part
+ * reads as its own as you scroll (the owner's ask, 2026-11-02). `part` is its
+ * id in loadoutParts (data/loadout.tsx), which gives the icon and colour.
+ */
 export const SectionHead = ({
   id,
+  part,
   path,
   title,
   children,
 }: {
   id?: string
+  part: string
   path: string
   title: string
   children?: ReactNode
-}) => (
-  <div className="mb-6 flex flex-col gap-1.5">
-    <span className="font-mono text-xs text-slate-475">{path}</span>
-    <h2 id={id} className="text-2xl font-extrabold tracking-tight text-slate-50 sm:text-3xl">
-      {title}
-    </h2>
-    {children && (
-      <p className="max-w-[620px] text-[15px] leading-relaxed text-[#9cadc5]">{children}</p>
-    )}
-  </div>
-)
+}) => {
+  const { icon: Icon, accent } = loadoutPart(part)
+  return (
+    <div className="mb-8 md:mb-10" style={{ '--lo': accent } as CSSProperties}>
+      <div className="flex items-center gap-4">
+        <span
+          aria-hidden="true"
+          data-part-icon
+          className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[rgb(var(--lo)/0.12)] text-[rgb(var(--lo))] ring-1 ring-[rgb(var(--lo)/0.35)] sm:size-14"
+        >
+          <Icon className="size-6 sm:size-7" />
+        </span>
+        <div className="min-w-0">
+          <span className="block font-mono text-xs text-[rgb(var(--lo)/0.85)]">{path}</span>
+          <h2 id={id} className="mt-1 text-[1.75rem] leading-tight font-extrabold tracking-tight text-balance text-slate-50 sm:text-4xl">
+            {title}
+          </h2>
+        </div>
+      </div>
+      {children && <p className="mt-4 max-w-[640px] leading-relaxed text-pretty text-[#9cadc5]">{children}</p>}
+    </div>
+  )
+}
 
 const textLink =
   'font-semibold text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 transition-colors hover:text-cyan-200 hover:decoration-cyan-200/60'
@@ -234,7 +255,7 @@ const ToolItem = ({ tool }: { tool: UsedTool }) => {
 export const ToolsIUse = () => (
   <Reveal>
     <section aria-labelledby="tools-i-use-title">
-      <SectionHead id="tools-i-use-title" path="~/loadout/tools" title="Tools I use">
+      <SectionHead id="tools-i-use-title" part="tools-i-use" path="~/loadout/tools" title="Tools I use">
         What I add on top of Claude Code and Codex: where my agents run, and the tools that let them check their own work.
       </SectionHead>
       <ul className="grid gap-4 md:grid-cols-2">
@@ -289,7 +310,7 @@ const SetupChip = ({ entry }: { entry: SetupEntry }) => {
  */
 export const DevSetup = () => (
   <section aria-labelledby="dev-setup-title">
-    <SectionHead id="dev-setup-title" path="~/loadout/dev-setup" title="My dev setup">
+    <SectionHead id="dev-setup-title" part="dev-setup" path="~/loadout/dev-setup" title="My dev setup">
       Windows 11 with WSL2, Claude Code and Codex, and the tools around them.
     </SectionHead>
     <ul id="setup-tiles" className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

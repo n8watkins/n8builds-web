@@ -62,20 +62,33 @@ import type { RailPart } from '@/components/ui/SectionRail'
 // Content is curated/representative - edit freely as the kit changes.
 
 /**
- * The page's parts, in page order: the pills under its header and the side
- * rail (components/sections/LoadoutSectionNav.tsx) both list these. `short`
- * is the rail's on-screen label where its gutter is too narrow for the full
- * one (1440-1535px); the link's accessible name stays whole.
+ * One part of /loadout. `accent` is its colour, an RGB triplet: its heading's
+ * icon, its pill's icon and its band's wash (`.loadout-part` in
+ * app/globals.css) take it, so each part reads as its own as you scroll (the
+ * owner's ask, 2026-11-02). Warm and cool take turns down the page; peak
+ * tint stays low, as in the Lab's washes, so text keeps its contrast.
  */
-export const loadoutParts: readonly RailPart[] = [
-  { id: 'dev-setup', label: 'Dev setup', icon: LuSquareTerminal },
-  { id: 'workflow', label: 'How I work', icon: LuWorkflow },
-  { id: 'in-apps', label: 'Inside my apps', icon: LuBot },
-  { id: 'stacks', label: 'Stacks I build with', short: 'Stacks', icon: LuLayers },
-  { id: 'tools-i-built', label: 'Tools I built and use', short: 'My tools', icon: LuHammer },
-  { id: 'tools-i-use', label: 'Tools I use', icon: LuWrench },
-  { id: 'gear', label: 'The gear', icon: LuHeadphones },
+export type LoadoutPart = RailPart & { accent: string }
+
+/**
+ * The page's parts, in page order: the pills under its header and the side
+ * rail (components/sections/LoadoutSectionNav.tsx) both list these, and each
+ * part's heading shows the same icon. `short` is the rail's on-screen label
+ * where its gutter is too narrow for the full one (1440-1535px); the link's
+ * accessible name stays whole.
+ */
+export const loadoutParts: readonly LoadoutPart[] = [
+  { id: 'dev-setup', label: 'Dev setup', icon: LuSquareTerminal, accent: '34 211 238' },
+  { id: 'workflow', label: 'How I work', icon: LuWorkflow, accent: '251 146 60' },
+  { id: 'in-apps', label: 'Inside my apps', icon: LuBot, accent: '96 165 250' },
+  { id: 'stacks', label: 'Stacks I build with', short: 'Stacks', icon: LuLayers, accent: '52 211 153' },
+  { id: 'tools-i-built', label: 'Tools I built and use', short: 'My tools', icon: LuHammer, accent: '251 191 36' },
+  { id: 'tools-i-use', label: 'Tools I use', icon: LuWrench, accent: '129 140 248' },
+  { id: 'gear', label: 'The gear', icon: LuHeadphones, accent: '244 114 182' },
 ]
+
+/** A part by its id (its heading and band look it up). */
+export const loadoutPart = (id: string) => loadoutParts.find((part) => part.id === id)!
 
 export interface LoadoutItem {
   name: string

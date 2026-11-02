@@ -271,6 +271,44 @@ test.describe('Loadout tools and people', () => {
     expect([...tops].sort((a, b) => a - b)).toEqual(tops)
   })
 
+  test('each part is its own band, headed by the icon its pill and the rail show', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await page.goto('/loadout')
+    const parts = page.locator('[data-loadout-part]')
+    const ids = await parts.evaluateAll((els) => els.map((el) => el.id))
+    const pills = page.getByRole('navigation', { name: 'Loadout sections' }).getByRole('link')
+    expect(ids.map((id) => `#${id}`)).toEqual(await pills.evaluateAll((els) => els.map((el) => el.getAttribute('href'))))
+    // The same glyph in the pill, the part's heading and the rail (in the page, though the rail waits to show).
+    for (const id of ids) {
+      const marks = await page.evaluate((id) => {
+        const glyph = (selector: string) => document.querySelector(selector)?.querySelector('svg :is(path, rect, circle)')?.outerHTML ?? null
+        return {
+          pill: glyph(`nav[aria-label="Loadout sections"] a[href="#${id}"]`),
+          head: glyph(`#${id} [data-part-icon]`),
+          rail: glyph(`nav[aria-label="Loadout contents"] a[href="#${id}"]`),
+        }
+      }, id)
+      expect(marks.head, id).not.toBeNull()
+      expect(marks.pill, id).toBe(marks.head)
+      expect(marks.rail, id).toBe(marks.head)
+    }
+    // A hairline above every part, a wash in its own colour, and every other part on the raised tone.
+    const looks = await parts.evaluateAll((els) =>
+      els.map((el) => {
+        const cs = getComputedStyle(el)
+        return { line: cs.borderTopWidth, wash: cs.backgroundImage.includes('gradient'), tone: cs.backgroundColor, accent: cs.getPropertyValue('--lo') }
+      }),
+    )
+    for (const look of looks) {
+      expect(look.line).toBe('1px')
+      expect(look.wash).toBe(true)
+    }
+    for (let i = 1; i < looks.length; i++) {
+      expect(looks[i].tone, `part ${i} vs ${i - 1}`).not.toBe(looks[i - 1].tone)
+      expect(looks[i].accent, `part ${i} vs ${i - 1}`).not.toBe(looks[i - 1].accent)
+    }
+  })
+
   test('Stacks I build with names each stack and chains its tools, each with its own mark', async ({ page }) => {
     await page.goto('/loadout')
     const stacks = page.getByRole('region', { name: 'Stacks I build with' })
