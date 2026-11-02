@@ -64,16 +64,16 @@ function ProjectCard({ project, index }: { project: UpcomingProject; index: numb
           <span className="text-slate-400">{project.stage}</span>
         </p>
 
-        <p className="relative mt-4 leading-relaxed text-slate-200">{project.what}</p>
+        <p className="relative mt-4 leading-relaxed text-pretty text-slate-200">{project.what}</p>
 
-        <p className="relative mt-4 text-sm leading-relaxed text-slate-300">
+        <p className="relative mt-4 text-sm leading-relaxed text-pretty text-slate-300">
           <span className="font-semibold text-slate-100">Who it&rsquo;s for: </span>
           {project.forWho}
         </p>
 
         <ul className="relative mt-5 space-y-2.5" aria-label={`${project.name}: key points`}>
           {project.points.map((point) => (
-            <li key={point} className="flex items-start gap-2.5 text-sm font-medium text-slate-200">
+            <li key={point} className="flex items-start gap-2.5 text-sm font-medium text-pretty text-slate-200">
               <FiCheck className="mt-[3px] h-4 w-4 shrink-0 text-(--accent)" aria-hidden="true" />
               {point}
             </li>
