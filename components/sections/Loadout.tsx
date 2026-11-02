@@ -15,6 +15,7 @@ import {
   ToolsIUse,
 } from '@/components/sections/LoadoutDevTools'
 import LoadoutSectionNav from '@/components/sections/LoadoutSectionNav'
+import BuildStacks from '@/components/sections/BuildStacks'
 import { DailyDriverRows } from '@/components/sections/FeaturedProjects'
 
 // A server component, so react-icons don't get the app's IconContext
@@ -25,7 +26,8 @@ import { DailyDriverRows } from '@/components/sections/FeaturedProjects'
  * The Loadout (/loadout): the tools I use and what each one is for. It
  * leads with how I work with AI (decide, build, fix: the tool and model for
  * each step), after my dev setup, then the AI inside the apps I build (it is
- * about AI too, the owner's call, 2026-11-02), then the tools I built and
+ * about AI too, the owner's call, 2026-11-02) and the stacks I build with
+ * (how I build, back the same day), then the tools I built and
  * use (Scribe, out of the homepage Lab, then the small CLIs, 2026-11-01;
  * before the ones I use), the tools I use (honorable mentions included,
  * 2026-11-02), and the gear in one section
@@ -255,6 +257,18 @@ const Loadout = () => {
           </ul>
           </section>
         </Reveal>
+        </div>
+
+        {/* The named stacks I build with: how I build (back on 2026-11-02). */}
+        <div id="stacks" className="mt-20">
+          <section aria-labelledby="stacks-title">
+            <Reveal>
+              <SectionHead id="stacks-title" path="~/loadout/stacks" title="Stacks I build with">
+                Named combos, not a flat list: the tools that go together for each kind of project.
+              </SectionHead>
+            </Reveal>
+            <BuildStacks />
+          </section>
         </div>
       </div>
 

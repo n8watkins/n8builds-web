@@ -263,12 +263,37 @@ test.describe('Loadout tools and people', () => {
   test('the header pills jump to every part of the page', async ({ page }) => {
     await page.goto('/loadout')
     const pills = page.getByRole('navigation', { name: 'Loadout sections' }).getByRole('link')
-    await expect(pills).toHaveText(['Dev setup', 'How I work', 'Inside my apps', 'Tools I built and use', 'Tools I use', 'The gear'])
+    await expect(pills).toHaveText(['Dev setup', 'How I work', 'Inside my apps', 'Stacks I build with', 'Tools I built and use', 'Tools I use', 'The gear'])
     const hrefs = await pills.evaluateAll((els) => els.map((el) => el.getAttribute('href')!))
     for (const href of hrefs) await expect(page.locator(href)).toHaveCount(1)
     // In page order: Inside the apps I build right after How I work with AI (2026-11-02).
     const tops = await Promise.all(hrefs.map((href) => page.locator(href).evaluate((el) => el.getBoundingClientRect().top)))
     expect([...tops].sort((a, b) => a - b)).toEqual(tops)
+  })
+
+  test('Stacks I build with names each stack and chains its tools, each with its own mark', async ({ page }) => {
+    await page.goto('/loadout')
+    const stacks = page.getByRole('region', { name: 'Stacks I build with' })
+    // How I build, right after Inside the apps I build (2026-11-02).
+    const order = await page.locator('main h2').allTextContents()
+    expect(order.indexOf('Stacks I build with')).toBe(order.indexOf('Inside the apps I build') + 1)
+    await expect(stacks.getByRole('heading', { level: 3 })).toHaveText(['The Turso Stack', 'The Firebase Stack', 'The Local-First Stack', 'The Extension Stack'])
+    await expect(stacks.getByRole('list', { name: 'The Turso Stack tools' }).getByRole('listitem')).toHaveText([
+      'Next.js',
+      '+TypeScript',
+      '+Turso',
+      '+Drizzle',
+      '+Cloudflare R2',
+      '+Vercel',
+    ])
+    // Every tool carries its mark, 16px.
+    const icons = stacks.locator('[data-stack-icon] svg')
+    await expect(icons).toHaveCount(18)
+    for (const height of await icons.evaluateAll((svgs) => svgs.map((svg) => Math.round(svg.getBoundingClientRect().height)))) expect(height).toBe(16)
+    // The cards in a row are the same height.
+    const cards = await stacks.getByRole('article').evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().height)))
+    expect(cards[0]).toBe(cards[1])
+    expect(cards[2]).toBe(cards[3])
   })
 
   test('the gear section (once "The setup") keeps its old #setup anchor working', async ({ page }) => {
