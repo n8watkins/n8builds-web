@@ -243,3 +243,20 @@ test.describe('mobile menu on a landscape phone', () => {
     await expect(last).toBeInViewport()
   })
 })
+
+// Round 5 of 2026-11-02: a client-side visit to the homepage logged React's "Encountered a
+// script tag" error (the old /#my-tools redirect lived in the page; it is in the layout now).
+test('moving between pages logs no console errors', async ({ page }) => {
+  const errors: string[] = []
+  page.on('console', (m) => m.type() === 'error' && errors.push(m.text()))
+  page.on('pageerror', (e) => errors.push(e.message))
+  await page.goto('/loadout')
+  await page.getByRole('link', { name: 'n8builds.dev home' }).click()
+  await expect(page).toHaveURL(/\/$/)
+  await expect(page.locator('#lab')).toBeAttached()
+  await page.goto('/builds')
+  await page.getByRole('link', { name: 'n8builds.dev home' }).click()
+  await expect(page.locator('#lab')).toBeAttached()
+  await page.waitForTimeout(1000)
+  expect(errors.filter((e) => /script tag|hydrat/i.test(e))).toEqual([])
+})

@@ -73,20 +73,11 @@ function Band({
  * contact form, and HomeEffects (analytics and the ambient glows). A phone
  * downloads and hydrates those, not every section's code.
  */
-/**
- * The Lab's "My tools" part (#my-tools) moved to /loadout's "Tools I built
- * and use" (2026-11-01). A hash never reaches the server, so this inline
- * script sends links to /#my-tools out there on to it, as the page starts to
- * parse: before anything paints, and without waiting for hydration.
- */
-const MY_TOOLS_MOVED = "if(location.hash==='#my-tools')location.replace('/loadout#tools-i-built')"
-
 export default async function HomePage({ posts }: { posts: Post[] }) {
   // The build log part hides when the log can't load; its pill goes with it.
   const buildLog = await hasBuildLog()
   return (
     <>
-      <script dangerouslySetInnerHTML={{ __html: MY_TOOLS_MOVED }} />
       <Navbar />
       <main
         id="main-content"
