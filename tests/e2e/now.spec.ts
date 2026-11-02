@@ -188,3 +188,20 @@ for (const width of [1024, 820, 390, 375, 320]) {
     expect(new Set(tops).size, 'picker rows').toBe(1)
   })
 }
+
+// The caption under the window (round 5 of 2026-11-02, a longer line) never runs over the phone.
+for (const width of [320, 390, 820, 1440]) {
+  test(`at ${width}px the template caption stays clear of the phone`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto('/')
+    const caption = now(page).getByText("Pick a template, or we'll build one for your business.", { exact: true })
+    await caption.scrollIntoViewIfNeeded()
+    const overlaps = await caption.evaluate((cap) => {
+      const phone = cap.parentElement!.querySelector('[class*="rotate-"]')!.getBoundingClientRect()
+      const range = document.createRange()
+      range.selectNodeContents(cap)
+      return [...range.getClientRects()].some((r) => !(r.right <= phone.left || r.left >= phone.right || r.bottom <= phone.top || r.top >= phone.bottom))
+    })
+    expect(overlaps).toBe(false)
+  })
+}

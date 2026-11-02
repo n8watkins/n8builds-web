@@ -205,7 +205,9 @@ export default function TemplateCarousel({ slides, phone }: { slides: TemplateSl
         </div>
       </div>
 
-      <p className="absolute right-0 bottom-0 translate-y-1/2 text-[0.7rem] font-medium text-slate-450 sm:text-xs">
+      {/* Beside the phone's foot from 640px; under it on phones, where the line
+          wraps and would run over the phone. */}
+      <p className="relative mt-3 -mb-[7%] pl-[25%] text-right text-[0.7rem] font-medium text-slate-450 sm:absolute sm:right-0 sm:bottom-0 sm:mt-0 sm:mb-0 sm:translate-y-1/2 sm:pl-0 sm:text-xs">
         Pick a template, or we&apos;ll build one for your business.
       </p>
       <p className="sr-only" aria-live="polite">

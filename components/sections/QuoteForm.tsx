@@ -151,7 +151,7 @@ export default function QuoteForm({ turnstileSiteKey }: { turnstileSiteKey: stri
       </div>
       <label
         htmlFor="quote-email"
-        className="text-[0.7rem] font-bold tracking-[0.16em] text-slate-450 uppercase"
+        className="text-[0.7rem] font-bold tracking-[0.1em] text-slate-450 uppercase min-[400px]:tracking-[0.16em]"
       >
         Where should the quote go?
       </label>
