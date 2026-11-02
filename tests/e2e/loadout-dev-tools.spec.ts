@@ -247,13 +247,13 @@ test.describe('Loadout tools and people', () => {
       'Machine',
       'WSL2',
       'Terminal',
+      'Workspace',
       'My own tools, in daily use',
       'Editors',
       'Agents',
       'Agent tooling',
       'Runtimes',
       'Shipping',
-      'Workspace',
     ])
     await expect(setup.locator('pre')).toHaveText(
       '[wsl2]\nnetworkingMode=mirrored\nmemory=20GB\nprocessors=8\nswap=16GB\n\n[experimental]\nautoMemoryReclaim=dropcache\nsparseVhd=true',

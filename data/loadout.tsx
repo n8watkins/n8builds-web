@@ -695,6 +695,13 @@ export const devSetup: DevSetupTile[] = [
           { name: 'herdr', note: 'agent multiplexer', href: '#herdr', icon: appIcon('/brands/herdr.png') },
         ],
       },
+      {
+        // Everyday apps (round 5 of 2026-11-02): one chip for the suite, not one per app. Beside the
+        // terminal: the placement that keeps every row of the bento even (measured at 820 to 1440px).
+        id: 'workspace',
+        title: 'Workspace',
+        items: [{ name: 'Google Workspace', note: 'Gmail, Calendar, Drive and Docs', icon: mark(SiGoogle, '#4285f4') }],
+      },
     ],
   },
   {
@@ -786,13 +793,6 @@ export const devSetup: DevSetupTile[] = [
           { name: 'Cloudflare', note: 'Wrangler', icon: mark(SiCloudflare, '#f38020') },
           { name: 'Turso', icon: mark(SiTurso, '#4ff8d2') },
         ],
-      },
-      {
-        // Everyday apps (round 5 of 2026-11-02): one chip for the suite, not one per app. In the
-        // lightest tile, so the bento's rows stay even (in Editors and Agents it unbalanced 1024px).
-        id: 'workspace',
-        title: 'Workspace',
-        items: [{ name: 'Google Workspace', note: 'Gmail, Calendar, Drive and Docs', icon: mark(SiGoogle, '#4285f4') }],
       },
     ],
   },
