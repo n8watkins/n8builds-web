@@ -214,6 +214,12 @@ When the owner decides something new, add it here (with the date) in the same ch
   Privacy first, no consent banner needed: no cookies, nothing stored in the browser, no IP or user agent stored; a player is a hash of IP and browser with a random salt that rotates daily and is deleted after two days.
   Only the listed origins are answered, each player is rate limited, a score counts only for a round that player started at least 29 seconds earlier and is capped at 60, and the privacy page says all of this.
   The best pill shows the all-time record next to the player's own best.
+- **Dino game music (2026-11-01, owner's call):** "Desert Run" (picked from a sampler of four loops), a 4-bar chiptune at 148 bpm played by a tiny Web Audio synth (`components/features/dino/music.ts`, no audio files), on n8builds.dev and the portfolio.
+  A music toggle sits in the top right corner of the game panel (`DinoMusic.tsx`), under reduced motion too (music isn't motion; the toggle never animates there); it is off by default and plays at about 35% volume with a short fade in and out.
+  The choice is remembered in the browser, but a visit never starts the music by itself: remembered as on, the toggle shows a cyan dot and the music starts with the visitor's next catch of the dino or press of the toggle.
+  It fades out while the panel is off screen or the tab is hidden, and back in when it returns.
+  On narrow panels the scoreboards centre in the room left of the toggle and leave out the extras (" · New best!" and the all-time record), so they never overflow the panel.
+  Tests never play it out loud: Chromium runs muted, and the sound is checked offline by the numbers (`tests/e2e/dino-music.spec.ts`).
 
 ## Publishing and releases (2026-10-25)
 

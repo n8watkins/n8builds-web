@@ -12,6 +12,12 @@ import { E2E_BASE_URL, E2E_PORT } from './tests/e2e-env'
  * - chromium: page smoke, accessibility, and contact-form UI tests
  * - firefox / webkit / mobile: the same browser tests, run nightly in CI
  */
+// No test run is ever heard (the dino game has music): the browsers get no
+// sound device (under WSLg every Linux process, headless browsers included,
+// plays through the Windows speakers via PULSE_SERVER), and Chromium is muted.
+process.env.PULSE_SERVER = 'unix:/nonexistent'
+const MUTED = { args: ['--mute-audio'] }
+
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
@@ -32,10 +38,12 @@ export default defineConfig({
 
   projects: [
     { name: 'api', testMatch: /api\/.*\.spec\.ts/ },
-    { name: 'chromium', testIgnore: /api\//, use: { ...devices['Desktop Chrome'] } },
+    // Chromium runs muted: the dino game's music (tests/e2e/dino-music.spec.ts)
+    // must never sound out loud on a developer's machine.
+    { name: 'chromium', testIgnore: /api\//, use: { ...devices['Desktop Chrome'], launchOptions: MUTED } },
     { name: 'firefox', testIgnore: /api\//, use: { ...devices['Desktop Firefox'] } },
     { name: 'webkit', testIgnore: /api\//, use: { ...devices['Desktop Safari'] } },
-    { name: 'mobile-chrome', testIgnore: /api\//, use: { ...devices['Pixel 7'] } },
+    { name: 'mobile-chrome', testIgnore: /api\//, use: { ...devices['Pixel 7'], launchOptions: MUTED } },
     { name: 'mobile-safari', testIgnore: /api\//, use: { ...devices['iPhone 14'] } },
   ],
 
