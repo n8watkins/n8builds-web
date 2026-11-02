@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react'
 import Image from 'next/image'
-import { FiCheck } from 'react-icons/fi'
+import { FiArrowUpRight, FiCheck } from 'react-icons/fi'
 import Navbar from '@/components/layout/Navbar'
 import FadeIn from '@/components/ui/FadeIn'
 import Reveal from '@/components/ui/Reveal'
@@ -81,8 +81,18 @@ function ProjectCard({ project, index }: { project: UpcomingProject; index: numb
         </ul>
 
         {/* mt-auto keeps the two cards' buttons level when one card's text runs longer. */}
-        <div className="relative mt-auto pt-6">
+        <div className="relative mt-auto flex flex-wrap items-center gap-x-5 gap-y-3 pt-6">
           <JoinButton slug={project.slug} name={project.name} accent={project.accent} />
+          <a
+            href={project.landing}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-sm font-medium text-slate-300 transition-colors hover:text-cyan-200"
+          >
+            Visit the landing page
+            <span className="sr-only"> for {project.name} (opens in a new tab)</span>
+            <FiArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
+          </a>
         </div>
       </div>
     </FadeIn>

@@ -13,6 +13,7 @@ import FeaturedProjects from '@/components/sections/FeaturedProjects'
 import ShelfSection from '@/components/sections/ShelfSection'
 import UseAsTemplate from '@/components/sections/UseAsTemplate'
 import PortfolioAd from '@/components/sections/PortfolioAd'
+import UpcomingStrip from '@/components/sections/UpcomingStrip'
 import NotionsStrip from '@/components/sections/NotionsStrip'
 import ExtensionsShowcase from '@/components/sections/ExtensionsShowcase'
 import LabSectionNav from '@/components/sections/LabSectionNav'
@@ -182,29 +183,37 @@ export default function HomePage({ posts }: { posts: Post[] }) {
           </SectionErrorBoundary>
         </Band>
 
-        {/* N8's Notions: latest blog posts */}
+        {/* Upcoming, in short: what I'm outlining next, each with its landing page and
+             waitlist (owner, 2026-11-01). The full detail lives on /upcoming. */}
         <Band tone="raised">
+          <SectionErrorBoundary sectionName="Upcoming">
+            <UpcomingStrip />
+          </SectionErrorBoundary>
+        </Band>
+
+        {/* N8's Notions: latest blog posts */}
+        <Band>
           <SectionErrorBoundary sectionName="N8's Notions">
             <NotionsStrip posts={posts} />
           </SectionErrorBoundary>
         </Band>
 
         {/* Homepage stack: AI marquee + Turso TL;DR -> /loadout */}
-        <Band>
+        <Band tone="raised">
           <SectionErrorBoundary sectionName="My Stack">
             <HomeStack />
           </SectionErrorBoundary>
         </Band>
 
         {/* Bridge: the portfolio (hire me) + Tech for Pros (my company) */}
-        <Band tone="raised">
+        <Band>
           <SectionErrorBoundary sectionName="Work With Me">
             <WorkWithMe />
           </SectionErrorBoundary>
         </Band>
 
         {/* The contact form animates its own fields in. */}
-        <Band id="contact" as="section" reveal={false}>
+        <Band id="contact" as="section" tone="raised" reveal={false}>
           <SectionErrorBoundary sectionName="Contact Section">
             <Footer />
           </SectionErrorBoundary>

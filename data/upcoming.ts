@@ -22,6 +22,8 @@ export type UpcomingProject = {
   oldIds?: string[]
   tagline: string
   icon: string
+  /** The project's landing page. */
+  landing: string
   /** The project's own accent, for its checks and its card's edge. */
   accent: string
   what: string
@@ -39,6 +41,7 @@ export const UPCOMING: UpcomingProject[] = [
     oldIds: ['rewire'],
     tagline: 'The open-source 404 safety net',
     icon: '/upcoming/relink.svg',
+    landing: 'https://relink.n8builds.dev',
     accent: '#ff8a4c',
     what: "A Cloudflare edge Worker catches broken links the moment a visitor hits them, matches each one to the right page using your site's own content, and turns the fix into a permanent redirect with one click.",
     forWho:
@@ -57,6 +60,7 @@ export const UPCOMING: UpcomingProject[] = [
     name: 'Strollz',
     tagline: 'Walk the streets you have never walked',
     icon: '/upcoming/strollz.svg',
+    landing: 'https://strollz.n8builds.dev',
     accent: '#5cc49b',
     what: 'Tell it how long you have, and it plans a walking loop from your door through streets you have never walked, with a few short notes about what you pass, each linked to its source.',
     forWho:
@@ -75,6 +79,7 @@ export const UPCOMING: UpcomingProject[] = [
     name: 'VibeLog',
     tagline: 'Live coding telemetry for vibe-coding streams',
     icon: '/upcoming/vibelog.svg',
+    landing: 'https://vibelogs.dev',
     accent: '#f472b6',
     what: 'One local process tracks your git activity, Claude token spend, stream time and channel growth, and turns them into a live OBS overlay, a private dashboard, a public live page and shareable stat cards.',
     forWho: 'People who stream themselves building software with AI and want viewers to see what is actually happening.',
@@ -88,6 +93,9 @@ export const UPCOMING: UpcomingProject[] = [
     ],
   },
 ]
+
+/** The waitlist link for one project: the URL contract the landing pages use too. */
+export const waitlistHref = (slug: UpcomingSlug) => `/upcoming?interest=${slug}#${slug}`
 
 /** Old interest values from renamed projects, so links already out there keep working. */
 export const INTEREST_ALIASES: Record<string, UpcomingSlug> = { rewire: 'relink' }

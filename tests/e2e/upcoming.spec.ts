@@ -142,3 +142,38 @@ test('is linked from the footer, and the privacy page explains the waitlist', as
   )
   await expect(page.locator('#waitlist')).toContainText('Waitlist.')
 })
+
+const LANDING = {
+  relink: 'https://relink.n8builds.dev',
+  strollz: 'https://strollz.n8builds.dev',
+  vibelog: 'https://vibelogs.dev',
+}
+
+test('each card links its landing page (hrefs only: the sites may not be live yet)', async ({ page }) => {
+  await page.goto('/upcoming')
+  for (const [slug, href] of Object.entries(LANDING)) {
+    await expect(page.locator(`article#${slug}`).getByRole('link', { name: /landing page/ })).toHaveAttribute('href', href)
+  }
+})
+
+test('the homepage has a short Upcoming band with each waitlist and landing page', async ({ page }) => {
+  await page.goto('/')
+  const band = page.locator('section#upcoming')
+  await expect(band.getByRole('heading', { level: 2 })).toHaveText('What I’m outlining next')
+  await expect(band.getByRole('listitem')).toHaveCount(3)
+  for (const [slug, href] of Object.entries(LANDING)) {
+    const name = { relink: 'Relink', strollz: 'Strollz', vibelog: 'VibeLog' }[slug]
+    await expect(band.getByRole('link', { name: `Join the waitlist for ${name}` })).toHaveAttribute(
+      'href',
+      `/upcoming?interest=${slug}#${slug}`
+    )
+    await expect(band.getByRole('link', { name: `Visit the landing page for ${name} (opens in a new tab)` })).toHaveAttribute(
+      'href',
+      href
+    )
+  }
+  // The full detail stays on /upcoming.
+  await expect(band.getByText('Status:')).toHaveCount(0)
+  await band.getByRole('link', { name: 'See all upcoming' }).click()
+  await expect(page).toHaveURL(/\/upcoming$/)
+})
