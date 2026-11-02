@@ -270,6 +270,16 @@ for (const [width, height, columns, beside] of [
   test(`What's cookin' lays its cards and waitlist out evenly at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height })
     await page.goto('/')
+    // At the laptop sizes, widen the window by a classic scrollbar (WebKit on
+    // Linux draws one and measures media queries without it; Safari on a Mac
+    // and Chrome don't), so the layout is the one a 1280px window gets.
+    if (width >= 1280) {
+      const gutter = await page.evaluate(() => window.innerWidth - document.documentElement.clientWidth)
+      if (gutter > 0) {
+        await page.setViewportSize({ width: width + gutter, height })
+        await page.reload()
+      }
+    }
     const band = page.locator('#lab section#upcoming')
     const items = band.locator('ul > li')
     await expect(items).toHaveCount(4)

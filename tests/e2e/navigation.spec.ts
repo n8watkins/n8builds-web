@@ -124,7 +124,7 @@ test('the navbar links techforpros.com in a pill like Ko-fi and Portfolio, throu
   expect(curve.width).toBeGreaterThan(text.width * 0.95)
 })
 
-test('the techforpros.com underline is one smooth arc that never animates', async ({ page }) => {
+test('the techforpros.com underline is one smooth arc that never animates', async ({ page, isMobile }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
   const path = underline(page)
@@ -134,7 +134,8 @@ test('the techforpros.com underline is one smooth arc that never animates', asyn
   expect((await path.getAttribute('d'))!.match(/[CSQ]/gi)).toHaveLength(1)
   await techForPros(page).hover()
   await expect(techForPros(page).locator('svg.tfp-underline')).toHaveCSS('animation-name', 'none')
-  await expect(techForPros(page).locator('svg.tfp-underline')).toHaveCSS('opacity', '1')
+  // It brightens on hover (a touch screen has none).
+  if (!isMobile) await expect(techForPros(page).locator('svg.tfp-underline')).toHaveCSS('opacity', '1')
 })
 
 // On phones the link sits between the logo and the menu button, on one line.

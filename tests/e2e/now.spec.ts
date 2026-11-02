@@ -91,10 +91,14 @@ test.describe('with motion', () => {
     await expect(carousel(page)).toHaveAttribute('data-playing', '')
     // The timer line fills along the window's bottom edge.
     const timer = carousel(page).locator('[data-template-timer]')
-    const frameBox = (await frame(page).locator('xpath=..').boundingBox())!
-    const timerBox = (await timer.boundingBox())!
-    expect(Math.abs(timerBox.y + timerBox.height - (frameBox.y + frameBox.height))).toBeLessThanOrEqual(2)
-    expect(timerBox.height).toBeLessThanOrEqual(4)
+    // Measured in one go: the card may still be settling from its scroll reveal.
+    const { gap, height } = await timer.evaluate((el) => {
+      const t = el.getBoundingClientRect()
+      const w = el.parentElement!.getBoundingClientRect()
+      return { gap: Math.abs(w.bottom - t.bottom), height: t.height }
+    })
+    expect(gap).toBeLessThanOrEqual(2)
+    expect(height).toBeLessThanOrEqual(4)
     await expect(timer.locator('.template-timer')).toHaveCSS('animation-play-state', 'running')
     for (const name of [...TEMPLATES.slice(1), TEMPLATES[0]]) await expect(showing(page)).toHaveAttribute('data-slide', name, { timeout: 8000 })
     // The timer never speaks: only a pick is announced.
