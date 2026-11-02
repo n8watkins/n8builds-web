@@ -797,28 +797,73 @@
   }
 }
 
-/* The Lab's percolating flask (components/ui/BubblingFlask.tsx): each bubble
-   rises from the bowl, swelling a little, and fades before the neck. */
-@keyframes flask-bubble {
+/* The Lab's percolating flask (components/ui/BubblingFlask.tsx, round 5 of
+   2026-11-02): the liquid's surface sways, bubbles rise through it and pop at
+   the top, and now and then one escapes up the neck. SVG lengths in CSS
+   transforms are the drawing's own units (a 24-unit square). */
+.flask-liquid {
+  animation: flask-sway 2.6s linear infinite;
+}
+@keyframes flask-sway {
+  to {
+    transform: translateX(8px);
+  }
+}
+.flask-rise {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: flask-rise 2s cubic-bezier(0.45, 0, 0.75, 1) infinite;
+}
+@keyframes flask-rise {
   0% {
-    transform: translateY(0) scale(0.6);
+    transform: translateY(0) scale(0.4);
     opacity: 0;
   }
-  25% {
+  15% {
+    opacity: 0.95;
+  }
+  80% {
+    transform: translateY(-5.2px) scale(1);
+    opacity: 0.95;
+  }
+  /* The pop: a quick swell as it reaches the surface, then gone. */
+  100% {
+    transform: translateY(-5.6px) scale(1.5);
+    opacity: 0;
+  }
+}
+.flask-escape {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: flask-escape 4.8s ease-out 1s infinite;
+}
+@keyframes flask-escape {
+  0% {
+    transform: translate(0, 0) scale(0.5);
+    opacity: 0;
+  }
+  8% {
     opacity: 0.9;
   }
+  45% {
+    transform: translate(0.6px, -13px) scale(1);
+    opacity: 0;
+  }
   100% {
-    transform: translateY(-260%) scale(1);
+    transform: translate(0.6px, -13px) scale(1);
     opacity: 0;
   }
 }
-.flask-bubble {
-  opacity: 0;
-  animation: flask-bubble 2.4s ease-in infinite;
-}
 @media (prefers-reduced-motion: reduce) {
-  .flask-bubble {
+  .flask-liquid {
     animation: none;
+  }
+  .flask-rise,
+  .flask-escape {
+    animation: none;
+    opacity: 0;
   }
 }
 
