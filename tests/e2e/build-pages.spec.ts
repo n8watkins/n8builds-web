@@ -3,8 +3,9 @@ import { expect, test } from '@playwright/test'
 /**
  * A build's page (2026-10-27, the owner's round 13): the app icon first, the
  * kind and tech pills under the title, the main action near the top, the live
- * site on the right of the screenshot, a checklist of what it does, and the
- * Details dialog's "how it's built" explainer.
+ * site with the other actions (never on the screenshot, since round 5 of
+ * 2026-11-02), a checklist of what it does, and the Details dialog's "how it's
+ * built" explainer.
  */
 test.describe('a build page', () => {
   test.use({ viewport: { width: 1440, height: 900 } })
@@ -27,12 +28,29 @@ test.describe('a build page', () => {
     // The download is up top, through the same route as the Lab.
     await expect(header.getByRole('link', { name: 'Download for Windows' })).toHaveAttribute('href', '/download/scribe')
 
-    // The live site sits on the right of its screenshot.
-    const shot = (await header.getByRole('img', { name: /Scribe's home screen/ }).boundingBox())!
+    // The landing page sits with the other actions, after the download.
+    const download = (await header.getByRole('link', { name: 'Download for Windows' }).boundingBox())!
     const live = (await header.getByRole('link', { name: /Visit the landing page/ }).boundingBox())!
-    expect(live.x).toBeGreaterThan(shot.x + shot.width / 2)
-    expect(live.y).toBeGreaterThanOrEqual(shot.y - 40)
+    expect(live.y).toBeGreaterThanOrEqual(download.y)
+    expect(Math.abs(live.x - download.x)).toBeLessThan(2)
   })
+
+  // Round 5 of 2026-11-02: over the screenshot it covered the app's Start button
+  // and window controls. It never overlaps the picture, at any width.
+  for (const width of [1440, 1024, 820, 390, 320]) {
+    for (const slug of ['scribe', 'openping', 'solara']) {
+      test(`${slug}'s live site never covers its screenshot at ${width}px`, async ({ page }) => {
+        await page.setViewportSize({ width, height: 900 })
+        await page.goto(`/builds/${slug}`)
+        const header = page.locator('main header').first()
+        const shot = (await header.locator('img[alt]:not([alt=""])').last().boundingBox())!
+        const live = (await header.getByRole('link', { name: /Visit the landing page/ }).boundingBox())!
+        const apart =
+          live.x + live.width <= shot.x || live.x >= shot.x + shot.width || live.y + live.height <= shot.y || live.y >= shot.y + shot.height
+        expect(apart, `${slug} at ${width}px`).toBe(true)
+      })
+    }
+  }
 
   test('says what it does, how it is built, and shows each technology', async ({ page }) => {
     await page.goto('/builds/scribe')
@@ -50,13 +68,17 @@ test.describe('a build page', () => {
     for (const card of await cards.all()) await expect(card.locator('svg, img').first()).toBeAttached()
   })
 
-  test('a build without a download offers its landing page on the screenshot', async ({ page }) => {
+  test('a build without a download leads with its landing page', async ({ page }) => {
     await page.goto('/builds/openping')
     const header = page.locator('main header').first()
     await expect(header.getByRole('link', { name: /Download/ })).toHaveCount(0)
     // Named for what it opens (round 4 of 2026-11-02): OpenPing's site is its landing page.
     await expect(header.getByRole('link', { name: /Visit the landing page/ })).toHaveAttribute('href', 'https://openping.n8builds.dev')
     await expect(header.getByRole('link', { name: /Visit live site/ })).toHaveCount(0)
+    // With no download, the landing page is the first action, before the source.
+    const live = (await header.getByRole('link', { name: /Visit the landing page/ }).boundingBox())!
+    const source = (await header.getByRole('link', { name: /View source/ }).boundingBox())!
+    expect(live.y < source.y || (Math.abs(live.y - source.y) < 2 && live.x < source.x)).toBe(true)
   })
 
   test('fits a phone with no sideways scroll', async ({ page }) => {
