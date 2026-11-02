@@ -28,8 +28,8 @@ export const TEMPLATE_EVERY_MS = 5000
 /**
  * The Tech for Pros ad's picture (round 3 of 2026-11-02): its trade templates
  * in a browser window, sliding side to side without end, a full-length page
- * scrolling on a phone in front of it, and "More templates coming soon" under
- * it. A thin line along the window's bottom fills up until the next template:
+ * scrolling on a phone in front of it, and "Pick a template, or we'll build
+ * one for your business." under it (round 5 of 2026-11-02). A thin line along the window's bottom fills up until the next template:
  * the slide moves on when that line's CSS animation ends, so pausing the line
  * pauses the carousel exactly where it is. It runs only while on screen and
  * the tab is shown, and holds while hovered or focused (WCAG 2.2.2); under
@@ -206,7 +206,7 @@ export default function TemplateCarousel({ slides, phone }: { slides: TemplateSl
       </div>
 
       <p className="absolute right-0 bottom-0 translate-y-1/2 text-[0.7rem] font-medium text-slate-450 sm:text-xs">
-        More templates coming soon
+        Pick a template, or we&apos;ll build one for your business.
       </p>
       <p className="sr-only" aria-live="polite">
         {announce}

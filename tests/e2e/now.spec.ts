@@ -5,8 +5,8 @@ import { test, expect, type Page } from '@playwright/test'
  * and techforpros.com. Since round 3 of 2026-11-02: "Websites built for pros",
  * copy about the service (never a list of trades) and no feature list; its
  * templates slide side to side in a browser window, with a timer line along
- * its bottom, a picker in its title bar, a phone in front and "More templates
- * coming soon" under it; "Request a quote" goes into the contact form (the
+ * its bottom, a picker in its title bar, a phone in front and "Pick a
+ * template, or we'll build one for your business." under it; "Request a quote" goes into the contact form (the
  * booking page and the site get buttons once they exist). No What's new.
  */
 
@@ -34,7 +34,7 @@ test('the card reads like an ad: headline, the service, a quote button and the t
   await expect(section).not.toContainText(/Reminders|next up|A pro site/)
   await expect(section.getByRole('button', { name: /What's new/ })).toHaveCount(0)
   await expect(section.locator('dialog')).toHaveCount(0)
-  await expect(section.getByText('More templates coming soon', { exact: true })).toBeVisible()
+  await expect(section.getByText("Pick a template, or we'll build one for your business.", { exact: true })).toBeVisible()
   // Headed by its icon and address, with no badge.
   const title = section.getByRole('heading', { level: 3, name: 'techforpros.com' })
   await expect(title).toBeVisible()
