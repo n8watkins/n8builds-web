@@ -69,9 +69,9 @@ import type { RailPart } from '@/components/ui/SectionRail'
 export const loadoutParts: readonly RailPart[] = [
   { id: 'dev-setup', label: 'Dev setup', icon: LuSquareTerminal },
   { id: 'workflow', label: 'How I work', icon: LuWorkflow },
+  { id: 'in-apps', label: 'Inside my apps', icon: LuBot },
   { id: 'tools-i-built', label: 'Tools I built and use', short: 'My tools', icon: LuHammer },
   { id: 'tools-i-use', label: 'Tools I use', icon: LuWrench },
-  { id: 'in-apps', label: 'Inside my apps', icon: LuBot },
   { id: 'gear', label: 'The gear', icon: LuHeadphones },
 ]
 

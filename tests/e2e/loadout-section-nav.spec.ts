@@ -15,9 +15,9 @@ test.use({ contextOptions: { reducedMotion: 'reduce' } })
 const PARTS = [
   { id: 'dev-setup', label: 'Dev setup' },
   { id: 'workflow', label: 'How I work' },
+  { id: 'in-apps', label: 'Inside my apps' },
   { id: 'tools-i-built', label: 'Tools I built and use' },
   { id: 'tools-i-use', label: 'Tools I use' },
-  { id: 'in-apps', label: 'Inside my apps' },
   { id: 'gear', label: 'The gear' },
 ] as const
 
@@ -109,8 +109,8 @@ test.describe('at 1440px', () => {
     await place(page, 'workflow')
     const nav = rail(page)
     await expect(nav).toBeVisible(SHOW)
-    // Inside my apps is short, so The gear passes the middle as soon as it
-    // lands: the part jumped to must still be the one marked.
+    // Inside my apps is short, so the part after it passes the middle as soon
+    // as it lands: the part jumped to must still be the one marked.
     for (const part of [PARTS[4], PARTS[5], PARTS[4], PARTS[2], PARTS[0]]) {
       await nav.getByRole('link', { name: part.label, exact: true }).click()
       await expect(page).toHaveURL(new RegExp(`#${part.id}$`))

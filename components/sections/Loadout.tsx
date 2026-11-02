@@ -22,12 +22,13 @@ import { DailyDriverRows } from '@/components/sections/FeaturedProjects'
 // assistive tech by its wrapper or its own aria-hidden.
 
 /**
- * The Loadout (/loadout): the tools I use and what each one is for, not a
- * tech stack. It leads with how I work with AI (decide, build, fix: the tool
- * and model for each step), after my dev setup, then the tools I built and
+ * The Loadout (/loadout): the tools I use and what each one is for. It
+ * leads with how I work with AI (decide, build, fix: the tool and model for
+ * each step), after my dev setup, then the AI inside the apps I build (it is
+ * about AI too, the owner's call, 2026-11-02), then the tools I built and
  * use (Scribe, out of the homepage Lab, then the small CLIs, 2026-11-01;
  * before the ones I use), the tools I use (honorable mentions included,
- * 2026-11-02), the AI inside the apps I build, and the gear in one section
+ * 2026-11-02), and the gear in one section
  * (rig, desk, stream kit). The people I follow moved to the homepage
  * (2026-11-01). A server component: its
  * interactive parts (the scroll reveals) are client islands.
@@ -220,39 +221,6 @@ const Loadout = () => {
           </section>
         </Reveal>
         </div>
-      </div>
-
-      {/* The tools I built and use: Scribe as the Lab's row (FeaturedProjects.tsx),
-           out of the content column so its colour wash reaches the page edge
-           (the row sets the column inside), then the small CLIs' cards. */}
-      <div id="tools-i-built" className="mt-20">
-        {/* "My daily drivers" (#daily-drivers) was its own part for a day:
-             links to it still land here. */}
-        <span id="daily-drivers" aria-hidden="true" className="block" />
-        <section aria-labelledby="tools-i-built-title">
-          <Reveal className={column}>
-            <SectionHead id="tools-i-built-title" path="~/loadout/built" title={TOOLS_I_BUILT_TITLE}>
-              {TOOLS_I_BUILT_BLURB}
-            </SectionHead>
-          </Reveal>
-          {/* Pulled up to the heading: the row's padding is its wash's room. */}
-          <div className="-mt-4 md:-mt-6">
-            <DailyDriverRows />
-          </div>
-          <Reveal className={`${column} mt-2 md:mt-4`}>
-            <BuiltToolsGrid />
-          </Reveal>
-        </section>
-      </div>
-
-      <div className={`${column} pb-10 md:pb-16`}>
-        {/* The tools I use and recommend (their makers link to People I follow, on the homepage) */}
-        <div id="tools-i-use" className="mt-20">
-          {/* "Honorable mentions" (#honorable-mentions) joined Tools I use
-               (2026-11-02): links to it still land here. */}
-          <span id="honorable-mentions" aria-hidden="true" className="block" />
-          <ToolsIUse />
-        </div>
 
         {/* The AI inside the apps I build */}
         <div id="in-apps" className="mt-20">
@@ -287,6 +255,39 @@ const Loadout = () => {
           </ul>
           </section>
         </Reveal>
+        </div>
+      </div>
+
+      {/* The tools I built and use: Scribe as the Lab's row (FeaturedProjects.tsx),
+           out of the content column so its colour wash reaches the page edge
+           (the row sets the column inside), then the small CLIs' cards. */}
+      <div id="tools-i-built" className="mt-20">
+        {/* "My daily drivers" (#daily-drivers) was its own part for a day:
+             links to it still land here. */}
+        <span id="daily-drivers" aria-hidden="true" className="block" />
+        <section aria-labelledby="tools-i-built-title">
+          <Reveal className={column}>
+            <SectionHead id="tools-i-built-title" path="~/loadout/built" title={TOOLS_I_BUILT_TITLE}>
+              {TOOLS_I_BUILT_BLURB}
+            </SectionHead>
+          </Reveal>
+          {/* Pulled up to the heading: the row's padding is its wash's room. */}
+          <div className="-mt-4 md:-mt-6">
+            <DailyDriverRows />
+          </div>
+          <Reveal className={`${column} mt-2 md:mt-4`}>
+            <BuiltToolsGrid />
+          </Reveal>
+        </section>
+      </div>
+
+      <div className={`${column} pb-10 md:pb-16`}>
+        {/* The tools I use and recommend (their makers link to People I follow, on the homepage) */}
+        <div id="tools-i-use" className="mt-20">
+          {/* "Honorable mentions" (#honorable-mentions) joined Tools I use
+               (2026-11-02): links to it still land here. */}
+          <span id="honorable-mentions" aria-hidden="true" className="block" />
+          <ToolsIUse />
         </div>
 
         {/* The gear (rig, desk, stream kit), in one section */}
