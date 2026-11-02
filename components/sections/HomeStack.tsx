@@ -44,10 +44,14 @@ export default function HomeStack() {
         The AI kit and stack I build with, and the tools I built for myself, all in daily use.
       </SectionMark>
 
-      <AITechStack dino />
+      {/* Each part's id is a rail stop (components/sections/HomeLoadoutNav.tsx). */}
+      <div id="ai-kit">
+        <AITechStack dino />
+      </div>
 
       {/* My default stack, and why each piece is in it. */}
       <div
+        id="default-stack"
         role="group"
         aria-labelledby="default-stack-title"
         className="mt-6 rounded-2xl border border-white/8 bg-linear-to-br from-cyan-500/6 via-white/2 to-transparent p-4 sm:p-6"
@@ -92,7 +96,7 @@ export default function HomeStack() {
       <HomeToolsIBuilt />
 
       {/* A one-line teaser for My dev setup on /loadout, closing the Loadout. */}
-      <p className="mt-10 flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-center text-sm text-[#9cadc5]" data-setup-teaser>
+      <p id="my-setup" className="mt-10 flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-center text-sm text-[#9cadc5]" data-setup-teaser>
         <span className="font-mono text-[0.68rem] font-bold tracking-[0.16em] text-cyan-400 uppercase">My setup</span>
         {/* Each pair stays on one line; the dots between them are where it wraps. */}
         <span>

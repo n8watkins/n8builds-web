@@ -18,6 +18,7 @@ import ExtensionsShowcase from '@/components/sections/ExtensionsShowcase'
 import LabSectionNav from '@/components/sections/LabSectionNav'
 import ShimmerWhenSeen from '@/components/ShimmerWhenSeen'
 import HomeStack from '@/components/sections/HomeStack'
+import HomeLoadoutNav from '@/components/sections/HomeLoadoutNav'
 import HomePeople from '@/components/sections/HomePeople'
 import WorkWithMe from '@/components/sections/WorkWithMe'
 import Footer from '@/components/layout/Footer'
@@ -37,6 +38,7 @@ function Band({
   fadeIn = false,
   reveal = true,
   as: Tag = 'div',
+  rail,
   children,
 }: {
   id?: string
@@ -44,6 +46,8 @@ function Band({
   fadeIn?: boolean
   reveal?: boolean
   as?: 'div' | 'section'
+  /** A side rail for the band's parts (components/ui/SectionRail.tsx): it sits in the band, beside its content column. */
+  rail?: React.ReactNode
   children: React.ReactNode
 }) {
   const background = fadeIn
@@ -53,6 +57,7 @@ function Band({
       : 'border-t border-white/[0.06]'
   return (
     <Tag id={id} className={`relative z-10 ${background}`}>
+      {rail}
       <div className="mx-auto max-w-6xl px-5 py-6 sm:px-8">{reveal ? <Reveal>{children}</Reveal> : children}</div>
     </Tag>
   )
@@ -217,8 +222,9 @@ export default function HomePage({ posts }: { posts: Post[] }) {
         </Band>
 
         {/* Homepage stack, the homepage's Loadout: AI marquee + Turso TL;DR, the
-             tools I built and use, and the dev setup teaser -> /loadout */}
-        <Band tone="raised">
+             tools I built and use, and the dev setup teaser -> /loadout. Desktop
+             only: a sticky rail in the left gutter marks its part on screen. */}
+        <Band id="loadout-band" tone="raised" rail={<HomeLoadoutNav />}>
           <SectionErrorBoundary sectionName="My Stack">
             <HomeStack />
           </SectionErrorBoundary>
