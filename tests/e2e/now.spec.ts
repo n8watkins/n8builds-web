@@ -41,7 +41,7 @@ test('the card reads like an ad: headline, the service, a quote button and the t
   await expect(title.locator('xpath=..').locator('img[src*="techforpros"]')).toBeVisible()
   await expect(section).not.toContainText(/launching soon/i)
   // A quote through the contact form; no booking page or site yet, so no buttons for them.
-  await expect(quote(page)).toHaveAttribute('href', '/?inquiry=techforpros-quote#contact')
+  await expect(quote(page)).toHaveAttribute('href', '/#quote')
   await expect(section.getByRole('link', { name: /Book an intro call|Visit techforpros\.com/ })).toHaveCount(0)
   await expect(section.locator('a[href*="techforpros.com"], a[href*="appturnity"], a[href*="github.com"]')).toHaveCount(0)
   await expect(section).not.toContainText(/free website/i)

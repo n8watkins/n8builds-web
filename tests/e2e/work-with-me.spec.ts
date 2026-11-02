@@ -17,10 +17,10 @@ const box = async (l: Locator) => {
   return b!
 }
 
-// The scrolling screenshots, with their animation state.
+// The scrolling screenshots, with their animation state (not the Tech for Pros phone, which is the top section's own).
 const scrollState = (page: Page) =>
   section(page)
-    .locator('img[class*="scroll"]')
+    .locator('img[class*="scroll"]:not(.now-phone-scroll)')
     .evaluateAll((imgs) =>
       imgs.map((img) => {
         const anim = img.getAnimations()[0]
@@ -133,7 +133,7 @@ test.describe('desktop', () => {
     test('the full-length screenshots scroll in view and pause off screen', async ({ page }) => {
       await page.goto('/')
       // The portfolio's desktop shot (no phone since round 5 of 2026-11-02).
-      await expect(section(page).locator('img[class*="scroll"]')).toHaveCount(1)
+      await expect(section(page).locator('img[class*="scroll"]:not(.now-phone-scroll)')).toHaveCount(1)
       // The Tech for Pros phone scrolls as at the top of the page, and pauses off screen too.
       const phone = card(page, /Run a service business/).locator('img.now-phone-scroll')
       await expect(phone).toHaveCount(1)

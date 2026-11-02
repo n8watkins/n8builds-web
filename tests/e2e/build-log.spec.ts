@@ -31,7 +31,9 @@ test('the build log leads with the builds, most recently active first', async ({
   await expect(page.getByRole('heading', { level: 1, name: 'The build log' })).toBeVisible()
 
   const cards = page.getByRole('list', { name: 'Builds by latest activity' }).locator(':scope > li')
-  await expect(cards).toHaveCount(8)
+  // The builds, then the projects without a build page the log follows since round 5 of
+  // 2026-11-02 (data/logBuilds.ts); in the fixture those have nothing yet, so they come last.
+  await expect(cards).toHaveCount(16)
   expect(await cards.evaluateAll((els) => els.map((el) => el.getAttribute('data-build')))).toEqual([
     'n8builds',
     'solara',
@@ -41,7 +43,20 @@ test('the build log leads with the builds, most recently active first', async ({
     'portfolio-rank',
     'tubevault',
     'voicedock',
+    'relink',
+    'strollz',
+    'keysready',
+    'vibelog',
+    'release-kit',
+    'pass-env',
+    'devguard',
+    'pr-post',
   ])
+  // A project with nothing logged yet is a quiet card that links where the site shows it.
+  const relink = cards.and(page.locator('[data-build="relink"]'))
+  await expect(relink).toContainText('Nothing logged yet')
+  await expect(relink.getByRole('link', { name: 'Relink' })).toHaveAttribute('href', '/upcoming#relink')
+  await expect(cards.and(page.locator('[data-build="pr-post"]')).getByRole('link', { name: 'PR Post' })).toHaveAttribute('href', '/#pr-post-edition')
   await expect(cards.first()).toContainText('Last shipped Oct 2026')
   // Quiet builds read as finished, not abandoned.
   await expect(page.getByRole('list', { name: 'Builds by latest activity' })).not.toContainText(/\bago\b/)

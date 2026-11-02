@@ -428,6 +428,9 @@ test.describe('Loadout tools and people', () => {
       'The Firebase Stack',
       'The Local-First Stack',
       'The Extension Stack',
+      // Under the stacks (round 5 of 2026-11-02).
+      'Where it runs',
+      'Across every stack',
     ])
     // Round 3 of 2026-11-02: no roles or per-tool notes, just the tools as chips.
     await expect(stacks.locator('[data-stack-role]')).toHaveCount(0)
