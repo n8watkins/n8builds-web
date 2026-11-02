@@ -70,3 +70,44 @@ export const labelLines = (rail: Locator) =>
       return positions.size
     })
   )
+
+/**
+ * Clicks a rail row with motion on and checks the jump (round 5 of
+ * 2026-11-02): the page starts moving at once (within a few frames, not after
+ * the browser's slow ease-in), only the clicked row is lit for the whole
+ * scroll (no part it passes lights up), and it lands on the part, under the
+ * navbar, still lit.
+ */
+export async function expectCleanJump(page: Page, rail: Locator, name: string, id: string) {
+  const link = rail.getByRole('link', { name, exact: true })
+  await page.evaluate(() => {
+    const w = window as unknown as { __rail: { lit: string[]; moved: number | null; t0: number } }
+    w.__rail = { lit: [], moved: null, t0: 0 }
+    const y0 = window.scrollY
+    document.addEventListener(
+      'click',
+      () => {
+        w.__rail.t0 = performance.now()
+        const tick = () => {
+          const lit = document.querySelector('[data-section-rail] a[aria-current]')?.getAttribute('href') ?? ''
+          w.__rail.lit.push(lit)
+          if (w.__rail.moved === null && Math.abs(window.scrollY - y0) > 4) w.__rail.moved = performance.now() - w.__rail.t0
+          if (performance.now() - w.__rail.t0 < 1500) requestAnimationFrame(tick)
+        }
+        requestAnimationFrame(tick)
+      },
+      { capture: true, once: true }
+    )
+  })
+  await link.click()
+  await expect
+    .poll(() => page.locator(`#${id}`).evaluate((el) => Math.round(el.getBoundingClientRect().top)), { timeout: 10_000 })
+    .toBe(80)
+  await page.waitForTimeout(1600)
+  const { lit, moved } = await page.evaluate(() => (window as unknown as { __rail: { lit: string[]; moved: number | null } }).__rail)
+  expect(new Set(lit), 'only the clicked row lights during the scroll').toEqual(new Set([`#${id}`]))
+  expect(moved, 'the scroll starts at once').not.toBeNull()
+  // A few frames, with room for a loaded CI machine; the browser's own smooth scroll barely moved in its first 100ms.
+  expect(moved!).toBeLessThan(250)
+  await expect(link).toHaveAttribute('aria-current', 'location')
+}

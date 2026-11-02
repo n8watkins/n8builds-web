@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
-import { contentLeft, labelLines, railShape } from './section-rail'
+import { contentLeft, expectCleanJump, labelLines, railShape } from './section-rail'
 
 /**
  * The homepage Loadout's floating side nav (components/sections/HomeLoadoutNav.tsx,
@@ -212,4 +212,17 @@ test('is absent on a phone and a tablet', async ({ page }) => {
     await expect(rail(page)).toBeHidden()
     await expect(page.getByTestId('home-loadout-nav')).toBeHidden()
   }
+})
+
+test.describe('with motion', () => {
+  test.use({ viewport: { width: 1440, height: 900 }, contextOptions: { reducedMotion: 'no-preference' } })
+
+  test('a click scrolls at once and lights only the clicked part on the way', async ({ page }) => {
+    await openHome(page)
+    await place(page, 'tools-i-built')
+    const nav = rail(page)
+    await expect(nav).toBeVisible(SHOW)
+    // Up past the default stack and the AI kit, neither of which may light up.
+    await expectCleanJump(page, nav, 'Dev setup', 'my-setup')
+  })
 })

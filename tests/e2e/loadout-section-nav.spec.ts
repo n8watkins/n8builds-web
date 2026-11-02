@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
-import { contentLeft, labelLines, railShape } from './section-rail'
+import { contentLeft, expectCleanJump, labelLines, railShape } from './section-rail'
 
 /**
  * The Loadout's floating side nav (components/sections/LoadoutSectionNav.tsx,
@@ -223,6 +223,15 @@ test.describe('with motion', () => {
       'aria-current',
       'location'
     )
+  })
+
+  test('a click scrolls at once and lights only the clicked part on the way', async ({ page }) => {
+    await openLoadout(page)
+    await place(page, 'gear')
+    const nav = rail(page)
+    await expect(nav).toBeVisible(SHOW)
+    // Up past every part between the gear and the dev setup.
+    await expectCleanJump(page, nav, 'Dev setup', 'dev-setup')
   })
 })
 

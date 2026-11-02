@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react'
 import type { IconType } from 'react-icons'
 
 /**
@@ -52,8 +52,8 @@ type SectionRailProps = {
  * that heading, never leaves the container, and being absolute it can't shift
  * the layout. The container must not clip with overflow: hidden (a scroll
  * container, which stops the rail sticking); overflow: clip is fine. The links
- * are plain anchors (server-rendered, so they work without JS); the page's own
- * scroll-padding-top and reduced-motion-aware smooth scrolling handle the jump.
+ * are plain anchors (server-rendered, so they work without JS); once hydrated
+ * a click drives the scroll itself (see `jump`), landing where the anchor would.
  *
  * Two shapes: from 1440px icons and labels (a long label shows its short form
  * where it must, so nothing wraps); between 1280px and 1440px icons only, the
@@ -79,6 +79,11 @@ export default function SectionRail({
   const listRef = useRef<HTMLUListElement>(null)
   const navRef = useRef<HTMLElement>(null)
   const columnRef = useRef<HTMLDivElement>(null)
+  // A rail click's jump: while it scrolls, the clicked row stays the current
+  // one (no row it passes lights up) and the scroll-spy waits.
+  const jumpRef = useRef<{ index: number; stop: () => void } | null>(null)
+  // The scroll-spy's update, for a jump to hand back to when it settles.
+  const updateRef = useRef<() => void>(() => {})
 
   // The rail sticks at the viewport's middle: its own height (which changes
   // with the breakpoint) goes to --nav-h so it can centre itself.
@@ -135,6 +140,8 @@ export default function SectionRail({
     let frame = 0
     const update = () => {
       frame = 0
+      // A rail click's jump is under way: its row stays lit until it lands.
+      if (jumpRef.current) return
       // Nothing to do while the container is off screen (the rail is hidden then).
       const box = container.getBoundingClientRect()
       if (box.bottom <= 0 || box.top >= window.innerHeight) {
@@ -181,6 +188,7 @@ export default function SectionRail({
     // after an instant jump, leaving the rail hidden until the next scroll.
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', onScroll, { passive: true })
+    updateRef.current = update
     update()
     // Hydrated and measuring: the rail can show from here on (tests wait for this).
     column.dataset.ready = ''
@@ -189,8 +197,72 @@ export default function SectionRail({
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onScroll)
       if (frame) cancelAnimationFrame(frame)
+      jumpRef.current?.stop()
     }
   }, [allParts, containerId])
+
+  /**
+   * A rail click (round 5 of 2026-11-02). The browser's own smooth scroll
+   * eased in slowly, so a jump seemed to wait before it moved, and the
+   * scroll-spy lit every part it passed on the way. Instead the jump is driven
+   * here: it moves on the very next frame, eases out over about the time the
+   * browser's took, and aims at the part's landing spot every frame (so a part
+   * that shifts on the way is still hit). The clicked row lights at once and
+   * stays lit until the scroll settles; then the scroll-spy takes over again.
+   * A wheel, touch or key stops it where it is. Under reduced motion it jumps.
+   */
+  const jump = (e: ReactMouseEvent<HTMLAnchorElement>, index: number, id: string) => {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
+    const el = document.getElementById(id)
+    if (!el) return
+    e.preventDefault()
+    jumpRef.current?.stop()
+    window.history.replaceState(null, '', `#${id}`)
+    setActive(index)
+    listRef.current?.style.setProperty('--fill', String(index))
+
+    const root = document.documentElement
+    const target = () =>
+      Math.min(
+        root.scrollHeight - window.innerHeight,
+        Math.max(
+          0,
+          window.scrollY +
+            el.getBoundingClientRect().top -
+            (parseFloat(getComputedStyle(root).scrollPaddingTop) || 0) -
+            (parseFloat(getComputedStyle(el).scrollMarginTop) || 0)
+        )
+      )
+    const from = window.scrollY
+    const distance = Math.abs(target() - from)
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || distance < 2) {
+      window.scrollTo({ top: target(), behavior: 'instant' })
+      requestAnimationFrame(() => updateRef.current())
+      return
+    }
+    // About the browser's own pace: 0.4s for a short hop, up to 0.9s across the page.
+    const duration = Math.min(900, 380 + Math.sqrt(distance) * 9)
+    const start = performance.now()
+    let raf = 0
+    const cancelEvents = ['wheel', 'touchstart', 'keydown'] as const
+    const stop = () => {
+      cancelAnimationFrame(raf)
+      cancelEvents.forEach((type) => window.removeEventListener(type, stop))
+      if (jumpRef.current?.stop === stop) jumpRef.current = null
+      updateRef.current()
+    }
+    const step = (now: number) => {
+      const t = Math.min(1, (now - start) / duration)
+      // Ease out (cubic): moving from the first frame, settling gently.
+      const eased = 1 - (1 - t) ** 3
+      window.scrollTo({ top: from + (target() - from) * eased, behavior: 'instant' })
+      if (t < 1) raf = requestAnimationFrame(step)
+      else stop()
+    }
+    cancelEvents.forEach((type) => window.addEventListener(type, stop, { passive: true }))
+    jumpRef.current = { index, stop }
+    raf = requestAnimationFrame(step)
+  }
 
   return (
     <div
@@ -268,6 +340,7 @@ export default function SectionRail({
               >
                 <a
                   href={`#${s.id}`}
+                  onClick={(e) => jump(e, i, s.id)}
                   aria-current={current ? 'location' : undefined}
                   className="group relative flex h-(--row) items-center gap-2 rounded-lg px-1.5 whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-cyan-300 min-[110rem]:gap-2.5"
                 >

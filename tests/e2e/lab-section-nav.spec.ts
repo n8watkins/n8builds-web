@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
-import { contentLeft, labelLines, railShape } from './section-rail'
+import { contentLeft, expectCleanJump, labelLines, railShape } from './section-rail'
 
 /**
  * The Lab's floating side nav (components/sections/LabSectionNav.tsx, on
@@ -403,4 +403,17 @@ test('is absent on a phone', async ({ page }) => {
   await expect(page.getByRole('navigation', { name: 'Lab sections' }).getByRole('link')).toHaveText(
     PARTS.map((p) => p.label)
   )
+})
+
+test.describe('with motion', () => {
+  test.use({ viewport: { width: 1440, height: 900 }, contextOptions: { reducedMotion: 'no-preference' } })
+
+  test('a click scrolls at once and lights only the clicked part on the way', async ({ page }) => {
+    await openHome(page)
+    await scrollToPart(page, 'upcoming')
+    const nav = rail(page)
+    await expect(nav).toBeVisible(SHOW)
+    // Build log, the first part, was the one that seemed to wait (the owner, round 5 of 2026-11-02).
+    await expectCleanJump(page, nav, 'Build log', 'build-log')
+  })
 })
