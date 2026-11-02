@@ -95,7 +95,7 @@ When the owner decides something new, add it here (with the date) in the same ch
   Not click-only.
 - If the Chrome Extension Launch Kit comes back, it is a banner under the extensions, not a main card.
 - Open-source builds (Piper, TubeVault, TL;DW, Portfolio Rank, Scribe) get prominent Star-on-GitHub CTAs.
-- CanIHost, FreeStack and APIScout (the "free tools trio") were dropped from the site on 2026-10-21, and Suggestion Box, Repo Steward, Sprite Arsenal and Quizmatic on 2026-10-22 (Solara took Quizmatic's featured slot).
+- CanIHost, FreeStack and APIScout (the "free tools trio") were dropped from the site on 2026-10-21 and retired on 2026-11-01 (owner's call: live sites and Vercel projects deleted, GitHub repos archived; `/builds/<slug>` still redirects to the Lab for old links), and Suggestion Box, Repo Steward, Sprite Arsenal and Quizmatic on 2026-10-22 (Solara took Quizmatic's featured slot).
   Their repos and Vercel projects still exist; do not re-add them unless asked.
 - The **Loadout** is the identity device ("who I am without a resume"); PC hardware lives there as "The Rig".
   /loadout has no whoami terminal (2026-10-26); the whoami lives in the homepage hero only.
