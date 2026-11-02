@@ -1,75 +1,37 @@
-import { builds, type Build } from './builds'
+import type { Build } from './builds'
 
-// The shelves are the "share everything" surface. They're derived from the single
-// source of truth (data/builds.tsx) so adding a build = it shows up on the right shelf.
-// No parallel dataset, no duplicated links.
+// The shelves are where each build is shown on the site, derived from the
+// single source of truth (data/builds.tsx), so adding a build = it shows up on
+// the right shelf. No parallel dataset, no duplicated links.
 
-// Every build sits in one part of the homepage Lab: web apps are the featured
-// rows, extensions have their showcase, and tools get a card grid.
-export type Shelf = 'mine' | 'featured' | 'extension' | 'tool'
+// The owner's daily drivers are on /loadout ("My daily drivers"); every other
+// build is in the homepage Lab: extensions in their showcase, everything else
+// (web apps and tools alike) a featured row. The Lab has no tools part (the
+// owner's call, 2026-11-01): the small CLIs are /loadout's "Tools I built".
+export type Shelf = 'mine' | 'featured' | 'extension'
 
 export interface ShelfMeta {
   id: Shelf
-  slug: string // route segment
-  label: string // nav + page title
-  eyebrow: string // small uppercase tag
-  heading: string
-  blurb: string
+  /** Where the shelf is: a build page's "Back to" link goes here. */
+  href: string
+  label: string // the "Back to" link's name
 }
 
 export const shelfMeta: Record<Shelf, ShelfMeta> = {
-  mine: {
-    id: 'mine',
-    slug: 'my-tools',
-    label: 'My tools',
-    eyebrow: 'My tools',
-    heading: 'My daily drivers',
-    blurb: 'Mine first: I run both of these every day, and so can you.',
-  },
-  extension: {
-    id: 'extension',
-    slug: 'extensions',
-    label: 'Extensions',
-    eyebrow: 'Browser tools',
-    heading: 'Chrome Extensions',
-    blurb: 'Small browser tools that do one useful thing well - mostly local-first, zero-account, low-surface.',
-  },
-  tool: {
-    id: 'tool',
-    slug: 'tools',
-    label: 'Tools',
-    eyebrow: 'Dev tools',
-    heading: 'Tools',
-    blurb: 'Desktop apps and utilities I made because I wanted them to exist.',
-  },
-  featured: {
-    id: 'featured',
-    slug: 'featured',
-    label: 'Featured',
-    eyebrow: 'Featured',
-    heading: 'Featured builds',
-    blurb: 'The apps I am proudest of right now.',
-  },
+  mine: { id: 'mine', href: '/loadout#daily-drivers', label: 'My daily drivers' },
+  featured: { id: 'featured', href: '/#featured', label: 'Featured' },
+  extension: { id: 'extension', href: '/#extensions', label: 'Extensions' },
 }
 
-// Classify a build onto a shelf. Extensions and tools get their own sections;
-// everything else (web apps) is a featured row.
+// Classify a build onto a shelf: the owner's daily drivers, the extensions
+// (and the extension starter), and everything else featured.
 export function getShelf(build: Build): Shelf {
   if (build.mine) return 'mine'
   switch (build.category) {
     case 'Chrome extension':
     case 'Starter template':
       return 'extension'
-    case 'Desktop app':
-    case 'Streaming tool':
-    case 'GitHub Actions bot':
-    case 'Web tool':
-      return 'tool'
     default:
       return 'featured'
   }
-}
-
-export function buildsForShelf(shelf: Shelf): Build[] {
-  return builds.filter((b) => getShelf(b) === shelf)
 }

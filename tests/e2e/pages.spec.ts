@@ -118,11 +118,9 @@ test('unknown routes return the 404 page', async ({ page }) => {
   expect(response?.status()).toBe(404)
 })
 
-test('legacy shelf routes redirect to homepage anchors', async ({ page }) => {
+test('legacy shelf routes redirect to homepage anchors, and /tools to /loadout', async ({ page }) => {
   for (const [from, anchor] of [
     ['/lab', '#lab'],
-    // Tools are the owner's daily tools now, at the top of the Lab.
-    ['/tools', '#my-tools'],
     ['/resources', '#lab'],
     ['/builds/canihost', '#lab'],
   ]) {
@@ -130,4 +128,8 @@ test('legacy shelf routes redirect to homepage anchors', async ({ page }) => {
     expect(new URL(page.url()).pathname).toBe('/')
     expect(new URL(page.url()).hash).toBe(anchor)
   }
+  // Tools are the owner's daily drivers now: Scribe, on /loadout.
+  await page.goto('/tools')
+  expect(new URL(page.url()).pathname + new URL(page.url()).hash).toBe('/loadout#daily-drivers')
+  await expect(page.getByRole('heading', { level: 2, name: 'My daily drivers' })).toBeInViewport()
 })

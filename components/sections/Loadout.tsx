@@ -8,6 +8,7 @@ import Reveal from '@/components/ui/Reveal'
 import FadeIn from '@/components/ui/FadeIn'
 import { DevSetup, HonorableMentions, SectionHead, ToolsIBuilt, ToolsIUse } from '@/components/sections/LoadoutDevTools'
 import LoadoutSectionNav from '@/components/sections/LoadoutSectionNav'
+import { DailyDriverRows } from '@/components/sections/FeaturedProjects'
 
 // A server component, so react-icons don't get the app's IconContext
 // (aria-hidden by default, app/provider.tsx): every icon here is hidden from
@@ -16,13 +17,17 @@ import LoadoutSectionNav from '@/components/sections/LoadoutSectionNav'
 /**
  * The Loadout (/loadout): the tools I use and what each one is for, not a
  * tech stack. It leads with how I work with AI (decide, build, fix: the tool
- * and model for each step), after my dev setup, then the tools I built
- * (before the ones I use, 2026-11-01), the tools I use, honorable
+ * and model for each step), after my dev setup, then my daily drivers (the
+ * apps I built and use every day, out of the homepage Lab, 2026-11-01), the
+ * tools I built (before the ones I use, 2026-11-01), the tools I use, honorable
  * mentions, the AI inside the apps I build, and the gear in one section
  * (rig, desk, stream kit). The people I follow moved to the homepage
  * (2026-11-01). A server component: its
  * interactive parts (the scroll reveals) are client islands.
  */
+
+/** The page's content column (the daily drivers' rows run full-bleed, between two of these). */
+const column = 'relative mx-auto max-w-6xl px-5 sm:px-8'
 
 // The page's parts, as pills under the header (like the Lab's), in page order:
 // the same list as the side rail's. Each part's id sits on a plain wrapper,
@@ -131,7 +136,7 @@ const Loadout = () => {
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 top-0 h-[720px] bg-[radial-gradient(55%_420px_at_50%_0,rgb(34_211_238/0.10),transparent_100%),radial-gradient(40%_380px_at_80%_160px,rgb(217_119_87/0.07),transparent_100%)]"
       />
-      <div className="relative mx-auto max-w-6xl px-5 pt-28 pb-10 sm:px-8 md:pt-32 md:pb-16">
+      <div className={`${column} pt-28 md:pt-32`}>
         <Link
           href="/"
           className="inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition-colors hover:text-cyan-300"
@@ -149,7 +154,7 @@ const Loadout = () => {
             <h1 className="text-4xl font-bold tracking-tight text-slate-50 sm:text-6xl lg:text-7xl">My Loadout</h1>
           </div>
           <p className="mt-5 max-w-[600px] text-balance text-lg text-[#9cadc5] sm:text-xl">
-            My dev setup, the AI I work with, the tools I built and use, and the gear it all runs on.
+            My dev setup, the AI I work with, the apps and tools I built and use, and the gear it all runs on.
           </p>
           <nav aria-label="Loadout sections" className="mt-7 flex flex-wrap justify-center gap-2">
             {PARTS.map((part) => (
@@ -208,9 +213,30 @@ const Loadout = () => {
           </section>
         </Reveal>
         </div>
+      </div>
 
+      {/* My daily drivers: the apps I built and use every day, as the Lab's
+           rows (FeaturedProjects.tsx). Out of the content column, so each
+           row's colour wash reaches the page edge; each row sets the column
+           inside. */}
+      <div id="daily-drivers" className="mt-20">
+        <section aria-labelledby="daily-drivers-title">
+          <Reveal className={column}>
+            <SectionHead id="daily-drivers-title" path="~/loadout/daily" title="My daily drivers">
+              Apps I built for myself and run every day. Free and open source.
+            </SectionHead>
+          </Reveal>
+          {/* Pulled up to the heading: the rows' padding is their wash's room. */}
+          <div className="-mt-4 md:-mt-6">
+            <DailyDriverRows />
+          </div>
+        </section>
+      </div>
+
+      <div className={`${column} pb-10 md:pb-16`}>
         {/* The tools I built, then the ones I use and recommend (their makers link to People I follow, on the homepage) */}
-        <div id="tools-i-built" className="mt-20">
+        {/* The rows' own padding makes up the rest of the usual gap. */}
+        <div id="tools-i-built" className="mt-14 md:mt-12">
           <ToolsIBuilt />
         </div>
         <div id="tools-i-use" className="mt-20">

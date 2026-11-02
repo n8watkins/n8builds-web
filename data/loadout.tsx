@@ -2,6 +2,7 @@ import type { ReactElement } from 'react'
 import Image from 'next/image'
 import { BsOpenai } from 'react-icons/bs'
 import {
+  LuAppWindow,
   LuAward,
   LuBot,
   LuChartColumn,
@@ -41,6 +42,7 @@ import type { RailPart } from '@/components/ui/SectionRail'
 export const loadoutParts: readonly RailPart[] = [
   { id: 'dev-setup', label: 'Dev setup', icon: LuSquareTerminal },
   { id: 'workflow', label: 'How I work', icon: LuWorkflow },
+  { id: 'daily-drivers', label: 'Daily drivers', icon: LuAppWindow },
   { id: 'tools-i-built', label: 'Tools I built', icon: LuHammer },
   { id: 'tools-i-use', label: 'Tools I use', icon: LuWrench },
   { id: 'honorable-mentions', label: 'Honorable mentions', short: 'Mentions', icon: LuAward },

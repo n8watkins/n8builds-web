@@ -164,8 +164,8 @@ test('temporary redirects: builds on hold (so they can come back at the same URL
   for (const [path, target] of [
     ['/builds/chrome-extension-kit', '/#extensions'],
     ['/builds/vibelog', '/#lab'],
-    // Tools are the owner's daily tools now, at the top of the Lab.
-    ['/tools', '/#my-tools'],
+    // Tools are the owner's daily drivers now: Scribe, on /loadout.
+    ['/tools', '/loadout#daily-drivers'],
   ]) {
     const response = await request.get(path, { maxRedirects: 0 })
     expect(response.status(), path).toBe(307)
@@ -174,13 +174,15 @@ test('temporary redirects: builds on hold (so they can come back at the same URL
 })
 
 // A page that is only in the sitemap, with no link from the site, is an
-// orphan: crawlers rank it poorly and visitors can never reach it.
-test('every build page in the sitemap is linked from the homepage', async ({ request }) => {
+// orphan: crawlers rank it poorly and visitors can never reach it. The Lab
+// links the featured builds and extensions; /loadout (in the navbar) links
+// the owner's daily drivers (Scribe).
+test('every build page in the sitemap is linked from the homepage or /loadout', async ({ request }) => {
   const builds = (await sitemapUrls(request)).filter((url) => url.includes('/builds/')).map(local)
-  const html = await (await request.get('/')).text()
+  const html = (await Promise.all(['/', '/loadout'].map(async (path) => (await request.get(path)).text()))).join('')
   const linked = new Set([...html.matchAll(/href="(\/builds\/[^"#?]+)"/g)].map((m) => m[1]))
   expect(builds.length).toBeGreaterThan(5)
-  expect(builds.filter((path) => !linked.has(path)), 'build pages with no homepage link').toEqual([])
+  expect(builds.filter((path) => !linked.has(path)), 'build pages with no link from / or /loadout').toEqual([])
 })
 
 test("Appturnity's old build page goes to appturnity.com", async ({ request }) => {

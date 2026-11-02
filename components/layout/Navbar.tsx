@@ -17,8 +17,7 @@ const KOFI_URL = 'https://ko-fi.com/n8watkins'
 // The Lab is one homepage section; its parts live in a hover dropdown so the
 // top nav stays short. Each item scrolls to its anchor on the homepage.
 const labMenu = [
-  { label: 'My tools', href: '/#my-tools', desc: 'Scribe and OpenPing: I use them every day' },
-  { label: 'Featured', href: '/#featured', desc: 'Solara and Portfolio Rank' },
+  { label: 'Featured', href: '/#featured', desc: 'OpenPing, Solara and Portfolio Rank' },
   { label: 'Chrome Extensions', href: '/#extensions', desc: 'Browser tools, local-first' },
   // The Lab's last part: upcoming projects, each with a waitlist (full detail on /upcoming).
   { label: "What's cookin'", href: '/#upcoming', desc: 'Upcoming projects, with a waitlist' },

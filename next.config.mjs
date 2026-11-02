@@ -36,8 +36,8 @@ const nextConfig = {
       // Permanent (308), so search engines move these URLs over instead of keeping them.
       { source: '/lab', destination: '/#lab', permanent: true },
       { source: '/extensions', destination: '/#extensions', permanent: true },
-      // Tools are the owner's daily tools now: Scribe and OpenPing, at the top of the Lab.
-      { source: '/tools', destination: '/#my-tools', permanent: false },
+      // Tools are the owner's daily drivers now: Scribe, on /loadout (OpenPing is a featured build).
+      { source: '/tools', destination: '/loadout#daily-drivers', permanent: false },
       // The Resources section was dropped; send old links to the Lab.
       { source: '/resources', destination: '/#lab', permanent: true },
       // Builds dropped from the site (2026-10-21 and 2026-10-22); their old detail pages were in the sitemap.

@@ -609,10 +609,6 @@
     --lab-to: 251 191 36;
   }
   /* A part's colours, used by its subheader bar. */
-  .lab-accent-tools {
-    --lab-from: 56 189 248;
-    --lab-to: 52 211 153;
-  }
   .lab-accent-featured {
     --lab-from: 251 146 60;
     --lab-to: 251 191 36;
@@ -706,7 +702,7 @@
       rgb(var(--lab-to, 255 255 255) / 0.5)
     );
   }
-  .lab-sub-bar:not(:where(.lab-accent-tools, .lab-accent-featured, .lab-accent-extensions, .lab-accent-template, .lab-accent-upcoming) *) {
+  .lab-sub-bar:not(:where(.lab-accent-featured, .lab-accent-extensions, .lab-accent-template, .lab-accent-upcoming) *) {
     background: rgb(255 255 255 / 0.1);
   }
 }

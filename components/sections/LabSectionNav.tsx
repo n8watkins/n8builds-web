@@ -1,6 +1,6 @@
 'use client'
 
-import { LuCookingPot, LuStar, LuWrench } from 'react-icons/lu'
+import { LuCookingPot, LuStar } from 'react-icons/lu'
 import { SiGooglechrome } from 'react-icons/si'
 import BubblingFlask from '@/components/ui/BubblingFlask'
 import SectionRail, { type RailPart } from '@/components/ui/SectionRail'
@@ -13,7 +13,6 @@ import SectionRail, { type RailPart } from '@/components/ui/SectionRail'
  * the middle of the window.
  */
 const SECTIONS: readonly RailPart[] = [
-  { id: 'my-tools', label: 'My tools', icon: LuWrench },
   { id: 'featured', label: 'Featured', icon: LuStar },
   // Shortened to "Extensions" on screen where the gutter is too narrow for
   // the full label on one line (1440-1535px); its accessible name stays whole.
@@ -32,7 +31,7 @@ const HEADING = { icon: <BubblingFlask className="size-7 text-cyan-300" />, titl
 
 /**
  * The Lab's floating side nav (components/ui/SectionRail.tsx): "The Lab",
- * with the Lab's flask, over My tools, Featured, Chrome Extensions and What's cookin'. Desktop
+ * with the Lab's flask, over Featured, Chrome Extensions and What's cookin'. Desktop
  * only (from 1280px), in the left gutter beside the Lab's content column.
  */
 export default function LabSectionNav() {

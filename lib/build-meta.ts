@@ -27,10 +27,10 @@ export const LOG_KINDS: { id: LogKind; label: string }[] = [
 ]
 
 /**
- * The kind a build is filed under: the owner's daily tools and the desktop and
- * web tools are Tools, extensions (and the extension starter) are Chrome
+ * The kind a build is filed under: the owner's daily drivers and the desktop
+ * and web tools are Tools, extensions (and the extension starter) are Chrome
  * extensions, n8builds.dev itself is This site, and every other web app is a
- * Web app. Mirrors the Lab's shelves (data/shelves.ts).
+ * Web app.
  */
 export function logKind(build: Pick<Build, 'category' | 'mine'>): LogKind {
   if (build.mine) return 'tools'

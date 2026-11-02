@@ -199,7 +199,7 @@ test.describe('Loadout tools and people', () => {
   test('the header pills jump to every part of the page', async ({ page }) => {
     await page.goto('/loadout')
     const pills = page.getByRole('navigation', { name: 'Loadout sections' }).getByRole('link')
-    await expect(pills).toHaveText(['Dev setup', 'How I work', 'Tools I built', 'Tools I use', 'Honorable mentions', 'Inside my apps', 'The gear'])
+    await expect(pills).toHaveText(['Dev setup', 'How I work', 'Daily drivers', 'Tools I built', 'Tools I use', 'Honorable mentions', 'Inside my apps', 'The gear'])
     for (const href of await pills.evaluateAll((els) => els.map((el) => el.getAttribute('href')))) {
       await expect(page.locator(href!)).toHaveCount(1)
     }

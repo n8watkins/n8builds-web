@@ -10,7 +10,6 @@ import HomeEffects from '@/components/HomeEffects'
 import NowBuilding from '@/components/sections/NowBuilding'
 import BuildLogStrip from '@/components/sections/BuildLogStrip'
 import FeaturedProjects from '@/components/sections/FeaturedProjects'
-import ShelfSection from '@/components/sections/ShelfSection'
 import UseAsTemplate from '@/components/sections/UseAsTemplate'
 import PortfolioAd from '@/components/sections/PortfolioAd'
 import UpcomingStrip from '@/components/sections/UpcomingStrip'
@@ -93,9 +92,10 @@ export default function HomePage({ posts }: { posts: Post[] }) {
         <BuildLogStrip />
 
         {/* ===== THE LAB: one section in parts, each in its own colour wash
-             (app/globals.css, "The Lab's colour washes"): My tools and Featured
-             (FeaturedProjects), the Chrome extensions, then a Tools grid (only
-             if a build ever lands there). The parts are full-bleed, so the
+             (app/globals.css, "The Lab's colour washes"): Featured
+             (FeaturedProjects), the template offer, the Chrome extensions,
+             then What's cookin'. No tools part: the owner's daily drivers
+             (Scribe) are on /loadout (2026-11-01). The parts are full-bleed, so the
              Lab sets its own content width instead of using a Band. The navbar
              "Lab" menu and the side nav scroll to #lab and the part ids. ===== */}
         {/* Jumping to #lab (the navbar's Lab menu) lands its top edge right under the
@@ -134,7 +134,7 @@ export default function HomePage({ posts }: { posts: Post[] }) {
               </div>
               {/* One line from laptop width up; wraps naturally on phones. */}
               <p className="mt-5 text-balance text-lg text-[#9cadc5] sm:text-xl">
-                Everything I&apos;ve built and still use: daily tools, favourite builds, Chrome extensions.
+                What I&apos;ve built and still use: my favourite builds and Chrome extensions.
               </p>
               {/* Checked points, in the style of the Lab rows' ads. */}
               <ul className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5">
@@ -147,7 +147,6 @@ export default function HomePage({ posts }: { posts: Post[] }) {
               </ul>
               <nav aria-label="Lab sections" className="mt-7 flex flex-wrap justify-center gap-2">
                 {[
-                  { label: 'My tools', href: '#my-tools' },
                   { label: 'Featured', href: '#featured' },
                   { label: 'Chrome Extensions', href: '#extensions' },
                   { label: "What's cookin'", href: '#upcoming' },
@@ -176,12 +175,6 @@ export default function HomePage({ posts }: { posts: Post[] }) {
           <SectionErrorBoundary sectionName="Extensions">
             <Reveal>
               <ExtensionsShowcase />
-            </Reveal>
-          </SectionErrorBoundary>
-
-          <SectionErrorBoundary sectionName="Tools">
-            <Reveal className="mx-auto max-w-6xl px-5 sm:px-8">
-              <ShelfSection shelf="tool" />
             </Reveal>
           </SectionErrorBoundary>
 

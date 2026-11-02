@@ -4,16 +4,15 @@ import { contentLeft, labelLines, railShape } from './section-rail'
 /**
  * The Lab's floating side nav (components/sections/LabSectionNav.tsx, on
  * components/ui/SectionRail.tsx): a desktop-only rail in the left gutter that
- * marks the Lab part on screen (My tools, Featured, Chrome Extensions,
- * What's cookin') and jumps to it. It appears once the first part's heading reaches the middle
+ * marks the Lab part on screen (Featured, Chrome Extensions, What's cookin')
+ * and jumps to it. It appears once the first part's heading reaches the middle
  * of the window (level with it, not beside the Lab's intro), then holds there
- * while the Lab scrolls by.
+ * while the Lab scrolls by. My tools left the Lab for /loadout (2026-11-01).
  */
 
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
 const PARTS = [
-  { id: 'my-tools', label: 'My tools' },
   { id: 'featured', label: 'Featured' },
   { id: 'extensions', label: 'Chrome Extensions' },
   { id: 'upcoming', label: "What's cookin'" },
@@ -115,7 +114,7 @@ test.describe('at 1440px', () => {
     // several seconds, so the 30s default is too tight.
     test.setTimeout(60_000)
     await openHome(page)
-    await scrollToPart(page, 'my-tools')
+    await scrollToPart(page, 'featured')
     const nav = rail(page)
     for (const part of [PARTS[2], PARTS[1], PARTS[0]]) {
       await nav.getByRole('link', { name: part.label, exact: true }).click()
@@ -152,7 +151,7 @@ test.describe('placement at 1440px', () => {
   /** Scroll so the first part's heading sits `top` px from the window's top. */
   async function headingAt(page: Page, top: number) {
     await page.evaluate((top) => {
-      const h = document.querySelector<HTMLElement>('#my-tools :is(h2, h3)')!
+      const h = document.querySelector<HTMLElement>('#featured :is(h2, h3)')!
       window.scrollTo({
         top: h.getBoundingClientRect().top + window.scrollY - top,
         behavior: 'instant',
@@ -162,7 +161,7 @@ test.describe('placement at 1440px', () => {
   }
   const headingTop = (page: Page) =>
     page
-      .locator('#my-tools')
+      .locator('#featured')
       .locator('h2, h3')
       .first()
       .evaluate((h) => h.getBoundingClientRect().top)
@@ -195,7 +194,7 @@ test.describe('placement at 1440px', () => {
       await page.evaluate((id) => {
         const el = document.getElementById(id)!
         // The part's top at 200px: being read, its heading above the rail's centred
-        // spot (a taller rail, with four parts, centres higher), and the Lab
+        // spot (the taller the rail, the higher it centres), and the Lab
         // still reaching past the rail's foot.
         window.scrollTo({
           top: el.getBoundingClientRect().top + window.scrollY - 200,
@@ -265,8 +264,6 @@ test.describe('placement at 1440px', () => {
     const nav = rail(page)
     await expect(nav).toBeVisible(SHOW)
     await nav.getByRole('link').first().focus()
-    await expect(nav.getByRole('link', { name: 'My tools', exact: true })).toBeFocused()
-    await page.keyboard.press('Tab')
     await expect(nav.getByRole('link', { name: 'Featured', exact: true })).toBeFocused()
     await page.keyboard.press('Tab')
     const extensions = nav.getByRole('link', { name: 'Chrome Extensions', exact: true })
@@ -320,16 +317,18 @@ test.describe('icons only, 1280-1439px', () => {
     await page.mouse.move(700, 450)
     await expect(tooltip('Featured')).toHaveCSS('opacity', '0')
 
-    await nav.getByRole('link', { name: 'My tools', exact: true }).focus()
-    await page.keyboard.press('Tab')
+    await nav.getByRole('link', { name: 'Featured', exact: true }).focus()
     await expect(tooltip('Featured')).toHaveCSS('opacity', '1')
+    await page.keyboard.press('Tab')
+    await expect(tooltip('Chrome Extensions')).toHaveCSS('opacity', '1')
+    await expect(tooltip('Featured')).toHaveCSS('opacity', '0')
     // The links keep their full names for screen readers.
     for (const [i, part] of PARTS.entries())
       await expect(nav.getByRole('link').nth(i)).toHaveAccessibleName(part.label)
   })
 })
 
-test('works without JavaScript: plain links to the three parts', async ({ browser }) => {
+test('works without JavaScript: plain links to the parts', async ({ browser }) => {
   const context = await browser.newContext({
     javaScriptEnabled: false,
     viewport: { width: 1440, height: 900 },

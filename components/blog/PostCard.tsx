@@ -5,7 +5,7 @@ import { formatPostDate } from '@/lib/blog-utils'
 import type { Post } from '@/lib/sanity'
 
 // Blog post card - cover banner on top (real image or themed fallback), then
-// date / title / excerpt / topics. Matches the BuildCard visual language.
+// date / title / excerpt / topics.
 export default function PostCard({ post, priority = false }: { post: Post; priority?: boolean }) {
   return (
     <Link

@@ -1,4 +1,4 @@
-// Header for a part of the homepage Lab (My tools, Featured, Chrome extensions, Tools).
+// Header for a part of the homepage Lab (Featured, the template offer, Chrome extensions).
 // One level below the Lab's own h2, so the parts read as parts of one section.
 // Its bar takes the part's colours (`.lab-sub-bar` in app/globals.css).
 export default function LabSubheader({
