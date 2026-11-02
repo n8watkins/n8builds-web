@@ -1,5 +1,5 @@
 import { after, NextRequest, NextResponse } from 'next/server'
-import { contactFormSchema } from '@/lib/validations/contact'
+import { contactFormSchema, QUOTE_KIND, quoteRequestSchema } from '@/lib/validations/contact'
 import { logger } from '@/lib/logger'
 import {
   checkRateLimit,
@@ -11,6 +11,7 @@ import {
 import { verifyTurnstile } from '@/lib/security/turnstile'
 import { validateRequestSize, parseJsonBody } from '@/lib/security/validation'
 import { sendContactEmails } from '@/lib/email/sender'
+import { sendQuoteEmail } from '@/lib/email/quote'
 import { placeFrom } from '@/lib/game/stats'
 import { analyticsStore, countContactSent } from '@/lib/analyticsStore'
 
@@ -34,6 +35,12 @@ const DIRECT_EMAIL = 'contact@n8builds.dev'
  *    still goes out; only the auto-reply is skipped.
  *
  * Then sends the notification email (to site owner) and auto-reply (to submitter).
+ *
+ * A Tech for Pros quote request (`kind: 'techforpros-quote'`, the Work with me
+ * card's email field, round 5 of 2026-11-02) is just an email address: it
+ * passes the same layers 1 to 5, then only the owner is emailed, tagged as a
+ * quote with the visitor's address as the reply-to. No auto-reply (so no
+ * per-recipient limit) and nothing stored.
  */
 export async function POST(request: NextRequest) {
   logger.info('🚀 Contact API called')
@@ -63,7 +70,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const validation = contactFormSchema.safeParse(parseResult.data)
+    const body = parseResult.data as { kind?: unknown } | null
+    const isQuote = typeof body === 'object' && body !== null && body.kind === QUOTE_KIND
+    const validation = isQuote ? quoteRequestSchema.safeParse(body) : contactFormSchema.safeParse(body)
     if (!validation.success) {
       // Security: don't expose detailed validation errors
       return NextResponse.json(
@@ -96,6 +105,17 @@ export async function POST(request: NextRequest) {
     if (!globalLimit.allowed) {
       logger.warn('❌ Site-wide contact limit:', globalLimit.reason)
       return rateLimitResponse(globalLimit)
+    }
+
+    // A quote request: the owner's email only.
+    if ('kind' in validatedData) {
+      const { country } = placeFrom(request.headers)
+      const sent = await sendQuoteEmail(validatedData.email, { country })
+      if (!sent.success) return NextResponse.json({ error: sent.error }, { status: 500 })
+      const stats = analyticsStore()
+      if (stats) after(() => countContactSent(stats))
+      logger.info('🎉 Quote request sent')
+      return NextResponse.json({ message: 'Quote request sent!' }, { status: 200 })
     }
 
     // STEP 6: Per-recipient auto-reply limit

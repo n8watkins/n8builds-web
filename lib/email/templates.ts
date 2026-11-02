@@ -78,7 +78,7 @@ export function countryFor(code: string | undefined): { flag: string; name: stri
 }
 
 /** "Oct 28, 2026, 4:12 PM PDT": the owner reads these in Pacific time. */
-function pacificTime(date: Date): string {
+export function pacificTime(date: Date): string {
   return date.toLocaleString('en-US', {
     timeZone: 'America/Los_Angeles',
     month: 'short',
@@ -145,7 +145,7 @@ export function brandBar(right: string): string {
           </tr>`
 }
 
-function pill(text: string): string {
+export function pill(text: string): string {
   return `<span style="display:inline-block;padding:6px 12px;border-radius:999px;background:#0e2a3a;border:1px solid #155e75;font-family:${FONT};font-size:12px;font-weight:600;color:#a5f3fc;letter-spacing:0.2px;">${text}</span>`
 }
 

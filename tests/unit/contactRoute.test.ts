@@ -4,6 +4,7 @@ import { NextRequest } from 'next/server'
 const checkRateLimit = vi.fn()
 const verifyTurnstile = vi.fn()
 const sendContactEmails = vi.fn()
+const sendQuoteEmail = vi.fn()
 
 vi.mock('@/lib/security/rateLimiter', () => ({
   checkRateLimit: (...args: unknown[]) => checkRateLimit(...args),
@@ -16,6 +17,9 @@ vi.mock('@/lib/security/turnstile', () => ({
 }))
 vi.mock('@/lib/email/sender', () => ({
   sendContactEmails: (...args: unknown[]) => sendContactEmails(...args),
+}))
+vi.mock('@/lib/email/quote', () => ({
+  sendQuoteEmail: (...args: unknown[]) => sendQuoteEmail(...args),
 }))
 // after() needs a live request scope: run its callback at once instead.
 const afterCallbacks: (() => unknown)[] = []
@@ -59,6 +63,7 @@ beforeEach(() => {
   checkRateLimit.mockReset().mockResolvedValue({ allowed: true })
   verifyTurnstile.mockReset().mockResolvedValue(true)
   sendContactEmails.mockReset().mockResolvedValue({ success: true })
+  sendQuoteEmail.mockReset().mockResolvedValue({ success: true })
   countContactSent.mockClear()
   afterCallbacks.length = 0
   store = {}
@@ -191,5 +196,52 @@ describe('POST /api/contact', () => {
     store = null
     expect((await post(validForm)).status).toBe(200)
     expect(afterCallbacks).toHaveLength(0)
+  })
+
+  describe('a Tech for Pros quote request (just an email)', () => {
+    const quote = { kind: 'techforpros-quote', email: 'owner@pools.example.com', turnstile: 'token', honeypot: '' }
+
+    it('emails the owner only, after Turnstile and the per-IP and site-wide limits', async () => {
+      expect(await post(quote, 'application/json', { 'x-vercel-ip-country': 'US' })).toEqual({ status: 200, json: { message: 'Quote request sent!' } })
+      expect(verifyTurnstile).toHaveBeenCalledWith('token', '1.2.3.4')
+      // No auto-reply, so no per-recipient limit.
+      expect(checkRateLimit.mock.calls).toEqual([
+        ['ip', 'key:1.2.3.4'],
+        ['global', 'all'],
+      ])
+      expect(sendQuoteEmail).toHaveBeenCalledWith('owner@pools.example.com', { country: 'US' })
+      expect(sendContactEmails).not.toHaveBeenCalled()
+    })
+
+    it('rejects a bad email, a filled honeypot or a missing token before anything else', async () => {
+      for (const body of [
+        { ...quote, email: 'not-an-email' },
+        { ...quote, honeypot: 'spam' },
+        { ...quote, turnstile: '' },
+        { ...quote, kind: 'something-else' },
+      ]) {
+        expect((await post(body)).status).toBe(400)
+      }
+      expect(verifyTurnstile).not.toHaveBeenCalled()
+      expect(checkRateLimit).not.toHaveBeenCalled()
+      expect(sendQuoteEmail).not.toHaveBeenCalled()
+    })
+
+    it('fails closed on Turnstile and on the limits, like the form', async () => {
+      verifyTurnstile.mockResolvedValueOnce(false)
+      expect((await post(quote)).status).toBe(400)
+      checkRateLimit.mockResolvedValueOnce({ allowed: false, reason: 'limit' })
+      expect((await post(quote)).status).toBe(429)
+      expect(sendQuoteEmail).not.toHaveBeenCalled()
+    })
+
+    it('returns 500 when the email fails, and counts only a delivered one', async () => {
+      sendQuoteEmail.mockResolvedValueOnce({ success: false, error: 'Failed to send email. Please try again later.' })
+      expect((await post(quote)).status).toBe(500)
+      expect(afterCallbacks).toHaveLength(0)
+      await post(quote)
+      await Promise.all(afterCallbacks.map((fn) => fn()))
+      expect(countContactSent).toHaveBeenCalledTimes(1)
+    })
   })
 })
