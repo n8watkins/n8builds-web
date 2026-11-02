@@ -477,6 +477,9 @@ export const toolsIUse: UsedTool[] = [
   },
 ]
 
+
+/** A brand whose mark is a wordmark (AMD, Samsung, Acer) is drawn wider in The gear, so it reads (as in My dev setup). */
+const GEAR_WORDMARK = '-my-1 size-6!'
 export const loadout: LoadoutGroup[] = [
   {
     id: 'stream',
@@ -508,25 +511,25 @@ export const loadout: LoadoutGroup[] = [
     items: [
       {
         name: 'AMD Ryzen 7 9700X',
-        icon: <SiAmd />,
+        icon: <SiAmd className={GEAR_WORDMARK} />,
         whatFor: '8 Zen 5 cores / 16 threads for compiling, local models, and three dev servers at once.',
         take: 'Zen 5 runs cool and fast - efficient enough that the fans stay quiet under a full build.',
       },
       {
         name: 'Radeon RX 7800 XT (16GB)',
-        icon: <SiAmd />,
+        icon: <SiAmd className={GEAR_WORDMARK} />,
         whatFor: 'Local inference, encoding the stream without dropping frames, and the occasional game.',
         take: '16GB of VRAM is the sweet spot - room for decent local models and still stream clean.',
       },
       {
-        name: '32GB DDR5-6000 (CL32)',
+        name: '32GB DDR5\u20116000 (CL32)',
         icon: <LuMemoryStick />,
         whatFor: 'Chrome, Docker, a local LLM, and OBS all wanting to be friends at the same time.',
         take: 'G.Skill DDR5 - RAM is cheap, closing tabs is expensive. Easy call.',
       },
       {
         name: 'Samsung 990 PRO 2TB',
-        icon: <SiSamsung />,
+        icon: <SiSamsung className={GEAR_WORDMARK} />,
         whatFor: 'OS, every project, and a graveyard of node_modules folders. Gen4 NVMe.',
         take: 'Fast storage you forget exists, which is exactly the point.',
       },
@@ -547,7 +550,7 @@ export const loadout: LoadoutGroup[] = [
     items: [
       {
         name: 'Acer XV272U V3 - 27" 1440p 180Hz',
-        icon: <SiAcer />,
+        icon: <SiAcer className={GEAR_WORDMARK} />,
         whatFor: 'The main code and stream surface. High-refresh 1440p IPS, with a second screen off to the side for reference.',
         take: 'A fast, sharp panel is the one screen upgrade I feel every single day - 180Hz spoils you.',
       },

@@ -107,12 +107,17 @@ const Gear = ({ groups }: { groups: LoadoutGroup[] }) => (
             </h3>
             <ul className="mt-4 space-y-3.5">
               {group.items.map((item) => (
-                <li key={item.name} className="group/item flex gap-3">
-                  <span aria-hidden="true" className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-200 transition-colors group-hover/item:text-cyan-200 [&_svg]:h-4 [&_svg]:w-4">
-                    {item.icon ?? (item.name === 'Scribe' ? <Image src="/builds/scribe/app-icon.png" alt="" width={18} height={18} /> : null)}
+                <li key={item.name} className="group/item flex gap-2">
+                  {/* The mark alone, centred on the name's line, as My dev setup's chips (owner, 2026-11-02: no box around it). */}
+                  <span
+                    aria-hidden="true"
+                    data-gear-icon
+                    className="flex h-6 w-6 shrink-0 items-center justify-center text-slate-300 transition-colors group-hover/item:text-cyan-200 [&_img]:size-4 [&_img]:rounded-[3px] [&_svg]:size-4"
+                  >
+                    {item.icon ?? (item.name === 'Scribe' ? <Image src="/builds/scribe/app-icon.png" alt="" width={16} height={16} /> : null)}
                   </span>
                   <div className="min-w-0">
-                    <p className="flex flex-wrap items-center gap-2 font-semibold text-slate-100">
+                    <p className="flex flex-wrap items-center gap-2 font-semibold text-balance text-slate-100">
                       {item.name}
                       {item.tag && (
                         <span className="rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2 py-0.5 text-[0.6rem] font-bold tracking-wider text-cyan-300 uppercase">
