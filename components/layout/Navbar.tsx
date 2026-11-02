@@ -17,10 +17,14 @@ const KOFI_URL = 'https://ko-fi.com/n8watkins'
 // The Lab is one homepage section; its parts live in a hover dropdown so the
 // top nav stays short. Each item scrolls to its anchor on the homepage.
 // `fallback`: where an item goes when its section isn't on the page (the build
-// log part hides when the log can't load): the full log.
-const labMenu: { label: string; href: string; desc: string; fallback?: string }[] = [
+// log part hides when the log can't load): the full log. `land`: the element
+// the jump puts at the top instead of the section itself.
+type LabItem = { label: string; href: string; desc: string; fallback?: string; land?: string }
+const labMenu: LabItem[] = [
   // The Lab's first part (the owner's ask, 2026-11-02); the full log is its "See the full build log" link and the footer.
-  { label: 'Build log', href: '/#build-log', desc: 'What I shipped lately, every build', fallback: '/builds' },
+  // It lands on the top of the Lab (round 5 of 2026-11-02), so "Check out / The Lab" and the
+  // intro are in view above it: the build log is where the Lab starts.
+  { label: 'Build log', href: '/#build-log', desc: 'What I shipped lately, every build', fallback: '/builds', land: 'lab' },
   { label: 'Featured', href: '/#featured', desc: 'OpenPing, Solara and Portfolio Rank' },
   { label: 'Chrome Extensions', href: '/#extensions', desc: 'Browser tools, local-first' },
   // The Lab's last part: upcoming projects, each with a waitlist (full detail on /upcoming).
@@ -96,7 +100,7 @@ const Navbar = () => {
   // we drive it directly (scrollIntoView honors html { scroll-padding-top }).
   // On other pages we fall through and let the link navigate to "/#id". A
   // section missing from the homepage sends its item to its fallback page.
-  const goToSection = (e: React.MouseEvent, href: string, fallback?: string) => {
+  const goToSection = (e: React.MouseEvent, href: string, fallback?: string, land?: string) => {
     setLabOpen(false)
     setMobileOpen(false)
     if (!href.startsWith('/#')) return
@@ -110,26 +114,50 @@ const Navbar = () => {
       return
     }
     e.preventDefault()
+    const target = (land && document.getElementById(land)) || el
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     // A frame later, once the mobile menu has closed: while it is open the body
     // has overflow: hidden, and WebKit then counts scroll-padding-top twice,
     // landing the section 80px low (the contact form below the fold on an iPhone).
-    requestAnimationFrame(() => el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }))
+    requestAnimationFrame(() => target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }))
     window.history.replaceState(null, '', href)
+  }
+
+  // The logo goes home; on the homepage it goes back to the top, smoothly
+  // unless reduced motion is on (round 5 of 2026-11-02), and drops any #part
+  // from the address.
+  const goHome = (e: React.MouseEvent) => {
+    setMobileOpen(false)
+    if (typeof window === 'undefined' || window.location.pathname !== '/') return
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
+    e.preventDefault()
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: reduce ? 'instant' : 'smooth' }))
+    window.history.replaceState(null, '', '/')
   }
 
   // Arriving on the homepage at a Lab item's section that isn't there (the build
   // log hides when the log can't load), from another page: go to its fallback.
   // A hash change counts too: a click before hydration jumps natively.
+  // Arriving at one that lands elsewhere (the build log, on the Lab's top), it
+  // moves there once the browser's own jump to the section is done; only on
+  // arrival, so the Lab's own pills and rail still go to the part itself.
   useEffect(() => {
     if (pathname !== '/') return
-    const check = () => {
-      const item = labMenu.find((i) => i.fallback && window.location.hash === i.href.slice(1))
-      if (item?.fallback && !document.getElementById(item.href.slice(2))) router.replace(item.fallback)
+    const check = (arrival: boolean) => {
+      const item = labMenu.find((i) => (i.fallback || i.land) && window.location.hash === i.href.slice(1))
+      if (!item) return
+      if (!document.getElementById(item.href.slice(2))) {
+        if (item.fallback) router.replace(item.fallback)
+        return
+      }
+      const land = arrival && item.land ? document.getElementById(item.land) : null
+      if (land) requestAnimationFrame(() => land.scrollIntoView({ behavior: 'instant' }))
     }
-    check()
-    window.addEventListener('hashchange', check)
-    return () => window.removeEventListener('hashchange', check)
+    check(true)
+    const onHash = () => check(false)
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
   }, [pathname, router])
 
   // Top-level items besides the Lab dropdown: links that scroll to their
@@ -167,7 +195,7 @@ const Navbar = () => {
       >
         <div className="max-w-6xl mx-auto px-5 sm:px-8 h-[68px] flex items-center justify-between gap-6">
           {/* Brand */}
-          <Link href="/" aria-label="n8builds.dev home" className="flex items-center gap-2.5 shrink-0 group">
+          <Link href="/" onClick={goHome} aria-label="n8builds.dev home" className="flex items-center gap-2.5 shrink-0 group">
             {/* The brand mark on its own (the tab icon puts it on a tile). */}
             <Image
               src="/brand/n8-mark.png"
@@ -228,7 +256,7 @@ const Navbar = () => {
                     <Link
                       key={item.href}
                       href={item.href}
-                      onClick={(e) => goToSection(e, item.href, item.fallback)}
+                      onClick={(e) => goToSection(e, item.href, item.fallback, item.land)}
                       className="group/item flex flex-col gap-0.5 px-3 py-2 rounded-lg hover:bg-white/6 transition-colors"
                     >
                       <span className="text-sm font-semibold text-slate-200 transition-colors group-hover/item:text-cyan-300">
@@ -320,12 +348,14 @@ const Navbar = () => {
                       <stop offset="1" stopColor="#3b82f6" />
                     </linearGradient>
                   </defs>
-                  {/* One smooth arc, as under the old Appturnity hero's words:
-                      level at the start, sweeping gently down to the end. The
-                      viewBox is the text's own size (about 116 by 6 px), so
-                      the stretch is near 1:1 and the stroke stays even. */}
+                  {/* One shallow, symmetric arc (round 5 of 2026-11-02: "I want
+                      it symmetrical"): it starts and ends the same 4 units in
+                      from the label's edges, at the same height, and dips
+                      gently to its lowest point under the label's centre. The
+                      viewBox is the text's own size (about 116 by 6 px), so the
+                      stretch is near 1:1 and the stroke stays even. */}
                   <path
-                    d="M1 2.4 C 21 1.2, 58 0.9, 115 4.8"
+                    d="M4 1.6 Q 58 6.4, 112 1.6"
                     fill="none"
                     stroke="url(#tfp-underline-gradient)"
                     strokeWidth="1.75"
@@ -374,7 +404,7 @@ const Navbar = () => {
           <Link
             key={item.href}
             href={item.href}
-            onClick={(e) => goToSection(e, item.href, item.fallback)}
+            onClick={(e) => goToSection(e, item.href, item.fallback, item.land)}
             className="px-3 py-2.5 text-sm text-slate-300 hover:text-slate-100 rounded-lg hover:bg-white/5 transition-colors"
           >
             {item.label}
