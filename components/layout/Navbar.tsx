@@ -338,7 +338,7 @@ const Navbar = () => {
                 {TECH_FOR_PROS.domain}
                 <svg
                   aria-hidden="true"
-                  className="tfp-underline pointer-events-none absolute -bottom-[6px] left-0 h-[6px] w-full overflow-visible opacity-80 transition-opacity duration-200 group-hover/tfp:opacity-100 group-focus-visible/tfp:opacity-100"
+                  className="tfp-underline pointer-events-none absolute -bottom-[4px] left-0 h-[6px] w-full overflow-visible opacity-80 transition-opacity duration-200 group-hover/tfp:opacity-100 group-focus-visible/tfp:opacity-100"
                   viewBox="0 0 116 6"
                   preserveAspectRatio="none"
                 >
@@ -352,7 +352,8 @@ const Navbar = () => {
                       it symmetrical", then flipped: its highest point in the
                       middle): it starts and ends the same 4 units in from the
                       label's edges, at the same height, and rises only about a
-                      pixel to its peak under the label's centre. The viewBox is
+                      pixel to its peak under the label's centre, close under
+                      the letters (2px higher than first, the owner's ask). The viewBox is
                       the text's own size (about 116 by 6 px), so the stretch is
                       near 1:1 and the stroke stays even. */}
                   <path
