@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test'
 import { SEND_TIMEOUT } from '../e2e-env'
+import { APP_JS } from './app-js'
 
 /**
  * The homepage contact form, driven like a visitor would. Runs against the
@@ -163,7 +164,7 @@ test('on a slow connection, Send is not clickable until the form can handle it',
   // the chunk waterfall).
   let releaseJs = () => {}
   const jsReleased = new Promise<void>((resolve) => (releaseJs = resolve))
-  await page.route('**/_next/static/chunks/**', async (route) => {
+  await page.route(APP_JS, async (route) => {
     await jsReleased
     await route.continue()
   })
