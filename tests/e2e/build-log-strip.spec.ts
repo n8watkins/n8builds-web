@@ -106,43 +106,57 @@ test('a row opens its build in the full log, filtered', async ({ page }) => {
   await expect(page.locator('#activity li[data-kind]').first()).toHaveAttribute('data-build', build)
 })
 
-test("the card shows the month's figures, every one in the HTML, the first showing", async ({ page, request }) => {
-  // Server-rendered: the card is complete before any JavaScript runs.
+test("the card shows the month's changes, a bar per day and the other figures, all in the HTML", async ({ page, request }) => {
+  // Server-rendered: the card is complete, with its final numbers, before any JavaScript runs.
   const html = await (await request.get('/')).text()
   expect(html).toContain('changes shipped')
   expect(html).toContain('builds touched')
+  expect(html).toContain('busiest build')
   expect(html).not.toContain('last 6 months')
 
   await page.goto('/')
   await stats(page).scrollIntoViewIfNeeded()
   await expect(stats(page)).toHaveAttribute('aria-roledescription', 'carousel')
   await expect(stats(page)).toContainText('October')
+  // The headline: the month's changes, read out whole.
+  const headline = stats(page).locator('[data-headline]')
+  await expect(headline.locator('.sr-only')).toHaveText(/^\d+ changes shipped$/)
+  const total = (await headline.locator('.sr-only').innerText()).split(' ')[0]
+  await expect(headline.locator('[data-count]')).toHaveText(total)
+  // A bar per day of October, summed up for screen readers.
+  await expect(stats(page).locator('[data-bars] [data-day]')).toHaveCount(31)
+  await expect(stats(page).locator('[data-bars]')).toHaveAttribute('aria-label', /^Changes per day: something shipped on \d+ of \d+ days so far, the most on Oct \d+ \(\d+\)\.$/)
+  // The other figures, the busiest build (with its icon) first.
   const ids = await slides(page).evaluateAll((els) => els.map((el) => el.getAttribute('data-stat')))
-  expect(ids.slice(0, 2)).toEqual(['changes', 'builds'])
-  expect(ids).toContain('busiest')
+  expect(ids[0]).toBe('busiest')
+  expect(ids).toContain('builds')
   expect(ids).toContain('days')
+  expect(ids).not.toContain('changes')
   await expect(dots(page)).toHaveCount(ids.length)
   await expect(current(page)).toHaveCount(1)
-  await expect(current(page)).toHaveAttribute('data-stat', 'changes')
-  await expect(current(page)).toContainText(/^\d+changes shipped$/)
-  // The busiest build shows with its icon.
+  await expect(current(page)).toHaveAttribute('data-stat', 'busiest')
+  await expect(current(page)).toContainText(/busiest build, \d+ changes?$/)
   await expect(slides(page).and(page.locator('[data-stat="busiest"]')).locator('img')).toHaveCount(1)
 })
 
-test('reduced motion holds the first figure; a dot picks one and announces it', async ({ page }) => {
+test('reduced motion holds the first figure and shows the final number at once; a dot picks one and announces it', async ({ page }) => {
   await page.goto('/')
   await stats(page).scrollIntoViewIfNeeded()
   await page.waitForTimeout(4600)
-  await expect(current(page)).toHaveAttribute('data-stat', 'changes')
+  await expect(current(page)).toHaveAttribute('data-stat', 'busiest')
+  await expect(stats(page)).toHaveAttribute('data-entrance', 'idle')
+  const total = (await stats(page).locator('[data-headline] .sr-only').innerText()).split(' ')[0]
+  await expect(stats(page).locator('[data-count]')).toHaveText(total)
 
   const live = stats(page).locator('[aria-live="polite"]')
   await expect(live).toHaveText('')
+  const second = await slides(page).nth(1).getAttribute('data-stat')
   await expect(async () => {
     await dots(page).nth(1).click()
-    await expect(current(page)).toHaveAttribute('data-stat', 'builds', { timeout: 2000 })
+    await expect(current(page)).toHaveAttribute('data-stat', second!, { timeout: 2000 })
   }).toPass({ timeout: 15_000 })
   await expect(dots(page).nth(1)).toHaveAttribute('aria-current', 'true')
-  await expect(live).toHaveText(/^\d+ builds? touched$/)
+  await expect(live).not.toHaveText('')
 })
 
 test.describe('with motion', () => {
@@ -156,7 +170,8 @@ test.describe('with motion', () => {
     // CI runner can delay by seconds (the mobile-chrome flake on #112); wait
     // for that, then give the 4s timer its margin.
     await expect(stats(page)).toHaveAttribute('data-in-view', '', { timeout: 20_000 })
-    await expect(current(page)).toHaveAttribute('data-stat', 'builds', { timeout: 8000 })
+    const second = await slides(page).nth(1).getAttribute('data-stat')
+    await expect(current(page)).toHaveAttribute('data-stat', second!, { timeout: 8000 })
     // The timer never speaks: only a picked figure is announced.
     await expect(stats(page).locator('[aria-live="polite"]')).toHaveText('')
 
@@ -164,6 +179,21 @@ test.describe('with motion', () => {
     const held = await current(page).getAttribute('data-stat')
     await page.waitForTimeout(5000)
     await expect(current(page)).toHaveAttribute('data-stat', held!)
+  })
+
+  test('the number counts up and the bars rise the first time the card comes into view', async ({ page }) => {
+    await page.goto('/')
+    const card = stats(page)
+    // Off screen once hydrated: armed, waiting at zero with the bars flat.
+    await expect(card).toHaveAttribute('data-entrance', 'armed', { timeout: 20_000 })
+    await expect(card.locator('[data-count]')).toHaveText('0')
+    const total = (await card.locator('[data-headline] .sr-only').innerText()).split(' ')[0]
+    await card.evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
+    await expect(card).toHaveAttribute('data-entrance', 'played')
+    await expect(card.locator('[data-count]')).toHaveText(total, { timeout: 5000 })
+    await expect
+      .poll(() => card.locator('[data-bars] [data-day]').first().evaluate((bar) => getComputedStyle(bar).transform))
+      .toMatch(/^(none|matrix\(1, 0, 0, 1, 0, 0\))$/)
   })
 })
 
@@ -185,9 +215,9 @@ test('works from the keyboard: the button, the figures, each row, then the arrow
   // the next one), then its dots, then the rows.
   await page.keyboard.press('Tab')
   await expect(stats(page).getByRole('button').first()).toBeFocused()
-  await expect(stats(page).getByRole('button').first()).toHaveAccessibleName(/^\d+\s?changes shipped$/)
+  await expect(stats(page).getByRole('button').first()).toHaveAccessibleName(/busiest build/)
   await page.keyboard.press('Enter')
-  await expect(current(page)).toHaveAttribute('data-stat', 'builds')
+  await expect(current(page)).toHaveAttribute('data-stat', (await slides(page).nth(1).getAttribute('data-stat'))!)
   for (let i = 0; i < dotCount; i++) await page.keyboard.press('Tab')
   await expect(dots(page).last()).toBeFocused()
   const order: string[] = []

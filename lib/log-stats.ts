@@ -72,3 +72,28 @@ export function shippedStats(period: LogEntry[], all: LogEntry[], asOf: string, 
   if (run >= 2) stats.push({ id: 'streak', value: String(run), label: 'days in a row, and counting' })
   return stats
 }
+
+/** One day of the card's activity bars: what shipped that day, by `weight`. */
+export type DayCount = { day: string; count: number; /** After today: an empty slot, not a quiet day. */ future?: boolean }
+
+/** `YYYY-MM-DD` one day later. */
+function dayAfter(day: string): string {
+  const d = new Date(`${day}T12:00:00Z`)
+  d.setUTCDate(d.getUTCDate() + 1)
+  return d.toISOString().slice(0, 10)
+}
+
+/**
+ * The period's changes per day, from `from` to `to` (inclusive, `YYYY-MM-DD`),
+ * for the card's activity bars. Days after `today` are marked `future`, so a
+ * month that has just started shows how much of it is still to come.
+ */
+export function dailyCounts(period: LogEntry[], from: string, to: string, today: string): DayCount[] {
+  const perDay = new Map<string, number>()
+  for (const e of period) perDay.set(e.day, (perDay.get(e.day) ?? 0) + weight(e))
+  const days: DayCount[] = []
+  for (let day = from; day <= to; day = dayAfter(day)) {
+    days.push(day > today ? { day, count: 0, future: true } : { day, count: perDay.get(day) ?? 0 })
+  }
+  return days
+}

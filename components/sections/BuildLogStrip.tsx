@@ -8,7 +8,7 @@ import BuildLogPages from '@/components/sections/BuildLogPages'
 import ShippedStats from '@/components/sections/ShippedStats'
 import { dayKey, getBuildLog, monthLabel, type LogEntry } from '@/lib/build-log'
 import { BUILD_ICONS } from '@/lib/build-meta'
-import { shippedStats } from '@/lib/log-stats'
+import { dailyCounts, shippedStats } from '@/lib/log-stats'
 
 // The homepage's compact build log: the newest month of /builds at a glance.
 // The month's updates as rows, a page of them at a time, moving on every few
@@ -52,6 +52,12 @@ function daysBefore(day: string, days: number): string {
   const d = new Date(`${day}T12:00:00Z`)
   d.setUTCDate(d.getUTCDate() - days)
   return d.toISOString().slice(0, 10)
+}
+
+/** The last day of a `YYYY-MM` month, as `YYYY-MM-DD`. */
+function lastDayOf(month: string): string {
+  const [y, m] = month.split('-').map(Number)
+  return new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10)
 }
 
 function Row({ entry }: { entry: LogEntry }) {
@@ -131,6 +137,9 @@ export default async function BuildLogStrip() {
   const cutoff = daysBefore(today, QUIET_DAYS - 1)
   const period = isThisMonth ? thisMonth : entries.filter((e) => e.day >= cutoff)
   const stats = shippedStats(period, entries, asOf, names)
+  // The card's activity bars: every day of the month (the days still to come
+  // as empty slots), or a quiet month's last 30 days.
+  const days = isThisMonth ? dailyCounts(period, `${current}-01`, lastDayOf(current), today) : dailyCounts(period, cutoff, today, today)
 
   return (
     // A full-bleed part of the Lab in its own green wash (`.lab-accent-buildlog` in
@@ -158,7 +167,7 @@ export default async function BuildLogStrip() {
           <div className="grid grid-cols-1 overflow-hidden rounded-2xl border border-white/8 bg-[#0a1526]/70 md:grid-cols-[17rem_minmax(0,1fr)]">
             <div className="flex flex-col border-b border-white/8 px-5 py-4 md:border-r md:border-b-0 md:px-6 md:py-5">
               {/* The month is named once, here; each row carries its own day. */}
-              <ShippedStats stats={stats} period={isThisMonth ? monthLabel(current).replace(` ${current.slice(0, 4)}`, '') : `Last ${QUIET_DAYS} days`} />
+              <ShippedStats stats={stats} days={days} period={isThisMonth ? monthLabel(current).replace(` ${current.slice(0, 4)}`, '') : `Last ${QUIET_DAYS} days`} />
             </div>
 
             <div className="p-3 sm:p-4">
