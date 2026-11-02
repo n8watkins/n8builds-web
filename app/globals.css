@@ -896,21 +896,50 @@
   }
 }
 
-/* The Loadout's parts (components/sections/Loadout.tsx; the owner's ask,
-   2026-11-02: as you scroll, each part should feel distinct, as the homepage
-   bands and the Lab's parts do). Each part is a full-width band under a
-   hairline, washed in its own colour (--lo, an RGB triplet from loadoutParts
-   in data/loadout.tsx): a glow behind its heading, at the content column's
-   left edge, and a tint fading down from its top, spent long before the next
-   part. Every other part sits on the homepage bands' raised tone. Peak tint
-   stays at 10%, so all text keeps WCAG AA contrast. */
+/* The Loadout's parts (components/sections/Loadout.tsx; the owner's asks,
+   2026-11-02: each part should feel distinct as you scroll, and in round 3 the
+   change from one to the next more polished than a hairline). Each part is a
+   full-width band that opens on a rule in its own colour (--lo, an RGB triplet
+   from loadoutParts in data/loadout.tsx), fading out at both ends, with a soft
+   glow under it; the part's wash glows behind its chapter heading and eases in
+   and out at the band's ends, as the Lab's part washes do, so one part shades
+   into the next instead of meeting it at an edge. Every other part sits on a
+   raised tone that eases in and out the same way. Peak tint stays at 10%, so
+   all text keeps WCAG AA contrast. */
 @layer components {
   .loadout-part {
+    position: relative;
+    isolation: isolate;
     background-image:
-      radial-gradient(36rem 240px at max(14%, calc(50% - 30rem)) 0, rgb(var(--lo) / 0.1), transparent 100%),
-      linear-gradient(to bottom, rgb(var(--lo) / 0.04), transparent 420px);
+      /* Centred on the heading, its height inside the band's top, so it never meets the edge. */
+      radial-gradient(36rem 190px at max(14%, calc(50% - 30rem)) 200px, rgb(var(--lo) / 0.1), transparent 100%),
+      linear-gradient(to bottom, transparent, rgb(var(--lo) / 0.045) 180px, rgb(var(--lo) / 0.02) 55%, transparent);
   }
-  .loadout-part-raised {
-    background-color: rgb(255 255 255 / 0.018);
+  .loadout-part-raised::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(to bottom, transparent, rgb(255 255 255 / 0.022) 12%, rgb(255 255 255 / 0.022) 88%, transparent);
+  }
+  /* The rule that opens a part: its colour at the middle, fading out at both
+     ends, over a soft glow. As wide as the content column, centred. */
+  .loadout-part-rule {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: min(72rem, calc(100% - 2.5rem));
+    height: 1px;
+    transform: translateX(-50%);
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent, rgb(var(--lo) / 0.55) 50%, transparent);
+  }
+  .loadout-part-rule::after {
+    content: '';
+    position: absolute;
+    inset: 0 15% auto;
+    height: 48px;
+    background: radial-gradient(50% 100% at 50% 0, rgb(var(--lo) / 0.16), transparent);
   }
 }

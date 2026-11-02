@@ -139,13 +139,16 @@ const Gear = ({ groups }: { groups: LoadoutGroup[] }) => (
 )
 
 /**
- * One part of the page as a full-width band (the owner's ask, 2026-11-02:
- * scrolling should clearly move from one part to the next): a hairline above
- * it, a wash in its own colour fading down from its top and glowing behind
- * its heading (`.loadout-part` in app/globals.css), and every other part on
- * the homepage bands' raised tone. Its id sits here, on a plain wrapper, never
- * on a scroll reveal (see the note above StepCard). `bleed` lets a part's content set its own
- * width (Scribe's full-bleed row); otherwise it sits in the content column.
+ * One part of the page as a full-width band (the owner's asks, 2026-11-02:
+ * scrolling should clearly move from one part to the next, and in round 3
+ * more polished than a hairline): a rule in the part's colour that fades at
+ * both ends opens it, its wash glows behind its chapter heading and eases in
+ * and out at the band's ends, and every other part sits on a raised tone that
+ * eases in and out too (`.loadout-part` in app/globals.css), with generous
+ * room above and below. Its id sits here, on a plain wrapper, never on a
+ * scroll reveal (see the note above StepCard). `bleed` lets a part's content
+ * set its own width (Scribe's full-bleed row); otherwise it sits in the
+ * content column.
  */
 const Part = ({ id, bleed = false, children }: { id: string; bleed?: boolean; children: React.ReactNode }) => {
   const index = loadoutParts.findIndex((part) => part.id === id)
@@ -153,9 +156,10 @@ const Part = ({ id, bleed = false, children }: { id: string; bleed?: boolean; ch
     <div
       id={id}
       data-loadout-part
-      className={`loadout-part border-t border-white/[0.06] py-16 md:py-24 ${index % 2 ? 'loadout-part-raised' : ''}`}
+      className={`loadout-part py-20 md:py-28 ${index % 2 ? 'loadout-part-raised' : ''}`}
       style={{ '--lo': loadoutParts[index].accent } as CSSProperties}
     >
+      <div aria-hidden="true" data-part-rule className="loadout-part-rule" />
       {bleed ? children : <div className={column}>{children}</div>}
     </div>
   )

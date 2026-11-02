@@ -7,6 +7,7 @@ import { SiGithub, SiSubstack, SiX, SiYoutube } from 'react-icons/si'
 import {
   devSetup,
   loadoutPart,
+  loadoutParts,
   people,
   toolsIBuilt,
   toolsIUse,
@@ -34,11 +35,12 @@ import SetupTilesMotion from '@/components/sections/SetupTilesMotion'
  */
 
 /**
- * A part's heading on /loadout: the part's icon (the one its pill and the
- * side rail show) in a chip of its colour, its small mono path and its title,
- * then one line on what's inside. Stronger than a plain title, so each part
- * reads as its own as you scroll (the owner's ask, 2026-11-02). `part` is its
- * id in loadoutParts (data/loadout.tsx), which gives the icon and colour.
+ * A part's heading on /loadout, chapter style (round 3 of 2026-11-02): the
+ * part's number, large and faint in its colour behind the heading's right
+ * side; the part's icon (the one its pill and the side rail show) in a chip of
+ * its colour; its small mono path and its title; then one line on what's
+ * inside. `part` is its id in loadoutParts (data/loadout.tsx), which gives
+ * the number, icon and colour.
  */
 export const SectionHead = ({
   id,
@@ -54,24 +56,32 @@ export const SectionHead = ({
   children?: ReactNode
 }) => {
   const { icon: Icon, accent } = loadoutPart(part)
+  const number = String(loadoutParts.findIndex((p) => p.id === part) + 1).padStart(2, '0')
   return (
-    <div className="mb-8 md:mb-10" style={{ '--lo': accent } as CSSProperties}>
-      <div className="flex items-center gap-4">
+    <div className="relative mb-10 md:mb-12" style={{ '--lo': accent } as CSSProperties}>
+      <span
+        aria-hidden="true"
+        data-part-number
+        className="pointer-events-none absolute -top-5 right-0 -z-10 bg-linear-to-b from-[rgb(var(--lo)/0.2)] to-[rgb(var(--lo)/0)] bg-clip-text font-mono text-[5.5rem] leading-none font-black tracking-tighter text-transparent select-none sm:-top-8 sm:text-[8rem] lg:-top-10 lg:text-[10rem]"
+      >
+        {number}
+      </span>
+      <div className="flex items-center gap-4 sm:gap-5">
         <span
           aria-hidden="true"
           data-part-icon
-          className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[rgb(var(--lo)/0.12)] text-[rgb(var(--lo))] ring-1 ring-[rgb(var(--lo)/0.35)] sm:size-14"
+          className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[rgb(var(--lo)/0.12)] text-[rgb(var(--lo))] ring-1 ring-[rgb(var(--lo)/0.35)] sm:size-14 lg:size-16"
         >
-          <Icon className="size-6 sm:size-7" />
+          <Icon className="size-6 sm:size-7 lg:size-8" />
         </span>
         <div className="min-w-0">
           <span className="block font-mono text-xs text-[rgb(var(--lo)/0.85)]">{path}</span>
-          <h2 id={id} className="mt-1 text-[1.75rem] leading-tight font-extrabold tracking-tight text-balance text-slate-50 sm:text-4xl">
+          <h2 id={id} className="mt-1 text-[1.75rem] leading-tight font-extrabold tracking-tight text-balance text-slate-50 sm:text-4xl lg:text-[2.75rem]">
             {title}
           </h2>
         </div>
       </div>
-      {children && <p className="mt-4 max-w-[640px] leading-relaxed text-pretty text-[#9cadc5]">{children}</p>}
+      {children && <p className="mt-5 max-w-[640px] text-lg leading-relaxed text-pretty text-[#9cadc5]">{children}</p>}
     </div>
   )
 }

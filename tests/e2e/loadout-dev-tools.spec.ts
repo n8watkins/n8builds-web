@@ -359,16 +359,30 @@ test.describe('Loadout tools and people', () => {
       expect(marks.pill, id).toBe(marks.head)
       expect(marks.rail, id).toBe(marks.head)
     }
-    // A hairline above every part, a wash in its own colour, and every other part on the raised tone.
+    // Round 3 of 2026-11-02: a rule in the part's colour that fades at both ends opens every part
+    // (no hairline across the page), a wash in its colour, every other part on the raised tone
+    // (easing in and out), and a chapter number behind its heading.
     const looks = await parts.evaluateAll((els) =>
-      els.map((el) => {
+      els.map((el, i) => {
         const cs = getComputedStyle(el)
-        return { line: cs.borderTopWidth, wash: cs.backgroundImage.includes('gradient'), tone: cs.backgroundColor, accent: cs.getPropertyValue('--lo') }
+        const rule = el.querySelector('[data-part-rule]')!
+        const rs = getComputedStyle(rule)
+        return {
+          line: cs.borderTopWidth,
+          wash: cs.backgroundImage.includes('gradient'),
+          tone: getComputedStyle(el, '::before').backgroundImage,
+          accent: cs.getPropertyValue('--lo'),
+          rule: { height: rule.getBoundingClientRect().height, fades: /transparent|rgba\(0, 0, 0, 0\)/.test(rs.backgroundImage), top: Math.round(rule.getBoundingClientRect().top - el.getBoundingClientRect().top) },
+          number: el.querySelector('[data-part-number]')?.textContent,
+          i,
+        }
       }),
     )
     for (const look of looks) {
-      expect(look.line).toBe('1px')
+      expect(look.line).toBe('0px')
       expect(look.wash).toBe(true)
+      expect(look.rule).toEqual({ height: 1, fades: true, top: 0 })
+      expect(look.number).toBe(String(look.i + 1).padStart(2, '0'))
     }
     for (let i = 1; i < looks.length; i++) {
       expect(looks[i].tone, `part ${i} vs ${i - 1}`).not.toBe(looks[i - 1].tone)
