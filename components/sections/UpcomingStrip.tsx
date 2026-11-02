@@ -43,7 +43,7 @@ export default function UpcomingStrip() {
               <Image src={p.icon} alt="" width={44} height={44} className="h-11 w-11 shrink-0 rounded-xl" />
               <div className="min-w-0">
                 <h3 className="text-lg font-bold text-slate-50">{p.name}</h3>
-                <p className="text-sm text-(--accent)">{p.tagline}</p>
+                <p className="text-sm text-balance text-(--accent)">{p.tagline}</p>
               </div>
             </div>
             <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 pt-4">
