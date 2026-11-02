@@ -242,7 +242,8 @@ export default function SectionRail({
     }
     // About the browser's own pace: 0.4s for a short hop, up to 0.9s across the page.
     const duration = Math.min(900, 380 + Math.sqrt(distance) * 9)
-    const start = performance.now()
+    // The clock starts with the first frame's own timestamp.
+    let start = -1
     let raf = 0
     const cancelEvents = ['wheel', 'touchstart', 'keydown'] as const
     const stop = () => {
@@ -252,6 +253,8 @@ export default function SectionRail({
       updateRef.current()
     }
     const step = (now: number) => {
+      // The first frame already moves a frame's worth (16ms), so the scroll starts at once.
+      if (start < 0) start = now - 16
       const t = Math.min(1, (now - start) / duration)
       // Ease out (cubic): moving from the first frame, settling gently.
       const eased = 1 - (1 - t) ** 3
