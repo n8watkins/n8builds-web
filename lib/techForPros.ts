@@ -18,11 +18,15 @@ export const TECH_FOR_PROS = {
  * Where the homepage's Tech for Pros ad sends people (owner, 2026-11-02).
  * techforpros.com has no site yet and there is no booking page yet, so those
  * two are unset and their buttons don't show; set one and its button appears.
- * "Request a quote" goes to this site's contact form with a quote preset
- * (lib/contactPresets.ts) until techforpros.com has a form of its own.
+ * "Get a quote" (round 5 of 2026-11-02; "Request a quote" before, into the
+ * contact form) goes to the quote field on the Tech for Pros card in Work with
+ * me (components/sections/QuoteForm.tsx): one email address, sent to the
+ * owner through this site's contact backend until techforpros.com has a form
+ * of its own. The contact form's quote preset (lib/contactPresets.ts) still
+ * answers old /?inquiry=techforpros-quote links.
  */
 export const TECH_FOR_PROS_LINKS: {
-  /** "Request a quote": this site's contact form, preset for a Tech for Pros quote. */
+  /** "Get a quote": the Tech for Pros card's quote field, lower on the homepage. */
   quote: string
   /** "Book an intro call": a booking page, once there is one. */
   booking?: string
@@ -33,5 +37,5 @@ export const TECH_FOR_PROS_LINKS: {
    */
   siteLive?: boolean
 } = {
-  quote: '/?inquiry=techforpros-quote#contact',
+  quote: '/#quote',
 }

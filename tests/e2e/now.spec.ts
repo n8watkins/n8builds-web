@@ -6,15 +6,15 @@ import { test, expect, type Page } from '@playwright/test'
  * copy about the service (never a list of trades) and no feature list; its
  * templates slide side to side in a browser window, with a timer line along
  * its bottom, a picker in its title bar, a phone in front and "Pick a
- * template, or we'll build one for your business." under it; "Request a quote" goes into the contact form (the
+ * template, or we'll build one for your business." under it; "Get a quote" goes to the quote field in Work with me (the
  * booking page and the site get buttons once they exist). No What's new.
  */
 
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
 const now = (page: Page) => page.locator('#now')
-/** The ad's main button: a quote, through the contact form. */
-const quote = (page: Page) => now(page).getByRole('link', { name: /^Request a quote/ })
+/** The ad's main button: a quote, through the quote field in Work with me (round 5 of 2026-11-02). */
+const quote = (page: Page) => now(page).getByRole('link', { name: /^Get a quote/ })
 const carousel = (page: Page) => now(page).getByRole('group', { name: 'Tech for Pros templates' })
 const frame = (page: Page) => carousel(page).locator('[data-slide]').first().locator('xpath=..')
 const showing = (page: Page) => carousel(page).locator('[data-slide][aria-hidden="false"]')
@@ -117,16 +117,15 @@ test.describe('with motion', () => {
   })
 })
 
-test('Request a quote fills the contact form in place: the New project topic and a started message', async ({ page }) => {
+test('Get a quote lands on the quote field in Work with me, ready to type', async ({ page }) => {
   await page.goto('/')
-  await quote(page).scrollIntoViewIfNeeded()
-  await expect(page.locator('#contact-form button[type="submit"]')).toBeEnabled({ timeout: 20_000 })
+  await expect(quote(page)).toHaveAttribute('href', '/#quote')
+  await expect(page.getByRole('button', { name: 'Get my quote' })).toBeEnabled({ timeout: 20_000 })
   await quote(page).click()
-  await expect(page).toHaveURL(/\/#contact$/)
-  await expect(page.locator('#contact-form input[value="project_opportunity"]')).toBeChecked()
-  await expect(page.getByRole('textbox', { name: 'Message' })).toHaveValue(/^I'd like a quote from Tech for Pros\./)
-  // Scrolled to the contact part (on a phone the message box is further down it).
-  await expect(page.locator('#contact')).toBeInViewport()
+  await expect(page).toHaveURL(/\/#quote$/)
+  const field = page.getByRole('textbox', { name: 'Where should the quote go?' })
+  await expect(field).toBeFocused()
+  await expect(field).toBeInViewport()
 })
 
 test('a link to the quote preset from elsewhere fills the form on arrival, then tidies the address', async ({ page }) => {
@@ -140,7 +139,8 @@ test("a preset never overwrites a message the visitor already wrote", async ({ p
   await page.goto('/')
   await expect(page.locator('#contact-form button[type="submit"]')).toBeEnabled({ timeout: 20_000 })
   await page.getByRole('textbox', { name: 'Message' }).fill('My own words about the job.')
-  await quote(page).click()
+  // As a preset link on the page does (components/ui/ContactPresetLink.tsx).
+  await page.evaluate(() => window.dispatchEvent(new CustomEvent('contact:preset', { detail: 'techforpros-quote' })))
   await expect(page.locator('#contact-form input[value="project_opportunity"]')).toBeChecked()
   await expect(page.getByRole('textbox', { name: 'Message' })).toHaveValue('My own words about the job.')
 })

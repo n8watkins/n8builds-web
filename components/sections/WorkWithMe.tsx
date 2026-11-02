@@ -6,8 +6,11 @@ import PauseOffscreen from '@/components/ui/PauseOffscreen'
 import { FiArrowUpRight, FiCheck, FiCode } from 'react-icons/fi'
 import styles from './WorkWithMe.module.css'
 import { isOutbound, refHref } from '@/lib/referrals'
-import { TECH_FOR_PROS } from '@/lib/techForPros'
+import { TECH_FOR_PROS, TECH_FOR_PROS_LINKS } from '@/lib/techForPros'
 import TechForProsMark from '@/components/ui/TechForProsMark'
+import TemplateCarousel from '@/components/sections/TemplateCarousel'
+import QuoteForm from '@/components/sections/QuoteForm'
+import { nowItems } from '@/data/now'
 
 /** One highlight line: an optional bold lead-in, then what it is. */
 interface Point {
@@ -38,7 +41,8 @@ interface Door {
   secondary?: { label: string; href: string }
   icon: React.ReactNode
   desktop: Shot
-  phone: Shot
+  /** A phone in front of the window; none on the developer card (round 5 of 2026-11-02). */
+  phone?: Shot
   accent: {
     /** eyebrow text gradient */
     eyebrow: string
@@ -58,7 +62,10 @@ const Screen = ({ shot, aspect, sizes }: { shot: Shot; aspect: number; sizes: st
   const shown = shot.width / aspect / shot.height
   const scrolls = shown < 0.98
   return (
-    <div className="relative overflow-hidden [transform:translateZ(0)]" style={{ aspectRatio: aspect }}>
+    <div
+      className="relative overflow-hidden [transform:translateZ(0)]"
+      style={{ aspectRatio: aspect }}
+    >
       <Image
         src={shot.src}
         alt={shot.alt}
@@ -79,26 +86,38 @@ const Screen = ({ shot, aspect, sizes }: { shot: Shot; aspect: number; sizes: st
   )
 }
 
-/** A browser window and a phone, mostly side by side with a small overlap. */
-const Showcase = ({ desktop, phone }: { desktop: Shot; phone: Shot }) => (
+/** A browser window, and a phone mostly beside it with a small overlap when there is one. */
+const Showcase = ({ desktop, phone }: { desktop: Shot; phone?: Shot }) => (
   <PauseOffscreen className="relative flex items-center">
-    <div className="w-[78%] overflow-hidden rounded-xl border border-white/10 bg-[#0a1322] shadow-2xl shadow-black/40">
-      <div aria-hidden className="flex items-center gap-1.5 border-b border-white/8 bg-white/4 px-3 py-1.5">
+    <div
+      className={`${phone ? 'w-[78%]' : 'w-full'} overflow-hidden rounded-xl border border-white/10 bg-[#0a1322] shadow-2xl shadow-black/40`}
+    >
+      <div
+        aria-hidden
+        className="flex items-center gap-1.5 border-b border-white/8 bg-white/4 px-3 py-1.5"
+      >
         <span className="h-2 w-2 rounded-full bg-white/20" />
         <span className="h-2 w-2 rounded-full bg-white/20" />
         <span className="h-2 w-2 rounded-full bg-white/20" />
       </div>
-      <Screen shot={desktop} aspect={BROWSER_ASPECT} sizes="(max-width: 1024px) 72vw, 400px" />
+      <Screen
+        shot={desktop}
+        aspect={BROWSER_ASPECT}
+        sizes={phone ? '(max-width: 1024px) 72vw, 400px' : '(max-width: 1024px) 92vw, 520px'}
+      />
     </div>
-    <div className="relative -ml-[4%] w-[26%] shrink-0 overflow-hidden rounded-[1rem] border-[4px] border-[#0b1220] bg-[#0b1220] shadow-2xl shadow-black/60 ring-1 ring-white/12">
-      <div className="overflow-hidden rounded-[0.7rem]">
-        <Screen shot={phone} aspect={PHONE_ASPECT} sizes="(max-width: 1024px) 26vw, 140px" />
+    {phone && (
+      <div className="relative -ml-[4%] w-[26%] shrink-0 overflow-hidden rounded-[1rem] border-[4px] border-[#0b1220] bg-[#0b1220] shadow-2xl shadow-black/60 ring-1 ring-white/12">
+        <div className="overflow-hidden rounded-[0.7rem]">
+          <Screen shot={phone} aspect={PHONE_ASPECT} sizes="(max-width: 1024px) 26vw, 140px" />
+        </div>
       </div>
-    </div>
+    )}
   </PauseOffscreen>
 )
 
-// Two doors off the workshop. n8builds is the top of the funnel; it feeds the
+// Two doors off the workshop: the developer card here, and the Tech for Pros
+// card (TechForProsCard, below), which mirrors the top of the page. n8builds is the top of the funnel; it feeds the
 // portfolio (developer work) and Tech for Pros (my company), never replaces
 // them. Copy is grounded in the portfolio's projects and Tech for Pros' own
 // features (the owner's resume); planned features say so.
@@ -129,13 +148,6 @@ const doors: Door[] = [
       height: 1893,
       duration: 24,
     },
-    phone: {
-      src: '/work/portfolio-projects-mobile.webp',
-      alt: 'My developer portfolio on a phone',
-      width: 320,
-      height: 3191,
-      duration: 30,
-    },
     accent: {
       eyebrow: 'from-emerald-300 to-cyan-300',
       check: 'text-emerald-400',
@@ -144,50 +156,20 @@ const doors: Door[] = [
       ring: 'hover:border-emerald-300/25',
     },
   },
-  {
-    id: 'techforpros',
-    eyebrow: TECH_FOR_PROS.name,
-    title: 'Run a service business? I built this for you.',
-    blurb:
-      'Tech for Pros is my company. It turns a few details about a pool, HVAC or landscaping business into a launch-ready website, then takes the follow-up off their plate.',
-    pointsLabel: 'What it does',
-    points: [
-      { text: 'A website for your trade, drafted from a few details in minutes' },
-      { text: 'Lead capture, and review display and requests' },
-      { text: 'An instant site-health check: speed, mobile, SEO and accessibility' },
-    ],
-    next: ['Lead and quote follow-up', 'Appointment reminders', 'Missed-call text-back'],
-    cta: { label: 'Visit Tech for Pros', href: refHref('techforpros', 'card') },
-    icon: <TechForProsMark className="h-full w-full rounded-xl" sizes="36px" />,
-    // Template shots from the Appturnity days, until Tech for Pros has its own.
-    desktop: {
-      src: '/work/landscaping-verdant.webp',
-      alt: 'A landscaping website template',
-      width: 1200,
-      height: 750,
-    },
-    phone: {
-      src: '/work/landscaping-verdant-mobile.webp',
-      alt: 'The landscaping template on a phone',
-      width: 320,
-      height: 7136,
-      duration: 40,
-    },
-    accent: {
-      // White to light blue, and a strong blue (#1066f4) on the button.
-      eyebrow: 'from-white to-sky-300',
-      check: 'text-sky-300',
-      button: 'from-[#1066f4] to-[#1066f4] hover:from-[#3b82f6] hover:to-[#3b82f6]',
-      glow: 'from-sky-400/[0.09]',
-      ring: 'hover:border-sky-300/25',
-    },
-  },
 ]
 
 const SECONDARY =
   'inline-flex items-center gap-1 text-sm font-semibold text-slate-300 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white hover:decoration-white/60'
 
-const External = ({ href, className, children }: { href: string; className: string; children: React.ReactNode }) => (
+const External = ({
+  href,
+  className,
+  children,
+}: {
+  href: string
+  className: string
+  children: React.ReactNode
+}) => (
   <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
     {children}
     <span className="sr-only"> (opens in a new tab)</span>
@@ -228,7 +210,9 @@ const DoorCard = ({ door, index }: { door: Door; index: number }) => {
             <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/4 text-slate-200">
               {door.icon}
             </span>
-            <p className={`bg-linear-to-r ${door.accent.eyebrow} bg-clip-text text-sm font-bold uppercase tracking-[0.14em] text-transparent sm:text-base`}>
+            <p
+              className={`bg-linear-to-r ${door.accent.eyebrow} bg-clip-text text-sm font-bold uppercase tracking-[0.14em] text-transparent sm:text-base`}
+            >
               {door.eyebrow}
             </p>
           </div>
@@ -242,11 +226,16 @@ const DoorCard = ({ door, index }: { door: Door; index: number }) => {
           <p className="mt-2.5 text-[15px] leading-relaxed text-[#9cadc5]">{door.blurb}</p>
 
           {door.pointsLabel && (
-            <p className="mt-4 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-slate-450">{door.pointsLabel}</p>
+            <p className="mt-4 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-slate-450">
+              {door.pointsLabel}
+            </p>
           )}
           <ul className={`${door.pointsLabel ? 'mt-2' : 'mt-4'} flex flex-col gap-1.5`}>
             {door.points.map((p) => (
-              <li key={p.lead ?? p.text} className="flex items-start gap-2.5 text-sm leading-snug text-slate-300">
+              <li
+                key={p.lead ?? p.text}
+                className="flex items-start gap-2.5 text-sm leading-snug text-slate-300"
+              >
                 <FiCheck aria-hidden className={`mt-0.5 h-4 w-4 shrink-0 ${door.accent.check}`} />
                 <span>
                   {p.lead && <strong className="font-semibold text-slate-100">{p.lead}</strong>}
@@ -259,7 +248,9 @@ const DoorCard = ({ door, index }: { door: Door; index: number }) => {
 
           {door.next && (
             <>
-              <p className="mt-4 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-slate-450">Next up</p>
+              <p className="mt-4 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-slate-450">
+                Next up
+              </p>
               <ul aria-label="Next up" className="mt-2 flex flex-wrap gap-1.5">
                 {door.next.map((s) => (
                   <li
@@ -299,12 +290,99 @@ const DoorCard = ({ door, index }: { door: Door; index: number }) => {
   )
 }
 
+/**
+ * The Tech for Pros door (round 5 of 2026-11-02): it mirrors the top of the
+ * page ("What I'm working on"): the same browser window with its templates
+ * sliding by and the timer line, with the scrolling phone in front (the old
+ * landscaping shots scrolled slowly and unevenly), and the same voice. Under
+ * the copy, the quote request: an email field and "Get my quote" (QuoteForm),
+ * which the top section's "Get a quote" lands on. "techforpros.com" in its
+ * header becomes a link only once the site is live
+ * (`TECH_FOR_PROS_LINKS.siteLive`); until then it is plain text.
+ */
+const tfp = nowItems.find((item) => item.project === TECH_FOR_PROS.name)!
+
+const TechForProsCard = ({
+  index,
+  turnstileSiteKey,
+}: {
+  index: number
+  turnstileSiteKey: string
+}) => (
+  <Reveal delay={index * 0.08}>
+    <article
+      aria-labelledby="door-techforpros"
+      className="group relative grid items-center gap-7 overflow-hidden rounded-3xl border border-white/8 bg-white/2 p-5 transition-colors duration-200 hover:border-sky-300/25 sm:p-7 lg:grid-cols-[1.2fr_0.95fr] lg:gap-10 lg:px-10 lg:py-8"
+      data-door="techforpros"
+    >
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-24 -right-20 h-72 w-72 rounded-full bg-radial from-sky-400/[0.09] to-transparent to-70%"
+      />
+
+      {/* The templates, as at the top of the page; it holds still off screen. */}
+      <div className="relative lg:order-first" data-shots>
+        <PauseOffscreen>
+          <TemplateCarousel slides={tfp.templates} phone={tfp.phone} />
+        </PauseOffscreen>
+      </div>
+
+      <div className="relative flex flex-col">
+        <div className="flex items-center gap-3">
+          <span className="h-9 w-9 shrink-0">
+            <TechForProsMark className="h-full w-full rounded-xl" sizes="36px" />
+          </span>
+          <p className="text-sm font-bold tracking-[0.14em] uppercase sm:text-base">
+            {TECH_FOR_PROS_LINKS.siteLive ? (
+              <External
+                href={refHref('techforpros', 'card')}
+                className="inline-flex items-center gap-1 bg-linear-to-r from-white to-sky-300 bg-clip-text text-transparent underline decoration-sky-300/40 underline-offset-4 hover:decoration-sky-300"
+              >
+                {TECH_FOR_PROS.domain}
+              </External>
+            ) : (
+              <span
+                className="bg-linear-to-r from-white to-sky-300 bg-clip-text text-transparent"
+                data-tfp-domain
+              >
+                {TECH_FOR_PROS.domain}
+              </span>
+            )}
+          </p>
+        </div>
+
+        <h3
+          id="door-techforpros"
+          className="mt-4 text-balance text-2xl font-extrabold leading-tight tracking-tight text-slate-50 sm:text-[1.75rem]"
+        >
+          Run a service business?{' '}
+          <span className="bg-linear-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
+            Websites built for pros.
+          </span>
+        </h3>
+        <p className="mt-2.5 text-[15px] leading-relaxed text-[#9cadc5]">{tfp.pitch}</p>
+
+        <div className="mt-6">
+          <QuoteForm turnstileSiteKey={turnstileSiteKey} />
+        </div>
+      </div>
+    </article>
+  </Reveal>
+)
+
 const WorkWithMe = () => {
+  // As the contact form and the waitlist: no widget in development (the server lets it through there).
+  const turnstileSiteKey =
+    process.env.NODE_ENV === 'development' ? '' : process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''
   return (
     <section id="work-with-me" aria-label="Work with me" className="py-16">
       <div className="mb-8 max-w-[640px]">
-        <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-cyan-400">Work with me</p>
-        <h2 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">Two ways to put me to work</h2>
+        <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-cyan-400">
+          Work with me
+        </p>
+        <h2 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
+          Two ways to put me to work
+        </h2>
         <p className="mt-2 text-[#9cadc5]">
           This is where I build in public. If you like what you see, here&apos;s where it goes next:
           hire me, or let Tech for Pros put your business online.
@@ -315,6 +393,7 @@ const WorkWithMe = () => {
         {doors.map((d, i) => (
           <DoorCard key={d.id} door={d} index={i} />
         ))}
+        <TechForProsCard index={doors.length} turnstileSiteKey={turnstileSiteKey} />
       </div>
     </section>
   )

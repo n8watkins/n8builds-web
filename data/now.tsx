@@ -67,11 +67,11 @@ export const nowItems: NowState[] = [
     // The full-length HVAC page (resized to 280px wide), scrolling in its
     // frame. A new filename, not the old crop's: image caches key on the URL.
     phone: { src: '/now/hvac-phone-full.webp', width: 280, height: 7685, frameHeight: 700, label: 'HVAC template' },
-    // Request a quote, then a booking page and the site once they exist
+    // Get a quote (the quote field in Work with me), then a booking page and the site once they exist
     // (TECH_FOR_PROS_LINKS). The site goes through the counted short link,
     // under "hero": this card is the first screen's sneak peek.
     ctas: [
-      { label: 'Request a quote', href: TECH_FOR_PROS_LINKS.quote },
+      { label: 'Get a quote', href: TECH_FOR_PROS_LINKS.quote },
       ...(TECH_FOR_PROS_LINKS.booking ? [{ label: 'Book an intro call', href: TECH_FOR_PROS_LINKS.booking }] : []),
       ...(TECH_FOR_PROS_LINKS.siteLive ? [{ label: `Visit ${TECH_FOR_PROS.domain}`, href: refHref('techforpros', 'hero') }] : []),
     ],
