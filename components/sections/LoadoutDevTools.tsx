@@ -386,14 +386,14 @@ export const PersonCard = ({ person }: { person: Person }) => (
     <p className="text-[15px] leading-relaxed text-pretty text-[#9cadc5]">{person.note}</p>
     {person.howTheyWork && (
       <p className="-mt-1 text-sm leading-relaxed text-slate-400">
-        {person.howTheyWork.summary}{' '}
         <a href={person.howTheyWork.href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-semibold whitespace-nowrap text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 hover:text-cyan-200">
           <span aria-hidden="true" className="[&_svg]:h-3.5 [&_svg]:w-3.5">
             <SiYoutube />
           </span>
-          How he works
+          Check out how he works
           <span className="sr-only"> (a video, opens in a new tab)</span>
-        </a>
+        </a>{' '}
+        for more on his setup.
       </p>
     )}
     <RecentActivity person={person} />

@@ -267,8 +267,8 @@ export interface Person {
   note: string
   /** Their own links only (from their channels or profiles); never a guessed one. */
   links: PersonLink[]
-  /** How they work, in one line, and where they show it (a video). */
-  howTheyWork?: { summary: string; href: string }
+  /** Where they show how they work and their setup (a video). */
+  howTheyWork?: { href: string }
   /** Their recent public activity, newest first; none until the feed exists. */
   activity?: PublicActivity[]
 }
@@ -301,10 +301,7 @@ export const people: Person[] = [
     role: 'Former L8 principal engineer at Meta, Microsoft and Atlassian.',
     // A non-breaking hyphen (U+2011) keeps "no-mistakes" from splitting across lines.
     note: 'Building agent tools in the open: no\u2011mistakes, firstmate, gnhf, treehouse and the AXI interfaces.',
-    howTheyWork: {
-      summary: 'Runs macOS with nix-darwin, WezTerm, Neovim and tmux or herdr; Claude Code for interactive work, Codex for background runs.',
-      href: 'https://youtu.be/iQyg-KypKAA',
-    },
+    howTheyWork: { href: 'https://youtu.be/iQyg-KypKAA' },
     links: [
       { kind: 'youtube', href: 'https://www.youtube.com/channel/UCb69t9ZkE5z1KvCmfJoaifA' },
       { kind: 'x', href: 'https://x.com/kunchenguid' },
@@ -318,7 +315,8 @@ export const people: Person[] = [
     initials: 'PR',
     avatar: '/people/phaedrus.webp',
     role: 'Runs Misty Step, an AI-native software agency.',
-    note: 'Building tooling for fleets of coding agents. He created pass-env.',
+    // From mistystack's README and mistystep.io (2026-11-01).
+    note: 'Building what amounts to a software factory: mistystack, one method his agents load as skills across Claude Code, Codex and more, with builds and tests run on a fleet of workers. Misty Step ships its own games on it, and he created pass-env.',
     links: [
       { kind: 'x', href: 'https://x.com/moomooskycow' },
       { kind: 'github', href: 'https://github.com/moomooskycow' },

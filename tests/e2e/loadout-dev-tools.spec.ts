@@ -171,11 +171,20 @@ test.describe('Loadout tools and people', () => {
     await expect(mentions.getByText('gnhf')).toHaveCount(0)
   })
 
-  test('Kun Chen\'s card says how he works and links the video', async ({ page }) => {
+  test('Kun Chen\'s card links his how-he-works video for his setup', async ({ page }) => {
     await page.goto('/')
     const card = page.locator('#kun-chen')
-    await expect(card.getByText(/Runs macOS with nix-darwin, WezTerm, Neovim/)).toBeVisible()
-    await expect(card.getByRole('link', { name: 'How he works (a video, opens in a new tab)' })).toHaveAttribute('href', 'https://youtu.be/iQyg-KypKAA')
+    await expect(card).not.toContainText('nix-darwin')
+    await expect(card).toContainText('Check out how he works for more on his setup.')
+    await expect(card.getByRole('link', { name: 'Check out how he works (a video, opens in a new tab)' })).toHaveAttribute('href', 'https://youtu.be/iQyg-KypKAA')
+  })
+
+  test('Phaedrus\'s card describes the software factory he is building', async ({ page }) => {
+    await page.goto('/')
+    const card = page.locator('#phaedrus')
+    await expect(card).toContainText('software factory')
+    await expect(card).toContainText('mistystack')
+    await expect(card).toContainText('he created pass-env')
   })
 
   test('the homepage teases my setup and links to it', async ({ page }) => {
