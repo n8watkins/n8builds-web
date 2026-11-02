@@ -175,7 +175,7 @@ test.describe('Loadout tools and people', () => {
     await page.goto('/')
     const card = page.locator('#kun-chen')
     await expect(card).not.toContainText('nix-darwin')
-    await expect(card).toContainText('Check out how he works for more on his setup.')
+    await expect(card).toContainText('for more on his setup.')
     await expect(card.getByRole('link', { name: 'Check out how he works (a video, opens in a new tab)' })).toHaveAttribute('href', 'https://youtu.be/iQyg-KypKAA')
   })
 
