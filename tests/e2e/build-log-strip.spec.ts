@@ -2,8 +2,8 @@ import { test, expect, type Page } from '@playwright/test'
 
 /**
  * The homepage's compact build log (#build-log), the Lab's first part: this
- * month's updates as rows, a page at a time (four, three on phones) moving on
- * by itself, a card cycling through the month's figures, and a link to
+ * month's updates as rows, a page at a time (four at every width, the last
+ * page filled up with the newest again) moving on by itself, a card cycling through the month's figures, and a link to
  * /builds. Against the recorded GitHub fixture (BUILD_LOG_FIXTURE=1), whose
  * capture time is the strip's "now", so these don't drift as the months pass.
  *
@@ -16,8 +16,8 @@ test.use({ contextOptions: { reducedMotion: 'reduce' } })
 const strip = (page: Page) => page.locator('#build-log')
 /** The rows showing (the other pages' are aria-hidden, so out of the role tree). */
 const rows = (page: Page) => strip(page).getByRole('listitem').filter({ has: page.locator('a[href^="/builds?build="]') })
-/** Every row of the month, shown or not. */
-const allRows = (page: Page) => strip(page).locator('li[data-row]')
+/** Every row of the month, shown or not (not the newest again, filling the last page). */
+const allRows = (page: Page) => strip(page).locator('li[data-row]:not([data-wrap])')
 const stats = (page: Page) => strip(page).getByRole('group', { name: /^Shipped / })
 const slides = (page: Page) => stats(page).locator('[data-stat]')
 const current = (page: Page) => stats(page).locator('[data-stat][aria-hidden="false"]')
@@ -34,14 +34,15 @@ const OCTOBER_UPDATES = 7
 const HOLD_MS = 8000
 
 /**
- * The paging at this page's width: four rows a page, three on phones (under
- * 40rem), as the strip lays them out. The phone projects run these too.
+ * The paging: four rows a page at every width (round 3 of 2026-11-02), and
+ * every page full: the last one wraps round to the newest rows. The phone
+ * projects run these too.
  */
-function paging(page: Page) {
-  const per = page.viewportSize()!.width >= 640 ? 4 : 3
+function paging(_page: Page) {
+  const per = 4
   const pages = Math.ceil(OCTOBER_UPDATES / per)
-  /** The rows (`data-row`) on page `k`, from 0. */
-  const rowsOn = (k: number) => Array.from({ length: Math.min(per, OCTOBER_UPDATES - k * per) }, (_, i) => k * per + i)
+  /** The rows (`data-row`) on page `k`, from 0: always four, wrapping round. */
+  const rowsOn = (k: number) => Array.from({ length: per }, (_, i) => (k * per + i) % OCTOBER_UPDATES)
   /** The position text on page `n`, from 1. */
   const at = (n: number) => `${n} / ${pages}`
   return { per, pages, rowsOn, at }
@@ -68,7 +69,10 @@ test("is the Lab's first part, right after its intro, in the server-rendered HTM
 test("holds the whole month, newest first, and shows the newest page of it", async ({ page, request }) => {
   // Every update of the month is in the server HTML, not only the first page.
   const html = await (await request.get('/')).text()
-  expect(html.match(/data-row="/g)).toHaveLength(OCTOBER_UPDATES)
+  // Each page is full: the last fills up with the newest again (marked data-wrap).
+  const pageCount = Math.ceil(OCTOBER_UPDATES / 4)
+  expect(html.match(/data-row="/g)).toHaveLength(pageCount * 4)
+  expect(html.match(/data-wrap=""/g)).toHaveLength(pageCount * 4 - OCTOBER_UPDATES)
 
   await page.goto('/')
   await strip(page).scrollIntoViewIfNeeded()
@@ -239,12 +243,12 @@ test('works from the keyboard: the button, the figures, each row, then the arrow
   expect(ring).not.toBe('none')
 })
 
-test('phones show three rows a page, with the date on the name line', async ({ page }) => {
+test('phones show four rows a page too, with the date on the name line', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 })
   await page.goto('/')
   await strip(page).scrollIntoViewIfNeeded()
-  await expect(rows(page)).toHaveCount(3)
-  await expect(position(page)).toHaveText(`1 / ${Math.ceil(OCTOBER_UPDATES / 3)}`)
+  await expect(rows(page)).toHaveCount(4)
+  await expect(position(page)).toHaveText(`1 / ${Math.ceil(OCTOBER_UPDATES / 4)}`)
   await expect(rows(page).first().locator('time')).toBeHidden()
   await expect(rows(page).first().locator('p').first()).toContainText(/Oct \d+/)
   // Nothing in the strip is wider than the screen.
@@ -304,7 +308,8 @@ test.describe('paging', () => {
     await expect(position(page)).toHaveText(at(2))
     expect(await shownRows(page)).toEqual(asText(rowsOn(1)))
     await expect(rows(page)).toHaveCount(rowsOn(1).length)
-    // On through the rest (the last page holds what is left), and round to the start.
+    // A full page, even the last (it wraps round to the newest), then round to the start.
+    await expect(rows(page)).toHaveCount(4)
     for (let n = 3; n <= pages + 1; n++) {
       await expect(list(page)).toHaveAttribute('data-cycling', '')
       await page.clock.fastForward(5100)
@@ -402,12 +407,14 @@ test.describe('paging', () => {
     await next.click()
     await expect(position(page)).toHaveText(at(2))
     const [first, ...more] = rowsOn(1)
-    await expect(live(page)).toHaveText(new RegExp(`^Updates ${first + 1} to ${(more.at(-1) ?? first) + 1} of 7: .*; n8builds\\.dev, One Lab section`))
+    // The last page wraps round to the newest, and says so.
+    expect(more.at(-1)).toBeLessThan(first)
+    await expect(live(page)).toHaveText(new RegExp(`^Updates ${first + 1} to 7 of 7, then the newest again: .*n8builds\\.dev, One Lab section`))
     await previous.click()
     await previous.click()
     // Back past the first page wraps round to the last.
     await expect(position(page)).toHaveText(at(pages))
-    await expect(live(page)).toHaveText(new RegExp(`^Updates ${rowsOn(pages - 1)[0] + 1} to 7 of 7: `))
+    await expect(live(page)).toHaveText(new RegExp(`^Updates ${rowsOn(pages - 1)[0] + 1} to 7 of 7, then the newest again: `))
 
     // From the keyboard: arrows page while focus is in the list, and focus
     // follows to the new page's first row rather than staying on a hidden one.
