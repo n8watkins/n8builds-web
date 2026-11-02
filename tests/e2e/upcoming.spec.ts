@@ -45,10 +45,12 @@ test('shows each project with its own anchor, and is titled for the site', async
   await expect(page.locator('#waitlist-projects').getByRole('checkbox')).toHaveCount(4)
 })
 
-test('lays the four cards out two by two on wide screens and in one column below', async ({ page }) => {
+test('lays the cards out one to a row beside the waitlist on wide screens, two by two just below, one column on phones', async ({ page }) => {
+  // 1040, not 1024: WebKit's media queries see the window minus its scrollbar.
   for (const [width, columns] of [
-    [1280, 2],
-    [1024, 2],
+    [1280, 1],
+    [1040, 1],
+    [1000, 2],
     [810, 1],
     [390, 1],
   ]) {

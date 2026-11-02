@@ -235,7 +235,7 @@ test('the month arrows show the months before, each whole, and come back', async
   // textContent: on phones the row's <time> is hidden (its day rides on the name line).
   const days = await earlier.locator('li[data-row]:not([data-wrap]) time').allTextContents()
   expect(days.length).toBeGreaterThan(0)
-  expect(days.every((d) => d.startsWith(month))).toBe(true)
+  expect(days.every((d) => d.toUpperCase().startsWith(month))).toBe(true)
   await expect(stats(page)).toHaveAccessibleName(`Shipped ${previous}`)
   // The line under the heading follows the month.
   await expect(strip(page).locator('[data-month-line]')).toHaveText(`Shipped in ${previous.replace(' 2026', '')}`)
