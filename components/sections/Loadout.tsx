@@ -72,10 +72,10 @@ const StepCard = ({ step, index }: { step: WorkflowStep; index: number }) => (
         )}
       </div>
     </div>
-    <p className="relative text-[15px] leading-relaxed text-[#b4c2d6]">{step.whatFor}</p>
+    <p className="relative text-[15px] leading-relaxed text-pretty text-[#b4c2d6]">{step.whatFor}</p>
     <div className="relative mt-auto flex items-start gap-2 border-t border-white/6 pt-4">
       <span className="mt-0.5 shrink-0 font-mono text-xs text-(--brand)">{'//'}</span>
-      <p className="font-mono text-[0.8rem] leading-relaxed text-slate-400">{step.take}</p>
+      <p className="font-mono text-[0.8rem] leading-relaxed text-pretty text-slate-400">{step.take}</p>
     </div>
   </article>
 )
@@ -120,7 +120,7 @@ const Gear = ({ groups }: { groups: LoadoutGroup[] }) => (
                         </span>
                       )}
                     </p>
-                    <p className="mt-0.5 text-sm leading-relaxed text-[#9cadc5]">{item.whatFor}</p>
+                    <p className="mt-0.5 text-sm leading-relaxed text-pretty text-[#9cadc5]">{item.whatFor}</p>
                   </div>
                 </li>
               ))}
@@ -277,7 +277,7 @@ const Loadout = () => {
                         </span>
                       )}
                     </div>
-                    <p className="mt-1 text-sm leading-relaxed text-[#9cadc5]">{item.whatFor}</p>
+                    <p className="mt-1 text-sm leading-relaxed text-pretty text-[#9cadc5]">{item.whatFor}</p>
                   </div>
                 </li>
               ))}

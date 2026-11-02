@@ -124,10 +124,10 @@ const BuiltToolCard = ({ tool }: { tool: BuiltTool }) => (
         </ul>
       </div>
     </div>
-    <p className="relative text-lg leading-snug font-semibold text-slate-100">{tool.pitch}</p>
-    <p className="relative text-[15px] leading-relaxed text-[#9cadc5]">{tool.detail}</p>
+    <p className="relative text-lg leading-snug font-semibold text-pretty text-slate-100">{tool.pitch}</p>
+    <p className="relative text-[15px] leading-relaxed text-pretty text-[#9cadc5]">{tool.detail}</p>
     {tool.credit && (
-      <p className="relative text-sm leading-relaxed text-slate-300" data-credit>
+      <p className="relative text-sm leading-relaxed text-pretty text-slate-300" data-credit>
         Created by <External link={tool.credit.author} />
         {tool.credit.org && (
           <>
@@ -180,7 +180,7 @@ export const BuiltToolsGrid = ({ tools = toolsIBuilt }: { tools?: BuiltTool[] })
 export const TOOLS_I_BUILT_TITLE = 'Tools I built and use'
 export const TOOLS_I_BUILT_BLURB = 'Tools I made for myself and use every day. All open source and MIT-licensed.'
 
-const makerLink = 'font-medium text-slate-300 underline decoration-white/20 underline-offset-4 transition-colors hover:text-cyan-200'
+const makerLink = 'font-medium whitespace-nowrap text-slate-300 underline decoration-white/20 underline-offset-4 transition-colors hover:text-cyan-200'
 
 /**
  * One tool someone else made: "no-mistakes, by Kun Chen", what it is for, and
@@ -228,12 +228,12 @@ const ToolItem = ({ tool }: { tool: UsedTool }) => {
             </>
           )}
         </h3>
-        <p className="mt-1 text-sm leading-relaxed text-[#9cadc5]">{tool.whatFor}</p>
+        <p className="mt-1 text-sm leading-relaxed text-pretty text-[#9cadc5]">{tool.whatFor}</p>
         {/* Pinned to the card's foot, so the buttons line up across a row. */}
         <div className="mt-auto flex flex-wrap gap-2 pt-4">
-          <RepoButtons href={tool.github} name={tool.name} />
+          <RepoButtons href={tool.github} name={tool.name} className="w-full sm:w-auto" />
           {tool.site && (
-            <a href={tool.site} target="_blank" rel="noopener noreferrer" className={linkButton}>
+            <a href={tool.site} target="_blank" rel="noopener noreferrer" className={`${linkButton} w-full justify-center sm:w-auto`}>
               <span aria-hidden="true">
                 <LuGlobe />
               </span>
