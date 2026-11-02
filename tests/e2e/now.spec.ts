@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
+import { APP_JS } from './app-js'
 
 /**
  * "What I'm working on" (#now): an ad for Tech for Pros with template
@@ -68,7 +69,7 @@ test('recent activity is not on the card face; What\'s new opens it in a labelle
 test('What\'s new waits for hydration instead of swallowing an early click', async ({ page }) => {
   let release!: () => void
   const held = new Promise<void>((resolve) => (release = resolve))
-  await page.route('**/_next/static/chunks/**', async (route) => {
+  await page.route(APP_JS, async (route) => {
     await held
     await route.continue()
   })

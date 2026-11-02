@@ -20,7 +20,7 @@ It continues the long 2026-10-26 session, which ran out of room.
 - Preview first for taste work: build the look at desktop (1440) then phone (375), serve a production preview (`next build` then `next start`), report the link and screenshots, and stop until the owner approves. Then the finish phase: other widths, tests, accessibility, CI.
 - Reproduce bugs in an E2E test before fixing; be pixel-picky; fix flaky tests you meet.
 - Machine limits: WSL has 8 cores and ~19.5 GB. Wrap every build, Playwright and Lighthouse job in `~/scripts/browser-slot <cmd>` (at most 4 at once). Previews run on `next start` (~170 MB), never a long-lived `next dev`. `dev-watch status` lists servers; the `dev-watch.timer` stops dev servers over 5 GB and any server whose branch is merged.
-- Worktrees: symlink `node_modules` from the main checkout; Turbopack fails there, so use `next dev --webpack` and `next build --webpack`; link `.env.local` only while a server needs it.
+- Worktrees: run `npm ci` in each one (Turbopack refuses a symlinked `node_modules`; superseded 2026-11-01: never fall back to `--webpack`, see AGENTS.md); link `.env.local` only while a server needs it.
 - Never `git add -A` without checking `git status`; never paste secrets.
 - Images replaced in place must get a NEW filename (the image optimizer and CDN cache by URL).
 

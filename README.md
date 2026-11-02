@@ -9,7 +9,7 @@ Manual steps that need the owner live in [`docs/OWNER_TODO.md`](docs/OWNER_TODO.
 
 ## Stack
 
-- Next.js 16 (App Router, webpack production build), React 19, TypeScript (strict)
+- Next.js 16 (App Router, Turbopack for dev, tests and the production build), React 19, TypeScript (strict)
 - Tailwind CSS 4 (configured in `app/globals.css`), Motion (`motion/react`)
 - React Hook Form + Zod
 - Sanity (read-only CDN client) for the N8's Notions blog
@@ -73,7 +73,7 @@ Under `next dev`, Turnstile verification and Upstash are skipped, so the contact
 | `npm run test:e2e:all` | Playwright on Chromium, Firefox, WebKit and mobile |
 | `npm test` | Unit + E2E |
 | `npm run lighthouse` | Lighthouse budgets on the production build (build first; see below) |
-| `npm run analyze` | Production build with the bundle analyzer |
+| `npm run analyze` | Turbopack bundle analyzer (`next analyze`; no build output) |
 
 Playwright builds and starts the app itself on port 3747 (`E2E_PORT` overrides it) in `CONTACT_TEST_MODE`, with Cloudflare's always-pass Turnstile test keys.
 No email is sent, and GA, Sentry and Upstash are forced off.
