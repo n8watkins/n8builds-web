@@ -429,6 +429,17 @@ test.describe('Loadout tools and people', () => {
     await expect(page.getByRole('heading', { name: 'The setup' })).toHaveCount(0)
   })
 
+  test('the gear is the rig and the desk, with larger marks; #stream still lands on it', async ({ page }) => {
+    await page.goto('/loadout#stream')
+    const gear = page.getByRole('region', { name: 'The gear' })
+    await expect(gear.getByRole('heading', { name: 'The gear', level: 2 })).toBeInViewport()
+    // Round 3 of 2026-11-02: no Stream kit (Scribe is in Tools I built and use).
+    await expect(gear.getByRole('heading', { level: 3 })).toHaveText(['Rig', 'Desk'])
+    await expect(gear).not.toContainText('OBS Studio')
+    for (const size of await gear.locator('[data-gear-icon] svg').evaluateAll((icons) => icons.map((svg) => svg.getBoundingClientRect().height)))
+      expect(size).toBeGreaterThanOrEqual(20)
+  })
+
   test('fits a 320px phone without sideways scrolling', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 640 })
     for (const [path, part] of [['/loadout', '#tools-i-built'], ['/', '#pr-post-edition']]) {

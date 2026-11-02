@@ -42,7 +42,6 @@ import {
   SiGooglegemini,
   SiNeovim,
   SiNodedotjs,
-  SiObsstudio,
   SiPnpm,
   SiPython,
   SiRazer,
@@ -515,29 +514,10 @@ export const toolsIUse: UsedTool[] = [
 
 
 /** A brand whose mark is a wordmark (AMD, Samsung, Acer) is drawn wider in The gear, so it reads (as in My dev setup). */
-const GEAR_WORDMARK = '-my-1 size-6!'
+const GEAR_WORDMARK = '-my-1.5 size-8!'
+// The Stream Kit group (OBS Studio, Scribe) left on 2026-11-02 (round 3): Scribe
+// is in Tools I built and use; /loadout#stream lands on The gear.
 export const loadout: LoadoutGroup[] = [
-  {
-    id: 'stream',
-    title: 'Stream Kit',
-    subtitle: 'How the "in public" part actually happens.',
-    accent: 'teal',
-    path: '~/loadout/stream',
-    items: [
-      {
-        name: 'OBS Studio',
-        icon: <SiObsstudio />,
-        whatFor: 'Capturing and streaming the builds. Scenes for code, cam, and overlays.',
-        take: 'Free, infinitely tweakable, runs everything. The backbone of streaming.',
-      },
-      {
-        name: 'Scribe',
-        whatFor: 'Hold a hotkey, talk, it types - local Whisper transcription at the cursor.',
-        take: 'Also mine. Faster than typing for notes, prompts, and commit messages.',
-        tag: 'built it myself',
-      },
-    ],
-  },
   {
     id: 'rig',
     title: 'The Rig',

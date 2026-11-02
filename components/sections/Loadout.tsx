@@ -1,5 +1,4 @@
 import React, { type CSSProperties } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { FiArrowLeft, FiArrowRight } from 'react-icons/fi'
 import { LuBackpack } from 'react-icons/lu'
@@ -82,10 +81,10 @@ const StepCard = ({ step, index }: { step: WorkflowStep; index: number }) => (
 
 /**
  * The gear in one place (the owner found three spec sheets repetitive,
- * 2026-10-27): a column each for the rig, the desk and the stream kit, one
- * line per item. Called "The setup" until 2026-11-01, renamed so it doesn't
- * clash with "My dev setup"; "gear" rather than "hardware" because the stream
- * kit includes OBS and Scribe.
+ * 2026-10-27): a column each for the rig and the desk, one line per item.
+ * Called "The setup" until 2026-11-01, renamed so it doesn't clash with "My
+ * dev setup". The stream kit (OBS, Scribe) left on 2026-11-02 (round 3);
+ * Scribe is in Tools I built and use.
  */
 const Gear = ({ groups }: { groups: LoadoutGroup[] }) => (
   // Reveal renders no aria attributes, so the labelled section sits inside it.
@@ -94,7 +93,7 @@ const Gear = ({ groups }: { groups: LoadoutGroup[] }) => (
     <SectionHead id="gear-title" part="gear" path="~/loadout/gear" title="The gear">
       What it all runs on, from the PC to the mic.
     </SectionHead>
-    <div className="grid gap-4 md:grid-cols-3">
+    <div className="grid gap-4 md:grid-cols-2">
       {groups.map((group, g) => (
         <Reveal key={group.id} delay={g * 0.1}>
           <section
@@ -107,14 +106,15 @@ const Gear = ({ groups }: { groups: LoadoutGroup[] }) => (
             </h3>
             <ul className="mt-4 space-y-3.5">
               {group.items.map((item) => (
-                <li key={item.name} className="group/item flex gap-2">
-                  {/* The mark alone, centred on the name's line, as My dev setup's chips (owner, 2026-11-02: no box around it). */}
+                <li key={item.name} className="group/item flex gap-3">
+                  {/* The mark alone, centred on the name's line, as My dev setup's chips (owner, 2026-11-02: no box
+                      around it), a size up since round 3 so it reads at a glance. */}
                   <span
                     aria-hidden="true"
                     data-gear-icon
-                    className="flex h-6 w-6 shrink-0 items-center justify-center text-slate-300 transition-colors group-hover/item:text-cyan-200 [&_img]:size-4 [&_img]:rounded-[3px] [&_svg]:size-4"
+                    className="flex h-6 w-8 shrink-0 items-center justify-center text-slate-300 transition-colors group-hover/item:text-cyan-200 [&_img]:size-5 [&_img]:rounded-[4px] [&_svg]:size-5"
                   >
-                    {item.icon ?? (item.name === 'Scribe' ? <Image src="/builds/scribe/app-icon.png" alt="" width={16} height={16} /> : null)}
+                    {item.icon}
                   </span>
                   <div className="min-w-0">
                     <p className="flex flex-wrap items-center gap-2 font-semibold text-balance text-slate-100">
@@ -162,7 +162,7 @@ const Part = ({ id, bleed = false, children }: { id: string; bleed?: boolean; ch
 }
 
 const Loadout = () => {
-  const kit = ['rig', 'desk', 'stream'].flatMap((id) => loadout.filter((group) => group.id === id))
+  const kit = ['rig', 'desk'].flatMap((id) => loadout.filter((group) => group.id === id))
   return (
     // Clipped, not overflow-hidden: a hidden overflow is a scroll container,
     // which would stop the side rail sticking.
@@ -340,10 +340,12 @@ const Loadout = () => {
         <ToolsIUse />
       </Part>
 
-      {/* The gear (rig, desk, stream kit), in one section */}
+      {/* The gear (rig, desk), in one section */}
       <Part id="gear">
-        {/* The old anchor, so /loadout#setup links already out there still land here. */}
+        {/* The old anchors, so /loadout#setup and #stream (the stream kit's, gone
+             since round 3 of 2026-11-02) links already out there still land here. */}
         <span id="setup" aria-hidden="true" className="block" />
+        <span id="stream" aria-hidden="true" className="block" />
         <Gear groups={kit} />
         <p className="mt-16 border-t border-white/6 pt-8 text-center font-mono text-xs text-slate-475">
           {"// the kit changes constantly - check back, it's always being re-rolled."}
