@@ -10,7 +10,18 @@ export const PICK_EVENT = 'waitlist:pick'
  * form and brings the form into view. A real link to #waitlist, so it still
  * works before hydration (the form then reads nothing, and nothing is lost).
  */
-export default function JoinButton({ slug, name, accent }: { slug: UpcomingSlug; name: string; accent: string }) {
+export default function JoinButton({
+  slug,
+  name,
+  accent,
+  compact = false,
+}: {
+  slug: UpcomingSlug
+  name: string
+  accent: string
+  /** The homepage's narrow cards: "Join the waitlist", the name read out but not shown. */
+  compact?: boolean
+}) {
   return (
     <a
       href="#waitlist"
@@ -24,9 +35,15 @@ export default function JoinButton({ slug, name, accent }: { slug: UpcomingSlug;
         window.history.replaceState(null, '', '#waitlist')
       }}
       style={{ '--accent': accent } as CSSProperties}
-      className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-(--accent)/45 bg-(--accent)/10 px-5 text-sm font-semibold text-slate-50 transition-colors duration-150 hover:border-(--accent)/70 hover:bg-(--accent)/18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--accent)"
+      className={`inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-(--accent)/45 bg-(--accent)/10 px-5 text-sm font-semibold text-slate-50 transition-colors duration-150 hover:border-(--accent)/70 hover:bg-(--accent)/18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--accent) ${compact ? 'w-full' : ''}`}
     >
-      Join the {name} waitlist
+      {compact ? (
+        <>
+          Join the waitlist<span className="sr-only"> for {name}</span>
+        </>
+      ) : (
+        <>Join the {name} waitlist</>
+      )}
       <span aria-hidden="true">&darr;</span>
     </a>
   )

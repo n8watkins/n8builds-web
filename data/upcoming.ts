@@ -117,9 +117,6 @@ export const UPCOMING: UpcomingProject[] = [
   },
 ]
 
-/** The waitlist link for one project: the URL contract the landing pages use too. */
-export const waitlistHref = (slug: UpcomingSlug) => `/upcoming?interest=${slug}#${slug}`
-
 /** Old interest values from renamed projects, so links already out there keep working. */
 export const INTEREST_ALIASES: Record<string, UpcomingSlug> = { rewire: 'relink' }
 

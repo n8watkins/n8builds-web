@@ -186,18 +186,18 @@ test('each card links its landing page (hrefs only: the sites may not be live ye
   }
 })
 
-test("the homepage Lab ends with a short What's cookin' part, each with its waitlist and landing page", async ({ page }) => {
+test("the homepage Lab ends with a short What's cookin' part: each project's Join and landing page, then the waitlist", async ({ page }) => {
   await page.goto('/')
   const band = page.locator('#lab section#upcoming')
   await expect(band.getByRole('heading', { level: 3 })).toHaveText('What’s cookin’')
   await expect(band.getByText('Upcoming', { exact: true })).toBeVisible()
   await expect(band.getByRole('listitem')).toHaveCount(4)
+  // The same form as /upcoming, picking several projects (owner, 2026-11-02).
+  await expect(band.locator('#waitlist').getByRole('heading', { level: 4, name: 'Join the waitlist' })).toBeVisible()
+  await expect(band.locator('#waitlist').getByRole('checkbox')).toHaveCount(4)
   for (const [slug, href] of Object.entries(LANDING)) {
     const name = NAMES[slug]
-    await expect(band.getByRole('link', { name: `Let ’em cook: join the waitlist for ${name}` })).toHaveAttribute(
-      'href',
-      `/upcoming?interest=${slug}#${slug}`
-    )
+    await expect(band.getByRole('link', { name: `Join the waitlist for ${name}` })).toHaveAttribute('href', '#waitlist')
     await expect(band.getByRole('link', { name: `Visit the landing page for ${name} (opens in a new tab)` })).toHaveAttribute(
       'href',
       href
@@ -209,11 +209,24 @@ test("the homepage Lab ends with a short What's cookin' part, each with its wait
   await expect(page).toHaveURL(/\/upcoming$/)
 })
 
-// Four items: two by two from 768px up (four across would squeeze the buttons onto two lines), one column below.
+test("a homepage card's Join ticks that project in the waitlist below and scrolls to it", async ({ page }) => {
+  await page.goto('/')
+  const band = page.locator('#lab section#upcoming')
+  await band.getByRole('link', { name: 'Join the waitlist for KeysReady' }).click()
+  await expect(band.locator('#waitlist input[value="keysready"]')).toBeChecked()
+  await band.getByRole('link', { name: 'Join the waitlist for Relink' }).click()
+  // Several at once: the first pick stays.
+  await expect(band.locator('#waitlist input[value="relink"]')).toBeChecked()
+  await expect(band.locator('#waitlist input[value="keysready"]')).toBeChecked()
+  await expect(page).toHaveURL(/#waitlist$/)
+  await expect(band.locator('#waitlist-email')).toBeInViewport()
+})
+
+// Four items: four across from 1024px, two by two on tablets, one column on phones.
 for (const [width, columns] of [
-  [1440, 2],
-  [1280, 2],
-  [1024, 2],
+  [1440, 4],
+  [1280, 4],
+  [1024, 4],
   [810, 2],
   [390, 1],
   [320, 1],
@@ -221,7 +234,7 @@ for (const [width, columns] of [
   test(`What's cookin' lays its four items out evenly at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 })
     await page.goto('/')
-    const items = page.locator('#lab section#upcoming li')
+    const items = page.locator('#lab section#upcoming > div > ul > li')
     await expect(items).toHaveCount(4)
     await items.first().scrollIntoViewIfNeeded()
     const boxes = await items.evaluateAll((list) =>
@@ -234,9 +247,9 @@ for (const [width, columns] of [
     for (const heights of rows.values()) expect(Math.max(...heights) - Math.min(...heights)).toBeLessThan(1)
     // Each join button stays on one line, and nothing spills past the page.
     const buttons = await items
-      .getByRole('link', { name: /Let ’em cook/ })
+      .getByRole('link', { name: /Join the waitlist/ })
       .evaluateAll((links) => links.map((a) => a.getBoundingClientRect().height))
-    for (const height of buttons) expect(height).toBeLessThanOrEqual(37)
+    for (const height of buttons) expect(height).toBeLessThanOrEqual(44)
     expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0)
   })
 }

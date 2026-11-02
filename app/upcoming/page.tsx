@@ -5,10 +5,9 @@ import Navbar from '@/components/layout/Navbar'
 import FadeIn from '@/components/ui/FadeIn'
 import Reveal from '@/components/ui/Reveal'
 import JoinButton from '@/components/upcoming/JoinButton'
-import WaitlistForm from '@/components/upcoming/WaitlistForm'
+import WaitlistPanel from '@/components/upcoming/WaitlistPanel'
 import { UPCOMING, type UpcomingProject } from '@/data/upcoming'
 import { pageMetadata } from '@/lib/seo'
-import { isWaitlistOpen } from '@/lib/waitlist/store'
 
 export const metadata = pageMetadata({
   title: 'Upcoming | n8builds',
@@ -100,10 +99,6 @@ function ProjectCard({ project, index }: { project: UpcomingProject; index: numb
 }
 
 export default function UpcomingPage() {
-  const open = isWaitlistOpen()
-  // As the contact form: under `next dev` the server skips Turnstile.
-  const turnstileSiteKey = process.env.NODE_ENV === 'development' ? '' : process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''
-
   return (
     <>
       <Navbar />
@@ -134,36 +129,7 @@ export default function UpcomingPage() {
           </div>
 
           <Reveal as="section" id="waitlist" className="mx-auto mt-16 max-w-2xl scroll-mt-24 md:mt-20">
-            <div className="rounded-2xl border border-white/8 bg-linear-to-br from-cyan-500/[0.06] to-blue-600/[0.03] p-6 sm:p-8">
-              <h2 className="text-2xl font-bold tracking-tight text-slate-50 sm:text-3xl">
-                Join the <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">waitlist</span>
-              </h2>
-              {open ? (
-                <>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-300 sm:text-base">
-                    Pick the projects you want to hear about. I&rsquo;ll email a link to confirm, so nobody can sign you up but
-                    you.
-                  </p>
-                  <div className="mt-6">
-                    <WaitlistForm turnstileSiteKey={turnstileSiteKey} />
-                  </div>
-                </>
-              ) : (
-                <div data-waitlist-closed className="mt-3 space-y-2 text-sm leading-relaxed text-slate-300 sm:text-base">
-                  <p className="font-semibold text-slate-100">The waitlist opens soon.</p>
-                  <p>
-                    Until it does, email me at{' '}
-                    <a
-                      href="mailto:contact@n8builds.dev"
-                      className="text-cyan-400 underline underline-offset-2 hover:text-cyan-300"
-                    >
-                      contact@n8builds.dev
-                    </a>{' '}
-                    with the project you&rsquo;re interested in, and I&rsquo;ll let you know when there is something to try.
-                  </p>
-                </div>
-              )}
-            </div>
+            <WaitlistPanel />
           </Reveal>
         </div>
       </main>
