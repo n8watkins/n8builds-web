@@ -1,8 +1,7 @@
 import { test, expect, type Page } from '@playwright/test'
 
 /**
- * The homepage's compact build log (#build-log), right under "What I'm working
- * on": this month's newest entries across builds, a card cycling through the
+ * The homepage's compact build log (#build-log), the Lab's first part: this month's newest entries across builds, a card cycling through the
  * month's figures, and a link to /builds. Against the recorded GitHub fixture
  * (BUILD_LOG_FIXTURE=1), whose capture time is the strip's "now", so these
  * don't drift as the months pass.
@@ -17,15 +16,20 @@ const slides = (page: Page) => stats(page).locator('[data-stat]')
 const current = (page: Page) => stats(page).locator('[data-stat][aria-hidden="false"]')
 const dots = (page: Page) => stats(page).getByRole('button', { name: /^Show / })
 
-test('sits between "What I\'m working on" and the Lab, in the server-rendered HTML', async ({ page, request }) => {
+test("is the Lab's first part, right after its intro, in the server-rendered HTML", async ({ page, request }) => {
   const html = await (await request.get('/')).text()
   const at = (id: string) => html.indexOf(`id="${id}"`)
-  expect(at('build-log')).toBeGreaterThan(at('now'))
-  expect(at('build-log')).toBeLessThan(at('lab'))
+  expect(at('build-log')).toBeGreaterThan(at('lab'))
+  for (const later of ['my-tools', 'featured', 'extensions', 'upcoming']) expect(at('build-log')).toBeLessThan(at(later))
 
   await page.goto('/')
   await strip(page).scrollIntoViewIfNeeded()
-  await expect(strip(page).getByRole('heading', { level: 2 })).toHaveText('Shipped this month')
+  // A Lab part: one level under the Lab's h2, with the part's coloured bar.
+  await expect(strip(page).getByRole('heading', { level: 3 })).toHaveText('Shipped this month')
+  await expect(strip(page)).toHaveAccessibleName('Shipped this month')
+  await expect(strip(page)).toHaveClass(/lab-accent-buildlog/)
+  // The Lab intro's first pill jumps here.
+  await expect(page.getByRole('navigation', { name: 'Lab sections' }).getByRole('link').first()).toHaveAttribute('href', '#build-log')
   expect(await page.locator('main').innerText()).not.toContain('—')
 })
 

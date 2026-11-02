@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import type { IconType } from 'react-icons'
-import { LuCookingPot, LuStar, LuWrench } from 'react-icons/lu'
+import { LuCookingPot, LuScrollText, LuStar, LuWrench } from 'react-icons/lu'
 import BubblingFlask from '@/components/ui/BubblingFlask'
 import { SiGooglechrome } from 'react-icons/si'
 
@@ -14,6 +14,8 @@ import { SiGooglechrome } from 'react-icons/si'
  * 40% of the window.
  */
 const SECTIONS: readonly LabPart[] = [
+  // The build log (components/sections/BuildLogStrip.tsx); left out when the log can't load.
+  { id: 'build-log', label: 'Build log', icon: LuScrollText },
   { id: 'my-tools', label: 'My tools', icon: LuWrench },
   { id: 'featured', label: 'Featured', icon: LuStar },
   // Shortened to "Extensions" on screen where the gutter is too narrow for

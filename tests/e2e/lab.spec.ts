@@ -32,7 +32,7 @@ test('the Lab leads with my daily tools, then the featured builds, each with its
 
 test('the Lab has no Tools part any more, in its own links or the navbar menu', async ({ page }) => {
   await page.goto('/')
-  await expect(page.getByRole('navigation', { name: 'Lab sections' }).getByRole('link')).toHaveText(['My tools', 'Featured', 'Chrome Extensions', "What's cookin'"])
+  await expect(page.getByRole('navigation', { name: 'Lab sections' }).getByRole('link')).toHaveText(['Build log', 'My tools', 'Featured', 'Chrome Extensions', "What's cookin'"])
   await expect(page.locator('a[href="/#tools"], a[href="#tools"]')).toHaveCount(0)
   await expect(page.locator('#tools')).toHaveCount(0)
 })

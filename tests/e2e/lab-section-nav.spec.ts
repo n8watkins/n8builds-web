@@ -3,7 +3,7 @@ import { test, expect, type Page } from '@playwright/test'
 /**
  * The Lab's floating side nav (components/sections/LabSectionNav.tsx): a
  * desktop-only rail in the left gutter that marks the Lab part on screen
- * (My tools, Featured, Chrome Extensions, What's cookin') and jumps to it. It appears once
+ * (Build log, My tools, Featured, Chrome Extensions, What's cookin') and jumps to it. It appears once
  * the first part's heading reaches the middle of the window (level with it,
  * not beside the Lab's intro), then holds there while the Lab scrolls by.
  */
@@ -11,6 +11,7 @@ import { test, expect, type Page } from '@playwright/test'
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
 const PARTS = [
+  { id: 'build-log', label: 'Build log' },
   { id: 'my-tools', label: 'My tools' },
   { id: 'featured', label: 'Featured' },
   { id: 'extensions', label: 'Chrome Extensions' },
@@ -145,7 +146,7 @@ test.describe('placement at 1440px', () => {
   /** Scroll so the first part's heading sits `top` px from the window's top. */
   async function headingAt(page: Page, top: number) {
     await page.evaluate((top) => {
-      const h = document.querySelector<HTMLElement>('#my-tools :is(h2, h3)')!
+      const h = document.querySelector<HTMLElement>('#build-log :is(h2, h3)')!
       window.scrollTo({
         top: h.getBoundingClientRect().top + window.scrollY - top,
         behavior: 'instant',
@@ -155,7 +156,7 @@ test.describe('placement at 1440px', () => {
   }
   const headingTop = (page: Page) =>
     page
-      .locator('#my-tools')
+      .locator('#build-log')
       .locator('h2, h3')
       .first()
       .evaluate((h) => h.getBoundingClientRect().top)
@@ -322,7 +323,7 @@ test.describe('icons only, 1280-1439px', () => {
   })
 })
 
-test('works without JavaScript: plain links to the three parts', async ({ browser }) => {
+test('works without JavaScript: plain links to each part', async ({ browser }) => {
   const context = await browser.newContext({
     javaScriptEnabled: false,
     viewport: { width: 1440, height: 900 },

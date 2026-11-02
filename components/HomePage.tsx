@@ -24,6 +24,7 @@ import HomeToolsIBuilt from '@/components/sections/HomeToolsIBuilt'
 import WorkWithMe from '@/components/sections/WorkWithMe'
 import Footer from '@/components/layout/Footer'
 import type { Post } from '@/lib/sanity'
+import { hasBuildLog } from '@/lib/build-log'
 
 /**
  * A full-width homepage band. Alternating tones and a hairline between bands
@@ -67,7 +68,9 @@ function Band({
  * contact form, and HomeEffects (analytics and the ambient glows). A phone
  * downloads and hydrates those, not every section's code.
  */
-export default function HomePage({ posts }: { posts: Post[] }) {
+export default async function HomePage({ posts }: { posts: Post[] }) {
+  // The build log part hides when the log can't load; its pill goes with it.
+  const buildLog = await hasBuildLog()
   return (
     <>
       <Navbar />
@@ -89,11 +92,9 @@ export default function HomePage({ posts }: { posts: Post[] }) {
           </SectionErrorBoundary>
         </Band>
 
-        {/* The build log, compact: recent shipping across every build (its own band; hidden if the log can't load). */}
-        <BuildLogStrip />
-
         {/* ===== THE LAB: one section in parts, each in its own colour wash
-             (app/globals.css, "The Lab's colour washes"): My tools and Featured
+             (app/globals.css, "The Lab's colour washes"): the build log
+             (BuildLogStrip, hidden if the log can't load), My tools and Featured
              (FeaturedProjects), the Chrome extensions, then a Tools grid (only
              if a build ever lands there). The parts are full-bleed, so the
              Lab sets its own content width instead of using a Band. The navbar
@@ -147,6 +148,7 @@ export default function HomePage({ posts }: { posts: Post[] }) {
               </ul>
               <nav aria-label="Lab sections" className="mt-7 flex flex-wrap justify-center gap-2">
                 {[
+                  ...(buildLog ? [{ label: 'Build log', href: '#build-log' }] : []),
                   { label: 'My tools', href: '#my-tools' },
                   { label: 'Featured', href: '#featured' },
                   { label: 'Chrome Extensions', href: '#extensions' },
@@ -163,6 +165,11 @@ export default function HomePage({ posts }: { posts: Post[] }) {
               </nav>
             </Reveal>
           </div>
+
+          {/* The Lab's first part: what shipped lately (the owner's ask, 2026-11-02). */}
+          <SectionErrorBoundary sectionName="Build Log">
+            <BuildLogStrip />
+          </SectionErrorBoundary>
 
           <SectionErrorBoundary sectionName="Featured Projects">
             <FeaturedProjects />

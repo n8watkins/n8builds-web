@@ -201,12 +201,36 @@ test('a build page shows its recent activity and links to its part of the log', 
 })
 
 test.describe('navigation to the build log', () => {
-  test('desktop: the Lab menu leads to it, and the top bar has no Log link of its own', async ({ page, isMobile }) => {
+  test("desktop: the Lab menu's first item scrolls to the Lab's build log, and the top bar has no Log link of its own", async ({ page, isMobile }) => {
     test.skip(isMobile, 'the desktop navbar is hidden on phones')
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto('/loadout')
     const primary = page.getByRole('navigation', { name: 'Primary' })
     await expect(primary.getByRole('link', { name: 'Log', exact: true })).toHaveCount(0)
+    await primary.getByRole('link', { name: 'Lab' }).hover()
+    const menu = primary.getByRole('link', { name: /Build log/ })
+    // First in the menu, before the Lab's other parts.
+    // The menu's items are a label over a description.
+    await expect(primary.locator('a:has(> span + span)').first()).toHaveAttribute('href', '/#build-log')
+    await menu.click()
+    await expect(page).toHaveURL(/\/#build-log$/)
+    await expect(page.locator('#build-log')).toBeInViewport()
+
+    // Already on the homepage: it scrolls there from anywhere on the page.
+    await page.locator('#contact').scrollIntoViewIfNeeded()
+    await primary.getByRole('link', { name: 'Lab' }).hover()
+    await menu.click()
+    await expect(page.locator('#build-log')).toBeInViewport()
+    await expect(page).toHaveURL(/\/#build-log$/)
+  })
+
+  test('desktop: with the build log missing from the homepage, the menu item opens the full log', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'the desktop navbar is hidden on phones')
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto('/')
+    // As when GitHub can't be read: the strip is left out of the page.
+    await page.locator('#build-log').evaluate((el) => el.remove())
+    const primary = page.getByRole('navigation', { name: 'Primary' })
     await primary.getByRole('link', { name: 'Lab' }).hover()
     await primary.getByRole('link', { name: /Build log/ }).click()
     await expect(page).toHaveURL(/\/builds$/)
@@ -225,16 +249,18 @@ test.describe('navigation to the build log', () => {
   test.describe('mobile menu', () => {
     test.use({ viewport: { width: 390, height: 844 }, hasTouch: true })
 
-    test('the Build log link reaches the build log', async ({ page }) => {
+    test("the Build log link, the Lab's first, reaches the Lab's build log", async ({ page }) => {
       await page.goto('/loadout')
       const button = page.getByRole('button', { name: 'Menu' })
       await expect(async () => {
         if ((await button.getAttribute('aria-expanded')) !== 'true') await button.click()
         await expect(button).toHaveAttribute('aria-expanded', 'true', { timeout: 500 })
       }).toPass()
-      await page.locator('#mobile-menu').getByRole('link', { name: 'Build log', exact: true }).click()
-      await expect(page).toHaveURL(/\/builds$/)
-      await expect(page.getByRole('heading', { level: 1, name: 'The build log' })).toBeVisible()
+      const menu = page.locator('#mobile-menu')
+      await expect(menu.getByRole('link').first()).toHaveText('Build log')
+      await menu.getByRole('link', { name: 'Build log', exact: true }).click()
+      await expect(page).toHaveURL(/\/#build-log$/)
+      await expect(page.locator('#build-log')).toBeInViewport()
     })
   })
 })
