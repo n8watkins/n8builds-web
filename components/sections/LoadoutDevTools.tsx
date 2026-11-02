@@ -96,61 +96,50 @@ const personLink =
 const iconChip =
   'flex shrink-0 items-center justify-center rounded-xl border border-white/10 bg-[#081427] text-cyan-300 transition-transform duration-200 group-hover:scale-105'
 
-/** One tool I built: the pitch first, then how, the credit for a fork, and its repo. */
-const BuiltToolCard = ({ tool }: { tool: BuiltTool }) => (
+/**
+ * One thing I built, as a card the size and style of Tools I use's
+ * (ToolItem, round 3 of 2026-11-02): its mark, its name (linked to its
+ * repo), what it does for you, the credit for a fork, and its buttons
+ * pinned to the foot.
+ */
+const BuiltToolCard = ({ tool, heading: Heading }: { tool: BuiltTool; heading: 'h3' | 'h4' | 'h5' }) => (
   <article
     id={tool.id}
     aria-labelledby={`${tool.id}-title`}
-    className="group relative flex h-full scroll-mt-24 flex-col gap-4 overflow-hidden rounded-3xl border border-white/8 bg-linear-to-b from-white/[0.045] to-white/[0.01] p-6 transition-[border-color,translate] duration-300 hover:-translate-y-1 hover:border-cyan-300/30 motion-reduce:hover:translate-y-0"
+    className="group flex h-full scroll-mt-24 flex-col rounded-2xl border border-white/8 bg-white/[0.02] p-5 transition-colors duration-200 target:border-cyan-300/40 hover:border-cyan-300/30 hover:bg-white/[0.04]"
   >
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute -top-24 -right-24 h-56 w-56 rounded-full bg-cyan-400 opacity-[0.05] blur-3xl transition-opacity duration-300 group-hover:opacity-[0.12]"
-    />
-    <div className="relative flex items-center gap-4">
-      <span aria-hidden="true" className={`${iconChip} h-12 w-12 p-3 [&_svg]:h-full [&_svg]:w-full`}>{tool.icon}</span>
-      <div className="min-w-0">
-        <h3
-          id={`${tool.id}-title`}
-          className="font-mono text-xl font-bold tracking-tight text-slate-50"
-        >
-          {tool.name}
-        </h3>
-        <ul className="mt-1.5 flex flex-wrap gap-1.5" aria-label={`${tool.name} is built with`}>
-          {tool.tags.map((tag) => (
-            <li
-              key={tag}
-              className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[0.7rem] font-semibold text-slate-300"
-            >
-              {tag}
-            </li>
-          ))}
-        </ul>
+    <div className="flex items-start gap-4">
+      <span aria-hidden="true" className={`${iconChip} h-11 w-11 p-2.5 [&_svg]:h-full [&_svg]:w-full`}>
+        {tool.icon}
+      </span>
+      <div className="min-w-0 flex-1">
+        <Heading id={`${tool.id}-title`} className="text-[15px]">
+          <a href={tool.github} target="_blank" rel="noopener noreferrer" className={builtName}>
+            {tool.name}
+            <span className="sr-only"> (opens in a new tab)</span>
+          </a>
+        </Heading>
+        <p className="mt-1 text-sm leading-relaxed text-pretty text-[#9cadc5]">{tool.pitch}</p>
+        {tool.credit && (
+          <p className="mt-1.5 text-sm leading-relaxed text-pretty text-slate-400" data-credit>
+            Created by <External link={tool.credit.author} />
+            {tool.credit.org && (
+              <>
+                {' '}
+                at <External link={tool.credit.org} />
+              </>
+            )}
+            ; {tool.credit.note}
+          </p>
+        )}
       </div>
     </div>
-    <p className="relative text-lg leading-snug font-semibold text-pretty text-slate-100">{tool.pitch}</p>
-    <p className="relative text-[15px] leading-relaxed text-pretty text-[#9cadc5]">{tool.detail}</p>
-    {tool.credit && (
-      <p className="relative text-sm leading-relaxed text-pretty text-slate-300" data-credit>
-        Created by <External link={tool.credit.author} />
-        {tool.credit.org && (
-          <>
-            {' '}
-            at <External link={tool.credit.org} />
-          </>
-        )}
-        ; {tool.credit.note}
-      </p>
-    )}
-    <div className="relative mt-auto flex flex-wrap gap-2 pt-1">
+    {/* Pinned to the card's foot and as wide as the card, so the buttons line
+        up across a row and a third of a row still holds two of them. */}
+    <div className="mt-auto flex flex-wrap gap-2 pt-4">
       <RepoButtons href={tool.github} name={tool.name} className="w-full sm:w-auto" />
       {tool.demo && (
-        <a
-          href={tool.demo}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={`${linkButton} w-full justify-center sm:w-auto`}
-        >
+        <a href={tool.demo} target="_blank" rel="noopener noreferrer" className={`${linkButton} w-full justify-center sm:w-auto`}>
           <span aria-hidden="true">
             <LuExternalLink />
           </span>
@@ -162,19 +151,66 @@ const BuiltToolCard = ({ tool }: { tool: BuiltTool }) => (
   </article>
 )
 
+const builtName =
+  'font-mono font-bold text-slate-100 underline decoration-white/0 underline-offset-4 transition-colors hover:text-cyan-200 hover:decoration-cyan-200/50'
+
+const BUILT_GROUPS: { id: BuiltTool['group']; title: string }[] = [
+  { id: 'dev', title: 'Dev tools I built' },
+  { id: 'other', title: 'Other things I built' },
+]
+
 /**
- * The tool cards; `tools` picks which (all by default). Two to a row from md
- * up, or three from lg up for a set of three, so no card sits alone.
+ * Tools I built and use's two groups (round 3 of 2026-11-02), each under a
+ * small subheading: the dev tools, led by `lead` (Scribe's row), then the
+ * other things I built. The cards are Tools I use's (three to a row from lg
+ * up, so the three dev tools fill one; one a row below that, as two to a
+ * row would leave one alone). `heading` is the subheadings' level;
+ * the cards' names sit one below it (h3 and h4 on /loadout, under its h2; h4
+ * and h5 on the homepage). `column` wraps the subheadings and cards, for a
+ * page that runs `lead` full-bleed outside its content column (/loadout).
  */
-export const BuiltToolsGrid = ({ tools = toolsIBuilt }: { tools?: BuiltTool[] }) => (
-  <ul className={`grid gap-5 ${tools.length % 2 === 0 ? 'md:grid-cols-2' : 'lg:grid-cols-3'}`}>
-    {tools.map((tool) => (
-      <li key={tool.id}>
-        <BuiltToolCard tool={tool} />
-      </li>
-    ))}
-  </ul>
-)
+export const BuiltToolsGrid = ({
+  heading = 'h3',
+  lead,
+  column = '',
+}: {
+  heading?: 'h3' | 'h4'
+  lead?: ReactNode
+  column?: string
+}) => {
+  const Sub = heading
+  const card = heading === 'h3' ? 'h4' : 'h5'
+  return (
+    <div className="space-y-14 md:space-y-16">
+      {BUILT_GROUPS.map((group) => {
+        const tools = toolsIBuilt.filter((tool) => tool.group === group.id)
+        return (
+          <div key={group.id} role="group" aria-labelledby={`built-${group.id}-title`} data-built-group={group.id}>
+            <div className={column}>
+              <Sub
+                id={`built-${group.id}-title`}
+                className="mb-5 flex items-center gap-3 font-mono text-xs font-bold tracking-[0.16em] text-cyan-300 uppercase"
+              >
+                {group.title}
+                <span aria-hidden="true" className="h-px flex-1 bg-linear-to-r from-cyan-300/25 to-transparent" />
+              </Sub>
+            </div>
+            {group.id === 'dev' && lead && <div className="mb-8 md:mb-10">{lead}</div>}
+            <div className={column}>
+              <ul className="grid gap-4 lg:grid-cols-3">
+                {tools.map((tool) => (
+                  <li key={tool.id}>
+                    <BuiltToolCard tool={tool} heading={card} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
 
 /**
  * "Tools I built and use" (the owner's call, 2026-11-01): Scribe's row, then

@@ -4,8 +4,9 @@ import { BuiltToolsGrid, TOOLS_I_BUILT_BLURB, TOOLS_I_BUILT_TITLE } from '@/comp
 /**
  * "Tools I built and use" on the homepage, inside its Loadout (the owner's
  * call, 2026-11-01), after the default stack: Scribe's row, then the same
- * cards as on /loadout. Every tool, pr-post included: The Pull Request Post's
- * card under People I follow is a section away now. Headed like "My default
+ * cards as on /loadout, in the same two groups (round 3 of 2026-11-02). Every tool, pr-post
+ * included: The Pull Request Post's card under People I follow is a section
+ * away now. Headed like "My default
  * stack" above it, so it reads as a part of the Loadout, not its own section.
  */
 export default function HomeToolsIBuilt() {
@@ -18,10 +19,9 @@ export default function HomeToolsIBuilt() {
         </h3>
         <p className="mt-0.5 text-sm font-semibold text-blue-300">{TOOLS_I_BUILT_BLURB}</p>
       </div>
-      <div className="mt-4 mb-6">
-        <DailyDriverRows bleed={false} />
+      <div className="mt-8">
+        <BuiltToolsGrid heading="h4" lead={<DailyDriverRows bleed={false} />} />
       </div>
-      <BuiltToolsGrid />
     </section>
   )
 }

@@ -14,9 +14,9 @@ import {
   TOOLS_I_BUILT_TITLE,
   ToolsIUse,
 } from '@/components/sections/LoadoutDevTools'
+import { DailyDriverRows } from '@/components/sections/FeaturedProjects'
 import LoadoutSectionNav from '@/components/sections/LoadoutSectionNav'
 import BuildStacks from '@/components/sections/BuildStacks'
-import { DailyDriverRows } from '@/components/sections/FeaturedProjects'
 
 // A server component, so react-icons don't get the app's IconContext
 // (aria-hidden by default, app/provider.tsx): every icon here is hidden from
@@ -303,9 +303,11 @@ const Loadout = () => {
         </section>
       </Part>
 
-      {/* The tools I built and use: Scribe as the Lab's row (FeaturedProjects.tsx),
-           out of the content column so its colour wash reaches the page edge
-           (the row sets the column inside), then the small CLIs' cards. */}
+      {/* The tools I built and use, in two groups (round 3 of 2026-11-02): the
+           dev tools, led by Scribe as the Lab's row (FeaturedProjects.tsx), out of
+           the content column so its colour wash reaches the page edge (the row
+           sets the column inside), then the other things I built. The cards are
+           Tools I use's. */}
       <Part id="tools-i-built" bleed>
         {/* "My daily drivers" (#daily-drivers) was its own part for a day:
              links to it still land here. */}
@@ -316,12 +318,16 @@ const Loadout = () => {
               {TOOLS_I_BUILT_BLURB}
             </SectionHead>
           </Reveal>
-          {/* Pulled up to the heading: the row's padding is its wash's room. */}
-          <div className="-mt-4 md:-mt-6">
-            <DailyDriverRows />
-          </div>
-          <Reveal className={`${column} mt-2 md:mt-4`}>
-            <BuiltToolsGrid />
+          <Reveal>
+            <BuiltToolsGrid
+              column={column}
+              lead={
+                // Pulled up to the subheading: the row's padding is its wash's room.
+                <div className="-mt-5 md:-mt-7">
+                  <DailyDriverRows />
+                </div>
+              }
+            />
           </Reveal>
         </section>
       </Part>

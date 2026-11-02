@@ -25,6 +25,9 @@ describe('the loadout dev-tool lists', () => {
       expect(tool.github).toMatch(/^https:\/\/github\.com\/n8watkins\/[\w.-]+$/)
     }
     expect(toolsIBuilt.map((t) => t.id)).toEqual(['pass-env', 'release-kit', 'devguard', 'pr-post'])
+    // Two groups (round 3 of 2026-11-02): the dev tools (after Scribe's row), then the other things I built.
+    expect(toolsIBuilt.filter((t) => t.group === 'dev').map((t) => t.id)).toEqual(['pass-env', 'release-kit', 'devguard'])
+    expect(toolsIBuilt.filter((t) => t.group === 'other').map((t) => t.id)).toEqual(['pr-post'])
     for (const tool of toolsIBuilt) if (tool.demo) expect(tool.demo).toMatch(/^https:\/\//)
     const passEnv = toolsIBuilt.find((t) => t.id === 'pass-env')
     expect(passEnv?.pitch).toBe('Your AI coding agents use your API keys without ever seeing them.')

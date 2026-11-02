@@ -236,14 +236,19 @@ export interface NamedLink {
 }
 
 /**
- * The dev tools I built: small public CLIs, the cards in "Tools I built and
- * use" after Scribe's row (Scribe is an app, a build in data/builds.tsx). One
- * entry per tool; adding a tool is adding an entry here.
+ * The things I built and use, the cards in "Tools I built and use" (on
+ * /loadout and in the homepage's Loadout), in two groups since round 3 of
+ * 2026-11-02: the dev tools, led by Scribe's row (Scribe is an app, a build
+ * in data/builds.tsx; not strictly a dev tool, but I dictate to my agents
+ * with it all day), and the other things I built. One entry per tool;
+ * adding a tool is adding an entry here.
  */
 export interface BuiltTool {
   /** The anchor id on /loadout. */
   id: string
   name: string
+  /** Which group it sits in: a dev tool I built, or another thing I built. */
+  group: 'dev' | 'other'
   /** One line: what it does for you. */
   pitch: string
   /** Two short sentences on how. */
@@ -262,6 +267,7 @@ export const toolsIBuilt: BuiltTool[] = [
   {
     id: 'pass-env',
     name: 'pass-env',
+    group: 'dev',
     pitch: 'Your AI coding agents use your API keys without ever seeing them.',
     detail:
       'The keys stay encrypted in pass, and each project lists only their names. Agents can run the app and push secrets to production, and the values never land in files, terminals or transcripts.',
@@ -277,6 +283,7 @@ export const toolsIBuilt: BuiltTool[] = [
   {
     id: 'release-kit',
     name: 'release-kit',
+    group: 'dev',
     pitch: 'Conventional Commits, SemVer tags and GitHub Releases on any repo, with one command.',
     detail:
       'Release notes are written from the commits. An optional release train ships on a schedule, only when there is work a user would notice. This site releases with it.',
@@ -287,6 +294,7 @@ export const toolsIBuilt: BuiltTool[] = [
   {
     id: 'devguard',
     name: 'devguard',
+    group: 'dev',
     pitch: 'Run many AI coding agents in parallel on one machine without running out of memory, ports or disk.',
     detail:
       'A watchdog stops runaway and finished dev servers, each worktree gets a stable port, heavy jobs wait for a free slot, and a sweep finds build output you can delete. Plain Python, no dependencies.',
@@ -297,6 +305,7 @@ export const toolsIBuilt: BuiltTool[] = [
   {
     id: 'pr-post',
     name: 'pr-post',
+    group: 'other',
     pitch: 'Follow what your favorite builders ship.',
     detail:
       'It turns their public GitHub and YouTube work into a small newspaper, The Pull Request Post, plus a feed.json for your own site. GitHub Actions prints a new edition twice a week.',

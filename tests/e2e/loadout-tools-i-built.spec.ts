@@ -63,6 +63,37 @@ for (const width of [1440, 810, 390]) {
   })
 }
 
+test('Tools I built and use is two groups, its cards the size and style of Tools I use\'s', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/loadout')
+  const part = page.getByRole('region', { name: 'Tools I built and use' })
+  // Round 3 of 2026-11-02: the dev tools (Scribe's row leads them), then the other things I built.
+  await expect(part.getByRole('heading', { level: 3 }).filter({ hasNotText: 'Scribe' })).toHaveText(['Dev tools I built', 'Other things I built'])
+  const dev = part.getByRole('group', { name: 'Dev tools I built' })
+  await expect(dev.getByRole('article', { name: 'Scribe' })).toHaveCount(1)
+  await expect(dev.getByRole('heading', { level: 4 })).toHaveText(['pass-env', 'release-kit', 'devguard'])
+  await expect(part.getByRole('group', { name: 'Other things I built' }).getByRole('heading', { level: 4 })).toHaveText(['pr-post'])
+
+  // The same card as Tools I use: padding, corners, border, background and icon size.
+  const look = (el: Element) => {
+    const s = getComputedStyle(el)
+    const icon = el.querySelector('[aria-hidden="true"]')!.getBoundingClientRect()
+    return { padding: s.padding, radius: s.borderTopLeftRadius, border: s.borderTopColor, bg: s.backgroundColor, icon: [icon.width, icon.height] }
+  }
+  const built = await part.getByRole('article', { name: 'pass-env' }).evaluate(look)
+  const used = await page.locator('#tools-i-use li#herdr').evaluate(look)
+  expect(built).toEqual(used)
+  // The three dev tools share one row, as tall as each other.
+  const boxes = await dev.getByRole('article').filter({ hasNot: page.getByRole('heading', { name: 'Scribe' }) }).evaluateAll((els) =>
+    els.map((el) => el.getBoundingClientRect().toJSON() as DOMRect),
+  )
+  expect(boxes).toHaveLength(3)
+  for (const box of boxes) {
+    expect(Math.abs(box.y - boxes[0].y)).toBeLessThan(1)
+    expect(Math.abs(box.height - boxes[0].height)).toBeLessThan(1)
+  }
+})
+
 test('old links land on Tools I built and use: the Lab\'s /#my-tools, and /loadout#daily-drivers', async ({ page }) => {
   await page.goto('/#my-tools')
   await expect(page).toHaveURL(/\/loadout#tools-i-built$/)
