@@ -25,18 +25,6 @@ const nextConfig = {
   },
   compress: true,
   poweredByHeader: false,
-  compiler: {
-    // Sentry's bundleSizeOptimizations only reach webpack builds, so the same
-    // flags are set here, where Turbopack (and webpack) inline them and drop the
-    // SDK code this site never runs: debug logging, and Session Replay's iframe
-    // and shadow-DOM recording (no iframes or shadow roots of ours to replay).
-    // Replay itself, tracing, and error capture are unchanged.
-    define: {
-      __SENTRY_DEBUG__: false,
-      __RRWEB_EXCLUDE_IFRAME__: true,
-      __RRWEB_EXCLUDE_SHADOW_DOM__: true,
-    },
-  },
   experimental: {
     optimizePackageImports: ['motion/react', 'react-icons'],
   },
@@ -92,4 +80,13 @@ export default withSentryConfig(nextConfig, {
   authToken: process.env.SENTRY_AUTH_TOKEN,
   widenClientFileUpload: true,
   silent: !process.env.CI,
+  // Drop SDK code this site never runs: debug logging, and Session Replay's
+  // iframe and shadow-DOM recording (no iframes or shadow roots of ours to
+  // replay). Replay itself, tracing, and error capture are unchanged. Since
+  // v11 the SDK applies these to Turbopack builds too (as compiler.define).
+  bundleSizeOptimizations: {
+    excludeDebugStatements: true,
+    excludeReplayIframe: true,
+    excludeReplayShadowDom: true,
+  },
 })
