@@ -476,10 +476,13 @@ const ProjectRow = ({ project, flipped, facts }: { project: FeaturedProject; fli
         )}
 
         {/* One row across the column: Live Site, the Star | GitHub split button,
-            Details, in even thirds. On phones and tablets (where the row's text
-            column is narrow), Live Site and Details share a line and the split
-            button takes the next. */}
-        <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3">
+            Details, in even thirds. A third is never narrower than its button,
+            though: a star count can make the split button wider than a third,
+            and then it takes what it needs and Live Site and Details share the
+            rest evenly, so no two buttons ever touch. On phones and tablets
+            (where the row's text column is narrow), Live Site and Details share
+            a line and the split button takes the next. */}
+        <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-[repeat(3,minmax(max-content,1fr))] md:grid-cols-2 lg:grid-cols-[repeat(3,minmax(max-content,1fr))]">
           {project.liveSite && (
             <a
               href={project.liveSite}

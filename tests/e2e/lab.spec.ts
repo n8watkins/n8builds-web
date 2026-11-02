@@ -325,9 +325,11 @@ test('each row puts Live Site, Star | GitHub and Details in one row across its c
       expect(Math.round(l!.y), `${title}: one row`).toBe(Math.round(r!.y))
       expect(Math.round(r!.y), `${title}: one row`).toBe(Math.round(d!.y))
       expect(l!.x < r!.x && r!.x < d!.x, `${title}: Live Site, Star | GitHub, Details`).toBe(true)
-      // Even thirds that span the text column.
-      expect(Math.abs(l!.width - r!.width), title).toBeLessThan(2)
-      expect(Math.abs(r!.width - d!.width), title).toBeLessThan(2)
+      // Even thirds that span the text column; a star count can make Star |
+      // GitHub wider than a third, and then Live Site and Details share the rest evenly.
+      expect(Math.abs(l!.width - d!.width), title).toBeLessThan(2)
+      expect(r!.width, title).toBeGreaterThan(l!.width - 2)
+      if (title !== 'Scribe') expect(Math.abs(l!.width - r!.width), `${title}: even thirds without a star count`).toBeLessThan(2)
     }
     expect(Math.abs(l!.x - text!.x), `${title}: starts with the text`).toBeLessThan(2)
     expect(Math.abs(d!.x + d!.width - (text!.x + text!.width)), `${title}: ends with the text`).toBeLessThan(2)
@@ -629,5 +631,38 @@ for (const width of [1440, 390, 320]) {
     expect(Math.abs(text[1] - row[1]), 'ends at the title').toBeLessThan(2)
     // A size larger than the old 1rem / 1.25rem.
     expect(parseFloat(await eyebrow.evaluate((el) => getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(width >= 640 ? 24 : 18)
+  })
+}
+
+/**
+ * Every row's buttons keep the same gap and never touch (the owner caught
+ * Scribe's "1.2k | GitHub" running into Details, 2026-11-01): a star count can
+ * make the split button wider than a third of the column, and at the narrow
+ * laptop widths even "GitHub" alone is close.
+ */
+// 1040, not 1024: WebKit's media queries see the window minus its scrollbar,
+// so a 1024px window there is still in the tablet layout (buttons stacked).
+for (const width of [1040, 1280, 1366, 1440, 1920]) {
+  test(`at ${width}px the buttons in each row keep an even gap and never overlap`, async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Phones stack the buttons: the 320px test covers them')
+    await page.setViewportSize({ width, height: 900 })
+    for (const title of ROWS) {
+      const row = await rowOf(page, title)
+      const repo = row.getByRole('group', { name: `${title} on GitHub` })
+      await repo.scrollIntoViewIfNeeded()
+      const [l, r, d] = await Promise.all(
+        [row.getByRole('link', { name: `Live Site of ${title} (opens in a new tab)` }), repo, row.getByRole('button', { name: `Details about ${title}` })].map(
+          (el) => el.boundingBox(),
+        ),
+      )
+      // The buttons' 8px gap, both sides of the split button.
+      expect(r!.x - (l!.x + l!.width), `${title}: Live Site to Star | GitHub`).toBeCloseTo(8, 0)
+      expect(d!.x - (r!.x + r!.width), `${title}: Star | GitHub to Details`).toBeCloseTo(8, 0)
+      // Nothing spills out of a button: the split button's halves fit inside it.
+      const spill = await repo.evaluate((g) => g.scrollWidth - g.clientWidth)
+      expect(spill, `${title}: Star | GitHub fits its box`).toBeLessThanOrEqual(0)
+      const halves = await repo.getByRole('link').evaluateAll((links) => links.map((a) => a.getBoundingClientRect().right))
+      expect(Math.max(...halves), `${title}: GitHub ends inside the split button`).toBeLessThanOrEqual(r!.x + r!.width + 0.5)
+    }
   })
 }
