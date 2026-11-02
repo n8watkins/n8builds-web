@@ -114,6 +114,64 @@
   }
 }
 
+/* My dev setup's tiles on /loadout (components/sections/LoadoutDevTools.tsx):
+   each rises in, one after another (--d), then its chips in turn (--c), on
+   the scroll reveal's easing. CSS from the server HTML, like FadeIn, so they
+   play and end shown without JavaScript; SetupTilesMotion holds the tiles
+   still below the window (data-wait) until they scroll into view, then
+   removing the attribute replays them. Opacity and transform only (no
+   layout shift), ending on `transform: none`; the hover lift is `translate`,
+   a separate property. Reduced motion shows everything at once. */
+@keyframes setup-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes setup-chip-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@layer components {
+  .setup-tile {
+    animation: setup-rise 0.55s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+    animation-delay: calc(var(--d, 0) * 80ms + 120ms);
+  }
+
+  .setup-tile .setup-chip {
+    animation: setup-chip-in 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+    animation-delay: calc(var(--d, 0) * 80ms + 320ms + var(--c, 0) * 40ms);
+  }
+
+  .setup-tile[data-wait],
+  .setup-tile[data-wait] .setup-chip {
+    animation: none;
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .setup-tile,
+    .setup-tile .setup-chip,
+    .setup-tile[data-wait],
+    .setup-tile[data-wait] .setup-chip {
+      animation: none;
+      opacity: 1;
+    }
+  }
+}
+
 /* A keyed entrance from the side (TechStackCycle's list and label, the
    extensions' detail panel): the element is re-keyed on each change, so it
    mounts fresh and slides in from --slide-from. */

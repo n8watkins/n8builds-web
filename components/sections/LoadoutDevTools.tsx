@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { FiGitPullRequest, FiPackage, FiPlusSquare } from 'react-icons/fi'
@@ -20,6 +20,7 @@ import {
 } from '@/data/loadout'
 import RepoButtons from '@/components/ui/RepoButtons'
 import Reveal from '@/components/ui/Reveal'
+import SetupTilesMotion from '@/components/sections/SetupTilesMotion'
 
 /**
  * The dev-tool parts of /loadout (2026-11-01): my dev setup, the tool
@@ -263,7 +264,7 @@ const SetupChip = ({ entry }: { entry: SetupEntry }) => {
       </span>
     </>
   )
-  const chip = 'flex items-start gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1 text-sm'
+  const chip = 'setup-chip flex items-start gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1 text-sm'
   if (!entry.href) return <span className={chip}>{body}</span>
   const linked = `${chip} transition-colors hover:border-cyan-300/40 hover:bg-white/[0.06] [&_[data-setup-name]]:underline [&_[data-setup-name]]:decoration-white/20 [&_[data-setup-name]]:underline-offset-4`
   return entry.href.startsWith('/') ? (
@@ -277,26 +278,35 @@ const SetupChip = ({ entry }: { entry: SetupEntry }) => {
   )
 }
 
-/** My dev setup: what I work on and with, grouped so it scans in seconds. */
+/**
+ * My dev setup: what I work on and with, grouped so it scans in seconds. Its
+ * tiles rise in one by one, then their chips (`.setup-tile` in
+ * app/globals.css, SetupTilesMotion), and lift a little on hover or focus.
+ */
 export const DevSetup = () => (
   <section aria-labelledby="dev-setup-title">
     <SectionHead id="dev-setup-title" path="~/loadout/dev-setup" title="My dev setup">
       Windows 11 with WSL2, Claude Code and Codex, and the tools around them.
     </SectionHead>
-    <ul className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {devSetup.map((group) => (
+    <ul id="setup-tiles" className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {devSetup.map((group, i) => (
         <li
           key={group.id}
-          className={`rounded-2xl border border-white/8 bg-white/[0.02] p-5 ${group.wide ? 'lg:col-span-2' : ''}`}
+          // --d: its place in the entrance (SetupTilesMotion renumbers the tiles still off screen).
+          style={{ '--d': i } as CSSProperties}
+          className={`setup-tile rounded-2xl border border-white/8 bg-white/[0.02] p-5 transition-[border-color,translate] duration-300 hover:-translate-y-1 hover:border-cyan-300/25 focus-within:-translate-y-1 focus-within:border-cyan-300/25 motion-reduce:hover:translate-y-0 motion-reduce:focus-within:translate-y-0 ${group.wide ? 'lg:col-span-2' : ''}`}
         >
-          <div className={group.code ? 'grid gap-4 sm:grid-cols-2' : ''}>
+          {/* A config file sits beside the items where the tile is wide (a phone's
+               full width, or two columns from lg); on a tablet's half-width tile, under them. */}
+          <div className={group.code ? 'grid gap-4 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2' : ''}>
             <div>
               <h3 id={`setup-${group.id}-title`} className="font-mono text-xs font-bold tracking-[0.16em] text-cyan-300 uppercase">
                 {group.title}
               </h3>
               <ul className="mt-3 flex flex-wrap gap-2">
-                {group.items.map((entry) => (
-                  <li key={entry.name}>
+                {group.items.map((entry, c) => (
+                  // --c: the chip's place in its tile's entrance (capped, so a long tile doesn't drag).
+                  <li key={entry.name} style={{ '--c': Math.min(c, 6) } as CSSProperties}>
                     <SetupChip entry={entry} />
                   </li>
                 ))}
@@ -314,6 +324,7 @@ export const DevSetup = () => (
         </li>
       ))}
     </ul>
+    <SetupTilesMotion gridId="setup-tiles" />
   </section>
 )
 
