@@ -840,6 +840,10 @@
 /* "Check out the Lab": the tagline's cyan to blue, with a light running
    through it now and then. */
 .lab-eyebrow {
+  /* Heavier than the monospace font's bold (round 3 of 2026-11-02: "bolder
+     text"): a clear stroke round each letter widens it, and the gradient,
+     clipped to the text, fills the stroke too (Chromium, WebKit, Gecko). */
+  -webkit-text-stroke: 0.045em transparent;
   background: linear-gradient(100deg, #67e8f9 0%, #60a5fa 40%, #e0f2fe 50%, #60a5fa 60%, #22d3ee 100%);
   background-size: 250% 100%;
   -webkit-background-clip: text;
