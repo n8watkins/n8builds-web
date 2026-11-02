@@ -21,6 +21,10 @@ Detailed plans: [BUILDS_LOG_PLAN.md](BUILDS_LOG_PLAN.md), [LIVE_STREAM_PLAN.md](
 - [x] **Release-kit on GitHub:** public at https://github.com/n8watkins/release-kit (2026-10-25), released through its own workflow (v1.0.0 to v1.0.3).
 - [x] **Release train:** Mondays 16:00 UTC confirmed (2026-10-25).
 - [x] **Articles and X:** always site first; reposting to X is separate (2026-10-25, in [DECISIONS.md](DECISIONS.md)).
+- [ ] **/upcoming and its waitlist (new 2026-11-01, PR `feat/upcoming-waitlist`):** review the preview screenshots in the PR, then say merge or what to change.
+  No key or account is needed: sign-ups use the analytics database and Gmail sender already in Vercel, so the waitlist is live as soon as it merges.
+  Questions while you look: should Upcoming also get a small spot on the homepage (today it is only in the Lab menu and the footer, since the homepage Lab's three parts are settled), are the project colours right (Relink orange, Strollz green, VibeLog pink), and is VibeLog's line "An early version runs on my machine; not released" OK to say publicly?
+  Sign-ups show on the admin dashboard's Waitlist page (its own PR in n8builds-admin; merge both).
 - [ ] **Live player defaults** (or keep these): bottom-right corner, Twitch first when live on several platforms, player on every page.
 
 ### B. Accounts and keys (do these yourself; never paste secrets in chat)
@@ -53,6 +57,7 @@ Portfolio Rank's starts with rotating its invalid Gemini API key (nothing has be
 
 ## Part 2: What Claude builds
 
+**In review 2026-11-01:** `/upcoming` (Relink, Strollz, VibeLog) with a double opt-in waitlist stored in the analytics database (`lib/waitlist/`), the leave page, the privacy page's Waitlist section, and the admin's Waitlist page; waits on the owner's look at the preview (Part 1 A).
 **Next session:** start from [prompts/next-session-2026-10-27b.md](prompts/next-session-2026-10-27b.md); its in-flight items are done (see the 2026-10-27 done log) except the Scribe and OpenPing landing previews, which wait on the owner.
 **Done 2026-10-26 (evening):** the homepage refresh (#48), the WebKit marquee fix (#47), cookie banner v2 (#49) and the security backlog note (#50); dev-portfolio's security update (dev-portfolio #6).
 **Owner, new 2026-10-26:** run the v1.2.0 release (`gh workflow run release-train.yml -f bump=auto -f dry-run=false`) or let Monday's run do it; the admin dashboard's setup steps (its Setup page); Appturnity's Actions minutes are used up until Nov 1; more Chrome extension screenshots; review the Appturnity card's "Coming soon" list.

@@ -15,7 +15,7 @@ import { logger } from '@/lib/logger'
  * The emails' images ride along as inline CID attachments, so they render
  * without depending on the deployed site or on remote-image loading.
  */
-function inlineImages(names: (keyof typeof EMAIL_ICONS)[]) {
+export function inlineImages(names: (keyof typeof EMAIL_ICONS)[]) {
   return names.map((name) => ({
     filename: `${name}.png`,
     content: Buffer.from(EMAIL_ICONS[name], 'base64'),

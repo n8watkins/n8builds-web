@@ -57,6 +57,14 @@ When the owner decides something new, add it here (with the date) in the same ch
   Hero copy (2026-10-23, whoami reworked 2026-10-26): heading "n8builds", subheader "Spending tokens, shipping features." (one line on every phone, down to 320px), and the whoami terminal titled "~/whoami :: Nathan 'N8' Watkins" with the body "AI-first software developer." then "I build apps and tools I wish existed." (no "in LA", no "AI agents doing the heavy lifting"). No pill above the heading.
   The body has no "$ whoami" line (the title bar says it); its two lines type out on load, terminal-style, then the prompt returns with a blinking cursor (2026-10-26). The typing is CSS only, the text is in the server HTML, and reduced motion shows it at once.
   Say "in public" sparingly; the owner felt the old hero overused it.
+- **/upcoming: projects I'm outlining, with a real waitlist** (owner, 2026-11-01).
+  `n8builds.dev/upcoming` lists Relink (working name; fallbacks Rewire and deadlink; renamed from Rewire on 2026-11-01), Strollz and VibeLog, each with status "Outlining", from `data/upcoming.ts`.
+  Its anchors and `?interest=` values (`relink`, `strollz`, `vibelog`) are a public contract: the projects' landing pages link to `/upcoming?interest=<slug>#<slug>`, and the old `rewire` value and `#rewire` anchor still land on Relink.
+  It is a page, like the build log: linked from the Lab menu and the footer's Lab column, not a part of the homepage Lab (whose three parts are settled above).
+  VibeLog stays hidden as a build (`hiddenBuilds`, no Lab row or build page) while it is listed here as an upcoming project.
+  Sign-ups are stored for real, in the analytics database (keys `waitlist:*`, `lib/waitlist/store.ts`), with double opt-in: joining emails a confirm link (Gmail SMTP, like the contact form), nothing is kept unconfirmed past 7 days, every email carries a leave link that deletes the entry, and `/upcoming/leave` emails that link to anyone who asks.
+  The form has a honeypot and Turnstile, and its own rate limits (5 an hour per IP, 3 emails a day per address, `WAITLIST_DAILY_LIMIT` emails a day site-wide, default 100).
+  The owner reads the list on the admin dashboard's Waitlist page.
 - **Page titles use " | " as the separator** ("Speed Beats Mastery | n8builds"), and no visible copy uses the em dash (swept 2026-10-23).
 - **Streaming:** the owner plans to start streaming on Twitch in the coming weeks.
   The navbar has a Ko-fi link (https://ko-fi.com/n8watkins, the same as Portfolio Rank's) left of Portfolio, and in the mobile menu (2026-10-26).

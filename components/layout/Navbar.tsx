@@ -21,6 +21,8 @@ const labMenu = [
   { label: 'Chrome Extensions', href: '/#extensions', desc: 'Browser tools, local-first' },
   // The build log is a page, not a section: it lives here and in the footer, not as its own top-level link.
   { label: 'Build log', href: '/builds', desc: 'What shipped, pulled from GitHub' },
+  // Projects still on paper, each with a waitlist (a page, like the build log).
+  { label: 'Upcoming', href: '/upcoming', desc: "What I'm outlining next, with a waitlist" },
 ]
 
 // The menus open and close with CSS transitions, not motion, so no page loads
