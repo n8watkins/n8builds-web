@@ -67,8 +67,11 @@ interface FeaturedProject {
   wordmark?: React.ReactNode
   /** The app's own icon, shown left of its name. */
   icon: string
-  /** Which part of the Lab: the owner's daily tools, or the featured builds. */
-  group: 'tools' | 'featured'
+  /**
+   * Where the row lives: the owner's daily drivers, leading "Tools I built
+   * and use" (Scribe), or the Lab's featured builds.
+   */
+  group: 'daily' | 'featured'
   /** A few words; the features carry the detail. */
   subtitle: string
   /** What it is, in about two lines; the features are the checks, the tech goes in `tags`. */
@@ -100,15 +103,16 @@ interface FeaturedProject {
   actions: ActionLink[]
 }
 
-// The owner's daily drivers first (Scribe and OpenPing run every day), then
-// the showcase apps. n8builds itself is not a row: how it is built and tested
+// Scribe, the owner's daily driver, leads "Tools I built and use" on /loadout
+// and in the homepage's Loadout (the owner's call, 2026-11-01); the rest are the Lab's featured builds,
+// OpenPing first. n8builds itself is not a row: how it is built and tested
 // lives in the Lab's template part, right after these rows (UseAsTemplate.tsx).
 // Features come from each project's README and live site.
 const featured: FeaturedProject[] = [
   {
     title: 'Scribe',
     icon: '/builds/scribe/app-icon.png',
-    group: 'tools',
+    group: 'daily',
     subtitle: 'Speech-to-text for Windows',
     description:
       'I dictate with Scribe every day: hold a hotkey, talk and let go, and your words land at the cursor, transcribed on your own PC.',
@@ -138,7 +142,7 @@ const featured: FeaturedProject[] = [
   {
     title: 'OpenPing',
     icon: '/builds/openping/icon.svg',
-    group: 'tools',
+    group: 'featured',
     subtitle: 'Uptime monitoring on your own Cloudflare',
     description:
       'I check OpenPing every day: it watches my live demos from my own Cloudflare account, and off-hours never count as downtime.',
@@ -296,16 +300,20 @@ const PrimaryAction = ({ project, facts }: { project: FeaturedProject; facts: Do
   )
 }
 
-/** What the project does, as checks in its colour, two by two from small screens up. */
+/**
+ * What the project does, as checks in its colour, two by two from small
+ * screens up; one per line on tablets, where the row's text column is too
+ * narrow for two without wrapping them.
+ */
 const Features = ({ project }: { project: FeaturedProject }) => {
   const accent = accents[project.accent]
   return (
-    <ul aria-label={`What ${project.title} does`} className="mt-4 grid gap-x-5 gap-y-1.5 sm:grid-cols-2">
+    <ul aria-label={`What ${project.title} does`} className="mt-4 grid gap-x-5 gap-y-1.5 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
       {project.features.map((feature) => {
         const text = typeof feature === 'string' ? feature : feature.text
         return (
           // A linked feature is a sentence, so it takes the whole line.
-          <li key={text} className={`flex items-start gap-2 text-sm font-medium text-slate-200 ${typeof feature === 'string' ? '' : 'sm:col-span-2'}`}>
+          <li key={text} className={`flex items-start gap-2 text-sm font-medium text-slate-200 ${typeof feature === 'string' ? '' : 'col-span-full'}`}>
             <FiCheck className={`mt-[3px] h-4 w-4 shrink-0 ${accent.check}`} aria-hidden="true" />
             {typeof feature === 'string' ? (
               text
@@ -468,9 +476,13 @@ const ProjectRow = ({ project, flipped, facts }: { project: FeaturedProject; fli
         )}
 
         {/* One row across the column: Live Site, the Star | GitHub split button,
-            Details, in even thirds. On phones, Live Site and Details share a line
-            and the split button takes the next. */}
-        <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3">
+            Details, in even thirds. A third is never narrower than its button,
+            though: a star count can make the split button wider than a third,
+            and then it takes what it needs and Live Site and Details share the
+            rest evenly, so no two buttons ever touch. On phones and tablets
+            (where the row's text column is narrow), Live Site and Details share
+            a line and the split button takes the next. */}
+        <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-[repeat(3,minmax(max-content,1fr))] md:grid-cols-2 lg:grid-cols-[repeat(3,minmax(max-content,1fr))]">
           {project.liveSite && (
             <a
               href={project.liveSite}
@@ -484,7 +496,11 @@ const ProjectRow = ({ project, flipped, facts }: { project: FeaturedProject; fli
             </a>
           )}
           {project.github && (
-            <RepoButtons href={project.github} name={project.title} className="order-last col-span-2 w-full sm:order-none sm:col-span-1" />
+            <RepoButtons
+              href={project.github}
+              name={project.title}
+              className="order-last col-span-2 w-full sm:order-none sm:col-span-1 md:order-last md:col-span-2 lg:order-none lg:col-span-1"
+            />
           )}
           <ProjectDetails
             title={project.title}
@@ -515,50 +531,57 @@ const container = 'mx-auto max-w-6xl px-5 sm:px-8'
 // Each row sits in its own full-bleed wash in its product's colour, a glow from
 // the page edge on its screenshot's side (`.lab-row-wash` in app/globals.css). The
 // washes fade out at their edges, so the rows' padding doubles as the gap between them.
-const Rows = ({ group, offset, facts }: { group: FeaturedProject['group']; offset: number; facts: DownloadFacts }) => (
+// `bleed` off: a row inside a page's own content column (the homepage's
+// Loadout), with no wash, since a glow cut off at the column's edge would show a seam.
+const Rows = ({ group, facts, bleed = true }: { group: FeaturedProject['group']; facts: DownloadFacts; bleed?: boolean }) => (
   <div className="flex flex-col">
     {featured
       .filter((p) => p.group === group)
       .map((p, i) => {
-        // Screenshot right for Scribe (text first), then alternating down the Lab.
-        const flipped = (i + offset) % 2 === 0
+        // Screenshot right for the first row (text first), then alternating.
+        const flipped = i % 2 === 0
         return (
           // An article named by its title, so each row is one landmark-like unit for screen readers.
           <article
             key={p.title}
             aria-labelledby={`${slugOf(p)}-title`}
-            className={`lab-row-wash lab-accent-${p.accent} py-6 md:py-8 ${flipped ? '[--lab-x:100%]' : '[--lab-x:0%]'}`}
+            className={bleed ? `lab-row-wash lab-accent-${p.accent} py-6 md:py-8 ${flipped ? '[--lab-x:100%]' : '[--lab-x:0%]'}` : undefined}
           >
-            <div className={container}>
+            {bleed ? (
+              <div className={container}>
+                <ProjectRow project={p} flipped={flipped} facts={facts} />
+              </div>
+            ) : (
               <ProjectRow project={p} flipped={flipped} facts={facts} />
-            </div>
+            )}
           </article>
         )
       })}
   </div>
 )
 
-/** The Lab's two rows of builds: the owner's daily tools, then the featured builds. */
+/** The Lab's featured builds, the first part under its intro. */
 const FeaturedProjects = async () => {
-  const tools = featured.filter((p) => p.group === 'tools').length
   const facts = await downloadFacts()
   return (
-    <>
-      <section id="my-tools" aria-label="My daily drivers" className="lab-accent-tools py-10">
-        <Reveal className={`${container} pb-4`}>
-          <LabSubheader title="My daily drivers" blurb="Free and open source: use them, self-host them or fork them." />
-        </Reveal>
-        <Rows group="tools" offset={0} facts={facts} />
-      </section>
-      <section id="featured" aria-label="Featured builds" className="lab-accent-featured mt-10 py-10 md:mt-16">
-        <Reveal className={`${container} pb-4`}>
-          <LabSubheader title="Featured builds" blurb="Free to use and open source, with no sign-up to start." />
-        </Reveal>
-        {/* Continue the left/right alternation from the rows above. */}
-        <Rows group="featured" offset={tools} facts={facts} />
-      </section>
-    </>
+    <section id="featured" aria-label="Featured builds" className="lab-accent-featured py-10">
+      <Reveal className={`${container} pb-4`}>
+        <LabSubheader title="Featured builds" blurb="Free to use and open source, with no sign-up to start." />
+      </Reveal>
+      <Rows group="featured" facts={facts} />
+    </section>
   )
 }
+
+/**
+ * The owner's daily drivers (Scribe) as Lab rows, leading "Tools I built and
+ * use". On /loadout they are full-bleed (each row's wash reaches the page
+ * edge), so the page renders them outside its content column and each row
+ * sets the same column inside; `bleed={false}` puts them in a column as they
+ * are, with no wash (the homepage's Loadout).
+ */
+export const DailyDriverRows = async ({ bleed = true }: { bleed?: boolean }) => (
+  <Rows group="daily" facts={await downloadFacts()} bleed={bleed} />
+)
 
 export default FeaturedProjects

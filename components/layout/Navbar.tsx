@@ -21,8 +21,7 @@ const KOFI_URL = 'https://ko-fi.com/n8watkins'
 const labMenu: { label: string; href: string; desc: string; fallback?: string }[] = [
   // The Lab's first part (the owner's ask, 2026-11-02); the full log is its "See the full build log" link and the footer.
   { label: 'Build log', href: '/#build-log', desc: 'What I shipped lately, every build', fallback: '/builds' },
-  { label: 'My tools', href: '/#my-tools', desc: 'Scribe and OpenPing: I use them every day' },
-  { label: 'Featured', href: '/#featured', desc: 'Solara and Portfolio Rank' },
+  { label: 'Featured', href: '/#featured', desc: 'OpenPing, Solara and Portfolio Rank' },
   { label: 'Chrome Extensions', href: '/#extensions', desc: 'Browser tools, local-first' },
   // The Lab's last part: upcoming projects, each with a waitlist (full detail on /upcoming).
   { label: "What's cookin'", href: '/#upcoming', desc: 'Upcoming projects, with a waitlist' },

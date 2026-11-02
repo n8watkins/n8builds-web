@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { FiGitPullRequest, FiPackage, FiPlusSquare } from 'react-icons/fi'
@@ -6,7 +6,7 @@ import { LuExternalLink, LuGlobe, LuUsers } from 'react-icons/lu'
 import { SiGithub, SiSubstack, SiX, SiYoutube } from 'react-icons/si'
 import {
   devSetup,
-  honorableMentions,
+  loadoutPart,
   people,
   toolsIBuilt,
   toolsIUse,
@@ -20,40 +20,61 @@ import {
 } from '@/data/loadout'
 import RepoButtons from '@/components/ui/RepoButtons'
 import Reveal from '@/components/ui/Reveal'
+import SetupTilesMotion from '@/components/sections/SetupTilesMotion'
 
 /**
- * The dev-tool parts of /loadout (2026-11-01): my dev setup, the tools I
- * built, the tools I use (each credited to its maker) and honorable
- * mentions; and the parts the homepage shows (components/sections/
- * HomePeople.tsx, HomeToolsIBuilt.tsx): the people I follow, The Pull
- * Request Post and the tool cards. Each reads its list from
+ * The dev-tool parts of /loadout (2026-11-01): my dev setup, the tool
+ * cards of "Tools I built and use" and the tools I use (each credited to its
+ * maker); and the parts the homepage shows
+ * (components/sections/HomePeople.tsx, HomeToolsIBuilt.tsx): the people I
+ * follow, The Pull Request Post and the tool cards. Each reads its list from
  * data/loadout.tsx, so adding a tool or a person is one entry there.
  * Server components: RepoButtons fetches its star count on the server. Out
  * of the app's IconContext, so every icon is aria-hidden by hand.
  */
 
-// A section's small mono path and title, left-aligned over its content.
+/**
+ * A part's heading on /loadout: the part's icon (the one its pill and the
+ * side rail show) in a chip of its colour, its small mono path and its title,
+ * then one line on what's inside. Stronger than a plain title, so each part
+ * reads as its own as you scroll (the owner's ask, 2026-11-02). `part` is its
+ * id in loadoutParts (data/loadout.tsx), which gives the icon and colour.
+ */
 export const SectionHead = ({
   id,
+  part,
   path,
   title,
   children,
 }: {
   id?: string
+  part: string
   path: string
   title: string
   children?: ReactNode
-}) => (
-  <div className="mb-6 flex flex-col gap-1.5">
-    <span className="font-mono text-xs text-slate-475">{path}</span>
-    <h2 id={id} className="text-2xl font-extrabold tracking-tight text-slate-50 sm:text-3xl">
-      {title}
-    </h2>
-    {children && (
-      <p className="max-w-[620px] text-[15px] leading-relaxed text-[#9cadc5]">{children}</p>
-    )}
-  </div>
-)
+}) => {
+  const { icon: Icon, accent } = loadoutPart(part)
+  return (
+    <div className="mb-8 md:mb-10" style={{ '--lo': accent } as CSSProperties}>
+      <div className="flex items-center gap-4">
+        <span
+          aria-hidden="true"
+          data-part-icon
+          className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[rgb(var(--lo)/0.12)] text-[rgb(var(--lo))] ring-1 ring-[rgb(var(--lo)/0.35)] sm:size-14"
+        >
+          <Icon className="size-6 sm:size-7" />
+        </span>
+        <div className="min-w-0">
+          <span className="block font-mono text-xs text-[rgb(var(--lo)/0.85)]">{path}</span>
+          <h2 id={id} className="mt-1 text-[1.75rem] leading-tight font-extrabold tracking-tight text-balance text-slate-50 sm:text-4xl">
+            {title}
+          </h2>
+        </div>
+      </div>
+      {children && <p className="mt-4 max-w-[640px] leading-relaxed text-pretty text-[#9cadc5]">{children}</p>}
+    </div>
+  )
+}
 
 const textLink =
   'font-semibold text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 transition-colors hover:text-cyan-200 hover:decoration-cyan-200/60'
@@ -103,10 +124,10 @@ const BuiltToolCard = ({ tool }: { tool: BuiltTool }) => (
         </ul>
       </div>
     </div>
-    <p className="relative text-lg leading-snug font-semibold text-slate-100">{tool.pitch}</p>
-    <p className="relative text-[15px] leading-relaxed text-[#9cadc5]">{tool.detail}</p>
+    <p className="relative text-lg leading-snug font-semibold text-pretty text-slate-100">{tool.pitch}</p>
+    <p className="relative text-[15px] leading-relaxed text-pretty text-[#9cadc5]">{tool.detail}</p>
     {tool.credit && (
-      <p className="relative text-sm leading-relaxed text-slate-300" data-credit>
+      <p className="relative text-sm leading-relaxed text-pretty text-slate-300" data-credit>
         Created by <External link={tool.credit.author} />
         {tool.credit.org && (
           <>
@@ -151,47 +172,44 @@ export const BuiltToolsGrid = ({ tools = toolsIBuilt }: { tools?: BuiltTool[] })
   </ul>
 )
 
-export const TOOLS_I_BUILT_BLURB = 'Small open-source tools I made because I wanted them. All MIT-licensed.'
+/**
+ * "Tools I built and use" (the owner's call, 2026-11-01): Scribe's row, then
+ * these cards, on /loadout and in the homepage's Loadout. Everything in it is
+ * MIT-licensed (Scribe included).
+ */
+export const TOOLS_I_BUILT_TITLE = 'Tools I built and use'
+export const TOOLS_I_BUILT_BLURB = 'Tools I made for myself and use every day. All open source and MIT-licensed.'
 
-export const ToolsIBuilt = () => (
-  <Reveal>
-    <section id="tools-i-built" aria-labelledby="tools-i-built-title" className="scroll-mt-24">
-      <SectionHead id="tools-i-built-title" path="~/loadout/built" title="Tools I built">
-        {TOOLS_I_BUILT_BLURB}
-      </SectionHead>
-      <BuiltToolsGrid />
-    </section>
-  </Reveal>
-)
-
-const makerLink = 'font-medium text-slate-300 underline decoration-white/20 underline-offset-4 transition-colors hover:text-cyan-200'
+const makerLink = 'font-medium whitespace-nowrap text-slate-300 underline decoration-white/20 underline-offset-4 transition-colors hover:text-cyan-200'
 
 /**
- * One tool someone else made: "no-mistakes, by Kun Chen". The tool links to
- * its page; a maker in People I follow links to their card on the homepage
- * (People I follow moved there on 2026-11-01), any other maker to their own
- * profile.
+ * One tool someone else made: "no-mistakes, by Kun Chen", what it is for, and
+ * its repo as the Star | GitHub button the tools I built carry (every tool
+ * here has a public repo, the owner's ask, 2026-11-02). The name links to the
+ * tool's own site where it has one (herdr.dev, also a button), else its repo.
+ * A maker in People I follow links to their card on the homepage (People I
+ * follow moved there on 2026-11-01), any other maker to their own profile.
  */
 const ToolItem = ({ tool }: { tool: UsedTool }) => {
   const person = tool.by ? people.find((p) => p.id === tool.by) : undefined
   return (
     <li
       id={tool.id}
-      className="group flex scroll-mt-24 items-start gap-4 rounded-2xl border border-white/8 bg-white/[0.02] p-5 transition-colors duration-200 target:border-cyan-300/40 hover:border-cyan-300/30 hover:bg-white/[0.04]"
+      className="group flex h-full scroll-mt-24 items-start gap-4 rounded-2xl border border-white/8 bg-white/[0.02] p-5 transition-colors duration-200 target:border-cyan-300/40 hover:border-cyan-300/30 hover:bg-white/[0.04]"
     >
       <span aria-hidden="true" className={`${iconChip} h-11 w-11 p-2.5 [&_svg]:h-full [&_svg]:w-full`}>
         {tool.icon}
       </span>
-      <div className="min-w-0">
+      <div className="flex min-w-0 flex-1 flex-col self-stretch">
         <h3 className="text-[15px] text-slate-450">
           <a
-            href={tool.href}
+            href={tool.site ?? tool.github}
             target="_blank"
             rel="noopener noreferrer"
             className="font-mono font-bold text-slate-100 underline decoration-white/0 underline-offset-4 transition-colors hover:text-cyan-200 hover:decoration-cyan-200/50"
           >
             {tool.name}
-            <span className="sr-only">{tool.href.startsWith('https://github.com/') ? ' on GitHub' : ''} (opens in a new tab)</span>
+            <span className="sr-only"> (opens in a new tab)</span>
           </a>
           {person && (
             <>
@@ -210,35 +228,38 @@ const ToolItem = ({ tool }: { tool: UsedTool }) => {
             </>
           )}
         </h3>
-        <p className="mt-1 text-sm leading-relaxed text-[#9cadc5]">{tool.whatFor}</p>
+        <p className="mt-1 text-sm leading-relaxed text-pretty text-[#9cadc5]">{tool.whatFor}</p>
+        {/* Pinned to the card's foot, so the buttons line up across a row. */}
+        <div className="mt-auto flex flex-wrap gap-2 pt-4">
+          <RepoButtons href={tool.github} name={tool.name} className="w-full sm:w-auto" />
+          {tool.site && (
+            <a href={tool.site} target="_blank" rel="noopener noreferrer" className={`${linkButton} w-full justify-center sm:w-auto`}>
+              <span aria-hidden="true">
+                <LuGlobe />
+              </span>
+              {new URL(tool.site).hostname}
+              <span className="sr-only"> ({tool.name}&apos;s site, opens in a new tab)</span>
+            </a>
+          )}
+        </div>
       </div>
     </li>
   )
 }
 
+/**
+ * Tools I use: other people's tools, each credited to its maker. The
+ * honorable mentions (herdr, firstmate, treehouse, ccusage) joined them on
+ * 2026-11-02; /loadout keeps their old #honorable-mentions anchor on this part.
+ */
 export const ToolsIUse = () => (
   <Reveal>
-    <section id="tools-i-use" aria-labelledby="tools-i-use-title" className="scroll-mt-24">
-      <SectionHead id="tools-i-use-title" path="~/loadout/tools" title="Tools I use">
-        What I add on top of Claude Code and Codex, so the agents can check their own work.
+    <section aria-labelledby="tools-i-use-title">
+      <SectionHead id="tools-i-use-title" part="tools-i-use" path="~/loadout/tools" title="Tools I use">
+        What I add on top of Claude Code and Codex: where my agents run, and the tools that let them check their own work.
       </SectionHead>
       <ul className="grid gap-4 md:grid-cols-2">
         {toolsIUse.map((tool) => (
-          <ToolItem key={tool.id} tool={tool} />
-        ))}
-      </ul>
-    </section>
-  </Reveal>
-)
-
-export const HonorableMentions = () => (
-  <Reveal>
-    <section id="honorable-mentions" aria-labelledby="honorable-mentions-title" className="scroll-mt-24">
-      <SectionHead id="honorable-mentions-title" path="~/loadout/mentions" title="Honorable mentions">
-        Other people&apos;s tools I recommend.
-      </SectionHead>
-      <ul className="grid gap-4 md:grid-cols-2">
-        {honorableMentions.map((tool) => (
           <ToolItem key={tool.id} tool={tool} />
         ))}
       </ul>
@@ -250,13 +271,27 @@ export const HonorableMentions = () => (
 const SetupChip = ({ entry }: { entry: SetupEntry }) => {
   const body = (
     <>
-      <span className="font-semibold text-slate-100">{entry.name}</span>
-      {entry.note && <span className="text-slate-450">{entry.note}</span>}
+      {/* Its own mark, 16px tall and centred on the first line (brand colours
+           are set in data/loadout.tsx; plain glyphs are slate). */}
+      <span
+        aria-hidden="true"
+        data-setup-icon
+        className="flex h-5 min-w-4 shrink-0 items-center justify-center text-slate-300 [&_img]:size-4 [&_img]:rounded-[3px] [&_svg]:size-4"
+      >
+        {entry.icon}
+      </span>
+      {/* Name and note wrap together, so a note on its own line starts under the name, not the mark. */}
+      <span className="flex flex-wrap items-baseline gap-x-1.5">
+        <span data-setup-name className="font-semibold text-slate-100">
+          {entry.name}
+        </span>
+        {entry.note && <span className="text-slate-450">{entry.note}</span>}
+      </span>
     </>
   )
-  const chip = 'inline-flex flex-wrap items-baseline gap-x-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1 text-sm'
+  const chip = 'setup-chip flex items-start gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1 text-sm'
   if (!entry.href) return <span className={chip}>{body}</span>
-  const linked = `${chip} transition-colors hover:border-cyan-300/40 hover:bg-white/[0.06] [&>span:first-child]:underline [&>span:first-child]:decoration-white/20 [&>span:first-child]:underline-offset-4`
+  const linked = `${chip} transition-colors hover:border-cyan-300/40 hover:bg-white/[0.06] [&_[data-setup-name]]:underline [&_[data-setup-name]]:decoration-white/20 [&_[data-setup-name]]:underline-offset-4`
   return entry.href.startsWith('/') ? (
     <Link href={entry.href} className={linked}>
       {body}
@@ -268,43 +303,63 @@ const SetupChip = ({ entry }: { entry: SetupEntry }) => {
   )
 }
 
-/** My dev setup: what I work on and with, grouped so it scans in seconds. */
+/**
+ * My dev setup: what I work on and with, grouped so it scans in seconds, as a
+ * bento: three tiles to a row from xl (1280px), two from md, the machine's
+ * tile across the full width (data/loadout.tsx sets the order so each row's
+ * tiles hold about as much). A tile with a few groups stacks them. Its tiles rise in one
+ * by one, then their chips (`.setup-tile` in app/globals.css,
+ * SetupTilesMotion), and lift a little on hover or focus.
+ */
 export const DevSetup = () => (
-  <section id="dev-setup" aria-labelledby="dev-setup-title" className="scroll-mt-24">
-    <SectionHead id="dev-setup-title" path="~/loadout/dev-setup" title="My dev setup">
+  <section aria-labelledby="dev-setup-title">
+    <SectionHead id="dev-setup-title" part="dev-setup" path="~/loadout/dev-setup" title="My dev setup">
       Windows 11 with WSL2, Claude Code and Codex, and the tools around them.
     </SectionHead>
-    <ul className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {devSetup.map((group) => (
-        <li
-          key={group.id}
-          className={`rounded-2xl border border-white/8 bg-white/[0.02] p-5 ${group.wide ? 'lg:col-span-2' : ''}`}
-        >
-          <div className={group.code ? 'grid gap-4 sm:grid-cols-2' : ''}>
-            <div>
-              <h3 id={`setup-${group.id}-title`} className="font-mono text-xs font-bold tracking-[0.16em] text-cyan-300 uppercase">
-                {group.title}
-              </h3>
-              <ul className="mt-3 flex flex-wrap gap-2">
-                {group.items.map((entry) => (
-                  <li key={entry.name}>
-                    <SetupChip entry={entry} />
-                  </li>
+    <ul id="setup-tiles" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      {devSetup.map((tile, i) => {
+        // --c: each chip's place in its tile's entrance, counted across the tile's groups.
+        let chip = 0
+        return (
+          <li
+            key={tile.id}
+            // --d: its place in the entrance (SetupTilesMotion renumbers the tiles still off screen).
+            style={{ '--d': i } as CSSProperties}
+            className={`setup-tile rounded-2xl border border-white/8 bg-white/[0.02] p-5 transition-[border-color,translate] duration-300 hover:-translate-y-1 hover:border-cyan-300/25 focus-within:-translate-y-1 focus-within:border-cyan-300/25 motion-reduce:hover:translate-y-0 motion-reduce:focus-within:translate-y-0 ${tile.full ? 'md:col-span-2 xl:col-span-3' : ''}`}
+          >
+            {/* A config file sits beside the groups, under them on a phone. */}
+            <div className={tile.code ? 'grid gap-5 sm:grid-cols-[1.4fr_1fr] xl:gap-8' : ''}>
+              <div className="flex flex-col gap-5">
+                {tile.groups.map((group) => (
+                  <div key={group.id}>
+                    <h3 id={`setup-${group.id}-title`} className="font-mono text-xs font-bold tracking-[0.16em] text-cyan-300 uppercase">
+                      {group.title}
+                    </h3>
+                    <ul className="mt-3 flex flex-wrap gap-2">
+                      {group.items.map((entry) => (
+                        // Capped, so a long tile doesn't drag.
+                        <li key={entry.name} style={{ '--c': Math.min(chip++, 6) } as CSSProperties}>
+                          <SetupChip entry={entry} />
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 ))}
-              </ul>
+              </div>
+              {tile.code && (
+                <figure className="min-w-0">
+                  <figcaption className="font-mono text-xs text-slate-475">{tile.code.label}</figcaption>
+                  <pre className="mt-1.5 overflow-x-auto rounded-xl border border-white/8 bg-[#050b17] px-4 py-3 font-mono text-[0.8rem] leading-snug text-slate-300">
+                    <code>{tile.code.text}</code>
+                  </pre>
+                </figure>
+              )}
             </div>
-            {group.code && (
-              <figure className="min-w-0">
-                <figcaption className="font-mono text-xs text-slate-475">{group.code.label}</figcaption>
-                <pre className="mt-1.5 overflow-x-auto rounded-xl border border-white/8 bg-[#050b17] px-4 py-3 font-mono text-[0.8rem] leading-snug text-slate-300">
-                  <code>{group.code.text}</code>
-                </pre>
-              </figure>
-            )}
-          </div>
-        </li>
-      ))}
+          </li>
+        )
+      })}
     </ul>
+    <SetupTilesMotion gridId="setup-tiles" />
   </section>
 )
 
@@ -386,14 +441,14 @@ export const PersonCard = ({ person }: { person: Person }) => (
     <p className="text-[15px] leading-relaxed text-pretty text-[#9cadc5]">{person.note}</p>
     {person.howTheyWork && (
       <p className="-mt-1 text-sm leading-relaxed text-slate-400">
-        {person.howTheyWork.summary}{' '}
         <a href={person.howTheyWork.href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-semibold whitespace-nowrap text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 hover:text-cyan-200">
           <span aria-hidden="true" className="[&_svg]:h-3.5 [&_svg]:w-3.5">
             <SiYoutube />
           </span>
-          How he works
+          Check out how he works
           <span className="sr-only"> (a video, opens in a new tab)</span>
-        </a>
+        </a>{' '}
+        for more on his setup.
       </p>
     )}
     <RecentActivity person={person} />

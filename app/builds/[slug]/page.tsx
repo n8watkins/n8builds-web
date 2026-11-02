@@ -76,7 +76,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
         <div className="max-w-5xl mx-auto px-5 sm:px-8 pt-28 pb-10 md:pt-32 md:pb-16">
           {/* Top nav */}
           <Link
-            href={`/#${shelf.slug}`}
+            href={shelf.href}
             className="-my-2.5 inline-flex items-center gap-2 py-2.5 text-sm font-semibold text-slate-400 hover:text-cyan-300 transition-colors"
           >
             <FiArrowLeft className="w-4 h-4" />

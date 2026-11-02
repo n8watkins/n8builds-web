@@ -1,18 +1,19 @@
 import { test, expect, type Page } from '@playwright/test'
+import { contentLeft, labelLines, railShape } from './section-rail'
 
 /**
- * The Lab's floating side nav (components/sections/LabSectionNav.tsx): a
- * desktop-only rail in the left gutter that marks the Lab part on screen
- * (Build log, My tools, Featured, Chrome Extensions, What's cookin') and jumps to it. It appears once
- * the first part's heading reaches the middle of the window (level with it,
- * not beside the Lab's intro), then holds there while the Lab scrolls by.
+ * The Lab's floating side nav (components/sections/LabSectionNav.tsx, on
+ * components/ui/SectionRail.tsx): a desktop-only rail in the left gutter that
+ * marks the Lab part on screen (Build log, Featured, Chrome Extensions, What's cookin')
+ * and jumps to it. It appears once the first part's heading reaches the middle
+ * of the window (level with it, not beside the Lab's intro), then holds there
+ * while the Lab scrolls by. My tools left the Lab for /loadout (2026-11-01).
  */
 
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
 const PARTS = [
   { id: 'build-log', label: 'Build log' },
-  { id: 'my-tools', label: 'My tools' },
   { id: 'featured', label: 'Featured' },
   { id: 'extensions', label: 'Chrome Extensions' },
   { id: 'upcoming', label: "What's cookin'" },
@@ -42,14 +43,15 @@ async function openHome(page: Page) {
  */
 async function scrollToPart(page: Page, id: string) {
   await expect
-    .poll(() =>
-      page.evaluate((id) => {
-        const el = document.getElementById(id)!
-        const top = el.getBoundingClientRect().top
-        if (Math.abs(top - 120) <= 2) return true
-        window.scrollTo({ top: top + window.scrollY - 120, behavior: 'instant' })
-        return false
-      }, id),
+    .poll(
+      () =>
+        page.evaluate((id) => {
+          const el = document.getElementById(id)!
+          const top = el.getBoundingClientRect().top
+          if (Math.abs(top - 120) <= 2) return true
+          window.scrollTo({ top: top + window.scrollY - 120, behavior: 'instant' })
+          return false
+        }, id),
       // The page can still be settling (images, fades) on a slow CI machine: keep nudging it.
       { timeout: 20_000 }
     )
@@ -101,7 +103,11 @@ test.describe('at 1440px', () => {
     })
     await scrollToPart(page, PARTS[0].id)
     await expect(nav).toBeVisible(SHOW)
-    expect(await page.evaluate(() => (window as unknown as { __shownVisibility?: string }).__shownVisibility)).toBe('visible')
+    expect(
+      await page.evaluate(
+        () => (window as unknown as { __shownVisibility?: string }).__shownVisibility
+      )
+    ).toBe('visible')
   })
 
   test('a click jumps to the part, below the sticky navbar', async ({ page }) => {
@@ -109,7 +115,7 @@ test.describe('at 1440px', () => {
     // several seconds, so the 30s default is too tight.
     test.setTimeout(60_000)
     await openHome(page)
-    await scrollToPart(page, 'my-tools')
+    await scrollToPart(page, 'featured')
     const nav = rail(page)
     for (const part of [PARTS[2], PARTS[1], PARTS[0]]) {
       await nav.getByRole('link', { name: part.label, exact: true }).click()
@@ -189,7 +195,7 @@ test.describe('placement at 1440px', () => {
       await page.evaluate((id) => {
         const el = document.getElementById(id)!
         // The part's top at 200px: being read, its heading above the rail's centred
-        // spot (a taller rail, with four parts, centres higher), and the Lab
+        // spot (the taller the rail, the higher it centres), and the Lab
         // still reaching past the rail's foot.
         window.scrollTo({
           top: el.getBoundingClientRect().top + window.scrollY - 200,
@@ -261,8 +267,6 @@ test.describe('placement at 1440px', () => {
     await nav.getByRole('link').first().focus()
     await expect(nav.getByRole('link', { name: 'Build log', exact: true })).toBeFocused()
     await page.keyboard.press('Tab')
-    await expect(nav.getByRole('link', { name: 'My tools', exact: true })).toBeFocused()
-    await page.keyboard.press('Tab')
     await expect(nav.getByRole('link', { name: 'Featured', exact: true })).toBeFocused()
     await page.keyboard.press('Tab')
     const extensions = nav.getByRole('link', { name: 'Chrome Extensions', exact: true })
@@ -316,9 +320,11 @@ test.describe('icons only, 1280-1439px', () => {
     await page.mouse.move(700, 450)
     await expect(tooltip('Featured')).toHaveCSS('opacity', '0')
 
-    await nav.getByRole('link', { name: 'My tools', exact: true }).focus()
-    await page.keyboard.press('Tab')
+    await nav.getByRole('link', { name: 'Featured', exact: true }).focus()
     await expect(tooltip('Featured')).toHaveCSS('opacity', '1')
+    await page.keyboard.press('Tab')
+    await expect(tooltip('Chrome Extensions')).toHaveCSS('opacity', '1')
+    await expect(tooltip('Featured')).toHaveCSS('opacity', '0')
     // The links keep their full names for screen readers.
     for (const [i, part] of PARTS.entries())
       await expect(nav.getByRole('link').nth(i)).toHaveAccessibleName(part.label)
@@ -339,18 +345,6 @@ test('works without JavaScript: plain links to each part', async ({ browser }) =
     await expect(links.nth(i)).toHaveAttribute('href', `#${part.id}`)
   await context.close()
 })
-
-/**
- * Which shape the rail's breakpoints give this window. Asked of the page, not
- * worked out from the window width: WebKit's media queries see the window
- * minus its scrollbar (a 1440px window is 1432px there), so each breakpoint
- * lands a scrollbar's width later than in Chromium and Firefox.
- */
-const railShape = (page: Page) =>
-  page.evaluate(() => {
-    const atLeast = (rem: number) => matchMedia(`(min-width: ${rem}rem)`).matches
-    return { rail: atLeast(80), labels: atLeast(90), shortLabel: atLeast(90) && !atLeast(96) }
-  })
 
 for (const width of [1280, 1366, 1440, 1536, 1920]) {
   test(`at ${width}px it sits beside the content without overlapping it or scrolling sideways`, async ({
@@ -374,36 +368,10 @@ for (const width of [1280, 1366, 1440, 1536, 1920]) {
       await expect(nav).toBeInViewport({ timeout: 15_000 })
       const navBox = (await nav.boundingBox())!
       expect(navBox.x, 'inside the window').toBeGreaterThanOrEqual(8)
-      // Everything visible in the part starts right of the rail: its text, its
-      // media and every box that paints (a border or a fill: cards, buttons,
-      // pills). Layout wrappers paint nothing, and full-bleed bands (the
-      // parts' and rows' background washes) are backdrop, so both are skipped.
-      const contentLeft = await page.locator(`#${part.id}`).evaluate((root) => {
-        let left = Infinity
-        const onScreen = (r: DOMRect) =>
-          r.width > 1 && r.height > 1 && r.bottom > 0 && r.top < window.innerHeight
-        for (const el of [root, ...root.querySelectorAll<HTMLElement>('*')]) {
-          const r = el.getBoundingClientRect()
-          if (!onScreen(r) || r.width >= window.innerWidth * 0.9) continue
-          const cs = getComputedStyle(el)
-          const paints =
-            /^(IMG|SVG|VIDEO|CANVAS|PICTURE)$/i.test(el.tagName) ||
-            parseFloat(cs.borderLeftWidth) > 0 ||
-            (cs.backgroundColor !== 'rgba(0, 0, 0, 0)' && cs.backgroundColor !== 'transparent') ||
-            cs.backgroundImage !== 'none'
-          if (paints && cs.visibility !== 'hidden' && cs.opacity !== '0')
-            left = Math.min(left, r.left)
-          for (const node of el.childNodes) {
-            if (node.nodeType !== Node.TEXT_NODE || !node.textContent!.trim()) continue
-            const range = document.createRange()
-            range.selectNodeContents(node)
-            for (const t of range.getClientRects()) if (onScreen(t)) left = Math.min(left, t.left)
-          }
-        }
-        return left
-      })
-      expect(contentLeft, `${part.id} has content on screen`).toBeLessThan(width)
-      expect(navBox.x + navBox.width, `${part.id} content`).toBeLessThanOrEqual(contentLeft - 8)
+      // Everything visible in the part starts right of the rail (see contentLeft).
+      const left = await contentLeft(page.locator(`#${part.id}`))
+      expect(left, `${part.id} has content on screen`).toBeLessThan(width)
+      expect(navBox.x + navBox.width, `${part.id} content`).toBeLessThanOrEqual(left - 8)
     }
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
@@ -412,25 +380,7 @@ for (const width of [1280, 1366, 1440, 1536, 1920]) {
     if (shape.labels) await expect(nav.getByText('The Lab', { exact: true })).toBeVisible()
     else await expect(nav.getByText('The Lab', { exact: true })).toBeHidden()
     // Every label stays on one line (from 1440px; below that it is a one-line tooltip).
-    const lines = await nav.getByRole('link').evaluateAll((links) =>
-      links.map((a) => {
-        // The line boxes of the label's visible text: one line means one top
-        // (one left, for vertical text).
-        const vertical = getComputedStyle(a).writingMode.startsWith('vertical')
-        const positions = new Set<number>()
-        const walker = document.createTreeWalker(a, NodeFilter.SHOW_TEXT)
-        for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-          // Skip text only screen readers get (a 1px clipped box).
-          if (node.parentElement!.getBoundingClientRect().width <= 1) continue
-          const range = document.createRange()
-          range.selectNodeContents(node)
-          for (const r of range.getClientRects()) {
-            if (r.width > 1 && r.height > 1) positions.add(Math.round(vertical ? r.left : r.top))
-          }
-        }
-        return positions.size
-      })
-    )
+    const lines = await labelLines(nav)
     expect(lines, 'lines per label').toEqual(PARTS.map(() => 1))
     // Where the gutter is tight, the long label shows its short form instead of wrapping.
     const extensions = nav.getByRole('link', { name: 'Chrome Extensions' })

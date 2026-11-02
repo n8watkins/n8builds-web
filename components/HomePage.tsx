@@ -10,7 +10,6 @@ import HomeEffects from '@/components/HomeEffects'
 import NowBuilding from '@/components/sections/NowBuilding'
 import BuildLogStrip from '@/components/sections/BuildLogStrip'
 import FeaturedProjects from '@/components/sections/FeaturedProjects'
-import ShelfSection from '@/components/sections/ShelfSection'
 import UseAsTemplate from '@/components/sections/UseAsTemplate'
 import PortfolioAd from '@/components/sections/PortfolioAd'
 import UpcomingStrip from '@/components/sections/UpcomingStrip'
@@ -19,8 +18,8 @@ import ExtensionsShowcase from '@/components/sections/ExtensionsShowcase'
 import LabSectionNav from '@/components/sections/LabSectionNav'
 import ShimmerWhenSeen from '@/components/ShimmerWhenSeen'
 import HomeStack from '@/components/sections/HomeStack'
+import HomeLoadoutNav from '@/components/sections/HomeLoadoutNav'
 import HomePeople from '@/components/sections/HomePeople'
-import HomeToolsIBuilt from '@/components/sections/HomeToolsIBuilt'
 import WorkWithMe from '@/components/sections/WorkWithMe'
 import Footer from '@/components/layout/Footer'
 import type { Post } from '@/lib/sanity'
@@ -40,6 +39,7 @@ function Band({
   fadeIn = false,
   reveal = true,
   as: Tag = 'div',
+  rail,
   children,
 }: {
   id?: string
@@ -47,6 +47,8 @@ function Band({
   fadeIn?: boolean
   reveal?: boolean
   as?: 'div' | 'section'
+  /** A side rail for the band's parts (components/ui/SectionRail.tsx): it sits in the band, beside its content column. */
+  rail?: React.ReactNode
   children: React.ReactNode
 }) {
   const background = fadeIn
@@ -56,6 +58,7 @@ function Band({
       : 'border-t border-white/[0.06]'
   return (
     <Tag id={id} className={`relative z-10 ${background}`}>
+      {rail}
       <div className="mx-auto max-w-6xl px-5 py-6 sm:px-8">{reveal ? <Reveal>{children}</Reveal> : children}</div>
     </Tag>
   )
@@ -68,11 +71,20 @@ function Band({
  * contact form, and HomeEffects (analytics and the ambient glows). A phone
  * downloads and hydrates those, not every section's code.
  */
+/**
+ * The Lab's "My tools" part (#my-tools) moved to /loadout's "Tools I built
+ * and use" (2026-11-01). A hash never reaches the server, so this inline
+ * script sends links to /#my-tools out there on to it, as the page starts to
+ * parse: before anything paints, and without waiting for hydration.
+ */
+const MY_TOOLS_MOVED = "if(location.hash==='#my-tools')location.replace('/loadout#tools-i-built')"
+
 export default async function HomePage({ posts }: { posts: Post[] }) {
   // The build log part hides when the log can't load; its pill goes with it.
   const buildLog = await hasBuildLog()
   return (
     <>
+      <script dangerouslySetInnerHTML={{ __html: MY_TOOLS_MOVED }} />
       <Navbar />
       <main
         id="main-content"
@@ -94,9 +106,10 @@ export default async function HomePage({ posts }: { posts: Post[] }) {
 
         {/* ===== THE LAB: one section in parts, each in its own colour wash
              (app/globals.css, "The Lab's colour washes"): the build log
-             (BuildLogStrip, hidden if the log can't load), My tools and Featured
-             (FeaturedProjects), the Chrome extensions, then a Tools grid (only
-             if a build ever lands there). The parts are full-bleed, so the
+             (BuildLogStrip, hidden if the log can't load), Featured
+             (FeaturedProjects), the template offer, the Chrome extensions,
+             then What's cookin'. No tools part: the owner's daily drivers
+             (Scribe) are on /loadout (2026-11-01). The parts are full-bleed, so the
              Lab sets its own content width instead of using a Band. The navbar
              "Lab" menu and the side nav scroll to #lab and the part ids. ===== */}
         {/* Jumping to #lab (the navbar's Lab menu) lands its top edge right under the
@@ -135,7 +148,7 @@ export default async function HomePage({ posts }: { posts: Post[] }) {
               </div>
               {/* One line from laptop width up; wraps naturally on phones. */}
               <p className="mt-5 text-balance text-lg text-[#9cadc5] sm:text-xl">
-                Everything I&apos;ve built and still use: daily tools, favourite builds, Chrome extensions.
+                What I&apos;ve built and still use: my favourite builds and Chrome extensions.
               </p>
               {/* Checked points, in the style of the Lab rows' ads. */}
               <ul className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5">
@@ -149,7 +162,6 @@ export default async function HomePage({ posts }: { posts: Post[] }) {
               <nav aria-label="Lab sections" className="mt-7 flex flex-wrap justify-center gap-2">
                 {[
                   ...(buildLog ? [{ label: 'Build log', href: '#build-log' }] : []),
-                  { label: 'My tools', href: '#my-tools' },
                   { label: 'Featured', href: '#featured' },
                   { label: 'Chrome Extensions', href: '#extensions' },
                   { label: "What's cookin'", href: '#upcoming' },
@@ -186,12 +198,6 @@ export default async function HomePage({ posts }: { posts: Post[] }) {
             </Reveal>
           </SectionErrorBoundary>
 
-          <SectionErrorBoundary sectionName="Tools">
-            <Reveal className="mx-auto max-w-6xl px-5 sm:px-8">
-              <ShelfSection shelf="tool" />
-            </Reveal>
-          </SectionErrorBoundary>
-
           {/* The Lab's last part: what's cooking next, each with its landing page and
                waitlist (owner, 2026-11-01). The full detail lives on /upcoming. */}
           <SectionErrorBoundary sectionName="Upcoming">
@@ -222,22 +228,17 @@ export default async function HomePage({ posts }: { posts: Post[] }) {
           </SectionErrorBoundary>
         </Band>
 
-        {/* The small open-source tools I built (also on /loadout) */}
-        <Band tone="raised">
-          <SectionErrorBoundary sectionName="Tools I Built">
-            <HomeToolsIBuilt />
-          </SectionErrorBoundary>
-        </Band>
-
-        {/* Homepage stack: AI marquee + Turso TL;DR -> /loadout */}
-        <Band>
+        {/* Homepage stack, the homepage's Loadout: AI marquee + Turso TL;DR, the
+             tools I built and use, and the dev setup teaser -> /loadout. Desktop
+             only: a sticky rail in the left gutter marks its part on screen. */}
+        <Band id="loadout-band" tone="raised" rail={<HomeLoadoutNav />}>
           <SectionErrorBoundary sectionName="My Stack">
             <HomeStack />
           </SectionErrorBoundary>
         </Band>
 
         {/* Bridge: the portfolio (hire me) + Tech for Pros (my company) */}
-        <Band tone="raised">
+        <Band>
           <SectionErrorBoundary sectionName="Work With Me">
             <WorkWithMe />
           </SectionErrorBoundary>

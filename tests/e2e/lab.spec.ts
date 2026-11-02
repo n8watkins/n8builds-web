@@ -1,26 +1,41 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, type Page } from '@playwright/test'
 import { APP_JS } from './app-js'
 
 /**
- * The homepage Lab and its ends: the featured rows lead with the owner's daily
- * drivers, the hero gives a hiring visitor a direct route to the portfolio,
- * and the page closes with "Use this as a template".
+ * The homepage Lab and its ends: the featured rows (OpenPing first), the hero
+ * gives a hiring visitor a direct route to the portfolio, and the page closes
+ * with "Use this as a template". Scribe's row is the same component, on
+ * /loadout's "Tools I built and use" (2026-11-01), so the row tests cover it there.
  */
 
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
-test('the Lab leads with my daily tools, then the featured builds, each with its icon and a way to its build page', async ({ page }) => {
+/** Where each row lives: Scribe on /loadout, the featured builds in the homepage Lab. */
+const ROW_PAGE: Record<string, string> = { Scribe: '/loadout', OpenPing: '/', Solara: '/', 'Portfolio Rank': '/' }
+const ROWS = Object.keys(ROW_PAGE)
+
+/** The row's article, opening its page first unless it is already open. */
+async function rowOf(page: Page, title: string) {
+  const path = ROW_PAGE[title]
+  if (new URL(page.url()).pathname !== path) await page.goto(path)
+  return page.getByRole('article', { name: title })
+}
+
+test('the Lab leads with the featured builds, OpenPing first, each with its icon and a way to its build page', async ({ page }) => {
   await page.goto('/')
-  const tools = page.locator('#my-tools')
-  await tools.scrollIntoViewIfNeeded()
+  const featured = page.locator('#featured')
+  await featured.scrollIntoViewIfNeeded()
   // The part's own heading, then one per row.
-  await expect(tools.getByRole('heading', { level: 3 })).toHaveText(['My daily drivers', 'Scribe', 'OpenPing'])
-  await expect(page.locator('#featured').getByRole('heading', { level: 3 })).toHaveText(['Featured builds', 'Solara', 'Portfolio Rank'])
+  await expect(featured.getByRole('heading', { level: 3 })).toHaveText(['Featured builds', 'OpenPing', 'Solara', 'Portfolio Rank'])
+  // The Featured part comes first, right under the Lab's intro: no "My daily drivers" (Scribe moved to the Loadout).
+  await expect(page.locator('#my-tools')).toHaveCount(0)
+  await expect(page.locator('#lab').getByRole('article', { name: 'Scribe' })).toHaveCount(0)
+  await expect(page.locator('#lab')).not.toContainText('My daily drivers')
   // No redundant "Featured" eyebrow over "Featured builds", and no "The bench" over the Lab.
   await expect(page.locator('#featured')).not.toContainText(/^Featured\s*Featured builds/)
   await expect(page.locator('#lab')).not.toContainText('The bench')
   const lab = page.locator('#lab')
-  for (const slug of ['scribe', 'openping', 'solara', 'portfolio-rank']) {
+  for (const slug of ['openping', 'solara', 'portfolio-rank']) {
     await expect(lab.locator(`a[href="/builds/${slug}"]`).first(), slug).toBeAttached()
     await expect(lab.locator(`img[src*="${slug}"]`).first(), `${slug} icon`).toBeAttached()
   }
@@ -30,32 +45,34 @@ test('the Lab leads with my daily tools, then the featured builds, each with its
   }
 })
 
-test('the Lab has no Tools part any more, in its own links or the navbar menu', async ({ page }) => {
+test('the Lab has no tools part any more, in its own links, the navbar menu or the footer', async ({ page }) => {
   await page.goto('/')
-  await expect(page.getByRole('navigation', { name: 'Lab sections' }).getByRole('link')).toHaveText(['Build log', 'My tools', 'Featured', 'Chrome Extensions', "What's cookin'"])
-  await expect(page.locator('a[href="/#tools"], a[href="#tools"]')).toHaveCount(0)
-  await expect(page.locator('#tools')).toHaveCount(0)
+  await expect(page.getByRole('navigation', { name: 'Lab sections' }).getByRole('link')).toHaveText(['Build log', 'Featured', 'Chrome Extensions', "What's cookin'"])
+  // Neither the old Tools grid nor My tools: nothing links to them.
+  await expect(page.locator('a[href="/#tools"], a[href="#tools"], a[href="/#my-tools"], a[href="#my-tools"]')).toHaveCount(0)
+  await expect(page.locator('#tools, #my-tools')).toHaveCount(0)
+  await expect(page.getByRole('link', { name: /^My tools/ })).toHaveCount(0)
 })
 
-test('Scribe and OpenPing build pages lead back to My tools; Solara back to Featured', async ({ page }) => {
-  for (const slug of ['scribe', 'openping']) {
+test('Scribe\'s build page leads back to Tools I built and use on /loadout; OpenPing and Solara back to Featured', async ({ page }) => {
+  await page.goto('/builds/scribe')
+  await expect(page.getByRole('link', { name: 'Back to Tools I built and use' })).toHaveAttribute('href', '/loadout#tools-i-built')
+  for (const slug of ['openping', 'solara']) {
     await page.goto(`/builds/${slug}`)
-    await expect(page.getByRole('link', { name: /Back to My tools/ })).toHaveAttribute('href', '/#my-tools')
+    await expect(page.getByRole('link', { name: 'Back to Featured' })).toHaveAttribute('href', '/#featured')
   }
-  await page.goto('/builds/solara')
-  await expect(page.getByRole('link', { name: /Back to Featured/ })).toHaveAttribute('href', '/#featured')
 })
 
 test('Details opens the stack and the build log in a dialog, and closes with Escape', async ({ page }) => {
   await page.goto('/')
-  const row = page.locator('#my-tools')
+  const row = page.locator('#featured')
   await row.getByRole('button', { name: 'Details' }).first().scrollIntoViewIfNeeded()
   await row.getByRole('button', { name: 'Details' }).first().click()
-  const dialog = page.getByRole('dialog', { name: 'Scribe' })
+  const dialog = page.getByRole('dialog', { name: 'OpenPing' })
   await expect(dialog).toBeVisible()
   await expect(dialog.getByText("How it's built")).toBeVisible()
-  await expect(dialog.getByRole('link', { name: /Full story/ })).toHaveAttribute('href', '/builds/scribe')
-  await expect(dialog.getByRole('link', { name: 'Build log' })).toHaveAttribute('href', '/builds?build=scribe#activity')
+  await expect(dialog.getByRole('link', { name: /Full story/ })).toHaveAttribute('href', '/builds/openping')
+  await expect(dialog.getByRole('link', { name: 'Build log' })).toHaveAttribute('href', '/builds?build=openping#activity')
   await page.keyboard.press('Escape')
   await expect(dialog).toBeHidden()
   // The tech stack lives only in the dialog now, not in the row.
@@ -63,19 +80,19 @@ test('Details opens the stack and the build log in a dialog, and closes with Esc
 })
 
 test('every row can be starred on GitHub, and Scribe takes Mac and Linux requests', async ({ page }) => {
-  await page.goto('/')
   for (const [name, repo] of [
     ['Scribe', 'scribe'],
     ['OpenPing', 'open-ping'],
     ['Solara', 'solara'],
     ['Portfolio Rank', 'portfolio-rank'],
   ]) {
-    await expect(page.getByRole('link', { name: `Star ${name} on GitHub (opens in a new tab)` })).toHaveAttribute(
+    const row = await rowOf(page, name)
+    await expect(row.getByRole('link', { name: `Star ${name} on GitHub (opens in a new tab)` })).toHaveAttribute(
       'href',
       `https://github.com/n8watkins/${repo}`,
     )
   }
-  const request = page.getByRole('article', { name: 'Scribe' }).getByRole('link', { name: /Mac or Linux/ })
+  const request = (await rowOf(page, 'Scribe')).getByRole('link', { name: /Mac or Linux/ })
   await expect(request).toHaveAttribute('href', /^https:\/\/github\.com\/n8watkins\/scribe\/issues\/new\?title=Request/)
 })
 
@@ -91,12 +108,11 @@ test('the Lab says its builds are public and mostly open source', async ({ page 
   const [h, m] = await Promise.all([heading.boundingBox(), mark.boundingBox()])
   expect(Math.abs(h!.y + h!.height / 2 - (m!.y + m!.height / 2))).toBeLessThan(4)
   // The intro: one line on what the Lab is, then three checked points.
-  await expect(page.locator('#lab')).toContainText("Everything I've built and still use: daily tools, favourite builds, Chrome extensions.")
+  await expect(page.locator('#lab')).toContainText("What I've built and still use: my favourite builds and Chrome extensions.")
   for (const point of ['Public on GitHub', 'MIT-licensed', 'Star, fork or open an issue']) {
     await expect(page.locator('#lab').getByRole('listitem').filter({ hasText: point }).first()).toBeVisible()
   }
   // The claims every row shares sit once, under each part's heading, not in the rows.
-  await expect(page.locator('#my-tools')).toContainText('Free and open source: use them, self-host them or fork them.')
   await expect(page.locator('#featured')).toContainText('Free to use and open source, with no sign-up to start.')
   for (const generic of ['No telemetry', 'No account to start', 'A vote takes five seconds', 'Free tools, no sign-up']) {
     await expect(page.locator('#lab').getByText(generic, { exact: true })).toHaveCount(0)
@@ -144,9 +160,8 @@ test('every featured row and its build page invite the visitor to try it', async
     ['Solara', 'solara', /Find your sun window/, 'https://solara-uv.web.app/app/'],
     ['Portfolio Rank', 'portfolio-rank', /Vote in a face-off/, 'https://portfoliorank.vercel.app/rank'],
   ]
-  await page.goto('/')
   for (const [name, , label, href] of tries) {
-    const row = page.getByRole('article', { name })
+    const row = await rowOf(page, name)
     const action = row.getByRole('link', { name: label })
     await expect(action).toHaveAttribute('href', href)
     // The main action sits on the tech pills' line; on a phone, where the line
@@ -161,9 +176,9 @@ test('every featured row and its build page invite the visitor to try it', async
     expect(button!.y + button!.height, `${name}: action on the pills' line`).toBeGreaterThan(pills!.y)
     expect(button!.x, `${name}: action right of the pills`).toBeGreaterThan(pills!.x)
   }
-  // The two daily drivers say so.
-  await expect(page.locator('#lab')).toContainText('I dictate with Scribe every day')
+  // The two the owner uses every day say so.
   await expect(page.locator('#lab')).toContainText('I check OpenPing every day')
+  await expect(await rowOf(page, 'Scribe')).toContainText('I dictate with Scribe every day')
   for (const [, slug] of tries) {
     await page.goto(`/builds/${slug}`)
     // A download is the page's first action, up top; any other invitation gets its own box.
@@ -176,8 +191,7 @@ test('every featured row and its build page invite the visitor to try it', async
 })
 
 test('Scribe downloads the newest installer through a stable link, and takes Mac and Linux requests', async ({ page, request }) => {
-  await page.goto('/')
-  const row = page.getByRole('article', { name: 'Scribe' })
+  const row = await rowOf(page, 'Scribe')
   const download = row.getByRole('link', { name: 'Download for Windows' })
   await download.scrollIntoViewIfNeeded()
   await expect(download).toHaveAttribute('href', '/download/scribe')
@@ -223,11 +237,11 @@ test('Scribe downloads the newest installer through a stable link, and takes Mac
 })
 
 test('the rows carry no ad boxes: each product\'s colour is in its checks', async ({ page }) => {
-  await page.goto('/')
-  await expect(page.locator('#lab [role="group"][aria-label^="Try "]')).toHaveCount(0)
   const colours: string[] = []
-  for (const name of ['Scribe', 'OpenPing', 'Solara', 'Portfolio Rank']) {
-    const check = page.getByRole('list', { name: `What ${name} does` }).locator('svg').first()
+  for (const name of ROWS) {
+    const row = await rowOf(page, name)
+    await expect(row.locator('[role="group"][aria-label^="Try "]')).toHaveCount(0)
+    const check = row.getByRole('list', { name: `What ${name} does` }).locator('svg').first()
     colours.push(await check.evaluate((el) => getComputedStyle(el).color))
   }
   expect(new Set(colours).size).toBe(4)
@@ -260,25 +274,26 @@ test('Details waits for hydration instead of swallowing an early click', async (
     await route.continue()
   })
   await page.goto('/', { waitUntil: 'commit' })
-  const details = page.locator('#my-tools').getByRole('button', { name: 'Details' }).first()
+  const details = page.locator('#featured').getByRole('button', { name: 'Details' }).first()
   await expect(details).toBeDisabled()
   release()
   await expect(details).toBeEnabled()
   await details.click()
-  await expect(page.getByRole('dialog', { name: 'Scribe' })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'OpenPing' })).toBeVisible()
 })
 
 test('each row names its own Details, Live Site, Star and GitHub controls for screen readers', async ({ page }) => {
   // Four rows with controls all named "Details" (or "Live Site", "GitHub")
   // are indistinguishable in a screen reader's list of buttons or links.
-  await page.goto('/')
-  for (const title of ['Scribe', 'OpenPing', 'Solara', 'Portfolio Rank']) {
+  for (const title of ROWS) {
+    await rowOf(page, title)
     await expect(page.getByRole('button', { name: `Details about ${title}`, exact: true })).toHaveCount(1)
     await expect(page.getByRole('link', { name: `Live Site of ${title} (opens in a new tab)`, exact: true })).toHaveCount(1)
     await expect(page.getByRole('link', { name: `Star ${title} on GitHub (opens in a new tab)`, exact: true })).toHaveCount(1)
     await expect(page.getByRole('link', { name: `${title} on GitHub (opens in a new tab)`, exact: true })).toHaveCount(1)
   }
   for (const title of ['Scribe', 'OpenPing']) {
+    await rowOf(page, title)
     await expect(page.getByRole('button', { name: `Next ${title} screenshot`, exact: true })).toHaveCount(1)
     await expect(page.getByRole('button', { name: `Previous ${title} screenshot`, exact: true })).toHaveCount(1)
   }
@@ -288,9 +303,8 @@ test('each row puts Live Site, Star | GitHub and Details in one row across its c
   page,
   isMobile,
 }) => {
-  await page.goto('/')
-  for (const title of ['Scribe', 'OpenPing', 'Solara', 'Portfolio Rank']) {
-    const row = page.getByRole('article', { name: title })
+  for (const title of ROWS) {
+    const row = await rowOf(page, title)
     const live = row.getByRole('link', { name: `Live Site of ${title} (opens in a new tab)` })
     const repo = row.getByRole('group', { name: `${title} on GitHub` })
     const github = row.getByRole('link', { name: `${title} on GitHub (opens in a new tab)`, exact: true })
@@ -311,9 +325,11 @@ test('each row puts Live Site, Star | GitHub and Details in one row across its c
       expect(Math.round(l!.y), `${title}: one row`).toBe(Math.round(r!.y))
       expect(Math.round(r!.y), `${title}: one row`).toBe(Math.round(d!.y))
       expect(l!.x < r!.x && r!.x < d!.x, `${title}: Live Site, Star | GitHub, Details`).toBe(true)
-      // Even thirds that span the text column.
-      expect(Math.abs(l!.width - r!.width), title).toBeLessThan(2)
-      expect(Math.abs(r!.width - d!.width), title).toBeLessThan(2)
+      // Even thirds that span the text column; a star count can make Star |
+      // GitHub wider than a third, and then Live Site and Details share the rest evenly.
+      expect(Math.abs(l!.width - d!.width), title).toBeLessThan(2)
+      expect(r!.width, title).toBeGreaterThan(l!.width - 2)
+      if (title !== 'Scribe') expect(Math.abs(l!.width - r!.width), `${title}: even thirds without a star count`).toBeLessThan(2)
     }
     expect(Math.abs(l!.x - text!.x), `${title}: starts with the text`).toBeLessThan(2)
     expect(Math.abs(d!.x + d!.width - (text!.x + text!.width)), `${title}: ends with the text`).toBeLessThan(2)
@@ -330,18 +346,14 @@ test('each row puts Live Site, Star | GitHub and Details in one row across its c
     expect(all.filter((h) => h === taken[0]).length, `${title}: Live Site once`).toBe(1)
     expect(all.filter((h) => h === taken[1]).length, `${title}: repo as Star and GitHub only`).toBe(2)
   }
-  await expect(page.getByRole('article', { name: 'OpenPing' }).getByRole('link', { name: /Deploy your own/ })).toHaveAttribute(
+  await expect((await rowOf(page, 'OpenPing')).getByRole('link', { name: /Deploy your own/ })).toHaveAttribute(
     'href',
     'https://github.com/n8watkins/open-ping/blob/main/docs/INSTALL.md',
   )
 })
 
-test('the Lab and the extensions share one Star | GitHub control, its star showing the live count', async ({ page }) => {
-  await page.goto('/')
-  const scribe = page.getByRole('group', { name: 'Scribe on GitHub' })
-  const piper = page.locator('#extensions').getByRole('group', { name: /on GitHub$/ }).filter({ visible: true }).first()
-  await piper.scrollIntoViewIfNeeded()
-  for (const control of [scribe, piper]) {
+test('the rows and the extensions share one Star | GitHub control, its star showing the live count', async ({ page }) => {
+  const expectControl = async (control: import('@playwright/test').Locator) => {
     const [star, github] = await control.getByRole('link').all()
     // The star half: the star and a count, no "Star" on screen; its name says it all.
     await expect(star).toHaveAccessibleName(/^Star .+ on GitHub \(opens in a new tab\)$/)
@@ -350,14 +362,19 @@ test('the Lab and the extensions share one Star | GitHub control, its star showi
     await expect(github).toHaveAccessibleName(/^.+ on GitHub \(opens in a new tab\)$/)
     await expect(github).toContainText('GitHub')
     expect(await star.getAttribute('href')).toBe(await github.getAttribute('href'))
+    return Promise.all([star.getAttribute('class'), github.getAttribute('class')])
   }
-  // The count comes from GitHub (the test fixture gives Scribe 1,234 stars and Piper none).
+  // Scribe's row, on /loadout: the count comes from GitHub (the test fixture gives Scribe 1,234 stars and Piper none).
+  const scribe = (await rowOf(page, 'Scribe')).getByRole('group', { name: 'Scribe on GitHub' })
+  const rowClasses = await expectControl(scribe)
   await expect(scribe.getByRole('link').first()).toHaveText(/1\.2k/)
-  await expect(piper.getByRole('link').first()).not.toHaveText(/\d/)
+  // A Chrome extension, in the homepage Lab.
+  await page.goto('/')
+  const piper = page.locator('#extensions').getByRole('group', { name: /on GitHub$/ }).filter({ visible: true }).first()
+  await piper.scrollIntoViewIfNeeded()
   // The same control in both places.
-  for (const i of [0, 1]) {
-    expect(await scribe.getByRole('link').nth(i).getAttribute('class')).toBe(await piper.getByRole('link').nth(i).getAttribute('class'))
-  }
+  expect(await expectControl(piper)).toEqual(rowClasses)
+  await expect(piper.getByRole('link').first()).not.toHaveText(/\d/)
 })
 
 test.describe('the Lab gallery', () => {
@@ -399,7 +416,8 @@ test.describe('the Lab gallery', () => {
   })
 
   test('works from the keyboard: Tab to a side, Enter or the arrow keys step, and the arrow shows on focus', async ({ page }) => {
-    await page.goto('/')
+    // Scribe's row, on /loadout.
+    await page.goto('/loadout')
     const gallery = page.getByRole('group', { name: 'Scribe screenshots' })
     await gallery.scrollIntoViewIfNeeded()
     const prev = gallery.getByRole('button', { name: 'Previous Scribe screenshot' })
@@ -474,7 +492,6 @@ test.describe('the Lab gallery on touch', () => {
 })
 
 test('each row lists its features as checks, and shows its tech as pills instead of in the description', async ({ page }) => {
-  await page.goto('/')
   const features: [string, (string | RegExp)[]][] = [
     ['Scribe', ['Works in any app', 'Push-to-talk hotkey', 'Local Whisper models', 'Searchable history']],
     ['OpenPing', ['Schedule-aware checks', 'Public status pages', 'Incident alerts', 'Five monitor types']],
@@ -482,10 +499,10 @@ test('each row lists its features as checks, and shows its tech as pills instead
     ['Portfolio Rank', ['Head-to-head voting', 'ELO leaderboard', 'Lighthouse and AI reviews', /^Add your portfolio and see how you compare/]],
   ]
   for (const [name, list] of features) {
-    await expect(page.getByRole('list', { name: `What ${name} does` }).getByRole('listitem')).toHaveText(list)
+    await expect((await rowOf(page, name)).getByRole('list', { name: `What ${name} does` }).getByRole('listitem')).toHaveText(list)
   }
   // Adding a portfolio is a linked check, not a button.
-  await expect(page.getByRole('list', { name: 'What Portfolio Rank does' }).getByRole('link', { name: /Add your portfolio/ })).toHaveAttribute(
+  await expect((await rowOf(page, 'Portfolio Rank')).getByRole('list', { name: 'What Portfolio Rank does' }).getByRole('link', { name: /Add your portfolio/ })).toHaveAttribute(
     'href',
     'https://portfoliorank.vercel.app/#browse',
   )
@@ -496,7 +513,7 @@ test('each row lists its features as checks, and shows its tech as pills instead
     ['Portfolio Rank', ['Next.js', 'Gemini', 'Turso', 'Vercel'], /Gemini|Next\.js/],
   ]
   for (const [name, tags, prose] of stacks) {
-    const pills = page.getByRole('list', { name: `${name} is built with` })
+    const pills = (await rowOf(page, name)).getByRole('list', { name: `${name} is built with` })
     await expect(pills.getByRole('listitem')).toHaveText(tags)
     // The description above the pills is about features, not the stack.
     const description = pills.locator('xpath=../preceding-sibling::p[1]')
@@ -512,9 +529,8 @@ test("Portfolio Rank's title writes Rank in its own gold", async ({ page }) => {
 })
 
 test('the Details dialog shows the project picture on the left on wide screens', async ({ page }) => {
-  await page.goto('/')
   for (const name of ['Scribe', 'Solara']) {
-    await page.getByRole('button', { name: `Details about ${name}` }).click()
+    await (await rowOf(page, name)).getByRole('button', { name: `Details about ${name}` }).click()
     const dialog = page.getByRole('dialog', { name })
     const picture = dialog.locator('img').filter({ visible: true }).nth(0)
     const title = dialog.getByRole('heading', { level: 4 })
@@ -569,8 +585,8 @@ test('the Details dialog steps through the screenshots like the row does', async
 test.describe('the Lab rows on a 320px phone', () => {
   test.use({ viewport: { width: 320, height: 700 } })
   test('nothing spills sideways, and Live Site and Details share a line above Star | GitHub', async ({ page }) => {
-    await page.goto('/')
-    const row = page.getByRole('article', { name: 'Scribe' })
+    // Scribe's row (on /loadout), the one with the longest download caption.
+    const row = await rowOf(page, 'Scribe')
     await row.scrollIntoViewIfNeeded()
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
     const [l, d, r] = await Promise.all(
@@ -615,5 +631,38 @@ for (const width of [1440, 390, 320]) {
     expect(Math.abs(text[1] - row[1]), 'ends at the title').toBeLessThan(2)
     // A size larger than the old 1rem / 1.25rem.
     expect(parseFloat(await eyebrow.evaluate((el) => getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(width >= 640 ? 24 : 18)
+  })
+}
+
+/**
+ * Every row's buttons keep the same gap and never touch (the owner caught
+ * Scribe's "1.2k | GitHub" running into Details, 2026-11-01): a star count can
+ * make the split button wider than a third of the column, and at the narrow
+ * laptop widths even "GitHub" alone is close.
+ */
+// 1040, not 1024: WebKit's media queries see the window minus its scrollbar,
+// so a 1024px window there is still in the tablet layout (buttons stacked).
+for (const width of [1040, 1280, 1366, 1440, 1920]) {
+  test(`at ${width}px the buttons in each row keep an even gap and never overlap`, async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Phones stack the buttons: the 320px test covers them')
+    await page.setViewportSize({ width, height: 900 })
+    for (const title of ROWS) {
+      const row = await rowOf(page, title)
+      const repo = row.getByRole('group', { name: `${title} on GitHub` })
+      await repo.scrollIntoViewIfNeeded()
+      const [l, r, d] = await Promise.all(
+        [row.getByRole('link', { name: `Live Site of ${title} (opens in a new tab)` }), repo, row.getByRole('button', { name: `Details about ${title}` })].map(
+          (el) => el.boundingBox(),
+        ),
+      )
+      // The buttons' 8px gap, both sides of the split button.
+      expect(r!.x - (l!.x + l!.width), `${title}: Live Site to Star | GitHub`).toBeCloseTo(8, 0)
+      expect(d!.x - (r!.x + r!.width), `${title}: Star | GitHub to Details`).toBeCloseTo(8, 0)
+      // Nothing spills out of a button: the split button's halves fit inside it.
+      const spill = await repo.evaluate((g) => g.scrollWidth - g.clientWidth)
+      expect(spill, `${title}: Star | GitHub fits its box`).toBeLessThanOrEqual(0)
+      const halves = await repo.getByRole('link').evaluateAll((links) => links.map((a) => a.getBoundingClientRect().right))
+      expect(Math.max(...halves), `${title}: GitHub ends inside the split button`).toBeLessThanOrEqual(r!.x + r!.width + 0.5)
+    }
   })
 }

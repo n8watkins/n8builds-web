@@ -114,6 +114,64 @@
   }
 }
 
+/* My dev setup's tiles on /loadout (components/sections/LoadoutDevTools.tsx):
+   each rises in, one after another (--d), then its chips in turn (--c), on
+   the scroll reveal's easing. CSS from the server HTML, like FadeIn, so they
+   play and end shown without JavaScript; SetupTilesMotion holds the tiles
+   still below the window (data-wait) until they scroll into view, then
+   removing the attribute replays them. Opacity and transform only (no
+   layout shift), ending on `transform: none`; the hover lift is `translate`,
+   a separate property. Reduced motion shows everything at once. */
+@keyframes setup-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes setup-chip-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@layer components {
+  .setup-tile {
+    animation: setup-rise 0.55s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+    animation-delay: calc(var(--d, 0) * 80ms + 120ms);
+  }
+
+  .setup-tile .setup-chip {
+    animation: setup-chip-in 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+    animation-delay: calc(var(--d, 0) * 80ms + 320ms + var(--c, 0) * 40ms);
+  }
+
+  .setup-tile[data-wait],
+  .setup-tile[data-wait] .setup-chip {
+    animation: none;
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .setup-tile,
+    .setup-tile .setup-chip,
+    .setup-tile[data-wait],
+    .setup-tile[data-wait] .setup-chip {
+      animation: none;
+      opacity: 1;
+    }
+  }
+}
+
 /* A keyed entrance from the side (TechStackCycle's list and label, the
    extensions' detail panel): the element is re-keyed on each change, so it
    mounts fresh and slides in from --slide-from. */
@@ -614,10 +672,6 @@
     --lab-from: 52 211 153;
     --lab-to: 45 212 191;
   }
-  .lab-accent-tools {
-    --lab-from: 56 189 248;
-    --lab-to: 52 211 153;
-  }
   .lab-accent-featured {
     --lab-from: 251 146 60;
     --lab-to: 251 191 36;
@@ -711,7 +765,7 @@
       rgb(var(--lab-to, 255 255 255) / 0.5)
     );
   }
-  .lab-sub-bar:not(:where(.lab-accent-buildlog, .lab-accent-tools, .lab-accent-featured, .lab-accent-extensions, .lab-accent-template, .lab-accent-upcoming) *) {
+  .lab-sub-bar:not(:where(.lab-accent-buildlog, .lab-accent-featured, .lab-accent-extensions, .lab-accent-template, .lab-accent-upcoming) *) {
     background: rgb(255 255 255 / 0.1);
   }
 }
@@ -762,11 +816,13 @@
 }
 
 /* A Lab row's wash follows the scroll: faint at the edges of the screen,
-   full while the row is in the middle of it. */
+   full while the row is in the middle of it. It eases in vertically only:
+   its glow is brightest at the page edge, so shrinking it sideways left a
+   hard seam a few pixels in from the edge. */
 @keyframes lab-wash {
-  0% { opacity: 0.15; transform: scale(0.96); }
+  0% { opacity: 0.15; transform: scaleY(0.96); }
   35%, 65% { opacity: 1; transform: none; }
-  100% { opacity: 0.15; transform: scale(0.96); }
+  100% { opacity: 0.15; transform: scaleY(0.96); }
 }
 
 /* "Check out the Lab": the tagline's cyan to blue, with a light running
@@ -851,5 +907,24 @@
   }
   .lab-eyebrow {
     background-position: 50% 0;
+  }
+}
+
+/* The Loadout's parts (components/sections/Loadout.tsx; the owner's ask,
+   2026-11-02: as you scroll, each part should feel distinct, as the homepage
+   bands and the Lab's parts do). Each part is a full-width band under a
+   hairline, washed in its own colour (--lo, an RGB triplet from loadoutParts
+   in data/loadout.tsx): a glow behind its heading, at the content column's
+   left edge, and a tint fading down from its top, spent long before the next
+   part. Every other part sits on the homepage bands' raised tone. Peak tint
+   stays at 10%, so all text keeps WCAG AA contrast. */
+@layer components {
+  .loadout-part {
+    background-image:
+      radial-gradient(36rem 240px at max(14%, calc(50% - 30rem)) 0, rgb(var(--lo) / 0.1), transparent 100%),
+      linear-gradient(to bottom, rgb(var(--lo) / 0.04), transparent 420px);
+  }
+  .loadout-part-raised {
+    background-color: rgb(255 255 255 / 0.018);
   }
 }

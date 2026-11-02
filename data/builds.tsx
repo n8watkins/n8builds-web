@@ -19,8 +19,8 @@ export interface Build {
   category: string
   status?: 'shipped' | 'in the lab'
   /**
-   * One of the owner's daily tools (Scribe, OpenPing): a row in the Lab's
-   * "My daily drivers", whatever its category.
+   * One of the owner's daily drivers (Scribe): a row in /loadout's "My daily
+   * drivers", not the Lab, whatever its category.
    */
   mine?: boolean
   tags: string[]
@@ -223,7 +223,6 @@ export const builds: Build[] = [
     name: 'OpenPing',
     tagline: 'Uptime monitoring on your own Cloudflare',
     category: 'Web tool',
-    mine: true,
     tags: ['Cloudflare Workers', 'D1', 'React'],
     highlights: [
       'HTTP, TCP, DNS, domain-expiry and heartbeat checks',

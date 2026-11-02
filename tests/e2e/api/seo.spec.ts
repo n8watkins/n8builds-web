@@ -164,8 +164,8 @@ test('temporary redirects: builds on hold (so they can come back at the same URL
   for (const [path, target] of [
     ['/builds/chrome-extension-kit', '/#extensions'],
     ['/builds/vibelog', '/#lab'],
-    // Tools are the owner's daily tools now, at the top of the Lab.
-    ['/tools', '/#my-tools'],
+    // Tools are the ones the owner built and uses, Scribe first, on /loadout.
+    ['/tools', '/loadout#tools-i-built'],
   ]) {
     const response = await request.get(path, { maxRedirects: 0 })
     expect(response.status(), path).toBe(307)
