@@ -346,6 +346,11 @@ const SetupChip = ({ entry }: { entry: SetupEntry }) => {
     <Link href={entry.href} className={linked}>
       {body}
     </Link>
+  ) : /^https?:/.test(entry.href) ? (
+    <a href={entry.href} target="_blank" rel="noopener noreferrer" className={linked}>
+      {body}
+      <span className="sr-only"> (opens in a new tab)</span>
+    </a>
   ) : (
     <a href={entry.href} className={linked}>
       {body}

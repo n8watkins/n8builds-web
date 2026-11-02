@@ -264,6 +264,12 @@ test.describe('Loadout tools and people', () => {
       await expect(setup.getByRole('link', { name, exact: true })).toHaveAttribute('href', `#${id}`)
       await expect(page.locator(`#tools-i-use #${id}`)).toHaveCount(1)
     }
+    // The Sentry CLI is a setup chip (round 5 of 2026-11-02), linking its repo, not a Tools I use card.
+    const sentry = setup.getByRole('link', { name: /^Sentry CLI/ })
+    await expect(sentry).toHaveAttribute('href', 'https://github.com/getsentry/cli')
+    await expect(sentry).toHaveAttribute('target', '_blank')
+    await expect(page.locator('#tools-i-use')).not.toContainText('Sentry')
+    await expect(page.locator('#dev-setup')).not.toContainText('gnhf')
     await expect(setup.getByRole('link', { name: /^Scribe/ })).toHaveAttribute('href', '/builds/scribe')
     await expect(setup.getByRole('link', { name: /^herdr/ })).toHaveAttribute('href', '#herdr')
     // T-Hub has no public page and N8 Tray is private: neither is a link.

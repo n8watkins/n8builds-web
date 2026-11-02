@@ -46,6 +46,7 @@ import {
   SiPython,
   SiRazer,
   SiRust,
+  SiSentry,
   SiSamsung,
   SiTmux,
   SiTurso,
@@ -745,6 +746,9 @@ export const devSetup: DevSetupTile[] = [
           { name: 'gh-axi', href: '#gh-axi', icon: <SiGithub /> },
           { name: 'chrome-devtools-axi', href: '#chrome-devtools-axi', icon: <LuGlobe /> },
           { name: 'Lavish', href: '#lavish', icon: <LuFileCode /> },
+          // Sentry's own CLI, which my agents drive through its skill to read this site's errors
+          // (round 5 of 2026-11-02; a setup chip, not a Tools I use card). Its repo is the link.
+          { name: 'Sentry CLI', note: 'with its agent skill', href: 'https://github.com/getsentry/cli', icon: mark(SiSentry, '#a39ad8') },
         ],
       },
     ],
