@@ -338,3 +338,39 @@ for (const [width, height, columns, beside] of [
     expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0)
   })
 }
+
+/**
+ * Round 5 of 2026-11-02: on wide screens the waitlist is a sticky column beside
+ * the cards, so visitors can sign up while reading; on smaller ones it stays
+ * after the cards. One form either way: ?interest= and the cards' Join tick it.
+ */
+test('on a wide screen the waitlist stays beside the cards as you read, and Join ticks it in place', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/upcoming?interest=strollz')
+  const waitlist = page.locator('#waitlist')
+  await expect(waitlist).toHaveCount(1)
+  await expect(waitlist.getByRole('checkbox', { name: /Strollz/ })).toBeChecked()
+  const cards = (await page.locator('#relink').boundingBox())!
+  const form = (await waitlist.boundingBox())!
+  expect(form.x, 'beside the cards').toBeGreaterThan(cards.x + cards.width)
+  // Still in view far down the page.
+  await page.locator('#keysready').scrollIntoViewIfNeeded()
+  await expect(waitlist).toBeInViewport()
+  const y = await page.evaluate(() => window.scrollY)
+  await page.locator('#keysready').getByRole('link', { name: /Join the waitlist/ }).click()
+  await expect(waitlist.getByRole('checkbox', { name: /KeysReady/ })).toBeChecked()
+  // Ticked where it is, with a glow, not a jump.
+  await expect(waitlist).toHaveAttribute('data-flash', '')
+  expect(Math.abs((await page.evaluate(() => window.scrollY)) - y)).toBeLessThan(2)
+})
+
+for (const width of [390, 820]) {
+  test(`at ${width}px the waitlist comes after the cards`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto('/upcoming')
+    const last = (await page.locator('#keysready').boundingBox())!
+    const form = (await page.locator('#waitlist').boundingBox())!
+    expect(form.y).toBeGreaterThan(last.y + last.height)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width)
+  })
+}

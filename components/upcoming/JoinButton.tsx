@@ -7,7 +7,8 @@ export const PICK_EVENT = 'waitlist:pick'
 
 /**
  * "Join the <name> waitlist" on a project's card: ticks that project in the
- * form and brings the form into view. A real link to #waitlist, so it still
+ * form and brings the form into view, or, when it is already in view (the
+ * sticky column on /upcoming's wide screens), makes it glow once. A real link to #waitlist, so it still
  * works before hydration (the form then reads nothing, and nothing is lost).
  */
 export default function JoinButton({
@@ -31,7 +32,16 @@ export default function JoinButton({
         e.preventDefault()
         window.dispatchEvent(new CustomEvent(PICK_EVENT, { detail: slug }))
         const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-        form.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' })
+        const box = form.getBoundingClientRect()
+        if (box.top >= 0 && box.bottom <= window.innerHeight) {
+          // Already in view (the sticky column on /upcoming's wide screens): a glow
+          // round it says where the pick went, instead of a scroll.
+          form.removeAttribute('data-flash')
+          void form.offsetWidth
+          form.setAttribute('data-flash', '')
+        } else {
+          form.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' })
+        }
         window.history.replaceState(null, '', '#waitlist')
       }}
       style={{ '--accent': accent } as CSSProperties}

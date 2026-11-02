@@ -883,6 +883,26 @@
   }
 }
 
+/* The waitlist glows once when a card's Join ticks a project in it while it
+   is already in view (components/upcoming/JoinButton.tsx): a ring that fades. */
+@keyframes waitlist-flash {
+  from {
+    box-shadow: 0 0 0 2px rgb(34 211 238 / 0.75), 0 0 28px rgb(34 211 238 / 0.35);
+  }
+  to {
+    box-shadow: 0 0 0 2px rgb(34 211 238 / 0), 0 0 28px rgb(34 211 238 / 0);
+  }
+}
+.waitlist-flash[data-flash] {
+  animation: waitlist-flash 1.4s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .waitlist-flash[data-flash] {
+    animation: none;
+    box-shadow: 0 0 0 2px rgb(34 211 238 / 0.6);
+  }
+}
+
 /* A build log entry eases in as it scrolls into view (components/log/LogEntryItem.tsx).
    Driven by the scroll position itself (a view timeline), not a script: an entry
    already on screen is simply there, nothing waits on an observer, and browsers

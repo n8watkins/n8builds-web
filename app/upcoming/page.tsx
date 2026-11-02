@@ -123,16 +123,26 @@ export default function UpcomingPage() {
             </p>
           </FadeIn>
 
-          {/* Four cards: two by two from 960px (so no card is left alone on a row, and 1024px stays two across even with a classic scrollbar), one column below. */}
-          <div className="mt-10 grid gap-6 md:mt-12 min-[960px]:grid-cols-2">
-            {UPCOMING.map((project, index) => (
-              <ProjectCard key={project.slug} project={project} index={index} />
-            ))}
-          </div>
+          {/* From 1024px the waitlist is a sticky column beside the cards (round 5 of
+               2026-11-02: sign up while reading), the cards one to a row beside it;
+               below that the cards come first (two by two from 960px) and the
+               waitlist after them. One form either way, so ?interest= and the cards'
+               Join buttons tick the same one. */}
+          <div className="mt-10 grid gap-6 md:mt-12 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-8 xl:grid-cols-[minmax(0,1fr)_24rem]">
+            <div className="grid gap-6 min-[960px]:max-lg:grid-cols-2">
+              {UPCOMING.map((project, index) => (
+                <ProjectCard key={project.slug} project={project} index={index} />
+              ))}
+            </div>
 
-          <Reveal as="section" id="waitlist" className="mx-auto mt-16 max-w-2xl scroll-mt-24 md:mt-20">
-            <WaitlistPanel />
-          </Reveal>
+            <Reveal
+              as="section"
+              id="waitlist"
+              className="waitlist-flash mx-auto mt-10 w-full max-w-2xl scroll-mt-24 rounded-2xl md:mt-14 lg:sticky lg:top-24 lg:mt-0 lg:max-h-[calc(100dvh-7rem)] lg:max-w-none lg:overflow-y-auto"
+            >
+              <WaitlistPanel layout="side" />
+            </Reveal>
+          </div>
         </div>
       </main>
     </>
