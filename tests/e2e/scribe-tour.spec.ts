@@ -2,7 +2,7 @@ import { test, expect, type Page } from '@playwright/test'
 
 /**
  * Scribe's row shows the app, not its landing page (round 4 of 2026-11-02): a
- * silent, looping tour of its real screens, like a GIF, where the other rows
+ * silent, looping screen recording of someone using it (round 5), like a GIF, where the other rows
  * have screenshots. It plays only on screen, stays on its first frame under
  * reduced motion, and the row still links to the landing page.
  */
@@ -23,7 +23,7 @@ for (const path of ['/loadout', '/']) {
       // The row's own; the Details dialog holds a second copy, shown when it opens.
       await expect(row.locator('[data-tour] video')).toHaveCount(2)
       await expect(video).toHaveAttribute('poster', '/builds/scribe/tour-poster.webp')
-      await expect(video).toHaveAttribute('aria-label', /A tour of the Scribe app/)
+      await expect(video).toHaveAttribute('aria-label', /A tour of the Scribe app, recorded as someone uses it/)
       // No sources until it first plays, so nothing but the poster loads before then.
       await expect(video.locator('source')).toHaveCount(0)
       await video.scrollIntoViewIfNeeded()

@@ -12,30 +12,14 @@
 // Cascadia) come from C:\Windows\Fonts, so the text looks as it does on Windows.
 import { chromium } from 'playwright'
 import fs from 'node:fs'
-import os from 'node:os'
 import path from 'node:path'
+import { windowsFonts } from './fonts.mjs'
 
 const OUT = process.argv[2]
 const BASE = process.env.SCRIBE_UI ?? 'http://localhost:1477/'
 if (!OUT) throw new Error('usage: node scripts/scribe-tour/capture.mjs <scenesDir>')
 fs.mkdirSync(OUT, { recursive: true })
 const MOCK = fs.readFileSync(new URL('./mock-ipc.js', import.meta.url), 'utf8')
-
-/** A fontconfig that adds the Windows fonts the app asks for, when they are there. */
-function windowsFonts() {
-  const winFonts = '/mnt/c/Windows/Fonts'
-  if (!fs.existsSync(winFonts)) return {}
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'scribe-tour-fonts-'))
-  const names = ['SegUIVar.ttf', 'segoeui.ttf', 'segoeuib.ttf', 'seguisb.ttf', 'CascadiaCode.ttf', 'CascadiaMono.ttf', 'consola.ttf']
-  fs.mkdirSync(path.join(dir, 'fonts'))
-  for (const name of names) if (fs.existsSync(path.join(winFonts, name))) fs.copyFileSync(path.join(winFonts, name), path.join(dir, 'fonts', name))
-  const conf = path.join(dir, 'fonts.conf')
-  fs.writeFileSync(
-    conf,
-    `<?xml version="1.0"?><!DOCTYPE fontconfig SYSTEM "fonts.dtd"><fontconfig><include ignore_missing="yes">/etc/fonts/fonts.conf</include><dir>${dir}/fonts</dir><cachedir>${dir}/cache</cachedir></fontconfig>`,
-  )
-  return { FONTCONFIG_FILE: conf }
-}
 
 // No sound, ever: muted, and no audio device.
 const browser = await chromium.launch({ args: ['--mute-audio'], env: { ...process.env, PULSE_SERVER: 'unix:/nonexistent', ...windowsFonts() } })

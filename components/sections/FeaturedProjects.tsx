@@ -129,14 +129,15 @@ const featured: FeaturedProject[] = [
     subtitle: 'Speech-to-text for Windows',
     description:
       'I dictate with Scribe every day: hold a hotkey, talk and let go, and your words land at the cursor. Your audio never leaves your PC.',
-    // The app itself, not its landing page (round 4 of 2026-11-02): its real
-    // screens, captured from its own UI (scripts/scribe-tour/).
+    // The app itself, not its landing page (round 4 of 2026-11-02): since
+    // round 5 a real screen recording of someone using it, from its own UI
+    // (scripts/scribe-tour/record.mjs and build-video.sh).
     images: [],
     tour: {
       webm: '/builds/scribe/tour.webm',
       mp4: '/builds/scribe/tour.mp4',
       poster: '/builds/scribe/tour-poster.webp',
-      alt: 'A tour of the Scribe app: its home screen, dictating with live text, history, dictation and word settings, models, hotkeys, local AI, and switching color themes',
+      alt: 'A tour of the Scribe app, recorded as someone uses it: starting a dictation and watching the words appear live, then History, the Dictation, Words, Models and Hotkeys settings, and switching to the Emerald theme',
     },
     // Three pills, so the download fits on their line; the full stack is in Details.
     tags: ['Tauri', 'Rust', 'whisper.cpp'],

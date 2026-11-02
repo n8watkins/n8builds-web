@@ -31,7 +31,8 @@
     pillDisplayMode: S.pillMode || "visualizer_with_text",
     dashboardHotkeyToggles: true,
     notificationsEnabled: true,
-    soundsEnabled: true,
+    // The tour sets sounds: false (it is muted anyway; this keeps the app from even trying).
+    soundsEnabled: S.sounds !== false,
     developerSettingsEnabled: S.developer,
     autoUpdateCheckEnabled: true,
     autoInstallUpdates: !S.noAutoInstall,
@@ -328,6 +329,29 @@
   window.__SCRIBE_SET_STATUS = (status) => {
     S.status = status;
     window.__SCRIBE_EMIT("scribe:app-state", appState());
+  };
+  // The tour's dictation ends: its words become the newest transcript, as the
+  // real backend's do, and the app says the transcript is ready.
+  window.__SCRIBE_FINISH = (text) => {
+    const words = text.split(/\s+/).length;
+    transcripts.unshift({
+      id: `t${transcripts.length + 1}`,
+      text,
+      createdAt: new Date().toISOString(),
+      durationMs: Math.round(words * 380),
+      wordCount: words,
+      characterCount: text.length,
+      modelId: "small.en-q5_1",
+      language: "en",
+      outputMode: "auto_paste",
+      pasteMethod: "clipboard_paste",
+      transcriptionLatencyMs: 312,
+      audioPath: null,
+      isNote: false,
+      analysis: null,
+    });
+    window.__SCRIBE_SET_STATUS("Idle");
+    window.__SCRIBE_EMIT("scribe:dictation-transcribed", { text });
   };
   try {
     localStorage.setItem("scribe.theme", S.theme);
