@@ -126,17 +126,24 @@ export default async function HomePage({ posts }: { posts: Post[] }) {
             <Reveal className="mx-auto flex max-w-6xl flex-col items-center px-5 pt-16 pb-6 text-center sm:px-8 sm:pt-20">
               {/* "Check out" spans exactly the flask and title below it: its
                    letters spread across that width (the owner's ask, 2026-10-27;
-                   "Check out the Lab" until 2026-11-01, now just "Check out",
-                   a size larger). */}
+                   "Check out the Lab" until 2026-11-01, now just "Check out").
+                   Since 2026-11-02 the letters are larger and closer together
+                   (owner: "larger letters, less space between them, but still
+                   spaced out"). */}
               <div className="inline-flex flex-col items-stretch">
-                {/* One line of text (no per-letter spans). Justifying can't spread
-                     two words letter by letter, so the letter spacing is worked out
-                     instead: the paragraph is a size container as wide as the title
-                     row (it adds no width of its own), and in a monospace font the
-                     9 characters are 9ch, so 8 gaps of (100cqw - 9ch) / 8 fill it.
-                     The last letter's trailing spacing is taken back with a margin. */}
-                <p className="lab-eyebrow mb-3 font-mono text-lg font-bold uppercase [container-type:inline-size] sm:text-2xl">
-                  <span className="block w-max tracking-[calc((100cqw-9ch)/8)] [margin-right:calc((9ch-100cqw)/8)]">Check out</span>
+                {/* One line of text (no per-letter spans). The paragraph is a size
+                     container as wide as the title row (it adds no width of its own).
+                     The text is sized from that width (11.5cqw: in a monospace font
+                     9 characters are about 62% of it), and the letter spacing fills
+                     the rest: 8 gaps of (100cqw - 9ch) / 8, about 0.4em, so it
+                     still spans the row exactly. The word space is pulled in by
+                     0.4ch (so the two words don't drift apart), and that 0.4ch goes
+                     back to the gaps. The last letter's trailing spacing is taken
+                     back with a margin. */}
+                <p className="lab-eyebrow mb-2 font-mono font-bold uppercase leading-none [container-type:inline-size] sm:mb-3">
+                  <span className="block w-max text-[11.5cqw] leading-none tracking-[calc((100cqw-8.6ch)/8)] [word-spacing:-0.4ch] [margin-right:calc((8.6ch-100cqw)/8)]">
+                    Check out
+                  </span>
                 </p>
                 {/* The Lab's mark (the owner's pick, 2026-10-26): a flask in a chip like the rows' app icons. */}
                 <div className="flex items-center gap-4 sm:gap-5">
