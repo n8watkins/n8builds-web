@@ -122,11 +122,13 @@ test.describe('at 1440px', () => {
       await nav.getByRole('link', { name: part.label, exact: true }).click()
       await expect(page).toHaveURL(new RegExp(`#${part.id}$`))
       // Lands at the page's scroll-padding-top (80px), clear of the 68px navbar.
+      // The first row lands on the band's top, its title in view (round 5 of 2026-11-02).
+      const [landOn, top] = part === PARTS[0] ? ['lab', 69] : [part.id, 80]
       await expect
         .poll(() =>
-          page.locator(`#${part.id}`).evaluate((el) => Math.round(el.getBoundingClientRect().top))
+          page.locator(`#${landOn}`).evaluate((el) => Math.round(el.getBoundingClientRect().top))
         )
-        .toBe(80)
+        .toBe(top)
       await expect(nav.getByRole('link', { name: part.label, exact: true })).toHaveAttribute(
         'aria-current',
         'location'
@@ -414,6 +416,6 @@ test.describe('with motion', () => {
     const nav = rail(page)
     await expect(nav).toBeVisible(SHOW)
     // Build log, the first part, was the one that seemed to wait (the owner, round 5 of 2026-11-02).
-    await expectCleanJump(page, nav, 'Build log', 'build-log')
+    await expectCleanJump(page, nav, 'Build log', 'build-log', { selector: '#lab', top: 69 })
   })
 })

@@ -59,7 +59,9 @@ function Band({
       ? 'border-t border-white/[0.06] bg-white/[0.022]'
       : 'border-t border-white/[0.06]'
   return (
-    <Tag id={id} className={`relative z-10 ${background}`}>
+    // A band with a side rail is where its rail's first row lands: its top
+    // edge right under the 69px navbar (as #lab), with no strip of the band above.
+    <Tag id={id} className={`relative z-10 ${rail ? 'scroll-mt-[-11px]' : ''} ${background}`}>
       {rail}
       <div className="mx-auto max-w-6xl px-5 py-6 sm:px-8">{reveal ? <Reveal>{children}</Reveal> : children}</div>
     </Tag>

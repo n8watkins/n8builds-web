@@ -81,7 +81,8 @@ export default function SectionRail({
   const columnRef = useRef<HTMLDivElement>(null)
   // A rail click's jump: while it scrolls, the clicked row stays the current
   // one (no row it passes lights up) and the scroll-spy waits.
-  const jumpRef = useRef<{ index: number; stop: () => void } | null>(null)
+  // `landed`: where a first-row jump came to rest; the row stays lit there until the page moves.
+  const jumpRef = useRef<{ index: number; stop: () => void; landed?: number } | null>(null)
   // The scroll-spy's update, for a jump to hand back to when it settles.
   const updateRef = useRef<() => void>(() => {})
 
@@ -140,8 +141,14 @@ export default function SectionRail({
     let frame = 0
     const update = () => {
       frame = 0
-      // A rail click's jump is under way: its row stays lit until it lands.
-      if (jumpRef.current) return
+      // A rail click's jump is under way: its row stays lit until it lands. A jump
+      // to the band's top (the first row) holds there until the visitor scrolls.
+      const held = jumpRef.current
+      if (held) {
+        if (held.landed === undefined || Math.abs(window.scrollY - held.landed) <= 4) return
+        held.stop()
+        return
+      }
       // Nothing to do while the container is off screen (the rail is hidden then).
       const box = container.getBoundingClientRect()
       if (box.bottom <= 0 || box.top >= window.innerHeight) {
@@ -210,11 +217,18 @@ export default function SectionRail({
    * that shifts on the way is still hit). The clicked row lights at once and
    * stays lit until the scroll settles; then the scroll-spy takes over again.
    * A wheel, touch or key stops it where it is. Under reduced motion it jumps.
+   *
+   * The first row lands on the band's top instead of its own part (round 5 of
+   * 2026-11-02, the owner: a rail's first item reveals its band's title, as
+   * the navbar's Lab menu does), so the intro is in view. The rail stays shown
+   * there, the first row lit, until the visitor scrolls on.
    */
   const jump = (e: ReactMouseEvent<HTMLAnchorElement>, index: number, id: string) => {
     if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
-    const el = document.getElementById(id)
-    if (!el) return
+    const part = document.getElementById(id)
+    if (!part) return
+    const first = index === 0
+    const el = (first && document.getElementById(containerId)) || part
     e.preventDefault()
     jumpRef.current?.stop()
     window.history.replaceState(null, '', `#${id}`)
@@ -236,23 +250,31 @@ export default function SectionRail({
       ))
     const from = window.scrollY
     const distance = Math.abs(target() - from)
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || distance < 2) {
-      window.scrollTo({ top: target(), behavior: 'instant' })
-      requestAnimationFrame(() => updateRef.current())
-      return
-    }
-    // About the browser's own pace: 0.4s for a short hop, up to 0.9s across the page.
-    const duration = Math.min(900, 380 + Math.sqrt(distance) * 9)
-    // The clock starts with the first frame's own timestamp.
-    let start = -1
+    const cancelEvents = ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const
     let raf = 0
-    const cancelEvents = ['wheel', 'touchstart', 'keydown'] as const
     const stop = () => {
       cancelAnimationFrame(raf)
       cancelEvents.forEach((type) => window.removeEventListener(type, stop))
       if (jumpRef.current?.stop === stop) jumpRef.current = null
       updateRef.current()
     }
+    // Landed: the first row holds (until the visitor scrolls); any other hands back at once.
+    const land = () => {
+      cancelAnimationFrame(raf)
+      if (!first) return stop()
+      if (jumpRef.current?.stop === stop) jumpRef.current.landed = window.scrollY
+    }
+    cancelEvents.forEach((type) => window.addEventListener(type, stop, { passive: true }))
+    jumpRef.current = { index, stop }
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || distance < 2) {
+      window.scrollTo({ top: target(), behavior: 'instant' })
+      requestAnimationFrame(land)
+      return
+    }
+    // About the browser's own pace: 0.4s for a short hop, up to 0.9s across the page.
+    const duration = Math.min(900, 380 + Math.sqrt(distance) * 9)
+    // The clock starts with the first frame's own timestamp.
+    let start = -1
     const step = (now: number) => {
       // The first frame already moves a frame's worth (16ms), so the scroll starts at once.
       if (start < 0) start = now - 16
@@ -261,10 +283,8 @@ export default function SectionRail({
       const eased = 1 - (1 - t) ** 3
       window.scrollTo({ top: from + (target() - from) * eased, behavior: 'instant' })
       if (t < 1) raf = requestAnimationFrame(step)
-      else stop()
+      else land()
     }
-    cancelEvents.forEach((type) => window.addEventListener(type, stop, { passive: true }))
-    jumpRef.current = { index, stop }
     raf = requestAnimationFrame(step)
   }
 

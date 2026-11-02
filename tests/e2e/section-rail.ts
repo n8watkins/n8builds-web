@@ -76,9 +76,16 @@ export const labelLines = (rail: Locator) =>
  * 2026-11-02): the page starts moving at once (within a few frames, not after
  * the browser's slow ease-in), only the clicked row is lit for the whole
  * scroll (no part it passes lights up), and it lands on the part, under the
- * navbar, still lit.
+ * navbar (a first row: on its band's top), still lit.
  */
-export async function expectCleanJump(page: Page, rail: Locator, name: string, id: string) {
+export async function expectCleanJump(
+  page: Page,
+  rail: Locator,
+  name: string,
+  id: string,
+  /** Where the jump lands, when not on the part itself (a first row lands on its band's top). */
+  land: { selector: string; top: number } = { selector: `#${id}`, top: 80 }
+) {
   const link = rail.getByRole('link', { name, exact: true })
   await page.evaluate(() => {
     const w = window as unknown as { __rail: { lit: string[]; moved: number | null; t0: number } }
@@ -102,8 +109,8 @@ export async function expectCleanJump(page: Page, rail: Locator, name: string, i
   })
   await link.click()
   await expect
-    .poll(() => page.locator(`#${id}`).evaluate((el) => Math.round(el.getBoundingClientRect().top)), { timeout: 10_000 })
-    .toBe(80)
+    .poll(() => page.locator(land.selector).evaluate((el) => Math.round(el.getBoundingClientRect().top)), { timeout: 10_000 })
+    .toBe(land.top)
   await page.waitForTimeout(1600)
   const { lit, moved } = await page.evaluate(() => (window as unknown as { __rail: { lit: string[]; moved: number | null } }).__rail)
   expect(new Set(lit), 'only the clicked row lights during the scroll').toEqual(new Set([`#${id}`]))

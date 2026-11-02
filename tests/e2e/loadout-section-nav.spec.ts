@@ -118,11 +118,14 @@ test.describe('at 1440px', () => {
       await nav.getByRole('link', { name: part.label, exact: true }).click()
       await expect(page).toHaveURL(new RegExp(`#${part.id}$`))
       // Lands at the page's scroll-padding-top (80px), clear of the 68px navbar, like the Lab's parts.
-      await expect
-        .poll(() =>
-          page.locator(`#${part.id}`).evaluate((el) => Math.round(el.getBoundingClientRect().top))
-        )
-        .toBe(80)
+      // The first row lands on the page's top, its title in view (round 5 of 2026-11-02).
+      if (part === PARTS[0]) await expect.poll(() => page.evaluate(() => Math.round(window.scrollY))).toBe(0)
+      else
+        await expect
+          .poll(() =>
+            page.locator(`#${part.id}`).evaluate((el) => Math.round(el.getBoundingClientRect().top))
+          )
+          .toBe(80)
       await expect(nav.getByRole('link', { name: part.label, exact: true })).toHaveAttribute(
         'aria-current',
         'location'
@@ -231,7 +234,7 @@ test.describe('with motion', () => {
     const nav = rail(page)
     await expect(nav).toBeVisible(SHOW)
     // Up past every part between the gear and the dev setup.
-    await expectCleanJump(page, nav, 'Dev setup', 'dev-setup')
+    await expectCleanJump(page, nav, 'Dev setup', 'dev-setup', { selector: '#main-content', top: 0 })
   })
 })
 
