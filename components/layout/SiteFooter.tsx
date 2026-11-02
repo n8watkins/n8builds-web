@@ -22,6 +22,7 @@ const SITEMAP: { heading: string; links: { label: string; href: string; mark?: R
       { label: 'Featured builds', href: '/#featured' },
       { label: 'Chrome extensions', href: '/#extensions' },
       { label: 'Build log', href: '/builds' },
+      { label: 'Upcoming', href: '/upcoming' },
       { label: 'Use as a template', href: '/#template' },
       { label: 'Tools I built', href: '/#tools-i-built' },
     ],

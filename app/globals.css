@@ -627,6 +627,12 @@
     --lab-to: 45 212 191;
   }
 
+  /* "What's cookin'" (components/sections/UpcomingStrip.tsx): warm, rose to orange. */
+  .lab-accent-upcoming {
+    --lab-from: 244 114 182;
+    --lab-to: 251 146 60;
+  }
+
   /* A whole part: a vertical wash that peaks through the middle, and a glow
      behind its subheader. No gradient reaches an edge with colour left in it. */
   .lab-part-wash {
@@ -700,7 +706,7 @@
       rgb(var(--lab-to, 255 255 255) / 0.5)
     );
   }
-  .lab-sub-bar:not(:where(.lab-accent-tools, .lab-accent-featured, .lab-accent-extensions, .lab-accent-template) *) {
+  .lab-sub-bar:not(:where(.lab-accent-tools, .lab-accent-featured, .lab-accent-extensions, .lab-accent-template, .lab-accent-upcoming) *) {
     background: rgb(255 255 255 / 0.1);
   }
 }

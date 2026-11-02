@@ -13,6 +13,7 @@ import FeaturedProjects from '@/components/sections/FeaturedProjects'
 import ShelfSection from '@/components/sections/ShelfSection'
 import UseAsTemplate from '@/components/sections/UseAsTemplate'
 import PortfolioAd from '@/components/sections/PortfolioAd'
+import UpcomingStrip from '@/components/sections/UpcomingStrip'
 import NotionsStrip from '@/components/sections/NotionsStrip'
 import ExtensionsShowcase from '@/components/sections/ExtensionsShowcase'
 import LabSectionNav from '@/components/sections/LabSectionNav'
@@ -149,6 +150,7 @@ export default function HomePage({ posts }: { posts: Post[] }) {
                   { label: 'My tools', href: '#my-tools' },
                   { label: 'Featured', href: '#featured' },
                   { label: 'Chrome Extensions', href: '#extensions' },
+                  { label: "What's cookin'", href: '#upcoming' },
                 ].map((c) => (
                   <a
                     key={c.href}
@@ -180,6 +182,14 @@ export default function HomePage({ posts }: { posts: Post[] }) {
           <SectionErrorBoundary sectionName="Tools">
             <Reveal className="mx-auto max-w-6xl px-5 sm:px-8">
               <ShelfSection shelf="tool" />
+            </Reveal>
+          </SectionErrorBoundary>
+
+          {/* The Lab's last part: what's cooking next, each with its landing page and
+               waitlist (owner, 2026-11-01). The full detail lives on /upcoming. */}
+          <SectionErrorBoundary sectionName="Upcoming">
+            <Reveal>
+              <UpcomingStrip />
             </Reveal>
           </SectionErrorBoundary>
         </div>
