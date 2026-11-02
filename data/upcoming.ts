@@ -7,10 +7,11 @@
  * a renamed project keeps its old interest value working (INTEREST_ALIASES).
  * Copy comes from each project's own docs (Relink's in ~/projects/deadlink,
  * Strollz's in ~/projects/strollz, VibeLog's README and docs/VISION.md in
- * ~/projects/polish/vibelog); keep it in step and modest.
+ * ~/projects/polish/vibelog, Asset Arsenal's docs/SKINS_CONCEPT.md in
+ * ~/projects/asset-arsenal); keep it in step and modest.
  */
 
-export const UPCOMING_SLUGS = ['relink', 'strollz', 'vibelog'] as const
+export const UPCOMING_SLUGS = ['relink', 'strollz', 'vibelog', 'asset-arsenal'] as const
 export type UpcomingSlug = (typeof UPCOMING_SLUGS)[number]
 
 export type UpcomingProject = {
@@ -90,6 +91,25 @@ export const UPCOMING: UpcomingProject[] = [
       'A private dashboard and an activity calendar of your coding and streaming',
       'A public live page and share cards built only from names and numbers you choose',
       'Local-first with no account; open source first, a hosted page later',
+    ],
+  },
+  {
+    slug: 'asset-arsenal',
+    name: 'Asset Arsenal',
+    tagline: 'Give your page a skin',
+    icon: '/upcoming/asset-arsenal.svg',
+    landing: 'https://assetarsenal.n8builds.dev',
+    accent: '#f3b73f',
+    what: 'It reimagines your page in your brand or in any style you name, then breaks that picture into real assets you can ship: backgrounds, frames, buttons, icons and illustrations, each cut out and ready to drop in.',
+    forWho:
+      'Builders who want a site that looks like their brand rather than a template, and apps that want to offer their users a few skins to pick from.',
+    status: 'Outlining',
+    stage: 'An icon workbench runs on my machine; page skins are next',
+    points: [
+      'Starts from a screenshot of your page plus your logo, colors and images',
+      'A few full-page concepts in the style you describe; keep the one you love',
+      'Every asset rebuilt full size on a transparent background, matching the concept',
+      'Keep, reject or retry any single piece, and see the cost before each run',
     ],
   },
 ]

@@ -13,9 +13,9 @@ import { isWaitlistOpen } from '@/lib/waitlist/store'
 export const metadata = pageMetadata({
   title: 'Upcoming | n8builds',
   description:
-    "Projects I'm outlining in public: Relink, an open-source 404 safety net; Strollz, walking loops through streets you've never walked; and VibeLog, live telemetry for coding streams. Join a waitlist to hear when there is something to try.",
+    "Projects I'm outlining in public: Relink, an open-source 404 safety net; Strollz, walking loops through streets you've never walked; VibeLog, live telemetry for coding streams; and Asset Arsenal, skins for your web pages. Join a waitlist to hear when there is something to try.",
   shareDescription:
-    "What I'm outlining next: Relink, Strollz and VibeLog. Join a waitlist to hear when there is something to try.",
+    "What I'm outlining next: Relink, Strollz, VibeLog and Asset Arsenal. Join a waitlist to hear when there is something to try.",
   path: '/upcoming',
 })
 
@@ -126,7 +126,7 @@ export default function UpcomingPage() {
             </p>
           </FadeIn>
 
-          <div className="mt-10 grid gap-6 md:mt-12 lg:grid-cols-3">
+          <div className="mt-10 grid gap-6 md:mt-12 md:grid-cols-2">
             {UPCOMING.map((project, index) => (
               <ProjectCard key={project.slug} project={project} index={index} />
             ))}

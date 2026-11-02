@@ -33,6 +33,7 @@ test('shows each project with its own anchor, and is titled for the site', async
     ['relink', 'Relink'],
     ['strollz', 'Strollz'],
     ['vibelog', 'VibeLog'],
+    ['asset-arsenal', 'Asset Arsenal'],
   ]) {
     const card = page.locator(`article#${id}`)
     await expect(card.getByRole('heading', { level: 2 })).toContainText(name)
@@ -149,6 +150,7 @@ const LANDING = {
   relink: 'https://relink.n8builds.dev',
   strollz: 'https://strollz.n8builds.dev',
   vibelog: 'https://vibelogs.dev',
+  'asset-arsenal': 'https://assetarsenal.n8builds.dev',
 }
 
 test('each card links its landing page (hrefs only: the sites may not be live yet)', async ({ page }) => {
@@ -163,9 +165,9 @@ test("the homepage Lab ends with a short What's cookin' part, each with its wait
   const band = page.locator('#lab section#upcoming')
   await expect(band.getByRole('heading', { level: 3 })).toHaveText('What’s cookin’')
   await expect(band.getByText('Upcoming', { exact: true })).toBeVisible()
-  await expect(band.getByRole('listitem')).toHaveCount(3)
+  await expect(band.getByRole('listitem')).toHaveCount(4)
   for (const [slug, href] of Object.entries(LANDING)) {
-    const name = { relink: 'Relink', strollz: 'Strollz', vibelog: 'VibeLog' }[slug]
+    const name = { relink: 'Relink', strollz: 'Strollz', vibelog: 'VibeLog', 'asset-arsenal': 'Asset Arsenal' }[slug]
     await expect(band.getByRole('link', { name: `Let ’em cook: join the waitlist for ${name}` })).toHaveAttribute(
       'href',
       `/upcoming?interest=${slug}#${slug}`
