@@ -6,7 +6,7 @@ import type { Build } from '@/data/builds'
 
 /** The builds' own app icons, by slug. */
 export const BUILD_ICONS: Record<string, string> = {
-  'piper-tts': '/builds/piper-tts/icon.png',
+  'voicedock': '/builds/voicedock/icon.png',
   tldw: '/builds/tldw/icon.png',
   tubevault: '/builds/tubevault/icon.png',
   scribe: '/builds/scribe/app-icon.png',

@@ -198,7 +198,7 @@ describe('entries for a build', () => {
   })
 
   it('details a release by its own notes when the version commit has them', () => {
-    const piper = entriesForBuild(build('piper-tts'), snapshot('piper-tts'))
+    const piper = entriesForBuild(build('voicedock'), snapshot('voicedock'))
     expect(piper.find((e) => e.title === 'Shipped v1.0.6')).toMatchObject({
       kind: 'release',
       detail: 'Fix Alt+Shift+R tab-isolation bug, add Stop shortcut, volume rocker',
@@ -284,7 +284,7 @@ describe('merging, sorting and the builds index', () => {
 
   it('tracks the visible builds with a repo, and none of the hidden ones', () => {
     const tracked = builds.filter((b) => b.repo)
-    expect(tracked.map((b) => b.slug)).toEqual(['piper-tts', 'tldw', 'tubevault', 'scribe', 'openping', 'solara', 'portfolio-rank', 'n8builds'])
+    expect(tracked.map((b) => b.slug)).toEqual(['voicedock', 'tldw', 'tubevault', 'scribe', 'openping', 'solara', 'portfolio-rank', 'n8builds'])
     expect(tracked.every((b) => /^n8watkins\/[\w-]+$/.test(b.repo!))).toBe(true)
     expect(hiddenBuilds.every((b) => !b.repo)).toBe(true)
     expect(new Set(log.entries.map((e) => e.build))).toEqual(new Set(tracked.map((b) => b.slug)))
@@ -346,13 +346,13 @@ describe('merging, sorting and the builds index', () => {
   })
 
   it('sorts builds by their latest activity and labels it as a month, never "ago"', () => {
-    expect(log.activity.map((a) => a.slug)).toEqual(['n8builds', 'solara', 'tldw', 'openping', 'scribe', 'portfolio-rank', 'tubevault', 'piper-tts'])
+    expect(log.activity.map((a) => a.slug)).toEqual(['n8builds', 'solara', 'tldw', 'openping', 'scribe', 'portfolio-rank', 'tubevault', 'voicedock'])
     expect(log.activity.map((a) => a.lastShippedLabel)).toEqual(['Oct 2026', 'Oct 2026', 'Jul 2026', 'Jul 2026', 'Jul 2026', 'Jun 2026', 'Jun 2026', 'Jun 2026'])
     expect(log.activity.every((a) => a.latest.length === 2)).toBe(true)
   })
 
   it('sorts a build with no entries by its last push, after the active ones', () => {
-    const quiet = { ...build('piper-tts'), slug: 'quiet', repo: 'n8watkins/quiet' }
+    const quiet = { ...build('voicedock'), slug: 'quiet', repo: 'n8watkins/quiet' }
     const rows = buildActivity([quiet, ...builds.filter((b) => b.repo)], log.entries, { 'n8watkins/quiet': '2026-01-01T00:00:00Z' })
     expect(rows.at(-1)).toMatchObject({ slug: 'quiet', lastShipped: null, lastShippedLabel: null, latest: [] })
   })
@@ -506,7 +506,7 @@ describe('reading each repo far enough back', () => {
   })
 
   it('reads a quiet repo in one request, as before', async () => {
-    const quiet = snapshot('piper-tts').commits
+    const quiet = snapshot('voicedock').commits
     expect(quiet.length).toBeLessThan(COMMIT_PAGE_SIZE)
     const { fetchPage, requests } = pager(quiet)
     expect((await collectCommits(fetchPage, cutoff)).commits).toEqual(quiet)

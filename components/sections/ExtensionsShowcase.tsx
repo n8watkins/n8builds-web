@@ -18,25 +18,25 @@ interface Ext {
 // The 3 extensions to push (open source - ask for stars). Details derive from builds.tsx.
 const exts: Ext[] = [
   {
-    slug: 'piper-tts',
-    icon: '/builds/piper-tts/icon.png',
-    shot: '/builds/piper-tts/popup.png',
+    slug: 'voicedock',
+    icon: '/builds/voicedock/icon.png',
+    shot: '/builds/voicedock/popup.png',
     oss: true,
-    blurb: 'Highlight text, right-click, hear it read aloud by a Piper model running fully on your machine. No cloud, no keys.',
+    blurb: 'Highlight text on any page and hear it read aloud by Piper or Kokoro voices running on your own machine. No cloud, no keys.',
   },
   {
     slug: 'tubevault',
     icon: '/builds/tubevault/icon.png',
     shot: '/builds/tubevault/tubevault-popup.png',
     oss: true,
-    blurb: 'Archive YouTube videos, playlists, and channels locally with a yt-dlp helper. Your library, on your disk.',
+    blurb: 'Save YouTube videos, playlists and channels to your own disk, with thumbnails and metadata. No remote servers.',
   },
   {
     slug: 'tldw',
     icon: '/builds/tldw/icon.png',
     shot: null,
     oss: true,
-    blurb: 'On any YouTube video, hit Alt+G - it opens Gemini with a saved prompt and the video, and submits. Too Long; Didn\'t Watch.',
+    blurb: "Get a short summary of any YouTube video right on the page, from Gemini with your own free key, or open it in ChatGPT or Claude.",
   },
 ]
 

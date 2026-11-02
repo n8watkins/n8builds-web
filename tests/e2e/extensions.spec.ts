@@ -8,7 +8,7 @@ import { test, expect, type Page } from '@playwright/test'
  * reduced motion it never cycles. On phones the three simply stack.
  */
 
-const NAMES = ['Piper TTS', 'TubeVault', 'TL;DW']
+const NAMES = ['VoiceDock', 'TubeVault', 'TL;DW']
 const CYCLE_MS = 5000
 
 async function openShowcase(page: Page) {
@@ -32,7 +32,7 @@ test.describe('desktop', () => {
       const { tabs } = await openShowcase(page)
       for (const [i, name] of NAMES.entries()) await expect(tabs.nth(i)).toContainText(name)
       await expect(tabs.nth(0)).toHaveAttribute('aria-selected', 'true')
-      await expect(activePanelHeading(page)).toHaveText('Piper TTS')
+      await expect(activePanelHeading(page)).toHaveText('VoiceDock')
 
       for (let i = 0; i < 3; i++) {
         const style = await tabs.nth(i).evaluate((el) => {

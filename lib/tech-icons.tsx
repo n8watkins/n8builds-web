@@ -1,5 +1,6 @@
 import type { IconType } from 'react-icons'
 import {
+  SiPython,
   SiCloudflare,
   SiCloudflareworkers,
   SiDiscord,
@@ -75,6 +76,7 @@ export const TECH = {
   chrome: { label: 'Chrome', Icon: SiGooglechrome, color: '#60A5FA' },
   node: { label: 'Node.js', Icon: SiNodedotjs, color: '#5FA04E' },
   esbuild: { label: 'esbuild', Icon: SiEsbuild, color: '#FFCF00' },
+  python: { label: 'Python', Icon: SiPython, color: '#FFD43B' },
   piper: { label: 'Piper', Icon: LuAudioLines, color: '#34D399' },
   ytdlp: { label: 'yt-dlp', Icon: SiYoutube, color: '#F87171' },
   powershell: { label: 'PowerShell', Icon: VscTerminalPowershell, color: '#60A5FA' },

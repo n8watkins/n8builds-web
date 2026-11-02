@@ -2,7 +2,7 @@
  "capturedAt": "2026-10-26T20:08:35.000Z",
  "snapshots": [
   {
-   "repo": "n8watkins/piper-tts",
+   "repo": "n8watkins/voicedock",
    "pushedAt": "2026-06-07T03:34:09Z",
    "releases": [],
    "commits": [
@@ -12,7 +12,7 @@
      "date": "2026-06-07T03:32:26Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/86b7b7abde900129265d95b2f96606098505ef6f"
+     "url": "https://github.com/n8watkins/voicedock/commit/86b7b7abde900129265d95b2f96606098505ef6f"
     },
     {
      "sha": "9f43081849bae2632aa017f055d9722cb60bfaed",
@@ -20,7 +20,7 @@
      "date": "2026-06-07T03:32:26Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/9f43081849bae2632aa017f055d9722cb60bfaed"
+     "url": "https://github.com/n8watkins/voicedock/commit/9f43081849bae2632aa017f055d9722cb60bfaed"
     },
     {
      "sha": "9db83af80856ad94b7af5dbc795a14b11117df6c",
@@ -28,7 +28,7 @@
      "date": "2026-06-07T03:32:26Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/9db83af80856ad94b7af5dbc795a14b11117df6c"
+     "url": "https://github.com/n8watkins/voicedock/commit/9db83af80856ad94b7af5dbc795a14b11117df6c"
     },
     {
      "sha": "4c1c9fe0e820befc7fe19f260ec2c5f34a7b572f",
@@ -36,7 +36,7 @@
      "date": "2026-06-07T03:32:17Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/4c1c9fe0e820befc7fe19f260ec2c5f34a7b572f"
+     "url": "https://github.com/n8watkins/voicedock/commit/4c1c9fe0e820befc7fe19f260ec2c5f34a7b572f"
     },
     {
      "sha": "1fdaf3130b4ecb630b61992c6ebc5d220f91a8ee",
@@ -44,7 +44,7 @@
      "date": "2026-06-06T06:58:31Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/1fdaf3130b4ecb630b61992c6ebc5d220f91a8ee"
+     "url": "https://github.com/n8watkins/voicedock/commit/1fdaf3130b4ecb630b61992c6ebc5d220f91a8ee"
     },
     {
      "sha": "590b772d7a453da681e13f19c09da6ce1addd8aa",
@@ -52,7 +52,7 @@
      "date": "2026-06-06T06:10:34Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/590b772d7a453da681e13f19c09da6ce1addd8aa"
+     "url": "https://github.com/n8watkins/voicedock/commit/590b772d7a453da681e13f19c09da6ce1addd8aa"
     },
     {
      "sha": "1bf6ca7cc99b4aceedab8d6b25f55a9ebe04ad2f",
@@ -60,7 +60,7 @@
      "date": "2026-06-06T06:03:42Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/1bf6ca7cc99b4aceedab8d6b25f55a9ebe04ad2f"
+     "url": "https://github.com/n8watkins/voicedock/commit/1bf6ca7cc99b4aceedab8d6b25f55a9ebe04ad2f"
     },
     {
      "sha": "31cc122de9fe501c5082677c4c98890b55384a11",
@@ -68,7 +68,7 @@
      "date": "2026-06-06T05:44:22Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/31cc122de9fe501c5082677c4c98890b55384a11"
+     "url": "https://github.com/n8watkins/voicedock/commit/31cc122de9fe501c5082677c4c98890b55384a11"
     },
     {
      "sha": "19bafa47d5b184c04efb0cd38737521a79a8653b",
@@ -76,7 +76,7 @@
      "date": "2026-06-06T05:22:04Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/19bafa47d5b184c04efb0cd38737521a79a8653b"
+     "url": "https://github.com/n8watkins/voicedock/commit/19bafa47d5b184c04efb0cd38737521a79a8653b"
     },
     {
      "sha": "4b21a393810473247fea53f39214051bf73b6d8f",
@@ -84,7 +84,7 @@
      "date": "2026-06-06T05:19:53Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/4b21a393810473247fea53f39214051bf73b6d8f"
+     "url": "https://github.com/n8watkins/voicedock/commit/4b21a393810473247fea53f39214051bf73b6d8f"
     },
     {
      "sha": "e3c3d6a1d86858a299d12e271a5035cea0556bc5",
@@ -92,7 +92,7 @@
      "date": "2026-06-06T04:42:40Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/e3c3d6a1d86858a299d12e271a5035cea0556bc5"
+     "url": "https://github.com/n8watkins/voicedock/commit/e3c3d6a1d86858a299d12e271a5035cea0556bc5"
     },
     {
      "sha": "0e6a4434a4891f21d18979a5c25abbf2f0216d35",
@@ -100,7 +100,7 @@
      "date": "2026-06-06T04:36:19Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/0e6a4434a4891f21d18979a5c25abbf2f0216d35"
+     "url": "https://github.com/n8watkins/voicedock/commit/0e6a4434a4891f21d18979a5c25abbf2f0216d35"
     },
     {
      "sha": "e61ef37a1641a78f7cf4dadd21833d44a92bf650",
@@ -108,7 +108,7 @@
      "date": "2026-06-06T04:22:10Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/e61ef37a1641a78f7cf4dadd21833d44a92bf650"
+     "url": "https://github.com/n8watkins/voicedock/commit/e61ef37a1641a78f7cf4dadd21833d44a92bf650"
     },
     {
      "sha": "971bdf04b7909cdba84a52d1f1b59af055672663",
@@ -116,7 +116,7 @@
      "date": "2026-06-06T04:11:11Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/971bdf04b7909cdba84a52d1f1b59af055672663"
+     "url": "https://github.com/n8watkins/voicedock/commit/971bdf04b7909cdba84a52d1f1b59af055672663"
     },
     {
      "sha": "d2fee1d5ed89d0dbdcd53f898913a8573dca908d",
@@ -124,7 +124,7 @@
      "date": "2026-06-06T04:07:21Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/d2fee1d5ed89d0dbdcd53f898913a8573dca908d"
+     "url": "https://github.com/n8watkins/voicedock/commit/d2fee1d5ed89d0dbdcd53f898913a8573dca908d"
     },
     {
      "sha": "484f8691b9932314088b5fa579d02d738f869fd5",
@@ -132,7 +132,7 @@
      "date": "2026-06-06T03:57:33Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/484f8691b9932314088b5fa579d02d738f869fd5"
+     "url": "https://github.com/n8watkins/voicedock/commit/484f8691b9932314088b5fa579d02d738f869fd5"
     },
     {
      "sha": "5875deb0ab10d42914bfe0288bbf76c458fc8a97",
@@ -140,7 +140,7 @@
      "date": "2026-06-06T02:53:53Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/5875deb0ab10d42914bfe0288bbf76c458fc8a97"
+     "url": "https://github.com/n8watkins/voicedock/commit/5875deb0ab10d42914bfe0288bbf76c458fc8a97"
     },
     {
      "sha": "55fd1f2a9be2181c2fa9247dead1ba8009cf6e47",
@@ -148,7 +148,7 @@
      "date": "2026-06-06T02:30:58Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/55fd1f2a9be2181c2fa9247dead1ba8009cf6e47"
+     "url": "https://github.com/n8watkins/voicedock/commit/55fd1f2a9be2181c2fa9247dead1ba8009cf6e47"
     },
     {
      "sha": "42bd1479a0bce493dc1ebd390abf4cabbd3560cd",
@@ -156,7 +156,7 @@
      "date": "2026-06-06T02:16:06Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/42bd1479a0bce493dc1ebd390abf4cabbd3560cd"
+     "url": "https://github.com/n8watkins/voicedock/commit/42bd1479a0bce493dc1ebd390abf4cabbd3560cd"
     },
     {
      "sha": "45bed0110a416767a23dc3585c80e51b1974116a",
@@ -164,7 +164,7 @@
      "date": "2026-06-06T01:53:17Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/45bed0110a416767a23dc3585c80e51b1974116a"
+     "url": "https://github.com/n8watkins/voicedock/commit/45bed0110a416767a23dc3585c80e51b1974116a"
     },
     {
      "sha": "df2c1112c34f1889d9b27bf988396232fab8b611",
@@ -172,7 +172,7 @@
      "date": "2026-06-06T01:14:26Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/df2c1112c34f1889d9b27bf988396232fab8b611"
+     "url": "https://github.com/n8watkins/voicedock/commit/df2c1112c34f1889d9b27bf988396232fab8b611"
     },
     {
      "sha": "4e651ca089e910eee2f2a0c89bd87e9639a90a32",
@@ -180,7 +180,7 @@
      "date": "2026-06-05T23:55:04Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/4e651ca089e910eee2f2a0c89bd87e9639a90a32"
+     "url": "https://github.com/n8watkins/voicedock/commit/4e651ca089e910eee2f2a0c89bd87e9639a90a32"
     },
     {
      "sha": "2acad3ce98ad88a5c9218e05786eaadffcc343bd",
@@ -188,7 +188,7 @@
      "date": "2026-06-05T23:45:13Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/2acad3ce98ad88a5c9218e05786eaadffcc343bd"
+     "url": "https://github.com/n8watkins/voicedock/commit/2acad3ce98ad88a5c9218e05786eaadffcc343bd"
     },
     {
      "sha": "6e223b35496416381048b0e64fb0ba1e13e274a0",
@@ -196,7 +196,7 @@
      "date": "2026-06-05T23:37:21Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/6e223b35496416381048b0e64fb0ba1e13e274a0"
+     "url": "https://github.com/n8watkins/voicedock/commit/6e223b35496416381048b0e64fb0ba1e13e274a0"
     },
     {
      "sha": "bf6f327b45f48d508e6bafaa18cfd68efbff93f5",
@@ -204,7 +204,7 @@
      "date": "2026-06-05T22:53:23Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/bf6f327b45f48d508e6bafaa18cfd68efbff93f5"
+     "url": "https://github.com/n8watkins/voicedock/commit/bf6f327b45f48d508e6bafaa18cfd68efbff93f5"
     },
     {
      "sha": "b309f834fa6748420ab45805d12a9fddb3926833",
@@ -212,7 +212,7 @@
      "date": "2026-06-05T22:53:23Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/b309f834fa6748420ab45805d12a9fddb3926833"
+     "url": "https://github.com/n8watkins/voicedock/commit/b309f834fa6748420ab45805d12a9fddb3926833"
     },
     {
      "sha": "7c01cfca948c7492568e8b7e79984f002cc6d5b3",
@@ -220,7 +220,7 @@
      "date": "2026-06-05T22:41:29Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/7c01cfca948c7492568e8b7e79984f002cc6d5b3"
+     "url": "https://github.com/n8watkins/voicedock/commit/7c01cfca948c7492568e8b7e79984f002cc6d5b3"
     },
     {
      "sha": "a527d63571f9436d1f1e1bc3835377b8b33e4203",
@@ -228,7 +228,7 @@
      "date": "2026-06-05T22:41:23Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/a527d63571f9436d1f1e1bc3835377b8b33e4203"
+     "url": "https://github.com/n8watkins/voicedock/commit/a527d63571f9436d1f1e1bc3835377b8b33e4203"
     },
     {
      "sha": "98274cf33ae100861194418cd9665714086a529e",
@@ -236,7 +236,7 @@
      "date": "2026-06-05T22:41:09Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/98274cf33ae100861194418cd9665714086a529e"
+     "url": "https://github.com/n8watkins/voicedock/commit/98274cf33ae100861194418cd9665714086a529e"
     },
     {
      "sha": "bbfbd1ae7ac28a1f6652b0b348bba6c9a5d95f2d",
@@ -244,7 +244,7 @@
      "date": "2026-06-04T07:41:21Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/bbfbd1ae7ac28a1f6652b0b348bba6c9a5d95f2d"
+     "url": "https://github.com/n8watkins/voicedock/commit/bbfbd1ae7ac28a1f6652b0b348bba6c9a5d95f2d"
     },
     {
      "sha": "cb50a9ad684cac0d8fc28254884c315d92728f81",
@@ -252,7 +252,7 @@
      "date": "2026-06-04T02:10:12Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/cb50a9ad684cac0d8fc28254884c315d92728f81"
+     "url": "https://github.com/n8watkins/voicedock/commit/cb50a9ad684cac0d8fc28254884c315d92728f81"
     },
     {
      "sha": "b8a3a1655354746bca5bb44835f45146c6ed41cb",
@@ -260,7 +260,7 @@
      "date": "2026-06-04T02:00:00Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/b8a3a1655354746bca5bb44835f45146c6ed41cb"
+     "url": "https://github.com/n8watkins/voicedock/commit/b8a3a1655354746bca5bb44835f45146c6ed41cb"
     },
     {
      "sha": "8942f7e8eee4e67897763b2044c24a850b8623e4",
@@ -268,7 +268,7 @@
      "date": "2026-06-04T01:42:17Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/8942f7e8eee4e67897763b2044c24a850b8623e4"
+     "url": "https://github.com/n8watkins/voicedock/commit/8942f7e8eee4e67897763b2044c24a850b8623e4"
     },
     {
      "sha": "34e063cba8a06bba5869c29574c797b9182a9c24",
@@ -276,7 +276,7 @@
      "date": "2026-06-04T01:35:49Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/34e063cba8a06bba5869c29574c797b9182a9c24"
+     "url": "https://github.com/n8watkins/voicedock/commit/34e063cba8a06bba5869c29574c797b9182a9c24"
     },
     {
      "sha": "2f4b6fa6c0ebf09ca7a5e4735e5030f0192d6411",
@@ -284,7 +284,7 @@
      "date": "2026-06-04T01:15:37Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/2f4b6fa6c0ebf09ca7a5e4735e5030f0192d6411"
+     "url": "https://github.com/n8watkins/voicedock/commit/2f4b6fa6c0ebf09ca7a5e4735e5030f0192d6411"
     },
     {
      "sha": "0d5becfa20a35ed5ac1bf8a93419de92c15b014d",
@@ -292,7 +292,7 @@
      "date": "2026-06-03T19:02:03Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/0d5becfa20a35ed5ac1bf8a93419de92c15b014d"
+     "url": "https://github.com/n8watkins/voicedock/commit/0d5becfa20a35ed5ac1bf8a93419de92c15b014d"
     },
     {
      "sha": "ce70acc2a94103e0eb33ca3fda42b79976a0d9b0",
@@ -300,7 +300,7 @@
      "date": "2026-06-03T18:45:19Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/ce70acc2a94103e0eb33ca3fda42b79976a0d9b0"
+     "url": "https://github.com/n8watkins/voicedock/commit/ce70acc2a94103e0eb33ca3fda42b79976a0d9b0"
     },
     {
      "sha": "d097b3b2b6af444be33594c2e0d94d4ff6aee98b",
@@ -308,7 +308,7 @@
      "date": "2026-06-03T18:04:47Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/d097b3b2b6af444be33594c2e0d94d4ff6aee98b"
+     "url": "https://github.com/n8watkins/voicedock/commit/d097b3b2b6af444be33594c2e0d94d4ff6aee98b"
     },
     {
      "sha": "a191db0f42b9f0137567162f69f6a117d3128e7e",
@@ -316,7 +316,7 @@
      "date": "2026-06-03T07:43:58Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/a191db0f42b9f0137567162f69f6a117d3128e7e"
+     "url": "https://github.com/n8watkins/voicedock/commit/a191db0f42b9f0137567162f69f6a117d3128e7e"
     },
     {
      "sha": "f99d435abb75135c0922fd68db406863b6a0ad34",
@@ -324,7 +324,7 @@
      "date": "2026-06-03T07:35:40Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/f99d435abb75135c0922fd68db406863b6a0ad34"
+     "url": "https://github.com/n8watkins/voicedock/commit/f99d435abb75135c0922fd68db406863b6a0ad34"
     },
     {
      "sha": "84c0bb788852337053db52f514034e6e4a5beedd",
@@ -332,7 +332,7 @@
      "date": "2026-06-03T07:29:24Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/84c0bb788852337053db52f514034e6e4a5beedd"
+     "url": "https://github.com/n8watkins/voicedock/commit/84c0bb788852337053db52f514034e6e4a5beedd"
     },
     {
      "sha": "3a29d61b72d8ba8f47f74283c29a8da4d6eb407c",
@@ -340,7 +340,7 @@
      "date": "2026-06-03T07:24:35Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/3a29d61b72d8ba8f47f74283c29a8da4d6eb407c"
+     "url": "https://github.com/n8watkins/voicedock/commit/3a29d61b72d8ba8f47f74283c29a8da4d6eb407c"
     },
     {
      "sha": "9dc819d8855007985fbe3113618bd9bda24bd3ef",
@@ -348,7 +348,7 @@
      "date": "2026-06-03T07:07:21Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/9dc819d8855007985fbe3113618bd9bda24bd3ef"
+     "url": "https://github.com/n8watkins/voicedock/commit/9dc819d8855007985fbe3113618bd9bda24bd3ef"
     },
     {
      "sha": "d0e18cc1f93eeef5435dfad2ae2b5738d4fa6bd3",
@@ -356,7 +356,7 @@
      "date": "2026-06-03T06:54:10Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/d0e18cc1f93eeef5435dfad2ae2b5738d4fa6bd3"
+     "url": "https://github.com/n8watkins/voicedock/commit/d0e18cc1f93eeef5435dfad2ae2b5738d4fa6bd3"
     },
     {
      "sha": "d991d85a76796e08fd6040a691ba86b1cb2037d7",
@@ -364,7 +364,7 @@
      "date": "2026-06-03T04:36:45Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/d991d85a76796e08fd6040a691ba86b1cb2037d7"
+     "url": "https://github.com/n8watkins/voicedock/commit/d991d85a76796e08fd6040a691ba86b1cb2037d7"
     },
     {
      "sha": "b17d5d7b7f0ac8a5ea3ae44066431c31d42358f9",
@@ -372,7 +372,7 @@
      "date": "2026-06-03T04:35:51Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/b17d5d7b7f0ac8a5ea3ae44066431c31d42358f9"
+     "url": "https://github.com/n8watkins/voicedock/commit/b17d5d7b7f0ac8a5ea3ae44066431c31d42358f9"
     },
     {
      "sha": "0100bd39db2534044eeda9b078e7fa442ff54f3c",
@@ -380,31 +380,31 @@
      "date": "2026-06-03T04:30:39Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/0100bd39db2534044eeda9b078e7fa442ff54f3c"
+     "url": "https://github.com/n8watkins/voicedock/commit/0100bd39db2534044eeda9b078e7fa442ff54f3c"
     },
     {
      "sha": "e2c97ddb8366f183164e6595b790c903df5044a0",
-     "message": "update links for Piper TTS repo rename",
+     "message": "update links for VoiceDock repo rename",
      "date": "2026-06-02T20:49:53Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/e2c97ddb8366f183164e6595b790c903df5044a0"
+     "url": "https://github.com/n8watkins/voicedock/commit/e2c97ddb8366f183164e6595b790c903df5044a0"
     },
     {
      "sha": "a2c3f56ebf0c1a934659e263fe575ba8de95e14e",
-     "message": "fix Piper TTS source links",
+     "message": "fix VoiceDock source links",
      "date": "2026-06-02T20:48:51Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/a2c3f56ebf0c1a934659e263fe575ba8de95e14e"
+     "url": "https://github.com/n8watkins/voicedock/commit/a2c3f56ebf0c1a934659e263fe575ba8de95e14e"
     },
     {
      "sha": "a14fbec357f99acd80bf6b1984a82897e5f19a76",
-     "message": "brand extension as Piper TTS",
+     "message": "brand extension as VoiceDock",
      "date": "2026-06-02T20:41:26Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/a14fbec357f99acd80bf6b1984a82897e5f19a76"
+     "url": "https://github.com/n8watkins/voicedock/commit/a14fbec357f99acd80bf6b1984a82897e5f19a76"
     },
     {
      "sha": "6b9e98c4cc34d6ff77940a526a0449043b54e81d",
@@ -412,7 +412,7 @@
      "date": "2026-05-27T01:19:03Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/6b9e98c4cc34d6ff77940a526a0449043b54e81d"
+     "url": "https://github.com/n8watkins/voicedock/commit/6b9e98c4cc34d6ff77940a526a0449043b54e81d"
     },
     {
      "sha": "5985a10292109c2032554c0180c47fe74ec72518",
@@ -420,7 +420,7 @@
      "date": "2026-05-27T01:16:26Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/5985a10292109c2032554c0180c47fe74ec72518"
+     "url": "https://github.com/n8watkins/voicedock/commit/5985a10292109c2032554c0180c47fe74ec72518"
     },
     {
      "sha": "5a54d15f05fa7d773273a86ac49ddc722bee34a9",
@@ -428,7 +428,7 @@
      "date": "2026-05-27T01:00:43Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/5a54d15f05fa7d773273a86ac49ddc722bee34a9"
+     "url": "https://github.com/n8watkins/voicedock/commit/5a54d15f05fa7d773273a86ac49ddc722bee34a9"
     },
     {
      "sha": "1add0cf3c23c251cc90fc9f953267bc47e00b084",
@@ -436,7 +436,7 @@
      "date": "2026-05-27T00:50:13Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/1add0cf3c23c251cc90fc9f953267bc47e00b084"
+     "url": "https://github.com/n8watkins/voicedock/commit/1add0cf3c23c251cc90fc9f953267bc47e00b084"
     },
     {
      "sha": "f0d6b925713dad7163c9e712890fea13c33061f9",
@@ -444,7 +444,7 @@
      "date": "2026-05-27T00:35:10Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/f0d6b925713dad7163c9e712890fea13c33061f9"
+     "url": "https://github.com/n8watkins/voicedock/commit/f0d6b925713dad7163c9e712890fea13c33061f9"
     },
     {
      "sha": "b9081cda214d1385de0ea240e3d295d4fc25b928",
@@ -452,7 +452,7 @@
      "date": "2026-05-26T21:59:43Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/b9081cda214d1385de0ea240e3d295d4fc25b928"
+     "url": "https://github.com/n8watkins/voicedock/commit/b9081cda214d1385de0ea240e3d295d4fc25b928"
     },
     {
      "sha": "84b70c1c87afeb2374882dedc1d0f2e21e9b3bf3",
@@ -460,7 +460,7 @@
      "date": "2026-05-26T21:42:33Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/84b70c1c87afeb2374882dedc1d0f2e21e9b3bf3"
+     "url": "https://github.com/n8watkins/voicedock/commit/84b70c1c87afeb2374882dedc1d0f2e21e9b3bf3"
     },
     {
      "sha": "91b714ebbb3ff9abc4f1ccf278f8ba0f2f2c8026",
@@ -468,7 +468,7 @@
      "date": "2026-05-26T21:38:20Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/91b714ebbb3ff9abc4f1ccf278f8ba0f2f2c8026"
+     "url": "https://github.com/n8watkins/voicedock/commit/91b714ebbb3ff9abc4f1ccf278f8ba0f2f2c8026"
     },
     {
      "sha": "2586d8aaedeaf2bc53c6bd4c92d31d331f15b3a3",
@@ -476,7 +476,7 @@
      "date": "2026-05-26T20:24:04Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/2586d8aaedeaf2bc53c6bd4c92d31d331f15b3a3"
+     "url": "https://github.com/n8watkins/voicedock/commit/2586d8aaedeaf2bc53c6bd4c92d31d331f15b3a3"
     },
     {
      "sha": "cc598032b7feb37471cfaebe43a0b85f65c2e626",
@@ -484,7 +484,7 @@
      "date": "2026-05-26T20:00:55Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/cc598032b7feb37471cfaebe43a0b85f65c2e626"
+     "url": "https://github.com/n8watkins/voicedock/commit/cc598032b7feb37471cfaebe43a0b85f65c2e626"
     },
     {
      "sha": "8e60afdf8f62f1b77e39d11094bdf9bd556d0abb",
@@ -492,7 +492,7 @@
      "date": "2026-05-26T20:00:10Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/8e60afdf8f62f1b77e39d11094bdf9bd556d0abb"
+     "url": "https://github.com/n8watkins/voicedock/commit/8e60afdf8f62f1b77e39d11094bdf9bd556d0abb"
     },
     {
      "sha": "5b6f6224203149c5bd6fcebbfa87c41a6f3afb05",
@@ -500,7 +500,7 @@
      "date": "2026-05-26T19:49:05Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/5b6f6224203149c5bd6fcebbfa87c41a6f3afb05"
+     "url": "https://github.com/n8watkins/voicedock/commit/5b6f6224203149c5bd6fcebbfa87c41a6f3afb05"
     },
     {
      "sha": "b84cbf342127fc94efe7dce21ad735dc356076c2",
@@ -508,7 +508,7 @@
      "date": "2026-05-26T19:39:28Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/b84cbf342127fc94efe7dce21ad735dc356076c2"
+     "url": "https://github.com/n8watkins/voicedock/commit/b84cbf342127fc94efe7dce21ad735dc356076c2"
     },
     {
      "sha": "c78500e04b2511e9bca1ea993ed7b12170eb6827",
@@ -516,7 +516,7 @@
      "date": "2026-05-26T19:32:28Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/c78500e04b2511e9bca1ea993ed7b12170eb6827"
+     "url": "https://github.com/n8watkins/voicedock/commit/c78500e04b2511e9bca1ea993ed7b12170eb6827"
     },
     {
      "sha": "473d2d9e65e96b754a7c99647bef55dda613cf70",
@@ -524,7 +524,7 @@
      "date": "2026-05-26T16:14:45Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/473d2d9e65e96b754a7c99647bef55dda613cf70"
+     "url": "https://github.com/n8watkins/voicedock/commit/473d2d9e65e96b754a7c99647bef55dda613cf70"
     },
     {
      "sha": "ffea6e4c3eb9da78c60e56faa3e445904527e7b0",
@@ -532,7 +532,7 @@
      "date": "2026-05-26T16:05:40Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/ffea6e4c3eb9da78c60e56faa3e445904527e7b0"
+     "url": "https://github.com/n8watkins/voicedock/commit/ffea6e4c3eb9da78c60e56faa3e445904527e7b0"
     },
     {
      "sha": "49ab0af4505a016975f68de2690d84be6ca79644",
@@ -540,7 +540,7 @@
      "date": "2026-05-26T15:16:10Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/49ab0af4505a016975f68de2690d84be6ca79644"
+     "url": "https://github.com/n8watkins/voicedock/commit/49ab0af4505a016975f68de2690d84be6ca79644"
     },
     {
      "sha": "c91e9d246757857325421de394e9dc702e36b714",
@@ -548,7 +548,7 @@
      "date": "2026-05-26T15:03:48Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/c91e9d246757857325421de394e9dc702e36b714"
+     "url": "https://github.com/n8watkins/voicedock/commit/c91e9d246757857325421de394e9dc702e36b714"
     },
     {
      "sha": "9614bc7866fc74bc6835088c67d4d20a413e0b44",
@@ -556,7 +556,7 @@
      "date": "2026-05-26T14:15:09Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/9614bc7866fc74bc6835088c67d4d20a413e0b44"
+     "url": "https://github.com/n8watkins/voicedock/commit/9614bc7866fc74bc6835088c67d4d20a413e0b44"
     },
     {
      "sha": "f1c9d99c3c4326a3e6ae56d298cae09adf7cf765",
@@ -564,7 +564,7 @@
      "date": "2026-05-26T05:15:09Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/f1c9d99c3c4326a3e6ae56d298cae09adf7cf765"
+     "url": "https://github.com/n8watkins/voicedock/commit/f1c9d99c3c4326a3e6ae56d298cae09adf7cf765"
     },
     {
      "sha": "097a3c51769380802f0a7d4b0a756eb1875abdc8",
@@ -572,7 +572,7 @@
      "date": "2026-05-26T05:09:47Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/097a3c51769380802f0a7d4b0a756eb1875abdc8"
+     "url": "https://github.com/n8watkins/voicedock/commit/097a3c51769380802f0a7d4b0a756eb1875abdc8"
     },
     {
      "sha": "543ae09de0d4ac2ac3057642e6692b8c5c3ed90f",
@@ -580,7 +580,7 @@
      "date": "2026-05-26T04:57:26Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/543ae09de0d4ac2ac3057642e6692b8c5c3ed90f"
+     "url": "https://github.com/n8watkins/voicedock/commit/543ae09de0d4ac2ac3057642e6692b8c5c3ed90f"
     },
     {
      "sha": "0f24420b3dea8926d76676d9f1abb6711b0d9d67",
@@ -588,7 +588,7 @@
      "date": "2026-05-26T04:46:42Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/0f24420b3dea8926d76676d9f1abb6711b0d9d67"
+     "url": "https://github.com/n8watkins/voicedock/commit/0f24420b3dea8926d76676d9f1abb6711b0d9d67"
     },
     {
      "sha": "43feea96f48fa3adf2305d0fdcb948182d3ad541",
@@ -596,7 +596,7 @@
      "date": "2026-05-26T04:43:41Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/43feea96f48fa3adf2305d0fdcb948182d3ad541"
+     "url": "https://github.com/n8watkins/voicedock/commit/43feea96f48fa3adf2305d0fdcb948182d3ad541"
     },
     {
      "sha": "830085ee94b3851a2b14390d0b84c347d6ef7e51",
@@ -604,7 +604,7 @@
      "date": "2026-05-26T04:36:41Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/830085ee94b3851a2b14390d0b84c347d6ef7e51"
+     "url": "https://github.com/n8watkins/voicedock/commit/830085ee94b3851a2b14390d0b84c347d6ef7e51"
     },
     {
      "sha": "cbac9c2edf836195f86074314fb78f5f105b6cc4",
@@ -612,7 +612,7 @@
      "date": "2026-05-26T04:34:33Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/cbac9c2edf836195f86074314fb78f5f105b6cc4"
+     "url": "https://github.com/n8watkins/voicedock/commit/cbac9c2edf836195f86074314fb78f5f105b6cc4"
     },
     {
      "sha": "c2789799f49873472c503859fa381a6e7cbbbc5d",
@@ -620,7 +620,7 @@
      "date": "2026-05-26T04:15:50Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/c2789799f49873472c503859fa381a6e7cbbbc5d"
+     "url": "https://github.com/n8watkins/voicedock/commit/c2789799f49873472c503859fa381a6e7cbbbc5d"
     },
     {
      "sha": "4fd61896376f3e379ada785cb3684ead6eb64930",
@@ -628,7 +628,7 @@
      "date": "2026-05-26T00:37:05Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/4fd61896376f3e379ada785cb3684ead6eb64930"
+     "url": "https://github.com/n8watkins/voicedock/commit/4fd61896376f3e379ada785cb3684ead6eb64930"
     },
     {
      "sha": "3a938d5803ee203d8533b9bad5bd76c7e0ab5357",
@@ -636,7 +636,7 @@
      "date": "2026-05-26T00:34:05Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/3a938d5803ee203d8533b9bad5bd76c7e0ab5357"
+     "url": "https://github.com/n8watkins/voicedock/commit/3a938d5803ee203d8533b9bad5bd76c7e0ab5357"
     },
     {
      "sha": "f0029990edc00e30141e9fbeeaae1619aedd518a",
@@ -644,7 +644,7 @@
      "date": "2026-05-25T23:44:34Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/f0029990edc00e30141e9fbeeaae1619aedd518a"
+     "url": "https://github.com/n8watkins/voicedock/commit/f0029990edc00e30141e9fbeeaae1619aedd518a"
     },
     {
      "sha": "2871de1445a2e0571f5e4eaa3944d5b1414d31e1",
@@ -652,7 +652,7 @@
      "date": "2026-05-25T23:14:00Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/2871de1445a2e0571f5e4eaa3944d5b1414d31e1"
+     "url": "https://github.com/n8watkins/voicedock/commit/2871de1445a2e0571f5e4eaa3944d5b1414d31e1"
     },
     {
      "sha": "6a59a799dc4cd9656768339339c4c5ebe26fcef3",
@@ -660,7 +660,7 @@
      "date": "2026-05-25T19:04:26Z",
      "author": "n8watkins",
      "parents": 1,
-     "url": "https://github.com/n8watkins/piper-tts/commit/6a59a799dc4cd9656768339339c4c5ebe26fcef3"
+     "url": "https://github.com/n8watkins/voicedock/commit/6a59a799dc4cd9656768339339c4c5ebe26fcef3"
     },
     {
      "sha": "19a2e78ebe1d8177ed0b3c2556c422803ac26be6",
@@ -668,7 +668,7 @@
      "date": "2026-05-25T18:44:53Z",
      "author": "n8watkins",
      "parents": 0,
-     "url": "https://github.com/n8watkins/piper-tts/commit/19a2e78ebe1d8177ed0b3c2556c422803ac26be6"
+     "url": "https://github.com/n8watkins/voicedock/commit/19a2e78ebe1d8177ed0b3c2556c422803ac26be6"
     }
    ]
   },

@@ -115,7 +115,7 @@ const featured: FeaturedProject[] = [
     group: 'daily',
     subtitle: 'Speech-to-text for Windows',
     description:
-      'I dictate with Scribe every day: hold a hotkey, talk and let go, and your words land at the cursor, transcribed on your own PC.',
+      'I dictate with Scribe every day: hold a hotkey, talk and let go, and your words land at the cursor. Your audio never leaves your PC.',
     images: [
       { src: '/builds/scribe/landing.webp', alt: 'Scribe: talk, it types. Private local dictation for Windows' },
       { src: '/builds/scribe/features.webp', alt: "Scribe's features: local Whisper models, a model picker, rebindable hotkeys and a floating status pill" },
@@ -145,7 +145,7 @@ const featured: FeaturedProject[] = [
     group: 'featured',
     subtitle: 'Uptime monitoring on your own Cloudflare',
     description:
-      'I check OpenPing every day: it watches my live demos from my own Cloudflare account, and off-hours never count as downtime.',
+      'Know the moment your site goes down, and share a status page, all from your own Cloudflare account. I check it every day.',
     images: [
       { src: '/builds/openping/landing.webp', alt: 'OpenPing: uptime monitoring that runs entirely in your own cloud' },
       { src: '/builds/openping/status.webp', alt: 'An OpenPing public status page: all systems operational, with 90 days of uptime bars per service' },
@@ -156,7 +156,7 @@ const featured: FeaturedProject[] = [
     liveSite: 'https://openping.n8builds.dev',
     buildSlug: 'openping',
     accent: 'openping',
-    features: ['Schedule-aware checks', 'Public status pages', 'Incident alerts', 'Five monitor types'],
+    features: ['Schedule-aware checks', 'Public status pages', 'Slack, Discord and email alerts', 'Six monitor types'],
     actions: [
       { label: 'Try the free tools', href: 'https://openping.n8builds.dev/tools', kind: 'primary', external: true },
       // The step-by-step install guide, not the landing page (that is Live Site).
@@ -169,7 +169,7 @@ const featured: FeaturedProject[] = [
     group: 'featured',
     subtitle: 'Personal UV planner',
     description:
-      'The UV index is a number, not an answer. Solara turns live UV, your skin type and your sunscreen into safe sun windows.',
+      'See when you can be outside without burning: Solara turns live UV, your skin type and your sunscreen into a plan for each activity.',
     // A wide social card: anchor left so the cover crop keeps the sun.
     images: [{ src: '/builds/solara/og-image.png', alt: 'Solara: know your sun window' }],
     imagePosition: 'object-left',
@@ -178,7 +178,7 @@ const featured: FeaturedProject[] = [
     liveSite: 'https://solara-uv.web.app',
     buildSlug: 'solara',
     accent: 'solara',
-    features: ['Personalised sun windows', 'Google Calendar scheduling', 'Push reminders', 'Today and the days ahead'],
+    features: ['Sun windows per activity', 'Fits your skin and sunscreen', 'A week calendar', 'No account needed'],
     // Straight into the planner; Live Site is the landing page.
     actions: [{ label: 'Find your sun window', href: 'https://solara-uv.web.app/app/', kind: 'primary', external: true }],
   },
@@ -193,7 +193,7 @@ const featured: FeaturedProject[] = [
     group: 'featured',
     subtitle: 'The developer portfolio leaderboard',
     description:
-      '1,700+ developer portfolios, ranked by head-to-head votes instead of A to Z, with a real screenshot of every site.',
+      'Browse 1,700+ developer portfolios ranked by head-to-head votes, not A to Z, and find ideas for your own.',
     images: [{ src: '/projects/PortfolioRank-1.png', alt: 'Portfolio Rank - developer portfolio ranker screenshot' }],
     tags: ['Next.js', 'Gemini', 'Turso', 'Vercel'],
     github: 'https://github.com/n8watkins/portfolio-rank',

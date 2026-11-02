@@ -494,8 +494,8 @@ test.describe('the Lab gallery on touch', () => {
 test('each row lists its features as checks, and shows its tech as pills instead of in the description', async ({ page }) => {
   const features: [string, (string | RegExp)[]][] = [
     ['Scribe', ['Works in any app', 'Push-to-talk hotkey', 'Local Whisper models', 'Searchable history']],
-    ['OpenPing', ['Schedule-aware checks', 'Public status pages', 'Incident alerts', 'Five monitor types']],
-    ['Solara', ['Personalised sun windows', 'Google Calendar scheduling', 'Push reminders', 'Today and the days ahead']],
+    ['OpenPing', ['Schedule-aware checks', 'Public status pages', 'Slack, Discord and email alerts', 'Six monitor types']],
+    ['Solara', ['Sun windows per activity', 'Fits your skin and sunscreen', 'A week calendar', 'No account needed']],
     ['Portfolio Rank', ['Head-to-head voting', 'ELO leaderboard', 'Lighthouse and AI reviews', /^Add your portfolio and see how you compare/]],
   ]
   for (const [name, list] of features) {

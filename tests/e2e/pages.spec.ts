@@ -133,3 +133,14 @@ test('legacy shelf routes redirect to homepage anchors, and /tools to /loadout',
   expect(new URL(page.url()).pathname + new URL(page.url()).hash).toBe('/loadout#tools-i-built')
   await expect(page.getByRole('heading', { level: 2, name: 'Tools I built and use' })).toBeInViewport()
 })
+
+test('Piper TTS was renamed VoiceDock: its old page lands on the new one, which links the new repo', async ({ page, request }) => {
+  const response = await request.get('/builds/piper-tts', { maxRedirects: 0 })
+  expect(response.status()).toBe(308)
+  expect(response.headers()['location']).toBe('/builds/voicedock')
+  await page.goto('/builds/piper-tts')
+  expect(new URL(page.url()).pathname).toBe('/builds/voicedock')
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('VoiceDock')
+  await expect(page.locator('a[href="https://github.com/n8watkins/voicedock"]').first()).toBeAttached()
+  await expect(page.locator('a[href*="piper-tts"]')).toHaveCount(0)
+})
