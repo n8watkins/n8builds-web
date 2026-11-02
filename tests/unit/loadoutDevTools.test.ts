@@ -27,7 +27,9 @@ describe('the loadout dev-tool lists', () => {
     expect(toolsIBuilt.map((t) => t.id)).toEqual(['pass-env', 'release-kit', 'devguard', 'pr-post'])
     // Two groups (round 3 of 2026-11-02): the dev tools (after Scribe's row), then the other things I built.
     expect(toolsIBuilt.filter((t) => t.group === 'dev').map((t) => t.id)).toEqual(['pass-env', 'release-kit', 'devguard'])
-    expect(toolsIBuilt.filter((t) => t.group === 'other').map((t) => t.id)).toEqual(['pr-post'])
+    // PR Post has its own card (The Pull Request Post's, on the homepage), so no group (round 5 of 2026-11-02).
+    expect(toolsIBuilt.filter((t) => t.group === 'other').map((t) => t.id)).toEqual([])
+    expect(toolsIBuilt.filter((t) => t.group === 'featured').map((t) => t.id)).toEqual(['pr-post'])
     for (const tool of toolsIBuilt) if (tool.demo) expect(tool.demo).toMatch(/^https:\/\//)
     const passEnv = toolsIBuilt.find((t) => t.id === 'pass-env')
     expect(passEnv?.pitch).toBe('Your AI coding agents use your API keys without ever seeing them.')
@@ -73,16 +75,18 @@ describe('the loadout dev-tool lists', () => {
     }
   })
 
-  it('links My dev setup only to anchors that exist on the page, or to site pages', () => {
+  it('links My dev setup only to anchors that exist on the page, site pages, or a repo (the Sentry CLI)', () => {
     const anchors = new Set([
       'workflow',
-      ...toolsIBuilt.map((t) => t.id),
+      // A tool with its own card elsewhere (PR Post) has no card on /loadout.
+      ...toolsIBuilt.filter((t) => t.group !== 'featured').map((t) => t.id),
       ...toolsIUse.map((t) => t.id),
       ...people.map((p) => p.id),
     ])
     for (const entry of devSetup.flatMap((t) => t.groups).flatMap((g) => g.items)) {
       if (!entry.href) continue
       if (entry.href.startsWith('#')) expect(anchors, entry.name).toContain(entry.href.slice(1))
+      else if (entry.href.startsWith('https://')) expect(entry.href).toMatch(/^https:\/\/github\.com\/[\w.-]+\/[\w.-]+$/)
       else expect(entry.href).toMatch(/^\/[a-z]/)
     }
   })

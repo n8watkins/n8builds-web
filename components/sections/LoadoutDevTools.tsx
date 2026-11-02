@@ -20,6 +20,7 @@ import {
   type NamedLink,
 } from '@/data/loadout'
 import RepoButtons from '@/components/ui/RepoButtons'
+import { ProjectTour } from '@/components/sections/FeaturedProjectIslands'
 import Reveal from '@/components/ui/Reveal'
 import SetupTilesMotion from '@/components/sections/SetupTilesMotion'
 
@@ -194,6 +195,8 @@ export const BuiltToolsGrid = ({
     <div className="space-y-14 md:space-y-16">
       {BUILT_GROUPS.map((group) => {
         const tools = toolsIBuilt.filter((tool) => tool.group === group.id)
+        // A group with nothing in it (Other things I built, since PR Post has its own card) is left out, heading and all.
+        if (!tools.length && !(group.id === 'dev' && lead)) return null
         return (
           <div key={group.id} role="group" aria-labelledby={`built-${group.id}-title`} data-built-group={group.id}>
             <div className={column}>
@@ -554,9 +557,11 @@ const prPost = toolsIBuilt.find((tool) => tool.id === 'pr-post')!
 /**
  * The Pull Request Post (2026-11-01): the newspaper pr-post prints from the
  * public GitHub activity of the people above, as a project card in the tool
- * cards' style, with a front page from its live demo beside the copy. The
- * picture is public/projects/pr-post-edition.webp (a 1280x800 capture of the
- * demo, resized to 1200x750); recapture it when the paper's design changes.
+ * cards' style, with its live front page beside the copy. Since round 5 of
+ * 2026-11-02 that is a recording of the live page scrolling from the
+ * masthead to the box scores and back (scripts/pr-post-tour/ remakes it; a
+ * silent looping video with the same playback rules as Scribe's tour), and
+ * this is PR Post's one place on the site: it left Tools I built and use.
  */
 export const PrPostCard = () => (
   <article
@@ -600,17 +605,12 @@ export const PrPostCard = () => (
         <RepoButtons href={prPost.github} name="pr-post" className="w-full sm:w-auto" />
       </div>
     </div>
-    {/* A second way to the demo, not a separate stop for keyboard and
-        screen-reader users (the Live demo button says it). */}
-    <a
-      href={prPost.demo}
-      target="_blank"
-      rel="noopener noreferrer"
-      tabIndex={-1}
-      aria-hidden="true"
-      className="relative block overflow-hidden rounded-xl border border-white/12 bg-[#0b1424] shadow-2xl shadow-black/50 ring-1 ring-black/40 transition-transform duration-300 ease-out group-hover:scale-[1.015] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+    {/* The live page in a browser window (the Live demo button opens it). */}
+    <div
+      data-pr-post-window
+      className="relative overflow-hidden rounded-xl border border-white/12 bg-[#0b1424] shadow-2xl shadow-black/50 ring-1 ring-black/40"
     >
-      <span className="flex h-7 items-center gap-1.5 border-b border-white/8 bg-[#0e192c] px-3">
+      <span aria-hidden="true" className="flex h-7 items-center gap-1.5 border-b border-white/8 bg-[#0e192c] px-3">
         <span className="h-2 w-2 rounded-full bg-white/15" />
         <span className="h-2 w-2 rounded-full bg-white/15" />
         <span className="h-2 w-2 rounded-full bg-white/15" />
@@ -618,14 +618,18 @@ export const PrPostCard = () => (
           n8watkins.github.io/pr-post
         </span>
       </span>
-      <Image
-        src="/projects/pr-post-edition.webp"
-        alt=""
-        width={1200}
-        height={750}
-        sizes="(min-width: 1280px) 560px, (min-width: 1024px) 46vw, 90vw"
-        className="block h-auto w-full"
+      <ProjectTour
+        // Its pause button: "Pause the Pull Request Post tour".
+        title="Pull Request Post"
+        className="w-full"
+        frameClassName=""
+        tour={{
+          webm: '/projects/pr-post-tour.webm',
+          mp4: '/projects/pr-post-tour.mp4',
+          poster: '/projects/pr-post-tour-poster.webp',
+          alt: "The Pull Request Post's live front page, scrolling from its masthead and lead story down to the box scores and back",
+        }}
       />
-    </a>
+    </div>
   </article>
 )

@@ -193,11 +193,14 @@ export function ProjectTour({
   title,
   tour,
   className = 'w-full shrink-0 md:w-1/2',
+  frameClassName = 'rounded-2xl border border-white/8',
 }: {
   title: string
   tour: ProjectTourVideo
   /** The tour's own box: half the row by default. */
   className?: string
+  /** The video's frame: rounded and bordered by default; none inside a browser window. */
+  frameClassName?: string
 }) {
   const ref = useRef<HTMLVideoElement>(null)
   const [inView, setInView] = useState(false)
@@ -240,7 +243,7 @@ export function ProjectTour({
 
   return (
     <div data-tour className={className}>
-      <div className="relative aspect-16/10 overflow-hidden rounded-2xl border border-white/8 bg-[#07101d]">
+      <div className={`relative aspect-16/10 overflow-hidden bg-[#07101d] ${frameClassName}`}>
         <video
           ref={ref}
           aria-label={tour.alt}

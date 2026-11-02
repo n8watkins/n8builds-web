@@ -247,8 +247,13 @@ export interface BuiltTool {
   /** The anchor id on /loadout. */
   id: string
   name: string
-  /** Which group it sits in: a dev tool I built, or another thing I built. */
-  group: 'dev' | 'other'
+  /**
+   * Which group it sits in: a dev tool I built, or another thing I built; or
+   * `featured`, for one with its own card elsewhere and no place in the
+   * groups (PR Post: The Pull Request Post's card under People I follow on
+   * the homepage, round 5 of 2026-11-02: it showed twice).
+   */
+  group: 'dev' | 'other' | 'featured'
   /** One line: what it does for you. */
   pitch: string
   /** Two short sentences on how. */
@@ -305,7 +310,7 @@ export const toolsIBuilt: BuiltTool[] = [
   {
     id: 'pr-post',
     name: 'pr-post',
-    group: 'other',
+    group: 'featured',
     pitch: 'Follow what your favorite builders ship.',
     detail:
       'It turns their public GitHub and YouTube work into a small newspaper, The Pull Request Post, plus a feed.json for your own site. GitHub Actions prints a new edition twice a week.',

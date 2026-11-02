@@ -17,24 +17,22 @@ test.describe('Loadout tools and people', () => {
     await expect(built.getByRole('heading', { name: /^pass-env\b/ })).toBeVisible()
     // Scribe's row (h3), then the cards (h4, under their groups' h3 subheadings).
     await expect(built.getByRole('article').getByRole('heading', { level: 3 })).toHaveText(['Scribe'])
-    await expect(built.getByRole('article').getByRole('heading', { level: 4 })).toHaveText([/^pass-env/, /^release-kit/, /^devguard/, /^pr-post/])
+    // No pr-post (round 5 of 2026-11-02): The Pull Request Post's card on the homepage is its one place.
+    await expect(built.getByRole('article').getByRole('heading', { level: 4 })).toHaveText([/^pass-env/, /^release-kit/, /^devguard/])
+    await expect(built.getByRole('heading', { name: 'Other things I built' })).toHaveCount(0)
     await expect(built.getByText('Your AI coding agents use your API keys without ever seeing them.')).toBeVisible()
     await expect(built.locator('[data-credit]')).toHaveText(
       'Created by Phaedrus Raznikov at Misty Step; my fork adds import, generate, doctor and more.',
     )
     await expect(built.getByRole('link', { name: 'Phaedrus Raznikov' })).toHaveAttribute('href', 'https://github.com/moomooskycow')
     await expect(built.getByRole('link', { name: 'Misty Step' })).toHaveAttribute('href', 'https://github.com/misty-step')
-    for (const repo of ['pass-env', 'release-kit', 'devguard', 'pr-post']) {
+    for (const repo of ['pass-env', 'release-kit', 'devguard']) {
       const link = built.getByRole('link', { name: `${repo} on GitHub (opens in a new tab)`, exact: true })
       await expect(link).toHaveAttribute('href', `https://github.com/n8watkins/${repo}`)
       await expect(link).toHaveAttribute('target', '_blank')
     }
-    // pr-post links its live demo too; the others have none.
-    await expect(built.getByRole('link', { name: /^Live demo/ })).toHaveCount(1)
-    await expect(built.getByRole('link', { name: 'Live demo of pr-post (opens in a new tab)' })).toHaveAttribute(
-      'href',
-      'https://n8watkins.github.io/pr-post/',
-    )
+    await expect(built.getByRole('link', { name: /^Live demo/ })).toHaveCount(0)
+    await expect(built).not.toContainText('pr-post')
   })
 
   test('every item in My dev setup carries its own mark, the same size and lined up, and Cursor is gone', async ({ page }) => {
@@ -537,20 +535,39 @@ test.describe('Loadout tools and people', () => {
       'href',
       'https://github.com/n8watkins/pr-post',
     )
-    // The front page beside it links the demo too, out of the tab order.
-    const shot = card.locator('a[aria-hidden="true"][tabindex="-1"]')
-    await expect(shot).toHaveAttribute('href', 'https://n8watkins.github.io/pr-post/')
-    await expect.poll(() => shot.locator('img').evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0)
+    // Beside it, a recording of the live page in a browser window (round 5 of 2026-11-02): a
+    // silent video that shows its poster under reduced motion and loads nothing.
+    const video = card.locator('[data-pr-post-window] video')
+    await expect(video).toHaveAttribute('poster', '/projects/pr-post-tour-poster.webp')
+    await expect(video).toHaveAttribute('aria-label', /The Pull Request Post's live front page/)
+    await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.muted && v.loop && v.playsInline)).toBe(true)
+    await expect(video.locator('source')).toHaveCount(0)
+    await expect(card.locator('[data-pr-post-window] a')).toHaveCount(0)
+  })
+
+  test.describe('with motion', () => {
+    test.use({ contextOptions: { reducedMotion: 'no-preference' } })
+    test("The Pull Request Post's recording plays on screen, muted, and pauses from its button", async ({ page }) => {
+      await page.goto('/')
+      const card = page.getByRole('article', { name: 'The Pull Request Post' })
+      const video = card.locator('video')
+      await video.scrollIntoViewIfNeeded()
+      await expect(video.locator('source')).toHaveCount(2)
+      await expect(video.locator('source').first()).toHaveAttribute('src', '/projects/pr-post-tour.webm')
+      await expect.poll(() => video.evaluate((v: HTMLVideoElement) => !v.paused && v.muted), { timeout: 15_000 }).toBe(true)
+      await card.getByRole('button', { name: 'Pause the Pull Request Post tour' }).click()
+      await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true)
+    })
   })
 
   test('the homepage has Tools I built and use inside its Loadout, every tool with Scribe first', async ({ page }) => {
     await page.goto('/')
     const built = page.getByRole('region', { name: 'Tools I built and use' })
-    // Every tool, pr-post too: The Pull Request Post's card is a section above now.
-    // The same two groups as /loadout, a level down: Scribe's row (h3), the cards (h5) under h4 subheadings.
+    // As /loadout, a level down: Scribe's row (h3), the cards (h5) under the h4 subheading. No pr-post
+    // (round 5 of 2026-11-02): The Pull Request Post's card a section above is its one place.
     await expect(built.getByRole('article').getByRole('heading', { level: 3 })).toHaveText(['Scribe'])
-    await expect(built.getByRole('heading', { level: 4 })).toHaveText(['Dev tools I built', 'Other things I built'])
-    await expect(built.getByRole('article').getByRole('heading', { level: 5 })).toHaveText([/^pass-env/, /^release-kit/, /^devguard/, /^pr-post/])
+    await expect(built.getByRole('heading', { level: 4 })).toHaveText(['Dev tools I built'])
+    await expect(built.getByRole('article').getByRole('heading', { level: 5 })).toHaveText([/^pass-env/, /^release-kit/, /^devguard/])
     await expect(built.locator('[data-credit]')).toContainText('Created by Phaedrus Raznikov at Misty Step')
     // A part of the Loadout (#loadout): after the default stack. The setup teaser leads the band (round 3 of 2026-11-02).
     const loadout = page.locator('#loadout')
