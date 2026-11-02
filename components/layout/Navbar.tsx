@@ -101,7 +101,10 @@ const Navbar = () => {
     if (!el) return
     e.preventDefault()
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' })
+    // A frame later, once the mobile menu has closed: while it is open the body
+    // has overflow: hidden, and WebKit then counts scroll-padding-top twice,
+    // landing the section 80px low (the contact form below the fold on an iPhone).
+    requestAnimationFrame(() => el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }))
     window.history.replaceState(null, '', href)
   }
 
