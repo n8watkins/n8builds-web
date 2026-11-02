@@ -15,7 +15,7 @@ export function LandingButton({
   compact = false,
 }: {
   project: UpcomingProject
-  /** The homepage's cards: "See the landing page" while they share the screen with the waitlist. */
+  /** The homepage's cards: "Live site", half a row beside "View the code" (round 3 of 2026-11-02). */
   compact?: boolean
 }) {
   return (
@@ -24,37 +24,38 @@ export function LandingButton({
       target="_blank"
       rel="noopener noreferrer"
       style={{ '--accent': project.accent } as CSSProperties}
-      className="inline-flex h-11 w-full items-center justify-center gap-1.5 rounded-lg bg-(--accent) px-3 text-sm font-bold whitespace-nowrap text-slate-950 transition-[filter] duration-150 hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--accent)"
+      className={`inline-flex ${compact ? 'h-10' : 'h-11'} w-full items-center justify-center gap-1.5 rounded-lg bg-(--accent) px-3 text-sm font-bold whitespace-nowrap text-slate-950 transition-[filter] duration-150 hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--accent)`}
     >
-      {compact ? (
-        // Beside the waitlist (1024px up, as in UpcomingStrip) the cards leave too little width for the full label to breathe.
-        <>
-          <span className="lg:hidden">Check out the landing page</span>
-          <span className="hidden lg:inline">See the landing page</span>
-        </>
-      ) : (
-        'Check out the landing page'
-      )}
+      {compact ? 'Live site' : 'Check out the landing page'}
       <span className="sr-only"> for {project.name} (opens in a new tab)</span>
       <FiArrowUpRight aria-hidden="true" className="h-4 w-4 shrink-0" />
     </a>
   )
 }
 
-/** "View the code" on GitHub, for a project whose repository is public; nothing otherwise. */
-export function CodeLink({ project }: { project: UpcomingProject }) {
+/**
+ * "View the code" on GitHub, for a project whose repository is public; nothing
+ * otherwise. A plain link on /upcoming; on the homepage's cards (`button`) a
+ * quiet bordered button as tall as "Live site" beside it.
+ */
+export function CodeLink({ project, button = false }: { project: UpcomingProject; button?: boolean }) {
   if (!project.repo) return null
   return (
     <a
       href={`https://github.com/${project.repo}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-300 transition-colors hover:text-cyan-200"
+      className={
+        button
+          ? 'inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-lg border border-white/12 bg-white/4 px-2.5 text-sm font-semibold whitespace-nowrap text-slate-200 transition-colors hover:border-white/20 hover:bg-white/8 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300'
+          : 'inline-flex items-center gap-1.5 text-sm font-medium text-slate-300 transition-colors hover:text-cyan-200'
+      }
     >
-      <FiGithub aria-hidden="true" className="h-4 w-4" />
+      <FiGithub aria-hidden="true" className="h-4 w-4 shrink-0" />
       View the code
       <span className="sr-only"> of {project.name} on GitHub (opens in a new tab)</span>
-      <FiArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
+      {/* The button has GitHub's mark to say where it goes; the plain link keeps its arrow. */}
+      {!button && <FiArrowUpRight aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />}
     </a>
   )
 }

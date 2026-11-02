@@ -181,8 +181,13 @@ const LANDING = {
 }
 const NAMES: Record<string, string> = { relink: 'Relink', strollz: 'Strollz', vibelog: 'VibeLog', keysready: 'KeysReady' }
 
-/** Only public repositories get a "View the code" link (Relink, Strollz and KeysReady are private). */
-const CODE: Record<string, string | undefined> = { vibelog: 'https://github.com/n8watkins/vibelog' }
+/** Only public repositories get a "View the code" link: all four are public since 2026-11-02 (Relink's repo is still deadlink). */
+const CODE: Record<string, string | undefined> = {
+  relink: 'https://github.com/n8watkins/deadlink',
+  strollz: 'https://github.com/n8watkins/strollz',
+  vibelog: 'https://github.com/n8watkins/vibelog',
+  keysready: 'https://github.com/n8watkins/keysready',
+}
 
 test('each card leads with its landing page, then Join, then its code where public (hrefs only: the sites may not be live yet)', async ({ page }) => {
   await page.goto('/upcoming')
@@ -224,9 +229,14 @@ test("the homepage Lab ends with a short What's cookin' part: each project's sum
     await expect(card.getByRole('heading', { level: 4 })).toHaveText(name)
     // A plain summary under the tagline: what it does, for whom.
     await expect(card.locator('p').nth(1)).toHaveText(/^\S.{40,}\.$/)
-    // The landing page is the one button; the visitor picks projects in the form, so no per-card Join.
-    const landing = card.getByRole('link', { name: new RegExp(`landing page for ${name} \\(opens in a new tab\\)$`) })
+    // The landing page ("Live site") and the code side by side in one row; the
+    // visitor picks projects in the form, so no per-card Join.
+    const landing = card.getByRole('link', { name: `Live site for ${name} (opens in a new tab)` })
     await expect(landing).toHaveAttribute('href', href)
+    const [landingBox, codeBox] = [(await landing.boundingBox())!, (await card.getByRole('link', { name: /^View the code/ }).boundingBox())!]
+    expect(Math.abs(landingBox.y - codeBox.y)).toBeLessThan(1)
+    expect(Math.abs(landingBox.height - codeBox.height)).toBeLessThan(1)
+    expect(codeBox.x).toBeGreaterThan(landingBox.x + landingBox.width)
     await expect(card.getByRole('link', { name: /Join the waitlist/ })).toHaveCount(0)
     const code = card.getByRole('link', { name: /^View the code/ })
     if (CODE[slug]) await expect(code).toHaveAttribute('href', CODE[slug]!)
@@ -272,13 +282,14 @@ for (const [width, height, columns, beside] of [
     // A balanced grid: every row full, so no card is left alone, and the cards in a row the same height.
     expect([...rows.values()].map((row) => row.length)).toEqual(Array(4 / columns).fill(columns))
     for (const heights of rows.values()) expect(Math.max(...heights) - Math.min(...heights)).toBeLessThan(1)
-    // Each button's label stays on one line inside it, the buttons level across a row.
+    // Each button's label stays on one line inside it (its icons too), the buttons level across a row.
     const buttons = await items
-      .getByRole('link', { name: /landing page/ })
+      .getByRole('link', { name: /^(Live site|View the code)/ })
       .evaluateAll((links) =>
         links.map((a) => ({ height: a.getBoundingClientRect().height, fits: a.scrollWidth <= a.clientWidth, top: Math.round(a.getBoundingClientRect().top) }))
       )
-    expect(buttons).toHaveLength(4)
+    expect(buttons).toHaveLength(8)
+    expect(await items.locator('a svg').evaluateAll((icons) => icons.every((svg) => svg.getBoundingClientRect().width >= 12))).toBe(true)
     for (const { height, fits } of buttons) {
       expect(height).toBeLessThanOrEqual(44)
       expect(fits).toBe(true)
@@ -298,8 +309,9 @@ for (const [width, height, columns, beside] of [
       // Cards and waitlist read as one screen on a laptop (1440x900, 1280x800): together they fit under the navbar.
       const navbar = (await page.getByRole('navigation', { name: 'Primary' }).first().boundingBox())!.height
       if (width >= 1280) expect(grid.bottom - grid.top).toBeLessThanOrEqual(height - navbar)
-      // At 1440x900 the whole part, heading included, fits too.
-      if (width === 1440) expect((await band.boundingBox())!.height).toBeLessThanOrEqual(height - navbar)
+      // The whole part, from its eyebrow to the cards' bottom, fits too (1440x900 and, since round 3, 1280x800).
+      const eyebrow = (await band.getByText('Upcoming', { exact: true }).boundingBox())!
+      if (width >= 1280) expect(grid.bottom - eyebrow.y).toBeLessThanOrEqual(height - navbar - 16)
     } else {
       expect(panel.y).toBeGreaterThan(grid.bottom)
     }

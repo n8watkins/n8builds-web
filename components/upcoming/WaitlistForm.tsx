@@ -193,14 +193,17 @@ export default function WaitlistForm({
         aria-invalid={errors.projects ? true : undefined}
       >
         <legend className="text-sm font-medium text-slate-200">Which projects?</legend>
-        <div className={`mt-2 grid gap-2.5 sm:grid-cols-2 ${side ? 'lg:grid-cols-1 lg:gap-2' : ''}`}>
+        {/* Beside the homepage cards (side, 1024px up) a pick is its icon and name
+            only: the card beside it has the tagline. One column, then two by two
+            from 1280px, so the cards and the panel fit a 1280x800 screen. */}
+        <div className={`mt-2 grid gap-2.5 sm:grid-cols-2 ${side ? 'lg:grid-cols-1 lg:gap-2 xl:grid-cols-2' : ''}`}>
           {UPCOMING.map((p) => {
             const checked = projects.includes(p.slug)
             return (
               <label
                 key={p.slug}
                 style={{ '--accent': p.accent } as CSSProperties}
-                className={`group relative flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 ${side ? 'lg:py-2' : ''} transition-colors duration-150 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-(--accent) ${
+                className={`group relative flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 ${side ? 'lg:gap-2.5 lg:px-3 lg:py-2' : ''} transition-colors duration-150 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-(--accent) ${
                   checked ? 'border-(--accent)/60 bg-(--accent)/10' : 'border-slate-600 bg-slate-800/60 hover:border-slate-500'
                 }`}
               >
@@ -213,10 +216,16 @@ export default function WaitlistForm({
                   disabled={busy}
                   className="peer sr-only"
                 />
-                <Image src={p.icon} alt="" width={32} height={32} className="h-8 w-8 shrink-0 rounded-lg ring-1 ring-white/10" />
+                <Image
+                  src={p.icon}
+                  alt=""
+                  width={32}
+                  height={32}
+                  className={`h-8 w-8 shrink-0 rounded-lg ring-1 ring-white/10 ${side ? 'lg:h-7 lg:w-7' : ''}`}
+                />
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-semibold text-slate-100">{p.name}</span>
-                  <span className="block text-xs text-pretty text-slate-400">{p.tagline}</span>
+                  <span className={`block text-xs text-pretty text-slate-400 ${side ? 'lg:hidden' : ''}`}>{p.tagline}</span>
                 </span>
                 <span
                   aria-hidden="true"

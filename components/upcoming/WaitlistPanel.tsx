@@ -7,7 +7,8 @@ import { isWaitlistOpen } from '@/lib/waitlist/store'
  * (owner, 2026-11-02), so both pick projects the same way. Server-rendered;
  * the caller wraps it in the section the cards' Join buttons scroll to.
  * `layout="side"` is the homepage's: beside the cards from 1024px up, so it
- * tightens there (one column of picks, less padding) to keep both on one screen.
+ * tightens there (picks without taglines, less padding) to keep both on one screen,
+ * and centres its content when the cards beside it are the taller.
  */
 export default function WaitlistPanel({
   heading: Heading = 'h2',
@@ -23,7 +24,7 @@ export default function WaitlistPanel({
 
   return (
     <div
-      className={`h-full rounded-2xl border border-white/8 bg-linear-to-br from-cyan-500/[0.06] to-blue-600/[0.03] p-5 sm:p-8 ${side ? 'lg:p-5 xl:p-6' : ''}`}
+      className={`h-full rounded-2xl border border-white/8 bg-linear-to-br from-cyan-500/[0.06] to-blue-600/[0.03] p-5 sm:p-8 ${side ? 'lg:flex lg:flex-col lg:justify-center lg:p-5 xl:p-6' : ''}`}
     >
       {/* h4 on the homepage, under the Lab's h3 "What's cookin'". */}
       <Heading className={`text-2xl font-bold tracking-tight text-slate-50 sm:text-3xl ${side ? 'lg:text-[1.75rem]' : ''}`}>

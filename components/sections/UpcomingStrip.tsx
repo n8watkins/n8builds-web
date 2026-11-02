@@ -46,7 +46,7 @@ export default function UpcomingStrip() {
               <li
                 key={p.slug}
                 style={{ '--accent': p.accent } as CSSProperties}
-                className="relative flex flex-col overflow-hidden rounded-2xl border border-white/8 bg-[#0a1222]/70 p-5"
+                className="relative flex flex-col overflow-hidden rounded-2xl border border-white/8 bg-[#0a1222]/70 p-4 sm:px-5"
               >
                 <span aria-hidden className="absolute inset-x-0 top-0 h-[3px] bg-(--accent)" />
                 <div className="flex items-center gap-3.5">
@@ -56,11 +56,12 @@ export default function UpcomingStrip() {
                     <p className="mt-0.5 text-sm leading-snug text-balance text-(--accent)">{p.tagline}</p>
                   </div>
                 </div>
-                <p className="mt-3 text-sm leading-relaxed text-pretty text-slate-300">{p.summary}</p>
-                {/* mt-auto keeps the buttons level when one card's text runs longer. */}
-                <div className="mt-auto flex flex-col gap-3 pt-4">
-                  {p.repo && <CodeLink project={p} />}
+                <p className="mt-2.5 text-sm leading-relaxed text-pretty text-slate-300">{p.summary}</p>
+                {/* The landing page and the code side by side, in one row (round 3 of
+                    2026-11-02); mt-auto keeps the rows level when one card's text runs longer. */}
+                <div className={`mt-auto grid gap-2.5 pt-3.5 ${p.repo ? 'grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]' : ''}`}>
                   <LandingButton project={p} compact />
+                  {p.repo && <CodeLink project={p} button />}
                 </div>
               </li>
             ))}

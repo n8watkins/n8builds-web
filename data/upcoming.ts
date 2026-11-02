@@ -54,6 +54,7 @@ export const UPCOMING: UpcomingProject[] = [
       'When a visitor follows a broken link to your website, it sends them to the page they meant instead of an error page.',
     icon: '/upcoming/relink.svg',
     landing: 'https://relink.n8builds.dev',
+    repo: 'n8watkins/deadlink',
     accent: '#ff8a4c',
     what: "A Cloudflare edge Worker catches broken links the moment a visitor hits them, matches each one to the right page using your site's own content, and turns the fix into a permanent redirect with one click.",
     forWho:
@@ -75,6 +76,7 @@ export const UPCOMING: UpcomingProject[] = [
       'Tell it how long you have, and it plans a walking loop from your door through streets you have not walked yet.',
     icon: '/upcoming/strollz.svg',
     landing: 'https://strollz.n8builds.dev',
+    repo: 'n8watkins/strollz',
     accent: '#5cc49b',
     what: 'Tell it how long you have, and it plans a walking loop from your door through streets you have never walked, with a few short notes about what you pass, each linked to its source.',
     forWho:
@@ -117,6 +119,7 @@ export const UPCOMING: UpcomingProject[] = [
       'For small auto repair shops: customers book online, follow their repair live, and approve and pay from their phone.',
     icon: '/upcoming/keysready.svg',
     landing: 'https://keysready.n8builds.dev',
+    repo: 'n8watkins/keysready',
     // Signal red: #c81e1e on light backgrounds, #ff5a4e on dark ones (this site); its icon adds a ready-green, #43d095.
     accent: '#ff5a4e',
     what: 'Your customers get online booking, live repair status and estimates they approve and pay from their phone. They always know where their car is, so you can stay under the hood instead of on the phone.',
