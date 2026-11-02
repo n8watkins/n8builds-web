@@ -348,14 +348,15 @@ const Navbar = () => {
                       <stop offset="1" stopColor="#3b82f6" />
                     </linearGradient>
                   </defs>
-                  {/* One shallow, symmetric arc (round 5 of 2026-11-02: "I want
-                      it symmetrical"): it starts and ends the same 4 units in
-                      from the label's edges, at the same height, and dips
-                      gently to its lowest point under the label's centre. The
-                      viewBox is the text's own size (about 116 by 6 px), so the
-                      stretch is near 1:1 and the stroke stays even. */}
+                  {/* One shallow, symmetric arch (round 5 of 2026-11-02: "I want
+                      it symmetrical", then flipped: its highest point in the
+                      middle): it starts and ends the same 4 units in from the
+                      label's edges, at the same height, and rises only about a
+                      pixel to its peak under the label's centre. The viewBox is
+                      the text's own size (about 116 by 6 px), so the stretch is
+                      near 1:1 and the stroke stays even. */}
                   <path
-                    d="M4 1.6 Q 58 6.4, 112 1.6"
+                    d="M4 4.2 Q 58 1.8, 112 4.2"
                     fill="none"
                     stroke="url(#tfp-underline-gradient)"
                     strokeWidth="1.75"

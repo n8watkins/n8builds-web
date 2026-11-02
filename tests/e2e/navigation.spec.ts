@@ -124,7 +124,7 @@ test('the navbar links techforpros.com in a pill like Ko-fi and Portfolio, throu
   expect(curve.width).toBeGreaterThan(text.width * 0.95)
 })
 
-test('the techforpros.com underline is one smooth arc that never animates', async ({ page, isMobile }) => {
+test('the techforpros.com underline is one shallow, symmetric arch that never animates', async ({ page, isMobile }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
   const path = underline(page)
@@ -132,6 +132,18 @@ test('the techforpros.com underline is one smooth arc that never animates', asyn
   await expect(path).toHaveCSS('stroke-dasharray', 'none')
   // One cubic segment: no S or second C joining wobbles together.
   expect((await path.getAttribute('d'))!.match(/[CSQ]/gi)).toHaveLength(1)
+  // Round 5 of 2026-11-02: symmetric, centred under the label, and a gentle arch: the
+  // middle is its highest point, the ends lower and level, by only a little.
+  const shape = await path.evaluate((el: SVGPathElement) => {
+    const length = el.getTotalLength()
+    const [start, middle, end] = [0, 0.5, 1].map((f) => el.getPointAtLength(length * f))
+    return { start: [start.x, start.y], middle: [middle.x, middle.y], end: [end.x, end.y], width: (el.ownerSVGElement!.viewBox.baseVal.width) }
+  })
+  expect(Math.abs(shape.start[0] - (shape.width - shape.end[0]))).toBeLessThan(0.01)
+  expect(Math.abs(shape.middle[0] - shape.width / 2)).toBeLessThan(0.5)
+  expect(Math.abs(shape.start[1] - shape.end[1])).toBeLessThan(0.01)
+  expect(shape.middle[1]).toBeLessThan(shape.start[1])
+  expect(shape.start[1] - shape.middle[1]).toBeLessThan(2)
   await techForPros(page).hover()
   await expect(techForPros(page).locator('svg.tfp-underline')).toHaveCSS('animation-name', 'none')
   // It brightens on hover (a touch screen has none).
