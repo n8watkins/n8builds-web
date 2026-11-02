@@ -5,7 +5,6 @@ import {
   LuChartColumn,
   LuCircuitBoard,
   LuCpu,
-  LuFileCode,
   LuGlobe,
   LuKeyRound,
   LuKeyboard,
@@ -360,14 +359,6 @@ export const toolsIUse: UsedTool[] = [
     by: 'kun-chen',
     icon: <SiGithub />,
   },
-  {
-    id: 'lavish',
-    name: 'Lavish',
-    whatFor: 'Opens an agent\'s HTML report in my browser, so I can mark up any part of it and send the notes back.',
-    href: 'https://github.com/kunchenguid/lavish-axi',
-    by: 'kun-chen',
-    icon: <LuFileCode />,
-  },
 ]
 
 export const loadout: LoadoutGroup[] = [
@@ -586,7 +577,6 @@ export const devSetup: DevSetupGroup[] = [
       { name: 'no-mistakes', href: '#no-mistakes' },
       { name: 'gh-axi', href: '#gh-axi' },
       { name: 'chrome-devtools-axi', href: '#chrome-devtools-axi' },
-      { name: 'Lavish', href: '#lavish' },
     ],
   },
   {
