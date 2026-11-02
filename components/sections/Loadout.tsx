@@ -9,7 +9,6 @@ import FadeIn from '@/components/ui/FadeIn'
 import {
   BuiltToolsGrid,
   DevSetup,
-  HonorableMentions,
   SectionHead,
   TOOLS_I_BUILT_BLURB,
   TOOLS_I_BUILT_TITLE,
@@ -27,8 +26,8 @@ import { DailyDriverRows } from '@/components/sections/FeaturedProjects'
  * tech stack. It leads with how I work with AI (decide, build, fix: the tool
  * and model for each step), after my dev setup, then the tools I built and
  * use (Scribe, out of the homepage Lab, then the small CLIs, 2026-11-01;
- * before the ones I use), the tools I use, honorable
- * mentions, the AI inside the apps I build, and the gear in one section
+ * before the ones I use), the tools I use (honorable mentions included,
+ * 2026-11-02), the AI inside the apps I build, and the gear in one section
  * (rig, desk, stream kit). The people I follow moved to the homepage
  * (2026-11-01). A server component: its
  * interactive parts (the scroll reveals) are client islands.
@@ -249,10 +248,10 @@ const Loadout = () => {
       <div className={`${column} pb-10 md:pb-16`}>
         {/* The tools I use and recommend (their makers link to People I follow, on the homepage) */}
         <div id="tools-i-use" className="mt-20">
+          {/* "Honorable mentions" (#honorable-mentions) joined Tools I use
+               (2026-11-02): links to it still land here. */}
+          <span id="honorable-mentions" aria-hidden="true" className="block" />
           <ToolsIUse />
-        </div>
-        <div id="honorable-mentions" className="mt-20">
-          <HonorableMentions />
         </div>
 
         {/* The AI inside the apps I build */}

@@ -4,7 +4,6 @@ import type { IconType } from 'react-icons'
 import { BsOpenai } from 'react-icons/bs'
 import { FaWindows } from 'react-icons/fa6'
 import {
-  LuAward,
   LuBot,
   LuChartColumn,
   LuCircuitBoard,
@@ -72,7 +71,6 @@ export const loadoutParts: readonly RailPart[] = [
   { id: 'workflow', label: 'How I work', icon: LuWorkflow },
   { id: 'tools-i-built', label: 'Tools I built and use', short: 'My tools', icon: LuHammer },
   { id: 'tools-i-use', label: 'Tools I use', icon: LuWrench },
-  { id: 'honorable-mentions', label: 'Honorable mentions', short: 'Mentions', icon: LuAward },
   { id: 'in-apps', label: 'Inside my apps', icon: LuBot },
   { id: 'gear', label: 'The gear', icon: LuHeadphones },
 ]
@@ -369,16 +367,21 @@ export const people: Person[] = [
 ]
 
 /**
- * The agent tools I use on top of Claude Code and Codex. Only tools in real
- * use: each one is installed and wired into my agents as a skill. `by` names
- * its maker from `people` when they are listed there.
+ * Other people's tools I use on top of Claude Code and Codex (the honorable
+ * mentions joined them, 2026-11-02). Only tools in real use: herdr is where
+ * my agents run, and most of the rest are wired into them as skills. `by`
+ * names its maker from `people` when they are listed there. Every one has a
+ * public repo, shown as its card's Star | GitHub button.
  */
 export interface UsedTool {
   /** The anchor id on /loadout (My dev setup links to it). */
   id: string
   name: string
   whatFor: string
-  href: string
+  /** The public repo (checked with `gh repo view`); it feeds the Star | GitHub button. */
+  github: string
+  /** Its own site, when it has one: the name links there, and a second button does too. */
+  site?: string
   /** A `people` id: the maker, linked to their card. */
   by?: string
   /** A maker who isn't in `people`, linked to their own profile. */
@@ -388,10 +391,23 @@ export interface UsedTool {
 
 export const toolsIUse: UsedTool[] = [
   {
+    id: 'herdr',
+    name: 'herdr',
+    whatFor:
+      'The runtime my coding agents live on: persistent terminal sessions, every pane marked working, blocked or idle, and an API agents can drive.',
+    github: 'https://github.com/herdrdev/herdr',
+    site: 'https://herdr.dev',
+    maker: { name: 'Can Celik', href: 'https://github.com/ogulcancelik' },
+    // herdr's own app icon (the ram on its light tile), as herdr.dev's navbar
+    // shows it (herdr.dev/live/icons/herdr.png, trimmed to the tile), kept in
+    // public/brands/. A tile already, so it fills the chip, padding and all.
+    icon: <Image src="/brands/herdr.png" alt="" width={130} height={130} sizes="42px" className="-m-2.5 size-[42px] max-w-none rounded-[11px]" />,
+  },
+  {
     id: 'no-mistakes',
     name: 'no-mistakes',
     whatFor: 'A git remote that checks my work first: an AI pipeline reviews, tests and fixes a branch before it is pushed, then opens the pull request.',
-    href: 'https://github.com/kunchenguid/no-mistakes',
+    github: 'https://github.com/kunchenguid/no-mistakes',
     by: 'kun-chen',
     icon: <LuShieldCheck />,
   },
@@ -399,7 +415,7 @@ export const toolsIUse: UsedTool[] = [
     id: 'chrome-devtools-axi',
     name: 'chrome-devtools-axi',
     whatFor: 'A browser my agents can drive: they open pages, click through flows and take screenshots to check their own UI work.',
-    href: 'https://github.com/kunchenguid/chrome-devtools-axi',
+    github: 'https://github.com/kunchenguid/chrome-devtools-axi',
     by: 'kun-chen',
     icon: <LuGlobe />,
   },
@@ -407,7 +423,7 @@ export const toolsIUse: UsedTool[] = [
     id: 'gh-axi',
     name: 'gh-axi',
     whatFor: 'The GitHub CLI, reshaped for agents: issues, pull requests and CI runs in short output they can act on.',
-    href: 'https://github.com/kunchenguid/gh-axi',
+    github: 'https://github.com/kunchenguid/gh-axi',
     by: 'kun-chen',
     icon: <SiGithub />,
   },
@@ -415,9 +431,34 @@ export const toolsIUse: UsedTool[] = [
     id: 'lavish',
     name: 'Lavish',
     whatFor: 'Opens an agent\'s HTML report in my browser, so I can mark up any part of it and send the notes back.',
-    href: 'https://github.com/kunchenguid/lavish-axi',
+    github: 'https://github.com/kunchenguid/lavish-axi',
     by: 'kun-chen',
     icon: <LuFileCode />,
+  },
+  {
+    id: 'firstmate',
+    name: 'firstmate',
+    whatFor: 'Talk to one agent, ship with a crew: it runs several project tasks in parallel, so you stop juggling terminal tabs.',
+    github: 'https://github.com/kunchenguid/firstmate',
+    by: 'kun-chen',
+    icon: <LuShip />,
+  },
+  {
+    id: 'treehouse',
+    name: 'treehouse',
+    whatFor:
+      'Manage worktrees without managing worktrees: a pool of reusable ones, so each agent starts in its own copy with dependencies and build cache intact.',
+    github: 'https://github.com/kunchenguid/treehouse',
+    by: 'kun-chen',
+    icon: <LuTrees />,
+  },
+  {
+    id: 'ccusage',
+    name: 'ccusage',
+    whatFor: 'Token and cost reports for Claude Code and other coding agent CLIs, read from their local logs.',
+    github: 'https://github.com/ccusage/ccusage',
+    maker: { name: 'ryoppippi', href: 'https://github.com/ryoppippi' },
+    icon: <LuChartColumn />,
   },
 ]
 
@@ -517,49 +558,6 @@ export const loadout: LoadoutGroup[] = [
   },
 ]
 
-/**
- * Tools I recommend that aren't mine and aren't in "Tools I use" above:
- * one entry each. herdr is in daily use (My dev setup links to it).
- */
-export const honorableMentions: UsedTool[] = [
-  {
-    id: 'herdr',
-    name: 'herdr',
-    whatFor:
-      'The runtime my coding agents live on: persistent terminal sessions, every pane marked working, blocked or idle, and an API agents can drive.',
-    href: 'https://herdr.dev',
-    maker: { name: 'Can Celik', href: 'https://github.com/ogulcancelik' },
-    // herdr's own app icon (the ram on its light tile), as herdr.dev's navbar
-    // shows it (herdr.dev/live/icons/herdr.png, trimmed to the tile), kept in
-    // public/brands/. A tile already, so it fills the chip, padding and all.
-    icon: <Image src="/brands/herdr.png" alt="" width={130} height={130} sizes="42px" className="-m-2.5 size-[42px] max-w-none rounded-[11px]" />,
-  },
-  {
-    id: 'firstmate',
-    name: 'firstmate',
-    whatFor: 'Talk to one agent, ship with a crew: it runs several project tasks in parallel, so you stop juggling terminal tabs.',
-    href: 'https://github.com/kunchenguid/firstmate',
-    by: 'kun-chen',
-    icon: <LuShip />,
-  },
-  {
-    id: 'treehouse',
-    name: 'treehouse',
-    whatFor:
-      'Manage worktrees without managing worktrees: a pool of reusable ones, so each agent starts in its own copy with dependencies and build cache intact.',
-    href: 'https://github.com/kunchenguid/treehouse',
-    by: 'kun-chen',
-    icon: <LuTrees />,
-  },
-  {
-    id: 'ccusage',
-    name: 'ccusage',
-    whatFor: 'Token and cost reports for Claude Code and other coding agent CLIs, read from their local logs.',
-    href: 'https://github.com/ccusage/ccusage',
-    maker: { name: 'ryoppippi', href: 'https://github.com/ryoppippi' },
-    icon: <LuChartColumn />,
-  },
-]
 
 /** One thing in My dev setup: a link when it has a page here or a card on /loadout. */
 export interface SetupEntry {

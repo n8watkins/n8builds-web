@@ -73,17 +73,35 @@ test.describe('Loadout tools and people', () => {
     await expect(setup.getByText('Cursor', { exact: true })).toHaveCount(0)
   })
 
-  test('lists the tools I use, each credited inline to its maker', async ({ page }) => {
+  test('lists the tools I use, each credited inline to its maker, each with its GitHub repo', async ({ page }) => {
     await page.goto('/loadout')
     const used = page.getByRole('region', { name: 'Tools I use' })
-    for (const tool of ['no-mistakes', 'chrome-devtools-axi', 'gh-axi', 'Lavish']) {
-      await expect(used.getByRole('heading', { name: new RegExp(`^${tool}`) })).toBeVisible()
+    // The honorable mentions joined Tools I use (2026-11-02), herdr first.
+    const repos: Record<string, string> = {
+      herdr: 'herdrdev/herdr',
+      'no-mistakes': 'kunchenguid/no-mistakes',
+      'chrome-devtools-axi': 'kunchenguid/chrome-devtools-axi',
+      'gh-axi': 'kunchenguid/gh-axi',
+      Lavish: 'kunchenguid/lavish-axi',
+      firstmate: 'kunchenguid/firstmate',
+      treehouse: 'kunchenguid/treehouse',
+      ccusage: 'ccusage/ccusage',
     }
-    await expect(used.locator('h3').first()).toContainText(', by Kun Chen')
-    await expect(used.getByRole('link', { name: 'no-mistakes on GitHub (opens in a new tab)' })).toHaveAttribute(
-      'href',
-      'https://github.com/kunchenguid/no-mistakes',
+    await expect(used.locator('h3 > a:first-child')).toHaveText(Object.keys(repos).map((name) => `${name} (opens in a new tab)`))
+    await expect(used.locator('#no-mistakes h3')).toContainText(', by Kun Chen')
+    // Every card shows its repo as a visible GitHub button, opening in a new tab.
+    for (const [name, repo] of Object.entries(repos)) {
+      const link = used.getByRole('link', { name: `${name} on GitHub (opens in a new tab)`, exact: true })
+      await expect(link).toBeVisible()
+      await expect(link).toHaveText('GitHub')
+      await expect(link).toHaveAttribute('href', `https://github.com/${repo}`)
+      await expect(link).toHaveAttribute('target', '_blank')
+    }
+    // The buttons sit at each card's foot, level across a row.
+    const feet = await used.locator(':scope > ul > li').evaluateAll((cards) =>
+      cards.map((card) => Math.round(card.querySelector('[role="group"]')!.getBoundingClientRect().bottom - card.getBoundingClientRect().bottom)),
     )
+    expect(new Set(feet).size, 'every button the same distance from its card foot').toBe(1)
     // "by Kun Chen" goes to his card in People I follow, on the homepage.
     await used.getByRole('link', { name: 'Kun Chen' }).first().click()
     await expect(page).toHaveURL(/\/#kun-chen$/)
@@ -188,26 +206,33 @@ test.describe('Loadout tools and people', () => {
     }
   })
 
-  test('Honorable mentions credits each maker, and leaves gnhf out', async ({ page }) => {
+  test('the old honorable mentions credit their makers in Tools I use, and gnhf stays out', async ({ page }) => {
     await page.goto('/loadout')
-    const mentions = page.getByRole('region', { name: 'Honorable mentions' })
-    await expect(mentions.locator('h3')).toHaveCount(4)
-    await expect(mentions.locator('#herdr h3')).toContainText(', by Can Celik')
-    await expect(mentions.getByRole('link', { name: 'herdr (opens in a new tab)', exact: true })).toHaveAttribute('href', 'https://herdr.dev')
-    await expect(mentions.getByRole('link', { name: 'Can Celik' })).toHaveAttribute('href', 'https://github.com/ogulcancelik')
+    await expect(page.getByRole('heading', { name: 'Honorable mentions' })).toHaveCount(0)
+    const used = page.getByRole('region', { name: 'Tools I use' })
+    await expect(used.locator('#herdr h3')).toContainText(', by Can Celik')
+    // herdr's name goes to its site, which also has its own button; its repo is the GitHub one.
+    await expect(used.getByRole('link', { name: 'herdr (opens in a new tab)', exact: true })).toHaveAttribute('href', 'https://herdr.dev')
+    await expect(used.getByRole('link', { name: "herdr.dev (herdr's site, opens in a new tab)", exact: true })).toHaveAttribute('href', 'https://herdr.dev')
+    await expect(used.getByRole('link', { name: 'Can Celik' })).toHaveAttribute('href', 'https://github.com/ogulcancelik')
     // herdr shows its own app icon (2026-11-01), self-hosted, not a generic glyph.
-    const icon = mentions.locator('#herdr img[src*="herdr.png"]')
+    const icon = used.locator('#herdr img[src*="herdr.png"]')
     await expect(icon).toBeVisible()
     // It's lazy: Firefox and WebKit only fetch it once it's near the screen, as a visitor scrolling would.
     await icon.scrollIntoViewIfNeeded()
     await expect.poll(() => icon.evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0)
-    await expect(mentions.locator('#herdr svg')).toHaveCount(0)
+    await expect(used.locator('#herdr > span svg')).toHaveCount(0)
     for (const id of ['firstmate', 'treehouse']) {
-      await expect(mentions.locator(`#${id} h3`)).toContainText(', by Kun Chen')
-      await expect(mentions.locator(`#${id}`).getByRole('link', { name: 'Kun Chen' })).toHaveAttribute('href', '/#kun-chen')
+      await expect(used.locator(`#${id} h3`)).toContainText(', by Kun Chen')
+      await expect(used.locator(`#${id}`).getByRole('link', { name: 'Kun Chen' })).toHaveAttribute('href', '/#kun-chen')
     }
-    await expect(mentions.locator('#ccusage h3')).toContainText(', by ryoppippi')
-    await expect(mentions.getByText('gnhf')).toHaveCount(0)
+    await expect(used.locator('#ccusage h3')).toContainText(', by ryoppippi')
+    await expect(used.getByText('gnhf')).toHaveCount(0)
+  })
+
+  test('old #honorable-mentions links land on Tools I use', async ({ page }) => {
+    await page.goto('/loadout#honorable-mentions')
+    await expect(page.getByRole('heading', { name: 'Tools I use', level: 2 })).toBeInViewport()
   })
 
   test('Kun Chen\'s card links his how-he-works video for his setup', async ({ page }) => {
@@ -238,7 +263,7 @@ test.describe('Loadout tools and people', () => {
   test('the header pills jump to every part of the page', async ({ page }) => {
     await page.goto('/loadout')
     const pills = page.getByRole('navigation', { name: 'Loadout sections' }).getByRole('link')
-    await expect(pills).toHaveText(['Dev setup', 'How I work', 'Tools I built and use', 'Tools I use', 'Honorable mentions', 'Inside my apps', 'The gear'])
+    await expect(pills).toHaveText(['Dev setup', 'How I work', 'Tools I built and use', 'Tools I use', 'Inside my apps', 'The gear'])
     for (const href of await pills.evaluateAll((els) => els.map((el) => el.getAttribute('href')))) {
       await expect(page.locator(href!)).toHaveCount(1)
     }

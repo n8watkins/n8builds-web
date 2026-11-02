@@ -6,7 +6,6 @@ import { LuExternalLink, LuGlobe, LuUsers } from 'react-icons/lu'
 import { SiGithub, SiSubstack, SiX, SiYoutube } from 'react-icons/si'
 import {
   devSetup,
-  honorableMentions,
   people,
   toolsIBuilt,
   toolsIUse,
@@ -24,8 +23,8 @@ import SetupTilesMotion from '@/components/sections/SetupTilesMotion'
 
 /**
  * The dev-tool parts of /loadout (2026-11-01): my dev setup, the tool
- * cards of "Tools I built and use", the tools I use (each credited to its
- * maker) and honorable mentions; and the parts the homepage shows
+ * cards of "Tools I built and use" and the tools I use (each credited to its
+ * maker); and the parts the homepage shows
  * (components/sections/HomePeople.tsx, HomeToolsIBuilt.tsx): the people I
  * follow, The Pull Request Post and the tool cards. Each reads its list from
  * data/loadout.tsx, so adding a tool or a person is one entry there.
@@ -163,31 +162,33 @@ export const TOOLS_I_BUILT_BLURB = 'Tools I made for myself and use every day. A
 const makerLink = 'font-medium text-slate-300 underline decoration-white/20 underline-offset-4 transition-colors hover:text-cyan-200'
 
 /**
- * One tool someone else made: "no-mistakes, by Kun Chen". The tool links to
- * its page; a maker in People I follow links to their card on the homepage
- * (People I follow moved there on 2026-11-01), any other maker to their own
- * profile.
+ * One tool someone else made: "no-mistakes, by Kun Chen", what it is for, and
+ * its repo as the Star | GitHub button the tools I built carry (every tool
+ * here has a public repo, the owner's ask, 2026-11-02). The name links to the
+ * tool's own site where it has one (herdr.dev, also a button), else its repo.
+ * A maker in People I follow links to their card on the homepage (People I
+ * follow moved there on 2026-11-01), any other maker to their own profile.
  */
 const ToolItem = ({ tool }: { tool: UsedTool }) => {
   const person = tool.by ? people.find((p) => p.id === tool.by) : undefined
   return (
     <li
       id={tool.id}
-      className="group flex scroll-mt-24 items-start gap-4 rounded-2xl border border-white/8 bg-white/[0.02] p-5 transition-colors duration-200 target:border-cyan-300/40 hover:border-cyan-300/30 hover:bg-white/[0.04]"
+      className="group flex h-full scroll-mt-24 items-start gap-4 rounded-2xl border border-white/8 bg-white/[0.02] p-5 transition-colors duration-200 target:border-cyan-300/40 hover:border-cyan-300/30 hover:bg-white/[0.04]"
     >
       <span aria-hidden="true" className={`${iconChip} h-11 w-11 p-2.5 [&_svg]:h-full [&_svg]:w-full`}>
         {tool.icon}
       </span>
-      <div className="min-w-0">
+      <div className="flex min-w-0 flex-1 flex-col self-stretch">
         <h3 className="text-[15px] text-slate-450">
           <a
-            href={tool.href}
+            href={tool.site ?? tool.github}
             target="_blank"
             rel="noopener noreferrer"
             className="font-mono font-bold text-slate-100 underline decoration-white/0 underline-offset-4 transition-colors hover:text-cyan-200 hover:decoration-cyan-200/50"
           >
             {tool.name}
-            <span className="sr-only">{tool.href.startsWith('https://github.com/') ? ' on GitHub' : ''} (opens in a new tab)</span>
+            <span className="sr-only"> (opens in a new tab)</span>
           </a>
           {person && (
             <>
@@ -207,34 +208,37 @@ const ToolItem = ({ tool }: { tool: UsedTool }) => {
           )}
         </h3>
         <p className="mt-1 text-sm leading-relaxed text-[#9cadc5]">{tool.whatFor}</p>
+        {/* Pinned to the card's foot, so the buttons line up across a row. */}
+        <div className="mt-auto flex flex-wrap gap-2 pt-4">
+          <RepoButtons href={tool.github} name={tool.name} />
+          {tool.site && (
+            <a href={tool.site} target="_blank" rel="noopener noreferrer" className={linkButton}>
+              <span aria-hidden="true">
+                <LuGlobe />
+              </span>
+              {new URL(tool.site).hostname}
+              <span className="sr-only"> ({tool.name}&apos;s site, opens in a new tab)</span>
+            </a>
+          )}
+        </div>
       </div>
     </li>
   )
 }
 
+/**
+ * Tools I use: other people's tools, each credited to its maker. The
+ * honorable mentions (herdr, firstmate, treehouse, ccusage) joined them on
+ * 2026-11-02; /loadout keeps their old #honorable-mentions anchor on this part.
+ */
 export const ToolsIUse = () => (
   <Reveal>
     <section aria-labelledby="tools-i-use-title">
       <SectionHead id="tools-i-use-title" path="~/loadout/tools" title="Tools I use">
-        What I add on top of Claude Code and Codex, so the agents can check their own work.
+        What I add on top of Claude Code and Codex: where my agents run, and the tools that let them check their own work.
       </SectionHead>
       <ul className="grid gap-4 md:grid-cols-2">
         {toolsIUse.map((tool) => (
-          <ToolItem key={tool.id} tool={tool} />
-        ))}
-      </ul>
-    </section>
-  </Reveal>
-)
-
-export const HonorableMentions = () => (
-  <Reveal>
-    <section aria-labelledby="honorable-mentions-title">
-      <SectionHead id="honorable-mentions-title" path="~/loadout/mentions" title="Honorable mentions">
-        Other people&apos;s tools I recommend.
-      </SectionHead>
-      <ul className="grid gap-4 md:grid-cols-2">
-        {honorableMentions.map((tool) => (
           <ToolItem key={tool.id} tool={tool} />
         ))}
       </ul>

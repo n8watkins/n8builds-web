@@ -17,7 +17,6 @@ const PARTS = [
   { id: 'workflow', label: 'How I work' },
   { id: 'tools-i-built', label: 'Tools I built and use' },
   { id: 'tools-i-use', label: 'Tools I use' },
-  { id: 'honorable-mentions', label: 'Honorable mentions' },
   { id: 'in-apps', label: 'Inside my apps' },
   { id: 'gear', label: 'The gear' },
 ] as const
@@ -112,7 +111,7 @@ test.describe('at 1440px', () => {
     await expect(nav).toBeVisible(SHOW)
     // Inside my apps is short, so The gear passes the middle as soon as it
     // lands: the part jumped to must still be the one marked.
-    for (const part of [PARTS[5], PARTS[6], PARTS[5], PARTS[2], PARTS[0]]) {
+    for (const part of [PARTS[4], PARTS[5], PARTS[4], PARTS[2], PARTS[0]]) {
       await nav.getByRole('link', { name: part.label, exact: true }).click()
       await expect(page).toHaveURL(new RegExp(`#${part.id}$`))
       // Lands at the page's scroll-padding-top (80px), clear of the 68px navbar, like the Lab's parts.
@@ -254,10 +253,10 @@ for (const width of [1280, 1366, 1440, 1536, 1920]) {
     if (shape.labels) await expect(nav.getByText('Loadout', { exact: true })).toBeVisible()
     else await expect(nav.getByText('Loadout', { exact: true })).toBeHidden()
     expect(await labelLines(nav), 'lines per label').toEqual(PARTS.map(() => 1))
-    // Where the gutter is tight, Honorable mentions shows as "Mentions" instead of wrapping.
-    const mentions = nav.getByRole('link', { name: 'Honorable mentions' })
-    await expect(mentions).toHaveAccessibleName('Honorable mentions')
-    const short = mentions.getByText('Mentions', { exact: true })
+    // Where the gutter is tight, Tools I built and use shows as "My tools" instead of wrapping.
+    const built = nav.getByRole('link', { name: 'Tools I built and use' })
+    await expect(built).toHaveAccessibleName('Tools I built and use')
+    const short = built.getByText('My tools', { exact: true })
     if (shape.shortLabel) await expect(short).toBeVisible()
     else await expect(short).toBeHidden()
   })
