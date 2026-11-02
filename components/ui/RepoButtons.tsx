@@ -8,15 +8,26 @@ import { formatStars, repoFromUrl, repoStars } from '@/lib/github-stars'
  * Star half shows only the star and the repo's live star count (cached hourly
  * on the server, lib/github-stars.ts); just the star while there is none.
  * `className` sizes the whole control: give it `w-full` and the GitHub half
- * takes the room the star doesn't need.
+ * takes the room the star doesn't need. `halfClassName` adds to both halves
+ * (the Lab rows tighten them where their columns are narrow).
  *
  * A server component: rendered with the page, no client JS.
  */
-export default async function RepoButtons({ href, name, className = '' }: { href: string; name: string; className?: string }) {
+export default async function RepoButtons({
+  href,
+  name,
+  className = '',
+  halfClassName = '',
+}: {
+  href: string
+  name: string
+  className?: string
+  halfClassName?: string
+}) {
   const repo = repoFromUrl(href)
   const stars = repo ? await repoStars(repo) : null
   const half =
-    'inline-flex items-center justify-center gap-1.5 whitespace-nowrap px-3.5 py-2 text-sm font-semibold transition-colors duration-200 focus-visible:relative focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300'
+    'inline-flex items-center justify-center gap-1.5 whitespace-nowrap px-3.5 py-2 text-sm font-semibold transition-colors duration-200 focus-visible:relative focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 ' + halfClassName
   return (
     <div role="group" aria-label={`${name} on GitHub`} className={`inline-flex items-stretch rounded-xl ${className}`}>
       <a

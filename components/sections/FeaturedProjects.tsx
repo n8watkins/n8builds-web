@@ -265,6 +265,13 @@ function labelRuns(link: ActionLink): { text: string; mark?: IconType }[] {
 const buttonBase =
   'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-sm font-semibold transition-colors duration-200'
 
+/**
+ * The row's three buttons where their columns are narrow (the `lab-tight`
+ * variant, app/globals.css): tighter padding and gap and 13px labels, so the
+ * columns stay even and every label fits on one line.
+ */
+const tightButton = 'lab-tight:gap-1.5 lab-tight:px-2.5 lab-tight:text-[0.8125rem]'
+
 const ActionLinkView = ({ project, link, facts }: { project: FeaturedProject; link: ActionLink; facts: DownloadFacts }) => {
   const accent = accents[project.accent]
   const fact = link.download ? facts[link.download] : undefined
@@ -506,21 +513,23 @@ const ProjectRow = ({ project, flipped, facts }: { project: FeaturedProject; fli
 
         {/* One row across the column: the live site (Landing page, or Live Site
             for Portfolio Rank, whose site is the app), the Star | GitHub split
-            button, Details, in even thirds. A third is never narrower than its
-            button, though: a star count can make the split button wider than a
-            third, and then it takes what it needs and the other two share the
-            rest evenly, so no two buttons ever touch. On phones and tablets
-            (where the row's text column is narrow), the live site and Details
-            share a line, in even halves unless "Landing page" needs more on a
-            320px phone, and the split button takes the next. */}
-        <div className="mt-5 grid grid-cols-[repeat(2,minmax(max-content,1fr))] gap-2 sm:grid-cols-[repeat(3,minmax(max-content,1fr))] md:grid-cols-[repeat(2,minmax(max-content,1fr))] lg:grid-cols-[repeat(3,minmax(max-content,1fr))]">
+            button, Details, in even thirds. Where the thirds are narrow (1024px
+            up to about 1150px) the buttons tighten (`tightButton`) so they
+            still fit evenly. A third is never narrower than its button, though:
+            a long star count can make the split button wider than a third, and
+            then it takes what it needs and the other two share the rest evenly,
+            so no two buttons ever touch. On phones and tablets (where the row's
+            text column is narrow), the live site and Details share a line in
+            even halves (tightened on the narrowest phones and at 768px), and
+            the split button takes the next. */}
+        <div className="@container/lab-actions mt-5 grid grid-cols-[repeat(2,minmax(max-content,1fr))] gap-2 sm:grid-cols-[repeat(3,minmax(max-content,1fr))] md:grid-cols-[repeat(2,minmax(max-content,1fr))] lg:grid-cols-[repeat(3,minmax(max-content,1fr))]">
           {project.liveSite && (
             <a
               href={project.liveSite}
               target="_blank"
               rel="noopener noreferrer"
               // Blue into a dark cyan, so the white label passes AA across the whole button.
-              className={`${buttonBase} bg-linear-to-r from-blue-600 to-cyan-700 text-white hover:from-blue-700 hover:to-cyan-800`}
+              className={`${buttonBase} ${tightButton} bg-linear-to-r from-blue-600 to-cyan-700 text-white hover:from-blue-700 hover:to-cyan-800`}
             >
               <FiExternalLink className="h-3.5 w-3.5 shrink-0" />
               {liveSiteLabel(project)}
@@ -531,11 +540,13 @@ const ProjectRow = ({ project, flipped, facts }: { project: FeaturedProject; fli
             <RepoButtons
               href={project.github}
               name={project.title}
+              halfClassName={tightButton}
               className="order-last col-span-2 w-full sm:order-none sm:col-span-1 md:order-last md:col-span-2 lg:order-none lg:col-span-1"
             />
           )}
           <ProjectDetails
             title={project.title}
+            buttonClassName={tightButton}
             labelledBy={`${slugOf(project)}-details-title`}
             header={<DetailsHeader project={project} />}
             media={

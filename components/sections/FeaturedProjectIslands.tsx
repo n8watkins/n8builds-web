@@ -287,10 +287,13 @@ export function ProjectDetails({
   labelledBy,
   header,
   media,
+  buttonClassName = '',
   children,
 }: {
   /** The build's name, so each row's button has its own accessible name. */
   title: string
+  /** Added to the Details button's classes (the Lab row's tightening). */
+  buttonClassName?: string
   labelledBy: string
   header: React.ReactNode
   /** The project's picture, on the dialog's left from md up (hidden on phones, to keep it short). */
@@ -316,7 +319,7 @@ export function ProjectDetails({
         // Server-rendered: a click before hydration would be lost, so it stays
         // disabled until its handler exists (as Copy link and the contact form's Send).
         disabled={!hydrated}
-        className="flex items-center justify-center gap-2 whitespace-nowrap px-4 py-2 rounded-xl border border-white/12 bg-white/4 hover:bg-white/8 text-slate-300 font-semibold text-sm transition-colors duration-200 disabled:cursor-wait">
+        className={`flex items-center justify-center gap-2 whitespace-nowrap px-4 py-2 rounded-xl border border-white/12 bg-white/4 hover:bg-white/8 text-slate-300 font-semibold text-sm transition-colors duration-200 disabled:cursor-wait ${buttonClassName}`}>
         <FiLayers className="w-3.5 h-3.5" />
         Details<span className="sr-only"> about {title}</span>
       </button>

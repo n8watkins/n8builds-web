@@ -2,6 +2,21 @@
 
 /* Dark-only site: next-themes puts `.dark` on <html>. */
 @custom-variant dark (&:is(.dark *));
+/* A Lab row's three buttons (FeaturedProjects.tsx) tighten where their
+   columns are too narrow for the regular size, so the columns stay even and
+   every label stays on one line: two across (phones, tablets) under 19rem,
+   three across (from 1024px) under 30.5rem. The row's grid is the
+   `lab-actions` container. */
+@custom-variant lab-tight {
+  @container lab-actions (width < 19rem) {
+    @slot;
+  }
+  @media (width >= 64rem) {
+    @container lab-actions (width < 30.5rem) {
+      @slot;
+    }
+  }
+}
 
 @theme {
   --breakpoint-1sm: 320px;

@@ -356,6 +356,43 @@ test('each row puts its live site, Star | GitHub and Details in one row across i
   )
 })
 
+test("each row's buttons stay even, with one-line labels, at every width", async ({ page, isMobile }) => {
+  // Round 5 of 2026-11-02: from 1024px to about 1150px the thirds were too
+  // narrow for "Landing page", which took more than Details. The buttons now
+  // tighten there (and on the narrowest phones and at 768px) instead.
+  test.skip(isMobile, 'phones set their own width; the desktop projects walk the widths')
+  // Row by row (each page opens once), every width on each.
+  for (const title of ROWS) {
+    const row = await rowOf(page, title)
+    for (const width of [1440, 1280, 1100, 1040, 1024, 820, 768, 390, 320]) {
+      await page.setViewportSize({ width, height: 900 })
+      const live = row.getByRole('link', { name: LIVE(title) })
+      const repo = row.getByRole('group', { name: `${title} on GitHub` })
+      const details = row.getByRole('button', { name: `Details about ${title}` })
+      await live.scrollIntoViewIfNeeded()
+      const [l, r, d] = await Promise.all([live, repo, details].map((el) => el.boundingBox()))
+      const at = `${title} at ${width}px`
+      expect(Math.abs(l!.width - d!.width), `${at}: the live site and Details are even`).toBeLessThan(1)
+      // Three across from 1024px (and 640-767px): the split button is a third
+      // too, unless a long star count (the fixture gives Scribe 1,234) needs
+      // more, and then the other two share the rest evenly.
+      if (Math.round(r!.y) === Math.round(l!.y)) {
+        if (title === 'Scribe') expect(r!.width, `${at}: never narrower than a third`).toBeGreaterThan(l!.width - 1)
+        else expect(Math.abs(r!.width - l!.width), `${at}: even thirds`).toBeLessThan(1)
+      }
+      for (const [name, box] of [['live site', l], ['Star | GitHub', r], ['Details', d]] as const)
+        expect(box!.height, `${at}: the ${name} label is on one line`).toBeLessThan(42)
+      // No label is cut off inside its button.
+      const clipped = await Promise.all(
+        [live, repo.getByRole('link').first(), repo.getByRole('link').last(), details].map((el) =>
+          el.evaluate((e) => e.scrollWidth > e.clientWidth + 1),
+        ),
+      )
+      expect(clipped, `${at}: nothing clipped`).toEqual([false, false, false, false])
+    }
+  }
+})
+
 test('the rows and the extensions share one Star | GitHub control, its star showing the live count', async ({ page }) => {
   const expectControl = async (control: import('@playwright/test').Locator) => {
     const [star, github] = await control.getByRole('link').all()
@@ -366,7 +403,13 @@ test('the rows and the extensions share one Star | GitHub control, its star show
     await expect(github).toHaveAccessibleName(/^.+ on GitHub \(opens in a new tab\)$/)
     await expect(github).toContainText('GitHub')
     expect(await star.getAttribute('href')).toBe(await github.getAttribute('href'))
-    return Promise.all([star.getAttribute('class'), github.getAttribute('class')])
+    // The Lab rows add their own tightening where their columns are narrow (lab-tight:*).
+    const looks = async (el: import('@playwright/test').Locator) =>
+      (await el.getAttribute('class'))!
+        .split(/\s+/)
+        .filter((c) => c && !c.startsWith('lab-tight:'))
+        .join(' ')
+    return Promise.all([looks(star), looks(github)])
   }
   // Scribe's row, on /loadout: the count comes from GitHub (the test fixture gives Scribe 1,234 stars and Piper none).
   const scribe = (await rowOf(page, 'Scribe')).getByRole('group', { name: 'Scribe on GitHub' })
