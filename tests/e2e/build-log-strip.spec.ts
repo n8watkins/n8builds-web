@@ -33,6 +33,21 @@ const OCTOBER_UPDATES = 7
 /** How long a hold is checked for: past a whole turn (5s), with margin. */
 const HOLD_MS = 8000
 
+/**
+ * The paging at this page's width: four rows a page, three on phones (under
+ * 40rem), as the strip lays them out. The phone projects run these too.
+ */
+function paging(page: Page) {
+  const per = page.viewportSize()!.width >= 640 ? 4 : 3
+  const pages = Math.ceil(OCTOBER_UPDATES / per)
+  /** The rows (`data-row`) on page `k`, from 0. */
+  const rowsOn = (k: number) => Array.from({ length: Math.min(per, OCTOBER_UPDATES - k * per) }, (_, i) => k * per + i)
+  /** The position text on page `n`, from 1. */
+  const at = (n: number) => `${n} / ${pages}`
+  return { per, pages, rowsOn, at }
+}
+const asText = (rows: number[]) => rows.map(String)
+
 test('sits between "What I\'m working on" and the Lab, in the server-rendered HTML', async ({ page, request }) => {
   const html = await (await request.get('/')).text()
   const at = (id: string) => html.indexOf(`id="${id}"`)
@@ -45,14 +60,15 @@ test('sits between "What I\'m working on" and the Lab, in the server-rendered HT
   expect(await page.locator('main').innerText()).not.toContain('—')
 })
 
-test("holds the whole month, newest first, and shows the newest four", async ({ page, request }) => {
+test("holds the whole month, newest first, and shows the newest page of it", async ({ page, request }) => {
   // Every update of the month is in the server HTML, not only the first page.
   const html = await (await request.get('/')).text()
   expect(html.match(/data-row="/g)).toHaveLength(OCTOBER_UPDATES)
 
   await page.goto('/')
   await strip(page).scrollIntoViewIfNeeded()
-  await expect(rows(page)).toHaveCount(4)
+  const { per, rowsOn, at } = paging(page)
+  await expect(rows(page)).toHaveCount(per)
   const items = await allRows(page).evaluateAll((els) =>
     els.map((el) => ({
       date: el.querySelector('time')!.getAttribute('datetime')!,
@@ -63,9 +79,9 @@ test("holds the whole month, newest first, and shows the newest four", async ({ 
   expect(items.map((i) => i.date)).toEqual(items.map((i) => i.date).sort().reverse())
   expect(items.every((i) => i.date.startsWith('2026-10'))).toBe(true)
   expect(items.every((i) => i.icon)).toBe(true)
-  // The first page is the newest four.
-  expect(await rows(page).evaluateAll((els) => els.map((el) => el.getAttribute('data-row')))).toEqual(['0', '1', '2', '3'])
-  await expect(position(page)).toHaveText('1 / 2')
+  // The first page is the newest few.
+  expect(await rows(page).evaluateAll((els) => els.map((el) => el.getAttribute('data-row')))).toEqual(asText(rowsOn(0)))
+  await expect(position(page)).toHaveText(at(1))
 
   // A release reads as a version, as on /builds.
   await expect(rows(page).filter({ hasText: /Shipped v\d+\.\d+\.\d+/ }).first()).toBeVisible()
@@ -245,18 +261,20 @@ test.describe('paging', () => {
 
   test('moves on a page by itself, round the month, and never announces it', async ({ page }) => {
     await openList(page)
-    expect(await shownRows(page)).toEqual(['0', '1', '2', '3'])
+    const { pages, rowsOn, at } = paging(page)
+    expect(await shownRows(page)).toEqual(asText(rowsOn(0)))
     await page.clock.fastForward(4900)
-    await expect(position(page)).toHaveText('1 / 2')
+    await expect(position(page)).toHaveText(at(1))
     await page.clock.fastForward(200)
-    await expect(position(page)).toHaveText('2 / 2')
-    // The last page holds what is left; its empty slot keeps its height.
-    expect(await shownRows(page)).toEqual(['4', '5', '6'])
-    await expect(rows(page)).toHaveCount(3)
-    // And round to the start.
-    await expect(list(page)).toHaveAttribute('data-cycling', '')
-    await page.clock.fastForward(5100)
-    await expect(position(page)).toHaveText('1 / 2')
+    await expect(position(page)).toHaveText(at(2))
+    expect(await shownRows(page)).toEqual(asText(rowsOn(1)))
+    await expect(rows(page)).toHaveCount(rowsOn(1).length)
+    // On through the rest (the last page holds what is left), and round to the start.
+    for (let n = 3; n <= pages + 1; n++) {
+      await expect(list(page)).toHaveAttribute('data-cycling', '')
+      await page.clock.fastForward(5100)
+      await expect(position(page)).toHaveText(at(n > pages ? 1 : n))
+    }
     await expect(live(page)).toHaveText('')
   })
 
@@ -279,8 +297,9 @@ test.describe('paging', () => {
     })
     const out = flights.filter((f) => f.from === 1)
     const into = flights.filter((f) => f.from === 0)
-    expect(out.map((f) => f.row)).toEqual([0, 1, 2, 3])
-    expect(into.map((f) => f.row)).toEqual([4, 5, 6])
+    const { rowsOn } = paging(page)
+    expect(out.map((f) => f.row)).toEqual(rowsOn(0))
+    expect(into.map((f) => f.row)).toEqual(rowsOn(1))
     // Out to the right, each a beat after the one above it.
     expect(out.every((f) => /translateX\(28px\)/.test(f.to))).toBe(true)
     for (let i = 1; i < out.length; i++) expect(out[i].delay).toBeGreaterThan(out[i - 1].delay)
@@ -295,12 +314,12 @@ test.describe('paging', () => {
     await list(page).hover()
     await expect(list(page)).not.toHaveAttribute('data-cycling')
     await page.clock.fastForward(HOLD_MS)
-    await expect(position(page)).toHaveText('1 / 2')
+    await expect(position(page)).toHaveText(paging(page).at(1))
     await page.mouse.move(0, 0)
     await expect(list(page)).toHaveAttribute('data-cycling', '')
     // Two seconds were left of its turn, not a fresh five.
     await page.clock.fastForward(2100)
-    await expect(position(page)).toHaveText('2 / 2')
+    await expect(position(page)).toHaveText(paging(page).at(2))
   })
 
   test('holds while focused', async ({ page }) => {
@@ -308,11 +327,11 @@ test.describe('paging', () => {
     await rows(page).first().getByRole('link').focus()
     await expect(list(page)).not.toHaveAttribute('data-cycling')
     await page.clock.fastForward(HOLD_MS)
-    await expect(position(page)).toHaveText('1 / 2')
+    await expect(position(page)).toHaveText(paging(page).at(1))
     await focusAway(page)
     await expect(list(page)).toHaveAttribute('data-cycling', '')
     await page.clock.fastForward(5100)
-    await expect(position(page)).toHaveText('2 / 2')
+    await expect(position(page)).toHaveText(paging(page).at(2))
   })
 
   test('holds while off screen or while the tab is hidden', async ({ page }) => {
@@ -321,7 +340,7 @@ test.describe('paging', () => {
     await expect(list(page)).not.toHaveAttribute('data-in-view')
     await expect(list(page)).not.toHaveAttribute('data-cycling')
     await page.clock.fastForward(HOLD_MS)
-    await expect(position(page)).toHaveText('1 / 2')
+    await expect(position(page)).toHaveText(paging(page).at(1))
 
     await list(page).evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
     await expect(list(page)).toHaveAttribute('data-in-view', '')
@@ -333,35 +352,37 @@ test.describe('paging', () => {
     await setHidden(true)
     await expect(list(page)).not.toHaveAttribute('data-cycling')
     await page.clock.fastForward(HOLD_MS)
-    await expect(position(page)).toHaveText('1 / 2')
+    await expect(position(page)).toHaveText(paging(page).at(1))
     await setHidden(false)
     await expect(list(page)).toHaveAttribute('data-cycling', '')
     await page.clock.fastForward(5100)
-    await expect(position(page)).toHaveText('2 / 2')
+    await expect(position(page)).toHaveText(paging(page).at(2))
   })
 
   test('the arrows and arrow keys page either way, wrapping, and announce each move', async ({ page }) => {
     await openList(page)
     const next = list(page).getByRole('button', { name: 'Next updates' })
     const previous = list(page).getByRole('button', { name: 'Previous updates' })
+    const { pages, rowsOn, at } = paging(page)
     await next.click()
-    await expect(position(page)).toHaveText('2 / 2')
-    await expect(live(page)).toHaveText(/^Updates 5 to 7 of 7: Solara, Scheduled activities.*; n8builds\.dev, One Lab section/)
+    await expect(position(page)).toHaveText(at(2))
+    const [first, ...more] = rowsOn(1)
+    await expect(live(page)).toHaveText(new RegExp(`^Updates ${first + 1} to ${(more.at(-1) ?? first) + 1} of 7: .*; n8builds\\.dev, One Lab section`))
     await previous.click()
     await previous.click()
     // Back past the first page wraps round to the last.
-    await expect(position(page)).toHaveText('2 / 2')
-    await expect(live(page)).toHaveText(/^Updates 5 to 7 of 7: /)
+    await expect(position(page)).toHaveText(at(pages))
+    await expect(live(page)).toHaveText(new RegExp(`^Updates ${rowsOn(pages - 1)[0] + 1} to 7 of 7: `))
 
     // From the keyboard: arrows page while focus is in the list, and focus
     // follows to the new page's first row rather than staying on a hidden one.
     await rows(page).first().getByRole('link').focus()
     await page.keyboard.press('ArrowRight')
-    await expect(position(page)).toHaveText('1 / 2')
+    await expect(position(page)).toHaveText(at(1))
     await expect(allRows(page).first().getByRole('link')).toBeFocused()
     await page.keyboard.press('ArrowLeft')
-    await expect(position(page)).toHaveText('2 / 2')
-    await expect(list(page).locator('li[data-row="4"] a')).toBeFocused()
+    await expect(position(page)).toHaveText(at(pages))
+    await expect(list(page).locator(`li[data-row="${rowsOn(pages - 1)[0]}"] a`)).toBeFocused()
   })
 
   test('the pause button stops it for good, and play starts it again', async ({ page }) => {
@@ -373,21 +394,21 @@ test.describe('paging', () => {
     await focusAway(page)
     await expect(list(page)).not.toHaveAttribute('data-cycling')
     await page.clock.fastForward(HOLD_MS)
-    await expect(position(page)).toHaveText('1 / 2')
+    await expect(position(page)).toHaveText(paging(page).at(1))
     await list(page).getByRole('button', { name: 'Resume rotation' }).focus()
     await page.keyboard.press('Enter')
     await expect(list(page).getByRole('button', { name: 'Pause rotation' })).toBeFocused()
     await focusAway(page)
     await expect(list(page)).toHaveAttribute('data-cycling', '')
     await page.clock.fastForward(5100)
-    await expect(position(page)).toHaveText('2 / 2')
+    await expect(position(page)).toHaveText(paging(page).at(2))
   })
 
   test('every row on a later page still opens its build in the full log', async ({ page }) => {
     await openList(page)
     await list(page).getByRole('button', { name: 'Next updates' }).click()
-    const row = rows(page).filter({ has: page.locator('a[href="/builds?build=n8builds"]') }).first()
-    const link = row.getByRole('link')
+    // "One Lab section" (the sixth row) is on the second page at every width.
+    const link = list(page).locator('li[data-row="5"]').getByRole('link')
     await expect(link).toHaveAccessibleName(/^n8builds\.dev One Lab section/)
     await page.clock.resume()
     await link.click()
@@ -424,11 +445,11 @@ test('reduced motion: nothing moves by itself, and the arrows swap pages without
   await list(page).scrollIntoViewIfNeeded()
   await expect(list(page)).toHaveAttribute('data-in-view', '')
   await page.clock.fastForward(HOLD_MS * 2)
-  await expect(position(page)).toHaveText('1 / 2')
+  await expect(position(page)).toHaveText(paging(page).at(1))
   await expect(list(page)).not.toHaveAttribute('data-cycling')
   await expect(list(page).locator('[data-progress]')).toHaveCount(0)
   await list(page).getByRole('button', { name: 'Next updates' }).click()
-  await expect(position(page)).toHaveText('2 / 2')
+  await expect(position(page)).toHaveText(paging(page).at(2))
   // No fade of its own (the site's reduced-motion rule turns every CSS
   // transition into an instant one, which WebKit still lists, so those are skipped).
   expect(
