@@ -117,8 +117,8 @@ export default function UpcomingPage() {
           <FadeIn as="header">
             <p className="font-mono text-[0.7rem] font-bold uppercase tracking-[0.22em] text-cyan-400">Upcoming</p>
             <h1 className="mt-3 text-[2.6rem] font-extrabold leading-[1.03] tracking-tight text-slate-50 sm:text-6xl/none">
-              What I&rsquo;m{' '}
-              <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">outlining next</span>
+              What&rsquo;s{' '}
+              <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">cookin&rsquo;</span>
             </h1>
             <p className="mt-4 max-w-[640px] text-base leading-relaxed text-[#9cadc5] sm:text-lg/7">
               Things I am outlining in public: plans and landing pages, nothing you can use yet. Join a waitlist and I will email

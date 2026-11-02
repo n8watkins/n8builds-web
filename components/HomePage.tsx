@@ -150,6 +150,7 @@ export default function HomePage({ posts }: { posts: Post[] }) {
                   { label: 'My tools', href: '#my-tools' },
                   { label: 'Featured', href: '#featured' },
                   { label: 'Chrome Extensions', href: '#extensions' },
+                  { label: "What's cookin'", href: '#upcoming' },
                 ].map((c) => (
                   <a
                     key={c.href}
@@ -183,6 +184,14 @@ export default function HomePage({ posts }: { posts: Post[] }) {
               <ShelfSection shelf="tool" />
             </Reveal>
           </SectionErrorBoundary>
+
+          {/* The Lab's last part: what's cooking next, each with its landing page and
+               waitlist (owner, 2026-11-01). The full detail lives on /upcoming. */}
+          <SectionErrorBoundary sectionName="Upcoming">
+            <Reveal>
+              <UpcomingStrip />
+            </Reveal>
+          </SectionErrorBoundary>
         </div>
 
         {/* ===== THE PORTFOLIO AD: hiring after seeing the builds? One click. ===== */}
@@ -192,16 +201,8 @@ export default function HomePage({ posts }: { posts: Post[] }) {
           </SectionErrorBoundary>
         </Band>
 
-        {/* Upcoming, in short: what I'm outlining next, each with its landing page and
-             waitlist (owner, 2026-11-01). The full detail lives on /upcoming. */}
-        <Band tone="raised">
-          <SectionErrorBoundary sectionName="Upcoming">
-            <UpcomingStrip />
-          </SectionErrorBoundary>
-        </Band>
-
         {/* N8's Notions: latest blog posts */}
-        <Band>
+        <Band tone="raised">
           <SectionErrorBoundary sectionName="N8's Notions">
             <NotionsStrip posts={posts} />
           </SectionErrorBoundary>
@@ -222,21 +223,21 @@ export default function HomePage({ posts }: { posts: Post[] }) {
         </Band>
 
         {/* Homepage stack: AI marquee + Turso TL;DR -> /loadout */}
-        <Band tone="raised">
+        <Band>
           <SectionErrorBoundary sectionName="My Stack">
             <HomeStack />
           </SectionErrorBoundary>
         </Band>
 
         {/* Bridge: the portfolio (hire me) + Tech for Pros (my company) */}
-        <Band>
+        <Band tone="raised">
           <SectionErrorBoundary sectionName="Work With Me">
             <WorkWithMe />
           </SectionErrorBoundary>
         </Band>
 
         {/* The contact form animates its own fields in. */}
-        <Band id="contact" as="section" tone="raised" reveal={false}>
+        <Band id="contact" as="section" reveal={false}>
           <SectionErrorBoundary sectionName="Contact Section">
             <Footer />
           </SectionErrorBoundary>

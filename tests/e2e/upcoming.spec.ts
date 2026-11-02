@@ -28,7 +28,7 @@ const project = (page: Page, name: string) => page.locator('#waitlist-projects')
 test('shows each project with its own anchor, and is titled for the site', async ({ page }) => {
   await page.goto('/upcoming')
   await expect(page).toHaveTitle('Upcoming | n8builds')
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('outlining next')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('What’s cookin’')
   for (const [id, name] of [
     ['relink', 'Relink'],
     ['strollz', 'Strollz'],
@@ -141,6 +141,8 @@ test('is linked from the footer, and the privacy page explains the waitlist', as
     '/upcoming'
   )
   await expect(page.locator('#waitlist')).toContainText('Waitlist.')
+  // The Lab menu leads to the homepage part (in the DOM even while the menu is closed).
+  await expect(page.getByRole('navigation', { name: 'Primary' }).locator('a[href="/#upcoming"]').first()).toBeAttached()
 })
 
 const LANDING = {
@@ -156,14 +158,15 @@ test('each card links its landing page (hrefs only: the sites may not be live ye
   }
 })
 
-test('the homepage has a short Upcoming band with each waitlist and landing page', async ({ page }) => {
+test("the homepage Lab ends with a short What's cookin' part, each with its waitlist and landing page", async ({ page }) => {
   await page.goto('/')
-  const band = page.locator('section#upcoming')
-  await expect(band.getByRole('heading', { level: 2 })).toHaveText('What I’m outlining next')
+  const band = page.locator('#lab section#upcoming')
+  await expect(band.getByRole('heading', { level: 3 })).toHaveText('What’s cookin’')
+  await expect(band.getByText('Upcoming', { exact: true })).toBeVisible()
   await expect(band.getByRole('listitem')).toHaveCount(3)
   for (const [slug, href] of Object.entries(LANDING)) {
     const name = { relink: 'Relink', strollz: 'Strollz', vibelog: 'VibeLog' }[slug]
-    await expect(band.getByRole('link', { name: `Join the waitlist for ${name}` })).toHaveAttribute(
+    await expect(band.getByRole('link', { name: `Let ’em cook: join the waitlist for ${name}` })).toHaveAttribute(
       'href',
       `/upcoming?interest=${slug}#${slug}`
     )
