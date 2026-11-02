@@ -106,11 +106,13 @@ test('the Lab says its builds are public and mostly open source', async ({ page 
   await page.goto('/')
   // Its heading carries the Lab's flask mark (percolating), beside it in a chip.
   const heading = page.locator('#lab').getByRole('heading', { level: 2, name: 'The Lab' })
-  const flask = heading.locator('xpath=preceding-sibling::span[1]/span')
-  const mark = flask.locator('svg').first()
+  const mark = heading.locator('xpath=preceding-sibling::span[1]/*[name()="svg"]')
   await expect(mark).toBeVisible()
-  await expect(flask).toHaveAttribute('aria-hidden', 'true')
-  await expect(flask.locator('.flask-bubble')).toHaveCount(3)
+  await expect(mark).toHaveAttribute('aria-hidden', 'true')
+  // Liquid that sways, bubbles rising through it, and one escaping up the neck.
+  await expect(mark.locator('.flask-liquid')).toHaveCount(1)
+  await expect(mark.locator('.flask-rise')).toHaveCount(5)
+  await expect(mark.locator('.flask-escape')).toHaveCount(1)
   const [h, m] = await Promise.all([heading.boundingBox(), mark.boundingBox()])
   expect(Math.abs(h!.y + h!.height / 2 - (m!.y + m!.height / 2))).toBeLessThan(4)
   // The intro: one line on what the Lab is, then three checked points.

@@ -1,5 +1,7 @@
 import React from 'react'
 import { FiCheck } from 'react-icons/fi'
+import { LuCookingPot, LuScrollText, LuStar } from 'react-icons/lu'
+import { SiGooglechrome } from 'react-icons/si'
 import BubblingFlask from '@/components/ui/BubblingFlask'
 import Hero from '@/components/sections/Hero'
 import Navbar from '@/components/layout/Navbar'
@@ -168,18 +170,21 @@ export default async function HomePage({ posts }: { posts: Post[] }) {
                 ))}
               </ul>
               <nav aria-label="Lab sections" className="mt-7 flex flex-wrap justify-center gap-2">
+                {/* Each pill leads with its part's icon, the same as the rail's
+                     (components/sections/LabSectionNav.tsx; round 5 of 2026-11-02). */}
                 {[
-                  ...(buildLog ? [{ label: 'Build log', href: '#build-log' }] : []),
-                  { label: 'Featured', href: '#featured' },
-                  { label: 'Chrome Extensions', href: '#extensions' },
-                  { label: "What's cookin'", href: '#upcoming' },
-                ].map((c) => (
+                  ...(buildLog ? [{ label: 'Build log', href: '#build-log', Icon: LuScrollText, size: 'size-3.5' }] : []),
+                  { label: 'Featured', href: '#featured', Icon: LuStar, size: 'size-3.5' },
+                  { label: 'Chrome Extensions', href: '#extensions', Icon: SiGooglechrome, size: 'size-3' },
+                  { label: "What's cookin'", href: '#upcoming', Icon: LuCookingPot, size: 'size-3.5' },
+                ].map(({ label, href, Icon, size }) => (
                   <a
-                    key={c.href}
-                    href={c.href}
-                    className="rounded-full border border-white/12 bg-white/4 px-3.5 py-1.5 text-sm font-medium text-slate-300 transition-all duration-150 hover:border-cyan-400/40 hover:bg-white/[0.07] hover:text-cyan-200"
+                    key={href}
+                    href={href}
+                    className="group flex items-center gap-2 rounded-full border border-white/12 bg-white/4 py-1.5 pr-3.5 pl-3 text-sm font-medium text-slate-300 transition-all duration-150 hover:border-cyan-400/40 hover:bg-white/[0.07] hover:text-cyan-200"
                   >
-                    {c.label}
+                    <Icon className={`${size} shrink-0 text-cyan-300/80 transition-colors group-hover:text-cyan-200`} aria-hidden="true" />
+                    {label}
                   </a>
                 ))}
               </nav>
