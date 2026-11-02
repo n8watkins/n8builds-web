@@ -89,7 +89,7 @@ export default function HomeStack() {
           <p className="mt-0.5 text-sm font-semibold text-blue-300">My first pick for new web apps</p>
         </div>
         <ul className="mt-5 grid gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
-          {turso.tools.map(({ name: tool }) => {
+          {turso.tools.map((tool) => {
             const why = WHY[tool]
             return (
               // A light hover on each piece: its icon grows a touch and lights up, its name turns cyan.

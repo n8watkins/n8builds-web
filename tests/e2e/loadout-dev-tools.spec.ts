@@ -376,7 +376,7 @@ test.describe('Loadout tools and people', () => {
     }
   })
 
-  test('Stacks I build with names each stack, gives each tool its role and mark, and says why in one line', async ({ page }) => {
+  test('Stacks I build with names each stack, explains its logic in a paragraph, and shows its tools as chips', async ({ page }) => {
     await page.goto('/loadout')
     const stacks = page.getByRole('region', { name: 'Stacks I build with' })
     // How I build, right after Inside the apps I build (2026-11-02).
@@ -389,9 +389,10 @@ test.describe('Loadout tools and people', () => {
       'The Local-First Stack',
       'The Extension Stack',
     ])
-    // Each tool with its role in the stack, no "+" chain (owner, 2026-11-02).
-    const turso = stacks.getByRole('list', { name: 'The Turso Stack tools' }).getByRole('listitem')
-    await expect(turso.locator('[data-stack-role]')).toHaveText(['Framework', 'Language', 'Database', 'ORM', 'Files', 'Hosting'])
+    // Round 3 of 2026-11-02: no roles or per-tool notes, just the tools as chips.
+    await expect(stacks.locator('[data-stack-role]')).toHaveCount(0)
+    for (const role of ['Framework', 'Database', 'Hosting']) await expect(stacks).not.toContainText(role)
+    const turso = stacks.getByRole('list', { name: 'The Turso Stack tools' })
     await expect(turso.locator('[data-stack-tool]')).toHaveText(['Next.js', 'TypeScript', 'Turso', 'Drizzle', 'Cloudflare R2', 'Vercel'])
     await expect(stacks).not.toContainText('+TypeScript')
     // The extensions really built with: no WXT.
@@ -403,10 +404,21 @@ test.describe('Loadout tools and people', () => {
       'esbuild',
     ])
     await expect(stacks).not.toContainText('WXT')
-    // The owner's reasons, one short line per stack.
-    await expect(stacks.getByRole('article').first()).toContainText("Turso's free tier is generous, and Vercel gets new Next.js releases first.")
-    await expect(stacks.getByRole('article').nth(1)).toContainText('vinext')
-    await expect(stacks.getByRole('article').nth(2)).toContainText('I prefer Firebase here - I avoid Supabase.')
+    // A paragraph per stack on its logic (two to four sentences), in the owner's reasons.
+    for (const about of await stacks.locator('[data-stack-about]').allInnerTexts()) {
+      const sentences = about.split(/(?<=[.:])\s+(?=[A-Z])/).length
+      expect(sentences, about).toBeGreaterThanOrEqual(2)
+      expect(about.match(/\. /g)?.length ?? 0, about).toBeLessThanOrEqual(3)
+    }
+    const about = stacks.locator('[data-stack-about]')
+    await expect(about.nth(0)).toContainText('free tier is generous')
+    await expect(about.nth(0)).toContainText('Vercel because it gets new Next.js releases first')
+    await expect(about.nth(1)).toContainText('vinext')
+    await expect(about.nth(1)).toContainText('OpenPing')
+    await expect(about.nth(2)).toContainText('Google Cloud')
+    await expect(about.nth(2)).toContainText(/I prefer Firebase here - I avoid\sSupabase\./)
+    await expect(about.nth(3)).toContainText('whisper.cpp')
+    await expect(about.nth(4)).toContainText('esbuild')
     // Every tool carries its mark, 16px.
     const icons = stacks.locator('[data-stack-icon] svg')
     await expect(icons).toHaveCount(25)

@@ -1,7 +1,8 @@
 // "Stacks I build with" - named combos, not a flat tool list. Each stack is a
-// recipe of tools that go together for a kind of project, each tool with its
-// role in it, and one short line on why the stack (the owner's reasons,
-// 2026-11-02). Edit freely.
+// recipe of tools that go together for a kind of project, shown as plain
+// chips with their marks, and a short paragraph on the logic of it: why these
+// pieces fit together and when I pick it (round 3 of 2026-11-02, in the
+// owner's reasons; no per-tool roles or notes). Edit freely.
 // Shown on /loadout (components/sections/BuildStacks.tsx, back on 2026-11-02);
 // the homepage's Loadout shows the Turso stack as "My default stack".
 import type { ReactElement } from 'react'
@@ -27,18 +28,13 @@ import {
 } from 'react-icons/si'
 import { GgmlMark, PiperMark } from '@/data/stack'
 
-/** A tool in a stack, with the job it does there ("Database", "Hosting"). */
-export interface StackTool {
-  name: string
-  role: string
-}
-
 export interface BuildStack {
   name: string
   tagline: string
-  tools: StackTool[]
-  /** One short line on why this stack. */
-  note: string
+  /** The tools, by name (each one's mark is in stackToolIcons). */
+  tools: string[]
+  /** Two to four plain sentences: why these pieces fit together, and when I pick it. */
+  about: string
   accent: 'cyan' | 'blue' | 'sky' | 'teal' | 'orange'
 }
 
@@ -46,67 +42,42 @@ export const buildStacks: BuildStack[] = [
   {
     name: 'The Turso Stack',
     tagline: 'My default for new web apps',
-    tools: [
-      { name: 'Next.js', role: 'Framework' },
-      { name: 'TypeScript', role: 'Language' },
-      { name: 'Turso', role: 'Database' },
-      { name: 'Drizzle', role: 'ORM' },
-      { name: 'Cloudflare R2', role: 'Files' },
-      { name: 'Vercel', role: 'Hosting' },
-    ],
-    note: "Turso's free tier is generous, and Vercel gets new Next.js releases first.",
+    tools: ['Next.js', 'TypeScript', 'Turso', 'Drizzle', 'Cloudflare R2', 'Vercel'],
+    about:
+      "Where a new web app starts. Turso is SQLite at the edge, and its free tier is generous enough that a small project costs nothing while it finds its feet. Drizzle keeps every query typed against the schema, and R2 holds the files. I host on Vercel because it gets new Next.js releases first.",
     accent: 'cyan',
   },
   {
     name: 'The Cloudflare Stack',
     tagline: 'Edge apps and landing pages',
-    tools: [
-      { name: 'Next.js', role: 'Framework' },
-      { name: 'Hono', role: 'API' },
-      { name: 'Workers', role: 'Hosting' },
-      { name: 'D1', role: 'Database' },
-    ],
+    tools: ['Next.js', 'Hono', 'Workers', 'D1'],
     // vinext: Cloudflare's reimplementation of the Next.js API on Vite, deployed to Workers (github.com/cloudflare/vinext).
-    note: 'Cloudflare rebuilt Next.js on Vite as vinext, to run on its Workers. OpenPing and my landing pages live there.',
+    about:
+      'For things that should run on the edge. Cloudflare rebuilt Next.js on Vite as vinext so it runs on Workers, which lets me keep the framework I know and stay on Cloudflare end to end, with Hono for the API and D1 for the data. OpenPing and the landing pages for my upcoming projects live here.',
     accent: 'orange',
   },
   {
     name: 'The Firebase Stack',
     tagline: 'When I want batteries included',
-    tools: [
-      { name: 'Next.js', role: 'Framework' },
-      { name: 'Firebase Auth', role: 'Sign-in' },
-      { name: 'Firestore', role: 'Database' },
-      { name: 'Vercel', role: 'Hosting' },
-    ],
-    note: 'Fits projects already in Google Cloud that use Google APIs. I prefer Firebase here - I avoid Supabase.',
+    tools: ['Next.js', 'Firebase Auth', 'Firestore', 'Vercel'],
+    about:
+      'For a project that already lives in Google Cloud and uses Google APIs: sign-in and the database come from the same place as everything else it touches. Next.js on Vercel stays the front end. I prefer Firebase here - I avoid\u00a0Supabase.',
     accent: 'blue',
   },
   {
     name: 'The Local-First Stack',
     tagline: 'Desktop apps and local AI',
-    tools: [
-      { name: 'Tauri', role: 'App shell' },
-      { name: 'Rust', role: 'Language' },
-      { name: 'SQLite', role: 'Database' },
-      { name: 'whisper.cpp', role: 'Speech' },
-      { name: 'Piper', role: 'Voices' },
-      { name: 'Kokoro', role: 'Voices' },
-    ],
-    note: 'Tiny apps, native speed, and the speech models run on my own PC (Scribe, VoiceDock).',
+    tools: ['Tauri', 'Rust', 'SQLite', 'whisper.cpp', 'Piper', 'Kokoro'],
+    about:
+      'For small desktop apps that should feel native and keep everything on the machine. Tauri and Rust keep them tiny and fast, with SQLite for storage. The speech models run on my own PC too: whisper.cpp for Scribe, Piper and Kokoro for the voices in VoiceDock and T-Hub.',
     accent: 'teal',
   },
   {
     name: 'The Extension Stack',
     tagline: 'Chrome extensions',
-    tools: [
-      { name: 'Chrome MV3', role: 'Platform' },
-      { name: 'React', role: 'UI' },
-      { name: 'TypeScript', role: 'Language' },
-      { name: 'Vite + CRXJS', role: 'Build' },
-      { name: 'esbuild', role: 'Build' },
-    ],
-    note: 'Plain Manifest V3 with React: Vite and CRXJS for TL;DW, esbuild for VoiceDock and TubeVault.',
+    tools: ['Chrome MV3', 'React', 'TypeScript', 'Vite + CRXJS', 'esbuild'],
+    about:
+      'Plain Manifest V3 with no extension framework on top, and React and TypeScript for the UI. Vite with CRXJS builds TL;DW, and esbuild builds VoiceDock and TubeVault.',
     accent: 'sky',
   },
 ]
