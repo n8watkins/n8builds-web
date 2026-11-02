@@ -104,6 +104,7 @@ describe('the loadout dev-tool lists', () => {
       'own-tools',
       'editors',
       'agents',
+      'workspace',
       'agent-tooling',
       'runtimes',
       'shipping',

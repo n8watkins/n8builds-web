@@ -250,6 +250,7 @@ test.describe('Loadout tools and people', () => {
       'My own tools, in daily use',
       'Editors',
       'Agents',
+      'Workspace',
       'Agent tooling',
       'Runtimes',
       'Shipping',

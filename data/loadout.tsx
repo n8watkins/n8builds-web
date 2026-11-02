@@ -39,6 +39,7 @@ import {
   SiClaude,
   SiCloudflare,
   SiGithub,
+  SiGoogle,
   SiGooglegemini,
   SiNeovim,
   SiNodedotjs,
@@ -716,7 +717,7 @@ export const devSetup: DevSetupTile[] = [
     ],
   },
   {
-    // Two small groups, one tile: what I edit in and the agents that edit with me.
+    // Small groups, one tile: what I edit in, the agents that edit with me, and the everyday apps.
     id: 'editors-agents',
     groups: [
       {
@@ -736,6 +737,12 @@ export const devSetup: DevSetupTile[] = [
           { name: 'Claude Code', href: '#workflow', icon: mark(SiClaude, '#d97757') },
           { name: 'Codex', href: '#workflow', icon: mark(BsOpenai, LIGHT) },
         ],
+      },
+      {
+        // Everyday apps (round 5 of 2026-11-02): one chip for the suite, not one per app.
+        id: 'workspace',
+        title: 'Workspace',
+        items: [{ name: 'Google Workspace', note: 'Gmail, Calendar, Drive and Docs', icon: mark(SiGoogle, '#4285f4') }],
       },
     ],
   },
