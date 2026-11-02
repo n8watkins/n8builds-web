@@ -82,6 +82,7 @@ export async function expectCleanJump(page: Page, rail: Locator, name: string, i
   const link = rail.getByRole('link', { name, exact: true })
   await page.evaluate(() => {
     const w = window as unknown as { __rail: { lit: string[]; moved: number | null; t0: number } }
+    // `moved`: the frame (counted from the click) on which the page had moved.
     w.__rail = { lit: [], moved: null, t0: 0 }
     const y0 = window.scrollY
     document.addEventListener(
@@ -91,7 +92,7 @@ export async function expectCleanJump(page: Page, rail: Locator, name: string, i
         const tick = () => {
           const lit = document.querySelector('[data-section-rail] a[aria-current]')?.getAttribute('href') ?? ''
           w.__rail.lit.push(lit)
-          if (w.__rail.moved === null && Math.abs(window.scrollY - y0) > 4) w.__rail.moved = performance.now() - w.__rail.t0
+          if (w.__rail.moved === null && Math.abs(window.scrollY - y0) > 4) w.__rail.moved = w.__rail.lit.length
           if (performance.now() - w.__rail.t0 < 1500) requestAnimationFrame(tick)
         }
         requestAnimationFrame(tick)
@@ -107,7 +108,8 @@ export async function expectCleanJump(page: Page, rail: Locator, name: string, i
   const { lit, moved } = await page.evaluate(() => (window as unknown as { __rail: { lit: string[]; moved: number | null } }).__rail)
   expect(new Set(lit), 'only the clicked row lights during the scroll').toEqual(new Set([`#${id}`]))
   expect(moved, 'the scroll starts at once').not.toBeNull()
-  // A few frames, with room for a loaded CI machine; the browser's own smooth scroll barely moved in its first 100ms.
-  expect(moved!).toBeLessThan(250)
+  // Within the first few frames (a busy machine's frames can be long, so frames, not
+  // milliseconds); the browser's own smooth scroll had barely moved after six.
+  expect(moved!).toBeLessThanOrEqual(3)
   await expect(link).toHaveAttribute('aria-current', 'location')
 }

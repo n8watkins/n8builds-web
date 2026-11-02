@@ -222,8 +222,9 @@ export default function SectionRail({
     listRef.current?.style.setProperty('--fill', String(index))
 
     const root = document.documentElement
+    // Whole pixels, as an anchor jump lands (WebKit otherwise settles a pixel off).
     const target = () =>
-      Math.min(
+      Math.round(Math.min(
         root.scrollHeight - window.innerHeight,
         Math.max(
           0,
@@ -232,7 +233,7 @@ export default function SectionRail({
             (parseFloat(getComputedStyle(root).scrollPaddingTop) || 0) -
             (parseFloat(getComputedStyle(el).scrollMarginTop) || 0)
         )
-      )
+      ))
     const from = window.scrollY
     const distance = Math.abs(target() - from)
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || distance < 2) {
