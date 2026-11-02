@@ -1,16 +1,18 @@
 /**
  * Projects I'm outlining in public, shown on /upcoming with a waitlist.
- * Nothing here is built yet: each one is a written plan and a landing page.
+ * Nothing here is released yet: each one is a written plan and a landing page,
+ * some with a prototype behind them.
  *
  * The slugs are a public contract: the projects' landing pages link to
  * `https://n8builds.dev/upcoming?interest=<slug>#<slug>`, so never rename one;
  * a renamed project keeps its old interest value working (INTEREST_ALIASES).
  * Copy comes from each project's own docs (Relink's in ~/projects/deadlink,
  * Strollz's in ~/projects/strollz, VibeLog's README and docs/VISION.md in
- * ~/projects/polish/vibelog); keep it in step and modest.
+ * ~/projects/polish/vibelog, KeysReady's from the owner and its landing page);
+ * keep it in step and modest.
  */
 
-export const UPCOMING_SLUGS = ['relink', 'strollz', 'vibelog'] as const
+export const UPCOMING_SLUGS = ['relink', 'strollz', 'vibelog', 'keysready'] as const
 export type UpcomingSlug = (typeof UPCOMING_SLUGS)[number]
 
 export type UpcomingProject = {
@@ -24,11 +26,12 @@ export type UpcomingProject = {
   icon: string
   /** The project's landing page. */
   landing: string
-  /** The project's own accent, for its checks and its card's edge. */
+  /** The project's own accent, for its checks and its card's edge (its shade for dark backgrounds). */
   accent: string
   what: string
   forWho: string
-  status: 'Outlining'
+  /** Outlining: a plan and a landing page. Concept: those and an unreleased prototype. */
+  status: 'Outlining' | 'Concept'
   stage: string
   points: string[]
 }
@@ -90,6 +93,26 @@ export const UPCOMING: UpcomingProject[] = [
       'A private dashboard and an activity calendar of your coding and streaming',
       'A public live page and share cards built only from names and numbers you choose',
       'Local-first with no account; open source first, a hosted page later',
+    ],
+  },
+  {
+    slug: 'keysready',
+    name: 'KeysReady',
+    tagline: 'Stop answering “Is my car ready?”',
+    icon: '/upcoming/keysready.svg',
+    landing: 'https://keysready.n8builds.dev',
+    // Signal red: #c81e1e on light backgrounds, #ff5a4e on dark ones (this site); its icon adds a ready-green, #43d095.
+    accent: '#ff5a4e',
+    what: 'Your customers get online booking, live repair status and estimates they approve and pay from their phone. They always know where their car is, so you can stay under the hood instead of on the phone.',
+    forWho:
+      'Independent 1-3 bay auto shops, mobile mechanics and other small repair shops running on paper and a phone, plus agencies building their websites.',
+    status: 'Concept',
+    stage: 'A working single-shop prototype. Open-source release first, then a free hosted pilot.',
+    points: [
+      'Online booking with a link for your site or Google profile, and no app for customers',
+      'Live repair status by email and browser notifications, with a status page that answers the call before it happens',
+      "Estimates customers approve and pay from their phone, with money going to the shop's own Stripe account",
+      'Free for a small shop and open source, so you can self-host it; Pro at $29/mo adds texts, reminders and reviews (planned)',
     ],
   },
 ]

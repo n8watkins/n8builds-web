@@ -13,9 +13,9 @@ import { isWaitlistOpen } from '@/lib/waitlist/store'
 export const metadata = pageMetadata({
   title: 'Upcoming | n8builds',
   description:
-    "Projects I'm outlining in public: Relink, an open-source 404 safety net; Strollz, walking loops through streets you've never walked; and VibeLog, live telemetry for coding streams. Join a waitlist to hear when there is something to try.",
+    "Projects I'm outlining in public: Relink, an open-source 404 safety net; Strollz, walking loops through streets you've never walked; VibeLog, live telemetry for coding streams; and KeysReady, booking, live repair status and pay-by-phone for small auto shops. Join a waitlist to hear when there is something to try.",
   shareDescription:
-    "What I'm outlining next: Relink, Strollz and VibeLog. Join a waitlist to hear when there is something to try.",
+    "What I'm outlining next: Relink, Strollz, VibeLog and KeysReady. Join a waitlist to hear when there is something to try.",
   path: '/upcoming',
 })
 
@@ -80,7 +80,7 @@ function ProjectCard({ project, index }: { project: UpcomingProject; index: numb
           ))}
         </ul>
 
-        {/* mt-auto keeps the two cards' buttons level when one card's text runs longer. */}
+        {/* mt-auto keeps side-by-side cards' buttons level when one card's text runs longer. */}
         <div className="relative mt-auto flex flex-wrap items-center gap-x-5 gap-y-3 pt-6">
           <JoinButton slug={project.slug} name={project.name} accent={project.accent} />
           <a
@@ -126,7 +126,8 @@ export default function UpcomingPage() {
             </p>
           </FadeIn>
 
-          <div className="mt-10 grid gap-6 md:mt-12 lg:grid-cols-3">
+          {/* Four cards: two by two from 960px (so no card is left alone on a row, and 1024px stays two across even with a classic scrollbar), one column below. */}
+          <div className="mt-10 grid gap-6 md:mt-12 min-[960px]:grid-cols-2">
             {UPCOMING.map((project, index) => (
               <ProjectCard key={project.slug} project={project} index={index} />
             ))}

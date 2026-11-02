@@ -30,12 +30,19 @@ test('accepts a valid sign-up', async ({ request }) => {
   expect((await response.json()).message).toMatch(/check your inbox/i)
 })
 
+test('accepts every project, KeysReady included, and an old interest value', async ({ request }) => {
+  const all = ['relink', 'strollz', 'vibelog', 'keysready']
+  expect((await join(request, { projects: all, source: { interest: 'keysready' } })).status()).toBe(200)
+  expect((await join(request, { projects: ['relink'], source: { interest: 'rewire' } })).status()).toBe(200)
+})
+
 test('rejects a filled honeypot', async ({ request }) => {
   expect((await join(request, { honeypot: 'gotcha' })).status()).toBe(400)
 })
 
 test('rejects an unknown project', async ({ request }) => {
   expect((await join(request, { projects: ['deadlink'] })).status()).toBe(400)
+  expect((await join(request, { projects: ['keysready', 'keys-ready'] })).status()).toBe(400)
 })
 
 test('rejects a form post (JSON only)', async ({ request }) => {

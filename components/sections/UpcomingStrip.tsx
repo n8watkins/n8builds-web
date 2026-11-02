@@ -32,12 +32,13 @@ export default function UpcomingStrip() {
           </Link>
         </div>
 
-        <ul className="grid gap-4 md:grid-cols-3">
+        {/* Two by two from tablets up: four across would squeeze each button onto two lines. */}
+        <ul className="grid gap-4 md:grid-cols-2">
           {UPCOMING.map((p) => (
             <li
               key={p.slug}
               style={{ '--accent': p.accent } as CSSProperties}
-              className="flex flex-col rounded-2xl border border-white/8 bg-[#0a1222]/70 p-5"
+              className="flex flex-col rounded-2xl border border-white/8 bg-[#0a1222]/70 p-4 min-[360px]:p-5"
             >
               <div className="flex items-center gap-3.5">
                 <Image src={p.icon} alt="" width={44} height={44} className="h-11 w-11 shrink-0 rounded-xl ring-1 ring-white/10" />
@@ -49,7 +50,7 @@ export default function UpcomingStrip() {
               <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 pt-4">
                 <Link
                   href={waitlistHref(p.slug)}
-                  className="inline-flex h-9 items-center rounded-lg border border-(--accent)/45 bg-(--accent)/10 px-3.5 text-sm font-semibold text-slate-50 transition-colors hover:border-(--accent)/70 hover:bg-(--accent)/18"
+                  className="inline-flex min-h-9 items-center rounded-lg border border-(--accent)/45 bg-(--accent)/10 px-3 py-1.5 text-sm leading-snug font-semibold min-[360px]:px-3.5 text-slate-50 transition-colors hover:border-(--accent)/70 hover:bg-(--accent)/18"
                 >
                   Let &rsquo;em cook: join the waitlist
                   <span className="sr-only"> for {p.name}</span>

@@ -29,16 +29,42 @@ test('shows each project with its own anchor, and is titled for the site', async
   await page.goto('/upcoming')
   await expect(page).toHaveTitle('Upcoming | n8builds')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('What’s cookin’')
-  for (const [id, name] of [
-    ['relink', 'Relink'],
-    ['strollz', 'Strollz'],
-    ['vibelog', 'VibeLog'],
+  await expect(page.locator('main article')).toHaveCount(4)
+  for (const [id, name, status] of [
+    ['relink', 'Relink', 'Outlining'],
+    ['strollz', 'Strollz', 'Outlining'],
+    ['vibelog', 'VibeLog', 'Outlining'],
+    ['keysready', 'KeysReady', 'Concept'],
   ]) {
     const card = page.locator(`article#${id}`)
     await expect(card.getByRole('heading', { level: 2 })).toContainText(name)
-    await expect(card.getByText('Status: Outlining')).toBeVisible()
+    await expect(card.getByText(`Status: ${status}`)).toBeVisible()
     await expect(card.getByRole('listitem')).toHaveCount(4)
   }
+  await expect(page.locator('article#keysready')).toContainText('Stop answering “Is my car ready?”')
+  await expect(page.locator('#waitlist-projects').getByRole('checkbox')).toHaveCount(4)
+})
+
+test('lays the four cards out two by two on wide screens and in one column below', async ({ page }) => {
+  for (const [width, columns] of [
+    [1280, 2],
+    [1024, 2],
+    [810, 1],
+    [390, 1],
+  ]) {
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto('/upcoming')
+    const lefts = await page.locator('main article').evaluateAll((cards) => cards.map((c) => Math.round(c.getBoundingClientRect().left)))
+    expect(new Set(lefts).size, `columns at ${width}px`).toBe(columns)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0)
+  }
+})
+
+test("KeysReady's landing page link preselects it and lands on its card", async ({ page }) => {
+  await page.goto('/upcoming?interest=keysready#keysready')
+  await expect(project(page, 'KeysReady')).toBeChecked()
+  await expect(project(page, 'Relink')).not.toBeChecked()
+  await expect(page.locator('article#keysready')).toBeInViewport()
 })
 
 test('a landing page link preselects its project and lands on its card', async ({ page }) => {
@@ -149,7 +175,9 @@ const LANDING = {
   relink: 'https://relink.n8builds.dev',
   strollz: 'https://strollz.n8builds.dev',
   vibelog: 'https://vibelogs.dev',
+  keysready: 'https://keysready.n8builds.dev',
 }
+const NAMES: Record<string, string> = { relink: 'Relink', strollz: 'Strollz', vibelog: 'VibeLog', keysready: 'KeysReady' }
 
 test('each card links its landing page (hrefs only: the sites may not be live yet)', async ({ page }) => {
   await page.goto('/upcoming')
@@ -163,9 +191,9 @@ test("the homepage Lab ends with a short What's cookin' part, each with its wait
   const band = page.locator('#lab section#upcoming')
   await expect(band.getByRole('heading', { level: 3 })).toHaveText('What’s cookin’')
   await expect(band.getByText('Upcoming', { exact: true })).toBeVisible()
-  await expect(band.getByRole('listitem')).toHaveCount(3)
+  await expect(band.getByRole('listitem')).toHaveCount(4)
   for (const [slug, href] of Object.entries(LANDING)) {
-    const name = { relink: 'Relink', strollz: 'Strollz', vibelog: 'VibeLog' }[slug]
+    const name = NAMES[slug]
     await expect(band.getByRole('link', { name: `Let ’em cook: join the waitlist for ${name}` })).toHaveAttribute(
       'href',
       `/upcoming?interest=${slug}#${slug}`
@@ -180,3 +208,35 @@ test("the homepage Lab ends with a short What's cookin' part, each with its wait
   await band.getByRole('link', { name: 'See all upcoming' }).click()
   await expect(page).toHaveURL(/\/upcoming$/)
 })
+
+// Four items: two by two from 768px up (four across would squeeze the buttons onto two lines), one column below.
+for (const [width, columns] of [
+  [1440, 2],
+  [1280, 2],
+  [1024, 2],
+  [810, 2],
+  [390, 1],
+  [320, 1],
+]) {
+  test(`What's cookin' lays its four items out evenly at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto('/')
+    const items = page.locator('#lab section#upcoming li')
+    await expect(items).toHaveCount(4)
+    await items.first().scrollIntoViewIfNeeded()
+    const boxes = await items.evaluateAll((list) =>
+      list.map((li) => ({ top: Math.round(li.getBoundingClientRect().top), height: li.getBoundingClientRect().height }))
+    )
+    const rows = new Map<number, number[]>()
+    for (const { top, height } of boxes) rows.set(top, [...(rows.get(top) ?? []), height])
+    // A balanced grid: every row full, so no card is left alone, and the cards in a row the same height.
+    expect([...rows.values()].map((row) => row.length)).toEqual(Array(4 / columns).fill(columns))
+    for (const heights of rows.values()) expect(Math.max(...heights) - Math.min(...heights)).toBeLessThan(1)
+    // Each join button stays on one line, and nothing spills past the page.
+    const buttons = await items
+      .getByRole('link', { name: /Let ’em cook/ })
+      .evaluateAll((links) => links.map((a) => a.getBoundingClientRect().height))
+    for (const height of buttons) expect(height).toBeLessThanOrEqual(37)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0)
+  })
+}
