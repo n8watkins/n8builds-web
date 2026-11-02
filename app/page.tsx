@@ -14,10 +14,10 @@ export const metadata = pageMetadata({
 // the "N8's Notions" strip within the hour.
 export const revalidate = 3600
 
-/** The 3 newest posts; none (the strip hides) if Sanity is unreachable. */
+/** The 4 newest posts (the newest featured, then 3); none (the strip hides) if Sanity is unreachable. */
 async function recentPosts(): Promise<Post[]> {
   try {
-    return await getRecentPosts(3)
+    return await getRecentPosts(4)
   } catch (error) {
     console.error('Failed to load recent notions:', error)
     return []
