@@ -396,6 +396,27 @@ test.describe('Loadout tools and people', () => {
     }
   })
 
+  test('under the stacks: where my projects run, and the layers every stack shares', async ({ page }) => {
+    await page.goto('/loadout')
+    const stacks = page.getByRole('region', { name: 'Stacks I build with' })
+    // Every host in real use, each with what lives there; nothing deploys to Railway.
+    const hosts = stacks.getByRole('region', { name: 'Where it runs' }).locator('[data-host]')
+    await expect(hosts).toHaveCount(7)
+    for (const host of ['Vercel', 'Cloudflare Workers', 'Firebase', 'Render', 'Turso', 'Upstash', 'GitHub Pages']) {
+      await expect(hosts.filter({ hasText: new RegExp(`^${host} - `) })).toHaveCount(1)
+    }
+    await expect(stacks).not.toContainText('Railway')
+    const across = stacks.getByRole('region', { name: 'Across every stack' })
+    await expect(across.locator('dt')).toHaveText(['UI', 'Validation', 'Sign-in', 'Payments', 'Email', 'Testing', 'Monitoring', 'CI and releases'])
+    for (const tool of ['shadcn/ui', 'Tailwind CSS', 'Playwright', 'axe', 'Sentry', 'Stripe', 'Better Auth', 'Auth.js', 'GitHub Actions']) {
+      await expect(across.locator('[data-stack-tool]').filter({ hasText: new RegExp(`^${tool.replace('.', '\\.')}$`) })).toHaveCount(1)
+    }
+    // Every chip has its mark, and none wraps.
+    await expect(across.locator('[data-stack-icon]')).toHaveCount(await across.locator('[data-stack-tool]').count())
+    for (const height of await across.locator('[data-stack-tool]').evaluateAll((els) => els.map((el) => el.getBoundingClientRect().height)))
+      expect(height).toBeLessThan(24)
+  })
+
   test('Stacks I build with names each stack, explains its logic in a paragraph, and shows its tools as chips', async ({ page }) => {
     await page.goto('/loadout')
     const stacks = page.getByRole('region', { name: 'Stacks I build with' })
@@ -413,7 +434,14 @@ test.describe('Loadout tools and people', () => {
     await expect(stacks.locator('[data-stack-role]')).toHaveCount(0)
     for (const role of ['Framework', 'Database', 'Hosting']) await expect(stacks).not.toContainText(role)
     const turso = stacks.getByRole('list', { name: 'The Turso Stack tools' })
-    await expect(turso.locator('[data-stack-tool]')).toHaveText(['Next.js', 'TypeScript', 'Turso', 'Drizzle', 'Cloudflare R2', 'Vercel'])
+    await expect(turso.locator('[data-stack-tool]')).toHaveText(['Next.js', 'TypeScript', 'Drizzle'])
+    // Where each stack runs, shown on its card (round 5 of 2026-11-02: hosting is part of the stack).
+    const runsOn = (name: string) => stacks.getByRole('list', { name: `${name} hosting` }).locator('[data-stack-tool]')
+    await expect(runsOn('The Turso Stack')).toHaveText(['Turso', 'Cloudflare R2', 'Vercel'])
+    await expect(runsOn('The Cloudflare Stack')).toHaveText(['Workers', 'D1'])
+    await expect(runsOn('The Firebase Stack')).toHaveText(['Firestore', 'Vercel'])
+    await expect(runsOn('The Local-First Stack')).toHaveText(['Your PC', 'GitHub Releases'])
+    await expect(runsOn('The Extension Stack')).toHaveText(['Your browser'])
     await expect(stacks).not.toContainText('+TypeScript')
     // The extensions really built with: no WXT.
     await expect(stacks.getByRole('list', { name: 'The Extension Stack tools' }).locator('[data-stack-tool]')).toHaveText([
@@ -440,8 +468,8 @@ test.describe('Loadout tools and people', () => {
     await expect(about.nth(3)).toContainText('whisper.cpp')
     await expect(about.nth(4)).toContainText('esbuild')
     // Every tool carries its mark, 16px.
-    const icons = stacks.locator('[data-stack-icon] svg')
-    await expect(icons).toHaveCount(25)
+    const icons = stacks.getByRole('article').locator('[data-stack-icon] svg')
+    await expect(icons).toHaveCount(28)
     for (const height of await icons.evaluateAll((svgs) => svgs.map((svg) => Math.round(svg.getBoundingClientRect().height)))) expect(height).toBe(16)
     // Every tool name stays on one line, and the cards in a row are the same height.
     for (const height of await stacks.locator('[data-stack-tool]').evaluateAll((els) => els.map((el) => el.getBoundingClientRect().height)))

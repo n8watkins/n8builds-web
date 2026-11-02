@@ -89,7 +89,8 @@ export default function HomeStack() {
           <p className="mt-0.5 text-sm font-semibold text-blue-300">My first pick for new web apps</p>
         </div>
         <ul className="mt-5 grid gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
-          {turso.tools.map((tool) => {
+          {/* The code and where it runs: hosting is part of the stack (round 5 of 2026-11-02). */}
+          {[...turso.tools, ...turso.hosting].map((tool) => {
             const why = WHY[tool]
             return (
               // A light hover on each piece: its icon grows a touch and lights up, its name turns cyan.
