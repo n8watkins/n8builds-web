@@ -10,7 +10,7 @@ import { BuiltToolsGrid, TOOLS_I_BUILT_BLURB, TOOLS_I_BUILT_TITLE } from '@/comp
  */
 export default function HomeToolsIBuilt() {
   return (
-    <section id="tools-i-built" aria-labelledby="tools-i-built-title" className="mt-14 scroll-mt-20">
+    <section id="tools-i-built" aria-labelledby="tools-i-built-title" className="mt-14">
       <div className="border-l-2 border-cyan-400/40 pl-4">
         <p className="mb-1.5 text-[0.68rem] font-bold uppercase tracking-[0.16em] text-cyan-400">Built by me</p>
         <h3 id="tools-i-built-title" className="text-2xl font-bold tracking-tight text-slate-50">

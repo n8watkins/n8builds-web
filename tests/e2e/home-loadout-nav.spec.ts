@@ -164,8 +164,8 @@ for (const width of [1280, 1366, 1440, 1536, 1920]) {
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
     ).toBe(true)
-    if (shape.labels) await expect(nav.getByText('My Loadout', { exact: true })).toBeVisible()
-    else await expect(nav.getByText('My Loadout', { exact: true })).toBeHidden()
+    if (shape.labels) await expect(nav.getByText('Loadout', { exact: true })).toBeVisible()
+    else await expect(nav.getByText('Loadout', { exact: true })).toBeHidden()
     expect(await labelLines(nav), 'lines per label').toEqual(PARTS.map(() => 1))
   })
 }

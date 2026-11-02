@@ -16,11 +16,11 @@ const SECTIONS: readonly RailPart[] = [
   { id: 'my-setup', label: 'Dev setup', icon: LuSquareTerminal },
 ]
 
-const HEADING = { icon: <LuBackpack className="size-7 text-cyan-300" aria-hidden="true" />, title: 'My Loadout' }
+const HEADING = { icon: <LuBackpack className="size-7 text-cyan-300" aria-hidden="true" />, title: 'Loadout' }
 
 /**
  * The homepage Loadout's floating side nav (components/ui/SectionRail.tsx),
- * like the Lab's (the owner's ask, 2026-11-02): "My Loadout", with its
+ * like the Lab's (the owner's ask, 2026-11-02): "Loadout", with its
  * backpack, over the AI kit, the default stack, Tools I built and use and the
  * dev setup line. Desktop only (from 1280px), in the left gutter beside the
  * band's content column. It lives in the Loadout's own band, several bands
