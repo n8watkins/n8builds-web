@@ -23,9 +23,16 @@ export type UpcomingProject = {
   /** Old anchors that should still land on this card (a renamed project's). */
   oldIds?: string[]
   tagline: string
+  /**
+   * What it does for whom, in plain words: one or two short sentences under
+   * the tagline on the homepage cards (the full `what` is on /upcoming).
+   */
+  summary: string
   icon: string
   /** The project's landing page. */
   landing: string
+  /** Its GitHub repository, only once the repository is public ("owner/name"). */
+  repo?: string
   /** The project's own accent, for its checks and its card's edge (its shade for dark backgrounds). */
   accent: string
   what: string
@@ -42,7 +49,9 @@ export const UPCOMING: UpcomingProject[] = [
     name: 'Relink',
     nameNote: 'working name',
     oldIds: ['rewire'],
-    tagline: 'The open-source 404 safety net',
+    tagline: 'Turns broken links into the right page',
+    summary:
+      'When a visitor follows a broken link to your website, it sends them to the page they meant instead of an error page.',
     icon: '/upcoming/relink.svg',
     landing: 'https://relink.n8builds.dev',
     accent: '#ff8a4c',
@@ -62,6 +71,8 @@ export const UPCOMING: UpcomingProject[] = [
     slug: 'strollz',
     name: 'Strollz',
     tagline: 'Walk the streets you have never walked',
+    summary:
+      'Tell it how long you have, and it plans a walking loop from your door through streets you have not walked yet.',
     icon: '/upcoming/strollz.svg',
     landing: 'https://strollz.n8builds.dev',
     accent: '#5cc49b',
@@ -81,8 +92,11 @@ export const UPCOMING: UpcomingProject[] = [
     slug: 'vibelog',
     name: 'VibeLog',
     tagline: 'Live coding telemetry for vibe-coding streams',
+    summary:
+      'For people who stream themselves coding with AI: it shows your commits, code changes and AI usage on screen, live.',
     icon: '/upcoming/vibelog.svg',
     landing: 'https://vibelogs.dev',
+    repo: 'n8watkins/vibelog',
     accent: '#f472b6',
     what: 'One local process tracks your git activity, Claude token spend, stream time and channel growth, and turns them into a live OBS overlay, a private dashboard, a public live page and shareable stat cards.',
     forWho: 'People who stream themselves building software with AI and want viewers to see what is actually happening.',
@@ -99,6 +113,8 @@ export const UPCOMING: UpcomingProject[] = [
     slug: 'keysready',
     name: 'KeysReady',
     tagline: 'Stop answering “Is my car ready?”',
+    summary:
+      'For small auto repair shops: customers book online, follow their repair live, and approve and pay from their phone.',
     icon: '/upcoming/keysready.svg',
     landing: 'https://keysready.n8builds.dev',
     // Signal red: #c81e1e on light backgrounds, #ff5a4e on dark ones (this site); its icon adds a ready-green, #43d095.

@@ -1,16 +1,18 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import type { CSSProperties } from 'react'
-import { FiArrowRight, FiArrowUpRight } from 'react-icons/fi'
+import { FiArrowRight } from 'react-icons/fi'
 import LabSubheader from '@/components/sections/LabSubheader'
 import JoinButton from '@/components/upcoming/JoinButton'
+import { CodeLink, LandingButton } from '@/components/upcoming/ProjectLinks'
 import WaitlistPanel from '@/components/upcoming/WaitlistPanel'
 import { UPCOMING } from '@/data/upcoming'
 
 /**
  * The homepage's short take on /upcoming (owner, 2026-11-01), as the Lab's last
  * part, "What's cookin'": one line on what it is, the projects four across
- * (icon, name, tagline, Join and its landing page), then the same waitlist
+ * (icon, name, tagline, a plain summary, its landing page first, then Join,
+ * and its code where the repository is public), then the same waitlist
  * form as /upcoming, where visitors can pick several (owner, 2026-11-02). No
  * statuses, points or audiences here: the full detail stays on /upcoming.
  */
@@ -52,19 +54,17 @@ export default function UpcomingStrip() {
                   <p className="mt-0.5 text-sm text-balance text-(--accent)">{p.tagline}</p>
                 </div>
               </div>
-              {/* mt-auto keeps the four buttons level when one tagline runs longer. */}
-              <div className="mt-auto flex flex-col items-center gap-3 pt-5">
+              <p className="mt-3 text-sm leading-relaxed text-pretty text-slate-300">{p.summary}</p>
+              {p.repo && (
+                <p className="mt-3">
+                  <CodeLink project={p} />
+                </p>
+              )}
+              {/* The landing page first, then Join (owner, 2026-11-02). mt-auto keeps
+                   the buttons level when one card's text runs longer. */}
+              <div className="mt-auto flex flex-col gap-2.5 pt-5">
+                <LandingButton project={p} compact />
                 <JoinButton slug={p.slug} name={p.name} accent={p.accent} compact />
-                <a
-                  href={p.landing}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-sm font-medium text-slate-300 transition-colors hover:text-cyan-200"
-                >
-                  Visit the landing page
-                  <span className="sr-only"> for {p.name} (opens in a new tab)</span>
-                  <FiArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
-                </a>
               </div>
             </li>
           ))}

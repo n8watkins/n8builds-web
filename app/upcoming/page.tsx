@@ -1,10 +1,11 @@
 import type { CSSProperties } from 'react'
 import Image from 'next/image'
-import { FiArrowUpRight, FiCheck } from 'react-icons/fi'
+import { FiCheck } from 'react-icons/fi'
 import Navbar from '@/components/layout/Navbar'
 import FadeIn from '@/components/ui/FadeIn'
 import Reveal from '@/components/ui/Reveal'
 import JoinButton from '@/components/upcoming/JoinButton'
+import { CodeLink, LandingButton } from '@/components/upcoming/ProjectLinks'
 import WaitlistPanel from '@/components/upcoming/WaitlistPanel'
 import { UPCOMING, type UpcomingProject } from '@/data/upcoming'
 import { pageMetadata } from '@/lib/seo'
@@ -12,7 +13,7 @@ import { pageMetadata } from '@/lib/seo'
 export const metadata = pageMetadata({
   title: 'Upcoming | n8builds',
   description:
-    "Projects I'm outlining in public: Relink, an open-source 404 safety net; Strollz, walking loops through streets you've never walked; VibeLog, live telemetry for coding streams; and KeysReady, booking, live repair status and pay-by-phone for small auto shops. Join a waitlist to hear when there is something to try.",
+    "Projects I'm outlining in public: Relink, which turns broken links into the right page; Strollz, walking loops through streets you've never walked; VibeLog, live telemetry for coding streams; and KeysReady, booking, live repair status and pay-by-phone for small auto shops. Join a waitlist to hear when there is something to try.",
   shareDescription:
     "What I'm outlining next: Relink, Strollz, VibeLog and KeysReady. Join a waitlist to hear when there is something to try.",
   path: '/upcoming',
@@ -29,7 +30,7 @@ function ProjectCard({ project, index }: { project: UpcomingProject; index: numb
     >
       <div
         style={{ '--accent': project.accent } as CSSProperties}
-        className="relative flex w-full flex-col overflow-hidden rounded-2xl border border-white/8 bg-[#0a1222]/80 p-6 sm:p-7"
+        className="@container relative flex w-full flex-col overflow-hidden rounded-2xl border border-white/8 bg-[#0a1222]/80 p-6 sm:p-7"
       >
         {/* The project's colour: a bar along the top and a faint glow behind the header. */}
         {/* A renamed project's old anchor (#rewire) still lands here. */}
@@ -79,19 +80,20 @@ function ProjectCard({ project, index }: { project: UpcomingProject; index: numb
           ))}
         </ul>
 
-        {/* mt-auto keeps side-by-side cards' buttons level when one card's text runs longer. */}
-        <div className="relative mt-auto flex flex-wrap items-center gap-x-5 gap-y-3 pt-6">
-          <JoinButton slug={project.slug} name={project.name} accent={project.accent} />
-          <a
-            href={project.landing}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-sm font-medium text-slate-300 transition-colors hover:text-cyan-200"
-          >
-            Visit the landing page
-            <span className="sr-only"> for {project.name} (opens in a new tab)</span>
-            <FiArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
-          </a>
+        {/* The landing page first, then Join, then the code where the repository is public
+             (owner, 2026-11-02): the two buttons side by side, equal widths, where the card
+             has room (a container query, as the card's width doesn't follow the window's),
+             stacked otherwise. mt-auto keeps side-by-side cards' buttons level. */}
+        <div className="relative mt-auto pt-6">
+          <div className="flex flex-col gap-3 @md:flex-row">
+            <LandingButton project={project} />
+            <JoinButton slug={project.slug} name={project.name} accent={project.accent} compact />
+          </div>
+          {project.repo && (
+            <p className="mt-4">
+              <CodeLink project={project} />
+            </p>
+          )}
         </div>
       </div>
     </FadeIn>
