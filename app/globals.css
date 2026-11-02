@@ -616,6 +616,39 @@
   mask-composite: intersect;
 }
 
+/* The "What I'm working on" phone (components/sections/TemplateCarousel.tsx):
+   a full-length template page scrolls slowly inside the frame, pauses at the
+   bottom, scrolls back up and repeats. --travel (from the component) is how
+   far the image moves: all of it but the frame's height. Transform only, on
+   its own layer. It holds still while the card is off screen (NowCarousel
+   sets data-offscreen) and under reduced motion it is the page's top, still. */
+@media (prefers-reduced-motion: no-preference) {
+  .now-phone-scroll {
+    animation: now-phone-scroll 30s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+  [data-offscreen] .now-phone-scroll {
+    animation-play-state: paused;
+  }
+}
+@keyframes now-phone-scroll {
+  0%, 8%    { transform: translateY(0); }
+  92%, 100% { transform: translateY(var(--travel)); }
+}
+
+/* The templates' timer line (TemplateCarousel): fills left to right over the
+   slide's time (the component sets the duration and pauses it); the slide
+   moves on when it ends. Never shown under reduced motion. */
+.template-timer {
+  animation-name: template-timer;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+@keyframes template-timer {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
 /* The Lab's colour washes (components/sections/FeaturedProjects.tsx and
    ExtensionsShowcase.tsx; the owner's pick, 2026-10-26). Each project row
    carries its product's colour as a glow that comes in from one side of the
@@ -821,36 +854,6 @@
 @keyframes lab-eyebrow-shimmer {
   0% { background-position: 100% 0; }
   60%, 100% { background-position: 0% 0; }
-}
-
-/* The navbar's techforpros.com swoosh (components/layout/Navbar.tsx): the
-   curve draws itself in, left to right, once the page loads (the path's
-   dash), and again on hover or keyboard focus (a wipe on the svg, so leaving
-   doesn't restart the load animation and blink the curve out). Reduced
-   motion shows it drawn, with no animation. */
-.tfp-swoosh path {
-  stroke-dasharray: 100;
-  stroke-dashoffset: 0;
-  animation: tfp-swoosh-draw 0.9s cubic-bezier(0.65, 0, 0.35, 1) 0.5s both;
-}
-.group\/tfp:hover .tfp-swoosh,
-.group\/tfp:focus-visible .tfp-swoosh {
-  animation: tfp-swoosh-wipe 0.55s cubic-bezier(0.65, 0, 0.35, 1) both;
-}
-@keyframes tfp-swoosh-draw {
-  from { stroke-dashoffset: 100; }
-  to { stroke-dashoffset: 0; }
-}
-@keyframes tfp-swoosh-wipe {
-  from { clip-path: inset(-4px 100% -4px 0); }
-  to { clip-path: inset(-4px 0 -4px 0); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .tfp-swoosh path,
-  .group\/tfp:hover .tfp-swoosh,
-  .group\/tfp:focus-visible .tfp-swoosh {
-    animation: none;
-  }
 }
 
 /* The Lab's main buttons: a soft light sweeps across every few seconds. */

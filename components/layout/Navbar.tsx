@@ -293,9 +293,9 @@ const Navbar = () => {
             {/* My company, by its address (owner, 2026-11-01): a bordered pill
                 like Ko-fi and Portfolio (same height, radius and border, with a
                 faint brand tint), holding its icon and techforpros.com over a
-                hand-drawn swoosh that draws itself in on load and again on hover
-                or focus (.tfp-swoosh, app/globals.css; drawn at once under
-                reduced motion). Shown at every width; on a 320px phone it still
+                clean curved underline, the style of the old Appturnity hero's
+                (round 3 of 2026-11-02: one smooth arc, no hand-drawn wobble, no
+                draw-in; it brightens on hover or focus). Shown at every width; on a 320px phone it still
                 fits between the logo and the menu button
                 (tests/e2e/navigation.spec.ts). */}
             <a
@@ -310,27 +310,26 @@ const Navbar = () => {
                 {TECH_FOR_PROS.domain}
                 <svg
                   aria-hidden="true"
-                  className="tfp-swoosh pointer-events-none absolute -bottom-[5px] left-0 h-[6px] w-full overflow-visible"
+                  className="tfp-underline pointer-events-none absolute -bottom-[6px] left-0 h-[6px] w-full overflow-visible opacity-80 transition-opacity duration-200 group-hover/tfp:opacity-100 group-focus-visible/tfp:opacity-100"
                   viewBox="0 0 116 6"
                   preserveAspectRatio="none"
                 >
                   <defs>
-                    <linearGradient id="tfp-swoosh-gradient" x1="0" y1="0" x2="1" y2="0">
+                    <linearGradient id="tfp-underline-gradient" x1="0" y1="0" x2="1" y2="0">
                       <stop offset="0" stopColor="#22d3ee" />
                       <stop offset="1" stopColor="#3b82f6" />
                     </linearGradient>
                   </defs>
-                  {/* A loose, hand-drawn curve: dips under the start, lifts at the end.
-                      The viewBox is the text's own size (about 116 by 6 px), so
-                      the stretch is near 1:1 and the stroke stays even without
-                      vector-effect, which breaks pathLength dashes in Chrome. */}
+                  {/* One smooth arc, as under the old Appturnity hero's words:
+                      level at the start, sweeping gently down to the end. The
+                      viewBox is the text's own size (about 116 by 6 px), so
+                      the stretch is near 1:1 and the stroke stays even. */}
                   <path
-                    d="M1.2 4.2 C 21 5.6, 39.5 2.6, 60.3 3.4 S 99.8 4.6, 114.8 1.2"
+                    d="M1 2.4 C 21 1.2, 58 0.9, 115 4.8"
                     fill="none"
-                    stroke="url(#tfp-swoosh-gradient)"
+                    stroke="url(#tfp-underline-gradient)"
                     strokeWidth="1.75"
                     strokeLinecap="round"
-                    pathLength={100}
                   />
                 </svg>
               </span>

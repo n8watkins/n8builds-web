@@ -93,11 +93,11 @@ test.describe('the Contact link', () => {
 
 /**
  * The navbar's Tech for Pros link (2026-11-01): a bordered pill like Ko-fi and
- * Portfolio, holding its icon and techforpros.com over a hand-drawn swoosh
- * that draws itself in (drawn at once under reduced motion).
+ * Portfolio, holding its icon and techforpros.com over a clean curved
+ * underline (round 3 of 2026-11-02: one smooth arc, static, never animated).
  */
 const techForPros = (page: Page) => page.locator('nav[aria-label="Primary"]').getByRole('link', { name: /^techforpros\.com/ })
-const swoosh = (page: Page) => techForPros(page).locator('svg.tfp-swoosh path')
+const underline = (page: Page) => techForPros(page).locator('svg.tfp-underline path')
 
 test('the navbar links techforpros.com in a pill like Ko-fi and Portfolio, through the counted short link', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
@@ -113,41 +113,28 @@ test('the navbar links techforpros.com in a pill like Ko-fi and Portfolio, throu
     return { radius: s.borderTopLeftRadius, border: s.borderTopWidth, style: s.borderTopStyle, height: el.getBoundingClientRect().height }
   }
   expect(await link.evaluate(style)).toEqual(await kofi.evaluate(style))
-  // A swoosh under the text, not a straight text underline, and no gradient fill.
+  // A curve under the text, not a straight text underline, and no gradient fill.
   await expect(link.getByText('techforpros.com', { exact: true })).not.toHaveCSS('text-decoration-line', 'underline')
   expect(await link.evaluate((el) => getComputedStyle(el).backgroundImage)).toBe('none')
   const text = (await link.getByText('techforpros.com', { exact: true }).boundingBox())!
-  const curve = (await swoosh(page).boundingBox())!
+  const curve = (await underline(page).boundingBox())!
   // Under the letters: its lowest point is below the text's line box.
   expect(curve.y + curve.height).toBeGreaterThan(text.y + text.height)
   expect(curve.y).toBeGreaterThan(text.y + text.height / 2)
   expect(curve.width).toBeGreaterThan(text.width * 0.95)
 })
 
-test.describe('the techforpros.com swoosh', () => {
-  test.describe('with motion', () => {
-    test.use({ contextOptions: { reducedMotion: 'no-preference' } })
-
-    test('draws itself in on load, then again on hover', async ({ page }) => {
-      await page.setViewportSize({ width: 1440, height: 900 })
-      await page.goto('/')
-      await expect(swoosh(page)).toHaveCSS('animation-name', 'tfp-swoosh-draw')
-      // Drawn by the end.
-      await expect.poll(() => swoosh(page).evaluate((el) => parseFloat(getComputedStyle(el).strokeDashoffset)), { timeout: 5000 }).toBe(0)
-      await techForPros(page).hover()
-      await expect(techForPros(page).locator('svg.tfp-swoosh')).toHaveCSS('animation-name', 'tfp-swoosh-wipe')
-    })
-  })
-
-  test('shows fully drawn, with no animation, under reduced motion', async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 })
-    await page.goto('/', { waitUntil: 'domcontentloaded' })
-    await expect(swoosh(page)).toHaveCSS('animation-name', 'none')
-    expect(await swoosh(page).evaluate((el) => parseFloat(getComputedStyle(el).strokeDashoffset))).toBe(0)
-    await techForPros(page).hover()
-    await expect(techForPros(page).locator('svg.tfp-swoosh')).toHaveCSS('animation-name', 'none')
-    await expect(techForPros(page).locator('svg.tfp-swoosh')).toBeVisible()
-  })
+test('the techforpros.com underline is one smooth arc that never animates', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/')
+  const path = underline(page)
+  await expect(path).toHaveCSS('animation-name', 'none')
+  await expect(path).toHaveCSS('stroke-dasharray', 'none')
+  // One cubic segment: no S or second C joining wobbles together.
+  expect((await path.getAttribute('d'))!.match(/[CSQ]/gi)).toHaveLength(1)
+  await techForPros(page).hover()
+  await expect(techForPros(page).locator('svg.tfp-underline')).toHaveCSS('animation-name', 'none')
+  await expect(techForPros(page).locator('svg.tfp-underline')).toHaveCSS('opacity', '1')
 })
 
 // On phones the link sits between the logo and the menu button, on one line.
