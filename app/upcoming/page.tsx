@@ -44,7 +44,7 @@ function ProjectCard({ project, index }: { project: UpcomingProject; index: numb
         />
 
         <header className="relative flex items-start gap-4">
-          <Image src={project.icon} alt="" width={52} height={52} className="h-13 w-13 shrink-0 rounded-xl" />
+          <Image src={project.icon} alt="" width={52} height={52} className="h-13 w-13 shrink-0 rounded-xl ring-1 ring-white/10" />
           <div className="min-w-0">
             <h2 id={`${project.slug}-name`} className="text-2xl font-extrabold tracking-tight text-slate-50">
               {project.name}

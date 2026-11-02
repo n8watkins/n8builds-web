@@ -205,7 +205,7 @@ export default function WaitlistForm({ turnstileSiteKey }: { turnstileSiteKey: s
                   disabled={busy}
                   className="peer sr-only"
                 />
-                <Image src={p.icon} alt="" width={32} height={32} className="h-8 w-8 shrink-0 rounded-lg" />
+                <Image src={p.icon} alt="" width={32} height={32} className="h-8 w-8 shrink-0 rounded-lg ring-1 ring-white/10" />
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-semibold text-slate-100">{p.name}</span>
                   <span className="block text-xs text-slate-400">{p.tagline}</span>

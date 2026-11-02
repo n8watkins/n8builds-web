@@ -21,11 +21,11 @@ export default function UpcomingStrip() {
             eyebrow="Upcoming"
             eyebrowClass="text-orange-300"
             title={<>What&rsquo;s cookin&rsquo;</>}
-            blurb={<>Things I&rsquo;m outlining in public. Join a waitlist to hear when there&rsquo;s something to try.</>}
+            blurb="Things I’m outlining in public, each with a waitlist."
           />
           <Link
             href="/upcoming"
-            className="group mb-8 inline-flex items-center gap-1.5 text-sm font-semibold text-slate-300 transition-colors hover:text-cyan-200"
+            className="group mb-8 -mt-3 inline-flex sm:mt-0 items-center gap-1.5 text-sm font-semibold text-slate-300 transition-colors hover:text-cyan-200"
           >
             See all upcoming
             <FiArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -40,7 +40,7 @@ export default function UpcomingStrip() {
               className="flex flex-col rounded-2xl border border-white/8 bg-[#0a1222]/70 p-5"
             >
               <div className="flex items-center gap-3.5">
-                <Image src={p.icon} alt="" width={44} height={44} className="h-11 w-11 shrink-0 rounded-xl" />
+                <Image src={p.icon} alt="" width={44} height={44} className="h-11 w-11 shrink-0 rounded-xl ring-1 ring-white/10" />
                 <div className="min-w-0">
                   <h4 className="text-lg font-bold text-slate-50">{p.name}</h4>
                   <p className="text-sm text-balance text-(--accent)">{p.tagline}</p>
