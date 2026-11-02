@@ -46,6 +46,8 @@ const nextConfig = {
         destination: '/#lab',
         permanent: true,
       },
+      // Piper TTS was renamed VoiceDock (2026-11-02).
+      { source: '/builds/piper-tts', destination: '/builds/voicedock', permanent: true },
       // Appturnity's home is its own site, not a build page here.
       { source: '/builds/appturnity', destination: 'https://appturnity.com', permanent: true },
       // On hold, not retired: temporary, so it can come back at the same URL.

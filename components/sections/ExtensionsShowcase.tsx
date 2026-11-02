@@ -18,11 +18,11 @@ interface Ext {
 // The 3 extensions to push (open source - ask for stars). Details derive from builds.tsx.
 const exts: Ext[] = [
   {
-    slug: 'piper-tts',
-    icon: '/builds/piper-tts/icon.png',
-    shot: '/builds/piper-tts/popup.png',
+    slug: 'voicedock',
+    icon: '/builds/voicedock/icon.png',
+    shot: '/builds/voicedock/popup.png',
     oss: true,
-    blurb: 'Highlight text, right-click, hear it read aloud by a Piper model running fully on your machine. No cloud, no keys.',
+    blurb: 'Highlight text, right-click, hear it read aloud by a Piper or Kokoro voice running fully on your machine. No cloud, no keys.',
   },
   {
     slug: 'tubevault',
