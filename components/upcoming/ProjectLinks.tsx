@@ -27,10 +27,10 @@ export function LandingButton({
       className="inline-flex h-11 w-full items-center justify-center gap-1.5 rounded-lg bg-(--accent) px-3 text-sm font-bold whitespace-nowrap text-slate-950 transition-[filter] duration-150 hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--accent)"
     >
       {compact ? (
-        // Four cards across (1024px up) leave too little width for the full label to breathe.
+        // Four cards across (1000px up, as in UpcomingStrip) leave too little width for the full label to breathe.
         <>
-          <span className="lg:hidden">Check out the landing page</span>
-          <span className="hidden lg:inline">See the landing page</span>
+          <span className="min-[62.5rem]:hidden">Check out the landing page</span>
+          <span className="hidden min-[62.5rem]:inline">See the landing page</span>
         </>
       ) : (
         'Check out the landing page'

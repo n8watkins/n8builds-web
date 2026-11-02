@@ -228,6 +228,8 @@ test.describe('navigation to the build log', () => {
     test.skip(isMobile, 'the desktop navbar is hidden on phones')
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto('/')
+    // Hydrated (the Lab rail's script is running), so the menu's own handler takes the click.
+    await expect(page.getByTestId('lab-section-nav')).toHaveAttribute('data-ready', '', { timeout: 20_000 })
     // As when GitHub can't be read: the strip is left out of the page.
     await page.locator('#build-log').evaluate((el) => el.remove())
     const primary = page.getByRole('navigation', { name: 'Primary' })

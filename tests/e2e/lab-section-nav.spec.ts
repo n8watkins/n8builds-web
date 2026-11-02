@@ -259,6 +259,8 @@ test.describe('placement at 1440px', () => {
     const nav = rail(page)
     await expect(nav).toBeVisible(SHOW)
     await nav.getByRole('link').first().focus()
+    await expect(nav.getByRole('link', { name: 'Build log', exact: true })).toBeFocused()
+    await page.keyboard.press('Tab')
     await expect(nav.getByRole('link', { name: 'My tools', exact: true })).toBeFocused()
     await page.keyboard.press('Tab')
     await expect(nav.getByRole('link', { name: 'Featured', exact: true })).toBeFocused()

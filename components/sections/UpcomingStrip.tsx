@@ -37,8 +37,8 @@ export default function UpcomingStrip() {
           </Link>
         </div>
 
-        {/* Four across from 1024px, two by two on tablets, stacked on phones. */}
-        <ul className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {/* Four across from 1000px (so a 1024px window with a classic scrollbar, about 1016px wide inside, still is), two by two on tablets, stacked on phones. */}
+        <ul className="grid gap-4 md:grid-cols-2 min-[62.5rem]:grid-cols-4">
           {UPCOMING.map((p) => (
             <li
               key={p.slug}
@@ -47,7 +47,7 @@ export default function UpcomingStrip() {
             >
               <span aria-hidden className="absolute inset-x-0 top-0 h-[3px] bg-(--accent)" />
               {/* Icon beside the name while cards are wide, above it once four share a row. */}
-              <div className="flex items-center gap-3.5 lg:flex-col lg:items-start lg:gap-3.5">
+              <div className="flex items-center gap-3.5 min-[62.5rem]:flex-col min-[62.5rem]:items-start min-[62.5rem]:gap-3.5">
                 <Image src={p.icon} alt="" width={44} height={44} className="h-11 w-11 shrink-0 rounded-xl ring-1 ring-white/10" />
                 <div className="min-w-0">
                   <h4 className="text-lg font-bold text-slate-50">{p.name}</h4>

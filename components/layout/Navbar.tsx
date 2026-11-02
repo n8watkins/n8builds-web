@@ -20,7 +20,7 @@ const KOFI_URL = 'https://ko-fi.com/n8watkins'
 // log part hides when the log can't load): the full log.
 const labMenu: { label: string; href: string; desc: string; fallback?: string }[] = [
   // The Lab's first part (the owner's ask, 2026-11-02); the full log is its "See the full build log" link and the footer.
-  { label: 'Build log', href: '/#build-log', desc: 'What shipped lately, pulled from GitHub', fallback: '/builds' },
+  { label: 'Build log', href: '/#build-log', desc: 'What I shipped lately, every build', fallback: '/builds' },
   { label: 'My tools', href: '/#my-tools', desc: 'Scribe and OpenPing: I use them every day' },
   { label: 'Featured', href: '/#featured', desc: 'Solara and Portfolio Rank' },
   { label: 'Chrome Extensions', href: '/#extensions', desc: 'Browser tools, local-first' },
@@ -118,10 +118,16 @@ const Navbar = () => {
 
   // Arriving on the homepage at a Lab item's section that isn't there (the build
   // log hides when the log can't load), from another page: go to its fallback.
+  // A hash change counts too: a click before hydration jumps natively.
   useEffect(() => {
     if (pathname !== '/') return
-    const item = labMenu.find((i) => i.fallback && window.location.hash === i.href.slice(1))
-    if (item?.fallback && !document.getElementById(item.href.slice(2))) router.replace(item.fallback)
+    const check = () => {
+      const item = labMenu.find((i) => i.fallback && window.location.hash === i.href.slice(1))
+      if (item?.fallback && !document.getElementById(item.href.slice(2))) router.replace(item.fallback)
+    }
+    check()
+    window.addEventListener('hashchange', check)
+    return () => window.removeEventListener('hashchange', check)
   }, [pathname, router])
 
   // Top-level items besides the Lab dropdown: links that scroll to their
