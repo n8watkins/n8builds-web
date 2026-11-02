@@ -28,7 +28,7 @@ test.describe('a build page', () => {
     await expect(header.getByRole('link', { name: 'Download for Windows' })).toHaveAttribute('href', '/download/scribe')
 
     // The live site sits on the right of its screenshot.
-    const shot = (await header.getByRole('img', { name: /talk, it types/i }).boundingBox())!
+    const shot = (await header.getByRole('img', { name: /Scribe's home screen/ }).boundingBox())!
     const live = (await header.getByRole('link', { name: /Visit the landing page/ }).boundingBox())!
     expect(live.x).toBeGreaterThan(shot.x + shot.width / 2)
     expect(live.y).toBeGreaterThanOrEqual(shot.y - 40)

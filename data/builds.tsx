@@ -211,9 +211,12 @@ export const builds: Build[] = [
       'Deliberately Windows x64 only - written into the README as a non-goal rather than over-building for platforms nobody asked for.',
       'Privacy is mechanical, not a promise: speech is transcribed on your PC and audio never leaves it. Recordings stay on the PC for playback until their transcript is cleared (or right away, with saving clips turned off), and the only network calls are update checks, the model you choose to download, and the optional GitHub backup and AI tools.',
     ],
+    // The app's own screens (captured from its UI by scripts/scribe-tour/), not its landing page (round 4 of 2026-11-02).
     images: [
-      { src: '/builds/scribe/landing.webp', alt: 'Scribe: talk, it types. Private local dictation for Windows' },
-      { src: '/builds/scribe/features.webp', alt: 'Scribe features: 100% local, model picker, paste anywhere, rebindable hotkeys' },
+      { src: '/builds/scribe/app-home.webp', alt: "Scribe's home screen: ready for dictation, today's stats, the last transcript and the main hotkeys" },
+      { src: '/builds/scribe/app-history.webp', alt: 'Scribe history: searchable dictations, each with playback, copy and delete' },
+      { src: '/builds/scribe/app-models-language.webp', alt: 'Scribe models and language: the active Whisper model, the model catalog, language and GPU acceleration' },
+      { src: '/builds/scribe/app-appearance-emerald.webp', alt: 'Scribe appearance: seven color themes, here switched to Emerald' },
     ],
     cta: {
       heading: 'Try Scribe',

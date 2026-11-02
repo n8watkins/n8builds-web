@@ -46,7 +46,7 @@ test('the Lab leads with the featured builds, OpenPing first, each with its icon
     await expect(lab.locator(`img[src*="${slug}"]`).first(), `${slug} icon`).toBeAttached()
   }
   // Their screenshots are real files.
-  for (const src of ['/builds/scribe/landing.webp', '/builds/openping/landing.webp']) {
+  for (const src of ['/builds/scribe/tour-poster.webp', '/builds/openping/landing.webp']) {
     expect((await page.request.get(src)).status(), src).toBe(200)
   }
 })
@@ -298,11 +298,9 @@ test('each row names its own Details, Landing page (or Live Site), Star and GitH
     await expect(page.getByRole('link', { name: `Star ${title} on GitHub (opens in a new tab)`, exact: true })).toHaveCount(1)
     await expect(page.getByRole('link', { name: `${title} on GitHub (opens in a new tab)`, exact: true })).toHaveCount(1)
   }
-  for (const title of ['Scribe', 'OpenPing']) {
-    await rowOf(page, title)
-    await expect(page.getByRole('button', { name: `Next ${title} screenshot`, exact: true })).toHaveCount(1)
-    await expect(page.getByRole('button', { name: `Previous ${title} screenshot`, exact: true })).toHaveCount(1)
-  }
+  await rowOf(page, 'OpenPing')
+  await expect(page.getByRole('button', { name: 'Next OpenPing screenshot', exact: true })).toHaveCount(1)
+  await expect(page.getByRole('button', { name: 'Previous OpenPing screenshot', exact: true })).toHaveCount(1)
 })
 
 test('each row puts its live site, Star | GitHub and Details in one row across its column, and no two buttons go to the same place', async ({
@@ -422,12 +420,11 @@ test.describe('the Lab gallery', () => {
   })
 
   test('works from the keyboard: Tab to a side, Enter or the arrow keys step, and the arrow shows on focus', async ({ page }) => {
-    // Scribe's row, on /loadout.
-    await page.goto('/loadout')
-    const gallery = page.getByRole('group', { name: 'Scribe screenshots' })
+    await page.goto('/')
+    const gallery = page.getByRole('group', { name: 'OpenPing screenshots' })
     await gallery.scrollIntoViewIfNeeded()
-    const prev = gallery.getByRole('button', { name: 'Previous Scribe screenshot' })
-    const next = gallery.getByRole('button', { name: 'Next Scribe screenshot' })
+    const prev = gallery.getByRole('button', { name: 'Previous OpenPing screenshot' })
+    const next = gallery.getByRole('button', { name: 'Next OpenPing screenshot' })
     await expect(next).toBeEnabled()
     await prev.focus()
     await page.keyboard.press('Tab')
@@ -436,10 +433,10 @@ test.describe('the Lab gallery', () => {
     await page.keyboard.press('Enter')
     await expect.poll(() => activeDot(gallery)).toBe(1)
     await page.keyboard.press('ArrowRight')
-    await expect.poll(() => activeDot(gallery)).toBe(0)
+    await expect.poll(() => activeDot(gallery)).toBe(2)
     await page.keyboard.press('ArrowLeft')
     await expect.poll(() => activeDot(gallery)).toBe(1)
-    await expect(gallery.getByRole('img')).toHaveAccessibleName(/Scribe's features/)
+    await expect(gallery.getByRole('img').filter({ visible: true })).toHaveAccessibleName(/status page/)
   })
 
   test('rows with one screenshot have no gallery controls', async ({ page }) => {
@@ -538,7 +535,8 @@ test('the Details dialog shows the project picture on the left on wide screens',
   for (const name of ['Scribe', 'Solara']) {
     await (await rowOf(page, name)).getByRole('button', { name: `Details about ${name}` }).click()
     const dialog = page.getByRole('dialog', { name })
-    const picture = dialog.locator('img').filter({ visible: true }).nth(0)
+    // Scribe's picture is its app tour (a video), Solara's a screenshot.
+    const picture = dialog.locator('img, video').filter({ visible: true }).nth(0)
     const title = dialog.getByRole('heading', { level: 4 })
     const [p, t] = await Promise.all([picture.boundingBox(), title.boundingBox()])
     expect(p!.x + p!.width, `${name}: the picture is left of the details`).toBeLessThanOrEqual(t!.x)

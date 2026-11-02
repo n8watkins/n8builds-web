@@ -1,8 +1,10 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
-import { FiChevronLeft, FiChevronRight, FiLayers, FiX } from 'react-icons/fi'
+import { FiChevronLeft, FiChevronRight, FiLayers, FiPause, FiPlay, FiX } from 'react-icons/fi'
 import { useHydrated } from '@/hooks/useHydrated'
+import { usePageVisible } from '@/hooks/usePageVisible'
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 
 /**
  * The interactive parts of a Lab row (components/sections/FeaturedProjects.tsx),
@@ -162,6 +164,116 @@ export function ProjectGallery({
           </p>
         </>
       )}
+    </div>
+  )
+}
+
+/** A silent, looping tour of an app's own screens (Scribe's), in place of screenshots. */
+export interface ProjectTourVideo {
+  /** VP9 WebM, first choice. */
+  webm: string
+  /** H.264 MP4, for browsers without WebM. */
+  mp4: string
+  /** The first frame, shown until the video plays, and as the only frame under reduced motion. */
+  poster: string
+  /** What the tour shows, for screen readers. */
+  alt: string
+}
+
+/**
+ * The row's picture as a short video of the app itself, like a GIF: muted,
+ * looping and inline, in the gallery's 16:10 frame (the video is 16:10 too,
+ * so nothing is cropped and nothing jumps when it starts). It loads nothing
+ * but its poster until it is on screen, plays only while it is (and the tab
+ * is in front), and under prefers-reduced-motion stays on its poster, the
+ * first frame, without loading the video. A button in its corner pauses and resumes it (WCAG 2.2.2:
+ * motion that runs over five seconds can be stopped).
+ */
+export function ProjectTour({
+  title,
+  tour,
+  className = 'w-full shrink-0 md:w-1/2',
+}: {
+  title: string
+  tour: ProjectTourVideo
+  /** The tour's own box: half the row by default. */
+  className?: string
+}) {
+  const ref = useRef<HTMLVideoElement>(null)
+  const [inView, setInView] = useState(false)
+  const [paused, setPaused] = useState(false)
+  const reduced = usePrefersReducedMotion()
+  const visible = usePageVisible()
+  const hydrated = useHydrated()
+
+  useEffect(() => {
+    const video = ref.current
+    if (!video) return
+    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.2 })
+    observer.observe(video)
+    return () => observer.disconnect()
+  }, [])
+
+  const playing = inView && visible && !reduced && !paused
+  // The sources go in only once it first plays: with none, no browser fetches
+  // anything (Safari ignores preload="none"), so an off-screen row or reduced
+  // motion costs only the poster.
+  const [started, setStarted] = useState(false)
+  if (playing && !started) setStarted(true)
+  const loaded = useRef(false)
+  useEffect(() => {
+    const video = ref.current
+    if (!video || !started) return
+    if (!loaded.current) {
+      loaded.current = true
+      video.load()
+    }
+    if (playing) {
+      // React leaves `muted` off the server's HTML; the property is what counts.
+      video.muted = true
+      // A browser may still refuse (a data saver); the poster stays, which is fine.
+      video.play().catch(() => {})
+    } else {
+      video.pause()
+    }
+  }, [playing, started])
+
+  return (
+    <div data-tour className={className}>
+      <div className="relative aspect-16/10 overflow-hidden rounded-2xl border border-white/8 bg-[#07101d]">
+        <video
+          ref={ref}
+          aria-label={tour.alt}
+          poster={tour.poster}
+          // Muted, inline and looping, like a GIF; played from script, so
+          // reduced motion and off-screen rows never start it.
+          muted
+          loop
+          playsInline
+          preload="none"
+          disablePictureInPicture
+          disableRemotePlayback
+          className="absolute inset-0 h-full w-full object-cover"
+        >
+          {started && (
+            <>
+              <source src={tour.webm} type="video/webm" />
+              <source src={tour.mp4} type="video/mp4" />
+            </>
+          )}
+        </video>
+        {hydrated && !reduced && (
+          <button
+            type="button"
+            onClick={() => setPaused((p) => !p)}
+            aria-label={`${paused ? 'Play' : 'Pause'} the ${title} tour`}
+            aria-pressed={paused}
+            className="absolute right-2.5 bottom-2.5 flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-[#07101d]/75 text-slate-100 shadow-lg shadow-black/40 backdrop-blur-sm transition-colors hover:bg-[#07101d]/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300"
+          >
+            {paused ? <FiPlay aria-hidden="true" className="h-3.5 w-3.5 translate-x-px" /> : <FiPause aria-hidden="true" className="h-3.5 w-3.5" />}
+          </button>
+        )}
+      </div>
     </div>
   )
 }

@@ -6,7 +6,13 @@ import { FaApple, FaLinux, FaWindows } from 'react-icons/fa6'
 import { FiActivity, FiCheck, FiDownload, FiExternalLink, FiFileText, FiGithub } from 'react-icons/fi'
 import Reveal from '@/components/ui/Reveal'
 import RepoButtons from '@/components/ui/RepoButtons'
-import { ProjectDetails, ProjectGallery, type GalleryImage } from '@/components/sections/FeaturedProjectIslands'
+import {
+  ProjectDetails,
+  ProjectGallery,
+  ProjectTour,
+  type GalleryImage,
+  type ProjectTourVideo,
+} from '@/components/sections/FeaturedProjectIslands'
 import TechStackCycle from '@/components/Projects/TechStackCycle'
 import { projects } from '@/data/projects'
 import { builds } from '@/data/builds'
@@ -79,6 +85,12 @@ interface FeaturedProject {
   description: string
   /** The screenshots, first one shown; the gallery steps through the rest. */
   images: GalleryImage[]
+  /**
+   * A looping tour of the app's own screens, shown instead of the screenshots
+   * (Scribe: a desktop app, where a picture of its landing page shows nothing
+   * of the app; round 4 of 2026-11-02).
+   */
+  tour?: ProjectTourVideo
   tags: string[]
   github?: string
   liveSite?: string
@@ -117,10 +129,15 @@ const featured: FeaturedProject[] = [
     subtitle: 'Speech-to-text for Windows',
     description:
       'I dictate with Scribe every day: hold a hotkey, talk and let go, and your words land at the cursor. Your audio never leaves your PC.',
-    images: [
-      { src: '/builds/scribe/landing.webp', alt: 'Scribe: talk, it types. Private local dictation for Windows' },
-      { src: '/builds/scribe/features.webp', alt: "Scribe's features: local Whisper models, a model picker, rebindable hotkeys and a floating status pill" },
-    ],
+    // The app itself, not its landing page (round 4 of 2026-11-02): its real
+    // screens, captured from its own UI (scripts/scribe-tour/).
+    images: [],
+    tour: {
+      webm: '/builds/scribe/tour.webm',
+      mp4: '/builds/scribe/tour.mp4',
+      poster: '/builds/scribe/tour-poster.webp',
+      alt: 'A tour of the Scribe app: its home screen, dictating with live text, history, dictation and word settings, models, hotkeys, local AI, and switching color themes',
+    },
     // Three pills, so the download fits on their line; the full stack is in Details.
     tags: ['Tauri', 'Rust', 'whisper.cpp'],
     github: 'https://github.com/n8watkins/scribe',
@@ -423,11 +440,15 @@ const ProjectRow = ({ project, flipped, facts }: { project: FeaturedProject; fli
   const technologies = techFor(project)
   return (
     <Reveal className={`flex flex-col ${flipped ? 'md:flex-row-reverse' : 'md:flex-row'} items-center gap-6 md:gap-12`}>
-      <ProjectGallery
-        title={project.title}
-        images={project.images}
-        imageClassName={`object-cover ${project.imagePosition ?? 'object-top'} transition-transform duration-500 group-hover:scale-[1.02] motion-reduce:transition-none`}
-      />
+      {project.tour ? (
+        <ProjectTour title={project.title} tour={project.tour} />
+      ) : (
+        <ProjectGallery
+          title={project.title}
+          images={project.images}
+          imageClassName={`object-cover ${project.imagePosition ?? 'object-top'} transition-transform duration-500 group-hover:scale-[1.02] motion-reduce:transition-none`}
+        />
+      )}
 
       <div className="flex w-full flex-col md:w-1/2">
         <div className="flex items-center gap-3">
@@ -490,8 +511,9 @@ const ProjectRow = ({ project, flipped, facts }: { project: FeaturedProject; fli
             third, and then it takes what it needs and the other two share the
             rest evenly, so no two buttons ever touch. On phones and tablets
             (where the row's text column is narrow), the live site and Details
-            share a line and the split button takes the next. */}
-        <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-[repeat(3,minmax(max-content,1fr))] md:grid-cols-2 lg:grid-cols-[repeat(3,minmax(max-content,1fr))]">
+            share a line, in even halves unless "Landing page" needs more on a
+            320px phone, and the split button takes the next. */}
+        <div className="mt-5 grid grid-cols-[repeat(2,minmax(max-content,1fr))] gap-2 sm:grid-cols-[repeat(3,minmax(max-content,1fr))] md:grid-cols-[repeat(2,minmax(max-content,1fr))] lg:grid-cols-[repeat(3,minmax(max-content,1fr))]">
           {project.liveSite && (
             <a
               href={project.liveSite}
@@ -500,7 +522,7 @@ const ProjectRow = ({ project, flipped, facts }: { project: FeaturedProject; fli
               // Blue into a dark cyan, so the white label passes AA across the whole button.
               className={`${buttonBase} bg-linear-to-r from-blue-600 to-cyan-700 text-white hover:from-blue-700 hover:to-cyan-800`}
             >
-              <FiExternalLink className="h-3.5 w-3.5" />
+              <FiExternalLink className="h-3.5 w-3.5 shrink-0" />
               {liveSiteLabel(project)}
               <span className="sr-only"> of {project.title} (opens in a new tab)</span>
             </a>
@@ -517,14 +539,18 @@ const ProjectRow = ({ project, flipped, facts }: { project: FeaturedProject; fli
             labelledBy={`${slugOf(project)}-details-title`}
             header={<DetailsHeader project={project} />}
             media={
-              // The row's gallery again, one screenshot at a time, at the dialog's width.
-              <ProjectGallery
-                title={project.title}
-                images={project.images}
-                className="w-full"
-                sizes="(max-width: 1024px) 45vw, 500px"
-                imageClassName={`object-cover ${project.imagePosition ?? 'object-top'}`}
-              />
+              // The row's tour or gallery again, at the dialog's width.
+              project.tour ? (
+                <ProjectTour title={project.title} tour={project.tour} className="w-full" />
+              ) : (
+                <ProjectGallery
+                  title={project.title}
+                  images={project.images}
+                  className="w-full"
+                  sizes="(max-width: 1024px) 45vw, 500px"
+                  imageClassName={`object-cover ${project.imagePosition ?? 'object-top'}`}
+                />
+              )
             }
           >
             <DetailsBody project={project} technologies={technologies} />
