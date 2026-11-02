@@ -5,7 +5,7 @@ import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import { BUILD_ICONS } from '@/lib/build-meta'
 import type { DayCount, ShippedStat } from '@/lib/log-stats'
 
-// The card beside the homepage's "Shipped this month" rows (livelier since the
+// The card beside the homepage build log's rows (livelier since the
 // owner's ask, 2026-11-02): the month, its changes as a big number that counts
 // up the first time the card comes into view, a bar per day of the month (the
 // days still to come as faint slots), then the month's other figures (the

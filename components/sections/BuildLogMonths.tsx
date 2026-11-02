@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { createContext, useContext, useState } from 'react'
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import BuildLogPages from '@/components/sections/BuildLogPages'
 import ShippedStats from '@/components/sections/ShippedStats'
@@ -19,6 +19,35 @@ export type LogMonth = {
   labels: string[]
   /** The rows' carousel name: "Updates this month", "Updates in October 2026". */
   listLabel: string
+  /** The line under the part's "Build log" heading: "Shipped this month", "Shipped in October". */
+  line: string
+}
+
+/** Which month the build log shows, shared by its heading's line and the card. */
+const MonthContext = createContext<{ index: number; setIndex: (i: number) => void; lines: string[] }>({
+  index: 0,
+  setIndex: () => {},
+  lines: [],
+})
+
+/**
+ * Holds the month the build log shows, for the line under its heading
+ * (LogMonthLine) and the card (BuildLogMonths) inside it: the part's
+ * server-rendered header and card are its children.
+ */
+export function LogMonthProvider({ lines, children }: { lines: string[]; children: React.ReactNode }) {
+  const [index, setIndex] = useState(0)
+  return <MonthContext.Provider value={{ index, setIndex, lines }}>{children}</MonthContext.Provider>
+}
+
+/** "Shipped this month", then "Shipped in October" and so on as the arrows go back (round 5 of 2026-11-02). */
+export function LogMonthLine({ className }: { className?: string }) {
+  const { index, lines } = useContext(MonthContext)
+  return (
+    <span className={className} data-month-line>
+      {lines[index]}
+    </span>
+  )
 }
 
 const arrowClass =
@@ -39,7 +68,7 @@ const arrowClass =
  * reduced motion), and its name is announced.
  */
 export default function BuildLogMonths({ months }: { months: LogMonth[] }) {
-  const [index, setIndex] = useState(0)
+  const { index, setIndex } = useContext(MonthContext)
   const [announce, setAnnounce] = useState('')
   const month = months[index]
   const older = months[index + 1]

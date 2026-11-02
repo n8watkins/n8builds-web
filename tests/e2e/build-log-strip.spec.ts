@@ -58,8 +58,11 @@ test("is the Lab's first part, right after its intro, in the server-rendered HTM
   await page.goto('/')
   await strip(page).scrollIntoViewIfNeeded()
   // A Lab part: one level under the Lab's h2, with the part's coloured bar.
-  await expect(strip(page).getByRole('heading', { level: 3 })).toHaveText('Shipped this month')
-  await expect(strip(page)).toHaveAccessibleName('Shipped this month')
+  // "Build log" is the heading, with no eyebrow; the month is the line under it (round 5 of 2026-11-02).
+  await expect(strip(page).getByRole('heading', { level: 3 })).toHaveText('Build log')
+  await expect(strip(page)).toHaveAccessibleName('Build log')
+  await expect(strip(page).locator('[data-month-line]')).toHaveText('Shipped this month')
+  await expect(strip(page)).not.toContainText('every project')
   await expect(strip(page)).toHaveClass(/lab-accent-buildlog/)
   // The Lab intro's first pill jumps here.
   await expect(page.getByRole('navigation', { name: 'Lab sections' }).getByRole('link').first()).toHaveAttribute('href', '#build-log')
@@ -229,10 +232,13 @@ test('the month arrows show the months before, each whole, and come back', async
   const earlier = strip(page).getByRole('group', { name: `Updates in ${previous}` })
   await expect(earlier).toBeVisible()
   const month = previous.split(' ')[0].slice(0, 3).toUpperCase()
-  const days = await earlier.locator('li[data-row]:not([data-wrap]) time').allInnerTexts()
+  // textContent: on phones the row's <time> is hidden (its day rides on the name line).
+  const days = await earlier.locator('li[data-row]:not([data-wrap]) time').allTextContents()
   expect(days.length).toBeGreaterThan(0)
   expect(days.every((d) => d.startsWith(month))).toBe(true)
   await expect(stats(page)).toHaveAccessibleName(`Shipped ${previous}`)
+  // The line under the heading follows the month.
+  await expect(strip(page).locator('[data-month-line]')).toHaveText(`Shipped in ${previous.replace(' 2026', '')}`)
   // A past month has no "days in a row, and counting".
   await expect(stats(page).locator('[data-stat="streak"]')).toHaveCount(0)
   await expect(strip(page).locator('[aria-live="polite"]').filter({ hasText: `Showing ${previous}` })).toHaveCount(1)
@@ -241,6 +247,7 @@ test('the month arrows show the months before, each whole, and come back', async
   // Back to the newest month as it was.
   await forward.click()
   await expect(strip(page).locator('[data-month]')).toHaveText('October')
+  await expect(strip(page).locator('[data-month-line]')).toHaveText('Shipped this month')
   await expect(list(page)).toBeVisible()
   await expect(allRows(page)).toHaveCount(octoberRows)
 

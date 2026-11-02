@@ -3,7 +3,11 @@ import Link from 'next/link'
 import { FiArrowUpRight } from 'react-icons/fi'
 import Reveal from '@/components/ui/Reveal'
 import LabSubheader from '@/components/sections/LabSubheader'
-import BuildLogMonths, { type LogMonth } from '@/components/sections/BuildLogMonths'
+import BuildLogMonths, {
+  LogMonthLine,
+  LogMonthProvider,
+  type LogMonth,
+} from '@/components/sections/BuildLogMonths'
 import { allBuilds, dayKey, getBuildLog, monthLabel, type LogEntry } from '@/lib/build-log'
 import { BUILD_ICONS } from '@/lib/build-meta'
 import { dailyCounts, shippedStats } from '@/lib/log-stats'
@@ -77,7 +81,10 @@ function Row({ entry }: { entry: LogEntry }) {
           className="mt-0.5 h-8 w-8 shrink-0 rounded-lg sm:mt-0"
         />
       ) : (
-        <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/6 font-mono text-xs text-slate-300">
+        <span
+          aria-hidden
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/6 font-mono text-xs text-slate-300"
+        >
           {name.charAt(0)}
         </span>
       )}
@@ -97,18 +104,26 @@ function Row({ entry }: { entry: LogEntry }) {
             / <span className="text-slate-450">{entry.dayLabel}</span>
           </span>
         </p>
-        <p id={`${id}-title`} className="line-clamp-2 text-[0.95rem] sm:line-clamp-none sm:truncate font-semibold leading-snug text-slate-100 transition-colors group-hover:text-cyan-100">
+        <p
+          id={`${id}-title`}
+          className="line-clamp-2 text-[0.95rem] sm:line-clamp-none sm:truncate font-semibold leading-snug text-slate-100 transition-colors group-hover:text-cyan-100"
+        >
           {version ? (
             <>
               Shipped <span className="font-mono text-[0.92em] text-cyan-300">{version}</span>
-              {entry.detail && <span className="font-normal text-[#9cadc5]"> - {entry.detail}</span>}
+              {entry.detail && (
+                <span className="font-normal text-[#9cadc5]"> - {entry.detail}</span>
+              )}
             </>
           ) : (
             entry.title
           )}
         </p>
       </div>
-      <time dateTime={entry.date} className="hidden shrink-0 self-start pt-0.5 font-mono sm:block text-[0.7rem] uppercase tracking-wider text-slate-450">
+      <time
+        dateTime={entry.date}
+        className="hidden shrink-0 self-start pt-0.5 font-mono sm:block text-[0.7rem] uppercase tracking-wider text-slate-450"
+      >
         {entry.dayLabel}
       </time>
     </div>
@@ -129,12 +144,21 @@ function ReleaseKitAd() {
       className="mt-4 flex flex-col gap-3 rounded-2xl border border-white/8 bg-linear-to-r from-cyan-400/[0.06] via-white/[0.02] to-transparent px-4 py-3.5 sm:flex-row sm:items-center sm:gap-4 sm:px-5"
     >
       <div className="flex min-w-0 flex-1 items-start gap-3 sm:items-center">
-        <Image src="/log/release-kit.svg" alt="" width={36} height={36} unoptimized className="h-9 w-9 shrink-0 rounded-lg" />
+        <Image
+          src="/log/release-kit.svg"
+          alt=""
+          width={36}
+          height={36}
+          unoptimized
+          className="h-9 w-9 shrink-0 rounded-lg"
+        />
         <p className="min-w-0 text-sm leading-snug text-[#9cadc5]">
           <span id="release-kit-ad" className="font-semibold text-slate-100">
-            This log writes itself, with <span className="font-mono whitespace-nowrap text-cyan-300">release-kit</span>.
+            This log writes itself, with{' '}
+            <span className="font-mono whitespace-nowrap text-cyan-300">release-kit</span>.
           </span>{' '}
-          Write Conventional Commits and it cuts the versions, release notes and every update above. No changelog to keep by hand: one command adds it to any repo.
+          Write Conventional Commits and it cuts the versions, release notes and every update above.
+          No changelog to keep by hand: one command adds it to any repo.
         </p>
       </div>
       <a
@@ -144,7 +168,10 @@ function ReleaseKitAd() {
         className="group flex shrink-0 items-center justify-center gap-2 self-stretch rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-200 transition-all duration-200 hover:border-cyan-400/40 hover:bg-white/8 hover:text-cyan-200 sm:self-auto"
       >
         Get release-kit
-        <FiArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
+        <FiArrowUpRight
+          className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+          aria-hidden="true"
+        />
         <span className="sr-only"> on GitHub (opens in a new tab)</span>
       </a>
     </aside>
@@ -170,7 +197,10 @@ export default async function BuildLogStrip() {
   const year = current.slice(0, 4)
   // "October", or "December 2025" for another year.
   const shortName = (month: string) => monthLabel(month).replace(` ${year}`, '')
-  const view = (rows: LogEntry[]) => ({ rows: rows.map((entry) => <Row key={entry.id} entry={entry} />), labels: rows.map(rowLabel) })
+  const view = (rows: LogEntry[]) => ({
+    rows: rows.map((entry) => <Row key={entry.id} entry={entry} />),
+    labels: rows.map(rowLabel),
+  })
 
   // The first view: this month, or in a quiet one the last 30 days (the latest from every build).
   const cutoff = daysBefore(today, QUIET_DAYS - 1)
@@ -181,9 +211,12 @@ export default async function BuildLogStrip() {
     name: isThisMonth ? monthLabel(current) : `the last ${QUIET_DAYS} days`,
     stats: shippedStats(firstPeriod, entries, asOf, names),
     // Every day of the month (the days still to come as empty slots), or a quiet month's last 30 days.
-    days: isThisMonth ? dailyCounts(firstPeriod, `${current}-01`, lastDayOf(current), today) : dailyCounts(firstPeriod, cutoff, today, today),
+    days: isThisMonth
+      ? dailyCounts(firstPeriod, `${current}-01`, lastDayOf(current), today)
+      : dailyCounts(firstPeriod, cutoff, today, today),
     ...view(isThisMonth ? pickRows(thisMonth) : pickRows(entries, true)),
     listLabel: isThisMonth ? 'Updates this month' : 'Recent updates',
+    line: isThisMonth ? 'Shipped this month' : `Shipped in the last ${QUIET_DAYS} days`,
   }
   // Then each month before it with something shipped, back to the /builds feed's 12-month window
   // (round 5 of 2026-11-02): the same card and rows, for that whole month.
@@ -200,36 +233,47 @@ export default async function BuildLogStrip() {
         days: dailyCounts(period, `${m}-01`, lastDayOf(m), today),
         ...view(pickRows(period)),
         listLabel: `Updates in ${monthLabel(m)}`,
+        line: `Shipped in ${shortName(m)}`,
       }
     })
+
+  const months = [first, ...earlier]
 
   return (
     // A full-bleed part of the Lab in its own green wash (`.lab-accent-buildlog` in
     // app/globals.css), owned here so that a missing log leaves no empty part behind.
-    <section id="build-log" aria-labelledby="build-log-heading" className="lab-accent-buildlog lab-part-wash py-12">
-      <div className="mx-auto max-w-6xl px-5 sm:px-8">
-        <Reveal>
-          <div className="flex flex-wrap items-end justify-between gap-x-6">
-            <LabSubheader
-              id="build-log-heading"
-              eyebrow="Build log · every project"
-              eyebrowClass="text-emerald-300"
-              title={isThisMonth ? 'Shipped this month' : 'Recently shipped'}
-              blurb="What changed across my builds lately, pulled from GitHub."
-            />
-            <Link
-              href="/builds"
-              className="group mb-8 -mt-3 flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:border-cyan-400/40 hover:bg-white/8 hover:text-cyan-200 sm:mt-0"
-            >
-              See the full build log
-              <FiArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-            </Link>
-          </div>
+    // The provider shares the month the card shows with the line under the heading.
+    <LogMonthProvider lines={months.map((m) => m.line)}>
+      <section
+        id="build-log"
+        aria-labelledby="build-log-heading"
+        className="lab-accent-buildlog lab-part-wash py-12"
+      >
+        <div className="mx-auto max-w-6xl px-5 sm:px-8">
+          <Reveal>
+            <div className="flex flex-wrap items-end justify-between gap-x-6">
+              {/* "Build log" is the heading (round 5 of 2026-11-02, no eyebrow); the
+                 line under it names the month the card shows and follows its arrows. */}
+              <LabSubheader
+                id="build-log-heading"
+                title="Build log"
+                kicker={<LogMonthLine className="text-emerald-300" />}
+                blurb="What changed across my builds lately, pulled from GitHub."
+              />
+              <Link
+                href="/builds"
+                className="group mb-8 -mt-3 flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:border-cyan-400/40 hover:bg-white/8 hover:text-cyan-200 sm:mt-0"
+              >
+                See the full build log
+                <FiArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              </Link>
+            </div>
 
-          <BuildLogMonths months={[first, ...earlier]} />
-          <ReleaseKitAd />
-        </Reveal>
-      </div>
-    </section>
+            <BuildLogMonths months={months} />
+            <ReleaseKitAd />
+          </Reveal>
+        </div>
+      </section>
+    </LogMonthProvider>
   )
 }

@@ -175,7 +175,7 @@ test.describe('placement at 1440px', () => {
   }) => {
     await openHome(page)
     const nav = rail(page)
-    // The intro on screen, "Shipped this month" still in the lower half: no rail.
+    // The intro on screen, the build log's heading still in the lower half: no rail.
     await headingAt(page, 650)
     await expect(page.getByRole('navigation', { name: 'Lab sections' })).toBeInViewport()
     await expect(nav).toBeHidden()
@@ -185,7 +185,7 @@ test.describe('placement at 1440px', () => {
     await expect(nav).toBeHidden()
 
     // The heading reaches the middle of the window (owner, 2026-11-02): the rail shows, level with it.
-    await expect(page.locator('#build-log :is(h2, h3)').first()).toHaveText('Shipped this month')
+    await expect(page.locator('#build-log :is(h2, h3)').first()).toHaveText('Build log')
     await headingAt(page, 448)
     await expect(nav).toBeVisible(SHOW)
     await expect(nav).toBeInViewport({ ratio: 1 })
