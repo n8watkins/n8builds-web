@@ -83,6 +83,11 @@ test.describe('the Contact link', () => {
     await openMenu(page)
     await page.locator('#mobile-menu').getByRole('link', { name: 'Contact', exact: true }).click()
     await expect(form(page)).toBeInViewport()
+    // Under the navbar at the page's scroll-padding-top, not 80px lower: WebKit
+    // counted the padding twice while the open menu held the body's overflow.
+    await expect
+      .poll(() => page.locator('#contact').evaluate((el) => Math.round(el.getBoundingClientRect().top)), { timeout: 10_000 })
+      .toBe(80)
   })
 })
 

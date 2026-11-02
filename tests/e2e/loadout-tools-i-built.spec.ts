@@ -10,7 +10,7 @@ import { test, expect } from '@playwright/test'
 
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
-test('/loadout has Tools I built and use: Scribe as a Lab row, then the CLIs, after How I work', async ({ page }) => {
+test('/loadout has Tools I built and use: Scribe as a Lab row, then the CLIs, after the stacks', async ({ page }) => {
   await page.goto('/loadout')
   const part = page.getByRole('region', { name: 'Tools I built and use' })
   await expect(part.getByRole('heading', { level: 2 })).toHaveText('Tools I built and use')
@@ -26,6 +26,8 @@ test('/loadout has Tools I built and use: Scribe as a Lab row, then the CLIs, af
   expect(order).not.toContain('Tools I built')
   expect(order.slice(order.indexOf('How I work with AI'), order.indexOf('Tools I use') + 1)).toEqual([
     'How I work with AI',
+    'Inside the apps I build',
+    'Stacks I build with',
     'Tools I built and use',
     'Tools I use',
   ])
@@ -38,11 +40,12 @@ for (const width of [1440, 810, 390]) {
     const part = page.locator('#tools-i-built')
     await part.scrollIntoViewIfNeeded()
     const [heading, title, wash, card, next] = await Promise.all([
-      part.getByRole('heading', { level: 2 }).boundingBox(),
+      // A part's heading starts with its icon (2026-11-02).
+      part.locator('[data-part-icon]').boundingBox(),
       part.getByRole('heading', { level: 3, name: 'Scribe' }).boundingBox(),
       part.getByRole('article', { name: 'Scribe' }).boundingBox(),
       part.getByRole('article', { name: 'pass-env' }).boundingBox(),
-      page.getByRole('heading', { level: 2, name: 'Tools I use' }).boundingBox(),
+      page.locator('#tools-i-use [data-part-icon]').boundingBox(),
     ])
     // The row's text and the cards start with the part's heading and the next
     // part's (the Scribe icon sits left of its title, so the title starts further in).
