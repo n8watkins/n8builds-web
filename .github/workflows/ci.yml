@@ -96,13 +96,16 @@ jobs:
           - { project: firefox }
           # The WebKit projects are the slowest, and with two workers they
           # overloaded the runner and timed out at random on main. Each runs
-          # as two parallel halves with one worker, so it stays as fast and
-          # stops competing with itself for CPU.
-          - { project: webkit, shard: 1/2, workers: 1 }
-          - { project: webkit, shard: 2/2, workers: 1 }
+          # in parallel thirds with one worker, so it stays fast and stops
+          # competing with itself for CPU. As halves, the first half took 20
+          # to 24 of its 25 minutes and timed out on PRs (2026-11-02).
+          - { project: webkit, shard: 1/3, workers: 1 }
+          - { project: webkit, shard: 2/3, workers: 1 }
+          - { project: webkit, shard: 3/3, workers: 1 }
           - { project: mobile-chrome }
-          - { project: mobile-safari, shard: 1/2, workers: 1 }
-          - { project: mobile-safari, shard: 2/2, workers: 1 }
+          - { project: mobile-safari, shard: 1/3, workers: 1 }
+          - { project: mobile-safari, shard: 2/3, workers: 1 }
+          - { project: mobile-safari, shard: 3/3, workers: 1 }
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
