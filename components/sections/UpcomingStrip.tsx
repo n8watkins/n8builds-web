@@ -46,7 +46,7 @@ export default function UpcomingStrip() {
               <li
                 key={p.slug}
                 style={{ '--accent': p.accent } as CSSProperties}
-                className="relative flex flex-col overflow-hidden rounded-2xl border border-white/8 bg-[#0a1222]/70 p-4 sm:px-5"
+                className="relative flex flex-col overflow-hidden rounded-2xl border border-white/8 bg-[#0a1222]/70 p-4 sm:px-5 lg:px-4"
               >
                 <span aria-hidden className="absolute inset-x-0 top-0 h-[3px] bg-(--accent)" />
                 <div className="flex items-center gap-3.5">
@@ -57,9 +57,15 @@ export default function UpcomingStrip() {
                   </div>
                 </div>
                 <p className="mt-2.5 text-sm leading-relaxed text-pretty text-slate-300">{p.summary}</p>
-                {/* The landing page and the code side by side, in one row (round 3 of
-                    2026-11-02); mt-auto keeps the rows level when one card's text runs longer. */}
-                <div className={`mt-auto grid gap-2.5 pt-3.5 ${p.repo ? 'grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]' : ''}`}>
+                {/* The landing page and the code side by side, in one row at every width
+                    (round 3 of 2026-11-02): even halves, except that neither button gets
+                    narrower than its label. "Landing page" (round 4) is long enough that the
+                    narrowest cards (320px phones, and beside the waitlist from 1024px, where
+                    the cards' side padding drops to 16px) only just fit both, so the buttons'
+                    own padding is tight. mt-auto keeps the rows level when one card's text runs longer. */}
+                <div
+                  className={`mt-auto grid gap-2 pt-3.5 ${p.repo ? 'grid-cols-[minmax(max-content,1fr)_minmax(max-content,1fr)]' : ''}`}
+                >
                   <LandingButton project={p} compact />
                   {p.repo && <CodeLink project={p} button />}
                 </div>

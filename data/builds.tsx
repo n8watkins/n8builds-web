@@ -40,6 +40,12 @@ export interface Build {
   github?: string
   liveSite?: string
   /**
+   * `liveSite` is the product's landing page, not the app itself (Scribe's,
+   * OpenPing's and Solara's): its buttons say "Landing page", not "Live site"
+   * (round 4 of 2026-11-02).
+   */
+  liveSiteIsLanding?: boolean
+  /**
    * The GitHub repo (`owner/name`) that feeds this build's entries in the
    * /builds log. The builds with a `repo` are the single list of tracked repos
    * (scripts/check-build-repos.mjs reads it too).
@@ -217,6 +223,7 @@ export const builds: Build[] = [
     },
     github: 'https://github.com/n8watkins/scribe',
     liveSite: 'https://scribe.n8builds.dev',
+    liveSiteIsLanding: true,
     repo: 'n8watkins/scribe',
     // Scribe publishes a GitHub Release for every version; those tell its story.
     log: 'releases',
@@ -265,6 +272,7 @@ export const builds: Build[] = [
     },
     github: 'https://github.com/n8watkins/open-ping',
     liveSite: 'https://openping.n8builds.dev',
+    liveSiteIsLanding: true,
     repo: 'n8watkins/open-ping',
   },
   {
@@ -308,6 +316,7 @@ export const builds: Build[] = [
     },
     github: 'https://github.com/n8watkins/solara',
     liveSite: 'https://solara-uv.web.app',
+    liveSiteIsLanding: true,
     repo: 'n8watkins/solara',
   },
   {

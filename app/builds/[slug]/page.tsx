@@ -149,7 +149,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
                   </a>
                 )}
                 {/* No screenshot to sit beside: the live site goes with the other actions. */}
-                {build.liveSite && build.images.length === 0 && <LiveSite href={build.liveSite} />}
+                {build.liveSite && build.images.length === 0 && <LiveSite href={build.liveSite} landing={build.liveSiteIsLanding} />}
               </div>
             </div>
 
@@ -168,7 +168,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
                 {/* The live site, on the right of the picture of it. */}
                 {build.liveSite && (
                   <div className="absolute top-3 right-3">
-                    <LiveSite href={build.liveSite} />
+                    <LiveSite href={build.liveSite} landing={build.liveSiteIsLanding} />
                   </div>
                 )}
               </div>
@@ -397,8 +397,8 @@ export default async function BuildPage({ params }: BuildPageProps) {
   )
 }
 
-/** "Visit live site", opening in a new tab. */
-function LiveSite({ href }: { href: string }) {
+/** "Visit live site" ("Visit the landing page" when it is one), opening in a new tab. */
+function LiveSite({ href, landing = false }: { href: string; landing?: boolean }) {
   return (
     <a
       href={href}
@@ -406,7 +406,7 @@ function LiveSite({ href }: { href: string }) {
       rel="noopener noreferrer"
       className="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-cyan-500 to-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-black/30 transition-all duration-200 hover:scale-[1.02] hover:from-cyan-400 hover:to-blue-500"
     >
-      Visit live site
+      {landing ? 'Visit the landing page' : 'Visit live site'}
       <FiArrowUpRight className="h-4 w-4" />
       <span className="sr-only"> (opens in a new tab)</span>
     </a>

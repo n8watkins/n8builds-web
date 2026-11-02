@@ -9,6 +9,7 @@ import RepoButtons from '@/components/ui/RepoButtons'
 import { ProjectDetails, ProjectGallery, type GalleryImage } from '@/components/sections/FeaturedProjectIslands'
 import TechStackCycle from '@/components/Projects/TechStackCycle'
 import { projects } from '@/data/projects'
+import { builds } from '@/data/builds'
 import LabSubheader from '@/components/sections/LabSubheader'
 import { DOWNLOADS, formatSize, latestAsset } from '@/lib/downloads'
 
@@ -96,7 +97,7 @@ interface FeaturedProject {
   features: Feature[]
   /**
    * The product's main action (a button beside the tech pills) and any quiet
-   * links (under the features). None goes where the row's Live Site or GitHub
+   * links (under the features). None goes where the row's Landing page (or Live Site) or GitHub
    * button already goes: each is a different door (the download, the app
    * itself, the install guide, the vote).
    */
@@ -159,7 +160,7 @@ const featured: FeaturedProject[] = [
     features: ['Schedule-aware checks', 'Public status pages', 'Slack, Discord and email alerts', 'Six monitor types'],
     actions: [
       { label: 'Try the free tools', href: 'https://openping.n8builds.dev/tools', kind: 'primary', external: true },
-      // The step-by-step install guide, not the landing page (that is Live Site).
+      // The step-by-step install guide, not the landing page (the row's Landing page button).
       { label: 'Deploy your own', href: 'https://github.com/n8watkins/open-ping/blob/main/docs/INSTALL.md', kind: 'link', external: true },
     ],
   },
@@ -179,7 +180,7 @@ const featured: FeaturedProject[] = [
     buildSlug: 'solara',
     accent: 'solara',
     features: ['Sun windows per activity', 'Fits your skin and sunscreen', 'A week calendar', 'No account needed'],
-    // Straight into the planner; Live Site is the landing page.
+    // Straight into the planner; the row's Landing page button is the landing page.
     actions: [{ label: 'Find your sun window', href: 'https://solara-uv.web.app/app/', kind: 'primary', external: true }],
   },
   {
@@ -409,6 +410,13 @@ const DetailsHeader = ({ project }: { project: FeaturedProject }) => (
 )
 
 const slugOf = (project: FeaturedProject) => project.buildSlug
+/**
+ * The row's link to its live site, named for what it opens: "Landing page"
+ * when that is the product's landing page (data/builds.tsx, round 4 of
+ * 2026-11-02), "Live Site" when it is the app itself (Portfolio Rank).
+ */
+const liveSiteLabel = (project: FeaturedProject) =>
+  builds.find((b) => b.slug === project.buildSlug)?.liveSiteIsLanding ? 'Landing page' : 'Live Site'
 const techFor = (project: FeaturedProject) => projects.find((p) => p.title === project.title)?.technologies
 
 const ProjectRow = ({ project, flipped, facts }: { project: FeaturedProject; flipped: boolean; facts: DownloadFacts }) => {
@@ -475,13 +483,14 @@ const ProjectRow = ({ project, flipped, facts }: { project: FeaturedProject; fli
           </div>
         )}
 
-        {/* One row across the column: Live Site, the Star | GitHub split button,
-            Details, in even thirds. A third is never narrower than its button,
-            though: a star count can make the split button wider than a third,
-            and then it takes what it needs and Live Site and Details share the
+        {/* One row across the column: the live site (Landing page, or Live Site
+            for Portfolio Rank, whose site is the app), the Star | GitHub split
+            button, Details, in even thirds. A third is never narrower than its
+            button, though: a star count can make the split button wider than a
+            third, and then it takes what it needs and the other two share the
             rest evenly, so no two buttons ever touch. On phones and tablets
-            (where the row's text column is narrow), Live Site and Details share
-            a line and the split button takes the next. */}
+            (where the row's text column is narrow), the live site and Details
+            share a line and the split button takes the next. */}
         <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-[repeat(3,minmax(max-content,1fr))] md:grid-cols-2 lg:grid-cols-[repeat(3,minmax(max-content,1fr))]">
           {project.liveSite && (
             <a
@@ -492,7 +501,8 @@ const ProjectRow = ({ project, flipped, facts }: { project: FeaturedProject; fli
               className={`${buttonBase} bg-linear-to-r from-blue-600 to-cyan-700 text-white hover:from-blue-700 hover:to-cyan-800`}
             >
               <FiExternalLink className="h-3.5 w-3.5" />
-              Live Site<span className="sr-only"> of {project.title} (opens in a new tab)</span>
+              {liveSiteLabel(project)}
+              <span className="sr-only"> of {project.title} (opens in a new tab)</span>
             </a>
           )}
           {project.github && (

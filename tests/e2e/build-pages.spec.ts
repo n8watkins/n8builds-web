@@ -29,7 +29,7 @@ test.describe('a build page', () => {
 
     // The live site sits on the right of its screenshot.
     const shot = (await header.getByRole('img', { name: /talk, it types/i }).boundingBox())!
-    const live = (await header.getByRole('link', { name: /Visit live site/ }).boundingBox())!
+    const live = (await header.getByRole('link', { name: /Visit the landing page/ }).boundingBox())!
     expect(live.x).toBeGreaterThan(shot.x + shot.width / 2)
     expect(live.y).toBeGreaterThanOrEqual(shot.y - 40)
   })
@@ -50,11 +50,13 @@ test.describe('a build page', () => {
     for (const card of await cards.all()) await expect(card.locator('svg, img').first()).toBeAttached()
   })
 
-  test('a build without a download offers its live site on the screenshot', async ({ page }) => {
+  test('a build without a download offers its landing page on the screenshot', async ({ page }) => {
     await page.goto('/builds/openping')
     const header = page.locator('main header').first()
     await expect(header.getByRole('link', { name: /Download/ })).toHaveCount(0)
-    await expect(header.getByRole('link', { name: /Visit live site/ })).toHaveAttribute('href', 'https://openping.n8builds.dev')
+    // Named for what it opens (round 4 of 2026-11-02): OpenPing's site is its landing page.
+    await expect(header.getByRole('link', { name: /Visit the landing page/ })).toHaveAttribute('href', 'https://openping.n8builds.dev')
+    await expect(header.getByRole('link', { name: /Visit live site/ })).toHaveCount(0)
   })
 
   test('fits a phone with no sideways scroll', async ({ page }) => {

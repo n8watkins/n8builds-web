@@ -229,9 +229,9 @@ test("the homepage Lab ends with a short What's cookin' part: each project's sum
     await expect(card.getByRole('heading', { level: 4 })).toHaveText(name)
     // A plain summary under the tagline: what it does, for whom.
     await expect(card.locator('p').nth(1)).toHaveText(/^\S.{40,}\.$/)
-    // The landing page ("Live site") and the code side by side in one row; the
+    // The landing page ("Landing page", "Live site" until round 4) and the code side by side in one row; the
     // visitor picks projects in the form, so no per-card Join.
-    const landing = card.getByRole('link', { name: `Live site for ${name} (opens in a new tab)` })
+    const landing = card.getByRole('link', { name: `Landing page for ${name} (opens in a new tab)` })
     await expect(landing).toHaveAttribute('href', href)
     const [landingBox, codeBox] = [(await landing.boundingBox())!, (await card.getByRole('link', { name: /^View the code/ }).boundingBox())!]
     expect(Math.abs(landingBox.y - codeBox.y)).toBeLessThan(1)
@@ -294,16 +294,24 @@ for (const [width, height, columns, beside] of [
     for (const heights of rows.values()) expect(Math.max(...heights) - Math.min(...heights)).toBeLessThan(1)
     // Each button's label stays on one line inside it (its icons too), the buttons level across a row.
     const buttons = await items
-      .getByRole('link', { name: /^(Live site|View the code)/ })
+      .getByRole('link', { name: /^(Landing page|View the code)/ })
       .evaluateAll((links) =>
         links.map((a) => ({ height: a.getBoundingClientRect().height, fits: a.scrollWidth <= a.clientWidth, top: Math.round(a.getBoundingClientRect().top) }))
       )
     expect(buttons).toHaveLength(8)
-    expect(await items.locator('a svg').evaluateAll((icons) => icons.every((svg) => svg.getBoundingClientRect().width >= 12))).toBe(true)
+    // Every mark that shows is at least 12px; below 360px the code button's GitHub mark
+    // gives way, so "Landing page" and "View the code" still fit side by side (round 4).
+    const icons = await items.locator('a svg').evaluateAll((list) =>
+      list.map((svg) => ({ width: svg.getBoundingClientRect().width, shown: getComputedStyle(svg).display !== 'none' })),
+    )
+    expect(icons.filter((i) => i.shown).every((i) => i.width >= 12)).toBe(true)
+    expect(icons.filter((i) => i.shown)).toHaveLength(width < 360 ? 4 : 8)
     for (const { height, fits } of buttons) {
       expect(height).toBeLessThanOrEqual(44)
       expect(fits).toBe(true)
     }
+    // Each card's two buttons share one row, at every width.
+    for (let i = 0; i < buttons.length; i += 2) expect(buttons[i].top).toBe(buttons[i + 1].top)
     if (columns === 2) expect(new Set(buttons.map((b) => b.top)).size).toBe(2)
 
     const grid = await items.evaluateAll((list) => {

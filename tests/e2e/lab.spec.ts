@@ -13,6 +13,12 @@ test.use({ contextOptions: { reducedMotion: 'reduce' } })
 /** Where each row lives: Scribe on /loadout, the featured builds in the homepage Lab. */
 const ROW_PAGE: Record<string, string> = { Scribe: '/loadout', OpenPing: '/', Solara: '/', 'Portfolio Rank': '/' }
 const ROWS = Object.keys(ROW_PAGE)
+/**
+ * A row's live-site button, named for what it opens (round 4 of 2026-11-02):
+ * "Landing page" for a product's landing page, "Live Site" for Portfolio Rank,
+ * whose site is the app itself.
+ */
+const LIVE = (title: string) => `${title === 'Portfolio Rank' ? 'Live Site' : 'Landing page'} of ${title} (opens in a new tab)`
 
 /** The row's article, opening its page first unless it is already open. */
 async function rowOf(page: Page, title: string) {
@@ -282,13 +288,13 @@ test('Details waits for hydration instead of swallowing an early click', async (
   await expect(page.getByRole('dialog', { name: 'OpenPing' })).toBeVisible()
 })
 
-test('each row names its own Details, Live Site, Star and GitHub controls for screen readers', async ({ page }) => {
-  // Four rows with controls all named "Details" (or "Live Site", "GitHub")
+test('each row names its own Details, Landing page (or Live Site), Star and GitHub controls for screen readers', async ({ page }) => {
+  // Four rows with controls all named "Details" (or "Landing page", "GitHub")
   // are indistinguishable in a screen reader's list of buttons or links.
   for (const title of ROWS) {
     await rowOf(page, title)
     await expect(page.getByRole('button', { name: `Details about ${title}`, exact: true })).toHaveCount(1)
-    await expect(page.getByRole('link', { name: `Live Site of ${title} (opens in a new tab)`, exact: true })).toHaveCount(1)
+    await expect(page.getByRole('link', { name: LIVE(title), exact: true })).toHaveCount(1)
     await expect(page.getByRole('link', { name: `Star ${title} on GitHub (opens in a new tab)`, exact: true })).toHaveCount(1)
     await expect(page.getByRole('link', { name: `${title} on GitHub (opens in a new tab)`, exact: true })).toHaveCount(1)
   }
@@ -299,13 +305,13 @@ test('each row names its own Details, Live Site, Star and GitHub controls for sc
   }
 })
 
-test('each row puts Live Site, Star | GitHub and Details in one row across its column, and no two buttons go to the same place', async ({
+test('each row puts its live site, Star | GitHub and Details in one row across its column, and no two buttons go to the same place', async ({
   page,
   isMobile,
 }) => {
   for (const title of ROWS) {
     const row = await rowOf(page, title)
-    const live = row.getByRole('link', { name: `Live Site of ${title} (opens in a new tab)` })
+    const live = row.getByRole('link', { name: LIVE(title) })
     const repo = row.getByRole('group', { name: `${title} on GitHub` })
     const github = row.getByRole('link', { name: `${title} on GitHub (opens in a new tab)`, exact: true })
     const details = row.getByRole('button', { name: `Details about ${title}` })
@@ -584,14 +590,14 @@ test('the Details dialog steps through the screenshots like the row does', async
 
 test.describe('the Lab rows on a 320px phone', () => {
   test.use({ viewport: { width: 320, height: 700 } })
-  test('nothing spills sideways, and Live Site and Details share a line above Star | GitHub', async ({ page }) => {
+  test('nothing spills sideways, and Landing page and Details share a line above Star | GitHub', async ({ page }) => {
     // Scribe's row (on /loadout), the one with the longest download caption.
     const row = await rowOf(page, 'Scribe')
     await row.scrollIntoViewIfNeeded()
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
     const [l, d, r] = await Promise.all(
       [
-        row.getByRole('link', { name: /Live Site of Scribe/ }),
+        row.getByRole('link', { name: LIVE('Scribe') }),
         row.getByRole('button', { name: 'Details about Scribe' }),
         row.getByRole('group', { name: 'Scribe on GitHub' }),
       ].map((el) => el.boundingBox()),
@@ -658,7 +664,7 @@ for (const width of [1040, 1280, 1366, 1440, 1920]) {
       const repo = row.getByRole('group', { name: `${title} on GitHub` })
       await repo.scrollIntoViewIfNeeded()
       const [l, r, d] = await Promise.all(
-        [row.getByRole('link', { name: `Live Site of ${title} (opens in a new tab)` }), repo, row.getByRole('button', { name: `Details about ${title}` })].map(
+        [row.getByRole('link', { name: LIVE(title) }), repo, row.getByRole('button', { name: `Details about ${title}` })].map(
           (el) => el.boundingBox(),
         ),
       )
