@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { APP_JS } from './app-js'
 
 /**
  * The marquee pauses while focus is inside it, so a focused tile doesn't slide
@@ -9,9 +10,12 @@ import { test, expect } from '@playwright/test'
 test.use({ contextOptions: { reducedMotion: 'no-preference' } })
 
 test('a tile focused before hydration pauses its marquee', async ({ page }) => {
-  // Hold the page's scripts back, so the focus lands before hydration.
-  await page.route('**/_next/static/chunks/**', async (route) => {
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+  // Hold the page's scripts back until the tile has focus, so the focus always
+  // lands before hydration (a fixed delay raced the page on a slow runner).
+  let release!: () => void
+  const held = new Promise<void>((resolve) => (release = resolve))
+  await page.route(APP_JS, async (route) => {
+    await held
     await route.continue()
   })
   // The homepage's AI kit, the site's marquee.
@@ -21,6 +25,7 @@ test('a tile focused before hydration pauses its marquee', async ({ page }) => {
   await tile.waitFor({ state: 'attached' })
   const serverTiles = await tiles.count()
   await tile.focus()
+  release()
 
   // Hydration adds the loop's copies.
   await expect.poll(() => tiles.count(), { timeout: 20_000 }).toBeGreaterThan(serverTiles)
