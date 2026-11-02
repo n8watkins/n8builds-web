@@ -105,11 +105,12 @@ export default function TemplateCarousel({ slides, phone }: { slides: TemplateSl
           <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-white/15" />
           <span
             className="ml-2 hidden min-w-0 truncate rounded-md bg-white/6 px-2 py-0.5 text-[0.62rem] font-medium text-slate-400 min-[360px]:block"
-            data-template-label
           >
             {/* The short name on phones, where the full label would be cut off. */}
             <span className="sm:hidden">{slides[index].name}</span>
-            <span className="hidden sm:inline">{slides[index].label}</span>
+            <span className="hidden sm:inline" data-template-label>
+              {slides[index].label}
+            </span>
           </span>
           {/* The picker: one small icon per template, at the title bar's right. */}
           <div className="ml-auto flex shrink-0 items-center gap-0.5">

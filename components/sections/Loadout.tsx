@@ -156,7 +156,7 @@ const Part = ({ id, bleed = false, children }: { id: string; bleed?: boolean; ch
     <div
       id={id}
       data-loadout-part
-      className={`loadout-part py-20 md:py-28 ${index % 2 ? 'loadout-part-raised' : ''}`}
+      className={`loadout-part py-16 sm:py-20 md:py-28 ${index % 2 ? 'loadout-part-raised' : ''}`}
       style={{ '--lo': loadoutParts[index].accent } as CSSProperties}
     >
       <div aria-hidden="true" data-part-rule className="loadout-part-rule" />

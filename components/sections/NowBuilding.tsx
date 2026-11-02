@@ -11,18 +11,18 @@ import ContactPresetLink from '@/components/ui/ContactPresetLink'
  * one after another, with a phone in front, on the right.
  */
 const Card = ({ now }: { now: NowState }) => (
-  // One grid: from lg up the copy sits in the left column, centred against
-  // the picture (the empty first and last rows share the spare height);
-  // below lg the picture comes between the copy and the buttons.
-  <div className="grid gap-5 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.4fr)] lg:grid-rows-[1fr_auto_auto_auto_1fr] lg:gap-x-12">
-    <div className="flex flex-wrap items-center gap-3 lg:col-start-1 lg:row-start-2">
+  // One grid: from lg up the copy sits in the left column from the top (so the
+  // first screen's sneak peek shows the title row), the picture beside it,
+  // centred; below lg the picture comes between the copy and the buttons.
+  <div className="grid gap-5 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.4fr)] lg:grid-rows-[auto_auto_auto_1fr] lg:gap-x-12">
+    <div className="flex flex-wrap items-center gap-3 lg:col-start-1 lg:row-start-1">
       {now.mark && <span className="h-9 w-9 shrink-0 sm:h-10 sm:w-10">{now.mark}</span>}
       <h3 className="text-[1.4rem] font-extrabold sm:text-2xl tracking-tight text-slate-50">
         {now.title ?? now.project}
       </h3>
     </div>
 
-    <div className="lg:col-start-1 lg:row-start-3">
+    <div className="lg:col-start-1 lg:row-start-2">
       <p className="text-balance text-3xl font-extrabold leading-[1.1] tracking-tight text-slate-50 sm:text-4xl lg:text-[2.6rem]">
         {now.headline.lead}{' '}
         <span className="bg-linear-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
@@ -34,12 +34,12 @@ const Card = ({ now }: { now: NowState }) => (
       </p>
     </div>
 
-    <div className="my-2 lg:col-start-2 lg:row-span-5 lg:row-start-1 lg:my-0 lg:self-center">
+    <div className="my-2 lg:col-start-2 lg:row-span-4 lg:row-start-1 lg:my-0 lg:self-center">
       <TemplateCarousel slides={now.templates} phone={now.phone} />
     </div>
 
     {/* The buttons: under the copy from lg up, under the picture below that. */}
-    <div className="grid gap-3 sm:flex sm:flex-wrap sm:items-center lg:col-start-1 lg:row-start-4 lg:mt-2">
+    <div className="grid gap-3 sm:flex sm:flex-wrap sm:items-center lg:col-start-1 lg:row-start-3 lg:mt-2">
       {now.ctas.map((cta, i) => {
         const away = !cta.href.startsWith('/')
         return (

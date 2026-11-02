@@ -58,7 +58,7 @@ export const SectionHead = ({
   const { icon: Icon, accent } = loadoutPart(part)
   const number = String(loadoutParts.findIndex((p) => p.id === part) + 1).padStart(2, '0')
   return (
-    <div className="relative mb-10 md:mb-12" style={{ '--lo': accent } as CSSProperties}>
+    <div className="relative mb-8 md:mb-12" style={{ '--lo': accent } as CSSProperties}>
       <span
         aria-hidden="true"
         data-part-number
@@ -81,7 +81,7 @@ export const SectionHead = ({
           </h2>
         </div>
       </div>
-      {children && <p className="mt-5 max-w-[640px] text-lg leading-relaxed text-pretty text-[#9cadc5]">{children}</p>}
+      {children && <p className="mt-4 max-w-[640px] leading-relaxed text-pretty text-[#9cadc5] md:mt-5 md:text-lg">{children}</p>}
     </div>
   )
 }

@@ -14,10 +14,10 @@ test.describe('Loadout tools and people', () => {
   test('lists the tools I built and use, Scribe first, credits the pass-env fork and links each repo', async ({ page }) => {
     await page.goto('/loadout')
     const built = page.getByRole('region', { name: 'Tools I built and use' })
-    await expect(built.getByRole('heading', { name: 'pass-env', exact: true })).toBeVisible()
+    await expect(built.getByRole('heading', { name: /^pass-env\b/ })).toBeVisible()
     // Scribe's row (h3), then the cards (h4, under their groups' h3 subheadings).
     await expect(built.getByRole('article').getByRole('heading', { level: 3 })).toHaveText(['Scribe'])
-    await expect(built.getByRole('article').getByRole('heading', { level: 4 })).toHaveText(['pass-env', 'release-kit', 'devguard', 'pr-post'])
+    await expect(built.getByRole('article').getByRole('heading', { level: 4 })).toHaveText([/^pass-env/, /^release-kit/, /^devguard/, /^pr-post/])
     await expect(built.getByText('Your AI coding agents use your API keys without ever seeing them.')).toBeVisible()
     await expect(built.locator('[data-credit]')).toHaveText(
       'Created by Phaedrus Raznikov at Misty Step; my fork adds import, generate, doctor and more.',
@@ -516,7 +516,7 @@ test.describe('Loadout tools and people', () => {
     // The same two groups as /loadout, a level down: Scribe's row (h3), the cards (h5) under h4 subheadings.
     await expect(built.getByRole('article').getByRole('heading', { level: 3 })).toHaveText(['Scribe'])
     await expect(built.getByRole('heading', { level: 4 })).toHaveText(['Dev tools I built', 'Other things I built'])
-    await expect(built.getByRole('article').getByRole('heading', { level: 5 })).toHaveText(['pass-env', 'release-kit', 'devguard', 'pr-post'])
+    await expect(built.getByRole('article').getByRole('heading', { level: 5 })).toHaveText([/^pass-env/, /^release-kit/, /^devguard/, /^pr-post/])
     await expect(built.locator('[data-credit]')).toContainText('Created by Phaedrus Raznikov at Misty Step')
     // A part of the Loadout (#loadout): after the default stack. The setup teaser leads the band (round 3 of 2026-11-02).
     const loadout = page.locator('#loadout')

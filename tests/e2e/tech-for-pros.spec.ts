@@ -21,16 +21,17 @@ test("Tech for Pros' buttons take Appturnity's place, and nothing links to Apptu
   await expect(page.locator('a[href*="techforpros.com"]')).toHaveCount(0)
   expect(await page.locator('a[href^="/techforpros"]').count()).toBeGreaterThanOrEqual(5)
   await expect(page.locator('a[href*="appturnity"]')).toHaveCount(0)
-  // Live: nothing says it is on its way.
+  // Live: nothing says it is on its way (only more templates are, round 3 of 2026-11-02).
   for (const part of ['#now', '#work-with-me', '#contact'])
-    await expect(page.locator(part), part).not.toContainText(/coming soon|launching soon|will soon/i)
+    await expect(page.locator(part), part).not.toContainText(/(?<!templates )coming soon|launching soon|will soon/i)
 })
 
 test('"What I\'m working on" advertises Tech for Pros for service businesses', async ({ page }) => {
   await page.goto('/')
   const now = page.locator('#now')
   await expect(now.getByRole('heading', { level: 3, name: 'techforpros.com' })).toBeVisible()
-  await expect(now).toContainText('service businesses')
+  // About the service for a business (its tagline left with the What's new dialog, 2026-11-02).
+  await expect(now).toContainText('your business')
   await expect(now).not.toContainText('local service')
   await expect(page.getByRole('link', { name: 'Check out the lab' })).toHaveCount(0)
 })

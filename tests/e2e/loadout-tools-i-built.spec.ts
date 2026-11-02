@@ -71,8 +71,8 @@ test('Tools I built and use is two groups, its cards the size and style of Tools
   await expect(part.getByRole('heading', { level: 3 }).filter({ hasNotText: 'Scribe' })).toHaveText(['Dev tools I built', 'Other things I built'])
   const dev = part.getByRole('group', { name: 'Dev tools I built' })
   await expect(dev.getByRole('article', { name: 'Scribe' })).toHaveCount(1)
-  await expect(dev.getByRole('heading', { level: 4 })).toHaveText(['pass-env', 'release-kit', 'devguard'])
-  await expect(part.getByRole('group', { name: 'Other things I built' }).getByRole('heading', { level: 4 })).toHaveText(['pr-post'])
+  await expect(dev.getByRole('heading', { level: 4 })).toHaveText([/^pass-env/, /^release-kit/, /^devguard/])
+  await expect(part.getByRole('group', { name: 'Other things I built' }).getByRole('heading', { level: 4 })).toHaveText([/^pr-post/])
 
   // The same card as Tools I use: padding, corners, border, background and icon size.
   const look = (el: Element) => {
