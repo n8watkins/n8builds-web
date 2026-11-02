@@ -3,10 +3,11 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { FiArrowLeft, FiArrowRight } from 'react-icons/fi'
 import { LuBackpack } from 'react-icons/lu'
-import { harnesses, inApps, loadout, workflow, type LoadoutGroup, type WorkflowStep } from '@/data/loadout'
+import { harnesses, inApps, loadout, loadoutParts, workflow, type LoadoutGroup, type WorkflowStep } from '@/data/loadout'
 import Reveal from '@/components/ui/Reveal'
 import FadeIn from '@/components/ui/FadeIn'
 import { DevSetup, HonorableMentions, SectionHead, ToolsIBuilt, ToolsIUse } from '@/components/sections/LoadoutDevTools'
+import LoadoutSectionNav from '@/components/sections/LoadoutSectionNav'
 
 // A server component, so react-icons don't get the app's IconContext
 // (aria-hidden by default, app/provider.tsx): every icon here is hidden from
@@ -23,16 +24,11 @@ import { DevSetup, HonorableMentions, SectionHead, ToolsIBuilt, ToolsIUse } from
  * interactive parts (the scroll reveals) are client islands.
  */
 
-// The page's parts, as pills under the header (like the Lab's), in page order.
-const PARTS = [
-  { label: 'Dev setup', href: '#dev-setup' },
-  { label: 'How I work', href: '#workflow' },
-  { label: 'Tools I built', href: '#tools-i-built' },
-  { label: 'Tools I use', href: '#tools-i-use' },
-  { label: 'Honorable mentions', href: '#honorable-mentions' },
-  { label: 'Inside my apps', href: '#in-apps' },
-  { label: 'The gear', href: '#gear' },
-]
+// The page's parts, as pills under the header (like the Lab's), in page order:
+// the same list as the side rail's. Each part's id sits on a plain wrapper,
+// never on its scroll reveal or fade: a jump works out where to land while
+// the reveal still holds the part 24px low, so it ended up under the navbar.
+const PARTS = loadoutParts.map((part) => ({ label: part.label, href: `#${part.id}` }))
 
 /** One step of the workflow: its number and verb, the tool in its brand colour, the model, why. */
 const StepCard = ({ step, index }: { step: WorkflowStep; index: number }) => (
@@ -79,9 +75,7 @@ const StepCard = ({ step, index }: { step: WorkflowStep; index: number }) => (
 const Gear = ({ groups }: { groups: LoadoutGroup[] }) => (
   // Reveal renders no aria attributes, so the labelled section sits inside it.
   <Reveal>
-    <section id="gear" aria-labelledby="gear-title" className="scroll-mt-24">
-    {/* The old anchor, so /loadout#setup links already out there still land here. */}
-    <span id="setup" aria-hidden="true" className="block scroll-mt-24" />
+    <section aria-labelledby="gear-title">
     <SectionHead id="gear-title" path="~/loadout/gear" title="The gear">
       What it all runs on, from the PC to the mic.
     </SectionHead>
@@ -127,7 +121,11 @@ const Gear = ({ groups }: { groups: LoadoutGroup[] }) => (
 const Loadout = () => {
   const kit = ['rig', 'desk', 'stream'].flatMap((id) => loadout.filter((group) => group.id === id))
   return (
-    <main id="main-content" tabIndex={-1} className="relative min-h-screen overflow-hidden bg-darkBlue text-slate-100 focus:outline-none">
+    // Clipped, not overflow-hidden: a hidden overflow is a scroll container,
+    // which would stop the side rail sticking.
+    <main id="main-content" tabIndex={-1} className="relative min-h-screen overflow-clip bg-darkBlue text-slate-100 focus:outline-none">
+      {/* Desktop only: a sticky rail in the left gutter marking the part on screen. */}
+      <LoadoutSectionNav />
       {/* A soft glow behind the top of the page */}
       <div
         aria-hidden="true"
@@ -168,13 +166,16 @@ const Loadout = () => {
 
         {/* My dev setup first: the machine and everything on it, at a glance.
              Just under the header, so it fades in with it (no scroll reveal). */}
-        <FadeIn className="mt-16" delay={0.1}>
-          <DevSetup />
-        </FadeIn>
+        <div id="dev-setup" className="mt-16">
+          <FadeIn delay={0.1}>
+            <DevSetup />
+          </FadeIn>
+        </div>
 
         {/* How I work with AI: a sequence, so the steps are numbered and joined by arrows. */}
-        <Reveal className="mt-20">
-          <section id="workflow" aria-labelledby="workflow-title" className="scroll-mt-24">
+        <div id="workflow" className="mt-20">
+        <Reveal>
+          <section aria-labelledby="workflow-title">
           <SectionHead id="workflow-title" path="~/loadout/workflow" title="How I work with AI">
             One tool for each part of the job. A piece of work goes through them in this order.
           </SectionHead>
@@ -206,21 +207,23 @@ const Loadout = () => {
           </div>
           </section>
         </Reveal>
+        </div>
 
         {/* The tools I built, then the ones I use and recommend (their makers link to People I follow, on the homepage) */}
-        <div className="mt-20">
+        <div id="tools-i-built" className="mt-20">
           <ToolsIBuilt />
         </div>
-        <div className="mt-20">
+        <div id="tools-i-use" className="mt-20">
           <ToolsIUse />
         </div>
-        <div className="mt-20">
+        <div id="honorable-mentions" className="mt-20">
           <HonorableMentions />
         </div>
 
         {/* The AI inside the apps I build */}
-        <Reveal className="mt-20">
-          <section id="in-apps" aria-labelledby="in-apps-title" className="scroll-mt-24">
+        <div id="in-apps" className="mt-20">
+        <Reveal>
+          <section aria-labelledby="in-apps-title">
           <SectionHead id="in-apps-title" path="~/loadout/in-apps" title="Inside the apps I build">
             What the AI in my own apps and extensions runs on.
           </SectionHead>
@@ -250,9 +253,12 @@ const Loadout = () => {
           </ul>
           </section>
         </Reveal>
+        </div>
 
         {/* The gear (rig, desk, stream kit), in one section */}
-        <div className="mt-20">
+        <div id="gear" className="mt-20">
+          {/* The old anchor, so /loadout#setup links already out there still land here. */}
+          <span id="setup" aria-hidden="true" className="block" />
           <Gear groups={kit} />
         </div>
 

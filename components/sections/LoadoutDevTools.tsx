@@ -155,7 +155,7 @@ export const TOOLS_I_BUILT_BLURB = 'Small open-source tools I made because I wan
 
 export const ToolsIBuilt = () => (
   <Reveal>
-    <section id="tools-i-built" aria-labelledby="tools-i-built-title" className="scroll-mt-24">
+    <section aria-labelledby="tools-i-built-title">
       <SectionHead id="tools-i-built-title" path="~/loadout/built" title="Tools I built">
         {TOOLS_I_BUILT_BLURB}
       </SectionHead>
@@ -218,7 +218,7 @@ const ToolItem = ({ tool }: { tool: UsedTool }) => {
 
 export const ToolsIUse = () => (
   <Reveal>
-    <section id="tools-i-use" aria-labelledby="tools-i-use-title" className="scroll-mt-24">
+    <section aria-labelledby="tools-i-use-title">
       <SectionHead id="tools-i-use-title" path="~/loadout/tools" title="Tools I use">
         What I add on top of Claude Code and Codex, so the agents can check their own work.
       </SectionHead>
@@ -233,7 +233,7 @@ export const ToolsIUse = () => (
 
 export const HonorableMentions = () => (
   <Reveal>
-    <section id="honorable-mentions" aria-labelledby="honorable-mentions-title" className="scroll-mt-24">
+    <section aria-labelledby="honorable-mentions-title">
       <SectionHead id="honorable-mentions-title" path="~/loadout/mentions" title="Honorable mentions">
         Other people&apos;s tools I recommend.
       </SectionHead>
@@ -270,7 +270,7 @@ const SetupChip = ({ entry }: { entry: SetupEntry }) => {
 
 /** My dev setup: what I work on and with, grouped so it scans in seconds. */
 export const DevSetup = () => (
-  <section id="dev-setup" aria-labelledby="dev-setup-title" className="scroll-mt-24">
+  <section aria-labelledby="dev-setup-title">
     <SectionHead id="dev-setup-title" path="~/loadout/dev-setup" title="My dev setup">
       Windows 11 with WSL2, Claude Code and Codex, and the tools around them.
     </SectionHead>

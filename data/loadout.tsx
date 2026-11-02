@@ -2,11 +2,15 @@ import type { ReactElement } from 'react'
 import Image from 'next/image'
 import { BsOpenai } from 'react-icons/bs'
 import {
+  LuAward,
+  LuBot,
   LuChartColumn,
   LuCircuitBoard,
   LuCpu,
   LuFileCode,
   LuGlobe,
+  LuHammer,
+  LuHeadphones,
   LuKeyRound,
   LuKeyboard,
   LuMemoryStick,
@@ -14,15 +18,35 @@ import {
   LuNewspaper,
   LuShieldCheck,
   LuShip,
+  LuSquareTerminal,
   LuTag,
   LuTrees,
+  LuWorkflow,
+  LuWrench,
 } from 'react-icons/lu'
 import { SiAcer, SiAmd, SiClaude, SiGithub, SiGooglegemini, SiObsstudio, SiRazer, SiSamsung } from 'react-icons/si'
 import { GgmlMark } from '@/data/stack'
+import type { RailPart } from '@/components/ui/SectionRail'
 
 // The Loadout - "who I am" without a resume. You ARE your loadout.
 // Each item: what it is + what I use it for + my one-line take.
 // Content is curated/representative - edit freely as the kit changes.
+
+/**
+ * The page's parts, in page order: the pills under its header and the side
+ * rail (components/sections/LoadoutSectionNav.tsx) both list these. `short`
+ * is the rail's on-screen label where its gutter is too narrow for the full
+ * one (1440-1535px); the link's accessible name stays whole.
+ */
+export const loadoutParts: readonly RailPart[] = [
+  { id: 'dev-setup', label: 'Dev setup', icon: LuSquareTerminal },
+  { id: 'workflow', label: 'How I work', icon: LuWorkflow },
+  { id: 'tools-i-built', label: 'Tools I built', icon: LuHammer },
+  { id: 'tools-i-use', label: 'Tools I use', icon: LuWrench },
+  { id: 'honorable-mentions', label: 'Honorable mentions', short: 'Mentions', icon: LuAward },
+  { id: 'in-apps', label: 'Inside my apps', icon: LuBot },
+  { id: 'gear', label: 'The gear', icon: LuHeadphones },
+]
 
 export interface LoadoutItem {
   name: string
