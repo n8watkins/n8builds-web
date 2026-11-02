@@ -1,6 +1,8 @@
 import type { ReactElement } from 'react'
 import Image from 'next/image'
+import type { IconType } from 'react-icons'
 import { BsOpenai } from 'react-icons/bs'
+import { FaWindows } from 'react-icons/fa6'
 import {
   LuAward,
   LuBot,
@@ -10,12 +12,17 @@ import {
   LuFileCode,
   LuGlobe,
   LuHammer,
+  LuHardDrive,
   LuHeadphones,
   LuKeyRound,
   LuKeyboard,
+  LuLayoutDashboard,
   LuMemoryStick,
   LuMic,
+  LuNetwork,
   LuNewspaper,
+  LuPanelBottom,
+  LuRecycle,
   LuShieldCheck,
   LuShip,
   LuSquareTerminal,
@@ -24,7 +31,29 @@ import {
   LuWorkflow,
   LuWrench,
 } from 'react-icons/lu'
-import { SiAcer, SiAmd, SiClaude, SiGithub, SiGooglegemini, SiObsstudio, SiRazer, SiSamsung } from 'react-icons/si'
+import {
+  SiAcer,
+  SiAmd,
+  SiBun,
+  SiClaude,
+  SiCloudflare,
+  SiGithub,
+  SiGooglegemini,
+  SiNeovim,
+  SiNodedotjs,
+  SiObsstudio,
+  SiPnpm,
+  SiPython,
+  SiRazer,
+  SiRust,
+  SiSamsung,
+  SiTmux,
+  SiTurso,
+  SiUbuntu,
+  SiVercel,
+  SiZsh,
+} from 'react-icons/si'
+import { VscVscode } from 'react-icons/vsc'
 import { GgmlMark } from '@/data/stack'
 import type { RailPart } from '@/components/ui/SectionRail'
 
@@ -535,10 +564,24 @@ export const honorableMentions: UsedTool[] = [
 /** One thing in My dev setup: a link when it has a page here or a card on /loadout. */
 export interface SetupEntry {
   name: string
+  /**
+   * Its own mark: the tool's or product's real icon (Simple Icons, a
+   * vendor's own glyph pack, or a file in public/), in its brand colour
+   * (white for a black mark, so it reads on the dark page); a plain glyph
+   * only for what has no mark (RAM, cores, a setting) or no public icon.
+   */
+  icon: ReactElement
   /** A few words after the name: what it is or what it does. */
   note?: string
   href?: string
 }
+
+/** A brand mark in its own colour. */
+const mark = (Icon: IconType, color: string) => <Icon style={{ color }} />
+/** Black marks (OpenAI, Vercel, Rust) read light on the dark page, as in the AI kit. */
+const LIGHT = '#e6edf6'
+/** An app icon from public/, at the chips' 16px. */
+const appIcon = (src: string) => <Image src={src} alt="" width={16} height={16} unoptimized={src.endsWith('.svg')} />
 
 /**
  * My dev setup: the machine, WSL, terminal, editors, agents and the rest,
@@ -558,19 +601,25 @@ export const devSetup: DevSetupGroup[] = [
   {
     id: 'machine',
     title: 'Machine',
-    items: [{ name: 'AMD Ryzen 7 9700X', note: '8 cores' }, { name: '31 GB RAM' }, { name: 'Windows 11 Pro' }],
+    items: [
+      // AMD's mark is its wordmark, a thin band across a square: drawn wider (its
+      // height still the chips' 16px) so it reads.
+      { name: 'AMD Ryzen 7 9700X', note: '8 cores', icon: <SiAmd style={{ color: LIGHT }} className="-my-[7px] size-[30px]!" /> },
+      { name: '31 GB RAM', icon: <LuMemoryStick /> },
+      { name: 'Windows 11 Pro', icon: mark(FaWindows, '#0078d4') },
+    ],
   },
   {
     id: 'wsl',
     title: 'WSL2',
     wide: true,
     items: [
-      { name: 'Ubuntu 24.04' },
-      { name: '20 GB RAM', note: '+ 16 GB swap' },
-      { name: '8 processors' },
-      { name: 'Mirrored networking' },
-      { name: 'Memory reclaim', note: 'dropcache' },
-      { name: 'Sparse VHD' },
+      { name: 'Ubuntu 24.04', icon: mark(SiUbuntu, '#e95420') },
+      { name: '20 GB RAM', note: '+ 16 GB swap', icon: <LuMemoryStick /> },
+      { name: '8 processors', icon: <LuCpu /> },
+      { name: 'Mirrored networking', icon: <LuNetwork /> },
+      { name: 'Memory reclaim', note: 'dropcache', icon: <LuRecycle /> },
+      { name: 'Sparse VHD', icon: <LuHardDrive /> },
     ],
     code: {
       label: '.wslconfig',
@@ -582,57 +631,76 @@ export const devSetup: DevSetupGroup[] = [
     title: 'Terminal',
     wide: true,
     items: [
-      { name: 'Windows Terminal' },
-      { name: 'zsh + oh-my-zsh', note: 'zsh-autosuggestions' },
-      { name: 'tmux' },
-      { name: 'herdr', note: 'agent multiplexer', href: '#herdr' },
+      // Windows Terminal's own icon, from its repo (microsoft/terminal, res/terminal/Terminal.svg).
+      { name: 'Windows Terminal', icon: appIcon('/brands/windows-terminal.svg') },
+      { name: 'zsh + oh-my-zsh', note: 'zsh-autosuggestions', icon: mark(SiZsh, '#f15a24') },
+      { name: 'tmux', icon: mark(SiTmux, '#1bb91f') },
+      { name: 'herdr', note: 'agent multiplexer', href: '#herdr', icon: appIcon('/brands/herdr.png') },
     ],
   },
   {
     id: 'editors',
     title: 'Editors',
-    items: [{ name: 'Neovim' }, { name: 'VS Code' }, { name: 'Cursor' }],
+    // No Cursor (the owner's call, 2026-11-01).
+    items: [
+      { name: 'Neovim', icon: mark(SiNeovim, '#57a143') },
+      // VS Code's own mark, from Microsoft's codicons (Simple Icons has no Microsoft logos).
+      { name: 'VS Code', icon: mark(VscVscode, '#22a6f2') },
+    ],
   },
   {
     id: 'agents',
     title: 'Agents',
     items: [
-      { name: 'Claude Code', href: '#workflow' },
-      { name: 'Codex', href: '#workflow' },
+      { name: 'Claude Code', href: '#workflow', icon: mark(SiClaude, '#d97757') },
+      { name: 'Codex', href: '#workflow', icon: mark(BsOpenai, LIGHT) },
     ],
   },
   {
     id: 'agent-tooling',
     title: 'Agent tooling',
     items: [
-      { name: 'no-mistakes', href: '#no-mistakes' },
-      { name: 'gh-axi', href: '#gh-axi' },
-      { name: 'chrome-devtools-axi', href: '#chrome-devtools-axi' },
-      { name: 'Lavish', href: '#lavish' },
+      // The marks their cards in Tools I use carry.
+      { name: 'no-mistakes', href: '#no-mistakes', icon: <LuShieldCheck /> },
+      { name: 'gh-axi', href: '#gh-axi', icon: <SiGithub /> },
+      { name: 'chrome-devtools-axi', href: '#chrome-devtools-axi', icon: <LuGlobe /> },
+      { name: 'Lavish', href: '#lavish', icon: <LuFileCode /> },
     ],
   },
   {
     id: 'runtimes',
     title: 'Runtimes',
-    items: [{ name: 'Node 24', note: 'nvm' }, { name: 'pnpm' }, { name: 'Bun' }, { name: 'Python 3.12', note: 'uv' }, { name: 'Rust' }],
+    items: [
+      { name: 'Node 24', note: 'nvm', icon: mark(SiNodedotjs, '#5fa04e') },
+      { name: 'pnpm', icon: mark(SiPnpm, '#f69220') },
+      { name: 'Bun', icon: mark(SiBun, '#fbf0df') },
+      { name: 'Python 3.12', note: 'uv', icon: mark(SiPython, '#4b8bbe') },
+      { name: 'Rust', icon: mark(SiRust, LIGHT) },
+    ],
   },
   {
     id: 'own-tools',
     title: 'My own tools, in daily use',
     wide: true,
     items: [
-      { name: 'T-Hub', note: 'supervises my Claude Code sessions' },
+      // T-Hub and N8 Tray have no public icon: a plain glyph each.
+      { name: 'T-Hub', note: 'supervises my Claude Code sessions', icon: <LuLayoutDashboard /> },
       // The site presents Scribe through its build page, not its site's repo.
-      { name: 'Scribe', note: 'local dictation for Windows', href: '/builds/scribe' },
-      { name: 'devguard', href: '#devguard' },
-      { name: 'pass-env', href: '#pass-env' },
-      { name: 'release-kit', href: '#release-kit' },
-      { name: 'N8 Tray', note: 'private' },
+      { name: 'Scribe', note: 'local dictation for Windows', href: '/builds/scribe', icon: appIcon('/builds/scribe/app-icon.png') },
+      // The marks their cards in Tools I built and use carry.
+      { name: 'devguard', href: '#devguard', icon: <LuCpu /> },
+      { name: 'pass-env', href: '#pass-env', icon: <LuKeyRound /> },
+      { name: 'release-kit', href: '#release-kit', icon: <LuTag /> },
+      { name: 'N8 Tray', note: 'private', icon: <LuPanelBottom /> },
     ],
   },
   {
     id: 'shipping',
     title: 'Shipping',
-    items: [{ name: 'Vercel' }, { name: 'Cloudflare', note: 'Wrangler' }, { name: 'Turso' }],
+    items: [
+      { name: 'Vercel', icon: mark(SiVercel, LIGHT) },
+      { name: 'Cloudflare', note: 'Wrangler', icon: mark(SiCloudflare, '#f38020') },
+      { name: 'Turso', icon: mark(SiTurso, '#4ff8d2') },
+    ],
   },
 ]

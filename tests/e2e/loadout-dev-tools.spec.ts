@@ -35,6 +35,44 @@ test.describe('Loadout tools and people', () => {
     )
   })
 
+  test('every item in My dev setup carries its own mark, the same size and lined up, and Cursor is gone', async ({ page }) => {
+    await page.goto('/loadout')
+    const setup = page.getByRole('region', { name: 'My dev setup' })
+    const chips = setup.locator('[data-setup-icon]')
+    expect(await chips.count()).toBeGreaterThan(30)
+    const marks = await chips.evaluateAll((icons) =>
+      icons.map((icon) => {
+        const name = icon.parentElement!.querySelector('[data-setup-name]')!
+        const art = icon.querySelector('svg, img')
+        const box = art?.getBoundingClientRect()
+        const nameBox = name.getBoundingClientRect()
+        return {
+          name: name.textContent,
+          art: art?.tagName.toLowerCase() ?? null,
+          height: box ? Math.round(box.height) : 0,
+          // Centred on the name's first line.
+          offset: box ? Math.round(box.top + box.height / 2 - (nameBox.top + 10)) : 99,
+          loaded: art instanceof HTMLImageElement ? art.complete && art.naturalWidth > 0 : true,
+        }
+      }),
+    )
+    for (const mark of marks) {
+      expect(mark.art, `${mark.name}: a mark`).not.toBeNull()
+      // AMD's wordmark is drawn wider (and so taller), the rest 16px.
+      if (mark.name !== 'AMD Ryzen 7 9700X') expect(mark.height, `${mark.name}: 16px`).toBe(16)
+      expect(Math.abs(mark.offset), `${mark.name}: centred on its line`).toBeLessThanOrEqual(1)
+    }
+    // The app icons are real files.
+    await expect.poll(() => chips.locator('img').evaluateAll((imgs) => imgs.every((i) => (i as HTMLImageElement).naturalWidth > 0))).toBe(true)
+    for (const src of ['/brands/windows-terminal.svg', '/brands/herdr.png', '/builds/scribe/app-icon.png']) {
+      await expect(chips.locator(`img[src*="${src.split('/').pop()}"]`), src).toHaveCount(1)
+    }
+    // Editors: Neovim and VS Code, no Cursor (the owner's call, 2026-11-01).
+    const editors = setup.locator('li').filter({ has: page.getByRole('heading', { name: 'Editors' }) })
+    await expect(editors.locator('[data-setup-name]')).toHaveText(['Neovim', 'VS Code'])
+    await expect(setup.getByText('Cursor', { exact: true })).toHaveCount(0)
+  })
+
   test('lists the tools I use, each credited inline to its maker', async ({ page }) => {
     await page.goto('/loadout')
     const used = page.getByRole('region', { name: 'Tools I use' })

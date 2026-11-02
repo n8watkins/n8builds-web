@@ -245,13 +245,27 @@ export const HonorableMentions = () => (
 const SetupChip = ({ entry }: { entry: SetupEntry }) => {
   const body = (
     <>
-      <span className="font-semibold text-slate-100">{entry.name}</span>
-      {entry.note && <span className="text-slate-450">{entry.note}</span>}
+      {/* Its own mark, 16px tall and centred on the first line (brand colours
+           are set in data/loadout.tsx; plain glyphs are slate). */}
+      <span
+        aria-hidden="true"
+        data-setup-icon
+        className="flex h-5 min-w-4 shrink-0 items-center justify-center text-slate-300 [&_img]:size-4 [&_img]:rounded-[3px] [&_svg]:size-4"
+      >
+        {entry.icon}
+      </span>
+      {/* Name and note wrap together, so a note on its own line starts under the name, not the mark. */}
+      <span className="flex flex-wrap items-baseline gap-x-1.5">
+        <span data-setup-name className="font-semibold text-slate-100">
+          {entry.name}
+        </span>
+        {entry.note && <span className="text-slate-450">{entry.note}</span>}
+      </span>
     </>
   )
-  const chip = 'inline-flex flex-wrap items-baseline gap-x-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1 text-sm'
+  const chip = 'flex items-start gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1 text-sm'
   if (!entry.href) return <span className={chip}>{body}</span>
-  const linked = `${chip} transition-colors hover:border-cyan-300/40 hover:bg-white/[0.06] [&>span:first-child]:underline [&>span:first-child]:decoration-white/20 [&>span:first-child]:underline-offset-4`
+  const linked = `${chip} transition-colors hover:border-cyan-300/40 hover:bg-white/[0.06] [&_[data-setup-name]]:underline [&_[data-setup-name]]:decoration-white/20 [&_[data-setup-name]]:underline-offset-4`
   return entry.href.startsWith('/') ? (
     <Link href={entry.href} className={linked}>
       {body}
