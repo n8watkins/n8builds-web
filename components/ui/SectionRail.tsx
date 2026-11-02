@@ -161,11 +161,12 @@ export default function SectionRail({
       // 2026-10-27): it moves only when the part changes, never between rows
       // and never past the last one.
       listRef.current?.style.setProperty('--fill', String(Math.max(index, 0)))
-      // Shown from the moment the first part's heading reaches the rail's
-      // centred spot: the rail fades in level with it, after the intro (whose
-      // pills already list the parts) has mostly gone by, and holds there.
-      const centre = (window.innerHeight - (navRef.current?.offsetHeight ?? 0)) / 2
-      setShown(anchor.getBoundingClientRect().top <= centre + 1)
+      // Shown from the moment the first part's heading reaches the middle of
+      // the window (the owner's ask, 2026-11-02; it waited for the rail's own
+      // higher centred spot before): the rail fades in level with that
+      // heading, after the intro (whose pills already list the parts) has
+      // mostly gone by, rides up with it and holds at its centred spot.
+      setShown(anchor.getBoundingClientRect().top <= window.innerHeight / 2 + 1)
     }
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(update)

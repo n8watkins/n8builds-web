@@ -99,6 +99,24 @@ test.describe('at 1440px', () => {
     await expect(nav).not.toBeInViewport()
   })
 
+  test('appears once the Loadout reaches the middle of the window, level with its AI kit', async ({ page }) => {
+    await openHome(page)
+    const nav = rail(page)
+    // The band's heading on screen, the AI kit still in the lower half: no rail.
+    await place(page, 'ai-kit', 620)
+    await page.waitForTimeout(300)
+    await expect(nav).toBeHidden()
+    await place(page, 'ai-kit', 470)
+    await page.waitForTimeout(300)
+    await expect(nav).toBeHidden()
+    // The AI kit reaches the middle of the window (owner, 2026-11-02): the rail shows, level with it, whole.
+    await place(page, 'ai-kit', 448)
+    await expect(nav).toBeVisible(SHOW)
+    await expect(nav).toBeInViewport({ ratio: 1 })
+    const kitTop = await page.locator('#ai-kit').evaluate((el) => el.getBoundingClientRect().top)
+    expect(Math.abs((await nav.boundingBox())!.y - kitTop)).toBeLessThanOrEqual(3)
+  })
+
   test('a click jumps to the part, below the sticky navbar, and marks it', async ({ page }) => {
     test.setTimeout(60_000)
     await openHome(page)

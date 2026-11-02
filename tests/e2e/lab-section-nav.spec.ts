@@ -5,8 +5,9 @@ import { contentLeft, labelLines, railShape } from './section-rail'
  * The Lab's floating side nav (components/sections/LabSectionNav.tsx, on
  * components/ui/SectionRail.tsx): a desktop-only rail in the left gutter that
  * marks the Lab part on screen (Build log, Featured, Chrome Extensions, What's cookin')
- * and jumps to it. It appears once the first part's heading reaches the middle
- * of the window (level with it, not beside the Lab's intro), then holds there
+ * and jumps to it. It appears once the first part's heading ("Shipped this
+ * month") reaches the middle of the window (level with it, not beside the
+ * Lab's intro), then rides up to its centred spot and holds there
  * while the Lab scrolls by. My tools left the Lab for /loadout (2026-11-01).
  */
 
@@ -167,23 +168,25 @@ test.describe('placement at 1440px', () => {
       .first()
       .evaluate((h) => h.getBoundingClientRect().top)
 
-  test('stays hidden beside the Lab intro and appears level with the first heading', async ({
+  test('stays hidden beside the Lab intro and appears level with the first heading once it reaches the middle', async ({
     page,
   }) => {
     await openHome(page)
     const nav = rail(page)
-    // The intro on screen, the first heading still in the lower half: no rail.
+    // The intro on screen, "Shipped this month" still in the lower half: no rail.
     await headingAt(page, 650)
     await expect(page.getByRole('navigation', { name: 'Lab sections' })).toBeInViewport()
     await expect(nav).toBeHidden()
+    // Just short of the middle of the window: still none.
+    await headingAt(page, 470)
+    await page.waitForTimeout(300)
+    await expect(nav).toBeHidden()
 
-    // The heading reaches the rail's centred spot: the rail shows, level with it.
-    const navHeight = await page
-      .locator('nav[aria-label="Lab contents"]')
-      .evaluate((n) => (n as HTMLElement).offsetHeight)
-    const centre = Math.floor((900 - navHeight) / 2)
-    await headingAt(page, centre - 2)
+    // The heading reaches the middle of the window (owner, 2026-11-02): the rail shows, level with it.
+    await expect(page.locator('#build-log :is(h2, h3)').first()).toHaveText('Shipped this month')
+    await headingAt(page, 448)
     await expect(nav).toBeVisible(SHOW)
+    await expect(nav).toBeInViewport({ ratio: 1 })
     const top = (await nav.boundingBox())!.y
     expect(Math.abs(top - (await headingTop(page)))).toBeLessThanOrEqual(3)
   })
