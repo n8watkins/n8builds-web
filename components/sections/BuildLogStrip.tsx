@@ -3,10 +3,9 @@ import Link from 'next/link'
 import { FiArrowUpRight } from 'react-icons/fi'
 import Reveal from '@/components/ui/Reveal'
 import LabSubheader from '@/components/sections/LabSubheader'
-import { builds } from '@/data/builds'
 import BuildLogPages from '@/components/sections/BuildLogPages'
 import ShippedStats from '@/components/sections/ShippedStats'
-import { dayKey, getBuildLog, monthLabel, type LogEntry } from '@/lib/build-log'
+import { allBuilds, dayKey, getBuildLog, monthLabel, type LogEntry } from '@/lib/build-log'
 import { BUILD_ICONS } from '@/lib/build-meta'
 import { dailyCounts, shippedStats } from '@/lib/log-stats'
 
@@ -25,7 +24,7 @@ import { dailyCounts, shippedStats } from '@/lib/log-stats'
 /** A quiet month's card covers this many days back instead. */
 const QUIET_DAYS = 30
 
-const names = Object.fromEntries(builds.map((b) => [b.slug, b.name]))
+const names = Object.fromEntries(allBuilds.map((b) => [b.slug, b.name]))
 
 /** A month this busy gets a "This month" strip; a quieter one shows the latest from every build. */
 const MONTH_MIN = 3

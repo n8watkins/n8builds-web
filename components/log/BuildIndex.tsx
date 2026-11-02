@@ -48,9 +48,10 @@ export default function BuildIndex({ activity }: { activity: BuildActivity[] }) 
                   />
                 </span>
               )}
-              {/* Stretched over the card: the whole card opens the build page. */}
+              {/* Stretched over the card: the whole card opens the build page (or, for a
+                  project without one, where the site shows it). */}
               <Link
-                href={`/builds/${build.slug}`}
+                href={build.href}
                 className="after:absolute after:inset-0 after:rounded-2xl after:content-[''] focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-cyan-400/60"
               >
                 {build.name}

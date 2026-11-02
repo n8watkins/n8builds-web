@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import fixture from '@/tests/fixtures/build-log-github.json'
 import { builds, getBuild, hiddenBuilds, type Build } from '@/data/builds'
 import {
+  allBuilds,
   assembleLog,
   buildActivity,
   classifyCommit,
@@ -317,6 +318,20 @@ describe('merging, sorting and the builds index', () => {
     expect(without.entries.some((e) => e.build === 'tldw')).toBe(false)
   })
 
+  it('shows a followed repo with no commits or releases yet as a quiet card, and links it where the site shows it', () => {
+    // The upcoming projects and my tools were adopting release-kit (round 5 of 2026-11-02): some had nothing yet.
+    const empty = (repo: string) => ({ repo, pushedAt: null, releases: [], commits: [] })
+    const relink = allBuilds.find((b) => b.slug === 'relink')!
+    const quiet = assembleLog([...builds, relink], [...snapshots, empty('n8watkins/deadlink')], highlights)
+    const card = quiet.activity.find((a) => a.slug === 'relink')!
+    expect(card).toMatchObject({ href: '/upcoming#relink', lastShipped: null, lastShippedLabel: null, latest: [] })
+    // After every build that has shipped something.
+    expect(quiet.activity.at(-1)?.slug).toBe('relink')
+    expect(quiet.entries.some((e) => e.build === 'relink')).toBe(false)
+    // A build page's card still links its page.
+    expect(quiet.activity.find((a) => a.slug === 'scribe')?.href).toBe('/builds/scribe')
+  })
+
   it('pins highlights above the automatic entries of their month', () => {
     const july = log.entries.filter((e) => e.month === '2026-07')
     expect(july[0]).toMatchObject({ kind: 'highlight', build: 'tldw', title: 'TL;DW 1.0 is packaged for the Chrome Web Store' })
@@ -434,7 +449,7 @@ describe('getBuildLog', () => {
     vi.stubEnv('NEXT_PHASE', 'phase-production-build')
     const log = await getBuildLog()
     expect(log.entries).toEqual([])
-    expect(log.activity).toHaveLength(builds.filter((b) => b.repo).length)
+    expect(log.activity).toHaveLength(allBuilds.filter((b) => b.repo).length)
   })
 
   it('throws on a revalidation where GitHub serves nothing, so ISR keeps the last good page', async () => {

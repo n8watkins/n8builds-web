@@ -21,7 +21,7 @@ import { LOG_KINDS, type LogKind } from '@/lib/build-meta'
 type FeedProps = {
   entries: LogEntry[]
   /** Builds in index order, for the chips and entry labels. */
-  builds: { slug: string; name: string; kind: LogKind; icon?: string }[]
+  builds: { slug: string; name: string; href: string; kind: LogKind; icon?: string }[]
   months: Record<string, string>
   recentFrom: string | null
 }
@@ -203,6 +203,7 @@ export default function LogFeed({ entries, builds, months, recentFrom }: FeedPro
                     key={entry.id}
                     entry={entry}
                     buildName={bySlug[entry.build]?.name ?? entry.build}
+                    buildHref={bySlug[entry.build]?.href}
                     icon={bySlug[entry.build]?.icon}
                   />
                 ))}

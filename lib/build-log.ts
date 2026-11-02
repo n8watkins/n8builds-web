@@ -1,5 +1,6 @@
 import { cache } from 'react'
-import { builds as allBuilds, type Build } from '@/data/builds'
+import { builds, type Build } from '@/data/builds'
+import { logOnlyBuilds, type LogBuild } from '@/data/logBuilds'
 import { logger } from '@/lib/logger'
 
 /**
@@ -139,6 +140,8 @@ export type LogEntry = {
 
 export type BuildActivity = {
   slug: string
+  /** Where its name links: its build page, or for a project without one, where the site shows it. */
+  href: string
   name: string
   tagline: string
   category: string
@@ -441,7 +444,7 @@ export function recentFrom(entries: LogEntry[], months = 12): string | null {
  * Every build with its latest activity, most recently active first. A build
  * with no entries sorts by its last push, then by its place in data/builds.
  */
-export function buildActivity(builds: Build[], entries: LogEntry[], pushedAt: Record<string, string | null> = {}): BuildActivity[] {
+export function buildActivity(builds: LogBuild[], entries: LogEntry[], pushedAt: Record<string, string | null> = {}): BuildActivity[] {
   const rows = builds.map((build, index) => {
     const own = entries.filter((e) => e.build === build.slug).sort((a, b) => b.date.localeCompare(a.date))
     const shipped = own.find((e) => e.kind !== 'highlight' || e.highlightKind === 'shipped' || e.highlightKind === 'fixed')
@@ -451,6 +454,7 @@ export function buildActivity(builds: Build[], entries: LogEntry[], pushedAt: Re
       sortKey,
       row: {
         slug: build.slug,
+        href: logHref(build),
         name: build.name,
         tagline: build.tagline,
         category: build.category,
@@ -464,11 +468,20 @@ export function buildActivity(builds: Build[], entries: LogEntry[], pushedAt: Re
   return rows.sort((a, b) => b.sortKey.localeCompare(a.sortKey) || a.index - b.index).map((r) => r.row)
 }
 
+/**
+ * Every project the log can follow: the builds (data/builds.tsx), then the
+ * projects the site features without a build page (data/logBuilds.ts).
+ */
+export const allBuilds: LogBuild[] = [...builds, ...logOnlyBuilds]
+
+/** Where a project's name links in the log. */
+export const logHref = (build: Pick<LogBuild, 'slug' | 'href'>) => build.href ?? `/builds/${build.slug}`
+
 /** Whether the log follows a build: it has a repo and its log isn't off. */
 export const isTracked = (build: Pick<Build, 'repo' | 'log'>) => !!build.repo && build.log !== 'off'
 
 /** Put the whole log together from what the fetchers returned. */
-export function assembleLog(builds: Build[], snapshots: RepoSnapshot[], highlights: Highlight[]): BuildLog {
+export function assembleLog(builds: LogBuild[], snapshots: RepoSnapshot[], highlights: Highlight[]): BuildLog {
   const byRepo = new Map(snapshots.map((s) => [s.repo, s]))
   // Only tracked builds appear: one without a repo (or with its log off) would
   // only ever say "nothing logged", which reads as abandoned, and its

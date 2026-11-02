@@ -77,11 +77,14 @@ function Title({ entry }: { entry: LogEntry }) {
 export default function LogEntryItem({
   entry,
   buildName,
+  buildHref,
   showBuild = true,
   icon,
 }: {
   entry: LogEntry
   buildName: string
+  /** Where the build's name links: its build page unless given. */
+  buildHref?: string
   /** Off on a build's own page, where the name would repeat on every line. */
   showBuild?: boolean
   /** The build's app icon: it takes the timeline dot's place, so the feed reads by build at a glance. */
@@ -102,7 +105,7 @@ export default function LogEntryItem({
         {showBuild && (
           <>
             <Link
-              href={`/builds/${entry.build}`}
+              href={buildHref ?? `/builds/${entry.build}`}
               className="-my-1 py-1 font-semibold text-slate-300 transition-colors hover:text-cyan-300"
             >
               {buildName}
