@@ -106,6 +106,12 @@ describe('POST /api/waitlist', () => {
     expect(saved()).toMatchObject({ interest: 'relink' })
   })
 
+  it('accepts KeysReady, the fourth project, as a project and as an interest', async () => {
+    const response = await call(join, { ...valid, projects: ['keysready'], source: { interest: 'keysready' } })
+    expect(response.status).toBe(200)
+    expect(saved()).toMatchObject({ requested: ['keysready'], interest: 'keysready' })
+  })
+
   it('keeps an interest only when it names a project', async () => {
     await call(join, { ...valid, source: { interest: '<script>' } })
     expect(saved()).toMatchObject({ interest: '', referrer: '' })
@@ -115,6 +121,7 @@ describe('POST /api/waitlist', () => {
     ['a bad email', { email: 'not-an-email' }],
     ['no projects', { projects: [] }],
     ['an unknown project', { projects: ['deadlink'] }],
+    ['a known project next to an unknown one', { projects: ['keysready', 'keys-ready'] }],
     ['a note over 500 characters', { note: 'x'.repeat(501) }],
     ['no Turnstile token', { turnstile: '' }],
   ])('rejects %s without touching the store', async (_, change) => {

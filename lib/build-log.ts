@@ -704,3 +704,16 @@ export async function getRecentActivity(slug: string, limit = 5): Promise<LogEnt
     .sort((a, b) => b.date.localeCompare(a.date))
     .slice(0, limit)
 }
+
+/**
+ * Whether the homepage's build log strip (components/sections/BuildLogStrip.tsx)
+ * shows: the log loads and has entries. The Lab's own links to it (its intro
+ * pills) are left out when it doesn't. Shares getBuildLog's per-request cache.
+ */
+export async function hasBuildLog(): Promise<boolean> {
+  try {
+    return (await getBuildLog()).entries.length > 0
+  } catch {
+    return false
+  }
+}

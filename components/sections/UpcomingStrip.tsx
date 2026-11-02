@@ -1,15 +1,20 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import type { CSSProperties } from 'react'
-import { FiArrowRight, FiArrowUpRight } from 'react-icons/fi'
+import { FiArrowRight } from 'react-icons/fi'
 import LabSubheader from '@/components/sections/LabSubheader'
-import { UPCOMING, waitlistHref } from '@/data/upcoming'
+import JoinButton from '@/components/upcoming/JoinButton'
+import { CodeLink, LandingButton } from '@/components/upcoming/ProjectLinks'
+import WaitlistPanel from '@/components/upcoming/WaitlistPanel'
+import { UPCOMING } from '@/data/upcoming'
 
 /**
  * The homepage's short take on /upcoming (owner, 2026-11-01), as the Lab's last
- * part, "What's cookin'": one line on what it is, then each project as one compact item (icon, name, tagline, its
- * landing page and its waitlist). No statuses, points or audiences here: the
- * full detail stays on /upcoming. Server-rendered, no client code of its own.
+ * part, "What's cookin'": one line on what it is, the projects four across
+ * (icon, name, tagline, a plain summary, its landing page first, then Join,
+ * and its code where the repository is public), then the same waitlist
+ * form as /upcoming, where visitors can pick several (owner, 2026-11-02). No
+ * statuses, points or audiences here: the full detail stays on /upcoming.
  */
 export default function UpcomingStrip() {
   return (
@@ -32,42 +37,43 @@ export default function UpcomingStrip() {
           </Link>
         </div>
 
-        <ul className="grid gap-4 md:grid-cols-3">
+        {/* Four across from 1000px (so a 1024px window with a classic scrollbar, about 1016px wide inside, still is), two by two on tablets, stacked on phones. */}
+        <ul className="grid gap-4 md:grid-cols-2 min-[62.5rem]:grid-cols-4">
           {UPCOMING.map((p) => (
             <li
               key={p.slug}
               style={{ '--accent': p.accent } as CSSProperties}
-              className="flex flex-col rounded-2xl border border-white/8 bg-[#0a1222]/70 p-5"
+              className="relative flex flex-col overflow-hidden rounded-2xl border border-white/8 bg-[#0a1222]/70 p-5"
             >
-              <div className="flex items-center gap-3.5">
+              <span aria-hidden className="absolute inset-x-0 top-0 h-[3px] bg-(--accent)" />
+              {/* Icon beside the name while cards are wide, above it once four share a row. */}
+              <div className="flex items-center gap-3.5 min-[62.5rem]:flex-col min-[62.5rem]:items-start min-[62.5rem]:gap-3.5">
                 <Image src={p.icon} alt="" width={44} height={44} className="h-11 w-11 shrink-0 rounded-xl ring-1 ring-white/10" />
                 <div className="min-w-0">
                   <h4 className="text-lg font-bold text-slate-50">{p.name}</h4>
-                  <p className="text-sm text-balance text-(--accent)">{p.tagline}</p>
+                  <p className="mt-0.5 text-sm text-balance text-(--accent)">{p.tagline}</p>
                 </div>
               </div>
-              <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 pt-4">
-                <Link
-                  href={waitlistHref(p.slug)}
-                  className="inline-flex h-9 items-center rounded-lg border border-(--accent)/45 bg-(--accent)/10 px-3.5 text-sm font-semibold text-slate-50 transition-colors hover:border-(--accent)/70 hover:bg-(--accent)/18"
-                >
-                  Let &rsquo;em cook: join the waitlist
-                  <span className="sr-only"> for {p.name}</span>
-                </Link>
-                <a
-                  href={p.landing}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-sm font-medium text-slate-300 transition-colors hover:text-cyan-200"
-                >
-                  Visit the landing page
-                  <span className="sr-only"> for {p.name} (opens in a new tab)</span>
-                  <FiArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
-                </a>
+              <p className="mt-3 text-sm leading-relaxed text-pretty text-slate-300">{p.summary}</p>
+              {p.repo && (
+                <p className="mt-3">
+                  <CodeLink project={p} />
+                </p>
+              )}
+              {/* The landing page first, then Join (owner, 2026-11-02). mt-auto keeps
+                   the buttons level when one card's text runs longer. */}
+              <div className="mt-auto flex flex-col gap-2.5 pt-5">
+                <LandingButton project={p} compact />
+                <JoinButton slug={p.slug} name={p.name} accent={p.accent} compact />
               </div>
             </li>
           ))}
         </ul>
+
+        {/* The cards' Join buttons tick their project here and scroll to it. */}
+        <section id="waitlist" aria-label="Join the waitlist" className="mx-auto mt-10 max-w-2xl scroll-mt-24">
+          <WaitlistPanel heading="h4" />
+        </section>
       </div>
     </section>
   )

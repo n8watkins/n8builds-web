@@ -66,7 +66,7 @@ describe('RedisWaitlistStore', () => {
   })
 
   it('ignores unknown projects in stored fields', () => {
-    expect(fromFields('abc', { ...toFields(entry), projects: 'relink,bogus' })?.projects).toEqual(['relink'])
+    expect(fromFields('abc', { ...toFields(entry), projects: 'relink,bogus,keysready' })?.projects).toEqual(['relink', 'keysready'])
   })
 })
 
@@ -99,6 +99,8 @@ describe('waitlist emails', () => {
     expect(projectList(['relink'])).toBe('Relink')
     expect(projectList(['relink', 'strollz'])).toBe('Relink and Strollz')
     expect(projectList(['vibelog', 'relink', 'strollz'])).toBe('Relink, Strollz and VibeLog')
+    expect(projectList(['keysready', 'vibelog', 'relink', 'strollz'])).toBe('Relink, Strollz, VibeLog and KeysReady')
+    expect(createConfirmText({ ...entry, requested: ['keysready'] })).toContain('waitlist for KeysReady on n8builds.dev')
     expect(createConfirmHtml(entry)).toContain('Relink and Strollz')
   })
 })

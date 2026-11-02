@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { FiArrowUpRight } from 'react-icons/fi'
 import Reveal from '@/components/ui/Reveal'
+import LabSubheader from '@/components/sections/LabSubheader'
 import { builds } from '@/data/builds'
 import BuildLogPages from '@/components/sections/BuildLogPages'
 import ShippedStats from '@/components/sections/ShippedStats'
@@ -17,10 +18,9 @@ import { shippedStats } from '@/lib/log-stats'
 // the figures' timers run in the browser. If the log can't be read at all, the
 // strip is left out; it never breaks the page.
 //
-// It sits right under "What I'm working on" (the Tech for Pros ad, whose "What's
-// new" dialog is its own news): this is everything else, across
-// builds, so it reads as a log (mono dates, the feed's timeline dots), not a
-// second ad.
+// It is the Lab's first part (the owner's ask, 2026-11-02: "Build log should be
+// at the top of the lab"), in its own green wash, right under the Lab's intro.
+// It reads as a log (mono dates, the feed's timeline dots), not an ad.
 
 /** A quiet month's card covers this many days back instead. */
 const QUIET_DAYS = 30
@@ -133,49 +133,46 @@ export default async function BuildLogStrip() {
   const stats = shippedStats(period, entries, asOf, names)
 
   return (
-    // The homepage's raised band (HomePage's Band tone="raised"), owned here so
-    // that a missing log leaves no empty band behind.
-    <div className="relative z-10 border-t border-white/[0.06] bg-white/[0.022]">
-      <div className="mx-auto max-w-6xl px-5 py-6 sm:px-8">
+    // A full-bleed part of the Lab in its own green wash (`.lab-accent-buildlog` in
+    // app/globals.css), owned here so that a missing log leaves no empty part behind.
+    <section id="build-log" aria-labelledby="build-log-heading" className="lab-accent-buildlog lab-part-wash py-12">
+      <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <Reveal>
-          <section id="build-log" aria-labelledby="build-log-heading" className="py-3">
-            <div className="mb-5 flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
-              <div>
-                <p className="mb-2 font-mono text-[0.7rem] font-bold uppercase tracking-[0.16em] text-cyan-400">
-                  Build log · every project
-                </p>
-                <h2 id="build-log-heading" className="text-2xl font-bold tracking-tight text-slate-50 sm:text-3xl">
-                  {isThisMonth ? 'Shipped this month' : 'Recently shipped'}
-                </h2>
-              </div>
-              <Link
-                href="/builds"
-                className="group flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:border-cyan-400/40 hover:bg-white/8 hover:text-cyan-200"
-              >
-                See the full build log
-                <FiArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-              </Link>
+          <div className="flex flex-wrap items-end justify-between gap-x-6">
+            <LabSubheader
+              id="build-log-heading"
+              eyebrow="Build log · every project"
+              eyebrowClass="text-emerald-300"
+              title={isThisMonth ? 'Shipped this month' : 'Recently shipped'}
+              blurb="What changed across my builds lately, pulled from GitHub."
+            />
+            <Link
+              href="/builds"
+              className="group mb-8 -mt-3 flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:border-cyan-400/40 hover:bg-white/8 hover:text-cyan-200 sm:mt-0"
+            >
+              See the full build log
+              <FiArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 overflow-hidden rounded-2xl border border-white/8 bg-[#0a1526]/70 md:grid-cols-[17rem_minmax(0,1fr)]">
+            <div className="flex flex-col border-b border-white/8 px-5 py-4 md:border-r md:border-b-0 md:px-6 md:py-5">
+              {/* The month is named once, here; each row carries its own day. */}
+              <ShippedStats stats={stats} period={isThisMonth ? monthLabel(current).replace(` ${current.slice(0, 4)}`, '') : `Last ${QUIET_DAYS} days`} />
             </div>
 
-            <div className="grid grid-cols-1 overflow-hidden rounded-2xl border border-white/8 bg-[#0a1526]/70 md:grid-cols-[17rem_minmax(0,1fr)]">
-              <div className="flex flex-col border-b border-white/8 px-5 py-4 md:border-r md:border-b-0 md:px-6 md:py-5">
-                {/* The month is named once, here; each row carries its own day. */}
-                <ShippedStats stats={stats} period={isThisMonth ? monthLabel(current).replace(` ${current.slice(0, 4)}`, '') : `Last ${QUIET_DAYS} days`} />
-              </div>
-
-              <div className="p-3 sm:p-4">
-                <BuildLogPages
-                  rows={rows.map((entry) => (
-                    <Row key={entry.id} entry={entry} />
-                  ))}
-                  labels={rows.map(rowLabel)}
-                  label={isThisMonth ? 'Updates this month' : 'Recent updates'}
-                />
-              </div>
+            <div className="p-3 sm:p-4">
+              <BuildLogPages
+                rows={rows.map((entry) => (
+                  <Row key={entry.id} entry={entry} />
+                ))}
+                labels={rows.map(rowLabel)}
+                label={isThisMonth ? 'Updates this month' : 'Recent updates'}
+              />
             </div>
-          </section>
+          </div>
         </Reveal>
       </div>
-    </div>
+    </section>
   )
 }

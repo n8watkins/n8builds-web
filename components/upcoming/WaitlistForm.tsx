@@ -148,6 +148,8 @@ export default function WaitlistForm({ turnstileSiteKey }: { turnstileSiteKey: s
         if (hydrated && !busy) submit()
       }}
       className="space-y-6"
+      // The scroll-to-top button steps aside instead of covering a field (components/ui/ScrollToTop.tsx).
+      data-scroll-top-avoid
       aria-describedby={state.kind === 'error' ? 'waitlist-error' : undefined}
     >
       {/* Security: honeypot, hidden from people. */}
@@ -185,7 +187,7 @@ export default function WaitlistForm({ turnstileSiteKey }: { turnstileSiteKey: s
         aria-invalid={errors.projects ? true : undefined}
       >
         <legend className="text-sm font-medium text-slate-200">Which projects?</legend>
-        <div className="mt-2 grid gap-2.5">
+        <div className="mt-2 grid gap-2.5 sm:grid-cols-2">
           {UPCOMING.map((p) => {
             const checked = projects.includes(p.slug)
             return (
@@ -208,7 +210,7 @@ export default function WaitlistForm({ turnstileSiteKey }: { turnstileSiteKey: s
                 <Image src={p.icon} alt="" width={32} height={32} className="h-8 w-8 shrink-0 rounded-lg ring-1 ring-white/10" />
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-semibold text-slate-100">{p.name}</span>
-                  <span className="block text-xs text-slate-400">{p.tagline}</span>
+                  <span className="block text-xs text-pretty text-slate-400">{p.tagline}</span>
                 </span>
                 <span
                   aria-hidden="true"

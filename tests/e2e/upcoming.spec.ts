@@ -29,16 +29,42 @@ test('shows each project with its own anchor, and is titled for the site', async
   await page.goto('/upcoming')
   await expect(page).toHaveTitle('Upcoming | n8builds')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('What’s cookin’')
-  for (const [id, name] of [
-    ['relink', 'Relink'],
-    ['strollz', 'Strollz'],
-    ['vibelog', 'VibeLog'],
+  await expect(page.locator('main article')).toHaveCount(4)
+  for (const [id, name, status] of [
+    ['relink', 'Relink', 'Outlining'],
+    ['strollz', 'Strollz', 'Outlining'],
+    ['vibelog', 'VibeLog', 'Outlining'],
+    ['keysready', 'KeysReady', 'Concept'],
   ]) {
     const card = page.locator(`article#${id}`)
     await expect(card.getByRole('heading', { level: 2 })).toContainText(name)
-    await expect(card.getByText('Status: Outlining')).toBeVisible()
+    await expect(card.getByText(`Status: ${status}`)).toBeVisible()
     await expect(card.getByRole('listitem')).toHaveCount(4)
   }
+  await expect(page.locator('article#keysready')).toContainText('Stop answering “Is my car ready?”')
+  await expect(page.locator('#waitlist-projects').getByRole('checkbox')).toHaveCount(4)
+})
+
+test('lays the four cards out two by two on wide screens and in one column below', async ({ page }) => {
+  for (const [width, columns] of [
+    [1280, 2],
+    [1024, 2],
+    [810, 1],
+    [390, 1],
+  ]) {
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto('/upcoming')
+    const lefts = await page.locator('main article').evaluateAll((cards) => cards.map((c) => Math.round(c.getBoundingClientRect().left)))
+    expect(new Set(lefts).size, `columns at ${width}px`).toBe(columns)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0)
+  }
+})
+
+test("KeysReady's landing page link preselects it and lands on its card", async ({ page }) => {
+  await page.goto('/upcoming?interest=keysready#keysready')
+  await expect(project(page, 'KeysReady')).toBeChecked()
+  await expect(project(page, 'Relink')).not.toBeChecked()
+  await expect(page.locator('article#keysready')).toBeInViewport()
 })
 
 test('a landing page link preselects its project and lands on its card', async ({ page }) => {
@@ -56,7 +82,7 @@ test("links from before Relink's rename still preselect it", async ({ page }) =>
 
 test("a card's Join button ticks its project and brings the form into view", async ({ page }) => {
   await page.goto('/upcoming')
-  await page.locator('article#relink').getByRole('link', { name: 'Join the Relink waitlist' }).click()
+  await page.locator('article#relink').getByRole('link', { name: 'Join the waitlist for Relink' }).click()
   await expect(project(page, 'Relink')).toBeChecked()
   await expect(page.getByRole('textbox', { name: 'Email' })).toBeInViewport()
 })
@@ -149,34 +175,117 @@ const LANDING = {
   relink: 'https://relink.n8builds.dev',
   strollz: 'https://strollz.n8builds.dev',
   vibelog: 'https://vibelogs.dev',
+  keysready: 'https://keysready.n8builds.dev',
 }
+const NAMES: Record<string, string> = { relink: 'Relink', strollz: 'Strollz', vibelog: 'VibeLog', keysready: 'KeysReady' }
 
-test('each card links its landing page (hrefs only: the sites may not be live yet)', async ({ page }) => {
+/** Only public repositories get a "View the code" link (Relink, Strollz and KeysReady are private). */
+const CODE: Record<string, string | undefined> = { vibelog: 'https://github.com/n8watkins/vibelog' }
+
+test('each card leads with its landing page, then Join, then its code where public (hrefs only: the sites may not be live yet)', async ({ page }) => {
   await page.goto('/upcoming')
   for (const [slug, href] of Object.entries(LANDING)) {
-    await expect(page.locator(`article#${slug}`).getByRole('link', { name: /landing page/ })).toHaveAttribute('href', href)
+    const card = page.locator(`article#${slug}`)
+    const name = NAMES[slug]
+    const landing = card.getByRole('link', { name: `Check out the landing page for ${name} (opens in a new tab)` })
+    await expect(landing).toHaveAttribute('href', href)
+    await expect(landing).toHaveAttribute('target', '_blank')
+    // The landing page is the first action, Join the second.
+    const actions = card.getByRole('link', { name: /landing page|Join the waitlist|View the code/ })
+    await expect(actions.nth(0)).toHaveAccessibleName(/^Check out the landing page/)
+    await expect(actions.nth(1)).toHaveAccessibleName(`Join the waitlist for ${name}`)
+    const code = card.getByRole('link', { name: /^View the code/ })
+    if (CODE[slug]) await expect(code).toHaveAttribute('href', CODE[slug]!)
+    else await expect(code).toHaveCount(0)
   }
 })
 
-test("the homepage Lab ends with a short What's cookin' part, each with its waitlist and landing page", async ({ page }) => {
+test("Relink's card says plainly what it does", async ({ page }) => {
+  await page.goto('/upcoming')
+  await expect(page.locator('article#relink')).toContainText('Turns broken links into the right page')
+})
+
+test("the homepage Lab ends with a short What's cookin' part: each project's summary, landing page and Join, then the waitlist", async ({ page }) => {
   await page.goto('/')
   const band = page.locator('#lab section#upcoming')
   await expect(band.getByRole('heading', { level: 3 })).toHaveText('What’s cookin’')
   await expect(band.getByText('Upcoming', { exact: true })).toBeVisible()
-  await expect(band.getByRole('listitem')).toHaveCount(3)
-  for (const [slug, href] of Object.entries(LANDING)) {
-    const name = { relink: 'Relink', strollz: 'Strollz', vibelog: 'VibeLog' }[slug]
-    await expect(band.getByRole('link', { name: `Let ’em cook: join the waitlist for ${name}` })).toHaveAttribute(
-      'href',
-      `/upcoming?interest=${slug}#${slug}`
-    )
-    await expect(band.getByRole('link', { name: `Visit the landing page for ${name} (opens in a new tab)` })).toHaveAttribute(
-      'href',
-      href
-    )
+  await expect(band.getByRole('listitem')).toHaveCount(4)
+  // The same form as /upcoming, picking several projects (owner, 2026-11-02).
+  await expect(band.locator('#waitlist').getByRole('heading', { level: 4, name: 'Join the waitlist' })).toBeVisible()
+  await expect(band.locator('#waitlist').getByRole('checkbox')).toHaveCount(4)
+  const cards = band.locator('> div > ul > li')
+  for (const [i, [slug, href]] of Object.entries(LANDING).entries()) {
+    const name = NAMES[slug]
+    const card = cards.nth(i)
+    await expect(card.getByRole('heading', { level: 4 })).toHaveText(name)
+    // A plain summary under the tagline: what it does, for whom.
+    await expect(card.locator('p').nth(1)).toHaveText(/^\S.{40,}\.$/)
+    // The landing page is the main button, Join the second.
+    const actions = card.getByRole('link', { name: /landing page|Join the waitlist/ })
+    await expect(actions.nth(0)).toHaveAccessibleName(new RegExp(`landing page for ${name} \\(opens in a new tab\\)$`))
+    await expect(actions.nth(0)).toHaveAttribute('href', href)
+    await expect(actions.nth(1)).toHaveAccessibleName(`Join the waitlist for ${name}`)
+    await expect(actions.nth(1)).toHaveAttribute('href', '#waitlist')
+    const code = card.getByRole('link', { name: /^View the code/ })
+    if (CODE[slug]) await expect(code).toHaveAttribute('href', CODE[slug]!)
+    else await expect(code).toHaveCount(0)
   }
+  await expect(cards.first()).toContainText('When a visitor follows a broken link to your website')
   // The full detail stays on /upcoming.
   await expect(band.getByText('Status:')).toHaveCount(0)
   await band.getByRole('link', { name: 'See all upcoming' }).click()
   await expect(page).toHaveURL(/\/upcoming$/)
 })
+
+test("a homepage card's Join ticks that project in the waitlist below and scrolls to it", async ({ page }) => {
+  await page.goto('/')
+  const band = page.locator('#lab section#upcoming')
+  await band.getByRole('link', { name: 'Join the waitlist for KeysReady' }).click()
+  await expect(band.locator('#waitlist input[value="keysready"]')).toBeChecked()
+  await band.getByRole('link', { name: 'Join the waitlist for Relink' }).click()
+  // Several at once: the first pick stays.
+  await expect(band.locator('#waitlist input[value="relink"]')).toBeChecked()
+  await expect(band.locator('#waitlist input[value="keysready"]')).toBeChecked()
+  await expect(page).toHaveURL(/#waitlist$/)
+  await expect(band.locator('#waitlist-email')).toBeInViewport()
+})
+
+// Four items: four across from 1024px, two by two on tablets, one column on phones.
+for (const [width, columns] of [
+  [1440, 4],
+  [1280, 4],
+  [1024, 4],
+  [810, 2],
+  [390, 1],
+  [320, 1],
+]) {
+  test(`What's cookin' lays its four items out evenly at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto('/')
+    const items = page.locator('#lab section#upcoming > div > ul > li')
+    await expect(items).toHaveCount(4)
+    await items.first().scrollIntoViewIfNeeded()
+    const boxes = await items.evaluateAll((list) =>
+      list.map((li) => ({ top: Math.round(li.getBoundingClientRect().top), height: li.getBoundingClientRect().height }))
+    )
+    const rows = new Map<number, number[]>()
+    for (const { top, height } of boxes) rows.set(top, [...(rows.get(top) ?? []), height])
+    // A balanced grid: every row full, so no card is left alone, and the cards in a row the same height.
+    expect([...rows.values()].map((row) => row.length)).toEqual(Array(4 / columns).fill(columns))
+    for (const heights of rows.values()) expect(Math.max(...heights) - Math.min(...heights)).toBeLessThan(1)
+    // Each button's label stays on one line inside it, the buttons level across a row, and nothing spills past the page.
+    const buttons = await items
+      .getByRole('link', { name: /Join the waitlist|landing page/ })
+      .evaluateAll((links) =>
+        links.map((a) => ({ height: a.getBoundingClientRect().height, fits: a.scrollWidth <= a.clientWidth, top: Math.round(a.getBoundingClientRect().top) }))
+      )
+    expect(buttons).toHaveLength(8)
+    for (const { height, fits } of buttons) {
+      expect(height).toBeLessThanOrEqual(44)
+      expect(fits).toBe(true)
+    }
+    if (columns === 4) expect(new Set(buttons.map((b) => b.top)).size).toBe(2)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0)
+  })
+}

@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { SiKofi, SiTwitch } from 'react-icons/si'
 import { FiMenu, FiX, FiChevronDown, FiBriefcase } from 'react-icons/fi'
 import { useLiveStatus } from '@/components/live/liveStore'
@@ -16,14 +16,16 @@ const KOFI_URL = 'https://ko-fi.com/n8watkins'
 
 // The Lab is one homepage section; its parts live in a hover dropdown so the
 // top nav stays short. Each item scrolls to its anchor on the homepage.
-const labMenu = [
+// `fallback`: where an item goes when its section isn't on the page (the build
+// log part hides when the log can't load): the full log.
+const labMenu: { label: string; href: string; desc: string; fallback?: string }[] = [
+  // The Lab's first part (the owner's ask, 2026-11-02); the full log is its "See the full build log" link and the footer.
+  { label: 'Build log', href: '/#build-log', desc: 'What I shipped lately, every build', fallback: '/builds' },
   { label: 'My tools', href: '/#my-tools', desc: 'Scribe and OpenPing: I use them every day' },
   { label: 'Featured', href: '/#featured', desc: 'Solara and Portfolio Rank' },
   { label: 'Chrome Extensions', href: '/#extensions', desc: 'Browser tools, local-first' },
   // The Lab's last part: upcoming projects, each with a waitlist (full detail on /upcoming).
   { label: "What's cookin'", href: '/#upcoming', desc: 'Upcoming projects, with a waitlist' },
-  // The build log is a page, not a section: it lives here and in the footer, not as its own top-level link.
-  { label: 'Build log', href: '/builds', desc: 'What shipped, pulled from GitHub' },
 ]
 
 // The menus open and close with CSS transitions, not motion, so no page loads
@@ -38,6 +40,7 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [labOpen, setLabOpen] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
   // Set while Escape returns focus to the Lab link, so that focus doesn't reopen it.
   const skipFocusOpen = useRef(false)
 
@@ -92,19 +95,40 @@ const Navbar = () => {
   // Smooth-scroll to a homepage section when a "/#id" nav link is clicked while
   // already on the homepage. next/link's same-page hash scroll is unreliable, so
   // we drive it directly (scrollIntoView honors html { scroll-padding-top }).
-  // On other pages we fall through and let the link navigate to "/#id".
-  const goToSection = (e: React.MouseEvent, href: string) => {
+  // On other pages we fall through and let the link navigate to "/#id". A
+  // section missing from the homepage sends its item to its fallback page.
+  const goToSection = (e: React.MouseEvent, href: string, fallback?: string) => {
     setLabOpen(false)
     setMobileOpen(false)
     if (!href.startsWith('/#')) return
     if (typeof window === 'undefined' || window.location.pathname !== '/') return
     const el = document.getElementById(href.slice(2))
-    if (!el) return
+    if (!el) {
+      if (fallback) {
+        e.preventDefault()
+        router.push(fallback)
+      }
+      return
+    }
     e.preventDefault()
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' })
     window.history.replaceState(null, '', href)
   }
+
+  // Arriving on the homepage at a Lab item's section that isn't there (the build
+  // log hides when the log can't load), from another page: go to its fallback.
+  // A hash change counts too: a click before hydration jumps natively.
+  useEffect(() => {
+    if (pathname !== '/') return
+    const check = () => {
+      const item = labMenu.find((i) => i.fallback && window.location.hash === i.href.slice(1))
+      if (item?.fallback && !document.getElementById(item.href.slice(2))) router.replace(item.fallback)
+    }
+    check()
+    window.addEventListener('hashchange', check)
+    return () => window.removeEventListener('hashchange', check)
+  }, [pathname, router])
 
   // Top-level items besides the Lab dropdown: links that scroll to their
   // homepage section.
@@ -202,7 +226,7 @@ const Navbar = () => {
                     <Link
                       key={item.href}
                       href={item.href}
-                      onClick={(e) => goToSection(e, item.href)}
+                      onClick={(e) => goToSection(e, item.href, item.fallback)}
                       className="group/item flex flex-col gap-0.5 px-3 py-2 rounded-lg hover:bg-white/6 transition-colors"
                     >
                       <span className="text-sm font-semibold text-slate-200 transition-colors group-hover/item:text-cyan-300">
@@ -349,7 +373,7 @@ const Navbar = () => {
           <Link
             key={item.href}
             href={item.href}
-            onClick={(e) => goToSection(e, item.href)}
+            onClick={(e) => goToSection(e, item.href, item.fallback)}
             className="px-3 py-2.5 text-sm text-slate-300 hover:text-slate-100 rounded-lg hover:bg-white/5 transition-colors"
           >
             {item.label}

@@ -609,6 +609,11 @@
     --lab-to: 251 191 36;
   }
   /* A part's colours, used by its subheader bar. */
+  /* The build log (components/sections/BuildLogStrip.tsx), the Lab's first part: shipped green to teal. */
+  .lab-accent-buildlog {
+    --lab-from: 52 211 153;
+    --lab-to: 45 212 191;
+  }
   .lab-accent-tools {
     --lab-from: 56 189 248;
     --lab-to: 52 211 153;
@@ -706,7 +711,7 @@
       rgb(var(--lab-to, 255 255 255) / 0.5)
     );
   }
-  .lab-sub-bar:not(:where(.lab-accent-tools, .lab-accent-featured, .lab-accent-extensions, .lab-accent-template, .lab-accent-upcoming) *) {
+  .lab-sub-bar:not(:where(.lab-accent-buildlog, .lab-accent-tools, .lab-accent-featured, .lab-accent-extensions, .lab-accent-template, .lab-accent-upcoming) *) {
     background: rgb(255 255 255 / 0.1);
   }
 }

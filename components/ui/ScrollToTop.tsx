@@ -25,7 +25,7 @@ function liftedBy(): number {
 }
 
 /**
- * True while an element marked `data-scroll-top-avoid` (the contact form) is
+ * True while an element marked `data-scroll-top-avoid` (the contact and waitlist forms) is
  * under the button's spot, so the button never covers its fields, Send or the
  * email line on a phone.
  */
