@@ -9,9 +9,15 @@ import { test, expect } from '@playwright/test'
 test.use({ contextOptions: { reducedMotion: 'no-preference' } })
 
 test('a tile focused before hydration pauses its marquee', async ({ page }) => {
-  // Hold the page's scripts back, so the focus lands before hydration.
-  await page.route('**/_next/static/chunks/**', async (route) => {
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+  // Hold the page's scripts back until the tile has focus, so the focus always
+  // lands before hydration. Scripts only: Turbopack serves the stylesheets from
+  // /_next/static/chunks/ too, and React reveals streamed HTML only once its
+  // stylesheets load, so holding those kept the tiles out of the page until
+  // after hydration (the old fixed 1.5s delay on every chunk failed that way).
+  let release!: () => void
+  const scriptsHeld = new Promise<void>((resolve) => (release = resolve))
+  await page.route('**/_next/static/chunks/**/*.js', async (route) => {
+    await scriptsHeld
     await route.continue()
   })
   // The homepage's AI kit, the site's marquee.
@@ -21,6 +27,7 @@ test('a tile focused before hydration pauses its marquee', async ({ page }) => {
   await tile.waitFor({ state: 'attached' })
   const serverTiles = await tiles.count()
   await tile.focus()
+  release()
 
   // Hydration adds the loop's copies.
   await expect.poll(() => tiles.count(), { timeout: 20_000 }).toBeGreaterThan(serverTiles)
