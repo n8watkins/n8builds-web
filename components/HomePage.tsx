@@ -133,15 +133,16 @@ export default async function HomePage({ posts }: { posts: Post[] }) {
               <div className="inline-flex flex-col items-stretch">
                 {/* One line of text (no per-letter spans). The paragraph is a size
                      container as wide as the title row (it adds no width of its own).
-                     The text is sized from that width (11.5cqw: in a monospace font
-                     9 characters are about 62% of it), and the letter spacing fills
-                     the rest: 8 gaps of (100cqw - 9ch) / 8, about 0.4em, so it
+                     The text is sized from that width (13cqw since round 5 of
+                     2026-11-02, was 11.5cqw: "a bit closer together, slightly larger";
+                     in a monospace font 9 characters are about 70% of it), and the letter spacing fills
+                     the rest: 8 gaps of (100cqw - 9ch) / 8, about 0.3em, so it
                      still spans the row exactly. The word space is pulled in by
                      0.4ch (so the two words don't drift apart), and that 0.4ch goes
                      back to the gaps. The last letter's trailing spacing is taken
                      back with a margin. */}
                 <p className="lab-eyebrow mb-2 font-mono font-bold uppercase leading-none [container-type:inline-size] sm:mb-3">
-                  <span className="block w-max text-[11.5cqw] leading-none tracking-[calc((100cqw-8.6ch)/8)] [word-spacing:-0.4ch] [margin-right:calc((8.6ch-100cqw)/8)]">
+                  <span className="block w-max text-[13cqw] leading-none tracking-[calc((100cqw-8.6ch)/8)] [word-spacing:-0.4ch] [margin-right:calc((8.6ch-100cqw)/8)]">
                     Check out
                   </span>
                 </p>

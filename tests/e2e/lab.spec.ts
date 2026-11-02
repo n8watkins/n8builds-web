@@ -655,7 +655,8 @@ test.describe('the Lab rows on a 320px phone', () => {
 /**
  * The Lab's eyebrow (2026-11-01): just "Check out", its letters spread so it
  * spans exactly the flask and "The Lab" under it, at every width. Since
- * 2026-11-02 the letters are larger and closer together (still spaced out).
+ * 2026-11-02 the letters are larger and closer together (still spaced out),
+ * and in round 5 a step further again (13cqw, about 0.3em between letters).
  */
 for (const width of [1440, 390, 320]) {
   test(`at ${width}px "Check out" spans the flask and title`, async ({ page }) => {
@@ -677,14 +678,14 @@ for (const width of [1440, 390, 320]) {
     expect(lines, 'one line').toBe(1)
     expect(Math.abs(text[0] - row[0]), 'starts at the flask').toBeLessThan(2)
     expect(Math.abs(text[1] - row[1]), 'ends at the title').toBeLessThan(2)
-    // Larger than the old 1.125rem / 1.5rem, with spacing well under the old ~2em but still spaced out.
+    // Larger than round 2's ~40px / 28px, with spacing under its ~0.4em but still spaced out.
     const { size, spacing } = await eyebrow.evaluate((p) => {
       const style = getComputedStyle(p.firstElementChild!)
       return { size: parseFloat(style.fontSize), spacing: parseFloat(style.letterSpacing) }
     })
-    expect(size).toBeGreaterThanOrEqual(width >= 640 ? 36 : 26)
-    expect(spacing / size).toBeGreaterThan(0.25)
-    expect(spacing / size).toBeLessThan(0.6)
+    expect(size).toBeGreaterThanOrEqual(width >= 640 ? 42 : 30)
+    expect(spacing / size).toBeGreaterThan(0.15)
+    expect(spacing / size).toBeLessThan(0.38)
   })
 }
 
