@@ -9,6 +9,7 @@ import { ContactTopicCards } from '@/components/ui/ContactTopicCards'
 import { ContactTextarea } from '@/components/ui/ContactTextarea'
 import type { ContactFormData } from '@/lib/validations/contact'
 import { subjectOptions } from '@/lib/validations/contactOptions'
+import { CONTACT_PRESETS, CONTACT_PRESET_EVENT, isContactPresetId } from '@/lib/contactPresets'
 import { trackContactEvent } from '@/lib/analytics'
 import { useHydrated } from '@/hooks/useHydrated'
 import { SubmissionState } from './useContactFormSubmit'
@@ -38,6 +39,7 @@ export function ContactFormFields({
     register,
     watch,
     setValue,
+    getValues,
     formState: { errors, isSubmitting, isSubmitted },
   } = form
 
@@ -54,6 +56,31 @@ export function ContactFormFields({
     const picked = topicsRef.current?.querySelector<HTMLInputElement>('input:checked')?.value
     if (picked) setValue('subject', picked as ContactFormData['subject'])
   }, [setValue])
+  // A preset from a link (lib/contactPresets.ts): `?inquiry=<id>` on arrival,
+  // or the contact:preset event from a link on this page. It picks the topic
+  // and starts the message, unless the visitor has already typed one.
+  useEffect(() => {
+    const apply = (id: unknown) => {
+      if (!isContactPresetId(id)) return
+      const preset = CONTACT_PRESETS[id]
+      const radio = topicsRef.current?.querySelector<HTMLInputElement>(`input[value="${preset.subject}"]`)
+      if (radio) radio.checked = true
+      setValue('subject', preset.subject, { shouldDirty: true })
+      if (!getValues('message')?.trim()) setValue('message', preset.message, { shouldDirty: true })
+    }
+    const url = new URL(window.location.href)
+    const inquiry = url.searchParams.get('inquiry')
+    if (inquiry) {
+      apply(inquiry)
+      // Read once: the address bar goes back to the plain page.
+      url.searchParams.delete('inquiry')
+      window.history.replaceState(window.history.state, '', `${url.pathname}${url.search}${url.hash}`)
+    }
+    const onPreset = (e: Event) => apply((e as CustomEvent<unknown>).detail)
+    window.addEventListener(CONTACT_PRESET_EVENT, onPreset)
+    return () => window.removeEventListener(CONTACT_PRESET_EVENT, onPreset)
+  }, [setValue, getValues])
+
   const pickTopic = (value: string) =>
     setValue('subject', value as ContactFormData['subject'], { shouldDirty: true, shouldValidate: isSubmitted })
 

@@ -616,27 +616,6 @@
   mask-composite: intersect;
 }
 
-/* The "What I'm working on" phone (components/sections/NowBuilding.tsx): a
-   full-length template page scrolls slowly inside the frame, pauses at the
-   bottom, scrolls back up and repeats, as on Appturnity's own site.
-   --travel (from the component) is how far the image moves: all of it but
-   the frame's height. Transform only, on its own layer. It holds still while
-   the card is off screen (NowCarousel sets data-offscreen) and under reduced
-   motion it is the page's top, still. */
-@media (prefers-reduced-motion: no-preference) {
-  .now-phone-scroll {
-    animation: now-phone-scroll 30s ease-in-out infinite alternate;
-    will-change: transform;
-  }
-  [data-offscreen] .now-phone-scroll {
-    animation-play-state: paused;
-  }
-}
-@keyframes now-phone-scroll {
-  0%, 8%    { transform: translateY(0); }
-  92%, 100% { transform: translateY(var(--travel)); }
-}
-
 /* The Lab's colour washes (components/sections/FeaturedProjects.tsx and
    ExtensionsShowcase.tsx; the owner's pick, 2026-10-26). Each project row
    carries its product's colour as a glow that comes in from one side of the

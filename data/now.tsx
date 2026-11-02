@@ -3,27 +3,16 @@
 // current: what is shipping right now.
 
 import type { ReactNode } from 'react'
+import type { IconType } from 'react-icons'
+import { LuBellRing, LuInbox, LuLayoutTemplate, LuStar } from 'react-icons/lu'
+import type { TemplateSlide } from '@/components/sections/TemplateCarousel'
 import TechForProsMark from '@/components/ui/TechForProsMark'
 import { refHref } from '@/lib/referrals'
-import { TECH_FOR_PROS } from '@/lib/techForPros'
+import { TECH_FOR_PROS, TECH_FOR_PROS_LINKS } from '@/lib/techForPros'
 
 export interface NowUpdate {
   date: string // e.g. "Oct 25"
   text: string
-}
-
-/** A screenshot shown in a device frame on the ad. */
-export interface NowShot {
-  src: string
-  width: number
-  height: number
-  /** What the frame's label says it is, e.g. "Pool service template". */
-  label: string
-  /**
-   * The height the frame shows, in the image's pixels, for a full-page
-   * screenshot taller than the frame: it scrolls slowly inside it.
-   */
-  frameHeight?: number
 }
 
 export interface NowState {
@@ -44,18 +33,18 @@ export interface NowState {
   headline: { lead: string; accent: string }
   /** The ad's pitch, one short paragraph. */
   pitch: string
-  /** Three short selling points, shown with checkmarks. */
-  perks: string[]
-  /** Real screenshots for the ad's device frames: a desktop page and a phone page. */
-  showcase?: { desktop: NowShot; phone: NowShot }
+  /** What the service does, as a compact set of short features with icons. */
+  features: { icon: IconType; text: string }[]
+  /** Real template screenshots, shown one after another in a browser frame (TemplateCarousel). */
+  templates?: TemplateSlide[]
   /** one sentence: what I'm doing right now (in the What's new dialog) */
   focus: string
   /** the target I'm building toward (in the What's new dialog) */
   goal: string
   stack: string[]
   /**
-   * The ad's buttons; the first is the primary one. All open the project's
-   * own site, and so does the picture (the second button's page, if any).
+   * The ad's buttons; the first is the primary one. A link into this site
+   * (the contact form's quote preset) stays in the tab; any other opens a new one.
    */
   ctas?: { label: string; href: string }[]
   /** Its page on this site (/builds/<slug>), from data/builds.tsx. */
@@ -72,27 +61,40 @@ export const nowItems: NowState[] = [
     mark: <TechForProsMark className="h-full w-full" sizes="44px" />,
     tagline: 'Websites and follow-up for service businesses',
     status: 'active',
-    headline: { lead: 'Your website,', accent: 'built for your trade.' },
+    // Owner, 2026-11-02: "Websites built for pros"; the copy is about the
+    // service, never a list of trades (the templates show those).
+    headline: { lead: 'Websites', accent: 'built for pros.' },
     pitch:
-      'Tech for Pros turns a few details about a pool, HVAC or landscaping business into a launch-ready website, then takes the follow-up off their plate.',
-    // Short enough for one line on a 320px phone (tests/e2e/now.spec.ts).
-    perks: ['Templates for your trade', 'Lead capture and reviews', 'Reminders, coming next'],
-    // Template previews from the Appturnity days, until Tech for Pros has its
-    // own. The phone is the full-length HVAC page (resized to 280px wide),
-    // scrolling in its frame. A new filename, not the old crop's: image
-    // caches (next/image's, the CDN's, browsers') key on the URL, and kept
-    // serving the short crop, squashing the page into the frame.
-    showcase: {
-      desktop: { src: '/now/pool-clearline-template.webp', width: 1200, height: 750, label: 'Pool template' },
-      phone: { src: '/now/hvac-phone-full.webp', width: 280, height: 7685, frameHeight: 700, label: 'HVAC template' },
-    },
+      'A few details about your business become a launch\u2011ready website. Then Tech for Pros takes the follow-up off your plate.',
+    // Short enough for one line on a 320px phone (tests/e2e/now.spec.ts). What
+    // the service does today, and what is next (from What's new's "Right now").
+    features: [
+      { icon: LuLayoutTemplate, text: 'A pro site, fast' },
+      { icon: LuInbox, text: 'Every lead captured' },
+      { icon: LuStar, text: 'Review requests' },
+      { icon: LuBellRing, text: 'Reminders, next up' },
+    ],
+    // Tech for Pros' trade templates (from its hub's example shots), one
+    // after another. Only templates that exist: pool, HVAC, landscaping, roofing.
+    templates: [
+      { src: '/now/template-pool.webp', width: 1200, height: 750, name: 'Pool', label: 'Pool service template', kind: 'pool' },
+      { src: '/now/template-hvac.webp', width: 1200, height: 750, name: 'HVAC', label: 'HVAC template', kind: 'hvac' },
+      { src: '/now/template-landscaping.webp', width: 1200, height: 750, name: 'Landscaping', label: 'Landscaping template', kind: 'landscaping' },
+      { src: '/now/template-roofing.webp', width: 1200, height: 750, name: 'Roofing', label: 'Roofing template', kind: 'roofing' },
+    ],
     focus:
       'Automated follow-up for leads and quotes, appointment and maintenance reminders, referrals and missed-call text-back.',
     goal:
       'One place for a service business: a launch-ready website from a few details, then the follow-up that brings customers in and keeps them.',
     stack: ['Next.js', 'Cloudflare'],
-    // Counted under "hero": this card is the first screen's sneak peek.
-    ctas: [{ label: `Visit ${TECH_FOR_PROS.domain}`, href: refHref('techforpros', 'hero') }],
+    // Request a quote, then a booking page and the site once they exist
+    // (TECH_FOR_PROS_LINKS). The site goes through the counted short link,
+    // under "hero": this card is the first screen's sneak peek.
+    ctas: [
+      { label: 'Request a quote', href: TECH_FOR_PROS_LINKS.quote },
+      ...(TECH_FOR_PROS_LINKS.booking ? [{ label: 'Book an intro call', href: TECH_FOR_PROS_LINKS.booking }] : []),
+      ...(TECH_FOR_PROS_LINKS.siteLive ? [{ label: `Visit ${TECH_FOR_PROS.domain}`, href: refHref('techforpros', 'hero') }] : []),
+    ],
     updates: [],
   },
 ]

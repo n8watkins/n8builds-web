@@ -13,3 +13,25 @@ export const TECH_FOR_PROS = {
   /** Its icon (a worker holding a gear), made by scripts/gen-techforpros-icon.mjs. */
   icon: '/brands/techforpros.png',
 } as const
+
+/**
+ * Where the homepage's Tech for Pros ad sends people (owner, 2026-11-02).
+ * techforpros.com has no site yet and there is no booking page yet, so those
+ * two are unset and their buttons don't show; set one and its button appears.
+ * "Request a quote" goes to this site's contact form with a quote preset
+ * (lib/contactPresets.ts) until techforpros.com has a form of its own.
+ */
+export const TECH_FOR_PROS_LINKS: {
+  /** "Request a quote": this site's contact form, preset for a Tech for Pros quote. */
+  quote: string
+  /** "Book an intro call": a booking page, once there is one. */
+  booking?: string
+  /**
+   * "Visit techforpros.com": set to true once the site is live. The button
+   * goes through the counted short link (/techforpros?from=hero), never the
+   * plain URL.
+   */
+  siteLive?: boolean
+} = {
+  quote: '/?inquiry=techforpros-quote#contact',
+}
