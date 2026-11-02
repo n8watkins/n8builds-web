@@ -5,18 +5,19 @@ import { contentLeft, labelLines, railShape } from './section-rail'
  * The homepage Loadout's floating side nav (components/sections/HomeLoadoutNav.tsx,
  * on components/ui/SectionRail.tsx, the same rail as the Lab's; the owner's
  * ask, 2026-11-02): a desktop-only rail in the left gutter of the Loadout band
- * (after People I follow) that marks the part on screen (AI kit, Default
- * stack, Tools I built and use, Dev setup) and jumps to it. It lives in its
+ * (after People I follow) that marks the part on screen (Dev setup, AI kit,
+ * Default stack, Tools I built and use; the dev setup line leads since round 3
+ * of 2026-11-02) and jumps to it. It lives in its
  * own band, several bands below the Lab, so it never shows with the Lab's.
  */
 
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
 const PARTS = [
+  { id: 'my-setup', label: 'Dev setup' },
   { id: 'ai-kit', label: 'AI kit' },
   { id: 'default-stack', label: 'Default stack' },
   { id: 'tools-i-built', label: 'Tools I built and use' },
-  { id: 'my-setup', label: 'Dev setup' },
 ] as const
 
 const rail = (page: Page) => page.getByRole('navigation', { name: 'Loadout contents' })
@@ -85,10 +86,10 @@ test.describe('at 1440px', () => {
     }
     for (const [i, part] of PARTS.entries())
       await expect(nav.getByRole('link').nth(i)).toHaveAccessibleName(part.label)
-    // The setup line closes the band: scrolled to it, it is the part marked,
-    // the rail riding out with the band's foot, never below it.
-    await place(page, 'my-setup', 400)
-    await expect(nav.locator('[aria-current]')).toHaveAccessibleName('Dev setup')
+    // Tools I built and use closes the band: scrolled to it, it is the part
+    // marked, the rail riding out with the band's foot, never below it.
+    await place(page, 'tools-i-built', 400)
+    await expect(nav.locator('[aria-current]')).toHaveAccessibleName('Tools I built and use')
     const box = (await nav.boundingBox())!
     const bandBottom = await page
       .locator('#loadout-band')
@@ -99,21 +100,21 @@ test.describe('at 1440px', () => {
     await expect(nav).not.toBeInViewport()
   })
 
-  test('appears once the Loadout reaches the middle of the window, level with its AI kit', async ({ page }) => {
+  test('appears once the Loadout reaches the middle of the window, level with its first part', async ({ page }) => {
     await openHome(page)
     const nav = rail(page)
-    // The band's heading on screen, the AI kit still in the lower half: no rail.
-    await place(page, 'ai-kit', 620)
+    // The band's heading on screen, the dev setup line still in the lower half: no rail.
+    await place(page, 'my-setup', 620)
     await page.waitForTimeout(300)
     await expect(nav).toBeHidden()
-    await place(page, 'ai-kit', 470)
+    await place(page, 'my-setup', 470)
     await page.waitForTimeout(300)
     await expect(nav).toBeHidden()
-    // The AI kit reaches the middle of the window (owner, 2026-11-02): the rail shows, level with it, whole.
-    await place(page, 'ai-kit', 448)
+    // The first part reaches the middle of the window (owner, 2026-11-02): the rail shows, level with it, whole.
+    await place(page, 'my-setup', 448)
     await expect(nav).toBeVisible(SHOW)
     await expect(nav).toBeInViewport({ ratio: 1 })
-    const kitTop = await page.locator('#ai-kit').evaluate((el) => el.getBoundingClientRect().top)
+    const kitTop = await page.locator('#my-setup').evaluate((el) => el.getBoundingClientRect().top)
     expect(Math.abs((await nav.boundingBox())!.y - kitTop)).toBeLessThanOrEqual(3)
   })
 
@@ -123,7 +124,7 @@ test.describe('at 1440px', () => {
     await place(page, 'ai-kit')
     const nav = rail(page)
     await expect(nav).toBeVisible(SHOW)
-    for (const part of [PARTS[2], PARTS[1], PARTS[0]]) {
+    for (const part of [PARTS[3], PARTS[1], PARTS[0]]) {
       await nav.getByRole('link', { name: part.label, exact: true }).click()
       await expect(page).toHaveURL(new RegExp(`#${part.id}$`))
       await expect

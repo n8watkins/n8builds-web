@@ -476,14 +476,16 @@ test.describe('Loadout tools and people', () => {
     // Every tool, pr-post too: The Pull Request Post's card is a section above now.
     await expect(built.getByRole('article').getByRole('heading', { level: 3 })).toHaveText(['Scribe', 'pass-env', 'release-kit', 'devguard', 'pr-post'])
     await expect(built.locator('[data-credit]')).toContainText('Created by Phaedrus Raznikov at Misty Step')
-    // A part of the Loadout (#loadout): after the default stack, before the setup teaser that closes it.
+    // A part of the Loadout (#loadout): after the default stack. The setup teaser leads the band (round 3 of 2026-11-02).
     const loadout = page.locator('#loadout')
     await expect(loadout.locator('#tools-i-built')).toHaveCount(1)
-    const [stack, tools, teaser] = await Promise.all(
-      [loadout.getByRole('heading', { name: 'The Turso Stack' }), built, loadout.locator('[data-setup-teaser]')].map((el) => el.boundingBox()),
+    const [stack, tools, teaser, kit] = await Promise.all(
+      [loadout.getByRole('heading', { name: 'The Turso Stack' }), built, loadout.locator('[data-setup-teaser]'), loadout.locator('#ai-kit')].map((el) =>
+        el.boundingBox(),
+      ),
     )
     expect(tools!.y).toBeGreaterThan(stack!.y)
-    expect(teaser!.y).toBeGreaterThan(tools!.y + tools!.height - 1)
+    expect(teaser!.y + teaser!.height).toBeLessThanOrEqual(kit!.y)
     // Scribe's row sits in the Loadout's column, without the Lab's full-bleed wash.
     await expect(built.locator('.lab-row-wash')).toHaveCount(0)
     // After People I follow, and linked from the footer's sitemap with it.

@@ -7,10 +7,10 @@ import AITechStack from '@/components/features/AITechStack'
 import { buildStacks } from '@/data/buildStacks'
 import HomeToolsIBuilt from '@/components/sections/HomeToolsIBuilt'
 
-// Homepage "stack" section, the homepage's Loadout: lead with the AI kit (the
-// differentiator), then the default build stack with one line on why each
-// piece is in it, then the tools I built and use (2026-11-01), and last the
-// one-line teaser for my dev setup, the way out to /loadout. The full generic
+// Homepage "stack" section, the homepage's Loadout: first the one-line teaser
+// for my dev setup on /loadout (at the top since round 3 of 2026-11-02), then
+// the AI kit, the default build stack with one line on why each piece is in
+// it, then the tools I built and use (2026-11-01). The full generic
 // tech marquee lives on /loadout.
 
 // Why each tool is in the default stack. Keep these true to the loadout
@@ -45,6 +45,31 @@ export default function HomeStack() {
       </SectionMark>
 
       {/* Each part's id is a rail stop (components/sections/HomeLoadoutNav.tsx). */}
+      {/* My dev setup first (round 3 of 2026-11-02): a one-line teaser for it on /loadout, in a quiet bar. */}
+      <p
+        id="my-setup"
+        className="mb-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 rounded-2xl border border-white/8 bg-white/[0.02] px-4 py-3.5 text-center text-sm text-[#9cadc5]"
+        data-setup-teaser
+      >
+        <span className="font-mono text-[0.68rem] font-bold tracking-[0.16em] text-cyan-400 uppercase">My dev setup</span>
+        {/* Each pair stays on one line; the dots between them are where it wraps. */}
+        <span>
+          {['Windows 11 + WSL2', 'Claude Code + Codex', 'herdr + T-Hub'].map((pair, i) => (
+            <span key={pair}>
+              {i > 0 && ' · '}
+              <span className="whitespace-nowrap">{pair}</span>
+            </span>
+          ))}
+        </span>
+        <Link
+          href="/loadout#dev-setup"
+          className="group inline-flex items-center gap-1 font-semibold text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 transition-colors hover:text-cyan-200"
+        >
+          See my dev setup
+          <FiArrowUpRight aria-hidden="true" className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+        </Link>
+      </p>
+
       <div id="ai-kit">
         <AITechStack dino />
       </div>
@@ -95,26 +120,6 @@ export default function HomeStack() {
       </div>
       <HomeToolsIBuilt />
 
-      {/* A one-line teaser for My dev setup on /loadout, closing the Loadout. */}
-      <p id="my-setup" className="mt-10 flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-center text-sm text-[#9cadc5]" data-setup-teaser>
-        <span className="font-mono text-[0.68rem] font-bold tracking-[0.16em] text-cyan-400 uppercase">My setup</span>
-        {/* Each pair stays on one line; the dots between them are where it wraps. */}
-        <span>
-          {['Windows 11 + WSL2', 'Claude Code + Codex', 'herdr + T-Hub'].map((pair, i) => (
-            <span key={pair}>
-              {i > 0 && ' · '}
-              <span className="whitespace-nowrap">{pair}</span>
-            </span>
-          ))}
-        </span>
-        <Link
-          href="/loadout#dev-setup"
-          className="group inline-flex items-center gap-1 font-semibold text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 transition-colors hover:text-cyan-200"
-        >
-          See my dev setup
-          <FiArrowUpRight aria-hidden="true" className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-        </Link>
-      </p>
     </section>
   )
 }

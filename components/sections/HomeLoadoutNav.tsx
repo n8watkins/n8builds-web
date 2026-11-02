@@ -10,10 +10,10 @@ import SectionRail, { type RailPart } from '@/components/ui/SectionRail'
  * its Dev setup.
  */
 const SECTIONS: readonly RailPart[] = [
+  { id: 'my-setup', label: 'Dev setup', icon: LuSquareTerminal },
   { id: 'ai-kit', label: 'AI kit', icon: LuSparkles },
   { id: 'default-stack', label: 'Default stack', icon: LuLayers },
   { id: 'tools-i-built', label: 'Tools I built and use', short: 'My tools', icon: LuHammer },
-  { id: 'my-setup', label: 'Dev setup', icon: LuSquareTerminal },
 ]
 
 const HEADING = { icon: <LuBackpack className="size-7 text-cyan-300" aria-hidden="true" />, title: 'Loadout' }
@@ -21,8 +21,8 @@ const HEADING = { icon: <LuBackpack className="size-7 text-cyan-300" aria-hidden
 /**
  * The homepage Loadout's floating side nav (components/ui/SectionRail.tsx),
  * like the Lab's (the owner's ask, 2026-11-02): "Loadout", with its
- * backpack, over the AI kit, the default stack, Tools I built and use and the
- * dev setup line. Desktop only (from 1280px), in the left gutter beside the
+ * backpack, over the dev setup line, the AI kit, the default stack and Tools
+ * I built and use. Desktop only (from 1280px), in the left gutter beside the
  * band's content column. It lives in the Loadout's own band, several bands
  * below the Lab, so it never meets the Lab's rail: each shows only while its
  * own band is on screen and rides out with its foot.
