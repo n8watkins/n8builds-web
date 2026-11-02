@@ -1,4 +1,5 @@
 import type { ReactElement } from 'react'
+import Image from 'next/image'
 import { BsOpenai } from 'react-icons/bs'
 import {
   LuChartColumn,
@@ -11,7 +12,6 @@ import {
   LuMemoryStick,
   LuMic,
   LuNewspaper,
-  LuPanelsTopLeft,
   LuShieldCheck,
   LuShip,
   LuTag,
@@ -50,7 +50,7 @@ export interface LoadoutGroup {
 // First-person intro, no resume energy. Shown as a terminal block in the homepage hero:
 // the name sits in the window's title bar (~/whoami), the body is two short sentences that type out.
 export const whoamiTitle = { path: '~/whoami', name: "Nathan 'N8' Watkins" }
-export const whoami: string[] = ['AI-first software developer.', 'I build apps and tools I wish existed.', 'Shipping with Claude Opus 5.5.']
+export const whoami: string[] = ['AI-first software developer.', 'I build apps and tools I wish existed.']
 
 /**
  * How I work with AI, in the order a piece of work goes through it: decide
@@ -217,7 +217,8 @@ export const toolsIBuilt: BuiltTool[] = [
 
 /**
  * People I follow: what each one is working on in public. One entry per
- * person; adding one is adding an entry here. `id` is the anchor the tools
+ * person; adding one is adding an entry here. `id` is the anchor (on the
+ * homepage, where People I follow lives since 2026-11-01) the tools
  * below link to ("no-mistakes, by Kun Chen").
  *
  * The cards are static for now. Later pr-post's feed.json fills each
@@ -477,7 +478,10 @@ export const honorableMentions: UsedTool[] = [
       'The runtime my coding agents live on: persistent terminal sessions, every pane marked working, blocked or idle, and an API agents can drive.',
     href: 'https://herdr.dev',
     maker: { name: 'Can Celik', href: 'https://github.com/ogulcancelik' },
-    icon: <LuPanelsTopLeft />,
+    // herdr's own app icon (the ram on its light tile), as herdr.dev's navbar
+    // shows it (herdr.dev/live/icons/herdr.png, trimmed to the tile), kept in
+    // public/brands/. A tile already, so it fills the chip, padding and all.
+    icon: <Image src="/brands/herdr.png" alt="" width={130} height={130} sizes="42px" className="-m-2.5 size-[42px] max-w-none rounded-[11px]" />,
   },
   {
     id: 'firstmate',

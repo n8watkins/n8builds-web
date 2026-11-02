@@ -156,11 +156,14 @@ describe("the auto-reply's cards", () => {
       const html = createAutoReplyHtml({ ...hostile, name: 'Maya', subject })
       expect(html).toContain('href="https://n8builds.dev/portfolio?from=email"')
       expect(html).toContain('href="https://n8builds.dev/?utm_source=contact-email&utm_medium=email"')
-      for (const icon of ['lab', 'portfolio', 'logo', 'github']) expect(html).toContain(`cid:icon-${icon}`)
-      expect(createAutoReplyText({ ...hostile, name: 'Maya', subject })).toContain('https://n8builds.dev/portfolio?from=email')
-      // Appturnity is a past role (2026-11-01), and Tech for Pros waits for
-      // techforpros.com to go live (lib/techForPros.ts).
-      expect(html).not.toMatch(/appturnity|techforpros\.com/i)
+      // Tech for Pros took Appturnity's place (2026-11-01), counted too.
+      expect(html).toContain('href="https://n8builds.dev/techforpros?from=email"')
+      for (const icon of ['lab', 'portfolio', 'techforpros', 'logo', 'github']) expect(html).toContain(`cid:icon-${icon}`)
+      const text = createAutoReplyText({ ...hostile, name: 'Maya', subject })
+      expect(text).toContain('https://n8builds.dev/portfolio?from=email')
+      expect(text).toContain('https://n8builds.dev/techforpros?from=email')
+      // Appturnity is a past role.
+      expect(html).not.toMatch(/appturnity/i)
     })
   }
 

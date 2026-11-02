@@ -16,7 +16,7 @@ test('the heading, subheader and prompt -> repeat chips all fit on a 320px scree
   await expect(hero.getByText('idea', { exact: true })).toHaveCount(0)
   const targets = [
     hero.getByRole('heading', { level: 1, name: 'n8builds' }),
-    hero.getByText('Spending tokens, shipping features.'),
+    hero.getByText('Think bigger. Ship sooner.'),
     hero.getByText('prompt', { exact: true }),
     hero.getByText('repeat', { exact: true }),
   ]
@@ -104,10 +104,10 @@ test.describe('the hero text column', () => {
     await expect(hero.getByText(/See what I.m building/)).toHaveCount(0)
   })
 
-  test('shows "Hiring? See my developer portfolio" above the social links', async ({ page }) => {
+  test('shows "Hiring? Check out my dev portfolio" above the social links', async ({ page }) => {
     await page.goto('/')
     const hero = page.locator('#home')
-    const hiring = await hero.getByRole('link', { name: 'See my developer portfolio' }).boundingBox()
+    const hiring = await hero.getByRole('link', { name: 'Check out my dev portfolio' }).boundingBox()
     const socials = await hero.getByRole('navigation', { name: 'Social links' }).boundingBox()
     expect(hiring!.y + hiring!.height).toBeLessThanOrEqual(socials!.y)
   })
@@ -336,9 +336,9 @@ for (const [width, height] of [
       expect(heading.y, 'heading on the first screen').toBeLessThan(height)
     })
 
-    test('keeps "Spending tokens, shipping features." on one line', async ({ page }) => {
+    test('keeps "Think bigger. Ship sooner." on one line', async ({ page }) => {
       await page.goto('/')
-      const tagline = page.locator('#home').getByText('Spending tokens, shipping features.')
+      const tagline = page.locator('#home').getByText('Think bigger. Ship sooner.')
       const { lines, right } = await tagline.evaluate((el) => {
         const range = document.createRange()
         range.selectNodeContents(el)
@@ -366,6 +366,9 @@ test.describe('the whoami terminal', () => {
     await expect(terminal.getByText('I build apps and tools I wish existed.', { exact: true })).toBeVisible()
     await expect(terminal).not.toContainText('in LA')
     await expect(terminal).not.toContainText('heavy lifting')
+    // Two lines: "Shipping with Claude Opus 5.5." went on 2026-11-01.
+    await expect(terminal.locator('.whoami-type')).toHaveCount(2)
+    await expect(terminal).not.toContainText('Shipping with')
     const first = await terminal.getByText('AI-first software developer.', { exact: true }).evaluate((el) => {
       const range = document.createRange()
       range.selectNodeContents(el)
@@ -490,7 +493,7 @@ test.describe('the whoami typing', () => {
     test('types each line out from the server HTML, without JavaScript, then shows the prompt', async ({ page }) => {
       await page.context().route('**/*.js', (route) => route.abort())
       await page.goto('/')
-      await expect(lines(page)).toHaveText(['AI-first software developer.', 'I build apps and tools I wish existed.', 'Shipping with Claude Opus 5.5.'])
+      await expect(lines(page)).toHaveText(['AI-first software developer.', 'I build apps and tools I wish existed.'])
       // Pause every animation early on: line 1 part typed, line 2 and the prompt not yet.
       await page.evaluate(() => {
         // Time-based animations only: the Lab's scroll-driven washes run on scroll progress.
@@ -606,7 +609,7 @@ for (const width of [768, 900, 1023, 1024]) {
     // styled scrollbar out of its media queries.
     const gutter = await page.evaluate(() => window.innerWidth - document.documentElement.clientWidth)
     if (gutter > 0) await page.setViewportSize({ width: width + gutter, height: 1024 })
-    const sub = (await page.locator('#home').getByText('Spending tokens, shipping features.').boundingBox())!
+    const sub = (await page.locator('#home').getByText('Think bigger. Ship sooner.').boundingBox())!
     const portrait = (await page.locator('#home .hero-portrait-in').boundingBox())!
     expect(sub.height, 'one line').toBeLessThan(50)
     // Beside the portrait, from md up.

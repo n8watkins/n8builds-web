@@ -46,10 +46,16 @@ const glyph = (Component, size, color) =>
 // The Lab's flask, with its bubbles caught mid-rise (the site animates them).
 const bubbles = [[43, 61], [52, 56], [47.5, 50]].map(([cx, cy], i) => `<circle cx="${cx}" cy="${cy}" r="${3 - i * 0.6}" fill="#22d3ee"/>`).join('')
 const appturnity = readFileSync('public/brands/appturnity.png').toString('base64')
+// Tech for Pros' icon sits on a light tile, as on the site
+// (components/ui/TechForProsMark.tsx): its navy outlines vanish on navy.
+const techforpros = readFileSync('public/brands/techforpros.png').toString('base64')
 const tiles = {
   lab: tile(glyph(LuFlaskConical, 52, '#22d3ee') + bubbles),
   portfolio: tile(glyph(FiBriefcase, 46, '#7dd3fc')),
   appturnity: tile(`<image x="27" y="23" width="42" height="49" href="data:image/png;base64,${appturnity}"/>`),
+  techforpros: `<svg xmlns="http://www.w3.org/2000/svg" width="${TILE}" height="${TILE}" viewBox="0 0 ${TILE} ${TILE}">
+  <rect x="1.5" y="1.5" width="${TILE - 3}" height="${TILE - 3}" rx="22" fill="#f8fafc" stroke="#24406a" stroke-width="3"/>
+  <image x="12" y="12" width="72" height="72" href="data:image/png;base64,${techforpros}"/></svg>`,
 }
 for (const [name, svg] of Object.entries(tiles)) {
   const path = `public/email/${name}.png`
@@ -64,7 +70,7 @@ writeFileSync(
 // Base64 PNGs attached to outgoing mail as inline CID images, so the
 // icons render without depending on the site being deployed or on the
 // client loading remote images.
-export const EMAIL_ICONS: Record<'linkedin' | 'github' | 'x' | 'logo' | 'lab' | 'portfolio' | 'appturnity', string> = {
+export const EMAIL_ICONS: Record<'linkedin' | 'github' | 'x' | 'logo' | 'lab' | 'portfolio' | 'appturnity' | 'techforpros', string> = {
 ${entries.join('\n')}
 }
 `

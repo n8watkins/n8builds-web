@@ -4,10 +4,10 @@ import Link from 'next/link'
 import Reveal from '@/components/ui/Reveal'
 import PauseOffscreen from '@/components/ui/PauseOffscreen'
 import { FiArrowUpRight, FiCheck, FiCode } from 'react-icons/fi'
-import { LuWrench } from 'react-icons/lu'
 import styles from './WorkWithMe.module.css'
 import { isOutbound, refHref } from '@/lib/referrals'
 import { TECH_FOR_PROS } from '@/lib/techForPros'
+import TechForProsMark from '@/components/ui/TechForProsMark'
 
 /** One highlight line: an optional bold lead-in, then what it is. */
 interface Point {
@@ -32,9 +32,8 @@ interface Door {
   blurb: React.ReactNode
   pointsLabel?: string
   points: Point[]
-  /** planned features, shown as "Coming soon" chips */
-  soon?: string[]
-  /** No href: the site isn't live yet, and the button says so instead. */
+  /** planned features, shown as "Next up" chips (never "Coming soon": the site is live) */
+  next?: string[]
   cta: { label: string; href: string }
   secondary?: { label: string; href: string }
   icon: React.ReactNode
@@ -157,10 +156,9 @@ const doors: Door[] = [
       { text: 'Lead capture, and review display and requests' },
       { text: 'An instant site-health check: speed, mobile, SEO and accessibility' },
     ],
-    soon: ['Lead and quote follow-up', 'Appointment reminders', 'Missed-call text-back'],
+    next: ['Lead and quote follow-up', 'Appointment reminders', 'Missed-call text-back'],
     cta: { label: 'Visit Tech for Pros', href: refHref('techforpros', 'card') },
-    // No logo yet: a plain wrench.
-    icon: <LuWrench className="h-5 w-5" />,
+    icon: <TechForProsMark className="h-full w-full rounded-xl" sizes="36px" />,
     // Template shots from the Appturnity days, until Tech for Pros has its own.
     desktop: {
       src: '/work/landscaping-verdant.webp',
@@ -259,11 +257,11 @@ const DoorCard = ({ door, index }: { door: Door; index: number }) => {
             ))}
           </ul>
 
-          {door.soon && (
+          {door.next && (
             <>
-              <p className="mt-4 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-slate-450">Coming soon</p>
-              <ul aria-label="Coming soon" className="mt-2 flex flex-wrap gap-1.5">
-                {door.soon.map((s) => (
+              <p className="mt-4 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-slate-450">Next up</p>
+              <ul aria-label="Next up" className="mt-2 flex flex-wrap gap-1.5">
+                {door.next.map((s) => (
                   <li
                     key={s}
                     className="rounded-full border border-dashed border-white/15 bg-white/3 px-2.5 py-0.5 text-xs font-medium text-slate-300"

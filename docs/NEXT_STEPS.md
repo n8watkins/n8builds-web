@@ -43,6 +43,20 @@ Detailed plans: [BUILDS_LOG_PLAN.md](BUILDS_LOG_PLAN.md), [LIVE_STREAM_PLAN.md](
 
 - [ ] **GitGuardian incident 39011681:** mark it a false positive. A local Lighthouse run left a throwaway headless-Chrome profile in a PR #39 commit (its Preferences hold a random value); the files were removed before the squash merge, so main never had them.
 
+### B3. Email, Cloudflare and Tech for Pros (2026-11-01)
+
+- [ ] **Send the contact emails through Resend** (about 5 minutes; then Claude does the code, Part 2 #10).
+  The site sends as contact@n8builds.dev through Gmail, which n8builds.dev's DNS doesn't authorize, so the emails fail authenticity checks and can land in spam (Cloudflare's "DMARC Record Error").
+  Resend is only set up for appturnity.com today.
+  1. Resend dashboard, Domains, Add Domain, `n8builds.dev`; use its "connect to Cloudflare" option so it adds its records itself (Claude's Cloudflare login can only read DNS). Its records go on `send.n8builds.dev`, so the contact@ forwarding to Gmail keeps working.
+  2. Resend, API Keys, create one with Sending access for n8builds.dev only, then in the project folder run `! vercel env add RESEND_API_KEY production` and paste it at the prompt.
+  3. Tell Claude it's done.
+- [ ] **Turn on two-factor sign-in for Cloudflare** (My Profile, Authentication). Cloudflare's security insights flag it; whoever gets into that account controls DNS for every domain.
+- [ ] **Register techforpros.com.** Its buttons on all three sites already link there and lead nowhere until it's live.
+- [ ] **Resume:** rename SiteForge to Tech for Pros; the portfolio's Experience now says "Full Stack Engineer and AI Consultant" at Tech for Pros.
+
+The rest of Cloudflare's insights need nothing: the unproxied records are how Vercel-hosted sites must be set up, Bot Fight Mode would block uptime checks and link previews, and the appturnity.com ones go away with Appturnity.
+
 Portfolio Rank and OpenPing keep their own to-do lists, in their repos: `docs/FOLLOW_UP_2026-10.md` on branch `docs/follow-up-2026-10` in each (not merged yet).
 Portfolio Rank's starts with rotating its invalid Gemini API key (nothing has been graded since late July 2026); OpenPing's covers the off-hours status bug.
 
@@ -80,6 +94,7 @@ Ordered by value.
 | 7 | **Started (n8builds-web adopted it, #17; v1.1.0 released):** **release standard rollout:** apply release-kit to five repos, baseline tags, propose milestone backfills for your approval | No | Your OK (A) | `~/n8builds/release-kit` |
 | 8 | **Quick fixes from your decisions:** Appturnity card, Solara link, GitHub settings, front-door redirect | No | Your answers (A) | - |
 | 9 | **Proof updates:** add your screenshots and numbers to the build pages | No | Your content (C) | - |
+| 10 | **Contact emails through Resend:** swap Gmail SMTP for Resend in `lib/email` (same From address and templates), point DMARC's reports at contact@n8builds.dev, test a real send end to end, then tighten DMARC from `p=none` once a week of reports is clean | No | Resend domain and key (B3) | - |
 
 Suggested order: 1 and 2 now (they need nothing), 4 next, then 6-9 as your answers come in, and 3 a week before your first stream.
 

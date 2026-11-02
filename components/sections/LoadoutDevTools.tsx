@@ -22,9 +22,11 @@ import RepoButtons from '@/components/ui/RepoButtons'
 import Reveal from '@/components/ui/Reveal'
 
 /**
- * The dev-tool parts of /loadout (2026-11-01): my dev setup, the tools I use
- * (each credited to its maker), honorable mentions, the people I follow and
- * the tools I built. Each reads its list from
+ * The dev-tool parts of /loadout (2026-11-01): my dev setup, the tools I
+ * built, the tools I use (each credited to its maker) and honorable
+ * mentions; and the parts the homepage shows (components/sections/
+ * HomePeople.tsx, HomeToolsIBuilt.tsx): the people I follow, The Pull
+ * Request Post and the tool cards. Each reads its list from
  * data/loadout.tsx, so adding a tool or a person is one entry there.
  * Server components: RepoButtons fetches its star count on the server. Out
  * of the app's IconContext, so every icon is aria-hidden by hand.
@@ -135,19 +137,29 @@ const BuiltToolCard = ({ tool }: { tool: BuiltTool }) => (
   </article>
 )
 
+/**
+ * The tool cards; `tools` picks which (all by default). Two to a row from md
+ * up, or three from lg up for a set of three, so no card sits alone.
+ */
+export const BuiltToolsGrid = ({ tools = toolsIBuilt }: { tools?: BuiltTool[] }) => (
+  <ul className={`grid gap-5 ${tools.length % 2 === 0 ? 'md:grid-cols-2' : 'lg:grid-cols-3'}`}>
+    {tools.map((tool) => (
+      <li key={tool.id}>
+        <BuiltToolCard tool={tool} />
+      </li>
+    ))}
+  </ul>
+)
+
+export const TOOLS_I_BUILT_BLURB = 'Small open-source tools I made because I wanted them. All MIT-licensed.'
+
 export const ToolsIBuilt = () => (
   <Reveal>
     <section id="tools-i-built" aria-labelledby="tools-i-built-title" className="scroll-mt-24">
       <SectionHead id="tools-i-built-title" path="~/loadout/built" title="Tools I built">
-        Small open-source tools I made because I wanted them. All MIT-licensed.
+        {TOOLS_I_BUILT_BLURB}
       </SectionHead>
-      <ul className="grid gap-5 md:grid-cols-2">
-        {toolsIBuilt.map((tool) => (
-          <li key={tool.id}>
-            <BuiltToolCard tool={tool} />
-          </li>
-        ))}
-      </ul>
+      <BuiltToolsGrid />
     </section>
   </Reveal>
 )
@@ -156,8 +168,9 @@ const makerLink = 'font-medium text-slate-300 underline decoration-white/20 unde
 
 /**
  * One tool someone else made: "no-mistakes, by Kun Chen". The tool links to
- * its page; a maker in People I follow links to their card, any other maker
- * to their own profile.
+ * its page; a maker in People I follow links to their card on the homepage
+ * (People I follow moved there on 2026-11-01), any other maker to their own
+ * profile.
  */
 const ToolItem = ({ tool }: { tool: UsedTool }) => {
   const person = tool.by ? people.find((p) => p.id === tool.by) : undefined
@@ -183,7 +196,7 @@ const ToolItem = ({ tool }: { tool: UsedTool }) => {
           {person && (
             <>
               , by{' '}
-              <a href={`#${person.id}`} className={makerLink}>
+              <a href={`/#${person.id}`} className={makerLink}>
                 {person.name}
               </a>
             </>
@@ -406,31 +419,94 @@ export const PersonCard = ({ person }: { person: Person }) => (
   </article>
 )
 
-export const PeopleIFollow = () => (
-  <Reveal>
-    <section id="people" aria-labelledby="people-title" className="scroll-mt-24">
-      <SectionHead id="people-title" path="~/loadout/people" title="People I follow">
-        What each of them is working on in public.
-      </SectionHead>
-      <ul className="grid gap-5 lg:grid-cols-3">
-        {people.map((person) => (
-          <li key={person.id}>
-            <PersonCard person={person} />
-          </li>
-        ))}
-      </ul>
-      {/* Static cards for now; pr-post's feed.json will fill each person's activity. */}
-      <p className="mt-4 text-sm leading-relaxed text-slate-450" data-pr-post>
-        These cards will update themselves from{' '}
-        <a href="https://github.com/n8watkins/pr-post" target="_blank" rel="noopener noreferrer" className={textLink}>
-          pr-post
-        </a>
-        , my open-source tool for following what builders ship (see the{' '}
-        <a href="https://n8watkins.github.io/pr-post/" target="_blank" rel="noopener noreferrer" className={textLink}>
-          live demo
-        </a>
-        ).
+/** The people I follow, as cards (the homepage's People I follow, components/sections/HomePeople.tsx). */
+export const PeopleGrid = () => (
+  <ul className="grid gap-5 lg:grid-cols-3">
+    {people.map((person) => (
+      <li key={person.id}>
+        <PersonCard person={person} />
+      </li>
+    ))}
+  </ul>
+)
+
+const prPost = toolsIBuilt.find((tool) => tool.id === 'pr-post')!
+
+/**
+ * The Pull Request Post (2026-11-01): the newspaper pr-post prints from the
+ * public GitHub activity of the people above, as a project card in the tool
+ * cards' style, with a front page from its live demo beside the copy. The
+ * picture is public/projects/pr-post-edition.webp (a 1280x800 capture of the
+ * demo, resized to 1200x750); recapture it when the paper's design changes.
+ */
+export const PrPostCard = () => (
+  <article
+    id="pr-post-edition"
+    aria-labelledby="pr-post-edition-title"
+    className="group relative grid scroll-mt-24 items-center gap-6 overflow-hidden rounded-3xl border border-white/8 bg-linear-to-b from-white/[0.045] to-white/[0.01] p-6 transition-[border-color] duration-300 hover:border-cyan-300/30 lg:grid-cols-[1fr_1.05fr] lg:gap-10 lg:p-8"
+  >
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute -top-24 -left-24 h-64 w-64 rounded-full bg-cyan-400 opacity-[0.05] blur-3xl transition-opacity duration-300 group-hover:opacity-[0.12]"
+    />
+    <div className="relative flex flex-col gap-4">
+      <div className="flex items-center gap-4">
+        <span aria-hidden="true" className={`${iconChip} h-12 w-12 p-3 [&_svg]:h-full [&_svg]:w-full`}>
+          {prPost.icon}
+        </span>
+        <div className="min-w-0">
+          <h3 id="pr-post-edition-title" className="text-xl font-extrabold tracking-tight text-slate-50 sm:text-2xl">
+            The Pull Request Post
+          </h3>
+          <p className="mt-0.5 font-mono text-xs text-slate-450">
+            built on <span className="text-slate-300">pr-post</span>, open source
+          </p>
+        </div>
+      </div>
+      <p className="text-lg leading-snug font-semibold text-slate-100">
+        The public GitHub activity of the developers I follow, printed as a newspaper.
       </p>
-    </section>
-  </Reveal>
+      <p className="text-[15px] leading-relaxed text-[#9cadc5]">
+        Their merged pull requests, releases and new repos become a front page, with back issues to browse. The engine is{' '}
+        <span className="whitespace-nowrap">pr-post</span>: give it your own list of builders, and GitHub Actions prints a new edition twice a week.
+      </p>
+      <div className="mt-1 flex flex-wrap gap-2">
+        <a href={prPost.demo} target="_blank" rel="noopener noreferrer" className={`${linkButton} w-full justify-center sm:w-auto`}>
+          <span aria-hidden="true">
+            <LuExternalLink />
+          </span>
+          Live demo
+          <span className="sr-only"> of The Pull Request Post (opens in a new tab)</span>
+        </a>
+        <RepoButtons href={prPost.github} name="pr-post" className="w-full sm:w-auto" />
+      </div>
+    </div>
+    {/* A second way to the demo, not a separate stop for keyboard and
+        screen-reader users (the Live demo button says it). */}
+    <a
+      href={prPost.demo}
+      target="_blank"
+      rel="noopener noreferrer"
+      tabIndex={-1}
+      aria-hidden="true"
+      className="relative block overflow-hidden rounded-xl border border-white/12 bg-[#0b1424] shadow-2xl shadow-black/50 ring-1 ring-black/40 transition-transform duration-300 ease-out group-hover:scale-[1.015] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+    >
+      <span className="flex h-7 items-center gap-1.5 border-b border-white/8 bg-[#0e192c] px-3">
+        <span className="h-2 w-2 rounded-full bg-white/15" />
+        <span className="h-2 w-2 rounded-full bg-white/15" />
+        <span className="h-2 w-2 rounded-full bg-white/15" />
+        <span className="ml-2 truncate rounded-md bg-white/6 px-2 py-0.5 text-[0.62rem] font-medium text-slate-400">
+          n8watkins.github.io/pr-post
+        </span>
+      </span>
+      <Image
+        src="/projects/pr-post-edition.webp"
+        alt=""
+        width={1200}
+        height={750}
+        sizes="(min-width: 1280px) 560px, (min-width: 1024px) 46vw, 90vw"
+        className="block h-auto w-full"
+      />
+    </a>
+  </article>
 )

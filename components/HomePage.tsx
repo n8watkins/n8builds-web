@@ -19,6 +19,8 @@ import ExtensionsShowcase from '@/components/sections/ExtensionsShowcase'
 import LabSectionNav from '@/components/sections/LabSectionNav'
 import ShimmerWhenSeen from '@/components/ShimmerWhenSeen'
 import HomeStack from '@/components/sections/HomeStack'
+import HomePeople from '@/components/sections/HomePeople'
+import HomeToolsIBuilt from '@/components/sections/HomeToolsIBuilt'
 import WorkWithMe from '@/components/sections/WorkWithMe'
 import Footer from '@/components/layout/Footer'
 import type { Post } from '@/lib/sanity'
@@ -108,12 +110,19 @@ export default function HomePage({ posts }: { posts: Post[] }) {
                glow sits behind the heading. Centred across the full content width. */}
           <div className="bg-[radial-gradient(50%_320px_at_50%_0,rgb(34_211_238/0.08),transparent_100%),linear-gradient(to_bottom,rgb(255_255_255/0.022),transparent_220px)]">
             <Reveal className="mx-auto flex max-w-6xl flex-col items-center px-5 pt-16 pb-6 text-center sm:px-8 sm:pt-20">
-              {/* "Check out the Lab" spans exactly the flask and title below it: its
-                   letters spread across that width (the owner's ask, 2026-10-27). */}
+              {/* "Check out" spans exactly the flask and title below it: its
+                   letters spread across that width (the owner's ask, 2026-10-27;
+                   "Check out the Lab" until 2026-11-01, now just "Check out",
+                   a size larger). */}
               <div className="inline-flex flex-col items-stretch">
-                {/* One line of text, justified to the flask and title's width (no per-letter spans). */}
-                <p className="lab-eyebrow mb-3 text-justify font-mono text-base font-bold tracking-[0.2em] uppercase [text-align-last:justify] sm:text-xl">
-                  Check out the Lab
+                {/* One line of text (no per-letter spans). Justifying can't spread
+                     two words letter by letter, so the letter spacing is worked out
+                     instead: the paragraph is a size container as wide as the title
+                     row (it adds no width of its own), and in a monospace font the
+                     9 characters are 9ch, so 8 gaps of (100cqw - 9ch) / 8 fill it.
+                     The last letter's trailing spacing is taken back with a margin. */}
+                <p className="lab-eyebrow mb-3 font-mono text-lg font-bold uppercase [container-type:inline-size] sm:text-2xl">
+                  <span className="block w-max tracking-[calc((100cqw-9ch)/8)] [margin-right:calc((9ch-100cqw)/8)]">Check out</span>
                 </p>
                 {/* The Lab's mark (the owner's pick, 2026-10-26): a flask in a chip like the rows' app icons. */}
                 <div className="flex items-center gap-4 sm:gap-5">
@@ -195,6 +204,20 @@ export default function HomePage({ posts }: { posts: Post[] }) {
         <Band>
           <SectionErrorBoundary sectionName="N8's Notions">
             <NotionsStrip posts={posts} />
+          </SectionErrorBoundary>
+        </Band>
+
+        {/* People I follow, and The Pull Request Post right under them (moved from /loadout, 2026-11-01) */}
+        <Band>
+          <SectionErrorBoundary sectionName="People I Follow">
+            <HomePeople />
+          </SectionErrorBoundary>
+        </Band>
+
+        {/* The small open-source tools I built (also on /loadout) */}
+        <Band tone="raised">
+          <SectionErrorBoundary sectionName="Tools I Built">
+            <HomeToolsIBuilt />
           </SectionErrorBoundary>
         </Band>
 

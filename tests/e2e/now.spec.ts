@@ -2,17 +2,19 @@ import { test, expect, type Page } from '@playwright/test'
 import { APP_JS } from './app-js'
 
 /**
- * "What I'm working on" (#now): an ad for Tech for Pros with template
- * screenshots, "Coming soon" where its button goes until techforpros.com is
- * live (lib/techForPros.ts), and the build detail behind a What's new dialog
- * instead of on the card face.
+ * "What I'm working on" (#now): an ad for Tech for Pros, headed by its icon
+ * and techforpros.com, with template screenshots and a button to the site
+ * (2026-11-01), and the build detail behind a What's new dialog instead of
+ * on the card face.
  */
 
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
 const now = (page: Page) => page.locator('#now')
+/** The ad's button to techforpros.com. */
+const visit = (page: Page) => now(page).getByRole('link', { name: /Visit techforpros\.com/ })
 
-test('the card reads like an ad: headline, selling points, both buttons and real template screenshots', async ({ page }) => {
+test('the card reads like an ad: headline, selling points, its button and real template screenshots', async ({ page }) => {
   await page.goto('/')
   const section = now(page)
   await section.scrollIntoViewIfNeeded()
@@ -20,8 +22,14 @@ test('the card reads like an ad: headline, selling points, both buttons and real
   for (const perk of ['Templates for your trade', 'Lead capture and reviews']) {
     await expect(section.getByRole('listitem').filter({ hasText: perk })).toBeVisible()
   }
-  // No site to send anyone to yet: no link, and it says so.
-  await expect(section.locator('[data-now-soon]')).toHaveText('Coming soon')
+  // Headed by its icon and address, with no badge (it said "Launching soon").
+  const title = section.getByRole('heading', { level: 3, name: 'techforpros.com' })
+  await expect(title).toBeVisible()
+  await expect(title.locator('xpath=..').locator('img[src*="techforpros"]')).toBeVisible()
+  await expect(section).not.toContainText(/launching soon|coming soon/i)
+  // Its button, and the screenshots, go to the site through the counted link.
+  await expect(section.getByRole('link', { name: /Visit techforpros\.com/ })).toHaveAttribute('href', '/techforpros?from=hero')
+  await expect(section.locator('a[aria-hidden="true"][tabindex="-1"]')).toHaveAttribute('href', '/techforpros?from=hero')
   await expect(section.locator('a[href*="techforpros.com"], a[href*="appturnity"]')).toHaveCount(0)
   await expect(section).not.toContainText(/free website/i)
 
@@ -99,7 +107,7 @@ for (const width of [1280, 1440]) {
     await page.goto('/')
     const section = now(page)
     await section.scrollIntoViewIfNeeded()
-    const cta = await section.locator('[data-now-soon]').boundingBox()
+    const cta = await visit(page).boundingBox()
     const shot = await section.locator('img[src*="pool-clearline-template"]').boundingBox()
     // The screenshots sit beside the copy, not under it.
     expect(shot!.x).toBeGreaterThan(cta!.x + cta!.width)
@@ -140,8 +148,8 @@ test('What\'s new is on the buttons\' row, at its far right, and there is no "Bu
   const section = now(page)
   await section.scrollIntoViewIfNeeded()
   await expect(section.getByText(/Building now/)).toHaveCount(0)
-  const cta = (await section.locator('[data-now-soon]').boundingBox())!
-  const examples = (await section.locator('[data-now-soon]').boundingBox())!
+  const cta = (await visit(page).boundingBox())!
+  const examples = cta
   const button = section.getByRole('button', { name: "What's new at Tech for Pros" })
   const box = (await button.boundingBox())!
   // Same row, same height as the buttons.
@@ -153,12 +161,12 @@ test('What\'s new is on the buttons\' row, at its far right, and there is no "Bu
   expect(box.x + box.width).toBeGreaterThanOrEqual(shot.x + shot.width - 2)
 })
 
-test('on a phone What\'s new is a full-width button under the other two', async ({ page }) => {
+test('on a phone What\'s new is a full-width button under the Visit button', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 })
   await page.goto('/')
   const section = now(page)
   await section.scrollIntoViewIfNeeded()
-  const examples = (await section.locator('[data-now-soon]').boundingBox())!
+  const examples = (await visit(page).boundingBox())!
   const box = (await section.getByRole('button', { name: "What's new at Tech for Pros" }).boundingBox())!
   expect(box.y).toBeGreaterThan(examples.y + examples.height)
   expect(Math.abs(box.width - examples.width)).toBeLessThanOrEqual(1)
