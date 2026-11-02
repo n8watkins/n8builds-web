@@ -343,3 +343,18 @@ test.describe('on a phone', () => {
     expect(covered).toEqual([])
   })
 })
+
+// The site is dark-only, but an earlier version saved a theme choice in the
+// browser. A visitor with a saved "light" (or "system" on a light OS) got
+// white fields and dim labels until the theme was forced to dark.
+for (const [saved, colorScheme] of [['light', 'dark'], ['system', 'light']] as const) {
+  test(`fields stay dark with a saved "${saved}" theme`, async ({ browser }) => {
+    const context = await browser.newContext({ colorScheme, reducedMotion: 'reduce' })
+    await context.addInitScript((value) => localStorage.setItem('theme', value), saved)
+    const page = await context.newPage()
+    await openContactForm(page)
+    await expect(page.locator('html')).toHaveClass(/\bdark\b/)
+    await expect(page.locator('#contact form').getByLabel('Name')).toHaveCSS('background-color', /^(?!rgb\(255, 255, 255\))/)
+    await context.close()
+  })
+}
