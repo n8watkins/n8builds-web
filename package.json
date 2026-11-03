@@ -73,7 +73,7 @@
     "eslint-config-next": "^16.4.3",
     "husky": "^9.1.7",
     "lighthouse": "^13.6.0",
-    "lint-staged": "^16.2.4",
+    "lint-staged": "^17.6.0",
     "postcss": "^8",
     "release-kit": "github:n8watkins/release-kit#v2.4.0",
     "svgo": "^4.0.0",
