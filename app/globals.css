@@ -115,15 +115,20 @@
       transform 0.55s cubic-bezier(0.25, 0.1, 0.25, 1);
   }
 
-  /* Not the scroll anchor while it rises: Safari (WebKit) anchors to content
-     inside a rising block and, once the rise ends, scrolls the page 24px to
-     "keep it in place". After jumping to a section (the section rail, a link,
-     the keyboard) the page then moved about a second later, under the pointer:
-     a click on the Scribe tour's pause button could land on the video. Reveal
-     marks the block settled once the rise is over, and from then on it anchors
-     as usual, so content loading above it still doesn't push it around. */
-  .reveal:not([data-settled]) {
-    overflow-anchor: none;
+  /* Safari only: not the scroll anchor while it rises. WebKit anchors to
+     content inside a rising block and, once the rise ends, scrolls the page
+     24px to "keep it in place". After jumping to a section (the section rail,
+     a link, the keyboard) the page then moved about a second later, under the
+     pointer: a click on the Scribe tour's pause button could land on the
+     video. Reveal marks the block settled once the rise is over, and from then
+     on it anchors as usual. Chromium and Firefox ignore the transform, as the
+     spec says, and need these blocks as anchors right after a jump (without
+     them the page drifted off the Pull Request Post's recording), so the rule
+     is gated on hanging-punctuation, which only WebKit supports. */
+  @supports (hanging-punctuation: first) {
+    .reveal:not([data-settled]) {
+      overflow-anchor: none;
+    }
   }
 
   .reveal[data-revealed] {
