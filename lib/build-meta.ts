@@ -19,6 +19,7 @@ export const BUILD_ICONS: Record<string, string> = {
   relink: '/upcoming/relink.svg',
   strollz: '/upcoming/strollz.svg',
   keysready: '/upcoming/keysready.svg',
+  feelium: '/upcoming/feelium.svg',
   vibelog: '/upcoming/vibelog.svg',
   'release-kit': '/log/release-kit.svg',
   'pass-env': '/log/pass-env.svg',
