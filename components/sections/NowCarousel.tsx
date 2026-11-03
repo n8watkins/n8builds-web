@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { FiChevronLeft, FiChevronRight, FiPause, FiPlay } from 'react-icons/fi'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
+import { latestEntry } from '@/lib/intersection'
 
 const CYCLE_MS = 7000
 
@@ -33,7 +34,7 @@ const NowCarousel = ({ labels, cards }: { labels: string[]; cards: React.ReactNo
   useEffect(() => {
     const el = card.current
     if (!el) return
-    const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting))
+    const observer = new IntersectionObserver((entries) => setVisible(latestEntry(entries).isIntersecting))
     observer.observe(el)
     // Watching from here on: until now the card is held as off screen (tests wait for this).
     el.dataset.watching = ''

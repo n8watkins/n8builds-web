@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { latestEntry } from '@/lib/intersection'
 
 /**
  * True once the element comes within `rootMargin` of the screen or something
@@ -15,7 +16,8 @@ export function useNearViewport<T extends Element>(rootMargin = '600px') {
     const el = ref.current
     if (!el || near) return
     const observer = new IntersectionObserver(
-      ([entry]) => {
+      (entries) => {
+        const entry = latestEntry(entries)
         if (entry.isIntersecting) setNear(true)
       },
       { rootMargin }

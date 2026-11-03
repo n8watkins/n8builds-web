@@ -4,6 +4,7 @@ import { FiChevronLeft, FiChevronRight, FiPause, FiPlay } from 'react-icons/fi'
 import { fullPages } from '@/lib/full-pages'
 import { usePageVisible } from '@/hooks/usePageVisible'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
+import { latestEntry } from '@/lib/intersection'
 
 // The homepage strip's rows, a page at a time (BuildLogStrip.tsx): four rows
 // at every width, and every few seconds the page moves on, its rows fading
@@ -99,7 +100,7 @@ export default function BuildLogPages({ rows, labels, label }: { rows: React.Rea
   useEffect(() => {
     const el = root.current
     if (!el) return
-    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting))
+    const observer = new IntersectionObserver((entries) => setInView(latestEntry(entries).isIntersecting))
     observer.observe(el)
     // Native enter and leave: React's are pieced together from over and out
     // events, which WebKit skips when the element under the pointer is

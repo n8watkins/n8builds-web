@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useRef } from 'react'
+import { latestEntry } from '@/lib/intersection'
 
 /**
  * The hero chain's two bits of script, as a small island inside the
@@ -64,7 +65,8 @@ export default function HeroChainMeter() {
   useEffect(() => {
     const hero = ref.current?.closest<HTMLElement>('#home')
     if (!hero || typeof IntersectionObserver === 'undefined') return
-    const observer = new IntersectionObserver(([entry]) => {
+    const observer = new IntersectionObserver((entries) => {
+      const entry = latestEntry(entries)
       hero.toggleAttribute('data-offscreen', !entry.isIntersecting)
     })
     observer.observe(hero)

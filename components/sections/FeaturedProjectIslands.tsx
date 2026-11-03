@@ -5,6 +5,7 @@ import { FiChevronLeft, FiChevronRight, FiLayers, FiPause, FiPlay, FiX } from 'r
 import { useHydrated } from '@/hooks/useHydrated'
 import { usePageVisible } from '@/hooks/usePageVisible'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
+import { latestEntry } from '@/lib/intersection'
 
 /**
  * The interactive parts of a Lab row (components/sections/FeaturedProjects.tsx),
@@ -215,7 +216,7 @@ export function ProjectTour({
   useEffect(() => {
     const video = ref.current
     if (!video) return
-    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.2 })
+    const observer = new IntersectionObserver((entries) => setInView(latestEntry(entries).isIntersecting), { threshold: 0.2 })
     observer.observe(video)
     return () => observer.disconnect()
   }, [])
