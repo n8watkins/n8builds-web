@@ -1,6 +1,5 @@
 import { createHash } from 'node:crypto'
-import { Ratelimit } from '@upstash/ratelimit'
-import { Redis } from '@upstash/redis'
+import { getCloudflareContext } from '@opennextjs/cloudflare'
 import { logger } from '@/lib/logger'
 import { isContactTestMode } from '@/lib/security/testMode'
 
@@ -14,17 +13,18 @@ import { isContactTestMode } from '@/lib/security/testMode'
  * - Site-wide: CONTACT_DAILY_LIMIT verified submissions per day (default 50),
  *   a backstop for the inbox and Gmail's sending quota
  * - Per recipient: 1 auto-reply per address per day, keyed by a hash of the
- *   address (no plain email in Redis)
+ *   address (no plain email stored)
  *
- * Production uses Upstash Redis so every serverless instance shares the same
- * counters. Without Upstash configured, production fails closed (rejects) rather
- * than silently running unlimited. CONTACT_TEST_MODE always uses an in-memory
- * store, and `next dev` does too when Upstash isn't configured.
+ * On Cloudflare each limit and key is a sliding window kept in its own Durable
+ * Object (RATE_LIMIT_COUNTERS, worker/rate-limit-counter.js), so every Worker
+ * instance shares the same counters. Without the binding, production fails
+ * closed (rejects) rather than silently running unlimited. CONTACT_TEST_MODE
+ * always uses an in-memory store, and `next dev` does too.
  *
- * One Redis database can serve every environment: keys outside production
- * get their own namespace (contact:preview:*, contact:local:*), so previews
- * and local runs never touch production's counters. The namespace is APP_ENV
- * (set in wrangler.jsonc on deployed Workers), or "local".
+ * Counter names outside production get their own namespace (contact:preview:*,
+ * contact:local:*), so other deployments never touch production's counters.
+ * The namespace is APP_ENV (set in wrangler.jsonc on deployed Workers), or
+ * "local".
  */
 
 const IP_WINDOW_MS = 60 * 60 * 1000
@@ -106,30 +106,40 @@ export class MemoryLimiter implements Limiter {
   }
 }
 
-class UpstashLimiter implements Limiter {
-  private readonly ratelimit: Ratelimit
+/** The part of the RATE_LIMIT_COUNTERS Durable Object namespace this file uses. */
+export interface CounterNamespace {
+  idFromName(name: string): unknown
+  get(id: unknown): { limit(max: number, windowMs: number): Promise<boolean> }
+}
 
-  constructor(redis: Redis, max: number, window: `${number} ${'h' | 'd'}`, prefix: string) {
-    this.ratelimit = new Ratelimit({
-      redis,
-      limiter: Ratelimit.slidingWindow(max, window),
-      prefix,
-      timeout: 3000,
-    })
-  }
+const COUNTER_TIMEOUT_MS = 3000
+
+/**
+ * A sliding window in one Durable Object per key (worker/rate-limit-counter.js).
+ * Any error or a reply slower than 3 seconds counts as unavailable: reject.
+ */
+export class DurableObjectLimiter implements Limiter {
+  constructor(
+    private readonly counters: CounterNamespace,
+    private readonly max: number,
+    private readonly windowMs: number,
+    private readonly prefix: string
+  ) {}
 
   async limit(key: string): Promise<RateLimitResult> {
+    let timer: ReturnType<typeof setTimeout> | undefined
     try {
-      const { success, reason } = await this.ratelimit.limit(key)
-      // Upstash lets requests through on timeout; we'd rather reject.
-      if (reason === 'timeout') {
-        logger.error('Rate limiter timed out reaching Upstash')
-        return { allowed: false, reason: 'unavailable' }
-      }
-      return success ? { allowed: true } : { allowed: false, reason: 'limited' }
+      const counter = this.counters.get(this.counters.idFromName(`${this.prefix}:${key}`))
+      const timeout = new Promise<never>((_, reject) => {
+        timer = setTimeout(() => reject(new Error('rate-limit counter timed out')), COUNTER_TIMEOUT_MS)
+      })
+      const allowed = await Promise.race([counter.limit(this.max, this.windowMs), timeout])
+      return allowed ? { allowed: true } : { allowed: false, reason: 'limited' }
     } catch (error) {
       logger.error('Rate limiter error:', error)
       return { allowed: false, reason: 'unavailable' }
+    } finally {
+      clearTimeout(timer)
     }
   }
 }
@@ -140,14 +150,16 @@ const unavailable: Limiter = {
   },
 }
 
-function hasUpstashConfig(): boolean {
-  return Boolean(
-    (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) ||
-      (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN)
-  )
+/** The counters' binding on Cloudflare, or undefined elsewhere (next dev, next start, tests). */
+function counterNamespace(): CounterNamespace | undefined {
+  try {
+    return getCloudflareContext().env.RATE_LIMIT_COUNTERS as CounterNamespace | undefined
+  } catch {
+    return undefined
+  }
 }
 
-/** Redis key prefix: production keeps the bare names, everything else is namespaced. */
+/** Counter name prefix: production keeps the bare names, everything else is namespaced. */
 function keyPrefix(): string {
   const env = process.env.APP_ENV || 'local'
   return env === 'production' ? 'contact' : `contact:${env}`
@@ -168,22 +180,22 @@ function createLimiters(): Record<RateLimitScope, Limiter> {
   // Test runs must never count against (or be blocked by) real counters.
   if (isContactTestMode()) return memoryLimiters()
 
-  if (hasUpstashConfig()) {
-    const redis = Redis.fromEnv()
+  const counters = counterNamespace()
+  if (counters) {
     const prefix = keyPrefix()
     return {
-      ip: new UpstashLimiter(redis, IP_LIMIT, '1 h', `${prefix}:ip`),
-      global: new UpstashLimiter(redis, globalLimit(), '1 d', `${prefix}:global`),
-      recipient: new UpstashLimiter(redis, RECIPIENT_LIMIT, '1 d', `${prefix}:recipient`),
-      'waitlist-ip': new UpstashLimiter(redis, WAITLIST_IP_LIMIT, '1 h', `${prefix}:waitlist-ip`),
-      'waitlist-global': new UpstashLimiter(redis, waitlistDailyLimit(), '1 d', `${prefix}:waitlist-global`),
-      'waitlist-recipient': new UpstashLimiter(redis, WAITLIST_RECIPIENT_LIMIT, '1 d', `${prefix}:waitlist-recipient`),
+      ip: new DurableObjectLimiter(counters, IP_LIMIT, IP_WINDOW_MS, `${prefix}:ip`),
+      global: new DurableObjectLimiter(counters, globalLimit(), GLOBAL_WINDOW_MS, `${prefix}:global`),
+      recipient: new DurableObjectLimiter(counters, RECIPIENT_LIMIT, RECIPIENT_WINDOW_MS, `${prefix}:recipient`),
+      'waitlist-ip': new DurableObjectLimiter(counters, WAITLIST_IP_LIMIT, IP_WINDOW_MS, `${prefix}:waitlist-ip`),
+      'waitlist-global': new DurableObjectLimiter(counters, waitlistDailyLimit(), GLOBAL_WINDOW_MS, `${prefix}:waitlist-global`),
+      'waitlist-recipient': new DurableObjectLimiter(counters, WAITLIST_RECIPIENT_LIMIT, RECIPIENT_WINDOW_MS, `${prefix}:waitlist-recipient`),
     }
   }
 
   if (process.env.NODE_ENV === 'development') return memoryLimiters()
 
-  logger.error('Upstash Redis is not configured - contact form and waitlist are disabled')
+  logger.error('The rate-limit counters (RATE_LIMIT_COUNTERS) are missing - contact form and waitlist are disabled')
   return {
     ip: unavailable,
     global: unavailable,
@@ -198,7 +210,7 @@ let limiters: Record<RateLimitScope, Limiter> | null = null
 
 /**
  * Count one request against a limit. Call only after Turnstile passes, so
- * requests without a solved challenge never reach Redis.
+ * requests without a solved challenge never reach the counters.
  * - 'ip': keyed by rateLimitIpKey()
  * - 'global': keyed by 'all'
  * - 'recipient': keyed by recipientKey(), before sending the auto-reply

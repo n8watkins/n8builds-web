@@ -7,8 +7,10 @@ import { dataCollection } from '../lib/sentry-data-collection'
 import { scrubContactBody } from '../lib/sentry-scrub'
 import { MEDIA, fetchWithRanges } from './range.js'
 
-// The ISR revalidation queue's Durable Object (wrangler.jsonc durable_objects).
+// The Durable Objects (wrangler.jsonc durable_objects): the ISR revalidation
+// queue, and the rate-limit counters.
 export { DOQueueHandler } from '../.open-next/worker.js'
+export { RateLimitCounter } from './rate-limit-counter.js'
 
 /**
  * Next marks prerendered pages `s-maxage=<revalidate>, stale-while-revalidate`

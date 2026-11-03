@@ -96,10 +96,6 @@ export default defineConfig({
           TWITCH_CLIENT_SECRET: '',
           YOUTUBE_API_KEY: '',
           LIVE_YOUTUBE_VIDEO_ID: '',
-          KV_REST_API_URL: '',
-          KV_REST_API_TOKEN: '',
-          UPSTASH_REDIS_REST_URL: '',
-          UPSTASH_REDIS_REST_TOKEN: '',
           // The analytics database (counters, waitlist): test mode keeps the waitlist in memory.
           ANALYTICS_REDIS_REST_URL: '',
           ANALYTICS_REDIS_REST_TOKEN: '',

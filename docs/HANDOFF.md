@@ -98,7 +98,7 @@ E2E details:
   Set `E2E_SKIP_BUILD=1` to reuse an existing build.
 - The test server runs in `CONTACT_TEST_MODE` with Cloudflare's always-pass Turnstile test keys.
 - It is built with a made-up GA ID (`G-E2ETEST000`) so the consent banner and GA loader exist, and browsers run in the America/Los_Angeles time zone so the banner stays away unless a spec asks for it (`tests/e2e/consent.spec.ts` picks Europe/Berlin or America/Toronto and answers gtag.js itself).
-  No email is sent (Nodemailer JSON transport), and GA, Sentry and Upstash are forced off.
+  No email is sent, and GA, Sentry and Upstash are forced off.
 - A running server on the port is reused locally; if it serves an old build, kill it first (`ss -ltnp | grep 3747`).
 - After upgrading `@playwright/test`, run `npx playwright install` or every browser test fails instantly.
 - Tests do not retry. A flaky test is a bug to fix.
@@ -206,15 +206,16 @@ This repo follows the n8 release standard (`RELEASING.md`; the kit is public at 
 ## Contact form
 
 Flow (`app/api/contact/route.ts`): size check (10KB) and a JSON content type (else 415), JSON + Zod validation, honeypot, Turnstile, per-IP rate limit, site-wide daily limit, per-recipient auto-reply limit, then the notification email and the auto-reply.
-Every free check runs before the first Upstash call, so requests without a solved Turnstile challenge never spend the Redis quota.
+Every free check runs before the first rate-limit counter, so requests without a solved Turnstile challenge are never counted.
 
-- **Rate limits** (`lib/security/rateLimiter.ts`): 5/hour per IP (IPv6 per /64), `CONTACT_DAILY_LIMIT` (default 50) verified submissions per day, and 1 auto-reply per recipient address per day (keyed by a hash), stored in Upstash Redis via `KV_REST_API_*` (or `UPSTASH_REDIS_REST_*`).
+- **Rate limits** (`lib/security/rateLimiter.ts`): 5/hour per IP (IPv6 per /64), `CONTACT_DAILY_LIMIT` (default 50) verified submissions per day, and 1 auto-reply per recipient address per day (keyed by a hash), each a sliding window in its own Durable Object (`RATE_LIMIT_COUNTERS`, `worker/rate-limit-counter.js`).
   Past the recipient limit the owner notification still goes out; only the auto-reply is skipped.
   The auto-reply greets by first name only when it is a plain word, otherwise "Hey there", so the form can't carry a linked domain to a third party.
-  Keys outside production are namespaced by `APP_ENV` (`contact:<APP_ENV>:*`, `contact:local:*` when it is unset), so one database serves every environment without local runs touching production's counters.
-  `CONTACT_TEST_MODE` always uses an in-memory store, as does `next dev` without Upstash configured.
+  Keys outside production are namespaced by `APP_ENV` (`contact:<APP_ENV>:*`, `contact:local:*` when it is unset), so other deployments never touch production's counters.
+  `CONTACT_TEST_MODE` always uses an in-memory store, as does `next dev`.
+  Until 2026-11-03 the counters were in an Upstash database from the Vercel Marketplace, which goes away with the Vercel account.
 - **Edge rate limit:** the Worker (`worker/index.js`, the `CONTACT_RATE_LIMITER` binding in `wrangler.jsonc`) allows 10 `POST /api/contact` per minute per IP and answers 429 itself, before Next runs; the client shows its own message for a 429 without our JSON.
-- **Fail closed:** in production, a missing Turnstile secret, a Turnstile error, missing Upstash config, or an Upstash outage or timeout all reject the submission, with a message telling the visitor to email directly.
+- **Fail closed:** in production, a missing Turnstile secret, a Turnstile error, a missing counters binding, or a counter error or 3-second timeout all reject the submission, with a message telling the visitor to email directly.
 - **Turnstile** (`lib/security/turnstile.ts`): tokens must be issued on `n8builds.dev` or `www.n8builds.dev` (`TURNSTILE_ALLOWED_HOSTNAMES` overrides).
   Verification is skipped only under `next dev`.
 - **Client** (`components/ContactForm/`): Send is disabled until the form hydrates (`hooks/useHydrated.ts`), so an early click is never silently lost.

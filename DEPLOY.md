@@ -18,7 +18,8 @@ Until the custom domain is attached, it is served at https://n8builds-web.nathan
   n8builds.dev is onboarded for sending; Cloudflare added its records on `cf-bounce.n8builds.dev` and the DKIM key itself.
 - Cloudflare Web Analytics replaces Vercel Analytics and Speed Insights (`components/WebAnalytics.tsx`), once `NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN` is set at build time.
 - `APP_ENV=production` (a `wrangler.jsonc` var) replaces `VERCEL_ENV`: it keeps production's Redis key names and switches off the test modes.
-- Upstash Redis (the contact rate limiter and the analytics database) is reached over HTTPS, as before.
+- The contact form's and waitlist's rate limits are sliding windows in Durable Objects (`RATE_LIMIT_COUNTERS`, `worker/rate-limit-counter.js`), one per limit and key; a Workers rate limit binding (`CONTACT_RATE_LIMITER`) also turns away floods of contact posts before Next runs.
+- The analytics database (dino stats, short-link counts, the waitlist) stays in the owner's own Upstash Redis account, reached over HTTPS.
 
 ## Configuration
 
@@ -27,7 +28,6 @@ Secrets are set once with `npx wrangler secret put <NAME>` (it reads the value f
 
 | Secret | Used for |
 | --- | --- |
-| `KV_REST_API_URL`, `KV_REST_API_TOKEN` | the contact form's rate limiter (Upstash) |
 | `ANALYTICS_REDIS_REST_URL`, `ANALYTICS_REDIS_REST_TOKEN` | the analytics database: dino stats, short-link counts, the waitlist |
 | `TURNSTILE_SECRET_KEY` | Turnstile on the contact, quote and waitlist forms |
 | `GITHUB_TOKEN` | the build log, stars and downloads when pages revalidate |
