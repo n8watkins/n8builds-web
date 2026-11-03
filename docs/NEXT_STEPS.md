@@ -8,7 +8,13 @@ Written 2026-10-23, revised 2026-10-25 (evening).
 The owner's standing decisions are in [DECISIONS.md](DECISIONS.md).
 Detailed plans: [BUILDS_LOG_PLAN.md](BUILDS_LOG_PLAN.md), [LIVE_STREAM_PLAN.md](LIVE_STREAM_PLAN.md), [X_ARTICLES_PLAN.md](X_ARTICLES_PLAN.md), and the release standard in `~/n8builds/release-kit` (STANDARD.md).
 
-## Part 1: Your to-do list
+## Part 1: Owner to-do
+
+Everything here needs your accounts, logins, money or judgement, so only you can do it.
+No secrets go in this file: keys live in pass-env (entries `n8builds-web/<NAME>`) and in Vercel, and this file names only the entries.
+The cross-project list of keys to rotate is `SECURITY-TODO.md` in the private [secret-handling-review](https://github.com/n8watkins/secret-handling-review/blob/main/SECURITY-TODO.md) repo.
+Older open items with full steps (the real contact-form send, OpenPing's deploy, Portfolio Rank's Gemini key, the rank, trailers and echo subdomains, Scribe) are in [OWNER_TODO.md](OWNER_TODO.md) section 5e.
+Last checked: 2026-11-02.
 
 ### A. Decisions (one-line answers to Claude; about 10 minutes in total)
 
@@ -41,19 +47,40 @@ Detailed plans: [BUILDS_LOG_PLAN.md](BUILDS_LOG_PLAN.md), [LIVE_STREAM_PLAN.md](
 
 ### B2. Small cleanups only you can do (2026-10-25)
 
+- [ ] **Rotate the build log's GitHub token now** (`n8builds-web build log`, `GITHUB_TOKEN`; 5 minutes).
+  Why: it appeared in agent session logs on 2026-10-23/24 and still works (SECURITY-TODO.md, "Keys found in agent logs").
+  Steps: [OWNER_TODO.md](OWNER_TODO.md) section 5c (regenerate on GitHub, replace it in Vercel Production and Preview and in `.env.local`, redeploy); afterwards keep it in pass-env as `n8builds-web/GITHUB_TOKEN`.
+  Unblocks: closes the leak; the new token's expiry replaces the 2027-10-23 date.
+
 - [ ] **GitGuardian incident 39011681:** mark it a false positive. A local Lighthouse run left a throwaway headless-Chrome profile in a PR #39 commit (its Preferences hold a random value); the files were removed before the squash merge, so main never had them.
 
-### B3. Email, Cloudflare and Tech for Pros (2026-11-01)
+### B3. Email, Cloudflare and Tech for Pros (2026-11-01, refreshed 2026-11-02)
 
 - [ ] **Send the contact emails through Resend** (about 5 minutes; then Claude does the code, Part 2 #10).
-  The site sends as contact@n8builds.dev through Gmail, which n8builds.dev's DNS doesn't authorize, so the emails fail authenticity checks and can land in spam (Cloudflare's "DMARC Record Error").
+  Why: the site sends as contact@n8builds.dev through Gmail, which n8builds.dev's DNS doesn't authorize, so the emails fail authenticity checks and can land in spam (Cloudflare's "DMARC Record Error").
   Resend is only set up for appturnity.com today.
+  Steps:
   1. Resend dashboard, Domains, Add Domain, `n8builds.dev`; use its "connect to Cloudflare" option so it adds its records itself (Claude's Cloudflare login can only read DNS). Its records go on `send.n8builds.dev`, so the contact@ forwarding to Gmail keeps working.
-  2. Resend, API Keys, create one with Sending access for n8builds.dev only, then in the project folder run `! vercel env add RESEND_API_KEY production` and paste it at the prompt.
-  3. Tell Claude it's done.
-- [ ] **Turn on two-factor sign-in for Cloudflare** (My Profile, Authentication). Cloudflare's security insights flag it; whoever gets into that account controls DNS for every domain.
-- [ ] **Register techforpros.com.** Its buttons on all three sites already link there and lead nowhere until it's live.
-- [ ] **Resume:** rename SiteForge to Tech for Pros; the portfolio's Experience now says "Full Stack Engineer and AI Consultant" at Tech for Pros.
+  2. Resend, API Keys, create one with Sending access for n8builds.dev only.
+  3. In your own terminal, store it with `pass-env set n8builds-web/RESEND_API_KEY`, then from the project folder run `pass-env pipe n8builds-web/RESEND_API_KEY -- vercel env add RESEND_API_KEY production`.
+     (Before pass-env is set up: `! vercel env add RESEND_API_KEY production` and paste at the prompt.)
+  4. Tell Claude it's done.
+  Unblocks: contact emails that leave Gmail and pass DMARC, then a stricter DMARC policy.
+- [ ] **A booking link for "Book an intro call"** (about 10 minutes).
+  Steps: make a free booking page (Cal.com, or Google Calendar appointment schedules) for a 15 to 30 minute intro call, and send Claude its public URL (not a secret).
+  Why: the Tech for Pros buttons have a slot for it (`booking` in `TECH_FOR_PROS_LINKS`, `lib/techForPros.ts`, on the preview branch in review) and hide the button until it has a URL.
+  Unblocks: the "Book an intro call" button.
+- [ ] **Point techforpros.com at the Tech for Pros site once that site exists.**
+  Steps: the domain is on Cloudflare's nameservers but has no address records yet (checked 2026-11-02); when the Tech for Pros site is deployed, add the domain to its host and add the DNS records the host gives you in Cloudflare; then tell Claude.
+  Why: the site and the portfolio already link to techforpros.com, and those links lead nowhere until it is live.
+  Unblocks: Claude sets `siteLive: true` in `TECH_FOR_PROS_LINKS`, which shows "Visit techforpros.com" and makes the Tech for Pros header clickable.
+- [ ] **Turn on two-factor sign-in for Cloudflare** (My Profile, Authentication; 2 minutes).
+  Why: Cloudflare's security insights flag it, and whoever gets into that account controls DNS for every domain.
+  Unblocks: nothing new; it closes the biggest account risk.
+- [ ] **Resume** (Google Drive file, the one `lib/resume.ts` in dev-portfolio links to).
+  Steps: rename SiteForge to Tech for Pros, title the role "Full Stack Engineer and AI Consultant" at Tech for Pros (as the portfolio's Experience says), and change the old portfolio URL to https://portfolio.n8builds.dev; upload over the same file so the links keep working.
+  Why: the resume still shows the old names and address.
+  Unblocks: a resume that matches both sites.
 
 The rest of Cloudflare's insights need nothing: the unproxied records are how Vercel-hosted sites must be set up, Bot Fight Mode would block uptime checks and link previews, and the appturnity.com ones go away with Appturnity.
 
