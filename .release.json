@@ -10,5 +10,6 @@
   "node": "24",
   "timeZone": "America/Los_Angeles",
   "workflows": "package",
-  "repository": "n8watkins/n8builds-web"
+  "repository": "n8watkins/n8builds-web",
+  "visibility": "public"
 }
