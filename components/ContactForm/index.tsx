@@ -8,6 +8,7 @@ import { ContactFormFields } from './ContactFormFields'
 
 import { SendingFallback, SuccessFallback } from './ContactFormFallbacks'
 import { trackContactEvent } from '@/lib/analytics'
+import { latestEntry } from '@/lib/intersection'
 
 // The sending and success screens (and their motion animations) and the
 // validation are not part of the page's first JavaScript: they load once the
@@ -71,7 +72,8 @@ export default function ContactForm({ className }: ContactFormProps) {
     const form = sentinel.current?.parentElement
     if (!form || typeof IntersectionObserver === 'undefined') return
     const observer = new IntersectionObserver(
-      ([entry]) => {
+      (entries) => {
+        const entry = latestEntry(entries)
         if (!entry.isIntersecting) return
         observer.disconnect()
         preloadScreens()
