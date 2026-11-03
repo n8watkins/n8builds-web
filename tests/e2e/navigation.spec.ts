@@ -123,10 +123,8 @@ test('the navbar links techforpros.com in a pill like Ko-fi and Portfolio, throu
   expect(curve.y).toBeGreaterThan(text.y + text.height / 2)
   // Close under the letters (round 5 of 2026-11-02): its top within a few pixels of the text's line box.
   expect(curve.y - (text.y + text.height)).toBeLessThan(3)
-  // Centred, with the same small inset at both ends.
+  // Nearly the label's width (its inset and symmetry are checked in the drawing's own units below).
   expect(curve.width).toBeGreaterThan(text.width * 0.85)
-  expect(curve.width).toBeLessThan(text.width * 0.95)
-  expect(Math.abs(curve.x - text.x - (text.x + text.width - curve.x - curve.width))).toBeLessThan(1)
 })
 
 test('the techforpros.com underline is one shallow, symmetric arch that never animates', async ({ page, isMobile }) => {
