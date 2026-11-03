@@ -16,7 +16,7 @@ beforeEach(() => {
   vi.stubEnv('NEXT_PUBLIC_SITE_URL', 'https://n8builds.dev')
   vi.stubEnv('TURNSTILE_ALLOWED_HOSTNAMES', '')
   vi.stubEnv('CONTACT_TEST_MODE', '')
-  vi.stubEnv('VERCEL', '')
+  vi.stubEnv('APP_ENV', '')
 })
 
 describe('verifyTurnstile', () => {
@@ -96,7 +96,7 @@ describe('verifyTurnstile', () => {
     vi.stubEnv('CONTACT_TEST_MODE', '1')
     expect(await verifyTurnstile('token')).toBe(true)
 
-    vi.stubEnv('VERCEL', '1')
+    vi.stubEnv('APP_ENV', 'production')
     expect(await verifyTurnstile('token')).toBe(false)
   })
 

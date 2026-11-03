@@ -1,5 +1,5 @@
 import { defineConfig, devices } from '@playwright/test'
-import { E2E_BASE_URL, E2E_PORT } from './tests/e2e-env'
+import { E2E_BASE_URL, E2E_PORT, E2E_REMOTE_URL } from './tests/e2e-env'
 
 /**
  * Playwright runs against a production build (`next build && next start`) in
@@ -60,52 +60,47 @@ export default defineConfig({
     { name: 'mobile-safari', testIgnore: /api\//, use: { ...devices['iPhone 14'] } },
   ],
 
-  webServer: {
-    // E2E_SKIP_BUILD=1 reuses an existing test build instead of rebuilding.
-    command: process.env.E2E_SKIP_BUILD
-      ? `npx next start -p ${E2E_PORT}`
-      : `npm run build && npx next start -p ${E2E_PORT}`,
-    url: `${E2E_BASE_URL}/api/health`,
-    reuseExistingServer: !process.env.CI,
-    timeout: 300_000,
-    env: {
-      CONTACT_TEST_MODE: '1',
-      // Fake live answers (lib/live.ts): offline unless a test picks a
-      // scenario with the n8-live-test cookie.
-      LIVE_TEST_MODE: '1',
-      // High enough that the suite never trips the site-wide cap; the cap
-      // itself is covered by unit tests.
-      CONTACT_DAILY_LIMIT: '100000',
-      NEXT_PUBLIC_TURNSTILE_SITE_KEY: '1x00000000000000000000AA',
-      TURNSTILE_SECRET_KEY: '1x0000000000000000000000000000000AA',
-      NEXT_PUBLIC_SITE_URL: 'https://n8builds.dev',
-      NEXT_PUBLIC_SANITY_PROJECT_ID: 'abgyc32w',
-      // The build log reads its recorded GitHub fixture, never live GitHub.
-      BUILD_LOG_FIXTURE: '1',
-      GITHUB_TOKEN: '',
-      // A made-up GA ID (not the real property), so the consent banner and the
-      // GA loader are built and tested (tests/e2e/consent.spec.ts).
-      NEXT_PUBLIC_GA_ID: 'G-E2ETEST000',
-      // Explicitly blank so values in .env.local can't leak into test builds.
-      NEXT_PUBLIC_SENTRY_DSN: '',
-      SENTRY_DSN: '',
-      SENTRY_AUTH_TOKEN: '',
-      TWITCH_CLIENT_ID: '',
-      TWITCH_CLIENT_SECRET: '',
-      YOUTUBE_API_KEY: '',
-      LIVE_YOUTUBE_VIDEO_ID: '',
-      KV_REST_API_URL: '',
-      KV_REST_API_TOKEN: '',
-      UPSTASH_REDIS_REST_URL: '',
-      UPSTASH_REDIS_REST_TOKEN: '',
-      // The analytics database (counters, waitlist): test mode keeps the waitlist in memory.
-      ANALYTICS_REDIS_REST_URL: '',
-      ANALYTICS_REDIS_REST_TOKEN: '',
-      // A .env.local from `vercel env pull` sets these, and test mode is
-      // (deliberately) ignored on anything that looks like Vercel.
-      VERCEL: '',
-      VERCEL_ENV: '',
-      VERCEL_URL: '',
-    },
-  },
+  webServer: E2E_REMOTE_URL
+    ? undefined
+    : {
+        // E2E_SKIP_BUILD=1 reuses an existing test build instead of rebuilding.
+        command: process.env.E2E_SKIP_BUILD
+          ? `npx next start -p ${E2E_PORT}`
+          : `npm run build && npx next start -p ${E2E_PORT}`,
+        url: `${E2E_BASE_URL}/api/health`,
+        reuseExistingServer: !process.env.CI,
+        timeout: 300_000,
+        env: {
+          CONTACT_TEST_MODE: '1',
+          // Fake live answers (lib/live.ts): offline unless a test picks a
+          // scenario with the n8-live-test cookie.
+          LIVE_TEST_MODE: '1',
+          // High enough that the suite never trips the site-wide cap; the cap
+          // itself is covered by unit tests.
+          CONTACT_DAILY_LIMIT: '100000',
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY: '1x00000000000000000000AA',
+          TURNSTILE_SECRET_KEY: '1x0000000000000000000000000000000AA',
+          NEXT_PUBLIC_SITE_URL: 'https://n8builds.dev',
+          NEXT_PUBLIC_SANITY_PROJECT_ID: 'abgyc32w',
+          // The build log reads its recorded GitHub fixture, never live GitHub.
+          BUILD_LOG_FIXTURE: '1',
+          GITHUB_TOKEN: '',
+          // A made-up GA ID (not the real property), so the consent banner and the
+          // GA loader are built and tested (tests/e2e/consent.spec.ts).
+          NEXT_PUBLIC_GA_ID: 'G-E2ETEST000',
+          // Explicitly blank so values in .env.local can't leak into test builds.
+          NEXT_PUBLIC_SENTRY_DSN: '',
+          SENTRY_DSN: '',
+          SENTRY_AUTH_TOKEN: '',
+          TWITCH_CLIENT_ID: '',
+          TWITCH_CLIENT_SECRET: '',
+          YOUTUBE_API_KEY: '',
+          LIVE_YOUTUBE_VIDEO_ID: '',
+          // The analytics database (counters, waitlist): test mode keeps the waitlist in memory.
+          ANALYTICS_REDIS_REST_URL: '',
+          ANALYTICS_REDIS_REST_TOKEN: '',
+          // Test mode is (deliberately) ignored on a deployed site, which sets APP_ENV.
+          APP_ENV: '',
+        },
+      },
 })

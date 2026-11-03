@@ -2,7 +2,7 @@
 
 The public builder lab of Nathan Watkins: a Next.js site for building software in public (apps, AI tools, Chrome extensions, experiments, and the N8's Notions blog).
 
-**Live at [n8builds.dev](https://n8builds.dev)**, deployed on Vercel (auto-deploys from `main`), DNS via Cloudflare.
+**Live at [n8builds.dev](https://n8builds.dev)**, on Cloudflare Workers through OpenNext (deploys from `main`; see [`DEPLOY.md`](DEPLOY.md)), DNS via Cloudflare.
 
 Current project state, decisions and conventions live in [`docs/HANDOFF.md`](docs/HANDOFF.md).
 The owner to-do list (what only the owner can do: keys, accounts, links) is Part 1 of [`docs/NEXT_STEPS.md`](docs/NEXT_STEPS.md); [`docs/OWNER_TODO.md`](docs/OWNER_TODO.md) keeps the detailed records of past and pending setup steps.
@@ -13,8 +13,8 @@ The owner to-do list (what only the owner can do: keys, accounts, links) is Part
 - Tailwind CSS 4 (configured in `app/globals.css`), Motion (`motion/react`)
 - React Hook Form + Zod
 - Sanity (read-only CDN client) for the N8's Notions blog
-- Nodemailer + Gmail SMTP, Cloudflare Turnstile, Upstash Redis rate limiting
-- Sentry (on in production; inert without `NEXT_PUBLIC_SENTRY_DSN`), GA4, Vercel Speed Insights
+- Cloudflare Email Service, Cloudflare Turnstile, rate limits in Durable Objects, Upstash Redis for the analytics counters
+- Sentry (on in production; inert without `NEXT_PUBLIC_SENTRY_DSN`), GA4, Cloudflare Web Analytics
 - Vitest (unit), Playwright + axe (E2E and accessibility), Lighthouse budgets
 
 The site is dark-only and honors `prefers-reduced-motion` everywhere.
@@ -58,7 +58,7 @@ cp .env.example .env.local   # then fill in values; each variable is documented 
 npm run dev                  # http://localhost:3737
 ```
 
-Under `next dev`, Turnstile verification and Upstash are skipped, so the contact form works with only the Gmail variables set.
+Under `next dev`, Turnstile verification is skipped and the rate limits are kept in memory; email sends only on Cloudflare, so try a real send with `npm run preview` or on the workers.dev deployment.
 
 ## Scripts
 
@@ -97,17 +97,17 @@ Request flow in `app/api/contact/route.ts`:
 6. Per-recipient auto-reply limit (1/day per address); past it, only the auto-reply is skipped.
 7. Notification email to the owner and an auto-reply to the sender, with all user input HTML-escaped at template time.
 
-Every free check runs before the first Upstash call, so requests without a solved Turnstile challenge never spend the Redis quota.
-In front of all this, a Vercel WAF rule (Firewall tab, not code) answers 429 at the edge after 10 `POST /api/contact` per minute per IP.
+Every free check runs before the first rate-limit counter, so requests without a solved Turnstile challenge are never counted.
+In front of all this, the Worker (`worker/index.js`) answers 429 after 10 `POST /api/contact` per minute per IP, before Next runs.
 
-Rate-limit counters live in Upstash Redis so every serverless instance shares them.
-Everything fails closed in production: a missing Turnstile secret, a Turnstile error, missing Upstash config, or an Upstash outage or timeout rejects the submission with a message to email directly.
+Rate-limit counters live in Durable Objects (one per limit and key), so every Worker instance shares them.
+Everything fails closed in production: a missing Turnstile secret, a Turnstile error, a missing counters binding, or a counter error or timeout rejects the submission with a message to email directly.
 
 On the client, Send stays disabled until the form has hydrated.
 If Turnstile has not issued a token yet, the button shows "Verifying..." and sends once it arrives, or explains the failure after 15 seconds.
 
 To exercise the real API locally, run a production build with `CONTACT_TEST_MODE=1` and the test secret `1x0000000000000000000000000000000AA`.
-Test mode sends no email, always uses an in-memory rate limiter, and is ignored on Vercel.
+Test mode sends no email, always uses an in-memory rate limiter, and is ignored on a deployed site (`APP_ENV` set).
 
 ## Security
 

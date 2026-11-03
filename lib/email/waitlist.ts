@@ -1,6 +1,6 @@
 import { UPCOMING, type UpcomingSlug } from '@/data/upcoming'
-import { EMAIL_CONFIG, getTransporter } from '@/lib/email/smtp'
-import { inlineImages } from '@/lib/email/sender'
+import { EMAIL_CONFIG } from '@/lib/email/config'
+import { sendEmail } from '@/lib/email/send'
 import { C, FONT, MONO, brandBar, button, sanitizeHtml, shell } from '@/lib/email/templates'
 import { PENDING_DAYS, type WaitlistEntry } from '@/lib/waitlist/store'
 
@@ -131,14 +131,13 @@ export function createLeaveText(entry: WaitlistEntry): string {
 
 /** Throws when the message can't be sent. */
 async function send(to: string, subject: string, html: string, text: string): Promise<void> {
-  await getTransporter().sendMail({
-    from: EMAIL_CONFIG.from,
+  await sendEmail({
     to,
     replyTo: EMAIL_CONFIG.contactEmail,
     subject,
     html,
     text,
-    attachments: inlineImages(['logo']),
+    images: ['logo'],
   })
 }
 

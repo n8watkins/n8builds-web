@@ -1,18 +1,24 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { slide } from '../../worker/sliding-window.js'
 
-const upstashLimit = vi.fn()
-const upstashPrefixes: string[] = []
-vi.mock('@upstash/ratelimit', () => {
-  class Ratelimit {
-    static slidingWindow = vi.fn()
-    limit = upstashLimit
-    constructor({ prefix }: { prefix: string }) {
-      upstashPrefixes.push(prefix)
-    }
-  }
-  return { Ratelimit }
-})
-vi.mock('@upstash/redis', () => ({ Redis: { fromEnv: vi.fn(() => ({})) } }))
+// The Durable Object counters (RATE_LIMIT_COUNTERS) as the Worker sees them:
+// `limit` answers for the counter named `names[i]`.
+const counterLimit = vi.fn<(max: number, windowMs: number) => Promise<boolean>>()
+const counterNames: string[] = []
+let counters: object | undefined
+vi.mock('@opennextjs/cloudflare', () => ({
+  getCloudflareContext: () => {
+    if (!counters) throw new Error('not on Workers')
+    return { env: { RATE_LIMIT_COUNTERS: counters } }
+  },
+}))
+const fakeCounters = {
+  idFromName: (name: string) => {
+    counterNames.push(name)
+    return name
+  },
+  get: () => ({ limit: counterLimit }),
+}
 
 /** Fresh module per test: the limiter picks its backend once, on first use. */
 const { rateLimitIpKey, recipientKey } = await import('@/lib/security/rateLimiter')
@@ -24,15 +30,10 @@ async function loadLimiter() {
 
 function clearBackendEnv() {
   for (const key of [
-    'KV_REST_API_URL',
-    'KV_REST_API_TOKEN',
-    'UPSTASH_REDIS_REST_URL',
-    'UPSTASH_REDIS_REST_TOKEN',
     'CONTACT_TEST_MODE',
     'CONTACT_DAILY_LIMIT',
     'WAITLIST_DAILY_LIMIT',
-    'VERCEL',
-    'VERCEL_ENV',
+    'APP_ENV',
   ]) {
     vi.stubEnv(key, '')
   }
@@ -40,8 +41,9 @@ function clearBackendEnv() {
 
 beforeEach(() => {
   clearBackendEnv()
-  upstashLimit.mockReset()
-  upstashPrefixes.length = 0
+  counterLimit.mockReset()
+  counterNames.length = 0
+  counters = undefined
 })
 
 describe('MemoryLimiter', () => {
@@ -75,7 +77,7 @@ describe('MemoryLimiter', () => {
 })
 
 describe('checkRateLimit backend selection', () => {
-  it('fails closed in production when Upstash is not configured', async () => {
+  it('fails closed in production without the counters binding', async () => {
     vi.stubEnv('NODE_ENV', 'production')
     const { checkRateLimit } = await loadLimiter()
 
@@ -83,10 +85,10 @@ describe('checkRateLimit backend selection', () => {
     expect(await checkRateLimit('global', 'all')).toEqual({ allowed: false, reason: 'unavailable' })
   })
 
-  it('ignores CONTACT_TEST_MODE on Vercel and still fails closed', async () => {
+  it('ignores CONTACT_TEST_MODE on a deployed site and still fails closed', async () => {
     vi.stubEnv('NODE_ENV', 'production')
     vi.stubEnv('CONTACT_TEST_MODE', '1')
-    vi.stubEnv('VERCEL', '1')
+    vi.stubEnv('APP_ENV', 'production')
     const { checkRateLimit } = await loadLimiter()
 
     expect(await checkRateLimit('ip', '1.2.3.4')).toEqual({ allowed: false, reason: 'unavailable' })
@@ -138,105 +140,112 @@ describe('checkRateLimit backend selection', () => {
   })
 })
 
-describe('Upstash-backed limiting', () => {
+describe('Durable Object counters', () => {
   beforeEach(() => {
     vi.stubEnv('NODE_ENV', 'production')
-    vi.stubEnv('KV_REST_API_URL', 'https://example.upstash.io')
-    vi.stubEnv('KV_REST_API_TOKEN', 'token')
+    counters = fakeCounters
   })
 
-  it('allows when Upstash allows', async () => {
-    upstashLimit.mockResolvedValue({ success: true })
+  it('allows when the counter allows, with the limit and window of the scope', async () => {
+    counterLimit.mockResolvedValue(true)
     const { checkRateLimit } = await loadLimiter()
     expect(await checkRateLimit('ip', '1.2.3.4')).toEqual({ allowed: true })
-    expect(upstashLimit).toHaveBeenCalledWith('1.2.3.4')
+    expect(counterLimit).toHaveBeenCalledWith(5, 60 * 60 * 1000)
+    expect(await checkRateLimit('global', 'all')).toEqual({ allowed: true })
+    expect(counterLimit).toHaveBeenLastCalledWith(50, 24 * 60 * 60 * 1000)
+    expect(await checkRateLimit('waitlist-recipient', 'hash')).toEqual({ allowed: true })
+    expect(counterLimit).toHaveBeenLastCalledWith(3, 24 * 60 * 60 * 1000)
   })
 
-  it('limits when Upstash limits', async () => {
-    upstashLimit.mockResolvedValue({ success: false })
+  it('limits when the counter limits', async () => {
+    counterLimit.mockResolvedValue(false)
     const { checkRateLimit } = await loadLimiter()
     expect(await checkRateLimit('ip', '1.2.3.4')).toEqual({ allowed: false, reason: 'limited' })
   })
 
-  it('fails closed when Upstash times out (Upstash itself would allow)', async () => {
-    upstashLimit.mockResolvedValue({ success: true, reason: 'timeout' })
+  it('fails closed when the counter throws', async () => {
+    counterLimit.mockRejectedValue(new Error('Durable Object reset'))
     const { checkRateLimit } = await loadLimiter()
     expect(await checkRateLimit('ip', '1.2.3.4')).toEqual({ allowed: false, reason: 'unavailable' })
   })
 
-  it('fails closed when Upstash throws', async () => {
-    upstashLimit.mockRejectedValue(new Error('network down'))
-    const { checkRateLimit } = await loadLimiter()
-    expect(await checkRateLimit('ip', '1.2.3.4')).toEqual({ allowed: false, reason: 'unavailable' })
+  it('fails closed when the counter takes longer than 3 seconds', async () => {
+    vi.useFakeTimers()
+    try {
+      counterLimit.mockReturnValue(new Promise(() => {}))
+      const { checkRateLimit } = await loadLimiter()
+      const result = checkRateLimit('ip', '1.2.3.4')
+      await vi.advanceTimersByTimeAsync(3000)
+      expect(await result).toEqual({ allowed: false, reason: 'unavailable' })
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
-  it('keeps the bare key names in Vercel production', async () => {
-    vi.stubEnv('VERCEL', '1')
-    vi.stubEnv('VERCEL_ENV', 'production')
-    upstashLimit.mockResolvedValue({ success: true })
+  it('keeps the bare counter names in production', async () => {
+    vi.stubEnv('APP_ENV', 'production')
+    counterLimit.mockResolvedValue(true)
     const { checkRateLimit } = await loadLimiter()
     await checkRateLimit('ip', '1.2.3.4')
-    expect(upstashPrefixes).toEqual([
-      'contact:ip',
-      'contact:global',
-      'contact:recipient',
-      'contact:waitlist-ip',
-      'contact:waitlist-global',
-      'contact:waitlist-recipient',
-    ])
+    await checkRateLimit('recipient', 'hash')
+    expect(counterNames).toEqual(['contact:ip:1.2.3.4', 'contact:recipient:hash'])
   })
 
-  it('namespaces preview deployments away from production counters', async () => {
-    vi.stubEnv('VERCEL', '1')
-    vi.stubEnv('VERCEL_ENV', 'preview')
-    upstashLimit.mockResolvedValue({ success: true })
+  it('namespaces other deployments away from production counters', async () => {
+    vi.stubEnv('APP_ENV', 'preview')
+    counterLimit.mockResolvedValue(true)
     const { checkRateLimit } = await loadLimiter()
-    await checkRateLimit('ip', '1.2.3.4')
-    expect(upstashPrefixes).toEqual([
-      'contact:preview:ip',
-      'contact:preview:global',
-      'contact:preview:recipient',
-      'contact:preview:waitlist-ip',
-      'contact:preview:waitlist-global',
-      'contact:preview:waitlist-recipient',
-    ])
+    await checkRateLimit('waitlist-global', 'all')
+    expect(counterNames).toEqual(['contact:preview:waitlist-global:all'])
   })
 
   it('namespaces local runs away from production counters', async () => {
-    upstashLimit.mockResolvedValue({ success: true })
+    counterLimit.mockResolvedValue(true)
     const { checkRateLimit } = await loadLimiter()
     await checkRateLimit('ip', '1.2.3.4')
-    expect(upstashPrefixes).toEqual([
-      'contact:local:ip',
-      'contact:local:global',
-      'contact:local:recipient',
-      'contact:local:waitlist-ip',
-      'contact:local:waitlist-global',
-      'contact:local:waitlist-recipient',
-    ])
+    expect(counterNames).toEqual(['contact:local:ip:1.2.3.4'])
   })
 
-  it('never touches Upstash in test mode, even when it is configured', async () => {
+  it('never touches the counters in test mode, even when they are bound', async () => {
     vi.stubEnv('CONTACT_TEST_MODE', '1')
     const { checkRateLimit } = await loadLimiter()
     expect(await checkRateLimit('ip', '1.2.3.4')).toEqual({ allowed: true })
-    expect(upstashLimit).not.toHaveBeenCalled()
-    expect(upstashPrefixes).toEqual([])
+    expect(counterLimit).not.toHaveBeenCalled()
+  })
+})
+
+describe("slide (the counter's sliding window, worker/sliding-window.js)", () => {
+  const HOUR = 60 * 60 * 1000
+
+  it('allows up to the limit in any window, then refuses without counting', () => {
+    let hits: number[] = []
+    for (let i = 0; i < 5; i++) {
+      const step = slide(hits, 1000 + i, 5, HOUR)
+      expect(step.allowed).toBe(true)
+      hits = step.hits
+    }
+    const refused = slide(hits, 2000, 5, HOUR)
+    expect(refused).toEqual({ allowed: false, hits })
   })
 
-  it('accepts the UPSTASH_REDIS_REST_* variable names too', async () => {
-    vi.stubEnv('KV_REST_API_URL', '')
-    vi.stubEnv('KV_REST_API_TOKEN', '')
-    vi.stubEnv('UPSTASH_REDIS_REST_URL', 'https://example.upstash.io')
-    vi.stubEnv('UPSTASH_REDIS_REST_TOKEN', 'token')
-    upstashLimit.mockResolvedValue({ success: true })
-    const { checkRateLimit } = await loadLimiter()
-    expect(await checkRateLimit('ip', '1.2.3.4')).toEqual({ allowed: true })
+  it('lets a request through once the oldest hit leaves the window', () => {
+    const hits = [0, 10, 20, 30, 40]
+    expect(slide(hits, HOUR - 1, 5, HOUR).allowed).toBe(false)
+    expect(slide(hits, HOUR, 5, HOUR)).toEqual({ allowed: true, hits: [10, 20, 30, 40, HOUR] })
+  })
+
+  it('forgets every hit older than the window', () => {
+    expect(slide([0, 1, 2], 10 * HOUR, 1, HOUR)).toEqual({ allowed: true, hits: [10 * HOUR] })
   })
 })
 
 describe('getClientIp', () => {
-  it('prefers x-real-ip', async () => {
+  it("prefers Cloudflare's cf-connecting-ip, which the client can't set", async () => {
+    const { getClientIp } = await loadLimiter()
+    expect(getClientIp(new Headers({ 'cf-connecting-ip': '9.9.9.9', 'x-real-ip': '1.1.1.1', 'x-forwarded-for': '2.2.2.2' }))).toBe('9.9.9.9')
+  })
+
+  it('then x-real-ip', async () => {
     const { getClientIp } = await loadLimiter()
     expect(getClientIp(new Headers({ 'x-real-ip': '1.1.1.1', 'x-forwarded-for': '2.2.2.2' }))).toBe('1.1.1.1')
   })

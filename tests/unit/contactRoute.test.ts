@@ -85,8 +85,8 @@ describe('POST /api/contact', () => {
     })
   })
 
-  it("passes the sender's country from Vercel's geo header, never the IP", async () => {
-    await post(validForm, 'application/json', { 'x-vercel-ip-country': 'gb' })
+  it("passes the sender's country from Cloudflare's geolocation, never the IP", async () => {
+    await post(validForm, 'application/json', { 'cf-ipcountry': 'gb' })
     expect(sendContactEmails).toHaveBeenCalledWith(expect.anything(), { autoReply: true, country: 'GB' })
   })
 
@@ -202,7 +202,7 @@ describe('POST /api/contact', () => {
     const quote = { kind: 'techforpros-quote', email: 'owner@pools.example.com', turnstile: 'token', honeypot: '' }
 
     it('emails the owner only, after Turnstile and the per-IP and site-wide limits', async () => {
-      expect(await post(quote, 'application/json', { 'x-vercel-ip-country': 'US' })).toEqual({ status: 200, json: { message: 'Quote request sent!' } })
+      expect(await post(quote, 'application/json', { 'cf-ipcountry': 'US' })).toEqual({ status: 200, json: { message: 'Quote request sent!' } })
       expect(verifyTurnstile).toHaveBeenCalledWith('token', '1.2.3.4')
       // No auto-reply, so no per-recipient limit.
       expect(checkRateLimit.mock.calls).toEqual([

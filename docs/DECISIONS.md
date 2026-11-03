@@ -252,9 +252,9 @@ When the owner decides something new, add it here (with the date) in the same ch
   The navbar and footer show the mark on its own, without a tile.
   The admin dashboard still has the old N8 mark.
 - One GA4 property (`G-JZQGKY9Q37`) covers the whole n8builds.dev domain, subdomains included.
-- **Vercel Web Analytics** (2026-10-27): loaded on every page next to Speed Insights, only on Vercel builds, and outside the consent banner, because it sets no cookies and keeps no visitor identifier past a day.
-  GA4 stays as it is and remains the main analytics; Vercel's is a cookie-free count that also covers visitors who decline.
-  The privacy page's "Hosting" item names both Vercel tools.
+- **Cloudflare Web Analytics** (2026-11-03, replacing Vercel Web Analytics and Speed Insights from 2026-10-27): loaded on every page outside the consent banner, because it sets no cookies and keeps no visitor identifier.
+  GA4 stays as it is and remains the main analytics; Cloudflare's is a cookie-free count (with page speed) that also covers visitors who decline.
+  The privacy page's "Hosting" item names Cloudflare and its Web Analytics.
 - **Analytics consent** (2026-10-26): Google Consent Mode v2 with region defaults (analytics denied for the EEA, UK, Switzerland and Quebec `CA-QC`, granted elsewhere; ad signals denied everywhere, as the site runs no ads).
   Visitors whose time zone is in Europe or covers Quebec (`America/Toronto` and friends, so Ontario is asked too) get the banner, and GA doesn't load at all until they accept (basic mode); everyone else gets analytics by default, with "Cookie settings" in the footer.
   Global Privacy Control counts as a decline everywhere until the visitor chooses.
@@ -368,13 +368,16 @@ When the owner decides something new, add it here (with the date) in the same ch
 ## Operations
 
 - **Upstash plan:** confirmed Free (500,000 commands/month, no payment method).
-- **Daily cap:** stays at the default 50 verified submissions/day (100 emails, well under Gmail's ~500/day). Change with `CONTACT_DAILY_LIMIT` in Vercel if ever needed.
-- **HSTS preload:** not adding it. Vercel already sends `max-age=63072000`; preload would force HTTPS on every subdomain and is slow to undo.
+- **Daily cap:** stays at the default 50 verified submissions/day (100 emails). Change with `CONTACT_DAILY_LIMIT` (a `wrangler.jsonc` var) if ever needed.
+- **HSTS preload:** not adding it. The site sends `max-age=63072000` (as Vercel did), from `lib/security/headers.mjs` and `public/_headers`; preload would force HTTPS on every subdomain and is slow to undo.
 - **Branch protection:** reversed (with #20): `main` now requires CI through pull requests (see HANDOFF, "Branch protection on `main`"). Docs-only changes skip the browser suite.
 - **Indigo accents:** kept. Tailwind 4 kept the original (approved) hue; it is only slightly more saturated.
 - **Counted short links** (2026-10-28): n8builds.dev/appturnity and /portfolio are route handlers (`lib/referrals.ts`, `lib/refRedirect.ts`), not plain redirects. Each click adds one to `ref:<target>:<date>` (placement: email, lab, navbar, footer, card, hero or other) in the analytics database, after the redirect is sent, and lands only on a named page (`to=free-website`, `pricing`, `examples`) with UTM tags; bots and link previews aren't counted, and nothing about the visitor is kept. The site's Appturnity links use them, so the admin's referral card counts real clicks; the portfolio links on the site don't yet (only the auto-reply's card), and the admin doesn't show `ref:portfolio` yet. Delivered contact messages count in `contact:sent:<date>`.
 - **Turbopack everywhere** (2026-11-01): every `next dev`, every test run and the production build run on Turbopack, here, on the portfolio and on the admin. `--webpack` comes back only where something genuinely needs it, with the reason in AGENTS.md; never cap the Node heap instead. Webpack dev held three times the memory of Turbopack in the Appturnity monorepo (8.9 GB vs 2.9 GB), and heap caps made Next restart and fail requests.
-- **Vercel deploys `main` only** (2026-10-28): `git.deploymentEnabled` in `vercel.json` turns off automatic preview deployments on every other branch, here, on the portfolio and on the admin. Previews used about half of the Hobby plan's 100 deployments a day, shared by every project on the account, and CI already builds and tests each pull request. For a preview by hand: `vercel deploy` from the branch.
+- **Hosting moves to Cloudflare Workers** (owner, 2026-11-03: Vercel is dropped entirely): the site runs as the `n8builds-web` Worker through OpenNext (`DEPLOY.md`).
+  Images resize through Cloudflare Images, ISR lives in R2 with a Durable Object queue, the contact and waitlist rate limits are Durable Object counters (the Upstash database they used came from the Vercel Marketplace and goes away with Vercel; the analytics database is the owner's own Upstash account and stays), email goes through Cloudflare Email Service from contact@n8builds.dev (it needs no key and n8builds.dev's DNS is already on Cloudflare, so it replaced the planned move to Resend), and `APP_ENV` replaces `VERCEL_ENV`.
+  `vercel.json` turns off every Vercel deploy, so n8builds.dev serves the last Vercel deployment until its DNS records move to the Worker; the Vercel project stays a week after that as a rollback, then is deleted.
+- **Vercel deploys `main` only** (2026-10-28, superseded by the move to Cloudflare on 2026-11-03): `git.deploymentEnabled` in `vercel.json` turns off automatic preview deployments on every other branch, here, on the portfolio and on the admin. Previews used about half of the Hobby plan's 100 deployments a day, shared by every project on the account, and CI already builds and tests each pull request. For a preview by hand: `vercel deploy` from the branch.
 - **Scroll anchoring and the reveal** (2026-11-03): in Safari only, a `.reveal` block is not a scroll anchor while it rises (`app/globals.css`, `components/ui/Reveal.tsx`).
   WebKit anchors to content inside the rising, transformed block and scrolls the page 24px when the rise ends, about a second after any jump to a section, which made a press on the Scribe tour's pause button land on the video.
   Chromium and Firefox handle the transform correctly and need those anchors right after a jump, so the rule is gated with `@supports (hanging-punctuation: first)`, a feature-detection proxy that only WebKit passes today.

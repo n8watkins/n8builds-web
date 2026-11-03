@@ -1,5 +1,6 @@
-import { EMAIL_CONFIG, getTransporter } from '@/lib/email/smtp'
-import { inlineImages, type EmailResult } from '@/lib/email/sender'
+import { EMAIL_CONFIG } from '@/lib/email/config'
+import { sendEmail } from '@/lib/email/send'
+import type { EmailResult } from '@/lib/email/sender'
 import { C, FONT, MONO, brandBar, button, countryFor, pacificTime, pill, sanitizeHtml, shell } from '@/lib/email/templates'
 import { logger } from '@/lib/logger'
 
@@ -84,17 +85,16 @@ export function createQuoteEmailText(email: string, { receivedAt = new Date(), c
 export async function sendQuoteEmail(email: string, { country }: { country?: string } = {}): Promise<EmailResult> {
   try {
     const receivedAt = new Date()
-    const result = await getTransporter().sendMail({
-      from: EMAIL_CONFIG.from,
+    const notificationId = await sendEmail({
       to: EMAIL_CONFIG.to,
       replyTo: email,
       subject: quoteSubject(email),
       html: createQuoteEmailHtml(email, { receivedAt, country }),
       text: createQuoteEmailText(email, { receivedAt, country }),
-      attachments: inlineImages(['logo']),
+      images: ['logo'],
     })
-    logger.info('✅ Quote request email sent:', result.messageId)
-    return { success: true, notificationId: result.messageId }
+    logger.info('✅ Quote request email sent:', notificationId)
+    return { success: true, notificationId }
   } catch (error) {
     logger.error('❌ Quote request email error:', error)
     return { success: false, error: 'Failed to send email. Please try again later.' }

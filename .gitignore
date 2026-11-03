@@ -49,3 +49,8 @@ next-env.d.ts
 
 # Chrome profiles that chrome-launcher creates in the working directory under WSL
 /C:*
+
+# Cloudflare (OpenNext build output, wrangler's local state and secrets)
+/.open-next/
+/.wrangler/
+.dev.vars*

@@ -57,8 +57,9 @@ Strategy and IA: `docs/N8BUILDS_PLAN.md`.
 
 ## Current state
 
-- Live at https://n8builds.dev on Vercel (project `n8builds-web`, team natkins23s-projects), auto-deploying from `main`.
-- Stack: Next.js 16 (App Router, Turbopack for dev, tests and the production build), React 19, TypeScript, Tailwind 4 (configured in `app/globals.css`; there is no `tailwind.config`), Motion (`motion/react`; not framer-motion), Sanity (blog), Nodemailer + Gmail SMTP, Cloudflare Turnstile, Upstash Redis (rate limits), Sentry, GA4, Vercel Speed Insights.
+- Runs on Cloudflare Workers (the `n8builds-web` Worker, built by OpenNext), deploying from `main` (`DEPLOY.md`), at https://n8builds-web.nathancwatkins23.workers.dev until n8builds.dev moves over.
+  Until then n8builds.dev serves the last Vercel deployment (project `n8builds-web`, team natkins23s-projects), which no longer deploys.
+- Stack: Next.js 16 (App Router, Turbopack for dev, tests and the production build), React 19, TypeScript, Tailwind 4 (configured in `app/globals.css`; there is no `tailwind.config`), Motion (`motion/react`; not framer-motion), Sanity (blog), Cloudflare Email Service, Cloudflare Turnstile, Upstash Redis (rate limits), Sentry, GA4, Cloudflare Web Analytics.
 - Pages: `/` (hero, "What I'm working on", the Lab, notions, stack, work-with-me, contact, each in its own full-width band), `/blog` + `/blog/[slug]` (N8's Notions, ISR hourly), `/builds` (the build log, ISR hourly), `/builds/[slug]`, `/loadout`, `/privacy`, `/live` (redirects to the live stream, else lists the channels).
 - **Status (2026-10-24):** everything is merged and live, including the build log, the live player and the n8builds case study (PRs #10 to #15). Work now goes through pull requests (`docs/BUILD_PLAN.md`); what's left and what's needed from the owner is in `docs/NEXT_STEPS.md`.
   The review of the 2026-10-22/23 work (`docs/prompts/review-2026-10-22-changes.md`) ran on 2026-10-23; its fixes (Solara's private-repo link, 320px hero, modal mobile menu, em-dash sweep, blog fact fixes) are shipped.
@@ -72,7 +73,7 @@ Strategy and IA: `docs/N8BUILDS_PLAN.md`.
 - **Hero layout:** the hero content is top-aligned, not vertically centered, and the ambient glows mount after hydration: both caused layout shift on slow devices (Nightly Lighthouse CLS 0.29). Keep it that way.
 - SEO: every page builds its metadata with `pageMetadata()` (`lib/seo.ts`), which sets the canonical URL, og:url and both share cards with a preview image.
   Next.js merges metadata shallowly, so a page that sets its own `openGraph` without the helper loses the image.
-  Blog posts and builds get generated 1200x630 PNG cards (`/blog/<slug>/og.png`, `/builds/<slug>/og.png`, drawn by `lib/og-card.tsx` with `next/og` over the blog-cover art, Inter from `assets/fonts/`).
+  Blog posts and builds get generated 1200x630 PNG cards (`/blog/<slug>/og.png`, `/builds/<slug>/og.png`, drawn by `lib/og-card.tsx` with `next/og` over the blog-cover art, Inter from `public/og/`, read through `lib/publicFile.ts`).
   A post's card draws its uploaded SEO image or cover (dimmed) behind the title, falling back to the generated art; posts always share their og.png, because a bare illustration in a feed doesn't say what the post is.
   The share description is the post's Sanity "Share description" (`seo.shareDescription`, max 120 characters), else whole sentences of the excerpt that fit in 120 (`shareSummary()`).
   JSON-LD: WebSite and Person on the homepage, BlogPosting on posts (`components/JsonLd.tsx`).
@@ -97,7 +98,7 @@ E2E details:
   Set `E2E_SKIP_BUILD=1` to reuse an existing build.
 - The test server runs in `CONTACT_TEST_MODE` with Cloudflare's always-pass Turnstile test keys.
 - It is built with a made-up GA ID (`G-E2ETEST000`) so the consent banner and GA loader exist, and browsers run in the America/Los_Angeles time zone so the banner stays away unless a spec asks for it (`tests/e2e/consent.spec.ts` picks Europe/Berlin or America/Toronto and answers gtag.js itself).
-  No email is sent (Nodemailer JSON transport), and GA, Sentry and Upstash are forced off.
+  No email is sent, and GA, Sentry and Upstash are forced off.
 - A running server on the port is reused locally; if it serves an old build, kill it first (`ss -ltnp | grep 3747`).
 - After upgrading `@playwright/test`, run `npx playwright install` or every browser test fails instantly.
 - Tests do not retry. A flaky test is a bug to fix.
@@ -105,7 +106,7 @@ E2E details:
 CI (`.github/workflows/`):
 
 - `ci.yml` on every push to `main` and every PR: lint, type-check, unit tests; E2E on all six Playwright projects as parallel jobs (each builds the app in test mode; WebKit and mobile Safari, the slowest, run as three shards each); Lighthouse budgets. About 6 minutes end to end.
-- **Docs-only changes skip the browser suite and Lighthouse** (only Markdown, `docs/` or `LICENSE` changed; the "What changed" job decides). Lint, types, unit tests and the commit check still run. `vercel.json`'s `ignoreCommand` skips Vercel builds for the same changes, so a docs-only merge doesn't redeploy.
+- **Docs-only changes skip the browser suite and Lighthouse** (only Markdown, `docs/` or `LICENSE` changed; the "What changed" job decides). Lint, types, unit tests and the commit check still run. The deploy workflow (`.github/workflows/deploy.yml`) skips the same changes, so a docs-only merge doesn't redeploy.
 - **Branch protection on `main`** is the ruleset "release-kit: protect main" (Settings, Rules; made by the kit's protect command, now `npx release-kit protect`, replacing classic protection on 2026-10-25).
   It requires two checks: "CI result" (a summary job that passes when every CI job passed or was skipped on purpose) and "check" (commit messages), and blocks deletion and force pushes.
   Docs-only PRs pass in about a minute.
@@ -121,7 +122,7 @@ Plan and rationale: `docs/BUILDS_LOG_PLAN.md`.
 
 - **Where it comes from:** every build in `data/builds.tsx` with a `repo` (`owner/name`) is tracked; that list is the single list of tracked repos.
   `lib/build-log.ts` fetches each repo's releases and the owner's last 100 commits on the default branch (asking for the owner's commits keeps Portfolio Rank visible: its newest 100 commits are all daily bot syncs).
-  It uses `GITHUB_TOKEN` (a fine-grained read-only token, set in Vercel and `.env.local`); without one it makes anonymous requests under `next dev` only.
+  It uses `GITHUB_TOKEN` (a fine-grained read-only token, a Worker secret and in `.env.local`); without one it makes anonymous requests under `next dev` only.
 - **Freshness and failures:** `/builds`, the build pages and the sitemap revalidate hourly, and the GitHub fetches sit in Next's fetch cache for an hour.
   Only successful responses are cached, so a GitHub error never replaces good data.
   A repo that fails with nothing cached is left out; if every repo fails on a revalidation, the render throws and ISR keeps serving the last good page.
@@ -170,7 +171,7 @@ While Nathan is live, every page shows a floating corner player, the navbar's Tw
   Any failure counts as offline; a source that errors is skipped and logged, and `/api/live` always answers 200.
 - **Player** (`components/live/`): `LiveLoader` (mounted in `app/layout.tsx`) checks `/api/live` after the load event, then once a minute while the tab is visible, into a small store the navbar reads too.
   `LivePlayer` and the platform iframes load only while live (`next/dynamic`), so offline page loads fetch one small JSON answer and nothing else.
-  Twitch embeds need a listed `parent` host: n8builds.dev and localhost play, Vercel previews show the "Watch on Twitch" card.
+  Twitch embeds need a listed `parent` host: n8builds.dev and localhost play, other hosts (the workers.dev address) show the "Watch on Twitch" card.
   YouTube uses `www.youtube-nocookie.com` and unmutes over postMessage; Twitch reloads its player with `muted=false`.
   X has no live player embed (and X's post embed would need its script in the CSP), so X streams get a card with "Watch on X".
   The corner and minimized choices and closed streams are kept in localStorage (`n8-live:prefs`, `n8-live:closed`), each access in try/catch.
@@ -179,7 +180,7 @@ While Nathan is live, every page shows a floating corner player, the navbar's Tw
 - **Going live on X (or overriding a check):** in the Studio, open **Live status** (first item), switch **Live now** on, pick the platform, optionally add the link and a title, and **Publish**; switch it off and publish when done.
   The site shows it within a minute or two: the server caches each check for 60 seconds, the CDN for 30, and open pages poll every 30.
   The Studio must be deployed (`npx sanity deploy` in `n8builds-studio`) before the switch exists there.
-- **Tests:** `LIVE_TEST_MODE=1` (set in `playwright.config.ts`, ignored when `VERCEL` is set) swaps every source for fake answers.
+- **Tests:** `LIVE_TEST_MODE=1` (set in `playwright.config.ts`, ignored when `APP_ENV` is set) swaps every source for fake answers.
   The scenario comes from the `n8-live-test` cookie (`none`, `twitch`, `youtube`, `both`, `x`, `all`, `youtube-no-embed`, `other`), else `LIVE_TEST_SCENARIO`, else offline, so the rest of the suite sees no player.
   `tests/e2e/live.spec.ts` stubs the Twitch and YouTube players with `context.route` (after the browser's CSP check); `tests/e2e/api/live.spec.ts` covers `/api/live` and the `/live` redirects; `tests/unit/live.test.ts` covers the resolver.
   To look at the player locally: `LIVE_TEST_MODE=1 npm run dev`, then set the `n8-live-test` cookie to a scenario in the browser's devtools.
@@ -205,15 +206,16 @@ This repo follows the n8 release standard (`RELEASING.md`; the kit is public at 
 ## Contact form
 
 Flow (`app/api/contact/route.ts`): size check (10KB) and a JSON content type (else 415), JSON + Zod validation, honeypot, Turnstile, per-IP rate limit, site-wide daily limit, per-recipient auto-reply limit, then the notification email and the auto-reply.
-Every free check runs before the first Upstash call, so requests without a solved Turnstile challenge never spend the Redis quota.
+Every free check runs before the first rate-limit counter, so requests without a solved Turnstile challenge are never counted.
 
-- **Rate limits** (`lib/security/rateLimiter.ts`): 5/hour per IP (IPv6 per /64), `CONTACT_DAILY_LIMIT` (default 50) verified submissions per day, and 1 auto-reply per recipient address per day (keyed by a hash), stored in Upstash Redis via `KV_REST_API_*` (or `UPSTASH_REDIS_REST_*`).
+- **Rate limits** (`lib/security/rateLimiter.ts`): 5/hour per IP (IPv6 per /64), `CONTACT_DAILY_LIMIT` (default 50) verified submissions per day, and 1 auto-reply per recipient address per day (keyed by a hash), each a sliding window in its own Durable Object (`RATE_LIMIT_COUNTERS`, `worker/rate-limit-counter.js`).
   Past the recipient limit the owner notification still goes out; only the auto-reply is skipped.
   The auto-reply greets by first name only when it is a plain word, otherwise "Hey there", so the form can't carry a linked domain to a third party.
-  Keys outside Vercel production are namespaced by `VERCEL_ENV` (`contact:preview:*`, `contact:development:*` with a pulled env, `contact:local:*` otherwise), so one database serves every environment without previews or local runs touching production's counters.
-  `CONTACT_TEST_MODE` always uses an in-memory store, as does `next dev` without Upstash configured.
-- **Edge rate limit:** a Vercel WAF rule (Firewall tab, not code) allows 10 `POST /api/contact` per minute per IP and answers 429 itself; the client shows its own message for a 429 without our JSON.
-- **Fail closed:** in production, a missing Turnstile secret, a Turnstile error, missing Upstash config, or an Upstash outage or timeout all reject the submission, with a message telling the visitor to email directly.
+  Keys outside production are namespaced by `APP_ENV` (`contact:<APP_ENV>:*`, `contact:local:*` when it is unset), so other deployments never touch production's counters.
+  `CONTACT_TEST_MODE` always uses an in-memory store, as does `next dev`.
+  Until 2026-11-03 the counters were in an Upstash database from the Vercel Marketplace, which goes away with the Vercel account.
+- **Edge rate limit:** the Worker (`worker/index.js`, the `CONTACT_RATE_LIMITER` binding in `wrangler.jsonc`) allows 10 `POST /api/contact` per minute per IP and answers 429 itself, before Next runs; the client shows its own message for a 429 without our JSON.
+- **Fail closed:** in production, a missing Turnstile secret, a Turnstile error, a missing counters binding, or a counter error or 3-second timeout all reject the submission, with a message telling the visitor to email directly.
 - **Turnstile** (`lib/security/turnstile.ts`): tokens must be issued on `n8builds.dev` or `www.n8builds.dev` (`TURNSTILE_ALLOWED_HOSTNAMES` overrides).
   Verification is skipped only under `next dev`.
 - **Client** (`components/ContactForm/`): Send is disabled until the form hydrates (`hooks/useHydrated.ts`), so an early click is never silently lost.
@@ -221,13 +223,13 @@ Every free check runs before the first Upstash call, so requests without a solve
   After 15s it explains the failure (often an ad or privacy blocker).
   Server error messages are shown to the visitor.
   The success confetti is lazily loaded and has its own error boundary: if its chunk fails, the confetti is dropped and the success message stays.
-- **Emails** (`lib/email/`): Gmail SMTP with an app password.
+- **Emails** (`lib/email/`): Cloudflare Email Service's `send_email` binding, from contact@n8builds.dev (`lib/email/send.ts`, see `DEPLOY.md`).
   Notifications go straight to the Gmail inbox (`CONTACT_EMAIL_TO`), never to contact@n8builds.dev, which forwards back to the same Gmail and gets deduped.
   All user input is HTML-escaped exactly once at template time.
   Regenerate the signature icons with `node scripts/gen-email-icons.mjs`.
 - **Testing by hand:** `CONTACT_TEST_MODE=1` with the test secret `1x0000000000000000000000000000000AA` exercises the real API on a production build without sending email.
-  Test mode is ignored whenever `VERCEL` is set, including from a `.env.local` made by `vercel env pull`; run with `VERCEL= VERCEL_ENV=` in that case (Playwright already blanks them).
-  To send real email locally, use `npm run dev` and submit the form (Turnstile is skipped in dev, and Upstash too unless configured).
+  Test mode is ignored whenever `APP_ENV` is set (every deployed Worker sets it); Playwright blanks it.
+  Email sends only on Cloudflare (the binding doesn't exist under `next dev` or `next start`), so try a real send on the workers.dev deployment or with `npm run preview`.
 
 ## Decisions already made (do not re-ask)
 
@@ -267,7 +269,7 @@ The owner's standing decisions live in [DECISIONS.md](DECISIONS.md), the one pla
   Add any new remote image host there.
 - Unknown `/blog/<slug>` URLs return a 404 status with `noindex`, but Next 16 renders the 404 body client-side (it does this for any `notFound()` thrown from a page).
   `/builds/<slug>` uses `dynamicParams = false`, so its 404 is fully server-rendered; the blog can't, since new posts must work without a deploy.
-- `www.n8builds.dev` and `n8builds-web.vercel.app` redirect (308) to `n8builds.dev` through Vercel domain settings, not code.
+- `www.n8builds.dev` and `n8builds-web.vercel.app` redirect (308) to `n8builds.dev` through Vercel domain settings while the domain is on Vercel; on Cloudflare a `next.config.mjs` redirect does it for `www` (with the custom domains, `DEPLOY.md`).
 - The navbar shows the desktop links from `lg` (1024px) up; below that, the menu button and overlay menu (scroll lock, backdrop, Escape).
   Between 768px and ~1000px the desktop row didn't fit and pushed the Appturnity CTA off-screen.
 - One build or Playwright run per checkout at a time: they share `.next/` and `test-results/`, and a second one breaks the first (a running `next start` serves mismatched chunks; Playwright wipes `test-results/` mid-run).
@@ -287,7 +289,7 @@ The owner's standing decisions live in [DECISIONS.md](DECISIONS.md), the one pla
 - `app/page.tsx`: homepage metadata, JSON-LD, and the three newest posts (fetched from Sanity on the server; the page is static and revalidates hourly).
   `components/HomePage.tsx` is a server component: every section renders on the server, each wrapped in `SectionErrorBoundary`, and only the interactive parts are client components (islands): the navbar, the hero's grid and wire meter (`HeroGrid`, `HeroChainMeter`), the carousels (`NowCarousel`, `ExtensionsCarousel`), the Lab rows' gallery and Details dialog (`FeaturedProjectIslands`), the scroll reveals, the contact form, and `HomeEffects` (analytics and the ambient glows).
   Keep it that way: a section that turns into a client component ships all its code to every phone ("Speed first" in DECISIONS.md).
-- `app/layout.tsx`: site-wide metadata defaults, GA (gated on `NEXT_PUBLIC_GA_ID`), Speed Insights (Vercel only), providers.
+- `app/layout.tsx`: site-wide metadata defaults, GA (gated on `NEXT_PUBLIC_GA_ID`), Cloudflare Web Analytics (gated on `NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN`), providers.
 - `app/api/contact/route.ts`, `app/api/health/route.ts` (liveness ping), `app/api/live/route.ts` (live status).
 - `lib/live.ts`, `lib/live-shared.ts`, `components/live/`, `app/live/page.tsx`: live streams (see "Live streams").
 - `components/sections/`: `Hero`, `NowBuilding`, `FeaturedProjects`, `ShelfSection`, `LabSubheader`, `ExtensionsShowcase`, `HomeStack`, `NotionsStrip`, `WorkWithMe`, `Loadout` (with `LoadoutDevTools`: tools I use, people I follow, tools I built), `BuildStacks`, `TechStackBento`, `BuildCard`.
@@ -298,7 +300,7 @@ The owner's standing decisions live in [DECISIONS.md](DECISIONS.md), the one pla
   The files are cached forever, so bump `COVER_VERSION` whenever the drawing changes.
 - `data/`: `builds.tsx` (source of truth), `shelves.ts`, `loadout.tsx`, `stack.tsx` (shared with the portfolio), `buildStacks.tsx`, `techStack.tsx`, `projects.tsx`.
 - `lib/security/`: `rateLimiter.ts`, `turnstile.ts`, `validation.ts`, `testMode.ts`.
-- `lib/email/`: `smtp.ts` (transport + `EMAIL_CONFIG`), `sender.ts`, `templates.ts`, `icons.ts` (generated).
+- `lib/email/`: `config.ts` (`EMAIL_CONFIG`), `send.ts` (Cloudflare Email Service), `sender.ts`, `templates.ts`, `icons.ts` (generated).
 - `lib/seo.ts`: `pageMetadata()`, `summarize()`, JSON-LD builders; `lib/og-card.tsx`: share-card renderer.
 - `lib/build-log.ts`, `components/log/`, `app/builds/page.tsx`, `app/builds/og.png/`: the build log; `scripts/check-build-repos.mjs` (nightly repo check) and `scripts/build-log-fixture.mjs` (records the test fixture).
 - `next.config.mjs`: redirects (permanent 308s for retired routes), image sources, Sentry wrapper; headers come from `lib/security/headers.mjs` (enforced CSP: add any new third-party origin there).
@@ -317,5 +319,5 @@ Feature work, roughly in priority order:
 1. Real screenshots for TL;DW and Scribe in `public/builds/<slug>/`; a real mark for Portfolio Rank.
 2. Keep the loadout data current.
 3. Bring VibeLog back from `hiddenBuilds` when it comes off hiatus (see "Hidden builds" above), and mention it again in the Welcome post if it fits.
-4. Live streams, part 2: add the Twitch and YouTube credentials in Vercel, test with a real stream on each platform, then re-add YouTube to the navbar and `sameAs` once its channel is live (part 1 is built; see "Live streams").
+4. Live streams, part 2: add the Twitch and YouTube credentials as Worker secrets, test with a real stream on each platform, then re-add YouTube to the navbar and `sameAs` once its channel is live (part 1 is built; see "Live streams").
 5. Fire the GA tag from the portfolio subdomain deploy for cross-subdomain tracking.

@@ -1,0 +1,61 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // The site as a Cloudflare Worker, built by OpenNext (see DEPLOY.md).
+  // worker/index.js wraps the generated .open-next/worker.js.
+  "name": "n8builds-web",
+  "account_id": "b2c564cf83cb9184dd6d7cc4ff8b38bf",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-11-01",
+  // nodejs_compat is required by OpenNext; global_fetch_strictly_public keeps
+  // the server's own fetches (GitHub, Sanity, Upstash) on the public internet.
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS",
+    // Static assets answer a Range request with the whole file (200), and
+    // Safari plays a <video> only when ranges work, so the worker serves the
+    // videos itself (worker/range.js). Everything else in public/ and
+    // /_next/static is served straight from the assets.
+    "run_worker_first": ["/*.mp4", "/*.webm"]
+  },
+  // Next's image optimizer (next/image) runs on Cloudflare Images.
+  "images": { "binding": "IMAGES" },
+  // ISR (export const revalidate, fetch revalidate) keeps pages in R2, with a
+  // Durable Object queue that deduplicates the background revalidations. The
+  // site never calls revalidateTag or revalidatePath, so there is no tag cache.
+  "r2_buckets": [{ "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "n8builds-web-opennext-cache" }],
+  "durable_objects": {
+    "bindings": [
+      { "name": "NEXT_CACHE_DO_QUEUE", "class_name": "DOQueueHandler" },
+      // The contact form's and waitlist's limits (lib/security/rateLimiter.ts,
+      // worker/rate-limit-counter.js): 5 an hour per IP, the daily caps, the
+      // auto-replies per address.
+      { "name": "RATE_LIMIT_COUNTERS", "class_name": "RateLimitCounter" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["DOQueueHandler"] },
+    { "tag": "v2", "new_sqlite_classes": ["RateLimitCounter"] }
+  ],
+  // The revalidation queue renders pages again by calling the worker itself.
+  "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "n8builds-web" }],
+  // The edge flood limit on the contact form (worker/index.js): 10 posts a
+  // minute per IP, before Next runs. The app's own limits (5 an hour per IP,
+  // lib/security/rateLimiter.ts) come after it.
+  "ratelimits": [{ "name": "CONTACT_RATE_LIMITER", "namespace_id": "2101", "simple": { "limit": 10, "period": 60 } }],
+  // Contact form, quote request and waitlist emails (lib/email/send.ts).
+  "send_email": [{ "name": "EMAIL" }],
+  "vars": {
+    // Replaces VERCEL_ENV: "production" here; unset locally and in tests.
+    "APP_ENV": "production",
+    "CONTACT_EMAIL_TO": "nathancwatkins23@gmail.com",
+    // Server errors (worker/index.js). Public: the same DSN ships to browsers
+    // as NEXT_PUBLIC_SENTRY_DSN, set at build time (DEPLOY.md).
+    "SENTRY_DSN": "https://7e41d848c6abae7aaf931bd7fa5049e1@o4507767562371072.ingest.us.sentry.io/4511629733855232"
+  },
+  // Secrets (wrangler secret put, see DEPLOY.md): ANALYTICS_REDIS_REST_URL,
+  // ANALYTICS_REDIS_REST_TOKEN, TURNSTILE_SECRET_KEY, GITHUB_TOKEN.
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+  "workers_dev": true,
+  "preview_urls": false
+}

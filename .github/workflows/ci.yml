@@ -68,6 +68,8 @@ jobs:
       - run: npm run lint
       - run: npm run type-check
       - run: npm run test:unit
+      # cloudflare-env.d.ts must match wrangler.jsonc's bindings.
+      - run: npm run check:cf-types
 
   # Every Playwright project as its own parallel job. Each job builds the app
   # itself in test mode (playwright.config.ts webServer), so the test env is
@@ -158,6 +160,29 @@ jobs:
           include-hidden-files: true
           retention-days: 14
 
+  # The production build: OpenNext turns the Next build into the Worker, and
+  # wrangler bundles it without deploying (the size and the bindings are
+  # checked; nothing is uploaded).
+  worker:
+    name: Cloudflare build
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEXT_PUBLIC_SITE_URL: https://n8builds.dev
+      NEXT_PUBLIC_SANITY_PROJECT_ID: abgyc32w
+      BUILD_LOG_FIXTURE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build:worker
+      - run: npm run check:deploy
+
   # The one check branch protection requires. It passes when every job above
   # passed or was skipped on purpose (a docs-only change), and fails if any
   # failed or was cancelled. Requiring the matrix jobs by name instead would
@@ -165,7 +190,7 @@ jobs:
   result:
     name: CI result
     if: always()
-    needs: [changes, checks, e2e, lighthouse]
+    needs: [changes, checks, e2e, lighthouse, worker]
     runs-on: ubuntu-latest
     steps:
       - env:

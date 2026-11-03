@@ -11,7 +11,7 @@ Detailed plans: [BUILDS_LOG_PLAN.md](BUILDS_LOG_PLAN.md), [LIVE_STREAM_PLAN.md](
 ## Part 1: Owner to-do
 
 Everything here needs your accounts, logins, money or judgement, so only you can do it.
-No secrets go in this file: keys live in pass-env (entries `n8builds-web/<NAME>`) and in Vercel, and this file names only the entries.
+No secrets go in this file: keys live in pass-env (entries `n8builds-web/<NAME>`) and in the Worker's secrets (`DEPLOY.md`), and this file names only the entries.
 The cross-project list of keys to rotate is `SECURITY-TODO.md` in the private [secret-handling-review](https://github.com/n8watkins/secret-handling-review/blob/main/SECURITY-TODO.md) repo.
 Older open items with full steps (the real contact-form send, OpenPing's deploy, Portfolio Rank's Gemini key, the rank, trailers and echo subdomains, Scribe) are in [OWNER_TODO.md](OWNER_TODO.md) section 5e.
 Last checked: 2026-11-02.
@@ -121,7 +121,7 @@ Ordered by value.
 | 7 | **Started (n8builds-web adopted it, #17; v1.1.0 released):** **release standard rollout:** apply release-kit to five repos, baseline tags, propose milestone backfills for your approval | No | Your OK (A) | `~/n8builds/release-kit` |
 | 8 | **Quick fixes from your decisions:** Appturnity card, Solara link, GitHub settings, front-door redirect | No | Your answers (A) | - |
 | 9 | **Proof updates:** add your screenshots and numbers to the build pages | No | Your content (C) | - |
-| 10 | **Contact emails through Resend:** swap Gmail SMTP for Resend in `lib/email` (same From address and templates), point DMARC's reports at contact@n8builds.dev, test a real send end to end, then tighten DMARC from `p=none` once a week of reports is clean | No | Resend domain and key (B3) | - |
+| 10 | **Contact emails:** done differently: Gmail SMTP was replaced by Cloudflare Email Service with the move to Cloudflare (2026-11-03, same From address and templates, no key). Left: point DMARC's reports at contact@n8builds.dev, then tighten DMARC from `p=none` once a week of reports is clean | No | - | - |
 
 Suggested order: 1 and 2 now (they need nothing), 4 next, then 6-9 as your answers come in, and 3 a week before your first stream.
 

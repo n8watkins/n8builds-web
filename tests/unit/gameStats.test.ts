@@ -10,6 +10,10 @@ import {
   startRound,
   type GameStore,
 } from '@/lib/game/stats'
+import type { RequestGeo } from '@/lib/cloudflare/request'
+
+const geo = vi.hoisted(() => vi.fn<() => RequestGeo | undefined>())
+vi.mock('@/lib/cloudflare/request', () => ({ requestGeo: geo }))
 
 /** An in-memory store with the commands lib/game/stats.ts uses, recording every write. */
 class FakeStore implements GameStore {
@@ -90,10 +94,17 @@ describe('parseEvent', () => {
 })
 
 describe('placeFrom', () => {
-  it("reads Vercel's country and region codes, and nothing else", () => {
-    const h = new Headers({ 'x-vercel-ip-country': 'gb', 'x-vercel-ip-country-region': 'ENG', 'x-vercel-ip-city': 'London' })
-    expect(placeFrom(h)).toEqual({ country: 'GB', region: 'ENG' })
-    expect(placeFrom(new Headers({ 'x-vercel-ip-country': '<script>' }))).toEqual({ country: 'XX', region: '' })
+  it("reads Cloudflare's country and region codes, and nothing else", () => {
+    geo.mockReturnValue({ country: 'gb', regionCode: 'ENG', city: 'London' } as RequestGeo)
+    expect(placeFrom(new Headers())).toEqual({ country: 'GB', region: 'ENG' })
+    geo.mockReturnValue({ country: '<script>' })
+    expect(placeFrom(new Headers())).toEqual({ country: 'XX', region: '' })
+  })
+
+  it('falls back to the CF-IPCountry header off Workers', () => {
+    geo.mockReturnValue(undefined)
+    expect(placeFrom(new Headers({ 'cf-ipcountry': 'us' }))).toEqual({ country: 'US', region: '' })
+    expect(placeFrom(new Headers())).toEqual({ country: 'XX', region: '' })
   })
 })
 
@@ -182,7 +193,7 @@ async function send(body: string, origin: string | null = 'https://portfolio.n8b
 describe('POST /api/game', () => {
   beforeEach(() => {
     limit.mockReset().mockResolvedValue({ success: true })
-    vi.stubEnv('VERCEL_ENV', 'production')
+    vi.stubEnv('APP_ENV', 'production')
     vi.stubEnv('ANALYTICS_REDIS_REST_URL', 'https://example.upstash.io')
     vi.stubEnv('ANALYTICS_REDIS_REST_TOKEN', 'token')
   })

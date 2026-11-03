@@ -1,4 +1,5 @@
-import { getTransporter, EMAIL_CONFIG } from '@/lib/email/smtp'
+import { EMAIL_CONFIG } from '@/lib/email/config'
+import { sendEmail } from '@/lib/email/send'
 import {
   autoReplySubject,
   contactEmailSubject,
@@ -7,23 +8,8 @@ import {
   createContactEmailHtml,
   createContactEmailText,
 } from '@/lib/email/templates'
-import { EMAIL_ICONS } from '@/lib/email/icons'
 import type { ContactFormData } from '@/lib/validations/contact'
 import { logger } from '@/lib/logger'
-
-/**
- * The emails' images ride along as inline CID attachments, so they render
- * without depending on the deployed site or on remote-image loading.
- */
-export function inlineImages(names: (keyof typeof EMAIL_ICONS)[]) {
-  return names.map((name) => ({
-    filename: `${name}.png`,
-    content: Buffer.from(EMAIL_ICONS[name], 'base64'),
-    contentType: 'image/png',
-    cid: `icon-${name}`,
-    contentDisposition: 'inline' as const,
-  }))
-}
 
 /**
  * Email sending result
@@ -42,8 +28,8 @@ export interface EmailResult {
  * @param data - Validated contact form data
  * @param options.autoReply - false sends only the owner notification (the
  *   recipient has already had an auto-reply today)
- * @param options.country - the sender's ISO country code from Vercel's geo
- *   header, shown in the owner notification only (never the IP)
+ * @param options.country - the sender's ISO country code from Cloudflare's
+ *   request geolocation, shown in the owner notification only (never the IP)
  * @returns EmailResult with success status and email IDs or error message
  *
  * @example
@@ -59,8 +45,6 @@ export async function sendContactEmails(
   { autoReply = true, country }: { autoReply?: boolean; country?: string } = {}
 ): Promise<EmailResult> {
   try {
-    const transporter = getTransporter()
-
     const receivedAt = new Date()
 
     // ========================================
@@ -70,21 +54,21 @@ export async function sendContactEmails(
     logger.info('   From:', EMAIL_CONFIG.from)
     logger.info('   To:', EMAIL_CONFIG.to)
 
-    const notificationResult = await transporter.sendMail({
-      from: EMAIL_CONFIG.from,
+    // The emails' images ride along as inline CID attachments, so they render
+    // without depending on the deployed site or on remote-image loading.
+    const notificationId = await sendEmail({
       to: EMAIL_CONFIG.to,
       replyTo: data.email,
       subject: contactEmailSubject(data),
       html: createContactEmailHtml(data, { autoReply, receivedAt, country }),
       text: createContactEmailText(data, { autoReply, receivedAt, country }),
-      attachments: inlineImages(['logo']),
+      images: ['logo'],
     })
 
     logger.info('✅ Notification email sent successfully')
-    logger.info('   Message ID:', notificationResult.messageId)
 
     if (!autoReply) {
-      return { success: true, notificationId: notificationResult.messageId }
+      return { success: true, notificationId }
     }
 
     // ========================================
@@ -94,24 +78,18 @@ export async function sendContactEmails(
     logger.info('   From:', EMAIL_CONFIG.from)
     logger.info('   To:', data.email)
 
-    const autoReplyResult = await transporter.sendMail({
-      from: EMAIL_CONFIG.from,
+    const autoReplyId = await sendEmail({
       to: data.email,
       replyTo: EMAIL_CONFIG.contactEmail,
       subject: autoReplySubject(data),
       html: createAutoReplyHtml(data),
       text: createAutoReplyText(data),
-      attachments: inlineImages(['logo', 'lab', 'portfolio', 'techforpros', 'github', 'linkedin', 'x']),
+      images: ['logo', 'lab', 'portfolio', 'techforpros', 'github', 'linkedin', 'x'],
     })
 
     logger.info('✅ Auto-reply email sent successfully')
-    logger.info('   Message ID:', autoReplyResult.messageId)
 
-    return {
-      success: true,
-      notificationId: notificationResult.messageId,
-      autoReplyId: autoReplyResult.messageId,
-    }
+    return { success: true, notificationId, autoReplyId }
   } catch (error) {
     logger.error('❌ Email sending error:', error)
     return {
