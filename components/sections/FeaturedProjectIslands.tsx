@@ -194,6 +194,7 @@ export function ProjectTour({
   tour,
   className = 'w-full shrink-0 md:w-1/2',
   frameClassName = 'rounded-2xl border border-white/8',
+  sizes = '(min-width: 1152px) 576px, (min-width: 768px) 50vw, 100vw',
 }: {
   title: string
   tour: ProjectTourVideo
@@ -201,6 +202,8 @@ export function ProjectTour({
   className?: string
   /** The video's frame: rounded and bordered by default; none inside a browser window. */
   frameClassName?: string
+  /** The poster's rendered width, for its image sizes (half the row by default). */
+  sizes?: string
 }) {
   const ref = useRef<HTMLVideoElement>(null)
   const [inView, setInView] = useState(false)
@@ -244,10 +247,14 @@ export function ProjectTour({
   return (
     <div data-tour className={className}>
       <div className={`relative aspect-16/10 overflow-hidden bg-[#07101d] ${frameClassName}`}>
+        {/* The poster is an image behind the video, not its poster attribute: that way
+            it loads lazily, at the size it shows (a poster attribute is fetched with the
+            page, which slowed the homepage's first paint on phones, 2026-11-02). The
+            video draws nothing until it has a frame, so the image shows through. */}
+        <Image src={tour.poster} alt="" fill sizes={sizes} className="object-cover" data-tour-poster />
         <video
           ref={ref}
           aria-label={tour.alt}
-          poster={tour.poster}
           // Muted, inline and looping, like a GIF; played from script, so
           // reduced motion and off-screen rows never start it.
           muted

@@ -541,7 +541,7 @@ test.describe('Loadout tools and people', () => {
     // Beside it, a recording of the live page in a browser window (round 5 of 2026-11-02): a
     // silent video that shows its poster under reduced motion and loads nothing.
     const video = card.locator('[data-pr-post-window] video')
-    await expect(video).toHaveAttribute('poster', '/projects/pr-post-tour-poster.webp')
+    await expect(card.locator('[data-pr-post-window] img[data-tour-poster]')).toHaveAttribute('src', /pr-post-tour-poster\.webp/)
     await expect(video).toHaveAttribute('aria-label', /The Pull Request Post's live front page/)
     await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.muted && v.loop && v.hasAttribute('playsinline'))).toBe(true)
     await expect(video.locator('source')).toHaveCount(0)

@@ -623,6 +623,7 @@ export const PrPostCard = () => (
         title="Pull Request Post"
         className="w-full"
         frameClassName=""
+        sizes="(min-width: 1024px) 50vw, 100vw"
         tour={{
           webm: '/projects/pr-post-tour.webm',
           mp4: '/projects/pr-post-tour.mp4',

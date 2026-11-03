@@ -22,7 +22,9 @@ for (const path of ['/loadout', '/']) {
       const video = tourOf(page, path)
       // The row's own; the Details dialog holds a second copy, shown when it opens.
       await expect(row.locator('[data-tour] video')).toHaveCount(2)
-      await expect(video).toHaveAttribute('poster', '/builds/scribe/tour-poster.webp')
+      // Its first frame is a lazy image behind the video, not a poster fetched with the page.
+      await expect(video).not.toHaveAttribute('poster')
+      await expect(row.locator('[data-tour] img[data-tour-poster][src*="tour-poster.webp"]').first()).toHaveAttribute('loading', 'lazy')
       await expect(video).toHaveAttribute('aria-label', /A tour of the Scribe app, recorded as someone uses it/)
       // No sources until it first plays, so nothing but the poster loads before then.
       await expect(video.locator('source')).toHaveCount(0)
@@ -79,7 +81,7 @@ for (const path of ['/loadout', '/']) {
       await video.scrollIntoViewIfNeeded()
       await page.waitForTimeout(800)
       expect(await isPlaying(page, path)).toBe(false)
-      await expect(video).toHaveAttribute('poster', '/builds/scribe/tour-poster.webp')
+      await expect(video.locator('xpath=preceding-sibling::img[@data-tour-poster]')).toBeVisible()
       await expect(page.getByRole('button', { name: /(Pause|Play) the Scribe tour/ })).toHaveCount(0)
       expect(requested).toEqual([])
     })
