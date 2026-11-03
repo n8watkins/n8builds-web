@@ -113,6 +113,12 @@
     transition:
       opacity 0.55s cubic-bezier(0.25, 0.1, 0.25, 1),
       transform 0.55s cubic-bezier(0.25, 0.1, 0.25, 1);
+    /* Never the scroll anchor: Safari (WebKit) anchors to content inside a
+       rising block and, once the rise ends, scrolls the page 24px to "keep it
+       in place". After jumping to a section (the section rail, a link, the
+       keyboard) the page then moved about a second later, under the pointer:
+       a click on the Scribe tour's pause button could land on the video. */
+    overflow-anchor: none;
   }
 
   .reveal[data-revealed] {
