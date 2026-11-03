@@ -16,7 +16,6 @@ updates:
     directory: /
     schedule:
       interval: weekly
-    open-pull-requests-limit: 5
     patterns: ["release-kit"]
     multi-ecosystem-group: release-kit
     # The kit skips Dependabot's default 3-day cooldown: with it, Dependabot
