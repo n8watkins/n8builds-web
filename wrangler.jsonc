@@ -56,6 +56,13 @@
   // Secrets (wrangler secret put, see DEPLOY.md): ANALYTICS_REDIS_REST_URL,
   // ANALYTICS_REDIS_REST_TOKEN, TURNSTILE_SECRET_KEY, GITHUB_TOKEN.
   "observability": { "enabled": true, "head_sampling_rate": 1 },
-  "workers_dev": true,
+  // n8builds.dev and www as Workers custom domains: Cloudflare creates and
+  // manages their DNS records and certificates. www redirects to the apex
+  // (next.config.mjs). The workers.dev address is turned off.
+  "routes": [
+    { "pattern": "n8builds.dev", "custom_domain": true },
+    { "pattern": "www.n8builds.dev", "custom_domain": true }
+  ],
+  "workers_dev": false,
   "preview_urls": false
 }

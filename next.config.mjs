@@ -31,6 +31,14 @@ const nextConfig = {
   async redirects() {
     // /portfolio, /techforpros and /appturnity are counted short links: route handlers, not redirects here.
     return [
+      // www.n8builds.dev is a second custom domain on the Worker (wrangler.jsonc);
+      // it sends visitors to the apex, keeping the path and query.
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.n8builds.dev' }],
+        destination: 'https://n8builds.dev/:path*',
+        permanent: true,
+      },
       // The shelf pages were folded into the homepage Lab section — redirect the
       // old routes to their on-page anchors so existing links/bookmarks still land.
       // Permanent (308), so search engines move these URLs over instead of keeping them.

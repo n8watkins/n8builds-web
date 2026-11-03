@@ -1,7 +1,7 @@
 # Deploying n8builds.dev
 
-The site runs on Cloudflare Workers as the `n8builds-web` Worker in the owner's Cloudflare account, built by the OpenNext adapter (`@opennextjs/cloudflare`).
-Until the custom domain is attached, it is served at https://n8builds-web.nathancwatkins23.workers.dev, and n8builds.dev still points at the last Vercel deployment.
+The site runs on Cloudflare Workers as the `n8builds-web` Worker in the owner's Cloudflare account, built by the OpenNext adapter (`@opennextjs/cloudflare`), at https://n8builds.dev.
+`n8builds.dev` and `www.n8builds.dev` are Workers custom domains (`routes` in `wrangler.jsonc`), so Cloudflare creates and manages their DNS records itself; `www` redirects to the apex (`next.config.mjs`), and the `workers.dev` address is turned off.
 
 ## How it fits together
 
@@ -53,7 +53,7 @@ CI runs `npm run check:deploy` (`wrangler deploy --dry-run`) after an OpenNext b
 
 ## Testing a deployment
 
-`E2E_REMOTE_URL=https://n8builds-web.nathancwatkins23.workers.dev npx playwright test --project=api --project=chromium` runs the suite against a deployed Worker instead of a local build.
+`E2E_REMOTE_URL=https://n8builds.dev npx playwright test --project=api --project=chromium` runs the suite against a deployed Worker instead of a local build.
 The deployed site is in production mode, so the specs that need the test modes (contact sends, live-stream scenarios, the waitlist) fail there by design; everything else must pass.
 
 ## Roll back
@@ -65,10 +65,9 @@ Fix forward afterwards by reverting the commit and deploying again, so the repos
 
 ## Moving n8builds.dev over
 
-The Vercel project stops deploying with this change (`vercel.json`), so n8builds.dev keeps serving the last Vercel deployment until the domain moves.
-The custom domains are attached in a separate pull request: it adds `n8builds.dev` and `www.n8builds.dev` as Workers custom domains in `wrangler.jsonc`.
-Before that deploy, the owner deletes the Vercel records in the Cloudflare dashboard (DNS for n8builds.dev): the apex `A 76.76.21.21` and `www CNAME cname.vercel-dns.com`.
-Keep the Vercel project for a week as a rollback (re-adding the two records points the domain back at it), then delete it.
+Attaching the custom domains needed the old Vercel records gone first: `wrangler deploy` refuses a hostname that already has DNS records it doesn't manage.
+The owner deleted the apex `A 76.76.21.21` and `www CNAME cname.vercel-dns.com` in the Cloudflare dashboard, then this config was deployed.
+The Vercel project stays for a week as a rollback (remove the `routes`, deploy, and re-add the two records to point the domain back at it), then is deleted.
 
 ## Taking it down
 

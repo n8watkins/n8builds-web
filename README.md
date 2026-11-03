@@ -58,7 +58,7 @@ cp .env.example .env.local   # then fill in values; each variable is documented 
 npm run dev                  # http://localhost:3737
 ```
 
-Under `next dev`, Turnstile verification is skipped and the rate limits are kept in memory; email sends only on Cloudflare, so try a real send with `npm run preview` or on the workers.dev deployment.
+Under `next dev`, Turnstile verification is skipped and the rate limits are kept in memory; email sends only on Cloudflare, so try a real send with `npm run preview` or on the live site.
 
 ## Scripts
 
