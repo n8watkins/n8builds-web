@@ -19,8 +19,8 @@ export interface Build {
   category: string
   status?: 'shipped' | 'in the lab'
   /**
-   * One of the owner's daily tools (Scribe, OpenPing): a row in the Lab's
-   * "My daily drivers", whatever its category.
+   * One of the owner's daily drivers (Scribe): a row in /loadout's "My daily
+   * drivers", not the Lab, whatever its category.
    */
   mine?: boolean
   tags: string[]
@@ -39,6 +39,12 @@ export interface Build {
   cta?: { heading: string; body: string; label: string; href: string }
   github?: string
   liveSite?: string
+  /**
+   * `liveSite` is the product's landing page, not the app itself (Scribe's,
+   * OpenPing's and Solara's): its buttons say "Landing page", not "Live site"
+   * (round 4 of 2026-11-02).
+   */
+  liveSiteIsLanding?: boolean
   /**
    * The GitHub repo (`owner/name`) that feeds this build's entries in the
    * /builds log. The builds with a `repo` are the single list of tracked repos
@@ -61,42 +67,41 @@ export interface Build {
 
 export const builds: Build[] = [
   {
+    // Called Piper TTS until 2026-11-02 (its repo was n8watkins/piper-tts); /builds/piper-tts redirects here.
     slug: 'voicedock',
     name: 'VoiceDock',
-    tagline: 'Fully local read-aloud for Chrome',
+    tagline: 'Read any page aloud, locally',
     category: 'Chrome extension',
     tags: ['Chrome', 'Piper', 'Kokoro', 'Local AI'],
     highlights: [
-      'Right-click any text to hear it read aloud',
-      'Two local engines: fast Piper voices or natural Kokoro voices',
-      "Works at once with the browser's voices, before any setup",
+      'Highlight text, right-click or press Alt+Shift+R, and hear it read aloud',
+      'Two voice engines on your own machine: Piper (fast) or Kokoro (54 voices, 9 languages)',
+      "Works at once with the browser's voice, and falls back to it when an engine is off",
       'Voice profiles that pick the engine, voice, speed and volume',
-      'No cloud and no API keys',
+      'No cloud and no API keys: no text leaves your computer',
     ],
     color: 'from-green-500/20 to-teal-600/20',
     problem:
-      'Read-aloud tools are cloud-bound: subscriptions, API keys, and your reading habits shipped to someone else\'s server - just to hear a paragraph of text.',
+      "Read-aloud tools are cloud-bound: subscriptions, API keys, and your reading habits shipped to someone else's server, just to hear a paragraph of text.",
     solution:
-      'Highlight text on any page, right-click, and it is read aloud by a Piper or Kokoro voice model running entirely on your own machine. A browser-TTS fallback works instantly with zero setup, so the extension is useful before the local server is even installed. No cloud, no API keys, no data leaves your computer.',
+      "Highlight text on any page, right-click it (or press Alt+Shift+R), and VoiceDock reads it aloud with a voice running on your own machine: Piper, fast and light, or Kokoro, more natural, with 54 voices in 9 languages, chosen per profile. The browser's own voice works at once with no setup and takes over whenever an engine is offline. No cloud, no API keys, no text leaves your computer.",
     stack: [
-      { name: 'Chrome MV3', detail: 'Service worker for the context menu plus an offscreen document for audio playback', tech: ['chrome'] },
-      { name: 'React', detail: 'Popup and options UI - profiles, voices, settings, credits', tech: ['react'] },
-      { name: 'Node.js + Piper', detail: 'Local server wrapping the Piper neural TTS engine and its voice models', tech: ['node', 'piper'] },
-      { name: 'Python + Kokoro', detail: 'Second local server running the Kokoro-82M model through kokoro-onnx, loopback only', tech: ['python'] },
-      { name: 'esbuild', detail: 'Bundles the React UI into the extension', tech: ['esbuild'] },
+      { name: 'Chrome MV3', detail: 'Service worker for the context menu and shortcuts, plus an offscreen document for audio playback', tech: ['chrome'] },
+      { name: 'React · esbuild', detail: 'Popup and options UI (profiles, voices, settings), bundled with esbuild', tech: ['react', 'esbuild'] },
+      { name: 'Node.js + Piper', detail: 'Local server wrapping the Piper voice engine and its downloadable voices', tech: ['node', 'piper'] },
+      { name: 'Python + Kokoro', detail: 'Local server running the Kokoro-82M model, for more natural voices', tech: ['python'] },
     ],
     process: [
-      'MV3 killed background audio, so playback runs in an offscreen document - one of those Chrome-platform quirks you only learn by hitting it.',
-      'Voice profiles bundle engine, voice, speed, and volume, so switching between a fast Piper skim-voice and a natural Kokoro listen-voice is one click.',
-      'Started as Piper TTS; the separate Kokoro server was merged in (history kept) and the product renamed VoiceDock in November 2026. Both servers refuse requests from web pages, so only the extension can use them.',
-      'Screenshots are generated by a Puppeteer script that runs from WSL but drives Windows Chrome - the same automation pattern shared with TubeVault.',
-      'A git pre-commit hook keeps the built dist/ in sync with src/, so the loadable extension never drifts from the source.',
+      'MV3 killed background audio, so playback runs in an offscreen document: one of those Chrome-platform quirks you only learn by hitting it.',
+      'Both engines implement one small HTTP API, so the extension picks an engine per profile and falls back to the browser voice when a server is down.',
+      'Renamed from Piper TTS once it gained a second engine; settings saved under the old name carry over. Both servers refuse requests from web pages, so only the extension can use them.',
+      'Screenshots are generated by a script that runs from WSL but drives Windows Chrome, with mocked servers.',
     ],
     images: [
-      { src: '/builds/voicedock/popup.png', alt: 'VoiceDock popup with a Piper profile, speed, volume, test, and stop controls' },
-      { src: '/builds/voicedock/options-profiles.png', alt: 'VoiceDock options - profiles using Piper and Kokoro' },
-      { src: '/builds/voicedock/options-voices.png', alt: 'VoiceDock options - voices tab with a Piper and Kokoro switch' },
-      { src: '/builds/voicedock/options-settings.png', alt: 'VoiceDock options - settings tab with fallback, both servers and shortcuts' },
+      { src: '/builds/voicedock/popup.png', alt: 'VoiceDock popup with profile, speed, volume, test, and stop controls' },
+      { src: '/builds/voicedock/options-profiles.png', alt: 'VoiceDock options: voice profiles tab' },
+      { src: '/builds/voicedock/options-voices.png', alt: 'VoiceDock options: voices tab' },
+      { src: '/builds/voicedock/options-settings.png', alt: 'VoiceDock options: settings tab with fallback and shortcuts' },
     ],
     github: 'https://github.com/n8watkins/voicedock',
     repo: 'n8watkins/voicedock',
@@ -104,29 +109,31 @@ export const builds: Build[] = [
   {
     slug: 'tldw',
     name: 'TL;DW',
-    tagline: 'One-keystroke YouTube → Gemini',
+    tagline: 'Short summaries of YouTube videos',
     category: 'Chrome extension',
     tags: ['Chrome', 'Gemini', 'TypeScript'],
     highlights: [
-      'Alt+G on any video or Short sends it to Gemini',
-      'Prompt profiles for summaries, research, tutorials and moments',
-      "A clipboard fallback when Gemini's box can't be filled",
-      'No backend, no analytics and no API key',
+      "Summarises a video from its transcript, right on YouTube",
+      'Uses your own free Gemini key, or opens the video in Gemini, ChatGPT, Claude or NotebookLM',
+      'Prompt profiles and your own questions shape each summary',
+      'Automatic summaries for the channels you pick',
+      'Skips sponsor segments with SponsorBlock',
+      'No backend, no accounts and no analytics',
     ],
     color: 'from-orange-500/20 to-yellow-600/20',
     problem:
-      'A 40-minute video might hold two minutes of answer. Getting an AI summary means copying the URL, opening a chat tab, retyping the same prompt - every single time.',
+      'A 40-minute video might hold two minutes of answer. Getting an AI summary means copying the URL, opening a chat tab and retyping the same prompt, every single time.',
     solution:
-      'Too Long; Didn\'t Watch: on any YouTube video or Short, press Alt+G. TL;DW opens Gemini, injects a saved prompt profile with the video URL, and submits it. Built-in profiles cover summary, research, learning, tutorial extraction, and moment finding - with a clipboard fallback if Gemini\'s composer can\'t be filled.',
+      "Too Long; Didn't Watch: TL;DW turns a YouTube video's transcript into a short summary shown right on the page, using Gemini with your own key (Gemini's free tier covers hundreds a day). Or it opens the video in Gemini, ChatGPT, Claude or NotebookLM, signed in as you. Prompt profiles, tags and your own questions shape the summary, chosen channels can be summarised automatically, and SponsorBlock skips sponsor segments.",
     stack: [
-      { name: 'Chrome MV3 · TypeScript', detail: 'Detects watch pages and Shorts, builds and injects the prompt', tech: ['chrome', 'typescript'] },
-      { name: 'Vite', detail: 'Dev server and extension build', tech: ['vite'] },
-      { name: 'Prompt profiles', detail: 'Editable, persistent prompt templates with a default per use case', tech: ['gemini'] },
+      { name: 'Chrome MV3 · TypeScript · React', detail: 'Reads the transcript, renders the summary on YouTube, and the options and history pages', tech: ['chrome', 'typescript', 'react'] },
+      { name: 'Vite · CRXJS', detail: 'Builds the extension with @crxjs/vite-plugin', tech: ['vite'] },
+      { name: 'Gemini API', detail: 'Summaries from Gemini 3.1 Flash-Lite with your own key, kept in Chrome storage', tech: ['gemini'] },
     ],
     process: [
-      'Deliberately zero-surface: no backend, no analytics, no YouTube OAuth, no Gemini API key. History stays in Chrome local storage, and Gemini responses are never read or stored.',
-      'Every build auto-bumps the patch version and copies to the Windows folder Chrome loads from - the version in the popup proves a reload actually picked up the new build.',
-      'Roadmap: a per-search "curiosity field" and transcript-aware prompts.',
+      'Bring your own key: no shared key, no backend, no accounts, analytics or telemetry. The key stays in Chrome storage and goes only to Google.',
+      'The full transcript is never stored; history keeps the video and a transcript-free prompt, and summaries are cached for up to seven days.',
+      'Every build auto-bumps the patch version and copies to the Windows folder Chrome loads from, so the version in the popup proves a reload picked up the new build.',
     ],
     images: [],
     github: 'https://github.com/n8watkins/tl-dw',
@@ -151,7 +158,7 @@ export const builds: Build[] = [
     solution:
       'A Chrome extension that adds archive controls directly to YouTube watch, Shorts, playlist, and channel pages, with a native-messaging helper that runs yt-dlp locally in WSL. Pick components (video, audio, metadata, thumbnails), set quality preferences, and playlists expand into per-video jobs in a visible download queue. No remote server involved.',
     stack: [
-      { name: 'Chrome MV3 · React', detail: 'Content script UI on YouTube pages, popup queue, and options/history pages', tech: ['chrome', 'react'] },
+      { name: 'Chrome MV3 · React · esbuild', detail: 'Content script UI on YouTube pages, popup queue, and options/history pages', tech: ['chrome', 'react', 'esbuild'] },
       { name: 'Node.js helper', detail: 'Native-messaging host that drives yt-dlp in WSL', tech: ['node'] },
       { name: 'yt-dlp', detail: 'The actual download engine - videos, thumbnails, and metadata', tech: ['ytdlp'] },
       { name: 'PowerShell', detail: 'Installer that registers the native messaging host on Windows', tech: ['powershell'] },
@@ -204,9 +211,12 @@ export const builds: Build[] = [
       'Deliberately Windows x64 only - written into the README as a non-goal rather than over-building for platforms nobody asked for.',
       'Privacy is mechanical, not a promise: speech is transcribed on your PC and audio never leaves it. Recordings stay on the PC for playback until their transcript is cleared (or right away, with saving clips turned off), and the only network calls are update checks, the model you choose to download, and the optional GitHub backup and AI tools.',
     ],
+    // The app's own screens (captured from its UI by scripts/scribe-tour/), not its landing page (round 4 of 2026-11-02).
     images: [
-      { src: '/builds/scribe/landing.webp', alt: 'Scribe: talk, it types. Private local dictation for Windows' },
-      { src: '/builds/scribe/features.webp', alt: 'Scribe features: 100% local, model picker, paste anywhere, rebindable hotkeys' },
+      { src: '/builds/scribe/app-home.webp', alt: "Scribe's home screen: ready for dictation, today's stats, the last transcript and the main hotkeys" },
+      { src: '/builds/scribe/app-history.webp', alt: 'Scribe history: searchable dictations, each with playback, copy and delete' },
+      { src: '/builds/scribe/app-models-language.webp', alt: 'Scribe models and language: the active Whisper model, the model catalog, language and GPU acceleration' },
+      { src: '/builds/scribe/app-appearance-emerald.webp', alt: 'Scribe appearance: seven color themes, here switched to Emerald' },
     ],
     cta: {
       heading: 'Try Scribe',
@@ -216,6 +226,7 @@ export const builds: Build[] = [
     },
     github: 'https://github.com/n8watkins/scribe',
     liveSite: 'https://scribe.n8builds.dev',
+    liveSiteIsLanding: true,
     repo: 'n8watkins/scribe',
     // Scribe publishes a GitHub Release for every version; those tell its story.
     log: 'releases',
@@ -225,21 +236,20 @@ export const builds: Build[] = [
     name: 'OpenPing',
     tagline: 'Uptime monitoring on your own Cloudflare',
     category: 'Web tool',
-    mine: true,
     tags: ['Cloudflare Workers', 'D1', 'React'],
     highlights: [
-      'HTTP, TCP, DNS, domain-expiry and heartbeat checks',
+      'HTTP, TCP, DNS, SSL, domain-expiry and heartbeat checks',
       "A check run every 12 minutes, on Cloudflare's free plan",
       'Schedule-aware: off-hours never count as downtime',
       'Public status pages, an embeddable widget and an SVG badge',
-      'Alerts by email, phone notification, Discord or webhook',
+      'Alerts to Slack, Teams, Discord, Telegram, email, your phone or a webhook',
       'Free tools with no sign-up',
     ],
     color: 'from-sky-500/20 to-blue-600/20',
     problem:
       'Uptime monitors are subscriptions that keep your data on someone else\'s servers, and they count every hour an app is meant to be asleep as downtime. Free hosting like Render sleeps by design, so a plain monitor either reports a fake outage every night or keeps the app awake around the clock.',
     solution:
-      'OpenPing deploys into your own Cloudflare account. A Worker runs HTTP, heartbeat, DNS, TCP and domain-expiry checks on a 12-minute schedule, D1 keeps compact uptime history, and public status pages, an embeddable widget and an SVG badge show the results. Checks are schedule-aware: an app is watched (and kept awake) only during its operating hours, and outside them it shows as "Scheduled off" without costing uptime. Anyone can use its free tools without signing up: "Is it down?", uptime and subnet calculators, a cron tester, and DNS and MX lookups.',
+      'OpenPing deploys into your own Cloudflare account. A Worker runs HTTP, heartbeat, DNS, TCP, SSL and domain-expiry checks on a 12-minute schedule, D1 keeps compact uptime history, and public status pages, an embeddable widget and an SVG badge show the results. Checks are schedule-aware: an app is watched (and kept awake) only during its operating hours, and outside them it shows as "Scheduled off" without costing uptime. Anyone can use its free tools without signing up: "Is it down?", uptime and subnet calculators, a cron tester, and DNS and MX lookups.',
     stack: [
       { name: 'Cloudflare Workers · Hono · Zod', detail: 'The API, the scheduled checks and the public status feed', tech: ['workers', 'hono', 'zod'] },
       { name: 'Cloudflare D1', detail: 'Monitors, incidents and uptime history, rolled up from samples to daily and monthly', tech: ['d1'] },
@@ -265,6 +275,7 @@ export const builds: Build[] = [
     },
     github: 'https://github.com/n8watkins/open-ping',
     liveSite: 'https://openping.n8builds.dev',
+    liveSiteIsLanding: true,
     repo: 'n8watkins/open-ping',
   },
   {
@@ -274,29 +285,29 @@ export const builds: Build[] = [
     category: 'Web app',
     tags: ['Next.js', 'Firebase', 'Stripe'],
     highlights: [
-      'Safe sun windows for your skin type, sunscreen and activity',
-      'Live UV forecasts for today and the days ahead',
-      'Google Calendar scheduling and push reminders',
-      'Installable on your phone like an app',
-      'Free to start, with a Pro plan for more profiles and places',
+      'Lower-UV windows for each activity, for your skin type and sunscreen',
+      'Live UV forecasts on a dashboard and a week calendar',
+      'Try it with no account; sign in free with Google to sync your plan',
+      'A vitamin D log, kept in your browser',
+      'In English and Spanish, installable on your phone like an app',
     ],
     color: 'from-yellow-500/20 to-orange-600/20',
     problem:
       'The UV index is a number, not an answer. Whether you can be outside without sunscreen depends on your skin type, the activity, and how long you will be out - none of which a weather app accounts for.',
     solution:
-      'A personalized UV and outdoor-activity planner: sign in with Google, set your location, skin profile, sunscreen and activities, and Solara computes lower-UV windows for today and the days ahead. Windows can flow into Google Calendar, push notifications remind you, and a Pro plan unlocks more profiles, places and activities.',
+      'A personalized UV and outdoor-activity planner: set your location, skin profile, sunscreen and activities, and Solara suggests lower-UV windows for each activity, on a dashboard and in a week calendar. Try it without an account, or sign in free with Google to sync your plan; a Pro plan (10 days, more activities, family profiles and alerts) is on a waitlist.',
     stack: [
       { name: 'Next.js 16 · React 19 · TypeScript', detail: 'App Router with static export, installable as a PWA', tech: ['nextjs', 'react', 'typescript', 'pwa'] },
       { name: 'Tailwind CSS', detail: 'Dashboard and onboarding UI', tech: ['tailwind'] },
       { name: 'Open-Meteo', detail: 'Live UV and weather forecasts (free, no API key)', tech: ['openmeteo'] },
       { name: 'Firebase', detail: 'Google sign-in, Firestore sync, Cloud Messaging push, Hosting, and Functions', tech: ['firebase'] },
-      { name: 'Stripe', detail: 'Pro plan fulfillment through Firebase Functions', tech: ['stripe'] },
+      { name: 'Stripe', detail: 'Pro plan billing through Firebase Functions (built, launching with Pro)', tech: ['stripe'] },
       { name: 'Vitest · Playwright · GitHub Actions', detail: 'Unit and browser tests gate every deploy', tech: ['vitest', 'playwright', 'actions'] },
     ],
     process: [
       'Static export keeps hosting fast and cheap: the windows are computed in the browser against the Open-Meteo API.',
       'Safe windows are computed per activity, skin profile and sunscreen setting, with durations adjustable in preferences.',
-      'Free and Pro tiers: Stripe checkout fulfills Pro through a Firebase Function, so the static site never handles payments.',
+      'Free and Pro tiers: Stripe checkout will fulfil Pro through a Firebase Function, so the static site never handles payments.',
       'A planning aid, not medical advice: the app says so up front, because UV and individual sensitivity change quickly.',
     ],
     images: [{ src: '/builds/solara/og-image.png', alt: 'Solara - know your sun window' }],
@@ -308,6 +319,7 @@ export const builds: Build[] = [
     },
     github: 'https://github.com/n8watkins/solara',
     liveSite: 'https://solara-uv.web.app',
+    liveSiteIsLanding: true,
     repo: 'n8watkins/solara',
   },
   {

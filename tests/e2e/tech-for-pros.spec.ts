@@ -19,28 +19,31 @@ test("Tech for Pros' buttons take Appturnity's place, and nothing links to Apptu
   )
   // Every link to it is counted: none goes straight to techforpros.com.
   await expect(page.locator('a[href*="techforpros.com"]')).toHaveCount(0)
-  expect(await page.locator('a[href^="/techforpros"]').count()).toBeGreaterThanOrEqual(5)
+  // The navbar, the contact card and the footer; the Work with me card links out only once
+  // techforpros.com is live (TECH_FOR_PROS_LINKS.siteLive, round 5 of 2026-11-02).
+  expect(await page.locator('a[href^="/techforpros"]').count()).toBeGreaterThanOrEqual(3)
   await expect(page.locator('a[href*="appturnity"]')).toHaveCount(0)
-  // Live: nothing says it is on its way.
+  // Live: nothing says it is on its way (only more templates are, round 3 of 2026-11-02).
   for (const part of ['#now', '#work-with-me', '#contact'])
-    await expect(page.locator(part), part).not.toContainText(/coming soon|launching soon|will soon/i)
+    await expect(page.locator(part), part).not.toContainText(/(?<!templates )coming soon|launching soon|will soon/i)
 })
 
 test('"What I\'m working on" advertises Tech for Pros for service businesses', async ({ page }) => {
   await page.goto('/')
   const now = page.locator('#now')
   await expect(now.getByRole('heading', { level: 3, name: 'techforpros.com' })).toBeVisible()
-  await expect(now).toContainText('service businesses')
+  // About the service for a business (its tagline left with the What's new dialog, 2026-11-02).
+  await expect(now).toContainText('your business')
   await expect(now).not.toContainText('local service')
   await expect(page.getByRole('link', { name: 'Check out the lab' })).toHaveCount(0)
 })
 
-test('the project-work card is Tech for Pros, with its button', async ({ page }) => {
+test('the project-work card is Tech for Pros, with its quote request', async ({ page }) => {
   await page.goto('/')
-  const card = page.locator('#work-with-me').getByRole('article', { name: /Run a service business\? I built this for you/ })
+  // Its links, layout and quote form are in work-with-me.spec.ts.
+  const card = page.locator('#work-with-me').getByRole('article', { name: /Run a service business\? Websites built for pros\./ })
   await card.scrollIntoViewIfNeeded()
-  await expect(card).toContainText('Tech for Pros is my company')
-  await expect(card.getByRole('link', { name: /Visit Tech for Pros/ })).toHaveAttribute('href', '/techforpros?from=card')
+  await expect(card.getByRole('button', { name: /Get my quote/ })).toBeVisible()
   await expect(card).not.toContainText(/free website/i)
 })
 

@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { devSetup, honorableMentions, people, toolsIBuilt, toolsIUse, type Person } from '@/data/loadout'
+import { OWN_TOOL_ICONS, devSetup, loadout, people, toolsIBuilt, toolsIUse, type Person } from '@/data/loadout'
 import { PersonCard } from '@/components/sections/LoadoutDevTools'
 
 /**
@@ -15,8 +15,7 @@ import { PersonCard } from '@/components/sections/LoadoutDevTools'
 const allCopy = [
   ...toolsIBuilt.flatMap((t) => [t.name, t.pitch, t.detail, t.credit?.note ?? '']),
   ...toolsIUse.flatMap((t) => [t.name, t.whatFor]),
-  ...honorableMentions.flatMap((t) => [t.name, t.whatFor]),
-  ...devSetup.flatMap((g) => [g.title, ...g.items.flatMap((i) => [i.name, i.note ?? ''])]),
+  ...devSetup.flatMap((t) => t.groups).flatMap((g) => [g.title, ...g.items.flatMap((i) => [i.name, i.note ?? ''])]),
   ...people.flatMap((c) => [c.name, c.role, c.note]),
 ]
 
@@ -26,6 +25,11 @@ describe('the loadout dev-tool lists', () => {
       expect(tool.github).toMatch(/^https:\/\/github\.com\/n8watkins\/[\w.-]+$/)
     }
     expect(toolsIBuilt.map((t) => t.id)).toEqual(['pass-env', 'release-kit', 'devguard', 'pr-post'])
+    // Two groups (round 3 of 2026-11-02): the dev tools (after Scribe's row), then the other things I built.
+    expect(toolsIBuilt.filter((t) => t.group === 'dev').map((t) => t.id)).toEqual(['pass-env', 'release-kit', 'devguard'])
+    // PR Post has its own card (The Pull Request Post's, on the homepage), so no group (round 5 of 2026-11-02).
+    expect(toolsIBuilt.filter((t) => t.group === 'other').map((t) => t.id)).toEqual([])
+    expect(toolsIBuilt.filter((t) => t.group === 'featured').map((t) => t.id)).toEqual(['pr-post'])
     for (const tool of toolsIBuilt) if (tool.demo) expect(tool.demo).toMatch(/^https:\/\//)
     const passEnv = toolsIBuilt.find((t) => t.id === 'pass-env')
     expect(passEnv?.pitch).toBe('Your AI coding agents use your API keys without ever seeing them.')
@@ -35,16 +39,19 @@ describe('the loadout dev-tool lists', () => {
   })
 
   it('gives every built tool and creator a unique anchor id', () => {
-    const ids = [...toolsIBuilt.map((t) => t.id), ...people.map((c) => c.id), ...toolsIUse.map((t) => t.id), ...honorableMentions.map((t) => t.id)]
+    const ids = [...toolsIBuilt.map((t) => t.id), ...people.map((c) => c.id), ...toolsIUse.map((t) => t.id)]
     expect(new Set(ids).size).toBe(ids.length)
     for (const id of ids) expect(id).toMatch(/^[a-z0-9-]+$/)
   })
 
-  it('credits each used tool to a listed maker, if any', () => {
+  it('credits each used tool to a listed maker, if any, and links its public repo', () => {
     for (const tool of toolsIUse) {
       if (tool.by) expect(people.map((c) => c.id)).toContain(tool.by)
-      expect(tool.href).toMatch(/^https:\/\//)
+      // Every tool has a GitHub repo (the owner's ask, 2026-11-02), a site only over https.
+      expect(tool.github).toMatch(/^https:\/\/github\.com\/[\w.-]+\/[\w.-]+$/)
+      if (tool.site) expect(tool.site).toMatch(/^https:\/\//)
     }
+    expect(toolsIUse.find((t) => t.id === 'herdr')).toMatchObject({ github: 'https://github.com/herdrdev/herdr', site: 'https://herdr.dev' })
   })
 
   it('links each creator only over https, no link twice', () => {
@@ -68,26 +75,45 @@ describe('the loadout dev-tool lists', () => {
     }
   })
 
-  it('links My dev setup only to anchors that exist on the page, or to site pages', () => {
+  it('links My dev setup only to anchors that exist on the page, site pages, or a repo (the Sentry CLI)', () => {
     const anchors = new Set([
       'workflow',
-      ...toolsIBuilt.map((t) => t.id),
+      // A tool with its own card elsewhere (PR Post) has no card on /loadout.
+      ...toolsIBuilt.filter((t) => t.group !== 'featured').map((t) => t.id),
       ...toolsIUse.map((t) => t.id),
-      ...honorableMentions.map((t) => t.id),
       ...people.map((p) => p.id),
     ])
-    for (const entry of devSetup.flatMap((g) => g.items)) {
+    for (const entry of devSetup.flatMap((t) => t.groups).flatMap((g) => g.items)) {
       if (!entry.href) continue
       if (entry.href.startsWith('#')) expect(anchors, entry.name).toContain(entry.href.slice(1))
+      else if (entry.href.startsWith('https://')) expect(entry.href).toMatch(/^https:\/\/github\.com\/[\w.-]+\/[\w.-]+$/)
       else expect(entry.href).toMatch(/^\/[a-z]/)
     }
   })
 
-  it('keeps honorable mentions out of Tools I use, and gnhf off the list', () => {
-    const used = new Set(toolsIUse.map((t) => t.name))
-    for (const tool of honorableMentions) expect(used.has(tool.name)).toBe(false)
-    expect(honorableMentions.map((t) => t.id)).not.toContain('gnhf')
-    for (const tool of honorableMentions) if (tool.by) expect(people.map((p) => p.id)).toContain(tool.by)
+  it('folds the honorable mentions into Tools I use, herdr first, and leaves gnhf off the list', () => {
+    expect(toolsIUse.map((t) => t.id)).toEqual(['herdr', 'no-mistakes', 'chrome-devtools-axi', 'gh-axi', 'firstmate', 'treehouse', 'ccusage'])
+    expect(toolsIUse.map((t) => t.id)).not.toContain('gnhf')
+  })
+
+  it('keeps every dev setup group, each in one tile, the machine\'s tile first', () => {
+    expect(devSetup.flatMap((t) => t.groups.map((g) => g.id))).toEqual([
+      'machine',
+      'wsl',
+      'terminal',
+      'workspace',
+      'own-tools',
+      'editors',
+      'agents',
+      'agent-tooling',
+      'runtimes',
+      'shipping',
+    ])
+    expect(devSetup.filter((t) => t.full).map((t) => t.id)).toEqual(['machine'])
+    // Two to a row on a tablet and three on a laptop, after the full-width tile: every row fills.
+    const rest = devSetup.filter((t) => !t.full).length
+    expect(rest % 2).toBe(0)
+    expect(rest % 3).toBe(0)
   })
 
   it('never uses an em dash in its copy', () => {
@@ -117,5 +143,38 @@ describe('the loadout dev-tool lists', () => {
     expect(html).toContain('New repo: </span>A new tool')
     expect(html).toContain('Oct 30')
     expect(html).not.toContain('v1.9.0')
+  })
+})
+
+describe('one icon per tool of mine, everywhere', () => {
+  const setupItems = devSetup.flatMap((t) => t.groups).flatMap((g) => g.items)
+  const mine = Object.values(OWN_TOOL_ICONS) as unknown[]
+  const typeOf = (icon: unknown) => (icon as { type?: unknown } | undefined)?.type
+
+  it('gives a tool the same mark in My dev setup and in Tools I built and use', () => {
+    for (const [id, Icon] of Object.entries(OWN_TOOL_ICONS)) {
+      const card = toolsIBuilt.find((t) => t.id === id)
+      if (card) expect(typeOf(card.icon), `${id}'s card`).toBe(Icon)
+    }
+    for (const [name, id] of [
+      ['devguard', 'devguard'],
+      ['pass-env', 'pass-env'],
+      ['release-kit', 'release-kit'],
+      ['N8 Tray', 'n8-tray'],
+      ['T-Hub', 't-hub'],
+    ] as const) {
+      const chip = setupItems.find((i) => i.name === name)
+      expect(chip, name).toBeDefined()
+      expect(typeOf(chip!.icon), `${name}'s chip`).toBe(OWN_TOOL_ICONS[id])
+    }
+  })
+
+  it('never lends one of those marks to anything else', () => {
+    const own = new Set(['devguard', 'pass-env', 'release-kit', 'N8 Tray', 'T-Hub', 'pr-post'])
+    const others = [
+      ...setupItems.filter((i) => !own.has(i.name)).map((i) => [i.name, i.icon] as const),
+      ...loadout.flatMap((g) => g.items).map((i) => [i.name, i.icon] as const),
+    ]
+    for (const [name, icon] of others) expect(mine, name).not.toContain(typeOf(icon))
   })
 })

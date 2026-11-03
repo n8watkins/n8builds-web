@@ -1,20 +1,27 @@
-import { LuHammer } from 'react-icons/lu'
-import SectionMark from '@/components/ui/SectionMark'
-import { BuiltToolsGrid, TOOLS_I_BUILT_BLURB } from '@/components/sections/LoadoutDevTools'
-import { toolsIBuilt } from '@/data/loadout'
+import { DailyDriverRows } from '@/components/sections/FeaturedProjects'
+import { BuiltToolsGrid, TOOLS_I_BUILT_BLURB, TOOLS_I_BUILT_TITLE } from '@/components/sections/LoadoutDevTools'
 
 /**
- * Tools I built, on the homepage too (2026-11-01): the same cards as on
- * /loadout. pr-post sits just above, as The Pull Request Post under People I
- * follow, so it isn't repeated here.
+ * "Tools I built and use" on the homepage, inside its Loadout (the owner's
+ * call, 2026-11-01), after the default stack: Scribe's row, then the same
+ * cards as on /loadout, in the same groups (round 3 of 2026-11-02). Not pr-post
+ * (round 5): The Pull Request Post's card under People I follow, higher on
+ * the page, is its one place. Headed like "My default
+ * stack" above it, so it reads as a part of the Loadout, not its own section.
  */
 export default function HomeToolsIBuilt() {
   return (
-    <section id="tools-i-built" aria-labelledby="tools-i-built-title" className="scroll-mt-20 py-16">
-      <SectionMark id="tools-i-built-title" icon={<LuHammer aria-hidden="true" />} title="Tools I built">
-        {TOOLS_I_BUILT_BLURB}
-      </SectionMark>
-      <BuiltToolsGrid tools={toolsIBuilt.filter((tool) => tool.id !== 'pr-post')} />
+    <section id="tools-i-built" aria-labelledby="tools-i-built-title" className="mt-14">
+      <div className="border-l-2 border-cyan-400/40 pl-4">
+        <p className="mb-1.5 text-[0.68rem] font-bold uppercase tracking-[0.16em] text-cyan-400">Built by me</p>
+        <h3 id="tools-i-built-title" className="text-2xl font-bold tracking-tight text-slate-50">
+          {TOOLS_I_BUILT_TITLE}
+        </h3>
+        <p className="mt-0.5 text-sm font-semibold text-blue-300">{TOOLS_I_BUILT_BLURB}</p>
+      </div>
+      <div className="mt-8">
+        <BuiltToolsGrid heading="h4" lead={<DailyDriverRows bleed={false} />} />
+      </div>
     </section>
   )
 }

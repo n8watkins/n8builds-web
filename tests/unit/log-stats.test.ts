@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { LogEntry } from '@/lib/build-log'
 import { logKind } from '@/lib/build-meta'
-import { shippedStats, streak } from '@/lib/log-stats'
+import { dailyCounts, shippedStats, streak } from '@/lib/log-stats'
 
 const entry = (build: string, day: string, kind: LogEntry['kind'] = 'change', more = 0): LogEntry => ({
   id: `${build}-${day}-${kind}`,
@@ -81,5 +81,22 @@ describe('logKind', () => {
     expect(logKind({ category: 'Chrome extension' })).toBe('extensions')
     expect(logKind({ category: 'Website' })).toBe('site')
     expect(logKind({ category: 'Web app' })).toBe('apps')
+  })
+})
+
+describe('dailyCounts', () => {
+  it("weighs each day's entries and marks the days after today as still to come", () => {
+    const period = [entry('scribe', '2026-10-02', 'change', 2), entry('solara', '2026-10-02'), entry('scribe', '2026-10-03', 'highlight')]
+    expect(dailyCounts(period, '2026-10-01', '2026-10-05', '2026-10-03')).toEqual([
+      { day: '2026-10-01', count: 0 },
+      { day: '2026-10-02', count: 4 },
+      { day: '2026-10-03', count: 1 },
+      { day: '2026-10-04', count: 0, future: true },
+      { day: '2026-10-05', count: 0, future: true },
+    ])
+  })
+
+  it('runs across a month boundary', () => {
+    expect(dailyCounts([], '2026-10-30', '2026-11-01', '2026-11-01').map((d) => d.day)).toEqual(['2026-10-30', '2026-10-31', '2026-11-01'])
   })
 })

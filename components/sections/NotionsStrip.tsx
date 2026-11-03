@@ -2,14 +2,15 @@ import Link from 'next/link'
 import { FiArrowUpRight } from 'react-icons/fi'
 import { LuNotebookPen } from 'react-icons/lu'
 import SectionMark from '@/components/ui/SectionMark'
-import PostCard from '@/components/blog/PostCard'
+import PostCard, { FeaturedPostCard } from '@/components/blog/PostCard'
 import type { Post } from '@/lib/sanity'
 
-// Homepage "Latest from N8's Notions" strip: the 3 newest posts, fetched on the
-// server by the homepage (app/page.tsx), so they are in its HTML. The full
-// list lives at /blog.
+// Homepage "Latest from N8's Notions" strip: the newest post featured (round 3
+// of 2026-11-02), then the 3 before it as cards, fetched on the server by the
+// homepage (app/page.tsx), so they are in its HTML. The full list lives at /blog.
 const NotionsStrip = ({ posts }: { posts: Post[] }) => {
   if (posts.length === 0) return null
+  const [featured, ...rest] = posts
 
   return (
     <section id="notions" aria-label="N8's Notions" className="py-16">
@@ -29,11 +30,15 @@ const NotionsStrip = ({ posts }: { posts: Post[] }) => {
         Notes, essays, and lessons from building in public.
       </SectionMark>
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {posts.map((p) => (
-          <PostCard key={p._id} post={p} />
-        ))}
-      </div>
+      <FeaturedPostCard post={featured} />
+
+      {rest.length > 0 && (
+        <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {rest.map((p) => (
+            <PostCard key={p._id} post={p} />
+          ))}
+        </div>
+      )}
     </section>
   )
 }

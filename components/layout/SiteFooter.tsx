@@ -18,13 +18,12 @@ const SITEMAP: { heading: string; links: { label: string; href: string; mark?: R
   {
     heading: 'The Lab',
     links: [
-      { label: 'My tools', href: '/#my-tools' },
       { label: 'Featured builds', href: '/#featured' },
       { label: 'Chrome extensions', href: '/#extensions' },
       { label: 'Build log', href: '/builds' },
       { label: 'Upcoming', href: '/upcoming' },
       { label: 'Use as a template', href: '/#template' },
-      { label: 'Tools I built', href: '/#tools-i-built' },
+      { label: 'Tools I built and use', href: '/#tools-i-built' },
     ],
   },
   {

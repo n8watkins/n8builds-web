@@ -91,9 +91,12 @@ test.describe('in a European time zone', () => {
     await expect(bar).toBeVisible()
     await bar.getByRole('button', { name: 'Decline' }).focus()
     await page.keyboard.press('Enter')
-    // Mid-exit: still on screen, marked closing and inert (no double clicks).
-    await expect(bar).toHaveAttribute('data-closing', 'true')
-    await expect(bar).toHaveAttribute('inert', '')
+    // Mid-exit: still on screen, marked closing and inert (no double clicks). Read in one
+    // go, and found with includeHidden: an inert element leaves the accessibility tree, so
+    // the role locator alone can lose the bar between two assertions.
+    const closing = page.getByRole('dialog', { name: 'Cookies', includeHidden: true })
+    await expect(closing).toHaveAttribute('data-closing', 'true')
+    expect(await closing.evaluate((el) => [el.getAttribute('data-closing'), el.hasAttribute('inert')])).toEqual(['true', true])
     await expect(page.locator('#main-content')).toBeFocused()
     // Then unmounted, with the choice applied.
     await expect(page.getByRole('dialog', { name: 'Cookies', includeHidden: true })).toHaveCount(0)

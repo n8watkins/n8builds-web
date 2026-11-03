@@ -44,7 +44,10 @@ test('a post opened from the homepage starts at its top, without scrolling up to
   // The clamped offset can settle by a pixel or two while the new page lays
   // out (Firefox measured 5,570 then 5,569), so positions a few pixels apart
   // count as one stop; an animated scroll's stops are hundreds apart.
-  const stops = [...new Set(frames.filter((y) => y > 0 && y < start))]
+  // A settle of a few dozen pixels before the new page replaces the old one is
+  // not a glide either (WebKit on #136: 6,091, then 6,067, then the clamped
+  // 5,910, then 0), so only positions well below the start count.
+  const stops = [...new Set(frames.filter((y) => y > 0 && y < start - 40))]
     .sort((a, b) => a - b)
     .filter((y, i, all) => i === 0 || y - all[i - 1] > 4)
   expect(stops.length, trace).toBeLessThanOrEqual(1)

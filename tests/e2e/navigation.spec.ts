@@ -83,16 +83,21 @@ test.describe('the Contact link', () => {
     await openMenu(page)
     await page.locator('#mobile-menu').getByRole('link', { name: 'Contact', exact: true }).click()
     await expect(form(page)).toBeInViewport()
+    // Under the navbar at the page's scroll-padding-top, not 80px lower: WebKit
+    // counted the padding twice while the open menu held the body's overflow.
+    await expect
+      .poll(() => page.locator('#contact').evaluate((el) => Math.round(el.getBoundingClientRect().top)), { timeout: 10_000 })
+      .toBe(80)
   })
 })
 
 /**
  * The navbar's Tech for Pros link (2026-11-01): a bordered pill like Ko-fi and
- * Portfolio, holding its icon and techforpros.com over a hand-drawn swoosh
- * that draws itself in (drawn at once under reduced motion).
+ * Portfolio, holding its icon and techforpros.com over a clean curved
+ * underline (round 3 of 2026-11-02: one smooth arc, static, never animated).
  */
 const techForPros = (page: Page) => page.locator('nav[aria-label="Primary"]').getByRole('link', { name: /^techforpros\.com/ })
-const swoosh = (page: Page) => techForPros(page).locator('svg.tfp-swoosh path')
+const underline = (page: Page) => techForPros(page).locator('svg.tfp-underline path')
 
 test('the navbar links techforpros.com in a pill like Ko-fi and Portfolio, through the counted short link', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
@@ -108,41 +113,44 @@ test('the navbar links techforpros.com in a pill like Ko-fi and Portfolio, throu
     return { radius: s.borderTopLeftRadius, border: s.borderTopWidth, style: s.borderTopStyle, height: el.getBoundingClientRect().height }
   }
   expect(await link.evaluate(style)).toEqual(await kofi.evaluate(style))
-  // A swoosh under the text, not a straight text underline, and no gradient fill.
+  // A curve under the text, not a straight text underline, and no gradient fill.
   await expect(link.getByText('techforpros.com', { exact: true })).not.toHaveCSS('text-decoration-line', 'underline')
   expect(await link.evaluate((el) => getComputedStyle(el).backgroundImage)).toBe('none')
   const text = (await link.getByText('techforpros.com', { exact: true }).boundingBox())!
-  const curve = (await swoosh(page).boundingBox())!
+  const curve = (await underline(page).boundingBox())!
   // Under the letters: its lowest point is below the text's line box.
   expect(curve.y + curve.height).toBeGreaterThan(text.y + text.height)
   expect(curve.y).toBeGreaterThan(text.y + text.height / 2)
-  expect(curve.width).toBeGreaterThan(text.width * 0.95)
+  // Close under the letters (round 5 of 2026-11-02): its top within a few pixels of the text's line box.
+  expect(curve.y - (text.y + text.height)).toBeLessThan(3)
+  // Nearly the label's width (its inset and symmetry are checked in the drawing's own units below).
+  expect(curve.width).toBeGreaterThan(text.width * 0.85)
 })
 
-test.describe('the techforpros.com swoosh', () => {
-  test.describe('with motion', () => {
-    test.use({ contextOptions: { reducedMotion: 'no-preference' } })
-
-    test('draws itself in on load, then again on hover', async ({ page }) => {
-      await page.setViewportSize({ width: 1440, height: 900 })
-      await page.goto('/')
-      await expect(swoosh(page)).toHaveCSS('animation-name', 'tfp-swoosh-draw')
-      // Drawn by the end.
-      await expect.poll(() => swoosh(page).evaluate((el) => parseFloat(getComputedStyle(el).strokeDashoffset)), { timeout: 5000 }).toBe(0)
-      await techForPros(page).hover()
-      await expect(techForPros(page).locator('svg.tfp-swoosh')).toHaveCSS('animation-name', 'tfp-swoosh-wipe')
-    })
+test('the techforpros.com underline is one shallow, symmetric arch that never animates', async ({ page, isMobile }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/')
+  const path = underline(page)
+  await expect(path).toHaveCSS('animation-name', 'none')
+  await expect(path).toHaveCSS('stroke-dasharray', 'none')
+  // One cubic segment: no S or second C joining wobbles together.
+  expect((await path.getAttribute('d'))!.match(/[CSQ]/gi)).toHaveLength(1)
+  // Round 5 of 2026-11-02: symmetric, centred under the label, and a gentle arch: the
+  // middle is its highest point, the ends lower and level, by only a little.
+  const shape = await path.evaluate((el: SVGPathElement) => {
+    const length = el.getTotalLength()
+    const [start, middle, end] = [0, 0.5, 1].map((f) => el.getPointAtLength(length * f))
+    return { start: [start.x, start.y], middle: [middle.x, middle.y], end: [end.x, end.y], width: (el.ownerSVGElement!.viewBox.baseVal.width) }
   })
-
-  test('shows fully drawn, with no animation, under reduced motion', async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 })
-    await page.goto('/', { waitUntil: 'domcontentloaded' })
-    await expect(swoosh(page)).toHaveCSS('animation-name', 'none')
-    expect(await swoosh(page).evaluate((el) => parseFloat(getComputedStyle(el).strokeDashoffset))).toBe(0)
-    await techForPros(page).hover()
-    await expect(techForPros(page).locator('svg.tfp-swoosh')).toHaveCSS('animation-name', 'none')
-    await expect(techForPros(page).locator('svg.tfp-swoosh')).toBeVisible()
-  })
+  expect(Math.abs(shape.start[0] - (shape.width - shape.end[0]))).toBeLessThan(0.01)
+  expect(Math.abs(shape.middle[0] - shape.width / 2)).toBeLessThan(0.5)
+  expect(Math.abs(shape.start[1] - shape.end[1])).toBeLessThan(0.01)
+  expect(shape.middle[1]).toBeLessThan(shape.start[1])
+  expect(shape.start[1] - shape.middle[1]).toBeLessThan(2)
+  await techForPros(page).hover()
+  await expect(techForPros(page).locator('svg.tfp-underline')).toHaveCSS('animation-name', 'none')
+  // It brightens on hover (a touch screen has none).
+  if (!isMobile) await expect(techForPros(page).locator('svg.tfp-underline')).toHaveCSS('opacity', '1')
 })
 
 // On phones the link sits between the logo and the menu button, on one line.
@@ -237,4 +245,21 @@ test.describe('mobile menu on a landscape phone', () => {
     await last.scrollIntoViewIfNeeded()
     await expect(last).toBeInViewport()
   })
+})
+
+// Round 5 of 2026-11-02: a client-side visit to the homepage logged React's "Encountered a
+// script tag" error (the old /#my-tools redirect lived in the page; it is in the layout now).
+test('moving between pages logs no console errors', async ({ page }) => {
+  const errors: string[] = []
+  page.on('console', (m) => m.type() === 'error' && errors.push(m.text()))
+  page.on('pageerror', (e) => errors.push(e.message))
+  await page.goto('/loadout')
+  await page.getByRole('link', { name: 'n8builds.dev home' }).click()
+  await expect(page).toHaveURL(/\/$/)
+  await expect(page.locator('#lab')).toBeAttached()
+  await page.goto('/builds')
+  await page.getByRole('link', { name: 'n8builds.dev home' }).click()
+  await expect(page.locator('#lab')).toBeAttached()
+  await page.waitForTimeout(1000)
+  expect(errors.filter((e) => /script tag|hydrat/i.test(e))).toEqual([])
 })

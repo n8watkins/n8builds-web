@@ -1,18 +1,24 @@
 'use client'
-import React, { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { FiChevronLeft, FiChevronRight, FiPause, FiPlay } from 'react-icons/fi'
+import { fullPages } from '@/lib/full-pages'
 import { usePageVisible } from '@/hooks/usePageVisible'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 
 // The homepage strip's rows, a page at a time (BuildLogStrip.tsx): four rows
-// (three on phones), and every few seconds the page moves on, its rows
-// fading out to the right one after another as the next page's fade in behind
-// them, round the whole month. The rows arrive rendered on the server.
+// at every width, and every few seconds the page moves on, its rows fading
+// out to the right one after another as the next page's fade in behind them,
+// round the whole month. The rows arrive rendered on the server.
 //
-// Each row has a slot (its place on the page), and every row sharing a slot
-// sits in the same grid cell, so the list is as tall as its tallest rows and
-// never shifts the page as they change. The slots are set in CSS for both
-// widths, so the first page is right before any JavaScript runs.
+// Every page is full (round 3 of 2026-11-02, "never fewer" than four): when
+// the month runs out partway through the last page, it fills up with the
+// newest updates again, wrapping round to the start. With four updates or
+// fewer there is one page and no paging.
+//
+// Each entry has a slot (its place on the page), and every entry sharing a
+// slot sits in the same grid cell, so the list is as tall as its tallest rows
+// and never shifts the page as they change. The slots are set in the HTML, so
+// the first page is right before any JavaScript runs.
 //
 // The cycle holds while the list is hovered or focused (WCAG 2.2.2), while it
 // is off screen or the tab is hidden, and for good after the pause button or
@@ -26,24 +32,8 @@ const DWELL_MS = 5000
 const FADE_MS = 340
 const STAGGER_MS = 70
 const IN_AFTER_MS = FADE_MS
-/** Rows per page, and on phones (as the plain list showed before). */
+/** Rows per page, at every width. */
 const PER_PAGE = 4
-const PHONE_PER_PAGE = 3
-
-const WIDE = '(min-width: 40rem)'
-function subscribeWide(onChange: () => void) {
-  const media = window.matchMedia(WIDE)
-  media.addEventListener('change', onChange)
-  return () => media.removeEventListener('change', onChange)
-}
-/** Rows per page at this width; null until hydrated (CSS places the first page meanwhile). */
-function usePerPage(): number | null {
-  return useSyncExternalStore(
-    subscribeWide,
-    () => (window.matchMedia(WIDE).matches ? PER_PAGE : PHONE_PER_PAGE),
-    () => null
-  )
-}
 
 const arrowClass =
   'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/4 text-slate-400 transition-colors hover:border-cyan-400/30 hover:bg-white/8 hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60'
@@ -59,9 +49,12 @@ type Turn = {
 
 export default function BuildLogPages({ rows, labels, label }: { rows: React.ReactNode[]; labels: string[]; label: string }) {
   const count = rows.length
-  const measured = usePerPage()
-  const perPage = measured ?? PER_PAGE
-  const pages = Math.max(1, Math.ceil(count / perPage))
+  const perPage = PER_PAGE
+  // The entries, page after page, each page full (lib/full-pages.ts): a short
+  // last page wraps round to the newest rows. With a page or less, just the rows.
+  const layout = fullPages(count, perPage)
+  const pages = Math.max(1, layout.length)
+  const entries = layout.flat()
   const [turn, setTurn] = useState<Turn>({ page: 0, from: 0, dir: 1, seq: 0 })
   const { from, dir, seq } = turn
   // A width change re-pages the list; a page past its new end starts it over.
@@ -94,9 +87,12 @@ export default function BuildLogPages({ rows, labels, label }: { rows: React.Rea
     refocus.current = rowEls.current.some((el, i) => Math.floor(i / perPage) === page && el?.contains(document.activeElement))
     setTurn({ page: next, from: page, dir: step, seq: seq + 1 })
     if (byHand) {
-      const first = next * perPage
-      const last = Math.min(count, first + perPage)
-      setAnnounce(`Updates ${first + 1} to ${last} of ${count}: ${labels.slice(first, last).join('; ')}`)
+      const onPage = layout[next]
+      const wraps = onPage[perPage - 1] < onPage[0]
+      const span = wraps
+        ? `Updates ${onPage[0] + 1} to ${count} of ${count}, then the newest again`
+        : `Updates ${onPage[0] + 1} to ${onPage[perPage - 1] + 1} of ${count}`
+      setAnnounce(`${span}: ${onPage.map((r) => labels[r]).join('; ')}`)
     }
   }
 
@@ -228,27 +224,24 @@ export default function BuildLogPages({ rows, labels, label }: { rows: React.Rea
           swiped.current = false
         }}
       >
-        {rows.map((row, i) => {
-          // Before hydration the width is unknown: CSS shows the first three
-          // rows everywhere and the fourth from 40rem up.
-          const shown = measured === null ? i < PER_PAGE : Math.floor(i / perPage) === page
-          const phoneOnly = measured === null && i === PHONE_PER_PAGE
+        {entries.map((row, i) => {
+          const shown = Math.floor(i / perPage) === page
           return (
             <li
-              key={labels[i] + i}
+              key={i}
               ref={(el) => {
                 rowEls.current[i] = el
               }}
               aria-hidden={!shown}
               inert={!shown}
-              data-row={i}
-              data-shown={shown && !phoneOnly ? '' : undefined}
-              className={`col-start-1 [grid-row:var(--slot-phone)] sm:[grid-row:var(--slot)] ${
-                shown ? (phoneOnly ? 'max-sm:invisible' : '') : 'pointer-events-none opacity-0'
-              }`}
-              style={{ '--slot': (i % PER_PAGE) + 1, '--slot-phone': (i % PHONE_PER_PAGE) + 1 } as React.CSSProperties}
+              data-row={row}
+              // A newer update again, filling the last page.
+              data-wrap={i >= count ? '' : undefined}
+              data-shown={shown ? '' : undefined}
+              className={`col-start-1 ${shown ? '' : 'pointer-events-none opacity-0'}`}
+              style={{ gridRow: (i % perPage) + 1 }}
             >
-              {row}
+              {rows[row]}
             </li>
           )
         })}

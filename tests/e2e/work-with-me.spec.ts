@@ -2,8 +2,11 @@ import { test, expect, type Locator, type Page } from '@playwright/test'
 
 /**
  * "Two ways to put me to work" (components/sections/WorkWithMe.tsx): two
- * stacked cards, screenshots alternating sides, full-length shots scrolling
- * inside their frames (paused off screen, still under reduced motion).
+ * stacked cards, pictures alternating sides. The developer card's portfolio
+ * shot scrolls in its frame (paused off screen, still under reduced motion),
+ * with no phone since round 5 of 2026-11-02; the Tech for Pros card mirrors
+ * the top of the page (its template window and phone) and takes a quote
+ * request by email.
  */
 
 const section = (page: Page) => page.locator('#work-with-me')
@@ -14,10 +17,10 @@ const box = async (l: Locator) => {
   return b!
 }
 
-// The scrolling screenshots, with their animation state.
+// The scrolling screenshots, with their animation state (not the Tech for Pros phone, which is the top section's own).
 const scrollState = (page: Page) =>
   section(page)
-    .locator('img[class*="scroll"]')
+    .locator('img[class*="scroll"]:not(.now-phone-scroll)')
     .evaluateAll((imgs) =>
       imgs.map((img) => {
         const anim = img.getAnimations()[0]
@@ -68,26 +71,53 @@ test.describe('desktop', () => {
     await expect(dev.getByRole('link', { name: 'Or send me a message' })).toHaveAttribute('href', '/#contact')
 
     const apt = card(page, /Run a service business/)
-    // Its button goes through the counted short link, as Appturnity's did.
-    await expect(apt.getByRole('link', { name: /Visit Tech for Pros/ })).toHaveAttribute('href', '/techforpros?from=card')
-    // Planned features are labelled as such, never as included, and never
-    // "Coming soon": the site is live (2026-11-01).
-    await expect(apt.getByText('Coming soon')).toHaveCount(0)
-    await expect(apt.getByRole('list', { name: 'Next up' }).getByRole('listitem')).toHaveText([
-      'Lead and quote follow-up',
-      'Appointment reminders',
-      'Missed-call text-back',
-    ])
-    await expect(apt.getByText('Lead capture, and review display and requests')).toBeVisible()
-    await expect(apt.getByText('Tech for Pros', { exact: true })).toBeVisible()
+    // The top section's voice, its templates and its phone (round 5 of 2026-11-02).
+    await expect(apt.getByRole('heading', { level: 3 })).toHaveText('Run a service business? Websites built for pros.')
+    await expect(apt).toContainText('A few details about your business become a launch')
+    await expect(apt.getByRole('group', { name: 'Tech for Pros templates' })).toHaveCount(1)
+    await expect(apt.locator('img[src*="hvac-phone-full"]')).toHaveCount(1)
+    await expect(apt.getByRole('list', { name: 'Next up' })).toHaveCount(0)
+    // techforpros.com isn't live yet, so its name in the header is plain text, and nothing links there.
+    await expect(apt.locator('[data-tfp-domain]')).toHaveText('techforpros.com')
+    await expect(apt.getByRole('link', { name: /techforpros|Visit Tech for Pros/i })).toHaveCount(0)
     await expect(apt.locator('img[src*="techforpros"]').first()).toBeVisible()
+    // The quote request: an email field and "Get my quote".
+    await expect(apt.getByRole('textbox', { name: 'Where should the quote go?' })).toHaveAttribute('type', 'email')
+    await expect(apt.getByRole('button', { name: 'Get my quote' })).toBeVisible()
+  })
+
+  test('the quote field sends just the email, tagged as a Tech for Pros quote, and says so', async ({ page }) => {
+    await page.goto('/')
+    const apt = card(page, /Run a service business/)
+    const field = apt.getByRole('textbox', { name: 'Where should the quote go?' })
+    const send = apt.getByRole('button', { name: 'Get my quote' })
+    await field.scrollIntoViewIfNeeded()
+    await expect(send).toBeEnabled({ timeout: 20_000 })
+    // A bad address stays on the form, said out loud, and nothing is sent.
+    let posted: unknown = null
+    page.on('request', (r) => {
+      if (r.url().endsWith('/api/contact') && r.method() === 'POST') posted = r.postDataJSON()
+    })
+    await field.fill('not an email')
+    await send.click()
+    await expect(apt.getByRole('alert')).toHaveText('Please enter a valid email address.')
+    await expect(field).toBeFocused()
+    expect(posted).toBeNull()
+
+    await field.fill('owner@pools.example.com')
+    await send.click()
+    const done = apt.getByRole('status')
+    await expect(done).toContainText('Got it. Your quote is on its way.', { timeout: 15_000 })
+    await expect(done).toContainText('owner@pools.example.com')
+    expect(posted).toMatchObject({ kind: 'techforpros-quote', email: 'owner@pools.example.com', honeypot: '' })
+    expect(Object.keys(posted as object).sort()).toEqual(['email', 'honeypot', 'kind', 'turnstile'])
   })
 
   test('the screenshot links stay out of the tab order; the buttons are reachable', async ({ page }) => {
     await page.goto('/')
     const dev = card(page, /Like the builds/)
-    // Both cards' screenshots.
-    await expect(section(page).locator('a[aria-hidden="true"][tabindex="-1"]')).toHaveCount(2)
+    // The developer card's screenshot (the Tech for Pros window has its own picker buttons).
+    await expect(section(page).locator('a[aria-hidden="true"][tabindex="-1"]')).toHaveCount(1)
     const portfolio = dev.getByRole('link', { name: /See my portfolio/ })
     await portfolio.focus()
     await expect(portfolio).toBeFocused()
@@ -102,11 +132,20 @@ test.describe('desktop', () => {
 
     test('the full-length screenshots scroll in view and pause off screen', async ({ page }) => {
       await page.goto('/')
-      // Desktop and phone shots of the portfolio, and the landscaping template's phone shot.
-      await expect(section(page).locator('img[class*="scroll"]')).toHaveCount(3)
+      // The portfolio's desktop shot (no phone since round 5 of 2026-11-02).
+      await expect(section(page).locator('img[class*="scroll"]:not(.now-phone-scroll)')).toHaveCount(1)
+      // The Tech for Pros phone scrolls as at the top of the page, and pauses off screen too.
+      const phone = card(page, /Run a service business/).locator('img.now-phone-scroll')
+      await expect(phone).toHaveCount(1)
+      const phoneState = () => phone.evaluate((img) => img.getAnimations()[0]?.playState ?? 'none')
 
       // At the top of the page the cards are off screen: paused.
-      await expect.poll(async () => (await scrollState(page)).map((s) => s.playState)).toEqual(['paused', 'paused', 'paused'])
+      await expect.poll(async () => (await scrollState(page)).map((s) => s.playState)).toEqual(['paused'])
+      await expect.poll(phoneState).toBe('paused')
+      // The card, not the image: the phone's full-length page is far taller than its frame,
+      // and WebKit scrolls the whole image into view, leaving the card off screen.
+      await card(page, /Run a service business/).locator('[data-shots]').scrollIntoViewIfNeeded()
+      await expect.poll(phoneState).toBe('running')
 
       await card(page, /Like the builds/).locator('a[aria-hidden="true"]').scrollIntoViewIfNeeded()
       await expect.poll(async () => (await scrollState(page))[0].playState).toBe('running')

@@ -36,8 +36,8 @@ const nextConfig = {
       // Permanent (308), so search engines move these URLs over instead of keeping them.
       { source: '/lab', destination: '/#lab', permanent: true },
       { source: '/extensions', destination: '/#extensions', permanent: true },
-      // Tools are the owner's daily tools now: Scribe and OpenPing, at the top of the Lab.
-      { source: '/tools', destination: '/#my-tools', permanent: false },
+      // Tools are the ones the owner built and uses, Scribe first, on /loadout (OpenPing is a featured build).
+      { source: '/tools', destination: '/loadout#tools-i-built', permanent: false },
       // The Resources section was dropped; send old links to the Lab.
       { source: '/resources', destination: '/#lab', permanent: true },
       // Builds dropped from the site (2026-10-21 and 2026-10-22); their old detail pages were in the sitemap.
@@ -46,10 +46,10 @@ const nextConfig = {
         destination: '/#lab',
         permanent: true,
       },
-      // Piper TTS was renamed VoiceDock (2026-11-02).
-      { source: '/builds/piper-tts', destination: '/builds/voicedock', permanent: true },
       // Appturnity's home is its own site, not a build page here.
       { source: '/builds/appturnity', destination: 'https://appturnity.com', permanent: true },
+      // Piper TTS was renamed VoiceDock (2026-11-02): old links land on its new page.
+      { source: '/builds/piper-tts', destination: '/builds/voicedock', permanent: true },
       // On hold, not retired: temporary, so it can come back at the same URL.
       { source: '/builds/chrome-extension-kit', destination: '/#extensions', permanent: false },
       { source: '/builds/vibelog', destination: '/#lab', permanent: false },

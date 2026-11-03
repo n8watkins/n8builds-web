@@ -5,13 +5,12 @@ import Link from 'next/link'
 import { Turnstile } from '@marsidev/react-turnstile'
 import { FiCheck, FiMail } from 'react-icons/fi'
 import { ContactInput } from '@/components/ui/ContactInput'
-import { ContactTextarea } from '@/components/ui/ContactTextarea'
 import { errorId } from '@/components/ui/FieldWrapper'
 import { useHydrated } from '@/hooks/useHydrated'
+import { useNearViewport } from '@/hooks/useNearViewport'
 import { UPCOMING, interestSlug, isUpcomingSlug, type UpcomingSlug } from '@/data/upcoming'
 import { PICK_EVENT } from './JoinButton'
 
-const NOTE_MAX = 500
 // How long to wait for Turnstile to issue a token after the visitor clicks Join.
 const TURNSTILE_WAIT_MS = 15_000
 const DIRECT_EMAIL = 'contact@n8builds.dev'
@@ -21,17 +20,27 @@ const VERIFY_ERROR = `We couldn't verify your browser (an ad or privacy blocker 
 type State = { kind: 'idle' } | { kind: 'sending' } | { kind: 'error'; message: string } | { kind: 'done'; email: string }
 
 /**
- * The waitlist form on /upcoming: email, projects, an optional note, a hidden
- * honeypot and invisible Turnstile (as the contact form). It ticks the project
+ * The waitlist form on /upcoming and the homepage: email, projects, a hidden
+ * honeypot and invisible Turnstile (as the contact form). No note field (owner,
+ * 2026-11-02); the API still accepts an entry with or without one. It ticks the project
  * from `?interest=` (the projects' landing pages link here with it) and from
  * a card's "Join" button, and sends where the visitor came from with the entry.
  * No zod on the client: the browser checks the email and the server checks it all.
  */
-export default function WaitlistForm({ turnstileSiteKey }: { turnstileSiteKey: string }) {
+export default function WaitlistForm({
+  turnstileSiteKey,
+  layout = 'page',
+}: {
+  turnstileSiteKey: string
+  /** "side": beside the homepage cards from 1024px, so one column of picks there. */
+  layout?: 'page' | 'side'
+}) {
+  const side = layout === 'side'
   const hydrated = useHydrated()
+  // Turnstile loads once the form is near the screen, not with the page (useNearViewport).
+  const [formRef, near] = useNearViewport<HTMLFormElement>()
   const [email, setEmail] = useState('')
   const [projects, setProjects] = useState<UpcomingSlug[]>([])
-  const [note, setNote] = useState('')
   const [honeypot, setHoneypot] = useState('')
   const [state, setState] = useState<State>({ kind: 'idle' })
   const [errors, setErrors] = useState<{ email?: string; projects?: string }>({})
@@ -108,7 +117,7 @@ export default function WaitlistForm({ turnstileSiteKey }: { turnstileSiteKey: s
       const response = await fetch('/api/waitlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), projects, note: note.trim(), source: source.current, turnstile, honeypot }),
+        body: JSON.stringify({ email: email.trim(), projects, source: source.current, turnstile, honeypot }),
       })
       const data = await response.json().catch(() => ({}))
       if (!response.ok) {
@@ -142,12 +151,15 @@ export default function WaitlistForm({ turnstileSiteKey }: { turnstileSiteKey: s
 
   return (
     <form
+      ref={formRef}
       noValidate
       onSubmit={(e) => {
         e.preventDefault()
         if (hydrated && !busy) submit()
       }}
-      className="space-y-6"
+      className={side ? 'space-y-6 lg:space-y-4' : 'space-y-6'}
+      // The scroll-to-top button steps aside instead of covering a field (components/ui/ScrollToTop.tsx).
+      data-scroll-top-avoid
       aria-describedby={state.kind === 'error' ? 'waitlist-error' : undefined}
     >
       {/* Security: honeypot, hidden from people. */}
@@ -185,14 +197,18 @@ export default function WaitlistForm({ turnstileSiteKey }: { turnstileSiteKey: s
         aria-invalid={errors.projects ? true : undefined}
       >
         <legend className="text-sm font-medium text-slate-200">Which projects?</legend>
-        <div className="mt-2 grid gap-2.5">
+        {/* Beside the homepage cards (side, 1024px up) a pick is its icon and name
+            only: the card beside it has the tagline. One column, then two by two
+            from 1280px, so the cards and the panel fit a 1280x800 screen. An odd
+            last pick spans both columns, so it never sits alone in half a row. */}
+        <div className={`mt-2 grid gap-2.5 sm:grid-cols-2 ${side ? 'lg:grid-cols-1 lg:gap-2 xl:grid-cols-2' : ''}`}>
           {UPCOMING.map((p) => {
             const checked = projects.includes(p.slug)
             return (
               <label
                 key={p.slug}
                 style={{ '--accent': p.accent } as CSSProperties}
-                className={`group relative flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition-colors duration-150 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-(--accent) ${
+                className={`group relative flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 sm:odd:last:col-span-2 ${side ? 'lg:gap-2.5 lg:px-3 lg:py-2 lg:odd:last:col-span-1 xl:odd:last:col-span-2' : ''} transition-colors duration-150 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-(--accent) ${
                   checked ? 'border-(--accent)/60 bg-(--accent)/10' : 'border-slate-600 bg-slate-800/60 hover:border-slate-500'
                 }`}
               >
@@ -205,10 +221,16 @@ export default function WaitlistForm({ turnstileSiteKey }: { turnstileSiteKey: s
                   disabled={busy}
                   className="peer sr-only"
                 />
-                <Image src={p.icon} alt="" width={32} height={32} className="h-8 w-8 shrink-0 rounded-lg ring-1 ring-white/10" />
+                <Image
+                  src={p.icon}
+                  alt=""
+                  width={32}
+                  height={32}
+                  className={`h-8 w-8 shrink-0 rounded-lg ring-1 ring-white/10 ${side ? 'lg:h-7 lg:w-7' : ''}`}
+                />
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-semibold text-slate-100">{p.name}</span>
-                  <span className="block text-xs text-slate-400">{p.tagline}</span>
+                  <span className={`block text-xs text-pretty text-slate-400 ${side ? 'lg:hidden' : ''}`}>{p.tagline}</span>
                 </span>
                 <span
                   aria-hidden="true"
@@ -229,19 +251,6 @@ export default function WaitlistForm({ turnstileSiteKey }: { turnstileSiteKey: s
         )}
       </fieldset>
 
-      <ContactTextarea
-        id="waitlist-note"
-        name="note"
-        label="Note (optional)"
-        placeholder="What would you use it for? Anything it must do?"
-        rows={3}
-        maxChars={NOTE_MAX}
-        charCount={note.length}
-        value={note}
-        onChange={(e) => setNote(e.target.value)}
-        disabled={busy}
-      />
-
       {state.kind === 'error' && (
         <p
           id="waitlist-error"
@@ -254,7 +263,7 @@ export default function WaitlistForm({ turnstileSiteKey }: { turnstileSiteKey: s
 
       <div className="flex flex-col items-center gap-3">
         {/* Invisible unless Cloudflare needs a challenge; see the contact form. */}
-        {turnstileSiteKey && (
+        {turnstileSiteKey && near && (
           <Turnstile
             key={widget}
             siteKey={turnstileSiteKey}
@@ -273,7 +282,7 @@ export default function WaitlistForm({ turnstileSiteKey }: { turnstileSiteKey: s
         <button
           type="submit"
           disabled={!hydrated || busy}
-          className={`relative inline-flex h-12 w-full shrink-0 overflow-hidden rounded-lg p-px focus:outline-hidden focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 sm:w-60 ${
+          className={`relative inline-flex h-12 w-full shrink-0 overflow-hidden rounded-lg p-px focus:outline-hidden focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 sm:w-60 ${side ? 'lg:h-11 lg:w-full' : ''} ${
             busy ? 'cursor-not-allowed opacity-75' : ''
           }`}
         >
@@ -282,7 +291,7 @@ export default function WaitlistForm({ turnstileSiteKey }: { turnstileSiteKey: s
             {busy ? 'Joining...' : 'Join the waitlist'}
           </span>
         </button>
-        <p className="text-center text-sm text-balance text-slate-400">
+        <p className={`text-center text-sm text-balance text-slate-400 ${side ? 'lg:text-xs lg:leading-relaxed' : ''}`}>
           An email when there is something to try. No newsletter, and you can leave any time.{' '}
           <Link href="/privacy#waitlist" className="text-cyan-400 underline underline-offset-2 hover:text-cyan-300">
             How sign-ups are kept

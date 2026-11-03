@@ -41,7 +41,7 @@ export default async function BuildLogPage() {
       '@type': 'ListItem',
       position: i + 1,
       name: build.name,
-      url: absoluteUrl(`/builds/${build.slug}`),
+      url: absoluteUrl(build.href),
     })),
   }
 
@@ -111,6 +111,7 @@ export default async function BuildLogPage() {
               builds={log.activity.map((b) => ({
                 slug: b.slug,
                 name: b.name,
+                href: b.href,
                 kind: logKind(builds.find((x) => x.slug === b.slug) ?? b),
                 icon: BUILD_ICONS[b.slug],
               }))}

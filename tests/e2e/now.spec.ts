@@ -1,95 +1,148 @@
 import { test, expect, type Page } from '@playwright/test'
-import { APP_JS } from './app-js'
 
 /**
  * "What I'm working on" (#now): an ad for Tech for Pros, headed by its icon
- * and techforpros.com, with template screenshots and a button to the site
- * (2026-11-01), and the build detail behind a What's new dialog instead of
- * on the card face.
+ * and techforpros.com. Since round 3 of 2026-11-02: "Websites built for pros",
+ * copy about the service (never a list of trades) and no feature list; its
+ * templates slide side to side in a browser window, with a timer line along
+ * its bottom, a picker in its title bar, a phone in front and "Pick a
+ * template, or we'll build one for your business." under it; "Get a quote" goes to the quote field in Work with me (the
+ * booking page and the site get buttons once they exist). No What's new.
  */
 
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
 const now = (page: Page) => page.locator('#now')
-/** The ad's button to techforpros.com. */
-const visit = (page: Page) => now(page).getByRole('link', { name: /Visit techforpros\.com/ })
+/** The ad's main button: a quote, through the quote field in Work with me (round 5 of 2026-11-02). */
+const quote = (page: Page) => now(page).getByRole('link', { name: /^Get a quote/ })
+const carousel = (page: Page) => now(page).getByRole('group', { name: 'Tech for Pros templates' })
+const frame = (page: Page) => carousel(page).locator('[data-slide]').first().locator('xpath=..')
+const showing = (page: Page) => carousel(page).locator('[data-slide][aria-hidden="false"]')
+const TEMPLATES = ['Pool', 'HVAC', 'Landscaping', 'Roofing']
 
-test('the card reads like an ad: headline, selling points, its button and real template screenshots', async ({ page }) => {
+test('the card reads like an ad: headline, the service, a quote button and the templates', async ({ page }) => {
   await page.goto('/')
   const section = now(page)
   await section.scrollIntoViewIfNeeded()
-  await expect(section).toContainText('Your website, built for your trade.')
-  for (const perk of ['Templates for your trade', 'Lead capture and reviews']) {
-    await expect(section.getByRole('listitem').filter({ hasText: perk })).toBeVisible()
-  }
-  // Headed by its icon and address, with no badge (it said "Launching soon").
+  await expect(section.getByText('Websites built for pros.')).toBeVisible()
+  // About the service, not about particular trades: those are the templates' job.
+  // (The picture's labels name the templates; the copy doesn't.)
+  for (const text of await section.locator('p, li').filter({ visible: true }).allInnerTexts())
+    if (!/template/i.test(text)) expect(text).not.toMatch(/pool|hvac|landscap|roofing/i)
+  // No feature list (round 3), and no What's new (it went stale).
+  await expect(section.getByRole('list')).toHaveCount(0)
+  await expect(section).not.toContainText(/Reminders|next up|A pro site/)
+  await expect(section.getByRole('button', { name: /What's new/ })).toHaveCount(0)
+  await expect(section.locator('dialog')).toHaveCount(0)
+  await expect(section.getByText("Pick a template, or we'll build one for your business.", { exact: true })).toBeVisible()
+  // Headed by its icon and address, with no badge.
   const title = section.getByRole('heading', { level: 3, name: 'techforpros.com' })
   await expect(title).toBeVisible()
   await expect(title.locator('xpath=..').locator('img[src*="techforpros"]')).toBeVisible()
-  await expect(section).not.toContainText(/launching soon|coming soon/i)
-  // Its button, and the screenshots, go to the site through the counted link.
-  await expect(section.getByRole('link', { name: /Visit techforpros\.com/ })).toHaveAttribute('href', '/techforpros?from=hero')
-  await expect(section.locator('a[aria-hidden="true"][tabindex="-1"]')).toHaveAttribute('href', '/techforpros?from=hero')
-  await expect(section.locator('a[href*="techforpros.com"], a[href*="appturnity"]')).toHaveCount(0)
+  await expect(section).not.toContainText(/launching soon/i)
+  // A quote through the contact form; no booking page or site yet, so no buttons for them.
+  await expect(quote(page)).toHaveAttribute('href', '/#quote')
+  await expect(section.getByRole('link', { name: /Book an intro call|Visit techforpros\.com/ })).toHaveCount(0)
+  await expect(section.locator('a[href*="techforpros.com"], a[href*="appturnity"], a[href*="github.com"]')).toHaveCount(0)
   await expect(section).not.toContainText(/free website/i)
 
-  // The template previews, loaded and laid out in their frames.
-  for (const name of ['pool-clearline-template', 'hvac-phone-full']) {
-    const img = section.locator(`img[src*="${name}"]`)
-    await expect(img, name).toBeVisible()
-    await expect(img, name).toHaveAttribute('width')
-    await expect(img, name).toHaveAttribute('height')
-    await expect.poll(() => img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0), { message: name }).toBe(true)
-  }
-
-  // No repo is linked.
-  await expect(section.locator('a[href*="github.com"]')).toHaveCount(0)
+  // The four templates are all in the page, the first showing and loaded in its frame.
+  await expect(carousel(page)).toHaveAttribute('aria-roledescription', 'carousel')
+  await expect(carousel(page).locator('[data-slide]')).toHaveCount(4)
+  await expect(showing(page)).toHaveAttribute('data-slide', 'Pool')
+  const img = showing(page).locator('img')
+  await expect(img).toHaveAttribute('width', '1200')
+  await expect(img).toHaveAttribute('height', '750')
+  await expect.poll(() => img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true)
+  await expect(carousel(page).getByRole('button', { name: /^Show the / })).toHaveCount(4)
+  // A phone in front of the browser window, holding a full-length page.
+  const phone = carousel(page).locator('img.now-phone-scroll')
+  await expect(phone).toBeVisible()
+  const [phoneBox, frameBox] = [(await phone.boundingBox())!, (await frame(page).boundingBox())!]
+  expect(phoneBox.x).toBeLessThan(frameBox.x)
+  // Under reduced motion there is no timer line.
+  await expect(carousel(page).locator('[data-template-timer]')).toHaveCount(0)
 })
 
-test('recent activity is not on the card face; What\'s new opens it in a labelled dialog that Escape closes', async ({ page }) => {
+test('the picker jumps to a template and says which; reduced motion never moves on by itself', async ({ page }) => {
   await page.goto('/')
-  const section = now(page)
-  await section.scrollIntoViewIfNeeded()
-  await expect(section.getByText(/Automated follow-up for leads/)).toBeHidden()
-
-  const button = section.getByRole('button', { name: "What's new at Tech for Pros" })
-  await expect(button).toBeEnabled()
-  await button.click()
-  const dialog = page.getByRole('dialog', { name: "What's new at Tech for Pros" })
-  await expect(dialog).toBeVisible()
-  await expect(dialog.getByText(/Automated follow-up for leads/)).toBeVisible()
-  await expect(dialog).toContainText('Right now')
-  await expect(dialog).toContainText('The goal')
-  await expect(dialog.getByRole('listitem').filter({ hasText: 'Cloudflare' })).toBeVisible()
-  // Focus moved into the modal.
-  expect(await dialog.evaluate((el) => el.contains(document.activeElement))).toBe(true)
-
-  await page.keyboard.press('Escape')
-  await expect(dialog).toBeHidden()
-  await expect(button).toBeFocused()
-
-  // The close button works too.
-  await button.click()
-  await dialog.getByRole('button', { name: 'Close' }).click()
-  await expect(dialog).toBeHidden()
+  await carousel(page).scrollIntoViewIfNeeded()
+  await expect(carousel(page)).toHaveAttribute('data-watching', '', { timeout: 20_000 })
+  await page.waitForTimeout(5500)
+  await expect(showing(page)).toHaveAttribute('data-slide', 'Pool')
+  await expect(carousel(page)).not.toHaveAttribute('data-playing', '')
+  await carousel(page).getByRole('button', { name: 'Show the Landscaping template' }).click()
+  await expect(showing(page)).toHaveAttribute('data-slide', 'Landscaping')
+  await expect(carousel(page).getByRole('button', { name: 'Show the Landscaping template' })).toHaveAttribute('aria-current', 'true')
+  await expect(carousel(page).locator('[data-template-label]')).toHaveText('Landscaping template')
+  await expect(carousel(page).locator('[aria-live="polite"]')).toHaveText('Landscaping template')
 })
 
-test('What\'s new waits for hydration instead of swallowing an early click', async ({ page }) => {
-  let release!: () => void
-  const held = new Promise<void>((resolve) => (release = resolve))
-  await page.route(APP_JS, async (route) => {
-    await held
-    await route.continue()
+test.describe('with motion', () => {
+  test.use({ contextOptions: { reducedMotion: 'no-preference' } })
+
+  test('the templates move on by themselves while on screen, in order and round again, and hold while hovered', async ({ page }) => {
+    test.setTimeout(60_000)
+    await page.setViewportSize({ width: 1280, height: 900 })
+    await page.goto('/')
+    await now(page).evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
+    await expect(carousel(page)).toHaveAttribute('data-watching', '', { timeout: 20_000 })
+    await page.mouse.move(2, 2)
+    await expect(carousel(page)).toHaveAttribute('data-playing', '')
+    // The timer line fills along the window's bottom edge.
+    const timer = carousel(page).locator('[data-template-timer]')
+    // Measured in one go: the card may still be settling from its scroll reveal.
+    const { gap, height } = await timer.evaluate((el) => {
+      const t = el.getBoundingClientRect()
+      const w = el.parentElement!.getBoundingClientRect()
+      return { gap: Math.abs(w.bottom - t.bottom), height: t.height }
+    })
+    expect(gap).toBeLessThanOrEqual(2)
+    expect(height).toBeLessThanOrEqual(4)
+    await expect(timer.locator('.template-timer')).toHaveCSS('animation-play-state', 'running')
+    for (const name of [...TEMPLATES.slice(1), TEMPLATES[0]]) await expect(showing(page)).toHaveAttribute('data-slide', name, { timeout: 8000 })
+    // The timer never speaks: only a pick is announced.
+    await expect(carousel(page).locator('[aria-live="polite"]')).toHaveText('')
+    // Hovered: it holds.
+    await carousel(page).hover()
+    await expect(carousel(page)).not.toHaveAttribute('data-playing', '')
+    await expect(timer.locator('.template-timer')).toHaveCSS('animation-play-state', 'paused')
+    const held = await showing(page).getAttribute('data-slide')
+    await page.waitForTimeout(5500)
+    await expect(showing(page)).toHaveAttribute('data-slide', held!)
+    // Scrolled away: it holds too.
+    await page.mouse.move(2, 2)
+    await page.evaluate(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' }))
+    await expect(carousel(page)).not.toHaveAttribute('data-playing', '')
   })
-  await page.goto('/', { waitUntil: 'commit' })
-  const button = now(page).getByRole('button', { name: "What's new at Tech for Pros" })
-  await expect(button).toBeDisabled()
-  // The dialog's content is in the server HTML, even before it opens.
-  await expect(page.locator('#now dialog')).toContainText('missed-call text-back')
-  release()
-  await expect(button).toBeEnabled()
-  await button.click()
-  await expect(page.getByRole('dialog', { name: "What's new at Tech for Pros" })).toBeVisible()
+})
+
+test('Get a quote lands on the quote field in Work with me, ready to type', async ({ page }) => {
+  await page.goto('/')
+  await expect(quote(page)).toHaveAttribute('href', '/#quote')
+  await expect(page.getByRole('button', { name: 'Get my quote' })).toBeEnabled({ timeout: 20_000 })
+  await quote(page).click()
+  await expect(page).toHaveURL(/\/#quote$/)
+  const field = page.getByRole('textbox', { name: 'Where should the quote go?' })
+  await expect(field).toBeFocused()
+  await expect(field).toBeInViewport()
+})
+
+test('a link to the quote preset from elsewhere fills the form on arrival, then tidies the address', async ({ page }) => {
+  await page.goto('/?inquiry=techforpros-quote#contact')
+  await expect(page.locator('#contact-form input[value="project_opportunity"]')).toBeChecked({ timeout: 20_000 })
+  await expect(page.getByRole('textbox', { name: 'Message' })).toHaveValue(/Tech for Pros/)
+  await expect(page).toHaveURL(/\/#contact$/)
+})
+
+test("a preset never overwrites a message the visitor already wrote", async ({ page }) => {
+  await page.goto('/')
+  await expect(page.locator('#contact-form button[type="submit"]')).toBeEnabled({ timeout: 20_000 })
+  await page.getByRole('textbox', { name: 'Message' }).fill('My own words about the job.')
+  // As a preset link on the page does (components/ui/ContactPresetLink.tsx).
+  await page.evaluate(() => window.dispatchEvent(new CustomEvent('contact:preset', { detail: 'techforpros-quote' })))
+  await expect(page.locator('#contact-form input[value="project_opportunity"]')).toBeChecked()
+  await expect(page.getByRole('textbox', { name: 'Message' })).toHaveValue('My own words about the job.')
 })
 
 test('the section heading stays at the top of #now', async ({ page }) => {
@@ -107,16 +160,16 @@ for (const width of [1280, 1440]) {
     await page.goto('/')
     const section = now(page)
     await section.scrollIntoViewIfNeeded()
-    const cta = await visit(page).boundingBox()
-    const shot = await section.locator('img[src*="pool-clearline-template"]').boundingBox()
-    // The screenshots sit beside the copy, not under it.
-    expect(shot!.x).toBeGreaterThan(cta!.x + cta!.width)
-    expect((await section.boundingBox())!.height).toBeLessThan(860)
+    const cta = (await quote(page).boundingBox())!
+    const shot = (await frame(page).boundingBox())!
+    // The templates sit beside the copy, not under it.
+    expect(shot.x).toBeGreaterThan(cta.x + cta.width)
+    expect((await section.boundingBox())!.height).toBeLessThan(760)
   })
 }
 
-for (const width of [375, 320]) {
-  test(`at ${width}px nothing in the ad overflows`, async ({ page }) => {
+for (const width of [1024, 820, 390, 375, 320]) {
+  test(`at ${width}px nothing in the ad overflows, and and the picker keeps to one line`, async ({ page }) => {
     await page.setViewportSize({ width, height: 800 })
     await page.goto('/')
     const section = now(page)
@@ -124,119 +177,31 @@ for (const width of [375, 320]) {
     const overflow = await section.evaluate((el) => {
       const right = el.getBoundingClientRect().right
       return [...el.querySelectorAll('a, button, p, li, img')]
-        .filter((n) => !n.closest('dialog'))
+        // The templates waiting off stage, clipped by their frame, aren't on screen.
+        .filter((n) => !n.closest('[data-slide][aria-hidden="true"]'))
         .filter((n) => n.getBoundingClientRect().right > right + 0.5)
         .map((n) => n.textContent?.trim().slice(0, 40) || n.tagName)
     })
     expect(overflow).toEqual([])
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width)
-    // Each selling point fits on one line.
-    for (const li of await section.locator('ul:not(dialog ul) > li').all()) {
-      const h = (await li.boundingBox())!.height
-      expect(h, (await li.textContent()) ?? '').toBeLessThan(30)
-    }
+    const tops = await carousel(page).getByRole('button', { name: /^Show the / }).evaluateAll((b) => b.map((x) => Math.round(x.getBoundingClientRect().top)))
+    expect(new Set(tops).size, 'picker rows').toBe(1)
   })
 }
 
-/**
- * Round 3 (2026-10-26): no "Building now" line, and What's new sits on the
- * buttons' row, at its far right (full width under the buttons on phones).
- */
-test('What\'s new is on the buttons\' row, at its far right, and there is no "Building now" line', async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 900 })
-  await page.goto('/')
-  const section = now(page)
-  await section.scrollIntoViewIfNeeded()
-  await expect(section.getByText(/Building now/)).toHaveCount(0)
-  const cta = (await visit(page).boundingBox())!
-  const examples = cta
-  const button = section.getByRole('button', { name: "What's new at Tech for Pros" })
-  const box = (await button.boundingBox())!
-  // Same row, same height as the buttons.
-  expect(Math.abs(box.y + box.height / 2 - (cta.y + cta.height / 2))).toBeLessThanOrEqual(1)
-  expect(Math.abs(box.height - cta.height)).toBeLessThanOrEqual(1)
-  expect(box.x).toBeGreaterThan(examples.x + examples.width)
-  // At the far right: level with the right edge of the screenshots' column.
-  const shot = (await section.locator('img[src*="pool-clearline-template"]').boundingBox())!
-  expect(box.x + box.width).toBeGreaterThanOrEqual(shot.x + shot.width - 2)
-})
-
-test('on a phone What\'s new is a full-width button under the Visit button', async ({ page }) => {
-  await page.setViewportSize({ width: 375, height: 812 })
-  await page.goto('/')
-  const section = now(page)
-  await section.scrollIntoViewIfNeeded()
-  const examples = (await visit(page).boundingBox())!
-  const box = (await section.getByRole('button', { name: "What's new at Tech for Pros" }).boundingBox())!
-  expect(box.y).toBeGreaterThan(examples.y + examples.height)
-  expect(Math.abs(box.width - examples.width)).toBeLessThanOrEqual(1)
-  expect(Math.abs(box.x - examples.x)).toBeLessThanOrEqual(1)
-})
-
-/**
- * The phone shows the full-length HVAC page scrolling inside its frame (as on
- * the template's own site), in CSS: it pauses while the card is off screen and
- * holds still under reduced motion. The frame keeps its size meanwhile.
- */
-test.describe('the phone mockup', () => {
-  const phone = (page: Page) => now(page).locator('img[src*="hvac-phone-full"]')
-
-  test.describe('with motion', () => {
-    test.use({ contextOptions: { reducedMotion: 'no-preference' } })
-
-    test('scrolls the page inside the frame while on screen, and pauses off screen', async ({ page }) => {
-      await page.setViewportSize({ width: 1280, height: 900 })
-      await page.goto('/')
-      const img = phone(page)
-      const playState = () => img.evaluate((el) => getComputedStyle(el).animationPlayState)
-      // The card's on-screen watcher (NowCarousel) starts at hydration, which a
-      // loaded machine can delay; until then the card is held as off screen.
-      await expect(now(page).locator('[data-watching]')).toHaveCount(1, { timeout: 20_000 })
-      // Instant jumps: with motion allowed the site scrolls smoothly, and a smooth
-      // scroll still running can carry the page past the card (or back off it).
-      const toBottom = () => page.evaluate(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' }))
-      // Scrolled past it: paused.
-      await toBottom()
-      await expect.poll(playState).toBe('paused')
-      await now(page).evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
-      await expect.poll(playState).toBe('running')
-      expect(await img.evaluate((el) => getComputedStyle(el).animationName)).toBe('now-phone-scroll')
-      // Scrolled away again: it holds still again.
-      await toBottom()
-      await expect.poll(playState).toBe('paused')
-
-      // The image is the tall page, clipped by its frame.
-      const sizes = await img.evaluate((el) => ({
-        frame: el.parentElement!.getBoundingClientRect().height,
-        image: el.getBoundingClientRect().height,
-        overflow: getComputedStyle(el.parentElement!).overflow,
-      }))
-      expect(sizes.image).toBeGreaterThan(sizes.frame * 8)
-      expect(sizes.overflow).toBe('hidden')
-      // At the bottom of its scroll it has gone well down the page, and its
-      // end lines up with the frame's (never past it).
-      const offset = await img.evaluate((el) => {
-        const a = el.getAnimations()[0]
-        a.pause()
-        a.currentTime = 30_000
-        const f = el.parentElement!.getBoundingClientRect()
-        const i = el.getBoundingClientRect()
-        return { top: f.top - i.top, bottomGap: i.bottom - f.bottom }
-      })
-      expect(offset.top).toBeGreaterThan(500)
-      expect(Math.abs(offset.bottomGap)).toBeLessThanOrEqual(1.5)
+// The caption under the window (round 5 of 2026-11-02, a longer line) never runs over the phone.
+for (const width of [320, 390, 820, 1440]) {
+  test(`at ${width}px the template caption stays clear of the phone`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto('/')
+    const caption = now(page).getByText("Pick a template, or we'll build one for your business.", { exact: true })
+    await caption.scrollIntoViewIfNeeded()
+    const overlaps = await caption.evaluate((cap) => {
+      const phone = cap.parentElement!.querySelector('[class*="rotate-"]')!.getBoundingClientRect()
+      const range = document.createRange()
+      range.selectNodeContents(cap)
+      return [...range.getClientRects()].some((r) => !(r.right <= phone.left || r.left >= phone.right || r.bottom <= phone.top || r.top >= phone.bottom))
     })
+    expect(overlaps).toBe(false)
   })
-
-  test.describe('with reduced motion', () => {
-    test.use({ contextOptions: { reducedMotion: 'reduce' } })
-
-    test('shows the top of the page, still', async ({ page }) => {
-      await page.goto('/')
-      await now(page).scrollIntoViewIfNeeded()
-      const img = phone(page)
-      expect(await img.evaluate((el) => getComputedStyle(el).animationName)).toBe('none')
-      expect(await img.evaluate((el) => el.getBoundingClientRect().top - el.parentElement!.getBoundingClientRect().top)).toBe(0)
-    })
-  })
-})
+}

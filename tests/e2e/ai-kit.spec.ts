@@ -50,7 +50,7 @@ test.describe('AI kit content', () => {
 
   test('the AI kit says it is the kit and stack in daily use', async ({ page }) => {
     await page.goto('/')
-    await expect(page.locator('#loadout')).toContainText('The AI kit and stack I build with, in daily use right now.')
+    await expect(page.locator('#loadout')).toContainText('The AI kit and stack I build with, and the tools I built for myself, all in daily use.')
   })
 
   test('the default stack says why each piece is in it', async ({ page }) => {

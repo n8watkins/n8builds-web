@@ -2,6 +2,21 @@
 
 /* Dark-only site: next-themes puts `.dark` on <html>. */
 @custom-variant dark (&:is(.dark *));
+/* A Lab row's three buttons (FeaturedProjects.tsx) tighten where their
+   columns are too narrow for the regular size, so the columns stay even and
+   every label stays on one line: two across (phones, tablets) under 19rem,
+   three across (from 1024px) under 30.5rem. The row's grid is the
+   `lab-actions` container. */
+@custom-variant lab-tight {
+  @container lab-actions (width < 19rem) {
+    @slot;
+  }
+  @media (width >= 64rem) {
+    @container lab-actions (width < 30.5rem) {
+      @slot;
+    }
+  }
+}
 
 @theme {
   --breakpoint-1sm: 320px;
@@ -110,6 +125,64 @@
       opacity: 1;
       transform: none;
       transition: none;
+    }
+  }
+}
+
+/* My dev setup's tiles on /loadout (components/sections/LoadoutDevTools.tsx):
+   each rises in, one after another (--d), then its chips in turn (--c), on
+   the scroll reveal's easing. CSS from the server HTML, like FadeIn, so they
+   play and end shown without JavaScript; SetupTilesMotion holds the tiles
+   still below the window (data-wait) until they scroll into view, then
+   removing the attribute replays them. Opacity and transform only (no
+   layout shift), ending on `transform: none`; the hover lift is `translate`,
+   a separate property. Reduced motion shows everything at once. */
+@keyframes setup-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes setup-chip-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@layer components {
+  .setup-tile {
+    animation: setup-rise 0.55s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+    animation-delay: calc(var(--d, 0) * 80ms + 120ms);
+  }
+
+  .setup-tile .setup-chip {
+    animation: setup-chip-in 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+    animation-delay: calc(var(--d, 0) * 80ms + 320ms + var(--c, 0) * 40ms);
+  }
+
+  .setup-tile[data-wait],
+  .setup-tile[data-wait] .setup-chip {
+    animation: none;
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .setup-tile,
+    .setup-tile .setup-chip,
+    .setup-tile[data-wait],
+    .setup-tile[data-wait] .setup-chip {
+      animation: none;
+      opacity: 1;
     }
   }
 }
@@ -558,16 +631,18 @@
   mask-composite: intersect;
 }
 
-/* The "What I'm working on" phone (components/sections/NowBuilding.tsx): a
-   full-length template page scrolls slowly inside the frame, pauses at the
-   bottom, scrolls back up and repeats, as on Appturnity's own site.
-   --travel (from the component) is how far the image moves: all of it but
-   the frame's height. Transform only, on its own layer. It holds still while
-   the card is off screen (NowCarousel sets data-offscreen) and under reduced
-   motion it is the page's top, still. */
+/* The "What I'm working on" phone (components/sections/TemplateCarousel.tsx):
+   a full-length template page scrolls slowly inside the frame, pauses at the
+   bottom, scrolls back up and repeats. --travel (from the component) is how
+   far the image moves: all of it but the frame's height. Transform only, on
+   its own layer. It holds still while the card is off screen (NowCarousel
+   sets data-offscreen) and under reduced motion it is the page's top, still. */
 @media (prefers-reduced-motion: no-preference) {
+  /* Snappier since round 5 of 2026-11-02: 20s a pass (was 30s), a gentler ease
+     at the ends (was ease-in-out, a slow start and a slow finish), and 0.6s at
+     each end (was 2.4s), so the pause between passes is about a second. */
   .now-phone-scroll {
-    animation: now-phone-scroll 30s ease-in-out infinite alternate;
+    animation: now-phone-scroll 20s cubic-bezier(0.3, 0.12, 0.7, 0.88) infinite alternate;
     will-change: transform;
   }
   [data-offscreen] .now-phone-scroll {
@@ -575,8 +650,21 @@
   }
 }
 @keyframes now-phone-scroll {
-  0%, 8%    { transform: translateY(0); }
-  92%, 100% { transform: translateY(var(--travel)); }
+  0%, 3%    { transform: translateY(0); }
+  97%, 100% { transform: translateY(var(--travel)); }
+}
+
+/* The templates' timer line (TemplateCarousel): fills left to right over the
+   slide's time (the component sets the duration and pauses it); the slide
+   moves on when it ends. Never shown under reduced motion. */
+.template-timer {
+  animation-name: template-timer;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+@keyframes template-timer {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
 }
 
 /* The Lab's colour washes (components/sections/FeaturedProjects.tsx and
@@ -609,9 +697,10 @@
     --lab-to: 251 191 36;
   }
   /* A part's colours, used by its subheader bar. */
-  .lab-accent-tools {
-    --lab-from: 56 189 248;
-    --lab-to: 52 211 153;
+  /* The build log (components/sections/BuildLogStrip.tsx), the Lab's first part: shipped green to teal. */
+  .lab-accent-buildlog {
+    --lab-from: 52 211 153;
+    --lab-to: 45 212 191;
   }
   .lab-accent-featured {
     --lab-from: 251 146 60;
@@ -706,33 +795,111 @@
       rgb(var(--lab-to, 255 255 255) / 0.5)
     );
   }
-  .lab-sub-bar:not(:where(.lab-accent-tools, .lab-accent-featured, .lab-accent-extensions, .lab-accent-template, .lab-accent-upcoming) *) {
+  .lab-sub-bar:not(:where(.lab-accent-buildlog, .lab-accent-featured, .lab-accent-extensions, .lab-accent-template, .lab-accent-upcoming) *) {
     background: rgb(255 255 255 / 0.1);
   }
 }
 
-/* The Lab's percolating flask (components/ui/BubblingFlask.tsx): each bubble
-   rises from the bowl, swelling a little, and fades before the neck. */
-@keyframes flask-bubble {
+/* The Lab's percolating flask (components/ui/BubblingFlask.tsx, round 5 of
+   2026-11-02): the liquid's surface sways, bubbles rise through it and pop at
+   the top, and now and then one escapes up the neck. SVG lengths in CSS
+   transforms are the drawing's own units (a 24-unit square). */
+.flask-liquid {
+  animation: flask-sway 2.6s linear infinite;
+}
+@keyframes flask-sway {
+  to {
+    transform: translateX(8px);
+  }
+}
+.flask-rise {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: flask-rise 2s cubic-bezier(0.45, 0, 0.75, 1) infinite;
+}
+@keyframes flask-rise {
   0% {
-    transform: translateY(0) scale(0.6);
+    transform: translateY(0) scale(0.4);
     opacity: 0;
   }
-  25% {
+  15% {
+    opacity: 0.95;
+  }
+  80% {
+    transform: translateY(-5.2px) scale(1);
+    opacity: 0.95;
+  }
+  /* The pop: a quick swell as it reaches the surface, then gone. */
+  100% {
+    transform: translateY(-5.6px) scale(1.5);
+    opacity: 0;
+  }
+}
+.flask-escape {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: flask-escape 4.8s ease-out 1s infinite;
+}
+@keyframes flask-escape {
+  0% {
+    transform: translate(0, 0) scale(0.5);
+    opacity: 0;
+  }
+  8% {
     opacity: 0.9;
   }
+  45% {
+    transform: translate(0.6px, -13px) scale(1);
+    opacity: 0;
+  }
   100% {
-    transform: translateY(-260%) scale(1);
+    transform: translate(0.6px, -13px) scale(1);
     opacity: 0;
   }
 }
-.flask-bubble {
-  opacity: 0;
-  animation: flask-bubble 2.4s ease-in infinite;
+@media (prefers-reduced-motion: reduce) {
+  .flask-liquid {
+    animation: none;
+  }
+  .flask-rise,
+  .flask-escape {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* Another month of the homepage's build log fades in (components/sections/BuildLogMonths.tsx). */
+@keyframes log-month-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .log-month-in {
+    animation: log-month-in 260ms cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+}
+
+/* The waitlist glows once when a card's Join ticks a project in it while it
+   is already in view (components/upcoming/JoinButton.tsx): a ring that fades. */
+@keyframes waitlist-flash {
+  from {
+    box-shadow: 0 0 0 2px rgb(34 211 238 / 0.75), 0 0 28px rgb(34 211 238 / 0.35);
+  }
+  to {
+    box-shadow: 0 0 0 2px rgb(34 211 238 / 0), 0 0 28px rgb(34 211 238 / 0);
+  }
+}
+.waitlist-flash[data-flash] {
+  animation: waitlist-flash 1.4s ease-out;
 }
 @media (prefers-reduced-motion: reduce) {
-  .flask-bubble {
+  .waitlist-flash[data-flash] {
     animation: none;
+    box-shadow: 0 0 0 2px rgb(34 211 238 / 0.6);
   }
 }
 
@@ -757,16 +924,22 @@
 }
 
 /* A Lab row's wash follows the scroll: faint at the edges of the screen,
-   full while the row is in the middle of it. */
+   full while the row is in the middle of it. It eases in vertically only:
+   its glow is brightest at the page edge, so shrinking it sideways left a
+   hard seam a few pixels in from the edge. */
 @keyframes lab-wash {
-  0% { opacity: 0.15; transform: scale(0.96); }
+  0% { opacity: 0.15; transform: scaleY(0.96); }
   35%, 65% { opacity: 1; transform: none; }
-  100% { opacity: 0.15; transform: scale(0.96); }
+  100% { opacity: 0.15; transform: scaleY(0.96); }
 }
 
 /* "Check out the Lab": the tagline's cyan to blue, with a light running
    through it now and then. */
 .lab-eyebrow {
+  /* Heavier than the monospace font's bold (round 3 of 2026-11-02: "bolder
+     text"): a clear stroke round each letter widens it, and the gradient,
+     clipped to the text, fills the stroke too (Chromium, WebKit, Gecko). */
+  -webkit-text-stroke: 0.045em transparent;
   background: linear-gradient(100deg, #67e8f9 0%, #60a5fa 40%, #e0f2fe 50%, #60a5fa 60%, #22d3ee 100%);
   background-size: 250% 100%;
   -webkit-background-clip: text;
@@ -781,36 +954,6 @@
 @keyframes lab-eyebrow-shimmer {
   0% { background-position: 100% 0; }
   60%, 100% { background-position: 0% 0; }
-}
-
-/* The navbar's techforpros.com swoosh (components/layout/Navbar.tsx): the
-   curve draws itself in, left to right, once the page loads (the path's
-   dash), and again on hover or keyboard focus (a wipe on the svg, so leaving
-   doesn't restart the load animation and blink the curve out). Reduced
-   motion shows it drawn, with no animation. */
-.tfp-swoosh path {
-  stroke-dasharray: 100;
-  stroke-dashoffset: 0;
-  animation: tfp-swoosh-draw 0.9s cubic-bezier(0.65, 0, 0.35, 1) 0.5s both;
-}
-.group\/tfp:hover .tfp-swoosh,
-.group\/tfp:focus-visible .tfp-swoosh {
-  animation: tfp-swoosh-wipe 0.55s cubic-bezier(0.65, 0, 0.35, 1) both;
-}
-@keyframes tfp-swoosh-draw {
-  from { stroke-dashoffset: 100; }
-  to { stroke-dashoffset: 0; }
-}
-@keyframes tfp-swoosh-wipe {
-  from { clip-path: inset(-4px 100% -4px 0); }
-  to { clip-path: inset(-4px 0 -4px 0); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .tfp-swoosh path,
-  .group\/tfp:hover .tfp-swoosh,
-  .group\/tfp:focus-visible .tfp-swoosh {
-    animation: none;
-  }
 }
 
 /* The Lab's main buttons: a soft light sweeps across every few seconds. */
@@ -846,5 +989,53 @@
   }
   .lab-eyebrow {
     background-position: 50% 0;
+  }
+}
+
+/* The Loadout's parts (components/sections/Loadout.tsx; the owner's asks,
+   2026-11-02: each part should feel distinct as you scroll, and in round 3 the
+   change from one to the next more polished than a hairline). Each part is a
+   full-width band that opens on a rule in its own colour (--lo, an RGB triplet
+   from loadoutParts in data/loadout.tsx), fading out at both ends, with a soft
+   glow under it; the part's wash glows behind its chapter heading and eases in
+   and out at the band's ends, as the Lab's part washes do, so one part shades
+   into the next instead of meeting it at an edge. Every other part sits on a
+   raised tone that eases in and out the same way. Peak tint stays at 10%, so
+   all text keeps WCAG AA contrast. */
+@layer components {
+  .loadout-part {
+    position: relative;
+    isolation: isolate;
+    background-image:
+      /* Centred on the heading, its height inside the band's top, so it never meets the edge. */
+      radial-gradient(36rem 190px at max(14%, calc(50% - 30rem)) 200px, rgb(var(--lo) / 0.1), transparent 100%),
+      linear-gradient(to bottom, transparent, rgb(var(--lo) / 0.045) 180px, rgb(var(--lo) / 0.02) 55%, transparent);
+  }
+  .loadout-part-raised::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(to bottom, transparent, rgb(255 255 255 / 0.022) 12%, rgb(255 255 255 / 0.022) 88%, transparent);
+  }
+  /* The rule that opens a part: its colour at the middle, fading out at both
+     ends, over a soft glow. As wide as the content column, centred. */
+  .loadout-part-rule {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: min(72rem, calc(100% - 2.5rem));
+    height: 1px;
+    transform: translateX(-50%);
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent, rgb(var(--lo) / 0.55) 50%, transparent);
+  }
+  .loadout-part-rule::after {
+    content: '';
+    position: absolute;
+    inset: 0 15% auto;
+    height: 48px;
+    background: radial-gradient(50% 100% at 50% 0, rgb(var(--lo) / 0.16), transparent);
   }
 }

@@ -1,21 +1,21 @@
 import type { CSSProperties } from 'react'
 import Image from 'next/image'
-import { FiArrowUpRight, FiCheck } from 'react-icons/fi'
+import { FiCheck } from 'react-icons/fi'
 import Navbar from '@/components/layout/Navbar'
 import FadeIn from '@/components/ui/FadeIn'
 import Reveal from '@/components/ui/Reveal'
 import JoinButton from '@/components/upcoming/JoinButton'
-import WaitlistForm from '@/components/upcoming/WaitlistForm'
+import { CodeLink, LandingButton } from '@/components/upcoming/ProjectLinks'
+import WaitlistPanel from '@/components/upcoming/WaitlistPanel'
 import { UPCOMING, type UpcomingProject } from '@/data/upcoming'
 import { pageMetadata } from '@/lib/seo'
-import { isWaitlistOpen } from '@/lib/waitlist/store'
 
 export const metadata = pageMetadata({
   title: 'Upcoming | n8builds',
   description:
-    "Projects I'm outlining in public: Relink, an open-source 404 safety net; Strollz, walking loops through streets you've never walked; VibeLog, live telemetry for coding streams; and Asset Arsenal, skins for your web pages. Join a waitlist to hear when there is something to try.",
+    "Projects I'm outlining in public: Relink, which turns broken links into the right page; Strollz, walking loops through streets you've never walked; VibeLog, live telemetry for coding streams; KeysReady, booking, live repair status and pay-by-phone for small auto shops; and Asset Arsenal, skins for your web pages. Join a waitlist to hear when there is something to try.",
   shareDescription:
-    "What I'm outlining next: Relink, Strollz, VibeLog and Asset Arsenal. Join a waitlist to hear when there is something to try.",
+    "What I'm outlining next: Relink, Strollz, VibeLog, KeysReady and Asset Arsenal. Join a waitlist to hear when there is something to try.",
   path: '/upcoming',
 })
 
@@ -30,7 +30,7 @@ function ProjectCard({ project, index }: { project: UpcomingProject; index: numb
     >
       <div
         style={{ '--accent': project.accent } as CSSProperties}
-        className="relative flex w-full flex-col overflow-hidden rounded-2xl border border-white/8 bg-[#0a1222]/80 p-6 sm:p-7"
+        className="@container relative flex w-full flex-col overflow-hidden rounded-2xl border border-white/8 bg-[#0a1222]/80 p-6 sm:p-7"
       >
         {/* The project's colour: a bar along the top and a faint glow behind the header. */}
         {/* A renamed project's old anchor (#rewire) still lands here. */}
@@ -64,35 +64,36 @@ function ProjectCard({ project, index }: { project: UpcomingProject; index: numb
           <span className="text-slate-400">{project.stage}</span>
         </p>
 
-        <p className="relative mt-4 leading-relaxed text-slate-200">{project.what}</p>
+        <p className="relative mt-4 leading-relaxed text-pretty text-slate-200">{project.what}</p>
 
-        <p className="relative mt-4 text-sm leading-relaxed text-slate-300">
+        <p className="relative mt-4 text-sm leading-relaxed text-pretty text-slate-300">
           <span className="font-semibold text-slate-100">Who it&rsquo;s for: </span>
           {project.forWho}
         </p>
 
         <ul className="relative mt-5 space-y-2.5" aria-label={`${project.name}: key points`}>
           {project.points.map((point) => (
-            <li key={point} className="flex items-start gap-2.5 text-sm font-medium text-slate-200">
+            <li key={point} className="flex items-start gap-2.5 text-sm font-medium text-pretty text-slate-200">
               <FiCheck className="mt-[3px] h-4 w-4 shrink-0 text-(--accent)" aria-hidden="true" />
               {point}
             </li>
           ))}
         </ul>
 
-        {/* mt-auto keeps the two cards' buttons level when one card's text runs longer. */}
-        <div className="relative mt-auto flex flex-wrap items-center gap-x-5 gap-y-3 pt-6">
-          <JoinButton slug={project.slug} name={project.name} accent={project.accent} />
-          <a
-            href={project.landing}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-sm font-medium text-slate-300 transition-colors hover:text-cyan-200"
-          >
-            Visit the landing page
-            <span className="sr-only"> for {project.name} (opens in a new tab)</span>
-            <FiArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
-          </a>
+        {/* The landing page first, then Join, then the code where the repository is public
+             (owner, 2026-11-02): the two buttons side by side, equal widths, where the card
+             has room (a container query, as the card's width doesn't follow the window's),
+             stacked otherwise. mt-auto keeps side-by-side cards' buttons level. */}
+        <div className="relative mt-auto pt-6">
+          <div className="flex flex-col gap-3 @md:flex-row">
+            <LandingButton project={project} />
+            <JoinButton slug={project.slug} name={project.name} accent={project.accent} compact />
+          </div>
+          {project.repo && (
+            <p className="mt-4">
+              <CodeLink project={project} />
+            </p>
+          )}
         </div>
       </div>
     </FadeIn>
@@ -100,10 +101,6 @@ function ProjectCard({ project, index }: { project: UpcomingProject; index: numb
 }
 
 export default function UpcomingPage() {
-  const open = isWaitlistOpen()
-  // As the contact form: under `next dev` the server skips Turnstile.
-  const turnstileSiteKey = process.env.NODE_ENV === 'development' ? '' : process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''
-
   return (
     <>
       <Navbar />
@@ -126,44 +123,26 @@ export default function UpcomingPage() {
             </p>
           </FadeIn>
 
-          <div className="mt-10 grid gap-6 md:mt-12 md:grid-cols-2">
-            {UPCOMING.map((project, index) => (
-              <ProjectCard key={project.slug} project={project} index={index} />
-            ))}
-          </div>
-
-          <Reveal as="section" id="waitlist" className="mx-auto mt-16 max-w-2xl scroll-mt-24 md:mt-20">
-            <div className="rounded-2xl border border-white/8 bg-linear-to-br from-cyan-500/[0.06] to-blue-600/[0.03] p-6 sm:p-8">
-              <h2 className="text-2xl font-bold tracking-tight text-slate-50 sm:text-3xl">
-                Join the <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">waitlist</span>
-              </h2>
-              {open ? (
-                <>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-300 sm:text-base">
-                    Pick the projects you want to hear about. I&rsquo;ll email a link to confirm, so nobody can sign you up but
-                    you.
-                  </p>
-                  <div className="mt-6">
-                    <WaitlistForm turnstileSiteKey={turnstileSiteKey} />
-                  </div>
-                </>
-              ) : (
-                <div data-waitlist-closed className="mt-3 space-y-2 text-sm leading-relaxed text-slate-300 sm:text-base">
-                  <p className="font-semibold text-slate-100">The waitlist opens soon.</p>
-                  <p>
-                    Until it does, email me at{' '}
-                    <a
-                      href="mailto:contact@n8builds.dev"
-                      className="text-cyan-400 underline underline-offset-2 hover:text-cyan-300"
-                    >
-                      contact@n8builds.dev
-                    </a>{' '}
-                    with the project you&rsquo;re interested in, and I&rsquo;ll let you know when there is something to try.
-                  </p>
-                </div>
-              )}
+          {/* From 1024px the waitlist is a sticky column beside the cards (round 5 of
+               2026-11-02: sign up while reading), the cards one to a row beside it;
+               below that the cards come first (two by two from 960px, an odd last
+               card spanning the row) and the waitlist after them. One form either
+               way, so ?interest= and the cards' Join buttons tick the same one. */}
+          <div className="mt-10 grid gap-6 md:mt-12 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-8 xl:grid-cols-[minmax(0,1fr)_24rem]">
+            <div className="grid gap-6 min-[960px]:max-lg:grid-cols-2 min-[960px]:max-lg:[&>*:nth-child(odd):last-child]:col-span-2">
+              {UPCOMING.map((project, index) => (
+                <ProjectCard key={project.slug} project={project} index={index} />
+              ))}
             </div>
-          </Reveal>
+
+            <Reveal
+              as="section"
+              id="waitlist"
+              className="waitlist-flash mx-auto mt-10 w-full max-w-2xl scroll-mt-24 rounded-2xl md:mt-14 lg:sticky lg:top-24 lg:mt-0 lg:max-h-[calc(100dvh-7rem)] lg:max-w-none lg:overflow-y-auto"
+            >
+              <WaitlistPanel layout="side" />
+            </Reveal>
+          </div>
         </div>
       </main>
     </>

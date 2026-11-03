@@ -16,10 +16,18 @@ import { readFileSync, writeFileSync } from 'node:fs'
 const OUT = 'tests/fixtures/build-log-github.json'
 const BOT_COMMITS = 15
 
-/** `repo: 'owner/name'` of every visible build (hiddenBuilds stay out). */
-export function trackedRepos(source = readFileSync('data/builds.tsx', 'utf8')) {
+/**
+ * `repo: 'owner/name'` of every project the log follows, in the site's order:
+ * the visible builds (hiddenBuilds stay out), then the projects without a
+ * build page (data/logBuilds.ts).
+ */
+export function trackedRepos(
+  source = readFileSync('data/builds.tsx', 'utf8'),
+  extra = readFileSync('data/logBuilds.ts', 'utf8'),
+) {
   const visible = source.split('export const hiddenBuilds')[0]
-  return [...visible.matchAll(/^\s*repo: '([\w.-]+\/[\w.-]+)',?$/gm)].map((m) => m[1])
+  const repos = (text) => [...text.matchAll(/^\s*repo: '([\w.-]+\/[\w.-]+)',?$/gm)].map((m) => m[1])
+  return [...repos(visible), ...repos(extra)]
 }
 
 async function gh(path) {

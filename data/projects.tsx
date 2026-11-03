@@ -272,7 +272,7 @@ export const projects = [
     title: 'Scribe',
     subTitle: 'Private Local Dictation for Windows',
     des: 'Hold a hotkey, talk, release: transcribed on your own PC and typed at your cursor.',
-    images: ['/builds/scribe/landing.webp'],
+    images: ['/builds/scribe/app-home.webp'],
     technologies: {
       Frontend: {
         descriptionParts: [

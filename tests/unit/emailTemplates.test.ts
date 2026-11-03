@@ -171,3 +171,18 @@ describe("the auto-reply's cards", () => {
     expect(createContactEmailHtml({ ...hostile, name: 'www.evil.com Offer' })).toContain('body=Hi%20there%2C%0A%0A')
   })
 })
+
+describe('the Tech for Pros quote email (round 5 of 2026-11-02)', async () => {
+  const { createQuoteEmailHtml, createQuoteEmailText, quoteSubject } = await import('@/lib/email/quote')
+  it('is tagged as a quote and carries the visitor email, escaped, as the way to reply', () => {
+    expect(quoteSubject('a@b.co')).toBe('🔧 Tech for Pros quote: a@b.co')
+    const html = createQuoteEmailHtml('a<script>@b.co', { country: 'US' })
+    expect(html).toContain('Tech for Pros quote')
+    expect(html).not.toContain('<script>')
+    expect(html).toContain('a&lt;script&gt;@b.co')
+    expect(html).toContain('No auto-reply was sent.')
+    const text = createQuoteEmailText('a@b.co')
+    expect(text).toContain('Email:     a@b.co')
+    expect(text).not.toContain('—')
+  })
+})

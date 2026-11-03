@@ -3,8 +3,8 @@ import AxeBuilder from '@axe-core/playwright'
 
 /**
  * The Lab's template part (components/sections/UseAsTemplate.tsx): right after
- * the featured builds, a prompt ("Don't have a site? Need help building your
- * own? Use mine as a template.") over two template cards, n8builds.dev and the
+ * the featured builds, a prompt ("Don't have a site? Use mine as a template!",
+ * on one line) over two template cards, n8builds.dev and the
  * developer portfolio.
  */
 
@@ -28,13 +28,19 @@ test('sits in the Lab right after the featured builds, before the Chrome extensi
   expect(order).toEqual(['featured', 'template', 'extensions'])
 })
 
-test('asks two questions, answers "Use mine as a template.", and checks off what you get', async ({ page }) => {
+test('asks "Don\'t have a site?", answers "Use mine as a template!" on the same line, and checks off what you get', async ({ page }) => {
   const template = await open(page)
-  // One heading at the Lab's part level, its two lines read as one.
+  // One heading at the Lab's part level.
   const heading = template.getByRole('heading', { level: 3 })
-  await expect(heading).toHaveText("Don't have a site? Need help building your own?Use mine as a template.")
-  const answer = heading.getByText('Use mine as a template.')
+  await expect(heading).toHaveText("Don't have a site? Use mine as a template!")
+  await expect(template).not.toContainText('Need help building your own')
+  const answer = heading.getByText('Use mine as a template!')
   await expect(answer).toHaveCSS('text-decoration-line', 'underline')
+  // Both sentences share one line wherever the heading is wide enough (not on phones).
+  if ((page.viewportSize()?.width ?? 0) >= 768) {
+    const lineHeight = parseFloat(await heading.evaluate((h) => getComputedStyle(h).lineHeight))
+    expect((await heading.boundingBox())!.height).toBeLessThan(lineHeight * 1.6)
+  }
   for (const point of ['Open source', 'MIT-licensed', 'Tested on every pull request']) {
     await expect(template.getByText(point, { exact: true })).toBeVisible()
   }

@@ -5,20 +5,23 @@ import { LuBackpack } from 'react-icons/lu'
 import SectionMark from '@/components/ui/SectionMark'
 import AITechStack from '@/components/features/AITechStack'
 import { buildStacks } from '@/data/buildStacks'
+import HomeToolsIBuilt from '@/components/sections/HomeToolsIBuilt'
 
-// Homepage "stack" section: lead with the AI kit (the differentiator), then the
-// default build stack with one line on why each piece is in it. The full
-// generic tech marquee lives on /loadout.
+// Homepage "stack" section, the homepage's Loadout: first the one-line teaser
+// for my dev setup on /loadout (at the top since round 3 of 2026-11-02), then
+// the AI kit, the default build stack with one line on why each piece is in
+// it, then the tools I built and use (2026-11-01). The full generic
+// tech marquee lives on /loadout.
 
 // Why each tool is in the default stack. Keep these true to the loadout
 // (data/loadout.tsx) and the builds that use them (data/builds.tsx).
 const WHY: Record<string, { icon: string; reason: string }> = {
   'Next.js': { icon: 'next.svg', reason: 'Every web app I make starts here: server components, and Vercel ships it.' },
   TypeScript: { icon: 'ts.svg', reason: 'Strict mode everywhere. If it compiles, half my bugs never happened.' },
-  Turso: { icon: 'turso.svg', reason: 'SQLite at the edge: one small database that scales globally and is cheap to run.' },
+  Turso: { icon: 'turso.svg', reason: 'SQLite at the edge, with a generous free tier: one small database that scales globally.' },
   Drizzle: { icon: 'drizzle.png', reason: 'A type-safe ORM, so queries are checked against the schema.' },
   'Cloudflare R2': { icon: 'cloudflare.svg', reason: 'File storage with no egress fees (where Portfolio Rank keeps its screenshots).' },
-  Vercel: { icon: 'vercel.png', reason: 'Push to main and it ships, so I build instead of babysitting infra.' },
+  Vercel: { icon: 'vercel.png', reason: 'It gets new Next.js releases first, and a push to main ships itself.' },
 }
 export default function HomeStack() {
   const turso = buildStacks.find((s) => s.name === 'The Turso Stack') ?? buildStacks[0]
@@ -38,13 +41,42 @@ export default function HomeStack() {
           </Link>
         }
       >
-        The AI kit and stack I build with, in daily use right now.
+        The AI kit and stack I build with, and the tools I built for myself, all in daily use.
       </SectionMark>
 
-      <AITechStack dino />
+      {/* Each part's id is a rail stop (components/sections/HomeLoadoutNav.tsx). */}
+      {/* My dev setup first (round 3 of 2026-11-02): a one-line teaser for it on /loadout, in a quiet bar. */}
+      <p
+        id="my-setup"
+        className="mb-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 rounded-2xl border border-white/8 bg-white/[0.02] px-4 py-3.5 text-center text-sm text-[#9cadc5]"
+        data-setup-teaser
+      >
+        <span className="font-mono text-[0.68rem] font-bold tracking-[0.16em] text-cyan-400 uppercase">My dev setup</span>
+        {/* Each pair stays on one line; the dots between them are where it wraps. */}
+        <span>
+          {['Windows 11 + WSL2', 'Claude Code + Codex', 'herdr + T-Hub'].map((pair, i) => (
+            <span key={pair}>
+              {i > 0 && ' · '}
+              <span className="whitespace-nowrap">{pair}</span>
+            </span>
+          ))}
+        </span>
+        <Link
+          href="/loadout#dev-setup"
+          className="group inline-flex items-center gap-1 font-semibold text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 transition-colors hover:text-cyan-200"
+        >
+          See my dev setup
+          <FiArrowUpRight aria-hidden="true" className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+        </Link>
+      </p>
+
+      <div id="ai-kit">
+        <AITechStack dino />
+      </div>
 
       {/* My default stack, and why each piece is in it. */}
       <div
+        id="default-stack"
         role="group"
         aria-labelledby="default-stack-title"
         className="mt-6 rounded-2xl border border-white/8 bg-linear-to-br from-cyan-500/6 via-white/2 to-transparent p-4 sm:p-6"
@@ -57,7 +89,8 @@ export default function HomeStack() {
           <p className="mt-0.5 text-sm font-semibold text-blue-300">My first pick for new web apps</p>
         </div>
         <ul className="mt-5 grid gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
-          {turso.tools.map((tool) => {
+          {/* The code and where it runs: hosting is part of the stack (round 5 of 2026-11-02). */}
+          {[...turso.tools, ...turso.hosting].map((tool) => {
             const why = WHY[tool]
             return (
               // A light hover on each piece: its icon grows a touch and lights up, its name turns cyan.
@@ -86,26 +119,8 @@ export default function HomeStack() {
           })}
         </ul>
       </div>
-      {/* A one-line teaser for My dev setup on /loadout. */}
-      <p className="mt-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-center text-sm text-[#9cadc5]" data-setup-teaser>
-        <span className="font-mono text-[0.68rem] font-bold tracking-[0.16em] text-cyan-400 uppercase">My setup</span>
-        {/* Each pair stays on one line; the dots between them are where it wraps. */}
-        <span>
-          {['Windows 11 + WSL2', 'Claude Code + Codex', 'herdr + T-Hub'].map((pair, i) => (
-            <span key={pair}>
-              {i > 0 && ' · '}
-              <span className="whitespace-nowrap">{pair}</span>
-            </span>
-          ))}
-        </span>
-        <Link
-          href="/loadout#dev-setup"
-          className="group inline-flex items-center gap-1 font-semibold text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 transition-colors hover:text-cyan-200"
-        >
-          See my dev setup
-          <FiArrowUpRight aria-hidden="true" className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-        </Link>
-      </p>
+      <HomeToolsIBuilt />
+
     </section>
   )
 }

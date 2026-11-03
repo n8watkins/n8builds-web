@@ -1,16 +1,26 @@
 'use client'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { MY_TOOLS_HASH, MY_TOOLS_TARGET } from '@/lib/movedAnchors'
 import { useSectionTracking } from '@/hooks/useSectionTracking'
 import { useScrollTracking } from '@/hooks/useScrollTracking'
 import { useHydrated } from '@/hooks/useHydrated'
 
 /**
  * The homepage's script that belongs to no one section: section and scroll
- * analytics, and the ambient color glows behind the page.
+ * analytics, the ambient color glows behind the page, and sending an old
+ * /#my-tools link on to /loadout.
  */
 export default function HomeEffects() {
   useSectionTracking()
   useScrollTracking()
   const hydrated = useHydrated()
+  const router = useRouter()
+
+  // A client-side arrival at /#my-tools (the root layout's script handles a full load).
+  useEffect(() => {
+    if (window.location.hash === MY_TOOLS_HASH) router.replace(MY_TOOLS_TARGET)
+  }, [router])
 
   // Ambient color shift - soft glows so the page isn't one flat color. They
   // sit at percentages of the page height, so they mount only after

@@ -302,9 +302,10 @@ test.describe('the hero grid', () => {
 
     test('shows a still pattern of separate cells', async ({ page }) => {
       await page.goto('/')
-      await page.waitForTimeout(500)
+      // The pattern is drawn once the page hydrates, which a loaded runner can take
+      // well over half a second to do (mobile Safari on #136 had none lit at 500ms).
+      await expect.poll(async () => (await litCells(page)).length, { timeout: 15_000 }).toBeGreaterThanOrEqual(7)
       const first = await litCells(page)
-      expect(first.length).toBeGreaterThanOrEqual(7)
       expect(touching(first)).toEqual([])
       await page.waitForTimeout(3000)
       expect(await litCells(page)).toEqual(first)

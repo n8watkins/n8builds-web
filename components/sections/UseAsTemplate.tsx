@@ -143,10 +143,11 @@ const UseAsTemplate = () => (
       <LabSubheader
         title={
           <>
-            Don&apos;t have a site? Need help building your own?
+            {/* One line (owner, 2026-11-02); on a phone the answer wraps whole, under the question. */}
+            Don&apos;t have a site?{' '}
             {/* Same size, the tagline's gradient. Underlined in cyan: the gradient clips the text, so the line needs its own colour. */}
-            <span className="block w-fit bg-linear-to-r from-cyan-400 via-blue-400 to-blue-600 bg-clip-text pb-1 text-transparent underline decoration-cyan-400/70 decoration-2 underline-offset-[6px]">
-              Use mine as a template.
+            <span className="inline-block bg-linear-to-r from-cyan-400 via-blue-400 to-blue-600 bg-clip-text pb-1 whitespace-nowrap text-transparent underline decoration-cyan-400/70 decoration-2 underline-offset-[6px]">
+              Use mine as a template!
             </span>
           </>
         }

@@ -11,6 +11,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/next"
 import { DEFAULT_PREVIEW, SITE_NAME, SITE_URL } from '@/lib/seo'
 import { consentBootstrapScript } from '@/lib/consent'
+import { MY_TOOLS_MOVED } from '@/lib/movedAnchors'
 import ConsentLoader from '@/components/consent/ConsentLoader'
 
 // Inter, bundled (variable weight, Latin subset, from @fontsource-variable/inter
@@ -75,6 +76,14 @@ export default function RootLayout({
         {/* Project external links */}
         <link rel="dns-prefetch" href="//github.com" />
         <link rel="dns-prefetch" href="//vercel.app" />
+
+        {/* The Lab's "My tools" part (/#my-tools) moved to /loadout's "Tools I built
+            and use" (2026-11-01). A hash never reaches the server, so this sends
+            such links on as the page starts to parse, before anything paints.
+            In the root layout's head, not the homepage (round 5 of 2026-11-02):
+            React warns about a script it renders on a client navigation, and a
+            layout never re-renders then (HomeEffects covers those arrivals). */}
+        <script id="my-tools-moved" dangerouslySetInnerHTML={{ __html: MY_TOOLS_MOVED }} />
 
         {/* Google Analytics with Consent Mode v2 (lib/consent.ts): the
             defaults are set before gtag.js can load, European visitors are

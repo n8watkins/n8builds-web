@@ -1,5 +1,7 @@
 import React from 'react'
 import { FiCheck } from 'react-icons/fi'
+import { LuCookingPot, LuScrollText, LuStar } from 'react-icons/lu'
+import { SiGooglechrome } from 'react-icons/si'
 import BubblingFlask from '@/components/ui/BubblingFlask'
 import Hero from '@/components/sections/Hero'
 import Navbar from '@/components/layout/Navbar'
@@ -10,7 +12,6 @@ import HomeEffects from '@/components/HomeEffects'
 import NowBuilding from '@/components/sections/NowBuilding'
 import BuildLogStrip from '@/components/sections/BuildLogStrip'
 import FeaturedProjects from '@/components/sections/FeaturedProjects'
-import ShelfSection from '@/components/sections/ShelfSection'
 import UseAsTemplate from '@/components/sections/UseAsTemplate'
 import PortfolioAd from '@/components/sections/PortfolioAd'
 import UpcomingStrip from '@/components/sections/UpcomingStrip'
@@ -19,11 +20,12 @@ import ExtensionsShowcase from '@/components/sections/ExtensionsShowcase'
 import LabSectionNav from '@/components/sections/LabSectionNav'
 import ShimmerWhenSeen from '@/components/ShimmerWhenSeen'
 import HomeStack from '@/components/sections/HomeStack'
+import HomeLoadoutNav from '@/components/sections/HomeLoadoutNav'
 import HomePeople from '@/components/sections/HomePeople'
-import HomeToolsIBuilt from '@/components/sections/HomeToolsIBuilt'
 import WorkWithMe from '@/components/sections/WorkWithMe'
 import Footer from '@/components/layout/Footer'
 import type { Post } from '@/lib/sanity'
+import { hasBuildLog } from '@/lib/build-log'
 
 /**
  * A full-width homepage band. Alternating tones and a hairline between bands
@@ -39,6 +41,7 @@ function Band({
   fadeIn = false,
   reveal = true,
   as: Tag = 'div',
+  rail,
   children,
 }: {
   id?: string
@@ -46,6 +49,8 @@ function Band({
   fadeIn?: boolean
   reveal?: boolean
   as?: 'div' | 'section'
+  /** A side rail for the band's parts (components/ui/SectionRail.tsx): it sits in the band, beside its content column. */
+  rail?: React.ReactNode
   children: React.ReactNode
 }) {
   const background = fadeIn
@@ -54,7 +59,10 @@ function Band({
       ? 'border-t border-white/[0.06] bg-white/[0.022]'
       : 'border-t border-white/[0.06]'
   return (
-    <Tag id={id} className={`relative z-10 ${background}`}>
+    // A band with a side rail is where its rail's first row lands: its top
+    // edge right under the 69px navbar (as #lab), with no strip of the band above.
+    <Tag id={id} className={`relative z-10 ${rail ? 'scroll-mt-[-11px]' : ''} ${background}`}>
+      {rail}
       <div className="mx-auto max-w-6xl px-5 py-6 sm:px-8">{reveal ? <Reveal>{children}</Reveal> : children}</div>
     </Tag>
   )
@@ -67,7 +75,9 @@ function Band({
  * contact form, and HomeEffects (analytics and the ambient glows). A phone
  * downloads and hydrates those, not every section's code.
  */
-export default function HomePage({ posts }: { posts: Post[] }) {
+export default async function HomePage({ posts }: { posts: Post[] }) {
+  // The build log part hides when the log can't load; its pill goes with it.
+  const buildLog = await hasBuildLog()
   return (
     <>
       <Navbar />
@@ -89,13 +99,12 @@ export default function HomePage({ posts }: { posts: Post[] }) {
           </SectionErrorBoundary>
         </Band>
 
-        {/* The build log, compact: recent shipping across every build (its own band; hidden if the log can't load). */}
-        <BuildLogStrip />
-
         {/* ===== THE LAB: one section in parts, each in its own colour wash
-             (app/globals.css, "The Lab's colour washes"): My tools and Featured
-             (FeaturedProjects), the Chrome extensions, then a Tools grid (only
-             if a build ever lands there). The parts are full-bleed, so the
+             (app/globals.css, "The Lab's colour washes"): the build log
+             (BuildLogStrip, hidden if the log can't load), Featured
+             (FeaturedProjects), the template offer, the Chrome extensions,
+             then What's cookin'. No tools part: the owner's daily drivers
+             (Scribe) are on /loadout (2026-11-01). The parts are full-bleed, so the
              Lab sets its own content width instead of using a Band. The navbar
              "Lab" menu and the side nav scroll to #lab and the part ids. ===== */}
         {/* Jumping to #lab (the navbar's Lab menu) lands its top edge right under the
@@ -112,17 +121,25 @@ export default function HomePage({ posts }: { posts: Post[] }) {
             <Reveal className="mx-auto flex max-w-6xl flex-col items-center px-5 pt-16 pb-6 text-center sm:px-8 sm:pt-20">
               {/* "Check out" spans exactly the flask and title below it: its
                    letters spread across that width (the owner's ask, 2026-10-27;
-                   "Check out the Lab" until 2026-11-01, now just "Check out",
-                   a size larger). */}
+                   "Check out the Lab" until 2026-11-01, now just "Check out").
+                   Since 2026-11-02 the letters are larger and closer together
+                   (owner: "larger letters, less space between them, but still
+                   spaced out"). */}
               <div className="inline-flex flex-col items-stretch">
-                {/* One line of text (no per-letter spans). Justifying can't spread
-                     two words letter by letter, so the letter spacing is worked out
-                     instead: the paragraph is a size container as wide as the title
-                     row (it adds no width of its own), and in a monospace font the
-                     9 characters are 9ch, so 8 gaps of (100cqw - 9ch) / 8 fill it.
-                     The last letter's trailing spacing is taken back with a margin. */}
-                <p className="lab-eyebrow mb-3 font-mono text-lg font-bold uppercase [container-type:inline-size] sm:text-2xl">
-                  <span className="block w-max tracking-[calc((100cqw-9ch)/8)] [margin-right:calc((9ch-100cqw)/8)]">Check out</span>
+                {/* One line of text (no per-letter spans). The paragraph is a size
+                     container as wide as the title row (it adds no width of its own).
+                     The text is sized from that width (13cqw since round 5 of
+                     2026-11-02, was 11.5cqw: "a bit closer together, slightly larger";
+                     in a monospace font 9 characters are about 70% of it), and the letter spacing fills
+                     the rest: 8 gaps of (100cqw - 9ch) / 8, about 0.3em, so it
+                     still spans the row exactly. The word space is pulled in by
+                     0.4ch (so the two words don't drift apart), and that 0.4ch goes
+                     back to the gaps. The last letter's trailing spacing is taken
+                     back with a margin. */}
+                <p className="lab-eyebrow mb-2 font-mono font-bold uppercase leading-none [container-type:inline-size] sm:mb-3">
+                  <span className="block w-max text-[13cqw] leading-none tracking-[calc((100cqw-8.6ch)/8)] [word-spacing:-0.4ch] [margin-right:calc((8.6ch-100cqw)/8)]">
+                    Check out
+                  </span>
                 </p>
                 {/* The Lab's mark (the owner's pick, 2026-10-26): a flask in a chip like the rows' app icons. */}
                 <div className="flex items-center gap-4 sm:gap-5">
@@ -134,7 +151,7 @@ export default function HomePage({ posts }: { posts: Post[] }) {
               </div>
               {/* One line from laptop width up; wraps naturally on phones. */}
               <p className="mt-5 text-balance text-lg text-[#9cadc5] sm:text-xl">
-                Everything I&apos;ve built and still use: daily tools, favourite builds, Chrome extensions.
+                What I&apos;ve built and still use: my favourite builds and Chrome extensions.
               </p>
               {/* Checked points, in the style of the Lab rows' ads. */}
               <ul className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5">
@@ -146,23 +163,31 @@ export default function HomePage({ posts }: { posts: Post[] }) {
                 ))}
               </ul>
               <nav aria-label="Lab sections" className="mt-7 flex flex-wrap justify-center gap-2">
+                {/* Each pill leads with its part's icon, the same as the rail's
+                     (components/sections/LabSectionNav.tsx; round 5 of 2026-11-02). */}
                 {[
-                  { label: 'My tools', href: '#my-tools' },
-                  { label: 'Featured', href: '#featured' },
-                  { label: 'Chrome Extensions', href: '#extensions' },
-                  { label: "What's cookin'", href: '#upcoming' },
-                ].map((c) => (
+                  ...(buildLog ? [{ label: 'Build log', href: '#build-log', Icon: LuScrollText, size: 'size-3.5' }] : []),
+                  { label: 'Featured', href: '#featured', Icon: LuStar, size: 'size-3.5' },
+                  { label: 'Chrome Extensions', href: '#extensions', Icon: SiGooglechrome, size: 'size-3' },
+                  { label: "What's cookin'", href: '#upcoming', Icon: LuCookingPot, size: 'size-3.5' },
+                ].map(({ label, href, Icon, size }) => (
                   <a
-                    key={c.href}
-                    href={c.href}
-                    className="rounded-full border border-white/12 bg-white/4 px-3.5 py-1.5 text-sm font-medium text-slate-300 transition-all duration-150 hover:border-cyan-400/40 hover:bg-white/[0.07] hover:text-cyan-200"
+                    key={href}
+                    href={href}
+                    className="group flex items-center gap-2 rounded-full border border-white/12 bg-white/4 py-1.5 pr-3.5 pl-3 text-sm font-medium text-slate-300 transition-all duration-150 hover:border-cyan-400/40 hover:bg-white/[0.07] hover:text-cyan-200"
                   >
-                    {c.label}
+                    <Icon className={`${size} shrink-0 text-cyan-300/80 transition-colors group-hover:text-cyan-200`} aria-hidden="true" />
+                    {label}
                   </a>
                 ))}
               </nav>
             </Reveal>
           </div>
+
+          {/* The Lab's first part: what shipped lately (the owner's ask, 2026-11-02). */}
+          <SectionErrorBoundary sectionName="Build Log">
+            <BuildLogStrip />
+          </SectionErrorBoundary>
 
           <SectionErrorBoundary sectionName="Featured Projects">
             <FeaturedProjects />
@@ -176,12 +201,6 @@ export default function HomePage({ posts }: { posts: Post[] }) {
           <SectionErrorBoundary sectionName="Extensions">
             <Reveal>
               <ExtensionsShowcase />
-            </Reveal>
-          </SectionErrorBoundary>
-
-          <SectionErrorBoundary sectionName="Tools">
-            <Reveal className="mx-auto max-w-6xl px-5 sm:px-8">
-              <ShelfSection shelf="tool" />
             </Reveal>
           </SectionErrorBoundary>
 
@@ -215,22 +234,17 @@ export default function HomePage({ posts }: { posts: Post[] }) {
           </SectionErrorBoundary>
         </Band>
 
-        {/* The small open-source tools I built (also on /loadout) */}
-        <Band tone="raised">
-          <SectionErrorBoundary sectionName="Tools I Built">
-            <HomeToolsIBuilt />
-          </SectionErrorBoundary>
-        </Band>
-
-        {/* Homepage stack: AI marquee + Turso TL;DR -> /loadout */}
-        <Band>
+        {/* Homepage stack, the homepage's Loadout: AI marquee + Turso TL;DR, the
+             tools I built and use, and the dev setup teaser -> /loadout. Desktop
+             only: a sticky rail in the left gutter marks its part on screen. */}
+        <Band id="loadout-band" tone="raised" rail={<HomeLoadoutNav />}>
           <SectionErrorBoundary sectionName="My Stack">
             <HomeStack />
           </SectionErrorBoundary>
         </Band>
 
         {/* Bridge: the portfolio (hire me) + Tech for Pros (my company) */}
-        <Band tone="raised">
+        <Band>
           <SectionErrorBoundary sectionName="Work With Me">
             <WorkWithMe />
           </SectionErrorBoundary>

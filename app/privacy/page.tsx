@@ -12,7 +12,7 @@ export const metadata = pageMetadata({
   path: '/privacy',
 })
 
-const UPDATED = 'November 1, 2026'
+const UPDATED = 'November 2, 2026'
 
 export default function PrivacyPolicy() {
   return (
@@ -51,14 +51,20 @@ export default function PrivacyPolicy() {
                     The email I receive also shows your approximate country, worked out from your
                     connection, but never your IP address.
                   </li>
+                  <li id="quote" className="scroll-mt-24">
+                    <span className="text-slate-100">Tech for Pros quote.</span> If you ask for a quote
+                    on the homepage, only your email address is sent, to me, by email, with your
+                    approximate country as above, so I can reply with the quote. This site doesn&rsquo;t
+                    store it, and no automatic email goes back to you.
+                  </li>
                   <li id="waitlist" className="scroll-mt-24">
                     <span className="text-slate-100">Waitlist.</span> If you join the waitlist for
                     an upcoming project on the{' '}
                     <Link href="/upcoming" className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2">
                       upcoming page
                     </Link>
-                    , I keep your email address, the projects you picked, your note if you wrote
-                    one, when you signed up and confirmed, and where you came from (the project
+                    {' '}or the homepage, I keep your email address, the projects you picked, when
+                    you signed up and confirmed, and where you came from (the project
                     you arrived interested in, and the page that linked you, without its query
                     string). I email you a link to confirm, and an unconfirmed request is deleted
                     after 7 days. Once you confirm, I keep it until you leave, and use it only to
@@ -93,8 +99,8 @@ export default function PrivacyPolicy() {
                     the date.
                   </li>
                   <li>
-                    <span className="text-slate-100">Bot protection.</span> The contact form and the
-                    waitlist are protected by Cloudflare Turnstile, which collects limited device and interaction
+                    <span className="text-slate-100">Bot protection.</span> The contact form, the
+                    quote request and the waitlist are protected by Cloudflare Turnstile, which collects limited device and interaction
                     signals to confirm you are a human and to block automated abuse.
                   </li>
                   <li>
