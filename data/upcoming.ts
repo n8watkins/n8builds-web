@@ -9,11 +9,11 @@
  * Copy comes from each project's own docs (Relink's in ~/projects/deadlink,
  * Strollz's in ~/projects/strollz, VibeLog's README and docs/VISION.md in
  * ~/projects/polish/vibelog, KeysReady's from the owner and its landing page,
- * Asset Arsenal's docs/SKINS_CONCEPT.md in ~/projects/asset-arsenal); keep it
- * in step and modest.
+ * Asset Arsenal's docs/SKINS_CONCEPT.md in ~/projects/asset-arsenal, Feelium's
+ * README and docs/PRD.md in ~/projects/feelium); keep it in step and modest.
  */
 
-export const UPCOMING_SLUGS = ['relink', 'strollz', 'vibelog', 'keysready', 'asset-arsenal'] as const
+export const UPCOMING_SLUGS = ['relink', 'strollz', 'vibelog', 'keysready', 'asset-arsenal', 'feelium'] as const
 export type UpcomingSlug = (typeof UPCOMING_SLUGS)[number]
 
 export type UpcomingProject = {
@@ -154,6 +154,28 @@ export const UPCOMING: UpcomingProject[] = [
       'A few full-page concepts in the style you describe; keep the one you love',
       'Every asset rebuilt full size on a transparent background, matching the concept',
       'Keep, reject or retry any single piece, and see the cost before each run',
+    ],
+  },
+  {
+    slug: 'feelium',
+    name: 'Feelium',
+    tagline: 'What did I do, how did I feel, and are they connected?',
+    summary:
+      'A small daily tracker: log a few habits, check in on how you feel, and see which days went with which.',
+    icon: '/upcoming/feelium.svg',
+    landing: 'https://feelium.n8builds.dev',
+    repo: 'n8watkins/feelium',
+    // Feelium's brand is black and white; its light grey keeps the card edge visible on this dark site.
+    accent: '#a3a3a3',
+    what: 'Log a few behaviors with a tap, rate how you feel from 1 to 5 whenever you want, and after a couple of weeks it compares how you felt on days with and without each one, in plain words.',
+    forWho: 'People who want to know whether coffee, exercise or doomscrolling actually changes how they feel, without streaks or scores.',
+    status: 'Concept',
+    stage: 'A working app at feelium.n8builds.dev, opening to the waitlist first',
+    points: [
+      'Yes or no behaviors and number ones (cups of coffee, hours of screen time), saved as you tap',
+      'Check-ins rate mood, anxiety, energy or focus from 1 to 5; a blank stays blank, never a zero',
+      'Comparisons appear once a behavior has 5 days with it and 5 without, with the caveat that it is an association',
+      'Private to your account, export or delete anytime, and open source',
     ],
   },
 ]

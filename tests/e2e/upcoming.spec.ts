@@ -31,13 +31,14 @@ test('shows each project with its own anchor, and is titled for the site', async
   await page.goto('/upcoming')
   await expect(page).toHaveTitle('Upcoming | n8builds')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('What’s cookin’')
-  await expect(page.locator('main article')).toHaveCount(5)
+  await expect(page.locator('main article')).toHaveCount(6)
   for (const [id, name, status] of [
     ['relink', 'Relink', 'Outlining'],
     ['strollz', 'Strollz', 'Outlining'],
     ['vibelog', 'VibeLog', 'Outlining'],
     ['keysready', 'KeysReady', 'Concept'],
     ['asset-arsenal', 'Asset Arsenal', 'Outlining'],
+    ['feelium', 'Feelium', 'Concept'],
   ]) {
     const card = page.locator(`article#${id}`)
     await expect(card.getByRole('heading', { level: 2 })).toContainText(name)
@@ -45,7 +46,7 @@ test('shows each project with its own anchor, and is titled for the site', async
     await expect(card.getByRole('listitem')).toHaveCount(4)
   }
   await expect(page.locator('article#keysready')).toContainText('Stop answering “Is my car ready?”')
-  await expect(page.locator('#waitlist-projects').getByRole('checkbox')).toHaveCount(5)
+  await expect(page.locator('#waitlist-projects').getByRole('checkbox')).toHaveCount(6)
 })
 
 test('lays the cards out one to a row beside the waitlist on wide screens, two by two just below, one column on phones', async ({ page }) => {
@@ -184,6 +185,7 @@ const LANDING = {
   vibelog: 'https://vibelogs.dev',
   keysready: 'https://keysready.n8builds.dev',
   'asset-arsenal': 'https://assetarsenal.n8builds.dev',
+  feelium: 'https://feelium.n8builds.dev',
 }
 const NAMES: Record<string, string> = {
   relink: 'Relink',
@@ -191,6 +193,7 @@ const NAMES: Record<string, string> = {
   vibelog: 'VibeLog',
   keysready: 'KeysReady',
   'asset-arsenal': 'Asset Arsenal',
+  feelium: 'Feelium',
 }
 
 /**
@@ -202,6 +205,7 @@ const CODE: Record<string, string | undefined> = {
   strollz: 'https://github.com/n8watkins/strollz',
   vibelog: 'https://github.com/n8watkins/vibelog',
   keysready: 'https://github.com/n8watkins/keysready',
+  feelium: 'https://github.com/n8watkins/feelium',
 }
 
 test('each card leads with its landing page, then Join, then its code where public (hrefs only: the sites may not be live yet)', async ({ page }) => {
@@ -234,10 +238,10 @@ test("the homepage Lab ends with a short What's cookin' part: each project's sum
   await expect(band.getByRole('heading', { level: 3 })).toHaveText('What’s cookin’ 🍲')
   await expect(band.getByRole('heading', { level: 3 })).toHaveAccessibleName('What’s cookin’')
   await expect(band.getByText('Upcoming', { exact: true })).toBeVisible()
-  await expect(band.locator('ul > li')).toHaveCount(5)
+  await expect(band.locator('ul > li')).toHaveCount(6)
   // The same form as /upcoming, picking several projects (owner, 2026-11-02), without the note.
   await expect(band.locator('#waitlist').getByRole('heading', { level: 4, name: 'Join the waitlist' })).toBeVisible()
-  await expect(band.locator('#waitlist').getByRole('checkbox')).toHaveCount(5)
+  await expect(band.locator('#waitlist').getByRole('checkbox')).toHaveCount(6)
   await expect(band.locator('#waitlist textarea')).toHaveCount(0)
   const cards = band.locator('ul > li')
   for (const [i, [slug, href]] of Object.entries(LANDING).entries()) {
@@ -277,7 +281,7 @@ test('a landing page link to the homepage ticks its project in the waitlist ther
 })
 
 // Cards two by two beside the waitlist from 1024px, two by two above it on tablets, one column on phones;
-// with five projects the last card spans the row, as a row of its own.
+// with six projects (since Feelium, 2026-11-03) every row is full.
 // 1040, not 1024: WebKit's media queries see the window minus its scrollbar,
 // so a 1024px window there is still in the tablet layout.
 for (const [width, height, columns, beside] of [
@@ -303,7 +307,7 @@ for (const [width, height, columns, beside] of [
     }
     const band = page.locator('#lab section#upcoming')
     const items = band.locator('ul > li')
-    await expect(items).toHaveCount(5)
+    await expect(items).toHaveCount(6)
     await items.first().scrollIntoViewIfNeeded()
     const boxes = await items.evaluateAll((list) =>
       list.map((li) => ({ top: Math.round(li.getBoundingClientRect().top), height: li.getBoundingClientRect().height, width: li.getBoundingClientRect().width }))
@@ -312,7 +316,7 @@ for (const [width, height, columns, beside] of [
     for (const { top, height } of boxes) rows.set(top, [...(rows.get(top) ?? []), height])
     // A balanced grid: every row full and the cards in a row the same height; with two
     // columns the odd last card spans the row, so no card is left alone beside a gap.
-    expect([...rows.values()].map((row) => row.length)).toEqual(columns === 2 ? [2, 2, 1] : [1, 1, 1, 1, 1])
+    expect([...rows.values()].map((row) => row.length)).toEqual(columns === 2 ? [2, 2, 2] : [1, 1, 1, 1, 1, 1])
     for (const heights of rows.values()) expect(Math.max(...heights) - Math.min(...heights)).toBeLessThan(1)
     const widest = Math.max(...boxes.map((b) => b.width))
     expect(Math.abs(boxes[4].width - widest)).toBeLessThan(1)
@@ -334,7 +338,8 @@ for (const [width, height, columns, beside] of [
       list.map((svg) => ({ width: svg.getBoundingClientRect().width, shown: getComputedStyle(svg).display !== 'none' })),
     )
     expect(icons.filter((i) => i.shown).every((i) => i.width >= 12)).toBe(true)
-    expect(icons.filter((i) => i.shown)).toHaveLength(width < 360 ? 5 : 5 + withCode)
+    const projects = Object.keys(LANDING).length
+    expect(icons.filter((i) => i.shown)).toHaveLength(width < 360 ? projects : projects + withCode)
     for (const { height, fits } of buttons) {
       expect(height).toBeLessThanOrEqual(44)
       expect(fits).toBe(true)

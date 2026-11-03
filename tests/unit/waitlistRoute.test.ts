@@ -106,6 +106,12 @@ describe('POST /api/waitlist', () => {
     expect(saved()).toMatchObject({ interest: 'relink' })
   })
 
+  it('accepts Feelium as a project and as an interest', async () => {
+    const response = await call(join, { ...valid, projects: ['feelium'], source: { interest: 'feelium' } })
+    expect(response.status).toBe(200)
+    expect(saved()).toMatchObject({ requested: ['feelium'], interest: 'feelium' })
+  })
+
   it('accepts KeysReady, the fourth project, as a project and as an interest', async () => {
     const response = await call(join, { ...valid, projects: ['keysready'], source: { interest: 'keysready' } })
     expect(response.status).toBe(200)
