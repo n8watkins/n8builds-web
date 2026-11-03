@@ -142,7 +142,9 @@ test.describe('desktop', () => {
       // At the top of the page the cards are off screen: paused.
       await expect.poll(async () => (await scrollState(page)).map((s) => s.playState)).toEqual(['paused'])
       await expect.poll(phoneState).toBe('paused')
-      await phone.scrollIntoViewIfNeeded()
+      // The card, not the image: the phone's full-length page is far taller than its frame,
+      // and WebKit scrolls the whole image into view, leaving the card off screen.
+      await card(page, /Run a service business/).locator('[data-shots]').scrollIntoViewIfNeeded()
       await expect.poll(phoneState).toBe('running')
 
       await card(page, /Like the builds/).locator('a[aria-hidden="true"]').scrollIntoViewIfNeeded()

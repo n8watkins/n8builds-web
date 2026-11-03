@@ -363,6 +363,8 @@ test("each row's buttons stay even, with one-line labels, at every width", async
   // narrow for "Landing page", which took more than Details. The buttons now
   // tighten there (and on the narrowest phones and at 768px) instead.
   test.skip(isMobile, 'phones set their own width; the desktop projects walk the widths')
+  // Rows times widths, each a relayout: WebKit under a full parallel run needs more than 30s.
+  test.setTimeout(90_000)
   // Row by row (each page opens once), every width on each.
   for (const title of ROWS) {
     const row = await rowOf(page, title)

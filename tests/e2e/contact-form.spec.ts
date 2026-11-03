@@ -317,6 +317,8 @@ test.describe('on a phone', () => {
   test.use({ viewport: { width: 375, height: 760 }, hasTouch: true })
 
   test('the scroll-to-top button never covers the form or the contact email', async ({ page }) => {
+    // Two hundred steps of two frames each: a loaded mobile WebKit run needs more than 30s.
+    test.setTimeout(90_000)
     await page.goto('/')
     await expect(page.getByRole('button', { name: /Send Message/ })).toBeEnabled() // hydrated
     const covered = await page.evaluate(async () => {
