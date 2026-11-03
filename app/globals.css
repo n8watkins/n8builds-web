@@ -115,6 +115,28 @@
       transform 0.55s cubic-bezier(0.25, 0.1, 0.25, 1);
   }
 
+  /* Safari only: not the scroll anchor while it rises.
+     WebKit's scroll anchoring picks its anchor inside a rising (transformed)
+     block and, once the rise ends, scrolls the page 24px to "keep it in place".
+     After jumping to a section (the section rail, a link, the keyboard) the
+     page then moved about a second later, under the pointer: a click on the
+     Scribe tour's pause button could land on the video. Reveal marks the block
+     settled once the rise is over, and from then on it anchors as usual.
+     Chromium and Firefox ignore the transform, as the spec says, and need
+     these blocks as anchors right after a jump (without them the page drifted
+     off the Pull Request Post's recording), so the rule must not reach them.
+     hanging-punctuation is a feature-detection proxy for WebKit: only Safari
+     supports it today. If Chromium or Firefox ever ship it, this rule (and
+     Reveal's settle timer, which uses the same test) starts applying to them:
+     check tests/e2e/loadout-dev-tools.spec.ts ("The Pull Request Post's
+     recording") in those browsers, and narrow the test if it regresses.
+     See docs/DECISIONS.md, "Scroll anchoring and the reveal". */
+  @supports (hanging-punctuation: first) {
+    .reveal:not([data-settled]) {
+      overflow-anchor: none;
+    }
+  }
+
   .reveal[data-revealed] {
     opacity: 1;
     transform: none;
@@ -125,6 +147,7 @@
       opacity: 1;
       transform: none;
       transition: none;
+      overflow-anchor: auto;
     }
   }
 }

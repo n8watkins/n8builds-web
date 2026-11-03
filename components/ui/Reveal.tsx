@@ -12,6 +12,9 @@ import { latestEntry } from '@/lib/intersection'
  * the hero's easing, once the block is 80px inside the viewport. Reduced
  * motion shows it at once.
  */
+/** Whether the browser gets the Safari-only scroll-anchoring rule for rising blocks (app/globals.css). */
+const SKIPS_RISING_ANCHORS = typeof CSS !== 'undefined' && CSS.supports('hanging-punctuation', 'first')
+
 export default function Reveal({
   children,
   className,
@@ -32,8 +35,18 @@ export default function Reveal({
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    const reveal = () => el.setAttribute('data-revealed', '')
-    if (typeof IntersectionObserver === 'undefined') return reveal()
+    // In Safari, settled once the rise (0.55s, after its delay) is over: from
+    // then on it may be the scroll anchor again. The same feature test as the
+    // rule in app/globals.css, so other browsers run nothing extra.
+    let settle: ReturnType<typeof setTimeout> | undefined
+    const reveal = () => {
+      el.setAttribute('data-revealed', '')
+      if (SKIPS_RISING_ANCHORS) settle = setTimeout(() => el.setAttribute('data-settled', ''), (delay + 0.6) * 1000)
+    }
+    if (typeof IntersectionObserver === 'undefined') {
+      reveal()
+      return () => clearTimeout(settle)
+    }
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = latestEntry(entries)
@@ -44,8 +57,11 @@ export default function Reveal({
       { rootMargin: '-80px' }
     )
     observer.observe(el)
-    return () => observer.disconnect()
-  }, [])
+    return () => {
+      observer.disconnect()
+      clearTimeout(settle)
+    }
+  }, [delay])
 
   const style: CSSProperties | undefined = delay ? { transitionDelay: `${delay}s` } : undefined
   return (
