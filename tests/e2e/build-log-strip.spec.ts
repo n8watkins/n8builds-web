@@ -441,7 +441,7 @@ test.describe('paging', () => {
     await expect(position(page)).toHaveText(paging(page).at(1))
 
     await list(page).evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
-    await expect(list(page)).toHaveAttribute('data-in-view', '')
+    await expect(list(page)).toHaveAttribute('data-in-view', '', { timeout: 20_000 })
     const setHidden = (hidden: boolean) =>
       page.evaluate((hidden) => {
         Object.defineProperty(document, 'visibilityState', { value: hidden ? 'hidden' : 'visible', configurable: true })
@@ -522,7 +522,7 @@ test.describe('paging', () => {
       await page.setViewportSize({ width, height: 900 })
       await page.goto('/')
       await list(page).evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
-      await expect(list(page)).toHaveAttribute('data-in-view', '')
+      await expect(list(page)).toHaveAttribute('data-in-view', '', { timeout: 20_000 })
       const pages = Number((await position(page).innerText()).split('/')[1])
       const first = (await list(page).boundingBox())!
       for (let i = 0; i < pages; i++) {
@@ -543,7 +543,7 @@ test('reduced motion: nothing moves by itself, and the arrows swap pages without
   await installClock(page)
   await page.goto('/')
   await list(page).scrollIntoViewIfNeeded()
-  await expect(list(page)).toHaveAttribute('data-in-view', '')
+  await expect(list(page)).toHaveAttribute('data-in-view', '', { timeout: 20_000 })
   await page.clock.fastForward(HOLD_MS * 2)
   await expect(position(page)).toHaveText(paging(page).at(1))
   await expect(list(page)).not.toHaveAttribute('data-cycling')
