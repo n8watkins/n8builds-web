@@ -31,8 +31,17 @@ export default function Reveal({
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    const reveal = () => el.setAttribute('data-revealed', '')
-    if (typeof IntersectionObserver === 'undefined') return reveal()
+    // Settled once the rise (0.55s, after its delay) is over: from then on it
+    // may be the scroll anchor again (see .reveal in app/globals.css).
+    let settle: ReturnType<typeof setTimeout> | undefined
+    const reveal = () => {
+      el.setAttribute('data-revealed', '')
+      settle = setTimeout(() => el.setAttribute('data-settled', ''), (delay + 0.6) * 1000)
+    }
+    if (typeof IntersectionObserver === 'undefined') {
+      reveal()
+      return () => clearTimeout(settle)
+    }
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting) return
@@ -42,8 +51,11 @@ export default function Reveal({
       { rootMargin: '-80px' }
     )
     observer.observe(el)
-    return () => observer.disconnect()
-  }, [])
+    return () => {
+      observer.disconnect()
+      clearTimeout(settle)
+    }
+  }, [delay])
 
   const style: CSSProperties | undefined = delay ? { transitionDelay: `${delay}s` } : undefined
   return (
