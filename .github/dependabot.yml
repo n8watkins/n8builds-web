@@ -7,6 +7,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    # The kit skips Dependabot's default 3-day cooldown: with it, Dependabot
+    # proposes an older kit tag for this git dependency (a downgrade).
+    cooldown:
+      exclude: ["release-kit"]
     groups:
       minor-and-patch:
         update-types: [minor, patch]
@@ -14,6 +18,8 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      exclude: ["n8watkins/release-kit*"]
     groups:
       actions:
         patterns: ["*"]
