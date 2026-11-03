@@ -1,12 +1,24 @@
 # Weekly, grouped dependency updates. Grouping keeps it to a couple of PRs a
 # week; CI (lint, types, unit and E2E tests) gates every one of them.
+# release-kit's multi-ecosystem group: a new kit release arrives as one PR that
+# moves the dev dependency (npm) and the workflow pins (github-actions)
+# together; separate PRs would leave them on different kit versions.
 version: 2
+multi-ecosystem-groups:
+  release-kit:
+    schedule:
+      interval: daily
+    commit-message:
+      prefix: build
+      include: scope
 updates:
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    patterns: ["release-kit"]
+    multi-ecosystem-group: release-kit
     # The kit skips Dependabot's default 3-day cooldown: with it, Dependabot
     # proposes an older kit tag for this git dependency (a downgrade).
     cooldown:
@@ -14,6 +26,7 @@ updates:
     groups:
       minor-and-patch:
         update-types: [minor, patch]
+        exclude-patterns: ["release-kit"]
     # @types/node follows the Node.js major the site runs on (24, as in CI),
     # so types never offer APIs the runtime lacks. Move it by hand together
     # with the runtime and the workflows' node-version.
@@ -24,8 +37,11 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    patterns: ["n8watkins/release-kit*"]
+    multi-ecosystem-group: release-kit
     cooldown:
       exclude: ["n8watkins/release-kit*"]
     groups:
       actions:
         patterns: ["*"]
+        exclude-patterns: ["n8watkins/release-kit*"]
