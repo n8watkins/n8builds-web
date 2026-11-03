@@ -7,12 +7,11 @@ import { WebVitals } from './web-vitals'
 import { WebVitalsHUD } from '@/components/WebVitalsHUD'
 import LiveLoader from '@/components/live/LiveLoader'
 import SiteFooter from '@/components/layout/SiteFooter'
-import { SpeedInsights } from "@vercel/speed-insights/next"
-import { Analytics } from "@vercel/analytics/next"
 import { DEFAULT_PREVIEW, SITE_NAME, SITE_URL } from '@/lib/seo'
 import { consentBootstrapScript } from '@/lib/consent'
 import { MY_TOOLS_MOVED } from '@/lib/movedAnchors'
 import ConsentLoader from '@/components/consent/ConsentLoader'
+import { WebAnalytics } from '@/components/WebAnalytics'
 
 // Inter, bundled (variable weight, Latin subset, from @fontsource-variable/inter
 // 5.3.0; OFL, see app/fonts/Inter-OFL.txt) instead of next/font/google: a
@@ -113,9 +112,7 @@ export default function RootLayout({
           {process.env.NEXT_PUBLIC_GA_ID && <ConsentLoader />}
           <WebVitals />
           <WebVitalsHUD />
-          {/* These scripts are served only by Vercel's edge; elsewhere they 404. */}
-          {process.env.VERCEL && <SpeedInsights />}
-          {process.env.VERCEL && <Analytics />}
+          <WebAnalytics />
         </ThemeProvider>
       </body>
     </html>

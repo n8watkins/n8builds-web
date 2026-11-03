@@ -326,12 +326,12 @@ export async function resolveLiveStatus(deps: LiveDeps = defaultDeps()): Promise
  * LIVE_TEST_MODE=1 swaps every source for fixed fake answers, so end-to-end
  * tests can cover each case without credentials or a real stream. The
  * scenario comes from the `n8-live-test` cookie, else LIVE_TEST_SCENARIO,
- * else "none". Ignored whenever VERCEL is set, so it can never reach a deploy.
+ * else "none". Ignored whenever APP_ENV is set, so it can never reach a deploy.
  */
 export function isLiveTestMode(env: Env = process.env): boolean {
   if (env.LIVE_TEST_MODE !== '1') return false
-  if (env.VERCEL) {
-    logger.error('LIVE_TEST_MODE is set on Vercel - ignoring it')
+  if (env.APP_ENV) {
+    logger.error('LIVE_TEST_MODE is set on a deployed site - ignoring it')
     return false
   }
   return true

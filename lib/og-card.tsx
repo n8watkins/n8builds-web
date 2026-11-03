@@ -1,7 +1,6 @@
-import { readFile } from 'node:fs/promises'
-import { join } from 'node:path'
 import { ImageResponse } from 'next/og'
 import { coverAccent, coverSvg } from '@/lib/blog-cover'
+import { readPublicFile } from '@/lib/publicFile'
 
 /**
  * Social share cards (Open Graph and Twitter, 1200x630 PNG) for pages with
@@ -12,12 +11,10 @@ import { coverAccent, coverSvg } from '@/lib/blog-cover'
 
 export const CARD_SIZE = { width: 1200, height: 630 }
 
-// Read once per server instance; none of these depend on the request.
-const assets = Promise.all([
-  readFile(join(process.cwd(), 'assets/fonts/Inter-Medium.ttf')),
-  readFile(join(process.cwd(), 'assets/fonts/Inter-ExtraBold.ttf')),
-  readFile(join(process.cwd(), 'public/tab/n8-icon-192.png')),
-])
+// Inter (OFL, public/og/Inter-LICENSE.txt) and the tab icon, read from the
+// site's own public files: static assets on Workers, the disk at build time.
+const assets = () =>
+  Promise.all([readPublicFile('/og/Inter-Medium.ttf'), readPublicFile('/og/Inter-ExtraBold.ttf'), readPublicFile('/tab/n8-icon-192.png')])
 
 /** Smaller type for longer titles, so three lines always fit. */
 function titleSize(title: string) {
@@ -46,7 +43,7 @@ export async function shareCard({
   /** A 1200x630 image (data URL) to draw instead of the generated art. */
   background?: string
 }) {
-  const [medium, extraBold, icon] = await assets
+  const [medium, extraBold, icon] = await assets()
   const accent = coverAccent(topic, seed)
   const art = background ?? `data:image/svg+xml;base64,${Buffer.from(coverSvg(topic, seed)).toString('base64')}`
 
@@ -73,7 +70,7 @@ export async function shareCard({
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '64px 72px', width: '100%' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             {/* eslint-disable-next-line @next/next/no-img-element -- rendered by Satori, not the browser */}
-            <img src={`data:image/png;base64,${icon.toString('base64')}`} width={52} height={52} alt="" style={{ borderRadius: 12 }} />
+            <img src={`data:image/png;base64,${Buffer.from(icon).toString('base64')}`} width={52} height={52} alt="" style={{ borderRadius: 12 }} />
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 24, fontWeight: 500, color: '#cbd5e1', letterSpacing: 2.4, textTransform: 'uppercase' }}>
               <div style={{ width: 10, height: 10, borderRadius: 10, background: accent, boxShadow: `0 0 12px ${accent}` }} />
               {eyebrow}

@@ -31,8 +31,7 @@ function clearBackendEnv() {
     'CONTACT_TEST_MODE',
     'CONTACT_DAILY_LIMIT',
     'WAITLIST_DAILY_LIMIT',
-    'VERCEL',
-    'VERCEL_ENV',
+    'APP_ENV',
   ]) {
     vi.stubEnv(key, '')
   }
@@ -83,10 +82,10 @@ describe('checkRateLimit backend selection', () => {
     expect(await checkRateLimit('global', 'all')).toEqual({ allowed: false, reason: 'unavailable' })
   })
 
-  it('ignores CONTACT_TEST_MODE on Vercel and still fails closed', async () => {
+  it('ignores CONTACT_TEST_MODE on a deployed site and still fails closed', async () => {
     vi.stubEnv('NODE_ENV', 'production')
     vi.stubEnv('CONTACT_TEST_MODE', '1')
-    vi.stubEnv('VERCEL', '1')
+    vi.stubEnv('APP_ENV', 'production')
     const { checkRateLimit } = await loadLimiter()
 
     expect(await checkRateLimit('ip', '1.2.3.4')).toEqual({ allowed: false, reason: 'unavailable' })
@@ -170,9 +169,8 @@ describe('Upstash-backed limiting', () => {
     expect(await checkRateLimit('ip', '1.2.3.4')).toEqual({ allowed: false, reason: 'unavailable' })
   })
 
-  it('keeps the bare key names in Vercel production', async () => {
-    vi.stubEnv('VERCEL', '1')
-    vi.stubEnv('VERCEL_ENV', 'production')
+  it('keeps the bare key names in production', async () => {
+    vi.stubEnv('APP_ENV', 'production')
     upstashLimit.mockResolvedValue({ success: true })
     const { checkRateLimit } = await loadLimiter()
     await checkRateLimit('ip', '1.2.3.4')
@@ -186,9 +184,8 @@ describe('Upstash-backed limiting', () => {
     ])
   })
 
-  it('namespaces preview deployments away from production counters', async () => {
-    vi.stubEnv('VERCEL', '1')
-    vi.stubEnv('VERCEL_ENV', 'preview')
+  it('namespaces other deployments away from production counters', async () => {
+    vi.stubEnv('APP_ENV', 'preview')
     upstashLimit.mockResolvedValue({ success: true })
     const { checkRateLimit } = await loadLimiter()
     await checkRateLimit('ip', '1.2.3.4')
@@ -236,7 +233,12 @@ describe('Upstash-backed limiting', () => {
 })
 
 describe('getClientIp', () => {
-  it('prefers x-real-ip', async () => {
+  it("prefers Cloudflare's cf-connecting-ip, which the client can't set", async () => {
+    const { getClientIp } = await loadLimiter()
+    expect(getClientIp(new Headers({ 'cf-connecting-ip': '9.9.9.9', 'x-real-ip': '1.1.1.1', 'x-forwarded-for': '2.2.2.2' }))).toBe('9.9.9.9')
+  })
+
+  it('then x-real-ip', async () => {
     const { getClientIp } = await loadLimiter()
     expect(getClientIp(new Headers({ 'x-real-ip': '1.1.1.1', 'x-forwarded-for': '2.2.2.2' }))).toBe('1.1.1.1')
   })

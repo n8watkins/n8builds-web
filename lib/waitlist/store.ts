@@ -156,7 +156,7 @@ export class MemoryWaitlistStore implements WaitlistStore {
 
 /** Key prefix: production keeps the bare name, everything else is namespaced. */
 function keyPrefix(): string {
-  const env = process.env.VERCEL_ENV || 'local'
+  const env = process.env.APP_ENV || 'local'
   return env === 'production' ? 'waitlist' : `waitlist:${env}`
 }
 

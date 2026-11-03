@@ -21,10 +21,10 @@ import { isContactTestMode } from '@/lib/security/testMode'
  * than silently running unlimited. CONTACT_TEST_MODE always uses an in-memory
  * store, and `next dev` does too when Upstash isn't configured.
  *
- * One Redis database can serve every environment: keys outside Vercel
- * production get their own namespace (contact:preview:*, contact:local:*), so
- * previews and local runs never touch production's counters. The namespace is
- * VERCEL_ENV (so `vercel env pull` gives contact:development:*), or "local".
+ * One Redis database can serve every environment: keys outside production
+ * get their own namespace (contact:preview:*, contact:local:*), so previews
+ * and local runs never touch production's counters. The namespace is APP_ENV
+ * (set in wrangler.jsonc on deployed Workers), or "local".
  */
 
 const IP_WINDOW_MS = 60 * 60 * 1000
@@ -149,7 +149,7 @@ function hasUpstashConfig(): boolean {
 
 /** Redis key prefix: production keeps the bare names, everything else is namespaced. */
 function keyPrefix(): string {
-  const env = process.env.VERCEL_ENV || 'local'
+  const env = process.env.APP_ENV || 'local'
   return env === 'production' ? 'contact' : `contact:${env}`
 }
 
@@ -210,10 +210,15 @@ export function checkRateLimit(scope: RateLimitScope, key: string): Promise<Rate
 }
 
 /**
- * Client IP for rate limiting. On Vercel both headers are set by the edge and
- * overwrite anything the client sent, so they can't be spoofed there.
+ * Client IP for rate limiting. On Cloudflare, CF-Connecting-IP is set by the
+ * edge and overwrites anything the client sent, so it can't be spoofed there
+ * (X-Forwarded-For can: Cloudflare appends to what the client sent). The other
+ * two headers only matter off Cloudflare (next start behind a local proxy).
  */
 export function getClientIp(headers: Headers): string {
+  const cloudflareIp = headers.get('cf-connecting-ip')?.trim()
+  if (cloudflareIp) return cloudflareIp
+
   const realIp = headers.get('x-real-ip')?.trim()
   if (realIp) return realIp
 

@@ -48,7 +48,7 @@ function ipRateLimit(store: Redis) {
 function siteFor(origin: string | null): Site | null {
   if (!origin) return null
   if (ORIGINS[origin]) return ORIGINS[origin]
-  if (process.env.VERCEL_ENV !== 'production' && /^http:\/\/localhost:\d+$/.test(origin)) return 'n8builds'
+  if (process.env.APP_ENV !== 'production' && /^http:\/\/localhost:\d+$/.test(origin)) return 'n8builds'
   return null
 }
 

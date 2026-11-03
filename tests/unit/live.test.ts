@@ -353,9 +353,9 @@ describe('test mode', () => {
     expect((await getLiveStatus({}, testDeps({}))).live).toBe(false)
   })
 
-  it('is ignored on Vercel', async () => {
+  it('is ignored on a deployed site', async () => {
     const { fetch } = fakeFetch({ [SANITY]: studio(null) })
-    const status = await getLiveStatus({ testScenario: 'twitch' }, deps({ LIVE_TEST_MODE: '1', VERCEL: '1', NEXT_PUBLIC_SANITY_PROJECT_ID: 'abgyc32w' }, fetch))
+    const status = await getLiveStatus({ testScenario: 'twitch' }, deps({ LIVE_TEST_MODE: '1', APP_ENV: 'production', NEXT_PUBLIC_SANITY_PROJECT_ID: 'abgyc32w' }, fetch))
     expect(status.live).toBe(false)
   })
 })

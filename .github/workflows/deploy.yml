@@ -1,0 +1,65 @@
+# Builds the site with OpenNext and deploys it to Cloudflare Workers (see
+# DEPLOY.md). The build always runs; the deploy step skips with a notice until
+# the CLOUDFLARE_API_TOKEN repository secret exists.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+    # Docs-only changes can't change the site (the same rule as CI's).
+    paths-ignore: ['docs/**', '**/*.md', 'LICENSE']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy
+    # Only the upstream repo deploys; a fork has no Worker to deploy to.
+    if: github.repository == 'n8watkins/n8builds-web'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      # Inlined into the pages at build time. Public values, kept as repository
+      # variables (DEPLOY.md lists them).
+      NEXT_PUBLIC_SITE_URL: https://n8builds.dev
+      NEXT_PUBLIC_SANITY_PROJECT_ID: abgyc32w
+      NEXT_PUBLIC_GA_ID: ${{ vars.NEXT_PUBLIC_GA_ID }}
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
+      NEXT_PUBLIC_SENTRY_DSN: ${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
+      NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN: ${{ vars.NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN }}
+      # The build log, stars and downloads are read from GitHub at build time.
+      GITHUB_TOKEN: ${{ github.token }}
+      # /upcoming is prerendered, and shows its waitlist form only when the
+      # analytics database is configured at build time.
+      ANALYTICS_REDIS_REST_URL: ${{ secrets.ANALYTICS_REDIS_REST_URL }}
+      ANALYTICS_REDIS_REST_TOKEN: ${{ secrets.ANALYTICS_REDIS_REST_TOKEN }}
+      # Optional: uploads source maps to Sentry.
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build:worker
+
+      - name: Waiting for setup
+        if: env.CLOUDFLARE_API_TOKEN == ''
+        run: echo "::notice::Built, but skipping the deploy until the CLOUDFLARE_API_TOKEN secret is added (DEPLOY.md)."
+
+      - name: Deploy
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        run: npx opennextjs-cloudflare deploy

@@ -1,4 +1,5 @@
 import { createHash, randomBytes } from 'node:crypto'
+import { requestGeo } from '@/lib/cloudflare/request'
 
 /**
  * The dino catch game's stats (components/features/dino/DinoGame.tsx), from
@@ -80,10 +81,14 @@ export async function playerHash(store: GameStore, now: Date, ip: string, userAg
 
 export type Place = { country: string; region: string }
 
-/** Country and region from Vercel's geo headers, cleaned to codes. */
+/**
+ * Country and region from Cloudflare's request geolocation (request.cf),
+ * cleaned to codes. Off Workers, the CF-IPCountry header if present.
+ */
 export function placeFrom(headers: Headers): Place {
-  const clean = (v: string | null, max: number) => (v && /^[A-Za-z0-9]{1,8}$/.test(v) ? v.toUpperCase().slice(0, max) : '')
-  return { country: clean(headers.get('x-vercel-ip-country'), 2) || 'XX', region: clean(headers.get('x-vercel-ip-country-region'), 3) }
+  const clean = (v: string | null | undefined, max: number) => (v && /^[A-Za-z0-9]{1,8}$/.test(v) ? v.toUpperCase().slice(0, max) : '')
+  const geo = requestGeo()
+  return { country: clean(geo?.country ?? headers.get('cf-ipcountry'), 2) || 'XX', region: clean(geo?.regionCode, 3) }
 }
 
 export type GameEvent = { type: 'start' } | { type: 'end'; round: string; score: number }

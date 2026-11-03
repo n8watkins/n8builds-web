@@ -1,10 +1,10 @@
 import { ContactFormData } from '@/lib/validations/contact'
 import { subjectOptions } from '@/lib/validations/contact'
-import { EMAIL_CONFIG } from '@/lib/email/smtp'
+import { EMAIL_CONFIG } from '@/lib/email/config'
 
 // Security: escape ALL markup in user input. Stricter than the previous
 // DOMPurify allowlist (which permitted bare <br>), and avoids jsdom -
-// whose dependency chain breaks Vercel's serverless runtime
+// whose dependency chain broke the serverless runtime
 // (ERR_REQUIRE_ESM in html-encoding-sniffer). Newlines in the message
 // still render via `white-space: pre-wrap` on the message box.
 export function sanitizeHtml(input: string): string {
@@ -60,7 +60,7 @@ export function topicFor(subject: string): Topic {
 }
 
 /**
- * The sender's country from Vercel's geo header (an ISO code, never the IP),
+ * The sender's country from Cloudflare's request geolocation (an ISO code, never the IP),
  * as a flag and an English name, or null when it's missing or unknown
  * (local runs, "XX"), so the row is left out.
  */

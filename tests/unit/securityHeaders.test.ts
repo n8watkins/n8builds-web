@@ -33,11 +33,10 @@ describe('buildContentSecurityPolicy', () => {
     expect(directive(csp, 'connect-src')).toContain('ws:')
   })
 
-  it('allows the Vercel toolbar only on preview deployments', () => {
-    expect(buildContentSecurityPolicy()).not.toContain('vercel.live')
-    const preview = buildContentSecurityPolicy({ preview: true })
-    expect(directive(preview, 'script-src')).toContain('https://vercel.live')
-    expect(directive(preview, 'frame-src')).toContain('https://vercel.live')
+  it('allows the Cloudflare Web Analytics beacon and its endpoint', () => {
+    const csp = buildContentSecurityPolicy()
+    expect(directive(csp, 'script-src')).toContain('https://static.cloudflareinsights.com')
+    expect(directive(csp, 'connect-src')).toContain('https://cloudflareinsights.com')
   })
 
   it('allows Turnstile, GA and the image hosts', () => {
