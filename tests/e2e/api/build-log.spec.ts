@@ -22,7 +22,7 @@ test('the build log describes its builds as an ItemList, most recently active fi
   const items = lists[0].itemListElement as { position: number; name: string; url: string }[]
   // The eight builds, then the projects the log follows without a build page (round 5 of
   // 2026-11-02, data/logBuilds.ts), each linking where the site shows it.
-  expect(items.map((i) => i.position)).toEqual(Array.from({ length: 16 }, (_, i) => i + 1))
+  expect(items.map((i) => i.position)).toEqual(Array.from({ length: 17 }, (_, i) => i + 1))
   expect(items.map((i) => i.url)).toContain('https://n8builds.dev/upcoming#relink')
   expect(items[0]).toMatchObject({ name: 'n8builds.dev', url: 'https://n8builds.dev/builds/n8builds' })
   expect(items[1]).toMatchObject({ name: 'Solara', url: 'https://n8builds.dev/builds/solara' })

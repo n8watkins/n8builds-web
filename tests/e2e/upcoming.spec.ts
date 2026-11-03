@@ -238,13 +238,14 @@ test("the homepage Lab ends with a short What's cookin' part: each project's sum
   await expect(band.getByRole('heading', { level: 3 })).toHaveText('What’s cookin’ 🍲')
   await expect(band.getByRole('heading', { level: 3 })).toHaveAccessibleName('What’s cookin’')
   await expect(band.getByText('Upcoming', { exact: true })).toBeVisible()
-  await expect(band.locator('ul > li')).toHaveCount(6)
+  // Feelium is on /upcoming and in the waitlist, but not in the homepage grid (data/upcoming.ts `homepage`).
+  await expect(band.locator('ul > li')).toHaveCount(5)
   // The same form as /upcoming, picking several projects (owner, 2026-11-02), without the note.
   await expect(band.locator('#waitlist').getByRole('heading', { level: 4, name: 'Join the waitlist' })).toBeVisible()
   await expect(band.locator('#waitlist').getByRole('checkbox')).toHaveCount(6)
   await expect(band.locator('#waitlist textarea')).toHaveCount(0)
   const cards = band.locator('ul > li')
-  for (const [i, [slug, href]] of Object.entries(LANDING).entries()) {
+  for (const [i, [slug, href]] of Object.entries(LANDING).filter(([slug]) => slug !== 'feelium').entries()) {
     const name = NAMES[slug]
     const card = cards.nth(i)
     await expect(card.getByRole('heading', { level: 4 })).toHaveText(name)
@@ -281,7 +282,7 @@ test('a landing page link to the homepage ticks its project in the waitlist ther
 })
 
 // Cards two by two beside the waitlist from 1024px, two by two above it on tablets, one column on phones;
-// with six projects (since Feelium, 2026-11-03) every row is full.
+// with five projects the last card spans the row, as a row of its own (Feelium, the sixth, is not in this grid).
 // 1040, not 1024: WebKit's media queries see the window minus its scrollbar,
 // so a 1024px window there is still in the tablet layout.
 for (const [width, height, columns, beside] of [
@@ -307,7 +308,7 @@ for (const [width, height, columns, beside] of [
     }
     const band = page.locator('#lab section#upcoming')
     const items = band.locator('ul > li')
-    await expect(items).toHaveCount(6)
+    await expect(items).toHaveCount(5)
     await items.first().scrollIntoViewIfNeeded()
     const boxes = await items.evaluateAll((list) =>
       list.map((li) => ({ top: Math.round(li.getBoundingClientRect().top), height: li.getBoundingClientRect().height, width: li.getBoundingClientRect().width }))
@@ -316,7 +317,7 @@ for (const [width, height, columns, beside] of [
     for (const { top, height } of boxes) rows.set(top, [...(rows.get(top) ?? []), height])
     // A balanced grid: every row full and the cards in a row the same height; with two
     // columns the odd last card spans the row, so no card is left alone beside a gap.
-    expect([...rows.values()].map((row) => row.length)).toEqual(columns === 2 ? [2, 2, 2] : [1, 1, 1, 1, 1, 1])
+    expect([...rows.values()].map((row) => row.length)).toEqual(columns === 2 ? [2, 2, 1] : [1, 1, 1, 1, 1])
     for (const heights of rows.values()) expect(Math.max(...heights) - Math.min(...heights)).toBeLessThan(1)
     const widest = Math.max(...boxes.map((b) => b.width))
     expect(Math.abs(boxes[4].width - widest)).toBeLessThan(1)
@@ -329,16 +330,17 @@ for (const [width, height, columns, beside] of [
       )
     )
     // Landing page on every card, View the code where the repository is public.
-    expect(cardButtons.map((b) => b.length)).toEqual(Object.keys(LANDING).map((slug) => (CODE[slug] ? 2 : 1)))
+    const onHomepage = Object.keys(LANDING).filter((slug) => slug !== 'feelium')
+    expect(cardButtons.map((b) => b.length)).toEqual(onHomepage.map((slug) => (CODE[slug] ? 2 : 1)))
     const buttons = cardButtons.flat()
-    const withCode = Object.values(CODE).filter(Boolean).length
+    const withCode = onHomepage.filter((slug) => CODE[slug]).length
     // Every mark that shows is at least 12px; below 360px the code button's GitHub mark
     // gives way, so "Landing page" and "View the code" still fit side by side (round 4).
     const icons = await items.locator('a svg').evaluateAll((list) =>
       list.map((svg) => ({ width: svg.getBoundingClientRect().width, shown: getComputedStyle(svg).display !== 'none' })),
     )
     expect(icons.filter((i) => i.shown).every((i) => i.width >= 12)).toBe(true)
-    const projects = Object.keys(LANDING).length
+    const projects = onHomepage.length
     expect(icons.filter((i) => i.shown)).toHaveLength(width < 360 ? projects : projects + withCode)
     for (const { height, fits } of buttons) {
       expect(height).toBeLessThanOrEqual(44)

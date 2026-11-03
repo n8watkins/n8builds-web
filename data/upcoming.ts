@@ -38,6 +38,12 @@ export type UpcomingProject = {
   accent: string
   what: string
   forWho: string
+  /**
+   * Whether the homepage's What's cookin' grid shows it (default true). Its cards and the
+   * waitlist fit one laptop screen with five; a project left off still appears on
+   * /upcoming and in both waitlist forms.
+   */
+  homepage?: boolean
   /** Outlining: a plan and a landing page. Concept: those and an unreleased prototype. */
   status: 'Outlining' | 'Concept'
   stage: string
@@ -167,6 +173,8 @@ export const UPCOMING: UpcomingProject[] = [
     repo: 'n8watkins/feelium',
     // Feelium's brand is black and white; its light grey keeps the card edge visible on this dark site.
     accent: '#a3a3a3',
+    // Listed on /upcoming and in the waitlist, but not in the homepage grid (it fits five).
+    homepage: false,
     what: 'Log a few behaviors with a tap, rate how you feel from 1 to 5 whenever you want, and after a couple of weeks it compares how you felt on days with and without each one, in plain words.',
     forWho: 'People who want to know whether coffee, exercise or doomscrolling actually changes how they feel, without streaks or scores.',
     status: 'Concept',
