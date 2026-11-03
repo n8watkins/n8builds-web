@@ -34,7 +34,7 @@
     "release:check": "release-kit check && npm run lint && npm run type-check && npm run test:unit"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.2.2",
+    "@hookform/resolvers": "^7.0.1",
     "@marsidev/react-turnstile": "^1.5.3",
     "@portabletext/react": "^8.0.1",
     "@sanity/client": "^8.13.0",
