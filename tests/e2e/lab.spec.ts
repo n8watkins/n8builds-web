@@ -548,27 +548,29 @@ test('each row lists its features as checks, and shows its tech as pills instead
     ['Solara', ['Sun windows per activity', 'Fits your skin and sunscreen', 'A week calendar', 'No account needed']],
     ['Portfolio Rank', ['Head-to-head voting', 'ELO leaderboard', 'Lighthouse and AI reviews', /^Add your portfolio and see how you compare/]],
   ]
+  const stacks: Record<string, [string[], RegExp]> = {
+    Scribe: [['Tauri', 'Rust', 'whisper.cpp'], /whisper|Tauri|Rust/],
+    OpenPing: [['Cloudflare Workers', 'D1', 'Hono', 'React'], /Worker|D1/],
+    Solara: [['Next.js', 'Firebase', 'Open-Meteo'], /Next\.js|Firebase/],
+    'Portfolio Rank': [['Next.js', 'Gemini', 'Turso', 'Vercel'], /Gemini|Next\.js/],
+  }
+  // Row by row, so each page is loaded once (Scribe's on /loadout, then the homepage's):
+  // going back to a page already visited in this test made Firefox flaky.
   for (const [name, list] of features) {
-    await expect((await rowOf(page, name)).getByRole('list', { name: `What ${name} does` }).getByRole('listitem')).toHaveText(list)
+    const row = await rowOf(page, name)
+    await expect(row.getByRole('list', { name: `What ${name} does` }).getByRole('listitem')).toHaveText(list)
+    const [tags, prose] = stacks[name]
+    const pills = row.getByRole('list', { name: `${name} is built with` })
+    await expect(pills.getByRole('listitem')).toHaveText(tags)
+    // The description above the pills is about features, not the stack.
+    const description = pills.locator('xpath=../preceding-sibling::p[1]')
+    await expect(description).not.toHaveText(prose)
   }
   // Adding a portfolio is a linked check, not a button.
   await expect((await rowOf(page, 'Portfolio Rank')).getByRole('list', { name: 'What Portfolio Rank does' }).getByRole('link', { name: /Add your portfolio/ })).toHaveAttribute(
     'href',
     'https://portfoliorank.vercel.app/#browse',
   )
-  const stacks: [string, string[], RegExp][] = [
-    ['Scribe', ['Tauri', 'Rust', 'whisper.cpp'], /whisper|Tauri|Rust/],
-    ['OpenPing', ['Cloudflare Workers', 'D1', 'Hono', 'React'], /Worker|D1/],
-    ['Solara', ['Next.js', 'Firebase', 'Open-Meteo'], /Next\.js|Firebase/],
-    ['Portfolio Rank', ['Next.js', 'Gemini', 'Turso', 'Vercel'], /Gemini|Next\.js/],
-  ]
-  for (const [name, tags, prose] of stacks) {
-    const pills = (await rowOf(page, name)).getByRole('list', { name: `${name} is built with` })
-    await expect(pills.getByRole('listitem')).toHaveText(tags)
-    // The description above the pills is about features, not the stack.
-    const description = pills.locator('xpath=../preceding-sibling::p[1]')
-    await expect(description).not.toHaveText(prose)
-  }
 })
 
 test("Portfolio Rank's title writes Rank in its own gold", async ({ page }) => {
