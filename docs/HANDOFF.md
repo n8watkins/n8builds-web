@@ -57,8 +57,8 @@ Strategy and IA: `docs/N8BUILDS_PLAN.md`.
 
 ## Current state
 
-- Runs on Cloudflare Workers (the `n8builds-web` Worker, built by OpenNext), deploying from `main` (`DEPLOY.md`), at https://n8builds-web.nathancwatkins23.workers.dev until n8builds.dev moves over.
-  Until then n8builds.dev serves the last Vercel deployment (project `n8builds-web`, team natkins23s-projects), which no longer deploys.
+- Live at https://n8builds.dev on Cloudflare Workers (the `n8builds-web` Worker, built by OpenNext), deploying from `main` (`DEPLOY.md`).
+  The Vercel project `n8builds-web` (team natkins23s-projects) no longer deploys and stays a week as a rollback.
 - Stack: Next.js 16 (App Router, Turbopack for dev, tests and the production build), React 19, TypeScript, Tailwind 4 (configured in `app/globals.css`; there is no `tailwind.config`), Motion (`motion/react`; not framer-motion), Sanity (blog), Cloudflare Email Service, Cloudflare Turnstile, Upstash Redis (rate limits), Sentry, GA4, Cloudflare Web Analytics.
 - Pages: `/` (hero, "What I'm working on", the Lab, notions, stack, work-with-me, contact, each in its own full-width band), `/blog` + `/blog/[slug]` (N8's Notions, ISR hourly), `/builds` (the build log, ISR hourly), `/builds/[slug]`, `/loadout`, `/privacy`, `/live` (redirects to the live stream, else lists the channels).
 - **Status (2026-10-24):** everything is merged and live, including the build log, the live player and the n8builds case study (PRs #10 to #15). Work now goes through pull requests (`docs/BUILD_PLAN.md`); what's left and what's needed from the owner is in `docs/NEXT_STEPS.md`.
@@ -171,7 +171,7 @@ While Nathan is live, every page shows a floating corner player, the navbar's Tw
   Any failure counts as offline; a source that errors is skipped and logged, and `/api/live` always answers 200.
 - **Player** (`components/live/`): `LiveLoader` (mounted in `app/layout.tsx`) checks `/api/live` after the load event, then once a minute while the tab is visible, into a small store the navbar reads too.
   `LivePlayer` and the platform iframes load only while live (`next/dynamic`), so offline page loads fetch one small JSON answer and nothing else.
-  Twitch embeds need a listed `parent` host: n8builds.dev and localhost play, other hosts (the workers.dev address) show the "Watch on Twitch" card.
+  Twitch embeds need a listed `parent` host: n8builds.dev and localhost play, other hosts show the "Watch on Twitch" card.
   YouTube uses `www.youtube-nocookie.com` and unmutes over postMessage; Twitch reloads its player with `muted=false`.
   X has no live player embed (and X's post embed would need its script in the CSP), so X streams get a card with "Watch on X".
   The corner and minimized choices and closed streams are kept in localStorage (`n8-live:prefs`, `n8-live:closed`), each access in try/catch.
@@ -229,7 +229,7 @@ Every free check runs before the first rate-limit counter, so requests without a
   Regenerate the signature icons with `node scripts/gen-email-icons.mjs`.
 - **Testing by hand:** `CONTACT_TEST_MODE=1` with the test secret `1x0000000000000000000000000000000AA` exercises the real API on a production build without sending email.
   Test mode is ignored whenever `APP_ENV` is set (every deployed Worker sets it); Playwright blanks it.
-  Email sends only on Cloudflare (the binding doesn't exist under `next dev` or `next start`), so try a real send on the workers.dev deployment or with `npm run preview`.
+  Email sends only on Cloudflare (the binding doesn't exist under `next dev` or `next start`), so try a real send on the live site or with `npm run preview`.
 
 ## Decisions already made (do not re-ask)
 
