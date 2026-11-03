@@ -26,13 +26,13 @@ jobs:
     timeout-minutes: 20
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      # Inlined into the pages at build time. Public values, kept as repository
-      # variables (DEPLOY.md lists them).
+      # Inlined into the pages at build time. All public (they ship in every
+      # page); the Web Analytics token is a repository variable (DEPLOY.md).
       NEXT_PUBLIC_SITE_URL: https://n8builds.dev
       NEXT_PUBLIC_SANITY_PROJECT_ID: abgyc32w
-      NEXT_PUBLIC_GA_ID: ${{ vars.NEXT_PUBLIC_GA_ID }}
-      NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
-      NEXT_PUBLIC_SENTRY_DSN: ${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
+      NEXT_PUBLIC_GA_ID: G-JZQGKY9Q37
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY: 0x4AAAAAADog7ERSblVox21J
+      NEXT_PUBLIC_SENTRY_DSN: https://7e41d848c6abae7aaf931bd7fa5049e1@o4507767562371072.ingest.us.sentry.io/4511629733855232
       NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN: ${{ vars.NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN }}
       # The build log, stars and downloads are read from GitHub at build time.
       GITHUB_TOKEN: ${{ github.token }}

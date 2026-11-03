@@ -32,9 +32,9 @@ Secrets are set once with `npx wrangler secret put <NAME>` (it reads the value f
 | `TURNSTILE_SECRET_KEY` | Turnstile on the contact, quote and waitlist forms |
 | `GITHUB_TOKEN` | the build log, stars and downloads when pages revalidate |
 
-Build-time values (inlined into the pages) come from repository variables in the deploy workflow: `NEXT_PUBLIC_GA_ID`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `NEXT_PUBLIC_SENTRY_DSN` and `NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN`.
+Build-time values (inlined into the pages) are public and set in the deploy workflow (`.github/workflows/deploy.yml`): the site URL, the Sanity project, the GA ID, the Turnstile site key and the Sentry DSN, plus `NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN` from a repository variable.
 `/upcoming` is prerendered and shows its waitlist form only when the analytics database is configured at build time, so the workflow also reads the `ANALYTICS_REDIS_REST_*` repository secrets.
-For a deploy by hand, export the same variables in the shell first.
+For a deploy by hand, export the same values in the shell first.
 
 After changing bindings in `wrangler.jsonc`, run `npm run cf-typegen` to update `cloudflare-env.d.ts`.
 
