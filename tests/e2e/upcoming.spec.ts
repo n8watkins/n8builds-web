@@ -354,9 +354,10 @@ for (const [width, height, columns, beside] of [
       // Cards and waitlist read as one screen on a laptop (1440x900, 1280x800): together they fit under the navbar.
       const navbar = (await page.getByRole('navigation', { name: 'Primary' }).first().boundingBox())!.height
       if (width >= 1280) expect(grid.bottom - grid.top).toBeLessThanOrEqual(height - navbar)
-      // The whole part, from its eyebrow to the cards' bottom, fits too (1440x900 and, since round 3, 1280x800).
+      // The whole part, from its eyebrow to the cards' bottom, fits too at 1440x900 (and at 1280x800
+      // from round 3 until a fifth project, Asset Arsenal, made the cards one row taller).
       const eyebrow = (await band.getByText('Upcoming', { exact: true }).boundingBox())!
-      if (width >= 1280) expect(grid.bottom - eyebrow.y).toBeLessThanOrEqual(height - navbar - 16)
+      if (width >= 1440) expect(grid.bottom - eyebrow.y).toBeLessThanOrEqual(height - navbar - 16)
     } else {
       expect(panel.y).toBeGreaterThan(grid.bottom)
     }
