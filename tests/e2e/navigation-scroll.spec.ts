@@ -35,9 +35,11 @@ test('a post opened from the homepage starts at its top, without scrolling up to
   await page.waitForTimeout(500)
   // An animated scroll passes through dozens of positions on its way up (the
   // bug measured 3,710, 3,503, 2,526, 1,334... over a second). A jump goes
-  // straight to the top; at most one position in between is allowed, where the
-  // browser clamps the old offset to the new page's height for a frame or two
-  // before Next.js scrolls to the top.
+  // straight to the top; at most two positions in between are allowed, where
+  // the browser clamps the old offset to the new page's height for a few
+  // frames before Next.js scrolls to the top. The new page can lay out in two
+  // steps on a loaded runner, so the clamp can move once (WebKit on #131:
+  // 6,316, then 6,292 for 3 frames, 6,179 for 2, then 0).
   const frames = await page.evaluate(() => (window as unknown as { __frames: number[] }).__frames)
   const start = frames[0]
   const trace = `scroll positions after the click: ${frames.join(', ')}`
@@ -50,7 +52,7 @@ test('a post opened from the homepage starts at its top, without scrolling up to
   const stops = [...new Set(frames.filter((y) => y > 0 && y < start - 40))]
     .sort((a, b) => a - b)
     .filter((y, i, all) => i === 0 || y - all[i - 1] > 4)
-  expect(stops.length, trace).toBeLessThanOrEqual(1)
+  expect(stops.length, trace).toBeLessThanOrEqual(2)
   const left = frames.findIndex((y) => y !== start)
   const top = frames.indexOf(0)
   expect(top, trace).toBeGreaterThan(-1)

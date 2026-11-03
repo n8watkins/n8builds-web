@@ -684,11 +684,27 @@ test.describe('dino easter egg (motion allowed)', () => {
     await dinoTiming(page, { reactions: ['dash'], round: 7 })
     await onTopRow(page)
     const timer = page.locator('[data-dino-timer]')
+    // Time the round in the page, from the moment the timer shows to the
+    // moment it hides. Timing it from the test instead starts the clock when
+    // Playwright's polling notices the timer, which with slow frames can be
+    // most of a second late, and made a full 7 s round measure 5.997 s
+    // (Firefox, #134).
+    await timer.evaluate((el) => {
+      const w = window as unknown as { __dinoShown: [string | null, number][] }
+      w.__dinoShown = []
+      new MutationObserver(() => w.__dinoShown.push([el.getAttribute('data-shown'), performance.now()])).observe(el, {
+        attributes: true,
+        attributeFilter: ['data-shown'],
+      })
+    })
     await pokeDino(page)
     await expect(timer).toHaveAttribute('data-shown', 'true')
-    const started = Date.now()
     await expect(timer).toHaveAttribute('data-shown', 'false', { timeout: 20_000 })
-    const took = (Date.now() - started) / 1000
+    const changes = await page.evaluate(() => (window as unknown as { __dinoShown: [string | null, number][] }).__dinoShown)
+    const shown = changes.find(([value]) => value === 'true')
+    const hidden = changes.find(([value, at]) => value === 'false' && !!shown && at > shown[1])
+    expect(shown && hidden, `data-shown changes: ${JSON.stringify(changes)}`).toBeTruthy()
+    const took = (hidden![1] - shown![1]) / 1000
     expect(took, 'seconds the 7 s round took').toBeGreaterThan(6)
     expect(took, 'seconds the 7 s round took').toBeLessThan(9)
   })
