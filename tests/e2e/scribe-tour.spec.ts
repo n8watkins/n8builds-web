@@ -32,7 +32,7 @@ for (const path of ['/loadout', '/']) {
         ['/builds/scribe/tour.webm', 'video/webm'],
         ['/builds/scribe/tour.mp4', 'video/mp4'],
       ])
-      const flags = await video.evaluate((v: HTMLVideoElement) => ({ loop: v.loop, inline: v.playsInline, controls: v.controls }))
+      const flags = await video.evaluate((v: HTMLVideoElement) => ({ loop: v.loop, inline: v.hasAttribute('playsinline'), controls: v.controls }))
       expect(flags).toEqual({ loop: true, inline: true, controls: false })
       // No landing-page screenshots and no gallery: the tour is the picture.
       await expect(row.locator('img[src*="landing"], img[src*="features"]')).toHaveCount(0)

@@ -543,7 +543,7 @@ test.describe('Loadout tools and people', () => {
     const video = card.locator('[data-pr-post-window] video')
     await expect(video).toHaveAttribute('poster', '/projects/pr-post-tour-poster.webp')
     await expect(video).toHaveAttribute('aria-label', /The Pull Request Post's live front page/)
-    await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.muted && v.loop && v.playsInline)).toBe(true)
+    await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.muted && v.loop && v.hasAttribute('playsinline'))).toBe(true)
     await expect(video.locator('source')).toHaveCount(0)
     await expect(card.locator('[data-pr-post-window] a')).toHaveCount(0)
   })
