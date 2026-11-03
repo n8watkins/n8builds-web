@@ -20,6 +20,8 @@ test.beforeEach(async ({ page }) => {
 const uniqueEmail = () => `visitor+${Date.now()}${Math.floor(Math.random() * 1e6)}@example.com`
 
 async function waitForTurnstileToken(page: Page) {
+  // Its Turnstile loads once the form nears the screen (hooks/useNearViewport.ts).
+  await page.locator('#waitlist').scrollIntoViewIfNeeded()
   await expect(page.locator('#waitlist input[name="cf-turnstile-response"]')).toHaveValue(/.+/, { timeout: SEND_TIMEOUT })
 }
 

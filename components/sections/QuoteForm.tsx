@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Turnstile } from '@marsidev/react-turnstile'
 import { FiArrowRight, FiCheck } from 'react-icons/fi'
 import { useHydrated } from '@/hooks/useHydrated'
+import { useNearViewport } from '@/hooks/useNearViewport'
 
 // How long to wait for Turnstile to issue a token after the visitor sends.
 const TURNSTILE_WAIT_MS = 15_000
@@ -30,6 +31,8 @@ type State =
  */
 export default function QuoteForm({ turnstileSiteKey }: { turnstileSiteKey: string }) {
   const hydrated = useHydrated()
+  // Turnstile loads once the form is near the screen, not with the page (useNearViewport).
+  const [formRef, near] = useNearViewport<HTMLFormElement>()
   const [email, setEmail] = useState('')
   const [honeypot, setHoneypot] = useState('')
   const [state, setState] = useState<State>({ kind: 'idle' })
@@ -127,6 +130,7 @@ export default function QuoteForm({ turnstileSiteKey }: { turnstileSiteKey: stri
   const errorId = 'quote-email-error'
   return (
     <form
+      ref={formRef}
       id={QUOTE_ANCHOR}
       noValidate
       className="scroll-mt-28"
@@ -202,7 +206,7 @@ export default function QuoteForm({ turnstileSiteKey }: { turnstileSiteKey: stri
         Just your email. It comes straight to me, and this site doesn&apos;t store or share it.
       </p>
       {/* Invisible unless Cloudflare needs a challenge; see the contact form. */}
-      {turnstileSiteKey && (
+      {turnstileSiteKey && near && (
         <Turnstile
           key={widget}
           siteKey={turnstileSiteKey}

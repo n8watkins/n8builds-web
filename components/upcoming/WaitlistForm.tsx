@@ -7,6 +7,7 @@ import { FiCheck, FiMail } from 'react-icons/fi'
 import { ContactInput } from '@/components/ui/ContactInput'
 import { errorId } from '@/components/ui/FieldWrapper'
 import { useHydrated } from '@/hooks/useHydrated'
+import { useNearViewport } from '@/hooks/useNearViewport'
 import { UPCOMING, interestSlug, isUpcomingSlug, type UpcomingSlug } from '@/data/upcoming'
 import { PICK_EVENT } from './JoinButton'
 
@@ -36,6 +37,8 @@ export default function WaitlistForm({
 }) {
   const side = layout === 'side'
   const hydrated = useHydrated()
+  // Turnstile loads once the form is near the screen, not with the page (useNearViewport).
+  const [formRef, near] = useNearViewport<HTMLFormElement>()
   const [email, setEmail] = useState('')
   const [projects, setProjects] = useState<UpcomingSlug[]>([])
   const [honeypot, setHoneypot] = useState('')
@@ -148,6 +151,7 @@ export default function WaitlistForm({
 
   return (
     <form
+      ref={formRef}
       noValidate
       onSubmit={(e) => {
         e.preventDefault()
@@ -259,7 +263,7 @@ export default function WaitlistForm({
 
       <div className="flex flex-col items-center gap-3">
         {/* Invisible unless Cloudflare needs a challenge; see the contact form. */}
-        {turnstileSiteKey && (
+        {turnstileSiteKey && near && (
           <Turnstile
             key={widget}
             siteKey={turnstileSiteKey}
