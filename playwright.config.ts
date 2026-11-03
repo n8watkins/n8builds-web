@@ -41,7 +41,20 @@ export default defineConfig({
     // Chromium runs muted: the dino game's music (tests/e2e/dino-music.spec.ts)
     // must never sound out loud on a developer's machine.
     { name: 'chromium', testIgnore: /api\//, use: { ...devices['Desktop Chrome'], launchOptions: MUTED } },
-    { name: 'firefox', testIgnore: /api\//, use: { ...devices['Desktop Firefox'] } },
+    // Firefox applies stale-while-revalidate to pages: `next start` serves the
+    // prerendered ones with s-maxage and stale-while-revalidate, so a second
+    // goto() to a URL shows the cached page and then refetches it in the
+    // background, and Playwright waits for that refetch as a navigation that
+    // never finishes ("waiting for ... navigation to finish", 2026-11-03).
+    // Production on Vercel doesn't send those headers to browsers.
+    {
+      name: 'firefox',
+      testIgnore: /api\//,
+      use: {
+        ...devices['Desktop Firefox'],
+        launchOptions: { firefoxUserPrefs: { 'network.http.stale_while_revalidate.enabled': false } },
+      },
+    },
     { name: 'webkit', testIgnore: /api\//, use: { ...devices['Desktop Safari'] } },
     { name: 'mobile-chrome', testIgnore: /api\//, use: { ...devices['Pixel 7'], launchOptions: MUTED } },
     { name: 'mobile-safari', testIgnore: /api\//, use: { ...devices['iPhone 14'] } },
