@@ -22,7 +22,8 @@ const PARTS = [
 
 const rail = (page: Page) => page.getByRole('navigation', { name: 'Loadout contents' })
 const labRail = (page: Page) => page.getByRole('navigation', { name: 'Lab contents' })
-// The rail fades in on a frame after the scroll; a loaded CI machine (WebKit especially) can take several seconds.
+// The rail fades in (and out) on a frame after the scroll; a loaded CI machine (WebKit especially) can take
+// several seconds to run that frame, so hiding gets the same budget as showing.
 const SHOW = { timeout: 15_000 }
 
 /** Open the homepage and wait until the rail's script is running (see the Lab's spec). */
@@ -73,14 +74,14 @@ test.describe('at 1440px', () => {
     await expect(nav).toBeHidden()
     // Between the two (People I follow): neither.
     await place(page, 'people')
-    await expect(nav).toBeHidden()
-    await expect(labRail(page)).toBeHidden()
+    await expect(nav).toBeHidden(SHOW)
+    await expect(labRail(page)).toBeHidden(SHOW)
 
     for (const part of PARTS.slice(0, 3)) {
       await place(page, part.id)
       await expect(nav).toBeVisible(SHOW)
       await expect(nav).toBeInViewport()
-      await expect(labRail(page)).toBeHidden()
+      await expect(labRail(page)).toBeHidden(SHOW)
       await expect(nav.locator('[aria-current]'), part.id).toHaveAccessibleName(part.label)
       await expect(nav.locator('[aria-current]')).toHaveCount(1)
     }
