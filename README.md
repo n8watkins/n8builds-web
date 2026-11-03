@@ -5,7 +5,7 @@ The public builder lab of Nathan Watkins: a Next.js site for building software i
 **Live at [n8builds.dev](https://n8builds.dev)**, deployed on Vercel (auto-deploys from `main`), DNS via Cloudflare.
 
 Current project state, decisions and conventions live in [`docs/HANDOFF.md`](docs/HANDOFF.md).
-Manual steps that need the owner live in [`docs/OWNER_TODO.md`](docs/OWNER_TODO.md).
+The owner to-do list (what only the owner can do: keys, accounts, links) is Part 1 of [`docs/NEXT_STEPS.md`](docs/NEXT_STEPS.md); [`docs/OWNER_TODO.md`](docs/OWNER_TODO.md) keeps the detailed records of past and pending setup steps.
 
 ## Stack
 

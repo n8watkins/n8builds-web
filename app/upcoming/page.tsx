@@ -13,9 +13,9 @@ import { pageMetadata } from '@/lib/seo'
 export const metadata = pageMetadata({
   title: 'Upcoming | n8builds',
   description:
-    "Projects I'm outlining in public: Relink, which turns broken links into the right page; Strollz, walking loops through streets you've never walked; VibeLog, live telemetry for coding streams; and KeysReady, booking, live repair status and pay-by-phone for small auto shops. Join a waitlist to hear when there is something to try.",
+    "Projects I'm outlining in public: Relink, which turns broken links into the right page; Strollz, walking loops through streets you've never walked; VibeLog, live telemetry for coding streams; KeysReady, booking, live repair status and pay-by-phone for small auto shops; and Asset Arsenal, skins for your web pages. Join a waitlist to hear when there is something to try.",
   shareDescription:
-    "What I'm outlining next: Relink, Strollz, VibeLog and KeysReady. Join a waitlist to hear when there is something to try.",
+    "What I'm outlining next: Relink, Strollz, VibeLog, KeysReady and Asset Arsenal. Join a waitlist to hear when there is something to try.",
   path: '/upcoming',
 })
 
@@ -125,11 +125,11 @@ export default function UpcomingPage() {
 
           {/* From 1024px the waitlist is a sticky column beside the cards (round 5 of
                2026-11-02: sign up while reading), the cards one to a row beside it;
-               below that the cards come first (two by two from 960px) and the
-               waitlist after them. One form either way, so ?interest= and the cards'
-               Join buttons tick the same one. */}
+               below that the cards come first (two by two from 960px, an odd last
+               card spanning the row) and the waitlist after them. One form either
+               way, so ?interest= and the cards' Join buttons tick the same one. */}
           <div className="mt-10 grid gap-6 md:mt-12 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-8 xl:grid-cols-[minmax(0,1fr)_24rem]">
-            <div className="grid gap-6 min-[960px]:max-lg:grid-cols-2">
+            <div className="grid gap-6 min-[960px]:max-lg:grid-cols-2 min-[960px]:max-lg:[&>*:nth-child(odd):last-child]:col-span-2">
               {UPCOMING.map((project, index) => (
                 <ProjectCard key={project.slug} project={project} index={index} />
               ))}

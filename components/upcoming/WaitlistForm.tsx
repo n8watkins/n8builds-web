@@ -195,7 +195,8 @@ export default function WaitlistForm({
         <legend className="text-sm font-medium text-slate-200">Which projects?</legend>
         {/* Beside the homepage cards (side, 1024px up) a pick is its icon and name
             only: the card beside it has the tagline. One column, then two by two
-            from 1280px, so the cards and the panel fit a 1280x800 screen. */}
+            from 1280px, so the cards and the panel fit a 1280x800 screen. An odd
+            last pick spans both columns, so it never sits alone in half a row. */}
         <div className={`mt-2 grid gap-2.5 sm:grid-cols-2 ${side ? 'lg:grid-cols-1 lg:gap-2 xl:grid-cols-2' : ''}`}>
           {UPCOMING.map((p) => {
             const checked = projects.includes(p.slug)
@@ -203,7 +204,7 @@ export default function WaitlistForm({
               <label
                 key={p.slug}
                 style={{ '--accent': p.accent } as CSSProperties}
-                className={`group relative flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 ${side ? 'lg:gap-2.5 lg:px-3 lg:py-2' : ''} transition-colors duration-150 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-(--accent) ${
+                className={`group relative flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 sm:odd:last:col-span-2 ${side ? 'lg:gap-2.5 lg:px-3 lg:py-2 lg:odd:last:col-span-1 xl:odd:last:col-span-2' : ''} transition-colors duration-150 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-(--accent) ${
                   checked ? 'border-(--accent)/60 bg-(--accent)/10' : 'border-slate-600 bg-slate-800/60 hover:border-slate-500'
                 }`}
               >

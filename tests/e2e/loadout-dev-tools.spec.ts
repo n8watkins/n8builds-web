@@ -115,7 +115,6 @@ test.describe('Loadout tools and people', () => {
       'no-mistakes': 'kunchenguid/no-mistakes',
       'chrome-devtools-axi': 'kunchenguid/chrome-devtools-axi',
       'gh-axi': 'kunchenguid/gh-axi',
-      Lavish: 'kunchenguid/lavish-axi',
       firstmate: 'kunchenguid/firstmate',
       treehouse: 'kunchenguid/treehouse',
       ccusage: 'ccusage/ccusage',
@@ -259,7 +258,7 @@ test.describe('Loadout tools and people', () => {
       '[wsl2]\nnetworkingMode=mirrored\nmemory=20GB\nprocessors=8\nswap=16GB\n\n[experimental]\nautoMemoryReclaim=dropcache\nsparseVhd=true',
     )
     // Agent tooling points at the Tools I use cards instead of repeating them.
-    for (const [name, id] of [['no-mistakes', 'no-mistakes'], ['gh-axi', 'gh-axi'], ['chrome-devtools-axi', 'chrome-devtools-axi'], ['Lavish', 'lavish']]) {
+    for (const [name, id] of [['no-mistakes', 'no-mistakes'], ['gh-axi', 'gh-axi'], ['chrome-devtools-axi', 'chrome-devtools-axi']]) {
       await expect(setup.getByRole('link', { name, exact: true })).toHaveAttribute('href', `#${id}`)
       await expect(page.locator(`#tools-i-use #${id}`)).toHaveCount(1)
     }

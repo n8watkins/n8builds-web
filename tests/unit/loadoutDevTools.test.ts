@@ -92,7 +92,7 @@ describe('the loadout dev-tool lists', () => {
   })
 
   it('folds the honorable mentions into Tools I use, herdr first, and leaves gnhf off the list', () => {
-    expect(toolsIUse.map((t) => t.id)).toEqual(['herdr', 'no-mistakes', 'chrome-devtools-axi', 'gh-axi', 'lavish', 'firstmate', 'treehouse', 'ccusage'])
+    expect(toolsIUse.map((t) => t.id)).toEqual(['herdr', 'no-mistakes', 'chrome-devtools-axi', 'gh-axi', 'firstmate', 'treehouse', 'ccusage'])
     expect(toolsIUse.map((t) => t.id)).not.toContain('gnhf')
   })
 

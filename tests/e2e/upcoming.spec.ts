@@ -29,12 +29,13 @@ test('shows each project with its own anchor, and is titled for the site', async
   await page.goto('/upcoming')
   await expect(page).toHaveTitle('Upcoming | n8builds')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('What’s cookin’')
-  await expect(page.locator('main article')).toHaveCount(4)
+  await expect(page.locator('main article')).toHaveCount(5)
   for (const [id, name, status] of [
     ['relink', 'Relink', 'Outlining'],
     ['strollz', 'Strollz', 'Outlining'],
     ['vibelog', 'VibeLog', 'Outlining'],
     ['keysready', 'KeysReady', 'Concept'],
+    ['asset-arsenal', 'Asset Arsenal', 'Outlining'],
   ]) {
     const card = page.locator(`article#${id}`)
     await expect(card.getByRole('heading', { level: 2 })).toContainText(name)
@@ -42,7 +43,7 @@ test('shows each project with its own anchor, and is titled for the site', async
     await expect(card.getByRole('listitem')).toHaveCount(4)
   }
   await expect(page.locator('article#keysready')).toContainText('Stop answering “Is my car ready?”')
-  await expect(page.locator('#waitlist-projects').getByRole('checkbox')).toHaveCount(4)
+  await expect(page.locator('#waitlist-projects').getByRole('checkbox')).toHaveCount(5)
 })
 
 test('lays the cards out one to a row beside the waitlist on wide screens, two by two just below, one column on phones', async ({ page }) => {
@@ -180,10 +181,20 @@ const LANDING = {
   strollz: 'https://strollz.n8builds.dev',
   vibelog: 'https://vibelogs.dev',
   keysready: 'https://keysready.n8builds.dev',
+  'asset-arsenal': 'https://assetarsenal.n8builds.dev',
 }
-const NAMES: Record<string, string> = { relink: 'Relink', strollz: 'Strollz', vibelog: 'VibeLog', keysready: 'KeysReady' }
+const NAMES: Record<string, string> = {
+  relink: 'Relink',
+  strollz: 'Strollz',
+  vibelog: 'VibeLog',
+  keysready: 'KeysReady',
+  'asset-arsenal': 'Asset Arsenal',
+}
 
-/** Only public repositories get a "View the code" link: all four are public since 2026-11-02 (Relink's repo is still deadlink). */
+/**
+ * Only public repositories get a "View the code" link: the first four are public since
+ * 2026-11-02 (Relink's repo is still deadlink); Asset Arsenal's is not yet.
+ */
 const CODE: Record<string, string | undefined> = {
   relink: 'https://github.com/n8watkins/deadlink',
   strollz: 'https://github.com/n8watkins/strollz',
@@ -221,10 +232,10 @@ test("the homepage Lab ends with a short What's cookin' part: each project's sum
   await expect(band.getByRole('heading', { level: 3 })).toHaveText('What’s cookin’ 🍲')
   await expect(band.getByRole('heading', { level: 3 })).toHaveAccessibleName('What’s cookin’')
   await expect(band.getByText('Upcoming', { exact: true })).toBeVisible()
-  await expect(band.locator('ul > li')).toHaveCount(4)
+  await expect(band.locator('ul > li')).toHaveCount(5)
   // The same form as /upcoming, picking several projects (owner, 2026-11-02), without the note.
   await expect(band.locator('#waitlist').getByRole('heading', { level: 4, name: 'Join the waitlist' })).toBeVisible()
-  await expect(band.locator('#waitlist').getByRole('checkbox')).toHaveCount(4)
+  await expect(band.locator('#waitlist').getByRole('checkbox')).toHaveCount(5)
   await expect(band.locator('#waitlist textarea')).toHaveCount(0)
   const cards = band.locator('ul > li')
   for (const [i, [slug, href]] of Object.entries(LANDING).entries()) {
@@ -237,14 +248,17 @@ test("the homepage Lab ends with a short What's cookin' part: each project's sum
     // visitor picks projects in the form, so no per-card Join.
     const landing = card.getByRole('link', { name: `Landing page for ${name} (opens in a new tab)` })
     await expect(landing).toHaveAttribute('href', href)
-    const [landingBox, codeBox] = [(await landing.boundingBox())!, (await card.getByRole('link', { name: /^View the code/ }).boundingBox())!]
+    await expect(card.getByRole('link', { name: /Join the waitlist/ })).toHaveCount(0)
+    const code = card.getByRole('link', { name: /^View the code/ })
+    if (!CODE[slug]) {
+      await expect(code).toHaveCount(0)
+      continue
+    }
+    await expect(code).toHaveAttribute('href', CODE[slug]!)
+    const [landingBox, codeBox] = [(await landing.boundingBox())!, (await code.boundingBox())!]
     expect(Math.abs(landingBox.y - codeBox.y)).toBeLessThan(1)
     expect(Math.abs(landingBox.height - codeBox.height)).toBeLessThan(1)
     expect(codeBox.x).toBeGreaterThan(landingBox.x + landingBox.width)
-    await expect(card.getByRole('link', { name: /Join the waitlist/ })).toHaveCount(0)
-    const code = card.getByRole('link', { name: /^View the code/ })
-    if (CODE[slug]) await expect(code).toHaveAttribute('href', CODE[slug]!)
-    else await expect(code).toHaveCount(0)
   }
   await expect(cards.first()).toContainText('When a visitor follows a broken link to your website')
   // The full detail stays on /upcoming.
@@ -260,7 +274,8 @@ test('a landing page link to the homepage ticks its project in the waitlist ther
   await expect(form.locator('input[value="relink"]')).not.toBeChecked()
 })
 
-// Cards two by two beside the waitlist from 1024px, two by two above it on tablets, one column on phones.
+// Cards two by two beside the waitlist from 1024px, two by two above it on tablets, one column on phones;
+// with five projects the last card spans the row, as a row of its own.
 // 1040, not 1024: WebKit's media queries see the window minus its scrollbar,
 // so a 1024px window there is still in the tablet layout.
 for (const [width, height, columns, beside] of [
@@ -286,37 +301,45 @@ for (const [width, height, columns, beside] of [
     }
     const band = page.locator('#lab section#upcoming')
     const items = band.locator('ul > li')
-    await expect(items).toHaveCount(4)
+    await expect(items).toHaveCount(5)
     await items.first().scrollIntoViewIfNeeded()
     const boxes = await items.evaluateAll((list) =>
-      list.map((li) => ({ top: Math.round(li.getBoundingClientRect().top), height: li.getBoundingClientRect().height }))
+      list.map((li) => ({ top: Math.round(li.getBoundingClientRect().top), height: li.getBoundingClientRect().height, width: li.getBoundingClientRect().width }))
     )
     const rows = new Map<number, number[]>()
     for (const { top, height } of boxes) rows.set(top, [...(rows.get(top) ?? []), height])
-    // A balanced grid: every row full, so no card is left alone, and the cards in a row the same height.
-    expect([...rows.values()].map((row) => row.length)).toEqual(Array(4 / columns).fill(columns))
+    // A balanced grid: every row full and the cards in a row the same height; with two
+    // columns the odd last card spans the row, so no card is left alone beside a gap.
+    expect([...rows.values()].map((row) => row.length)).toEqual(columns === 2 ? [2, 2, 1] : [1, 1, 1, 1, 1])
     for (const heights of rows.values()) expect(Math.max(...heights) - Math.min(...heights)).toBeLessThan(1)
+    const widest = Math.max(...boxes.map((b) => b.width))
+    expect(Math.abs(boxes[4].width - widest)).toBeLessThan(1)
     // Each button's label stays on one line inside it (its icons too), the buttons level across a row.
-    const buttons = await items
-      .getByRole('link', { name: /^(Landing page|View the code)/ })
-      .evaluateAll((links) =>
-        links.map((a) => ({ height: a.getBoundingClientRect().height, fits: a.scrollWidth <= a.clientWidth, top: Math.round(a.getBoundingClientRect().top) }))
+    const cardButtons = await items.evaluateAll((list) =>
+      list.map((li) =>
+        [...li.querySelectorAll('a')]
+          .filter((a) => /^(Landing page|View the code)/.test(a.textContent ?? ''))
+          .map((a) => ({ height: a.getBoundingClientRect().height, fits: a.scrollWidth <= a.clientWidth, top: Math.round(a.getBoundingClientRect().top) }))
       )
-    expect(buttons).toHaveLength(8)
+    )
+    // Landing page on every card, View the code where the repository is public.
+    expect(cardButtons.map((b) => b.length)).toEqual(Object.keys(LANDING).map((slug) => (CODE[slug] ? 2 : 1)))
+    const buttons = cardButtons.flat()
+    const withCode = Object.values(CODE).filter(Boolean).length
     // Every mark that shows is at least 12px; below 360px the code button's GitHub mark
     // gives way, so "Landing page" and "View the code" still fit side by side (round 4).
     const icons = await items.locator('a svg').evaluateAll((list) =>
       list.map((svg) => ({ width: svg.getBoundingClientRect().width, shown: getComputedStyle(svg).display !== 'none' })),
     )
     expect(icons.filter((i) => i.shown).every((i) => i.width >= 12)).toBe(true)
-    expect(icons.filter((i) => i.shown)).toHaveLength(width < 360 ? 4 : 8)
+    expect(icons.filter((i) => i.shown)).toHaveLength(width < 360 ? 5 : 5 + withCode)
     for (const { height, fits } of buttons) {
       expect(height).toBeLessThanOrEqual(44)
       expect(fits).toBe(true)
     }
-    // Each card's two buttons share one row, at every width.
-    for (let i = 0; i < buttons.length; i += 2) expect(buttons[i].top).toBe(buttons[i + 1].top)
-    if (columns === 2) expect(new Set(buttons.map((b) => b.top)).size).toBe(2)
+    // Each card's buttons share one row, at every width.
+    for (const row of cardButtons) expect(new Set(row.map((b) => b.top)).size).toBe(1)
+    if (columns === 2) expect(new Set(buttons.map((b) => b.top)).size).toBe(3)
 
     const grid = await items.evaluateAll((list) => {
       const r = list.map((li) => li.getBoundingClientRect())

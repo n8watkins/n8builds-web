@@ -8,7 +8,6 @@ import {
   LuChartColumn,
   LuCircuitBoard,
   LuCpu,
-  LuFileCode,
   LuGlobe,
   LuHammer,
   LuHardDrive,
@@ -485,14 +484,6 @@ export const toolsIUse: UsedTool[] = [
     icon: <SiGithub />,
   },
   {
-    id: 'lavish',
-    name: 'Lavish',
-    whatFor: 'Opens an agent\'s HTML report in my browser, so I can mark up any part of it and send the notes back.',
-    github: 'https://github.com/kunchenguid/lavish-axi',
-    by: 'kun-chen',
-    icon: <LuFileCode />,
-  },
-  {
     id: 'firstmate',
     name: 'firstmate',
     whatFor: 'Talk to one agent, ship with a crew: it runs several project tasks in parallel, so you stop juggling terminal tabs.',
@@ -758,7 +749,6 @@ export const devSetup: DevSetupTile[] = [
           { name: 'no-mistakes', href: '#no-mistakes', icon: <LuShieldCheck /> },
           { name: 'gh-axi', href: '#gh-axi', icon: <SiGithub /> },
           { name: 'chrome-devtools-axi', href: '#chrome-devtools-axi', icon: <LuGlobe /> },
-          { name: 'Lavish', href: '#lavish', icon: <LuFileCode /> },
           // Sentry's own CLI, which my agents drive through its skill to read this site's errors
           // (round 5 of 2026-11-02; a setup chip, not a Tools I use card). Its repo is the link.
           { name: 'Sentry CLI', note: 'with its agent skill', href: 'https://github.com/getsentry/cli', icon: mark(SiSentry, '#a39ad8') },

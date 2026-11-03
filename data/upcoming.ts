@@ -8,11 +8,12 @@
  * a renamed project keeps its old interest value working (INTEREST_ALIASES).
  * Copy comes from each project's own docs (Relink's in ~/projects/deadlink,
  * Strollz's in ~/projects/strollz, VibeLog's README and docs/VISION.md in
- * ~/projects/polish/vibelog, KeysReady's from the owner and its landing page);
- * keep it in step and modest.
+ * ~/projects/polish/vibelog, KeysReady's from the owner and its landing page,
+ * Asset Arsenal's docs/SKINS_CONCEPT.md in ~/projects/asset-arsenal); keep it
+ * in step and modest.
  */
 
-export const UPCOMING_SLUGS = ['relink', 'strollz', 'vibelog', 'keysready'] as const
+export const UPCOMING_SLUGS = ['relink', 'strollz', 'vibelog', 'keysready', 'asset-arsenal'] as const
 export type UpcomingSlug = (typeof UPCOMING_SLUGS)[number]
 
 export type UpcomingProject = {
@@ -132,6 +133,27 @@ export const UPCOMING: UpcomingProject[] = [
       'Live repair status by email and browser notifications, with a status page that answers the call before it happens',
       "Estimates customers approve and pay from their phone, with money going to the shop's own Stripe account",
       'Free for a small shop and open source, so you can self-host it; Pro at $29/mo adds texts, reminders and reviews (planned)',
+    ],
+  },
+  {
+    slug: 'asset-arsenal',
+    name: 'Asset Arsenal',
+    tagline: 'Give your page a skin',
+    summary:
+      'For builders: it redraws your page in your brand or any style you name, then cuts it into assets you can ship.',
+    icon: '/upcoming/asset-arsenal.svg',
+    landing: 'https://assetarsenal.n8builds.dev',
+    accent: '#f3b73f',
+    what: 'It reimagines your page in your brand or in any style you name, then breaks that picture into real assets you can ship: backgrounds, frames, buttons, icons and illustrations, each cut out and ready to drop in.',
+    forWho:
+      'Builders who want a site that looks like their brand rather than a template, and apps that want to offer their users a few skins to pick from.',
+    status: 'Outlining',
+    stage: 'An icon workbench runs on my machine; page skins are next',
+    points: [
+      'Starts from a screenshot of your page plus your logo, colors and images',
+      'A few full-page concepts in the style you describe; keep the one you love',
+      'Every asset rebuilt full size on a transparent background, matching the concept',
+      'Keep, reject or retry any single piece, and see the cost before each run',
     ],
   },
 ]
