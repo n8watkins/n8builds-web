@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import { BUILD_ICONS } from '@/lib/build-meta'
 import type { DayCount, ShippedStat } from '@/lib/log-stats'
+import { latestEntry } from '@/lib/intersection'
 
 // The card beside the homepage build log's rows (livelier since the
 // owner's ask, 2026-11-02): the month, its changes as a big number that counts
@@ -60,7 +61,8 @@ export default function ShippedStats({
     const el = ref.current
     if (!el) return
     let first = true
-    const observer = new IntersectionObserver(([entry]) => {
+    const observer = new IntersectionObserver((entries) => {
+      const entry = latestEntry(entries)
       setInView(entry.isIntersecting)
       if (first) {
         first = false

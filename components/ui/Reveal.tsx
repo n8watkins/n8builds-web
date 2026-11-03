@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useRef, type CSSProperties } from 'react'
+import { latestEntry } from '@/lib/intersection'
 
 /**
  * Fades its content up as it scrolls into view (once). Use it for sections
@@ -34,7 +35,8 @@ export default function Reveal({
     const reveal = () => el.setAttribute('data-revealed', '')
     if (typeof IntersectionObserver === 'undefined') return reveal()
     const observer = new IntersectionObserver(
-      ([entry]) => {
+      (entries) => {
+        const entry = latestEntry(entries)
         if (!entry.isIntersecting) return
         reveal()
         observer.disconnect()

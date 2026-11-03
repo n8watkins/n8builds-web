@@ -5,6 +5,7 @@ import type { IconType } from 'react-icons'
 import { LuFan, LuHouse, LuTrees, LuWaves } from 'react-icons/lu'
 import type { NowShot } from '@/data/now'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
+import { latestEntry } from '@/lib/intersection'
 
 export type TemplateSlide = {
   src: string
@@ -55,7 +56,7 @@ export default function TemplateCarousel({ slides, phone }: { slides: TemplateSl
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    const observer = new IntersectionObserver(([entry]) => setOnScreen(entry.isIntersecting))
+    const observer = new IntersectionObserver((entries) => setOnScreen(latestEntry(entries).isIntersecting))
     observer.observe(el)
     const onVisibility = () => setTabShown(document.visibilityState === 'visible')
     document.addEventListener('visibilitychange', onVisibility)
