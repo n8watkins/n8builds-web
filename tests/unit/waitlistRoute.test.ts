@@ -235,6 +235,15 @@ describe('POST /api/waitlist', () => {
   })
 })
 
+describe('the confirm email after a repeat join', () => {
+  it('names the projects asked for, even ones the address already confirmed', async () => {
+    await call(join, valid)
+    await call(confirm, { token: links().confirm })
+    await call(join, valid)
+    expect(sendConfirmEmail.mock.calls.at(-1)![0]).toMatchObject({ projects: ['relink'], requested: ['relink'] })
+  })
+})
+
 describe('POST /api/waitlist/confirm', () => {
   it('confirms the projects behind a link', async () => {
     await call(join, { ...valid, projects: ['relink', 'strollz'] })

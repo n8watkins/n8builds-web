@@ -60,7 +60,9 @@ export async function POST(request: NextRequest) {
     const recipient = await checkRateLimit('waitlist-recipient', recipientKey(entry.email))
     if (recipient.allowed) {
       try {
-        await sendConfirmEmail(entry, await store.issueLinks(entry))
+        // Names what this request asked for, even a project the address already confirmed.
+        const asked = { ...entry, requested: [...new Set([...entry.requested, ...input.projects])] }
+        await sendConfirmEmail(asked, await store.issueLinks(entry))
       } catch (error) {
         logger.error('Waitlist confirm email failed:', error instanceof Error ? error.message : error)
         return fail(500, `The confirmation email didn't go out. Please try again in a minute, or email me at ${DIRECT_EMAIL}.`)
