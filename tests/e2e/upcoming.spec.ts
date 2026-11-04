@@ -67,13 +67,6 @@ test('lays the cards out one to a row beside the waitlist on wide screens, two b
   }
 })
 
-test("KeysReady's landing page link preselects it and lands on its card", async ({ page }) => {
-  await page.goto('/upcoming?interest=keysready#keysready')
-  await expect(project(page, 'KeysReady')).toBeChecked()
-  await expect(project(page, 'Relink')).not.toBeChecked()
-  await expect(page.locator('article#keysready')).toBeInViewport()
-})
-
 test('a landing page link preselects its project and lands on its card', { tag: '@cross-browser' }, async ({ page }) => {
   await page.goto('/upcoming?interest=strollz#strollz')
   await expect(project(page, 'Strollz')).toBeChecked()
