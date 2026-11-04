@@ -64,6 +64,12 @@ test('lays the cards out one to a row beside the waitlist on wide screens, two b
     const lefts = await page.locator('main article').evaluateAll((cards) => cards.map((c) => Math.round(c.getBoundingClientRect().left)))
     expect(new Set(lefts).size, `columns at ${width}px`).toBe(columns)
     expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0)
+    // Tablets and phones: the waitlist comes after the cards.
+    if (width < 1000) {
+      const last = (await page.locator('#keysready').boundingBox())!
+      const form = (await page.locator('#waitlist').boundingBox())!
+      expect(form.y, `the waitlist after the cards at ${width}px`).toBeGreaterThan(last.y + last.height)
+    }
   }
 })
 
@@ -433,14 +439,3 @@ test('on a wide screen the waitlist stays beside the cards as you read, and Join
   await expect(waitlist).toHaveAttribute('data-flash', '')
   expect(Math.abs((await page.evaluate(() => window.scrollY)) - y)).toBeLessThan(2)
 })
-
-for (const width of [390, 820]) {
-  test(`at ${width}px the waitlist comes after the cards`, async ({ page }) => {
-    await page.setViewportSize({ width, height: 900 })
-    await page.goto('/upcoming')
-    const last = (await page.locator('#keysready').boundingBox())!
-    const form = (await page.locator('#waitlist').boundingBox())!
-    expect(form.y).toBeGreaterThan(last.y + last.height)
-    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width)
-  })
-}
