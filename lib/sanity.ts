@@ -44,6 +44,19 @@ const POST_CARD = `
   "coverAlt": coverImage.alt
 `
 
+// The body with its inline images dereferenced to CDN URLs and their sizes.
+const POST_BODY = `
+  body[]{
+    ...,
+    _type == "image" => {
+      "url": asset->url,
+      "alt": alt,
+      "width": asset->metadata.dimensions.width,
+      "height": asset->metadata.dimensions.height
+    }
+  }
+`
+
 export const getAllPosts = () =>
   sanity.fetch<Post[]>(`*[_type == "post"] | order(publishedAt desc){ ${POST_CARD} }`)
 
@@ -63,15 +76,7 @@ export const getPostBySlug = cache((slug: string) =>
       "seoDescription": seo.metaDescription,
       "seoShareDescription": seo.shareDescription,
       "seoOgUrl": seo.ogImage.asset->url,
-      body[]{
-        ...,
-        _type == "image" => {
-          "url": asset->url,
-          "alt": alt,
-          "width": asset->metadata.dimensions.width,
-          "height": asset->metadata.dimensions.height
-        }
-      }
+      ${POST_BODY}
     }`,
     { slug }
   )
@@ -81,4 +86,12 @@ export const getRelatedPosts = (currentSlug: string) =>
   sanity.fetch<Post[]>(
     `*[_type == "post" && slug.current != $currentSlug] | order(publishedAt desc)[0...3]{ ${POST_CARD} }`,
     { currentSlug }
+  )
+
+// Every post with its full text, for the feed (/blog/rss.xml).
+export const getFeedPosts = () =>
+  sanity.fetch<Post[]>(
+    `*[_type == "post"] | order(publishedAt desc){
+      ${POST_CARD}, author, "seoDescription": seo.metaDescription, ${POST_BODY}
+    }`
   )

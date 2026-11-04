@@ -42,7 +42,12 @@ export function pageMetadata({
   return {
     title,
     description,
-    alternates: { canonical: path },
+    // Every page advertises the N8's Notions feed, so a reader app finds it
+    // from any n8builds.dev link (RSS auto-discovery).
+    alternates: {
+      canonical: path,
+      types: { 'application/rss+xml': [{ url: '/blog/rss.xml', title: "N8's Notions" }] },
+    },
     openGraph: {
       title,
       description: shareDescription,

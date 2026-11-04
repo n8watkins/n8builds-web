@@ -1,7 +1,9 @@
+import { FiRss } from 'react-icons/fi'
 import Navbar from '@/components/layout/Navbar'
 import NotionsList from '@/components/blog/NotionsList'
 import { getAllPosts } from '@/lib/sanity'
 import { pageMetadata } from '@/lib/seo'
+import { FEED_PATH } from '@/lib/rss'
 import FadeIn from '@/components/ui/FadeIn'
 
 export const revalidate = 3600
@@ -39,6 +41,13 @@ export default async function BlogIndexPage() {
             <p className="mt-4 max-w-[600px] text-base leading-relaxed text-[#9cadc5] sm:text-lg/7">
               Notes, essays, and lessons from building software in public.
             </p>
+            <a
+              href={FEED_PATH}
+              className="mt-2 inline-flex items-center gap-2 py-2 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-slate-400 transition-colors hover:text-cyan-300"
+            >
+              <FiRss aria-hidden className="h-3.5 w-3.5" />
+              RSS feed
+            </a>
           </FadeIn>
 
           <NotionsList posts={posts} />
