@@ -113,7 +113,7 @@ CI (`.github/workflows/`):
   Two actors may bypass it: repository admins (so `npm run release -- --push` works by hand) and the deploy key "release-kit train", whose private half is only in the Actions secret `RELEASE_TRAIN_KEY`.
   Rotate the key by running `npx release-kit protect` again.
 - Work goes through pull requests (see `docs/BUILD_PLAN.md`); full browser runs happen in Actions, not on the dev machine.
-- `nightly.yml` at 09:00 UTC and on demand: E2E on every browser project, Lighthouse budgets (`npm run lighthouse`), and the build log's repo check (`scripts/check-build-repos.mjs`, see "Build log").
+- `nightly.yml` at 09:00 UTC and on demand: the full `ci.yml` (called as a reusable workflow, so every browser project runs sharded exactly as on pull requests, plus the Lighthouse budgets), and the build log's repo check (`scripts/check-build-repos.mjs`, see "Build log").
 
 ## Build log (`/builds`)
 
@@ -259,7 +259,7 @@ The owner's standing decisions live in [DECISIONS.md](DECISIONS.md), the one pla
 - Known dev-only noise: `next dev` (Turbopack) logs a 404 for a stale preload hint of the lazily loaded confetti chunk (`ConfettiPlayer`).
   The chunk itself loads and the confetti renders; the production build is unaffected.
 - Lighthouse: `npm run build && npm run lighthouse` runs `scripts/lighthouse.mjs` (Lighthouse 13 directly; `@lhci/cli` was dropped as unmaintained and the source of most `npm audit` findings).
-  Budgets live in that script; reports go to `.lighthouse/` (a CI artifact in the nightly run), not to public storage.
+  Budgets live in that script; reports go to `.lighthouse/` (a CI artifact of every CI run, the nightly one included), not to public storage.
   Under WSL set `CHROME_PATH` to a Linux Chrome (Playwright's works: `~/.cache/ms-playwright/chromium-*/chrome-linux64/chrome`).
 - `npm audit` (all deps) has one known, unfixable finding: `braces` (GHSA-vfj7-8cjw-p6xm), via `eslint-config-next` → `fast-glob` → `micromatch`.
   No patched `braces` exists; it only expands the lint plugin's own glob patterns, never untrusted input. `npm audit --omit=dev` is 0.
