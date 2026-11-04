@@ -6,11 +6,22 @@ on:
   pull_request:
   # The release train starts CI on its release commit this way (pushes made
   # with GITHUB_TOKEN start no workflows). With no base to diff against, the
-  # "What changed" job runs everything.
+  # "What changed" job runs everything. The `full` input (on unless unticked)
+  # runs every Playwright test on every browser (scripts/e2e-matrix.mjs).
   workflow_dispatch:
+    inputs:
+      full:
+        description: "Run every Playwright test on every browser (unticked: the pull request tier)"
+        type: boolean
+        default: true
   # Nightly runs this whole workflow (every browser, sharded, and Lighthouse)
   # on a schedule; with no base commit, "What changed" runs everything.
   workflow_call:
+    inputs:
+      full:
+        description: "Run every Playwright test on every browser"
+        type: boolean
+        default: true
 
 permissions:
   contents: read

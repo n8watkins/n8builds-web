@@ -25,6 +25,10 @@ describe('the E2E tiers', () => {
     expect(tierFor('push', '')).toBe('smoke')
   })
 
+  it('gives every tier at least one job (an empty matrix fails the workflow)', () => {
+    for (const [tier, jobs] of Object.entries(matrix)) expect(jobs.length, tier).toBeGreaterThan(0)
+  })
+
   it('runs every project in full, each shard once, with no filter', () => {
     expect(shardsOf(matrix.full)).toEqual({
       api: ['all'],
@@ -65,5 +69,9 @@ describe('the E2E tiers', () => {
     const ci = readFileSync('.github/workflows/ci.yml', 'utf8')
     expect(ci).toContain('node scripts/e2e-matrix.mjs "$EVENT" "$FULL"')
     expect(ci).toContain('matrix: ${{ fromJSON(needs.changes.outputs.e2e) }}')
+    // "Run workflow", the release train and the nightly call run in full unless told otherwise.
+    for (const trigger of ['workflow_dispatch', 'workflow_call']) {
+      expect(ci).toMatch(new RegExp(`${trigger}:\\n    inputs:\\n      full:\\n.*\\n        type: boolean\\n        default: true\\n`))
+    }
   })
 })

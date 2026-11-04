@@ -125,7 +125,7 @@ async function emailedLink(page: Page, to: string, path: '/upcoming/confirm' | '
   return link.replace('https://n8builds.dev', '')
 }
 
-test('a visitor joins, confirms from the email, and leaves again, with every step kept in the database', async ({ page }) => {
+test('a visitor joins, confirms from the email, and leaves again, with every step kept in the database', { tag: '@smoke' }, async ({ page }) => {
   const email = uniqueEmail()
   await page.goto('/upcoming?interest=feelium#feelium', { waitUntil: 'domcontentloaded' })
   await waitForTurnstileToken(page)
