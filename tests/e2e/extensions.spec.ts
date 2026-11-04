@@ -64,7 +64,7 @@ test.describe('desktop', () => {
       expect(borders[1]).toBe(borders[2])
     })
 
-    test('it never cycles, and the timer bar shows full instead of filling', async ({ page }) => {
+    test('it never cycles, and the timer bar shows full instead of filling', { tag: '@cross-browser' }, async ({ page }) => {
       const { tabs } = await openShowcase(page)
       await page.mouse.move(0, 0)
       await page.waitForTimeout(CYCLE_MS + 1000)
@@ -72,7 +72,7 @@ test.describe('desktop', () => {
       await expect(tabs.nth(0).locator('[data-progress]')).toHaveCSS('animation-name', 'none')
     })
 
-    test('the keyboard moves between tabs with the arrow keys, Home and End', async ({ page }) => {
+    test('the keyboard moves between tabs with the arrow keys, Home and End', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
       const { tabs } = await openShowcase(page)
       // Only the active tab is in the tab order.
       await expect(tabs.nth(0)).toHaveAttribute('tabindex', '0')
@@ -104,7 +104,7 @@ test.describe('desktop', () => {
   test.describe('with motion', () => {
     test.use({ contextOptions: { reducedMotion: 'no-preference' } })
 
-    test('it auto-advances, and hovering a tab picks it and holds the cycle', async ({ page }) => {
+    test('it auto-advances, and hovering a tab picks it and holds the cycle', { tag: '@cross-browser' }, async ({ page }) => {
       test.setTimeout(60_000)
       const { tabs } = await openShowcase(page)
       await page.mouse.move(0, 0)
@@ -126,7 +126,7 @@ test.describe('desktop', () => {
       await expect(tabs.nth(0)).toHaveAttribute('aria-selected', 'true', { timeout: CYCLE_MS + 2000 })
     })
 
-    test('focus anywhere in the showcase holds the cycle, so a focused link never disappears', async ({ page }) => {
+    test('focus anywhere in the showcase holds the cycle, so a focused link never disappears', { tag: '@cross-browser' }, async ({ page }) => {
       const { tabs } = await openShowcase(page)
       await page.mouse.move(0, 0)
       await tabs.nth(0).focus()
@@ -143,7 +143,7 @@ test.describe('desktop', () => {
 test.describe('phones', () => {
   test.use({ viewport: { width: 375, height: 800 }, contextOptions: { reducedMotion: 'reduce' } })
 
-  test('the three extensions stack, each with its readable subtitle, and no tabs show', async ({ page }) => {
+  test('the three extensions stack, each with its readable subtitle, and no tabs show', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     const section = page.locator('#extensions')
     await section.scrollIntoViewIfNeeded()

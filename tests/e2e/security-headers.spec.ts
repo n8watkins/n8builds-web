@@ -50,7 +50,7 @@ async function firstBlogPostPath(request: APIRequestContext): Promise<string> {
 }
 
 test.describe('response headers', () => {
-  test('are set on pages and API routes', async ({ request }) => {
+  test('are set on pages and API routes', { tag: '@smoke' }, async ({ request }) => {
     for (const path of ['/', '/blog', '/api/health']) {
       const response = await request.get(path)
       const headers = response.headers()
@@ -81,7 +81,7 @@ test.describe('response headers', () => {
 
 test.describe('the CSP blocks nothing the site uses', () => {
   for (const path of PAGES) {
-    test(path, async ({ page }) => {
+    test(path, { tag: path === '/' ? '@smoke' : [] }, async ({ page }) => {
       const violations = await trackCspViolations(page)
       await page.goto(path)
       await page.waitForTimeout(SETTLE_MS)

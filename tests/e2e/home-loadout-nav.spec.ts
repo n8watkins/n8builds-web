@@ -63,7 +63,7 @@ async function place(page: Page, id: string, top = 80) {
 test.describe('at 1440px', () => {
   test.use({ viewport: { width: 1440, height: 900 } })
 
-  test('shows only in the Loadout band, never with the Lab rail, and marks the part being read', async ({
+  test('shows only in the Loadout band, never with the Lab rail, and marks the part being read', { tag: '@cross-browser' }, async ({
     page,
   }) => {
     await openHome(page)
@@ -101,7 +101,7 @@ test.describe('at 1440px', () => {
     await expect(nav).not.toBeInViewport()
   })
 
-  test('appears once the Loadout reaches the middle of the window, level with its first part', async ({ page }) => {
+  test('appears once the Loadout reaches the middle of the window, level with its first part', { tag: '@cross-browser' }, async ({ page }) => {
     await openHome(page)
     const nav = rail(page)
     // The band's heading on screen, the dev setup line still in the lower half: no rail.
@@ -119,7 +119,7 @@ test.describe('at 1440px', () => {
     expect(Math.abs((await nav.boundingBox())!.y - kitTop)).toBeLessThanOrEqual(3)
   })
 
-  test('a click jumps to the part, below the sticky navbar, and marks it', async ({ page }) => {
+  test('a click jumps to the part, below the sticky navbar, and marks it', { tag: '@cross-browser' }, async ({ page }) => {
     test.setTimeout(60_000)
     await openHome(page)
     await place(page, 'ai-kit')
@@ -161,7 +161,7 @@ test.describe('at 1440px', () => {
 })
 
 for (const width of [1280, 1366, 1440, 1536, 1920]) {
-  test(`at ${width}px it sits beside the Loadout without overlapping it or scrolling sideways`, async ({
+  test(`at ${width}px it sits beside the Loadout without overlapping it or scrolling sideways`, { tag: width === 1280 ? '@cross-browser' : [] }, async ({
     page,
   }) => {
     await page.setViewportSize({ width, height: 900 })
@@ -220,7 +220,7 @@ test('is absent on a phone and a tablet', async ({ page }) => {
 test.describe('with motion', () => {
   test.use({ viewport: { width: 1440, height: 900 }, contextOptions: { reducedMotion: 'no-preference' } })
 
-  test('a click scrolls at once and lights only the clicked part on the way', async ({ page }) => {
+  test('a click scrolls at once and lights only the clicked part on the way', { tag: '@cross-browser' }, async ({ page }) => {
     await openHome(page)
     await place(page, 'tools-i-built')
     const nav = rail(page)

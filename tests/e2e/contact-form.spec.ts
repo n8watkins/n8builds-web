@@ -45,7 +45,7 @@ async function openContactForm(page: Page) {
   await page.locator('#contact form').scrollIntoViewIfNeeded()
 }
 
-test('a visitor can send a message', async ({ page }) => {
+test('a visitor can send a message', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
   await openContactForm(page)
   await waitForTurnstileToken(page)
   await fillForm(page)
@@ -203,7 +203,7 @@ test('network failures show the generic message', async ({ page }) => {
   await expect(page.locator('#contact form').getByText('Oops! Something went wrong. Please try again or email me directly.')).toBeVisible()
 })
 
-test('Send shows a focus indicator when reached by keyboard', async ({ page }) => {
+test('Send shows a focus indicator when reached by keyboard', { tag: '@cross-browser' }, async ({ page }) => {
   await openContactForm(page)
   const send = page.getByRole('button', { name: /Send Message/ })
   await expect(send).toBeEnabled() // hydrated, so focus won't be reset under us
@@ -213,7 +213,7 @@ test('Send shows a focus indicator when reached by keyboard', async ({ page }) =
   expect(await send.evaluate((el) => getComputedStyle(el).boxShadow)).not.toBe('none')
 })
 
-test('the topic is three cards: Tab reaches them, arrow keys choose, a click chooses', async ({ page }) => {
+test('the topic is three cards: Tab reaches them, arrow keys choose, a click chooses', { tag: '@cross-browser' }, async ({ page }) => {
   await openContactForm(page)
   await expect(page.getByRole('button', { name: /Send Message/ })).toBeEnabled() // hydrated
   const form = page.locator('#contact form')
@@ -243,7 +243,7 @@ test('the topic is three cards: Tab reaches them, arrow keys choose, a click cho
   await expect(topics.getByRole('radio', { checked: true })).toHaveCount(1)
 })
 
-test('client-side validation blocks an empty submission', async ({ page }) => {
+test('client-side validation blocks an empty submission', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
   let calls = 0
   await page.route('/api/contact', (route) => {
     calls++
@@ -262,7 +262,7 @@ test('client-side validation blocks an empty submission', async ({ page }) => {
   expect(calls).toBe(0)
 })
 
-test('pressing Enter in a field submits the form, like Go on a phone keyboard', async ({ page }) => {
+test('pressing Enter in a field submits the form, like Go on a phone keyboard', { tag: '@cross-browser' }, async ({ page }) => {
   await openContactForm(page)
   await waitForTurnstileToken(page)
   await fillForm(page)
@@ -316,7 +316,7 @@ test("Vercel's firewall 429 gets a readable message, not the raw error object", 
 test.describe('on a phone', () => {
   test.use({ viewport: { width: 375, height: 760 }, hasTouch: true })
 
-  test('the scroll-to-top button never covers the form or the contact email', async ({ page }) => {
+  test('the scroll-to-top button never covers the form or the contact email', { tag: '@cross-browser' }, async ({ page }) => {
     // Two hundred steps of two frames each: a loaded mobile WebKit run needs more than 30s.
     test.setTimeout(90_000)
     await page.goto('/')
@@ -350,7 +350,7 @@ test.describe('on a phone', () => {
 // browser. A visitor with a saved "light" (or "system" on a light OS) got
 // white fields and dim labels until the theme was forced to dark.
 for (const [saved, colorScheme] of [['light', 'dark'], ['system', 'light']] as const) {
-  test(`fields stay dark with a saved "${saved}" theme`, async ({ browser }) => {
+  test(`fields stay dark with a saved "${saved}" theme`, { tag: '@cross-browser' }, async ({ browser }) => {
     const context = await browser.newContext({ colorScheme, reducedMotion: 'reduce' })
     await context.addInitScript((value) => localStorage.setItem('theme', value), saved)
     const page = await context.newPage()

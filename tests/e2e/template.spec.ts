@@ -48,7 +48,7 @@ test('asks "Don\'t have a site?", answers "Use mine as a template!" on the same 
   await expect(template).not.toContainText('photos and write-ups')
 })
 
-test('two cards: each links its site, says what it is built with, and opens its repo', async ({ page }) => {
+test('two cards: each links its site, says what it is built with, and opens its repo', { tag: '@smoke' }, async ({ page }) => {
   const template = await open(page)
   const cards = template.locator('ul.grid > li')
   await expect(cards).toHaveCount(2)
@@ -102,7 +102,7 @@ test('only this site has "How it is built and tested", and it goes to its build 
   await expect(template.locator(`a[href^="${PORTFOLIO_REPO}#"], a[href^="${PORTFOLIO_REPO}/"]`)).toHaveCount(0)
 })
 
-test('the keyboard reaches every link in order, card by card', async ({ page }) => {
+test('the keyboard reaches every link in order, card by card', { tag: '@cross-browser' }, async ({ page }) => {
   const template = await open(page)
   const first = template.getByRole('link', { name: 'n8builds.dev', exact: true })
   await first.focus()
@@ -149,7 +149,7 @@ test.describe('layout', () => {
   })
 
   for (const width of [375, 320]) {
-    test(`at ${width}px the cards stack and nothing overflows`, async ({ page }) => {
+    test(`at ${width}px the cards stack and nothing overflows`, { tag: width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
       await page.setViewportSize({ width, height: 800 })
       const template = await open(page)
       const [a, b] = await template.locator('ul.grid > li').evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON()))

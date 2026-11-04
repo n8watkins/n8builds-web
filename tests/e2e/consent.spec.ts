@@ -38,7 +38,7 @@ const consentCookie = async (context: BrowserContext) =>
 test.describe('in a European time zone', () => {
   test.use({ timezoneId: 'Europe/Berlin' })
 
-  test('asks first, and GA loads only after Accept', async ({ page, context }) => {
+  test('asks first, and GA loads only after Accept', { tag: '@smoke' }, async ({ page, context }) => {
     const gtag = await countGtag(context)
     await page.goto('/')
     await expect(banner(page)).toBeVisible()
@@ -85,7 +85,7 @@ test.describe('in a European time zone', () => {
     expect(decline!.width).toBeGreaterThanOrEqual(60)
   })
 
-  test('choosing plays the exit animation, then the bar is gone and focus is on the page', async ({ page }) => {
+  test('choosing plays the exit animation, then the bar is gone and focus is on the page', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     const bar = banner(page)
     await expect(bar).toBeVisible()
@@ -156,7 +156,7 @@ test.describe('in an Eastern Canada (Quebec) time zone', () => {
 test.describe('elsewhere (America/Los_Angeles)', () => {
   test.use({ timezoneId: 'America/Los_Angeles' })
 
-  test('no banner, and GA loads after the page is idle', async ({ page, context }) => {
+  test('no banner, and GA loads after the page is idle', { tag: '@smoke' }, async ({ page, context }) => {
     const gtag = await countGtag(context)
     await page.goto('/')
     await settle(page)

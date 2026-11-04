@@ -57,7 +57,7 @@ test('the contact card names Tech for Pros for service businesses, not consultin
   await expect(intro.getByRole('link', { name: /Tech for Pros/ })).toHaveAttribute('href', '/techforpros?from=footer')
 })
 
-test('the footer has a sitemap and the public contact address', async ({ page }) => {
+test('the footer has a sitemap and the public contact address', { tag: '@smoke' }, async ({ page }) => {
   await page.goto('/')
   const footer = page.locator('footer').last()
   await footer.scrollIntoViewIfNeeded()

@@ -9,7 +9,7 @@ import { test, expect, type Page } from '@playwright/test'
 test.describe('AI kit content', () => {
   test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
-  test('lists the tools in use, and not the ones dropped', async ({ page }) => {
+  test('lists the tools in use, and not the ones dropped', { tag: '@smoke' }, async ({ page }) => {
     for (const path of ['/']) {
       await page.goto(path)
       const kit = page.getByRole('region', { name: 'AI tools' })
@@ -173,7 +173,7 @@ test.describe('dino easter egg (motion allowed)', () => {
   // its own (the roaming has its own test below).
   test.beforeEach(({ page }) => dinoTiming(page, { roam: false }))
 
-  test('loads only once the AI kit nears the viewport, and never blocks the tiles', async ({
+  test('loads only once the AI kit nears the viewport, and never blocks the tiles', { tag: ['@cross-browser', '@smoke'] }, async ({
     page,
   }) => {
     await page.goto('/')
@@ -321,7 +321,7 @@ test.describe('dino easter egg (motion allowed)', () => {
     await expect(dino(page)).toHaveAttribute('data-level', '1', { timeout: 20_000 })
   })
 
-  test('a tapped or focused tile pauses only its own row for the dino', async ({ page, hasTouch }) => {
+  test('a tapped or focused tile pauses only its own row for the dino', { tag: '@cross-browser' }, async ({ page, hasTouch }) => {
     await onTopRow(page)
     // Focus (a keyboard user) or a tap (a touch screen) on a tile of the
     // bottom row pauses that row, not the one the dino is on. Wait for a tile
@@ -511,7 +511,7 @@ test.describe('dino easter egg (motion allowed)', () => {
     expect(await teleports(page)).toEqual([])
   })
 
-  test('never teleports or gets flung when the window is resized', async ({ page, isMobile }) => {
+  test('never teleports or gets flung when the window is resized', { tag: '@cross-browser' }, async ({ page, isMobile }) => {
     // A desktop window being resized: a phone's window doesn't resize like this.
     test.skip(isMobile, 'desktop windows only')
     await onTopRow(page)
@@ -905,7 +905,7 @@ test.describe('dino easter egg (motion allowed)', () => {
     await expect(dino(page)).toHaveAttribute('data-line', '1', { timeout: 30_000 })
   })
 
-  test('the tiles cannot be selected by a double or triple click, and still take keyboard focus', async ({ page }) => {
+  test('the tiles cannot be selected by a double or triple click, and still take keyboard focus', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     await showKit(page, '[data-dino-panel]')
     // Hovering the middle of a row pauses it (it never holds still otherwise),
@@ -962,7 +962,7 @@ test.describe('dino easter egg (motion allowed)', () => {
       index
     )
 
-  test('hovering a tile shows what it is for', async ({ page, hasTouch }) => {
+  test('hovering a tile shows what it is for', { tag: '@cross-browser' }, async ({ page, hasTouch }) => {
     test.skip(hasTouch, 'no hover on a touch screen (a tap shows it, below)')
     await page.goto('/')
     await showKit(page, '[data-dino-panel]')
@@ -973,7 +973,7 @@ test.describe('dino easter egg (motion allowed)', () => {
     await expect(description).not.toBeEmpty()
   })
 
-  test('clicking a tile does nothing: its row runs again once the pointer leaves', async ({ page, hasTouch }) => {
+  test('clicking a tile does nothing: its row runs again once the pointer leaves', { tag: '@cross-browser' }, async ({ page, hasTouch }) => {
     test.skip(hasTouch, 'a tap pauses the row on purpose (see above)')
     await page.goto('/')
     await showKit(page, '[data-dino-panel]')
@@ -987,7 +987,7 @@ test.describe('dino easter egg (motion allowed)', () => {
     expect(await page.evaluate(() => document.activeElement?.tagName)).not.toBe('FIGURE')
   })
 
-  test('a tapped tile shows what it is for and holds its row', async ({ page, hasTouch }) => {
+  test('a tapped tile shows what it is for and holds its row', { tag: '@cross-browser' }, async ({ page, hasTouch }) => {
     test.skip(!hasTouch, 'touch screens only')
     await page.goto('/')
     await showKit(page, '[data-dino-panel]')
@@ -1047,7 +1047,7 @@ test.describe('dino easter egg (reduced motion)', () => {
     expect(gap).toBe('16px')
   })
 
-  test('is not shown or loaded', async ({ page }) => {
+  test('is not shown or loaded', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     await showKit(page, '[data-dino-panel]')
     await page.waitForTimeout(1500)

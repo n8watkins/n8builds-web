@@ -16,7 +16,7 @@ for (const path of ['/loadout', '/']) {
   test.describe(`Scribe's tour on ${path}`, () => {
     test.use({ contextOptions: { reducedMotion: 'no-preference' } })
 
-    test('is a muted, looping, inline video of the app, WebM first, with its first frame as the poster', async ({ page }) => {
+    test('is a muted, looping, inline video of the app, WebM first, with its first frame as the poster', { tag: '@cross-browser' }, async ({ page }) => {
       await page.goto(path)
       const row = page.locator('#tools-i-built').getByRole('article', { name: 'Scribe' })
       const video = tourOf(page, path)
@@ -44,7 +44,7 @@ for (const path of ['/loadout', '/']) {
       expect(Math.abs(box.width / box.height - 1.6)).toBeLessThan(0.02)
     })
 
-    test('plays on screen, muted, pauses off screen, and its button pauses and resumes it', async ({ page }) => {
+    test('plays on screen, muted, pauses off screen, and its button pauses and resumes it', { tag: path === '/' ? ['@cross-browser', '@smoke'] : '@cross-browser' }, async ({ page }) => {
       await page.goto(path)
       const video = tourOf(page, path)
       // Nothing loads or plays before the row is in view.
@@ -71,7 +71,7 @@ for (const path of ['/loadout', '/']) {
   test.describe(`Scribe's tour on ${path} under reduced motion`, () => {
     test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
-    test('stays on its first frame: it never plays or loads, and has no pause button', async ({ page }) => {
+    test('stays on its first frame: it never plays or loads, and has no pause button', { tag: '@cross-browser' }, async ({ page }) => {
       const requested: string[] = []
       page.on('request', (r) => {
         if (/\/builds\/scribe\/tour\.(webm|mp4)/.test(r.url())) requested.push(r.url())

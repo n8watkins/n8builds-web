@@ -27,7 +27,7 @@ async function rowOf(page: Page, title: string) {
   return page.getByRole('article', { name: title })
 }
 
-test('the Lab leads with the featured builds, OpenPing first, each with its icon and a way to its build page', async ({ page }) => {
+test('the Lab leads with the featured builds, OpenPing first, each with its icon and a way to its build page', { tag: '@smoke' }, async ({ page }) => {
   await page.goto('/')
   const featured = page.locator('#featured')
   await featured.scrollIntoViewIfNeeded()
@@ -69,7 +69,7 @@ test('Scribe\'s build page leads back to Tools I built and use on /loadout; Open
   }
 })
 
-test('Details opens the stack and the build log in a dialog, and closes with Escape', async ({ page }) => {
+test('Details opens the stack and the build log in a dialog, and closes with Escape', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
   await page.goto('/')
   const row = page.locator('#featured')
   await row.getByRole('button', { name: 'Details' }).first().scrollIntoViewIfNeeded()
@@ -198,7 +198,7 @@ test('every featured row and its build page invite the visitor to try it', async
   await expect(page.locator('#cta-heading')).toHaveCount(0)
 })
 
-test('Scribe downloads the newest installer through a stable link, and takes Mac and Linux requests', async ({ page, request }) => {
+test('Scribe downloads the newest installer through a stable link, and takes Mac and Linux requests', { tag: '@smoke' }, async ({ page, request }) => {
   const row = await rowOf(page, 'Scribe')
   const download = row.getByRole('link', { name: 'Download for Windows' })
   await download.scrollIntoViewIfNeeded()
@@ -305,7 +305,7 @@ test('each row names its own Details, Landing page (or Live Site), Star and GitH
   await expect(page.getByRole('button', { name: 'Previous OpenPing screenshot', exact: true })).toHaveCount(1)
 })
 
-test('each row puts its live site, Star | GitHub and Details in one row across its column, and no two buttons go to the same place', async ({
+test('each row puts its live site, Star | GitHub and Details in one row across its column, and no two buttons go to the same place', { tag: '@cross-browser' }, async ({
   page,
   isMobile,
 }) => {
@@ -358,7 +358,7 @@ test('each row puts its live site, Star | GitHub and Details in one row across i
   )
 })
 
-test("each row's buttons stay even, with one-line labels, at every width", async ({ page, isMobile }) => {
+test("each row's buttons stay even, with one-line labels, at every width", { tag: '@cross-browser' }, async ({ page, isMobile }) => {
   // Round 5 of 2026-11-02: from 1024px to about 1150px the thirds were too
   // narrow for "Landing page", which took more than Details. The buttons now
   // tighten there (and on the narrowest phones and at 768px) instead.
@@ -433,7 +433,7 @@ test.describe('the Lab gallery', () => {
   const activeDot = async (gallery: import('@playwright/test').Locator) =>
     dots(gallery).evaluateAll((els) => els.findIndex((el) => el.hasAttribute('data-active')))
 
-  test('steps through the screenshots by clicking the sides of the image, with no thumbnails under it', async ({ page, hasTouch }) => {
+  test('steps through the screenshots by clicking the sides of the image, with no thumbnails under it', { tag: ['@cross-browser', '@smoke'] }, async ({ page, hasTouch }) => {
     await page.goto('/')
     const gallery = page.getByRole('group', { name: 'OpenPing screenshots' })
     await gallery.scrollIntoViewIfNeeded()
@@ -466,7 +466,7 @@ test.describe('the Lab gallery', () => {
     await expect(gallery.getByRole('img', { name: /free tools/ })).toBeVisible()
   })
 
-  test('works from the keyboard: Tab to a side, Enter or the arrow keys step, and the arrow shows on focus', async ({ page }) => {
+  test('works from the keyboard: Tab to a side, Enter or the arrow keys step, and the arrow shows on focus', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     const gallery = page.getByRole('group', { name: 'OpenPing screenshots' })
     await gallery.scrollIntoViewIfNeeded()
@@ -498,7 +498,7 @@ test.describe('the Lab gallery', () => {
 test.describe('the Lab gallery on touch', () => {
   test.use({ hasTouch: true, viewport: { width: 375, height: 800 } })
 
-  test('a swipe steps through the screenshots, and a tap on a side does too', async ({ page }) => {
+  test('a swipe steps through the screenshots, and a tap on a side does too', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     const gallery = page.getByRole('group', { name: 'OpenPing screenshots' })
     await gallery.scrollIntoViewIfNeeded()
@@ -637,7 +637,7 @@ test('the Details dialog steps through the screenshots like the row does', async
 
 test.describe('the Lab rows on a 320px phone', () => {
   test.use({ viewport: { width: 320, height: 700 } })
-  test('nothing spills sideways, and Landing page and Details share a line above Star | GitHub', async ({ page }) => {
+  test('nothing spills sideways, and Landing page and Details share a line above Star | GitHub', { tag: '@cross-browser' }, async ({ page }) => {
     // Scribe's row (on /loadout), the one with the longest download caption.
     const row = await rowOf(page, 'Scribe')
     await row.scrollIntoViewIfNeeded()
@@ -665,7 +665,7 @@ test.describe('the Lab rows on a 320px phone', () => {
  * and in round 5 a step further again (13cqw, about 0.3em between letters).
  */
 for (const width of [1440, 390, 320]) {
-  test(`at ${width}px "Check out" spans the flask and title`, async ({ page }) => {
+  test(`at ${width}px "Check out" spans the flask and title`, { tag: width === 1440 || width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 })
     await page.goto('/')
     const eyebrow = page.locator('#lab .lab-eyebrow')

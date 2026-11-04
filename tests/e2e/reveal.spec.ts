@@ -20,7 +20,7 @@ const seenOpacity = (locator: Locator) =>
     return opacity
   })
 
-test('a section below the fold is hidden until scrolled to, then fades in', async ({ page }) => {
+test('a section below the fold is hidden until scrolled to, then fades in', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
   await page.goto('/')
   // The Lab's template part, well below the fold: its content reveals inside its full-bleed wash.
   const section = page.locator('#template > .reveal')
@@ -41,7 +41,7 @@ test('a section below the fold is hidden until scrolled to, then fades in', asyn
 test.describe('with reduced motion', () => {
   test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
-  test('sections are simply shown: no fade, no rise, nothing to wait for', async ({ page }) => {
+  test('sections are simply shown: no fade, no rise, nothing to wait for', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     const section = page.locator('#template > .reveal')
     // Hydration applies it (FADE also covers a slow hydration on a loaded machine).
@@ -66,7 +66,7 @@ test.describe('above the fold, without JavaScript', () => {
     ['/live', 'Not live right now'],
     ['/privacy', 'Information I collect'],
   ]) {
-    test(`${path} fades in its first screen`, async ({ page }) => {
+    test(`${path} fades in its first screen`, { tag: '@cross-browser' }, async ({ page }) => {
       await page.goto(path)
       await expect.poll(() => seenOpacity(page.locator('h1')), FADE).toBe(1)
       await expect.poll(() => seenOpacity(page.getByText(text).first()), FADE).toBe(1)
@@ -74,7 +74,7 @@ test.describe('above the fold, without JavaScript', () => {
   }
 })
 
-test('the site footer fades in as it scrolls into view', async ({ page }) => {
+test('the site footer fades in as it scrolls into view', { tag: '@cross-browser' }, async ({ page }) => {
   await page.goto('/privacy')
   const sitemap = page.getByRole('navigation', { name: 'Sitemap' })
   await expect(sitemap).toBeAttached()

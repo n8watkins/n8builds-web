@@ -11,7 +11,7 @@ async function firstBlogPostPath(request: APIRequestContext): Promise<string> {
   return href!
 }
 
-test('Share on X opens X compose with the post filled in, in a new tab', async ({ page, request }) => {
+test('Share on X opens X compose with the post filled in, in a new tab', { tag: '@smoke' }, async ({ page, request }) => {
   const path = await firstBlogPostPath(request)
   await page.goto(path)
   const title = (await page.locator('h1').first().textContent())!.trim()
@@ -24,7 +24,7 @@ test('Share on X opens X compose with the post filled in, in a new tab', async (
   expect(href.searchParams.get('url')).toBe(`https://n8builds.dev${path}`)
 })
 
-test('Copy link copies the canonical URL and says so', async ({ page, request, browserName, context }) => {
+test('Copy link copies the canonical URL and says so', { tag: ['@cross-browser', '@smoke'] }, async ({ page, request, browserName, context }) => {
   const path = await firstBlogPostPath(request)
   if (browserName === 'chromium') await context.grantPermissions(['clipboard-read', 'clipboard-write'])
   await page.goto(path)
@@ -38,7 +38,7 @@ test('Copy link copies the canonical URL and says so', async ({ page, request, b
   await expect(bar.getByRole('button', { name: 'Copy link' })).toBeVisible({ timeout: 5000 })
 })
 
-test("Copy link says so when the browser won't copy, instead of claiming it did", async ({ page, request }) => {
+test("Copy link says so when the browser won't copy, instead of claiming it did", { tag: '@cross-browser' }, async ({ page, request }) => {
   const path = await firstBlogPostPath(request)
   await page.addInitScript(() => {
     Object.defineProperty(navigator, 'clipboard', {

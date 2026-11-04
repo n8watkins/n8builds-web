@@ -162,7 +162,7 @@ test.describe('dino game music (motion allowed)', () => {
     })
   })
 
-  test('sits in the top right corner, off by default, clear of the scoreboards, and makes no audio', async ({
+  test('sits in the top right corner, off by default, clear of the scoreboards, and makes no audio', { tag: '@cross-browser' }, async ({
     page,
   }) => {
     await page.goto('/')
@@ -203,7 +203,7 @@ test.describe('dino game music (motion allowed)', () => {
     await expect(button).toHaveAttribute('aria-pressed', 'false')
   })
 
-  test('pressing it plays the loop, pressing again stops it, and the choice is remembered', async ({ page }) => {
+  test('pressing it plays the loop, pressing again stops it, and the choice is remembered', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
     await page.goto('/')
     await showKit(page)
     const button = await hydratedMusic(page)
@@ -225,7 +225,7 @@ test.describe('dino game music (motion allowed)', () => {
     expect((await audio(page)).contexts).toBe(1)
   })
 
-  test('works from the keyboard with a visible focus ring, without scrolling the page', async ({ page }) => {
+  test('works from the keyboard with a visible focus ring, without scrolling the page', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     await showKit(page)
     const button = await hydratedMusic(page)
@@ -243,7 +243,7 @@ test.describe('dino game music (motion allowed)', () => {
     expect(await page.evaluate(() => scrollY)).toBe(y)
   })
 
-  test('remembered as on, it never starts by itself: the next catch of the dino starts it', async ({ page }) => {
+  test('remembered as on, it never starts by itself: the next catch of the dino starts it', { tag: '@cross-browser' }, async ({ page }) => {
     await remember(page, '1')
     await page.goto('/')
     await showKit(page)
@@ -264,7 +264,7 @@ test.describe('dino game music (motion allowed)', () => {
     expect((await audio(page)).contexts).toBe(1)
   })
 
-  test('remembered as on, pressing the button starts it too', async ({ page }) => {
+  test('remembered as on, pressing the button starts it too', { tag: '@cross-browser' }, async ({ page }) => {
     await remember(page, '1')
     await page.goto('/')
     await showKit(page)
@@ -275,14 +275,14 @@ test.describe('dino game music (motion allowed)', () => {
     await expectPlaying(page)
   })
 
-  test('remembered as off, it stays off', async ({ page }) => {
+  test('remembered as off, it stays off', { tag: '@cross-browser' }, async ({ page }) => {
     await remember(page, '0')
     await page.goto('/')
     await showKit(page)
     await expect(music(page)).toHaveAttribute('data-dino-music', 'off')
   })
 
-  test('pauses while the panel is off screen or the tab is hidden, and comes back', async ({ page }) => {
+  test('pauses while the panel is off screen or the tab is hidden, and comes back', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     await showKit(page)
     const button = await hydratedMusic(page)
@@ -312,7 +312,7 @@ test.describe('dino game music (reduced motion)', () => {
   test.use({ contextOptions: { reducedMotion: 'reduce' } })
   test.beforeEach(({ page }) => spyOnAudio(page))
 
-  test('the toggle is there without the dino, plays, and does not animate', async ({ page }) => {
+  test('the toggle is there without the dino, plays, and does not animate', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     await showKit(page)
     await expect(dino(page)).toHaveCount(0)
@@ -336,7 +336,7 @@ test.describe('dino game music (reduced motion)', () => {
 
 // The synth, rendered offline in a blank page: music.ts as plain JavaScript.
 test.describe('dino game music, rendered offline', () => {
-  test('a steady 4-bar loop at 148 bpm, about 35% volume, never clipping, fading in and out without clicks', async ({
+  test('a steady 4-bar loop at 148 bpm, about 35% volume, never clipping, fading in and out without clicks', { tag: '@cross-browser' }, async ({
     page,
     browserName,
   }) => {

@@ -35,7 +35,7 @@ test.describe('Loadout tools and people', () => {
     await expect(built).not.toContainText('pr-post')
   })
 
-  test('every item in My dev setup carries its own mark, the same size and lined up, and Cursor is gone', async ({ page }) => {
+  test('every item in My dev setup carries its own mark, the same size and lined up, and Cursor is gone', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/loadout')
     const setup = page.getByRole('region', { name: 'My dev setup' })
     const chips = setup.locator('[data-setup-icon]')
@@ -79,7 +79,7 @@ test.describe('Loadout tools and people', () => {
     { width: 1024, perRow: 2 },
     { width: 820, perRow: 2 },
   ]) {
-    test(`at ${width}px My dev setup's bento fills every row, its tiles filled (${perRow} to a row)`, async ({ page }) => {
+    test(`at ${width}px My dev setup's bento fills every row, its tiles filled (${perRow} to a row)`, { tag: width === 1440 || width === 820 ? '@cross-browser' : [] }, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 })
       await page.goto('/loadout')
       const grid = page.locator('#setup-tiles')
@@ -106,7 +106,7 @@ test.describe('Loadout tools and people', () => {
     })
   }
 
-  test('lists the tools I use, each credited inline to its maker, each with its GitHub repo', async ({ page }) => {
+  test('lists the tools I use, each credited inline to its maker, each with its GitHub repo', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/loadout')
     const used = page.getByRole('region', { name: 'Tools I use' })
     // The honorable mentions joined Tools I use (2026-11-02), herdr first.
@@ -187,7 +187,7 @@ test.describe('Loadout tools and people', () => {
   })
 
   for (const width of [1440, 1024, 390, 320]) {
-    test(`at ${width}px each person's links sit in two columns, two rows at most, inside the card`, async ({ page }) => {
+    test(`at ${width}px each person's links sit in two columns, two rows at most, inside the card`, { tag: width === 1440 || width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 })
       await page.goto('/')
       for (const name of ['Kun Chen', 'Phaedrus Raznikov', 'Nate Herk']) {
@@ -214,7 +214,7 @@ test.describe('Loadout tools and people', () => {
     })
   }
 
-  test('shows each person\'s self-hosted avatar, with the initials behind it as a fallback', async ({ page }) => {
+  test('shows each person\'s self-hosted avatar, with the initials behind it as a fallback', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     const people = page.getByRole('region', { name: 'People I follow' })
     for (const name of ['Kun Chen', 'Phaedrus Raznikov', 'Nate Herk']) {
@@ -227,7 +227,7 @@ test.describe('Loadout tools and people', () => {
     }
   })
 
-  test('falls back to the initials when an avatar fails to load', async ({ page }) => {
+  test('falls back to the initials when an avatar fails to load', { tag: '@cross-browser' }, async ({ page }) => {
     await page.route(/people%2Fkun-chen\.webp|people\/kun-chen\.webp/, (route) => route.fulfill({ status: 404, body: '' }))
     await page.goto('/')
     const card = page.locator('#kun-chen')
@@ -277,7 +277,7 @@ test.describe('Loadout tools and people', () => {
     }
   })
 
-  test('the old honorable mentions credit their makers in Tools I use, and gnhf stays out', async ({ page }) => {
+  test('the old honorable mentions credit their makers in Tools I use, and gnhf stays out', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/loadout')
     await expect(page.getByRole('heading', { name: 'Honorable mentions' })).toHaveCount(0)
     const used = page.getByRole('region', { name: 'Tools I use' })
@@ -301,7 +301,7 @@ test.describe('Loadout tools and people', () => {
     await expect(used.getByText('gnhf')).toHaveCount(0)
   })
 
-  test('old #honorable-mentions links land on Tools I use', async ({ page }) => {
+  test('old #honorable-mentions links land on Tools I use', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/loadout#honorable-mentions')
     await expect(page.getByRole('heading', { name: 'Tools I use', level: 2 })).toBeInViewport()
   })
@@ -322,7 +322,7 @@ test.describe('Loadout tools and people', () => {
     await expect(card).toContainText('he created pass-env')
   })
 
-  test('the homepage teases my setup and links to it', async ({ page }) => {
+  test('the homepage teases my setup and links to it', { tag: '@smoke' }, async ({ page }) => {
     await page.goto('/')
     const teaser = page.locator('[data-setup-teaser]')
     await expect(teaser).toContainText('Windows 11 + WSL2 · Claude Code + Codex · herdr + T-Hub')
@@ -331,7 +331,7 @@ test.describe('Loadout tools and people', () => {
     await expect(page.getByRole('heading', { name: 'My dev setup' })).toBeVisible()
   })
 
-  test('the header pills jump to every part of the page', async ({ page }) => {
+  test('the header pills jump to every part of the page', { tag: '@smoke' }, async ({ page }) => {
     await page.goto('/loadout')
     const pills = page.getByRole('navigation', { name: 'Loadout sections' }).getByRole('link')
     await expect(pills).toHaveText(['Dev setup', 'How I work', 'Inside my apps', 'Stacks I build with', 'Tools I built and use', 'Tools I use', 'The gear'])
@@ -501,7 +501,7 @@ test.describe('Loadout tools and people', () => {
       expect(size).toBeGreaterThanOrEqual(20)
   })
 
-  test('fits a 320px phone without sideways scrolling', async ({ page }) => {
+  test('fits a 320px phone without sideways scrolling', { tag: '@cross-browser' }, async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 640 })
     for (const [path, part] of [['/loadout', '#tools-i-built'], ['/', '#pr-post-edition']]) {
       await page.goto(path)
@@ -520,7 +520,7 @@ test.describe('Loadout tools and people', () => {
     await expect(page.locator('#people, #kun-chen')).toHaveCount(0)
   })
 
-  test('under People I follow, the homepage has The Pull Request Post, with its live demo and repo', async ({ page }) => {
+  test('under People I follow, the homepage has The Pull Request Post, with its live demo and repo', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     const people = page.getByRole('region', { name: 'People I follow' })
     const card = people.getByRole('article', { name: 'The Pull Request Post' })
@@ -550,7 +550,7 @@ test.describe('Loadout tools and people', () => {
 
   test.describe('with motion', () => {
     test.use({ contextOptions: { reducedMotion: 'no-preference' } })
-    test("The Pull Request Post's recording plays on screen, muted, and pauses from its button", async ({ page }) => {
+    test("The Pull Request Post's recording plays on screen, muted, and pauses from its button", { tag: '@cross-browser' }, async ({ page }) => {
       await page.goto('/')
       const card = page.getByRole('article', { name: 'The Pull Request Post' })
       const video = card.locator('video')

@@ -9,7 +9,7 @@ import { APP_JS } from './app-js'
  */
 test.use({ contextOptions: { reducedMotion: 'no-preference' } })
 
-test('a tile focused before hydration pauses its marquee', async ({ page }) => {
+test('a tile focused before hydration pauses its marquee', { tag: '@cross-browser' }, async ({ page }) => {
   // Hold the page's scripts back until the tile has focus, so the focus always
   // lands before hydration (a fixed delay raced the page on a slow runner).
   let release!: () => void

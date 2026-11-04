@@ -6,7 +6,7 @@ import { test, expect } from '@playwright/test'
  * the top: a post opened from the homepage started thousands of pixels down
  * and glided up for about a second.
  */
-test('a post opened from the homepage starts at its top, without scrolling up to it', async ({ page }) => {
+test('a post opened from the homepage starts at its top, without scrolling up to it', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
   await page.goto('/')
   const strip = page.locator('#notions')
   const link = strip.locator('a[href^="/blog/"]').first()

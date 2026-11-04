@@ -81,7 +81,7 @@ test('the picker jumps to a template and says which; reduced motion never moves 
 test.describe('with motion', () => {
   test.use({ contextOptions: { reducedMotion: 'no-preference' } })
 
-  test('the templates move on by themselves while on screen, in order and round again, and hold while hovered', async ({ page }) => {
+  test('the templates move on by themselves while on screen, in order and round again, and hold while hovered', { tag: '@cross-browser' }, async ({ page }) => {
     test.setTimeout(60_000)
     await page.setViewportSize({ width: 1280, height: 900 })
     await page.goto('/')
@@ -117,7 +117,7 @@ test.describe('with motion', () => {
   })
 })
 
-test('Get a quote lands on the quote field in Work with me, ready to type', async ({ page }) => {
+test('Get a quote lands on the quote field in Work with me, ready to type', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
   await page.goto('/')
   await expect(quote(page)).toHaveAttribute('href', '/#quote')
   await expect(page.getByRole('button', { name: 'Get my quote' })).toBeEnabled({ timeout: 20_000 })
@@ -155,7 +155,7 @@ test('the section heading stays at the top of #now', async ({ page }) => {
 })
 
 for (const width of [1280, 1440]) {
-  test(`at ${width}px the ad is two columns and stays short`, async ({ page }) => {
+  test(`at ${width}px the ad is two columns and stays short`, { tag: width === 1280 ? '@cross-browser' : [] }, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 })
     await page.goto('/')
     const section = now(page)
@@ -169,7 +169,7 @@ for (const width of [1280, 1440]) {
 }
 
 for (const width of [1024, 820, 390, 375, 320]) {
-  test(`at ${width}px nothing in the ad overflows, and and the picker keeps to one line`, async ({ page }) => {
+  test(`at ${width}px nothing in the ad overflows, and and the picker keeps to one line`, { tag: width === 1024 || width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
     await page.setViewportSize({ width, height: 800 })
     await page.goto('/')
     const section = now(page)
@@ -191,7 +191,7 @@ for (const width of [1024, 820, 390, 375, 320]) {
 
 // The caption under the window (round 5 of 2026-11-02, a longer line) never runs over the phone.
 for (const width of [320, 390, 820, 1440]) {
-  test(`at ${width}px the template caption stays clear of the phone`, async ({ page }) => {
+  test(`at ${width}px the template caption stays clear of the phone`, { tag: width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 })
     await page.goto('/')
     const caption = now(page).getByText("Pick a template, or we'll build one for your business.", { exact: true })

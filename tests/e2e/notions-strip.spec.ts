@@ -40,7 +40,7 @@ test('the newest note is featured above the rest, larger, with its cover, title 
 })
 
 for (const width of [1024, 390, 320]) {
-  test(`at ${width}px the featured note fits the screen`, async ({ page }) => {
+  test(`at ${width}px the featured note fits the screen`, { tag: width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
     await page.setViewportSize({ width, height: 800 })
     await page.goto('/')
     const band = page.locator('#notions')

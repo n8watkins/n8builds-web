@@ -65,7 +65,7 @@ async function scrollToPart(page: Page, id: string) {
 test.describe('at 1440px', () => {
   test.use({ viewport: { width: 1440, height: 900 } })
 
-  test('shows only while the Lab is on screen, and marks the part being read', async ({ page }) => {
+  test('shows only while the Lab is on screen, and marks the part being read', { tag: '@cross-browser' }, async ({ page }) => {
     await openHome(page)
     const nav = rail(page)
     // Above the Lab (the hero) it is hidden.
@@ -88,7 +88,7 @@ test.describe('at 1440px', () => {
     await expect(nav).not.toBeInViewport()
   })
 
-  test('is visible, so clickable and named, the moment it shows', async ({ page }) => {
+  test('is visible, so clickable and named, the moment it shows', { tag: '@cross-browser' }, async ({ page }) => {
     await openHome(page)
     const nav = rail(page)
     // Note the nav's computed visibility in the same task its classes switch to
@@ -111,7 +111,7 @@ test.describe('at 1440px', () => {
     ).toBe('visible')
   })
 
-  test('a click jumps to the part, below the sticky navbar', async ({ page }) => {
+  test('a click jumps to the part, below the sticky navbar', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
     // Three smooth-scroll jumps in a row: under a full parallel run each can take
     // several seconds, so the 30s default is too tight.
     test.setTimeout(60_000)
@@ -170,7 +170,7 @@ test.describe('placement at 1440px', () => {
       .first()
       .evaluate((h) => h.getBoundingClientRect().top)
 
-  test('stays hidden beside the Lab intro and appears level with the first heading once it reaches the middle', async ({
+  test('stays hidden beside the Lab intro and appears level with the first heading once it reaches the middle', { tag: '@cross-browser' }, async ({
     page,
   }) => {
     await openHome(page)
@@ -193,7 +193,7 @@ test.describe('placement at 1440px', () => {
     expect(Math.abs(top - (await headingTop(page)))).toBeLessThanOrEqual(3)
   })
 
-  test('holds at the middle of the window through the Lab', async ({ page }) => {
+  test('holds at the middle of the window through the Lab', { tag: '@cross-browser' }, async ({ page }) => {
     await openHome(page)
     const nav = rail(page)
     for (const part of PARTS) {
@@ -264,7 +264,7 @@ test.describe('placement at 1440px', () => {
     await expect(current).toHaveAccessibleName('Chrome Extensions')
   })
 
-  test('keyboard: Tab reaches each part in order and Enter jumps there', async ({ page }) => {
+  test('keyboard: Tab reaches each part in order and Enter jumps there', { tag: '@cross-browser' }, async ({ page }) => {
     await openHome(page)
     await scrollToPart(page, 'featured')
     const nav = rail(page)
@@ -281,7 +281,7 @@ test.describe('placement at 1440px', () => {
     await expect(extensions).toHaveAttribute('aria-current', 'location')
   })
 
-  test('reduced motion: nothing moves (no comet spin, no sliding)', async ({ page }) => {
+  test('reduced motion: nothing moves (no comet spin, no sliding)', { tag: '@cross-browser' }, async ({ page }) => {
     await openHome(page)
     await scrollToPart(page, 'featured')
     const nav = page.locator('nav[aria-label="Lab contents"]')
@@ -305,7 +305,7 @@ test.describe('icons only, 1280-1439px', () => {
   // so a 1280px window there is just under the rail's 1280px breakpoint.
   test.use({ viewport: { width: 1366, height: 900 } })
 
-  test('each icon names its part in a tooltip on hover and on keyboard focus', async ({
+  test('each icon names its part in a tooltip on hover and on keyboard focus', { tag: '@cross-browser' }, async ({
     page,
     isMobile,
   }) => {
@@ -352,7 +352,7 @@ test('works without JavaScript: plain links to each part', async ({ browser }) =
 })
 
 for (const width of [1280, 1366, 1440, 1536, 1920]) {
-  test(`at ${width}px it sits beside the content without overlapping it or scrolling sideways`, async ({
+  test(`at ${width}px it sits beside the content without overlapping it or scrolling sideways`, { tag: width === 1280 ? '@cross-browser' : [] }, async ({
     page,
   }) => {
     await page.setViewportSize({ width, height: 900 })
@@ -396,7 +396,7 @@ for (const width of [1280, 1366, 1440, 1536, 1920]) {
   })
 }
 
-test('is absent on a phone', async ({ page }) => {
+test('is absent on a phone', { tag: '@cross-browser' }, async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 800 })
   await page.goto('/')
   await scrollToPart(page, 'featured')
@@ -410,7 +410,7 @@ test('is absent on a phone', async ({ page }) => {
 test.describe('with motion', () => {
   test.use({ viewport: { width: 1440, height: 900 }, contextOptions: { reducedMotion: 'no-preference' } })
 
-  test('a click scrolls at once and lights only the clicked part on the way', async ({ page }) => {
+  test('a click scrolls at once and lights only the clicked part on the way', { tag: '@cross-browser' }, async ({ page }) => {
     await openHome(page)
     await scrollToPart(page, 'upcoming')
     const nav = rail(page)

@@ -34,7 +34,7 @@ test('/loadout has Tools I built and use: Scribe as a Lab row, then the CLIs, af
 })
 
 for (const width of [1440, 810, 390]) {
-  test(`at ${width}px Scribe's row lines up with the page's column, and its wash reaches the page edge`, async ({ page }) => {
+  test(`at ${width}px Scribe's row lines up with the page's column, and its wash reaches the page edge`, { tag: width === 390 ? '@cross-browser' : [] }, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 })
     await page.goto('/loadout')
     const part = page.locator('#tools-i-built')
@@ -95,7 +95,7 @@ test('Tools I built and use is two groups, its cards the size and style of Tools
   }
 })
 
-test('old links land on Tools I built and use: the Lab\'s /#my-tools, and /loadout#daily-drivers', async ({ page }) => {
+test('old links land on Tools I built and use: the Lab\'s /#my-tools, and /loadout#daily-drivers', { tag: '@cross-browser' }, async ({ page }) => {
   await page.goto('/#my-tools')
   await expect(page).toHaveURL(/\/loadout#tools-i-built$/)
   await expect(page.getByRole('heading', { level: 2, name: 'Tools I built and use' })).toBeInViewport()
