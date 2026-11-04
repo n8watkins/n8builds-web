@@ -31,6 +31,9 @@ test('/loadout has Tools I built and use: Scribe as a Lab row, then the CLIs, af
     'Tools I built and use',
     'Tools I use',
   ])
+  // People I follow moved to the homepage.
+  await expect(page.getByRole('region', { name: 'People I follow' })).toHaveCount(0)
+  await expect(page.locator('#people, #kun-chen')).toHaveCount(0)
 })
 
 for (const width of [1440, 810, 390]) {

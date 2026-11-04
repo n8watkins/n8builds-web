@@ -511,15 +511,6 @@ test.describe('Loadout tools and people', () => {
     }
   })
 
-  test('/loadout puts Tools I built and use before Tools I use, and People I follow is no longer there', async ({ page }) => {
-    await page.goto('/loadout')
-    const order = await page.locator('main h2').allTextContents()
-    expect(order.indexOf('Tools I built and use')).toBeGreaterThan(-1)
-    expect(order.indexOf('Tools I built and use')).toBeLessThan(order.indexOf('Tools I use'))
-    await expect(page.getByRole('region', { name: 'People I follow' })).toHaveCount(0)
-    await expect(page.locator('#people, #kun-chen')).toHaveCount(0)
-  })
-
   test('under People I follow, the homepage has The Pull Request Post, with its live demo and repo', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     const people = page.getByRole('region', { name: 'People I follow' })
