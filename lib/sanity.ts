@@ -1,21 +1,39 @@
 import { cache } from 'react'
-import { createClient } from '@sanity/client'
+import { createClient, type QueryParams } from '@sanity/client'
+import { sanityTag, type SanityType } from '@/lib/sanity-revalidate'
 
 // Read-only client for the N8's Notions blog. Reads the shared Sanity dataset
 // (project abgyc32w / production) that the Sanity Studio (n8builds.sanity.studio)
-// writes to. Public CDN read - no token needed. Server-only: do not import this
+// writes to. Published documents only, no token. Server-only: do not import this
 // into client components (keeps @sanity/client out of the browser bundle).
 if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) {
   throw new Error('NEXT_PUBLIC_SANITY_PROJECT_ID is not set')
 }
 
+// The live API, not the API CDN: every answer is cached by Next (below), so
+// Sanity is only asked when a page revalidates, and a publish webhook's
+// revalidation must read the new version, which the CDN may not have yet.
 export const sanity = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
   dataset: 'production',
   apiVersion: '2024-07-01',
-  useCdn: true,
+  useCdn: false,
   stega: false,
 })
+
+/** The fallback refresh, should a publish webhook never arrive. */
+export const SANITY_REVALIDATE = 3600
+
+/**
+ * Every read goes through here: cached by Next for an hour and tagged with the
+ * document type it reads, so publishing one (app/api/sanity/revalidate)
+ * refreshes every page that shows it at once.
+ */
+export function sanityFetch<T>(type: SanityType, query: string, params: QueryParams = {}) {
+  return sanity.fetch<T>(query, params, {
+    next: { revalidate: SANITY_REVALIDATE, tags: [sanityTag(type)] },
+  })
+}
 
 export type Post = {
   _id: string
@@ -58,16 +76,17 @@ const POST_BODY = `
 `
 
 export const getAllPosts = () =>
-  sanity.fetch<Post[]>(`*[_type == "post"] | order(publishedAt desc){ ${POST_CARD} }`)
+  sanityFetch<Post[]>('post', `*[_type == "post"] | order(publishedAt desc){ ${POST_CARD} }`)
 
 export const getRecentPosts = (limit = 3) =>
-  sanity.fetch<Post[]>(`*[_type == "post"] | order(publishedAt desc)[0...${limit}]{ ${POST_CARD} }`)
+  sanityFetch<Post[]>('post', `*[_type == "post"] | order(publishedAt desc)[0...${limit}]{ ${POST_CARD} }`)
 
 // cache(): generateMetadata and the page both ask for the post in one request;
 // @sanity/client doesn't go through Next's fetch dedupe, so this keeps it to one
 // Sanity query (an unknown slug costs one, not two).
 export const getPostBySlug = cache((slug: string) =>
-  sanity.fetch<Post | null>(
+  sanityFetch<Post | null>(
+    'post',
     `*[_type == "post" && slug.current == $slug][0]{
       ${POST_CARD},
       author,
@@ -83,14 +102,16 @@ export const getPostBySlug = cache((slug: string) =>
 )
 
 export const getRelatedPosts = (currentSlug: string) =>
-  sanity.fetch<Post[]>(
+  sanityFetch<Post[]>(
+    'post',
     `*[_type == "post" && slug.current != $currentSlug] | order(publishedAt desc)[0...3]{ ${POST_CARD} }`,
     { currentSlug }
   )
 
 // Every post with its full text, for the feed (/blog/rss.xml).
 export const getFeedPosts = () =>
-  sanity.fetch<Post[]>(
+  sanityFetch<Post[]>(
+    'post',
     `*[_type == "post"] | order(publishedAt desc){
       ${POST_CARD}, author, "seoDescription": seo.metaDescription, ${POST_BODY}
     }`
