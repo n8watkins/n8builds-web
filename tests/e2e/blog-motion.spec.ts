@@ -43,7 +43,7 @@ const ancestorAnimations = (locator: Locator) =>
 /** Path of the first post on the blog index, read from its server HTML. */
 async function firstPostPath(page: Page) {
   const html = await (await page.request.get('/blog')).text()
-  const path = html.match(/href="(\/blog\/[^"?#]+)"/)?.[1]
+  const path = html.match(/href="(\/blog\/[a-z0-9-]+)"/)?.[1]
   expect(path, 'blog index links to at least one post').toBeTruthy()
   return path!
 }
