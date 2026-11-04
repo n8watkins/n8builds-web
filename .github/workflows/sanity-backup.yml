@@ -47,7 +47,7 @@ jobs:
           fi
 
       - name: Export the dataset
-        run: npx -y @sanity/cli@7.2.3 datasets export production "$RUNNER_TEMP/backup.tar.gz" --project abgyc32w --overwrite
+        run: npx -y @sanity/cli@7.2.3 datasets export production "$RUNNER_TEMP/backup.tar.gz" -p abgyc32w --overwrite
 
       # A backup that can't be restored is worse than none: check the tarball
       # holds the posts and every image and file the documents point to.
