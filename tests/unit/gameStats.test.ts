@@ -101,7 +101,9 @@ describe('rounds', () => {
     ])
   })
 
-  it('keeps only the best 50 scores', async () => {
+  // 110 sequential writes to the local D1: about 5s on a busy machine, past
+  // the default timeout, and a timed-out run kept writing into the next test.
+  it('keeps only the best 50 scores', { timeout: 30_000 }, async () => {
     const db = dbs.analytics
     const player = await playerHash(db, NOW, '203.0.113.7', 'TestAgent/1.0')
     for (let score = 1; score <= 55; score++) {
