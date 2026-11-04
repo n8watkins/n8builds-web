@@ -1,7 +1,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { FiArrowUpRight } from 'react-icons/fi'
-import { RELEASE_NOTES_SHOWN, type HighlightKind, type LogEntry, type ReleaseSection } from '@/lib/build-log'
+import { RELEASE_NOTES_SHOWN } from '@/lib/build-log-display'
+import type { HighlightKind, LogEntry, ReleaseSection } from '@/lib/build-log'
 
 // One entry on the build log's timeline: a release ("Shipped v0.8.0"), a day's
 // changes, or a hand-written highlight (a featured card). Used by the /builds

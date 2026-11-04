@@ -1,10 +1,12 @@
 import { cache } from 'react'
 import { createClient, type QueryParams } from '@sanity/client'
 import { sanityTag, type SanityType } from '@/lib/sanity-revalidate'
+import { isPreview } from '@/lib/preview'
 
 // Read-only client for the N8's Notions blog. Reads the shared Sanity dataset
 // (project abgyc32w / production) that the Sanity Studio (n8builds.sanity.studio)
-// writes to. Published documents only, no token. Server-only: do not import this
+// writes to. Published documents only, without a token, except in a draft
+// preview (sanityFetch). Server-only: do not import this
 // into client components (keeps @sanity/client out of the browser bundle).
 if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) {
   throw new Error('NEXT_PUBLIC_SANITY_PROJECT_ID is not set')
@@ -29,7 +31,13 @@ export const SANITY_REVALIDATE = 3600
  * document type it reads, so publishing one (app/api/sanity/revalidate)
  * refreshes every page that shows it at once.
  */
-export function sanityFetch<T>(type: SanityType, query: string, params: QueryParams = {}) {
+export async function sanityFetch<T>(type: SanityType, query: string, params: QueryParams = {}): Promise<T> {
+  // A draft preview (lib/preview.ts) reads drafts with the site's read token,
+  // and never through Next's cache, so a draft can't leak into a public page.
+  const token = process.env.SANITY_VIEWER_TOKEN
+  if (token && (await isPreview())) {
+    return sanity.withConfig({ token, perspective: 'drafts' }).fetch<T>(query, params, { cache: 'no-store' })
+  }
   return sanity.fetch<T>(query, params, {
     next: { revalidate: SANITY_REVALIDATE, tags: [sanityTag(type)] },
   })

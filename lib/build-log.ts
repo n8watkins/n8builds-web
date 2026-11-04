@@ -41,8 +41,7 @@ export type SnapshotRelease = {
 export type ReleaseNote = { section: ReleaseSection; text: string }
 export type ReleaseSection = 'breaking' | 'new' | 'fixed' | 'faster' | 'safer'
 
-/** The most notes a release shows; the rest wait on GitHub ("and N more"). */
-export const RELEASE_NOTES_SHOWN = 5
+export { RELEASE_NOTES_SHOWN } from '@/lib/build-log-display'
 
 // release-kit's headings, plain ("New") and classic ("Features") alike.
 const NOTE_SECTIONS: [RegExp, ReleaseSection][] = [
