@@ -90,13 +90,23 @@ test.describe('in a European time zone', () => {
     const bar = banner(page)
     await expect(bar).toBeVisible()
     await bar.getByRole('button', { name: 'Decline' }).focus()
+    // Mid-exit: still on screen, marked closing and inert (no double clicks). The page
+    // records that state the moment it happens: on a slow runner the exit animation can
+    // end and unmount the bar before a separate read from the test reaches it (nightly
+    // mobile-chrome, 2026-11-04).
+    await bar.evaluate((el) => {
+      const win = window as Window & { __consentMidExit?: Promise<[string | null, boolean]> }
+      win.__consentMidExit = new Promise((resolve) => {
+        new MutationObserver((_, observer) => {
+          if (el.getAttribute('data-closing') !== 'true') return
+          observer.disconnect()
+          resolve([el.getAttribute('data-closing'), el.hasAttribute('inert')])
+        }).observe(el, { attributes: true, attributeFilter: ['data-closing', 'inert'] })
+      })
+    })
     await page.keyboard.press('Enter')
-    // Mid-exit: still on screen, marked closing and inert (no double clicks). Read in one
-    // go, and found with includeHidden: an inert element leaves the accessibility tree, so
-    // the role locator alone can lose the bar between two assertions.
-    const closing = page.getByRole('dialog', { name: 'Cookies', includeHidden: true })
-    await expect(closing).toHaveAttribute('data-closing', 'true')
-    expect(await closing.evaluate((el) => [el.getAttribute('data-closing'), el.hasAttribute('inert')])).toEqual(['true', true])
+    const midExit = await page.evaluate(() => (window as Window & { __consentMidExit?: Promise<[string | null, boolean]> }).__consentMidExit)
+    expect(midExit).toEqual(['true', true])
     await expect(page.locator('#main-content')).toBeFocused()
     // Then unmounted, with the choice applied.
     await expect(page.getByRole('dialog', { name: 'Cookies', includeHidden: true })).toHaveCount(0)
