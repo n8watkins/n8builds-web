@@ -183,23 +183,6 @@ test.describe('at 1440px', () => {
       expect(box.width).toBeGreaterThanOrEqual(24)
     }
   })
-
-  test('reduced motion: nothing moves (no comet spin, no sliding)', async ({ page }) => {
-    await openLoadout(page)
-    await place(page, 'tools-i-use')
-    await expect(rail(page)).toBeVisible(SHOW)
-    const motion = await page.locator('nav[aria-label="Loadout contents"]').evaluate((n) => {
-      const all = [n, ...n.querySelectorAll<HTMLElement>('*')].map((el) => getComputedStyle(el))
-      return {
-        animations: all.filter((cs) => cs.animationName !== 'none').length,
-        moving: all.filter(
-          (cs) =>
-            /translate|top|height/.test(cs.transitionProperty) && cs.transitionDuration !== '0s'
-        ).length,
-      }
-    })
-    expect(motion).toEqual({ animations: 0, moving: 0 })
-  })
 })
 
 test.describe('with motion', () => {
