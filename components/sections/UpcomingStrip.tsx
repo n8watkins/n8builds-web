@@ -54,7 +54,7 @@ export default function UpcomingStrip() {
           {/* Two by two from tablets up, stacked on phones. An odd last card spans the row,
               and its width (a container query) turns it into a row of its own. */}
           <ul className="grid gap-4 md:grid-cols-2">
-            {UPCOMING.map((p) => (
+            {UPCOMING.filter((p) => p.homepage !== false).map((p) => (
               <li
                 key={p.slug}
                 style={{ '--accent': p.accent } as CSSProperties}

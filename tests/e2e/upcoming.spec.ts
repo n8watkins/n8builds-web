@@ -31,13 +31,14 @@ test('shows each project with its own anchor, and is titled for the site', async
   await page.goto('/upcoming')
   await expect(page).toHaveTitle('Upcoming | n8builds')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('What’s cookin’')
-  await expect(page.locator('main article')).toHaveCount(5)
+  await expect(page.locator('main article')).toHaveCount(6)
   for (const [id, name, status] of [
     ['relink', 'Relink', 'Outlining'],
     ['strollz', 'Strollz', 'Outlining'],
     ['vibelog', 'VibeLog', 'Outlining'],
     ['keysready', 'KeysReady', 'Concept'],
     ['asset-arsenal', 'Asset Arsenal', 'Outlining'],
+    ['feelium', 'Feelium', 'Concept'],
   ]) {
     const card = page.locator(`article#${id}`)
     await expect(card.getByRole('heading', { level: 2 })).toContainText(name)
@@ -45,7 +46,7 @@ test('shows each project with its own anchor, and is titled for the site', async
     await expect(card.getByRole('listitem')).toHaveCount(4)
   }
   await expect(page.locator('article#keysready')).toContainText('Stop answering “Is my car ready?”')
-  await expect(page.locator('#waitlist-projects').getByRole('checkbox')).toHaveCount(5)
+  await expect(page.locator('#waitlist-projects').getByRole('checkbox')).toHaveCount(6)
 })
 
 test('lays the cards out one to a row beside the waitlist on wide screens, two by two just below, one column on phones', async ({ page }) => {
@@ -184,6 +185,7 @@ const LANDING = {
   vibelog: 'https://vibelogs.dev',
   keysready: 'https://keysready.n8builds.dev',
   'asset-arsenal': 'https://assetarsenal.n8builds.dev',
+  feelium: 'https://feelium.n8builds.dev',
 }
 const NAMES: Record<string, string> = {
   relink: 'Relink',
@@ -191,6 +193,7 @@ const NAMES: Record<string, string> = {
   vibelog: 'VibeLog',
   keysready: 'KeysReady',
   'asset-arsenal': 'Asset Arsenal',
+  feelium: 'Feelium',
 }
 
 /**
@@ -202,6 +205,7 @@ const CODE: Record<string, string | undefined> = {
   strollz: 'https://github.com/n8watkins/strollz',
   vibelog: 'https://github.com/n8watkins/vibelog',
   keysready: 'https://github.com/n8watkins/keysready',
+  feelium: 'https://github.com/n8watkins/feelium',
 }
 
 test('each card leads with its landing page, then Join, then its code where public (hrefs only: the sites may not be live yet)', async ({ page }) => {
@@ -234,13 +238,14 @@ test("the homepage Lab ends with a short What's cookin' part: each project's sum
   await expect(band.getByRole('heading', { level: 3 })).toHaveText('What’s cookin’ 🍲')
   await expect(band.getByRole('heading', { level: 3 })).toHaveAccessibleName('What’s cookin’')
   await expect(band.getByText('Upcoming', { exact: true })).toBeVisible()
+  // Feelium is on /upcoming and in the waitlist, but not in the homepage grid (data/upcoming.ts `homepage`).
   await expect(band.locator('ul > li')).toHaveCount(5)
   // The same form as /upcoming, picking several projects (owner, 2026-11-02), without the note.
   await expect(band.locator('#waitlist').getByRole('heading', { level: 4, name: 'Join the waitlist' })).toBeVisible()
-  await expect(band.locator('#waitlist').getByRole('checkbox')).toHaveCount(5)
+  await expect(band.locator('#waitlist').getByRole('checkbox')).toHaveCount(6)
   await expect(band.locator('#waitlist textarea')).toHaveCount(0)
   const cards = band.locator('ul > li')
-  for (const [i, [slug, href]] of Object.entries(LANDING).entries()) {
+  for (const [i, [slug, href]] of Object.entries(LANDING).filter(([slug]) => slug !== 'feelium').entries()) {
     const name = NAMES[slug]
     const card = cards.nth(i)
     await expect(card.getByRole('heading', { level: 4 })).toHaveText(name)
@@ -277,7 +282,7 @@ test('a landing page link to the homepage ticks its project in the waitlist ther
 })
 
 // Cards two by two beside the waitlist from 1024px, two by two above it on tablets, one column on phones;
-// with five projects the last card spans the row, as a row of its own.
+// with five projects the last card spans the row, as a row of its own (Feelium, the sixth, is not in this grid).
 // 1040, not 1024: WebKit's media queries see the window minus its scrollbar,
 // so a 1024px window there is still in the tablet layout.
 for (const [width, height, columns, beside] of [
@@ -325,16 +330,18 @@ for (const [width, height, columns, beside] of [
       )
     )
     // Landing page on every card, View the code where the repository is public.
-    expect(cardButtons.map((b) => b.length)).toEqual(Object.keys(LANDING).map((slug) => (CODE[slug] ? 2 : 1)))
+    const onHomepage = Object.keys(LANDING).filter((slug) => slug !== 'feelium')
+    expect(cardButtons.map((b) => b.length)).toEqual(onHomepage.map((slug) => (CODE[slug] ? 2 : 1)))
     const buttons = cardButtons.flat()
-    const withCode = Object.values(CODE).filter(Boolean).length
+    const withCode = onHomepage.filter((slug) => CODE[slug]).length
     // Every mark that shows is at least 12px; below 360px the code button's GitHub mark
     // gives way, so "Landing page" and "View the code" still fit side by side (round 4).
     const icons = await items.locator('a svg').evaluateAll((list) =>
       list.map((svg) => ({ width: svg.getBoundingClientRect().width, shown: getComputedStyle(svg).display !== 'none' })),
     )
     expect(icons.filter((i) => i.shown).every((i) => i.width >= 12)).toBe(true)
-    expect(icons.filter((i) => i.shown)).toHaveLength(width < 360 ? 5 : 5 + withCode)
+    const projects = onHomepage.length
+    expect(icons.filter((i) => i.shown)).toHaveLength(width < 360 ? projects : projects + withCode)
     for (const { height, fits } of buttons) {
       expect(height).toBeLessThanOrEqual(44)
       expect(fits).toBe(true)

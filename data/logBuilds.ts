@@ -58,6 +58,16 @@ export const logOnlyBuilds: LogBuild[] = [
     href: '/upcoming#keysready',
   },
   {
+    slug: 'feelium',
+    name: 'Feelium',
+    tagline: 'What did I do, how did I feel, and are they connected?',
+    category: 'Upcoming',
+    color: 'from-neutral-400/20 to-neutral-600/20',
+    github: 'https://github.com/n8watkins/feelium',
+    repo: 'n8watkins/feelium',
+    href: '/upcoming#feelium',
+  },
+  {
     slug: 'vibelog',
     name: 'VibeLog',
     tagline: 'Live coding telemetry for vibe-coding streams',
