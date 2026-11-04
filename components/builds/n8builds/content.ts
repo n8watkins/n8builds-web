@@ -30,7 +30,7 @@ export const FEATURES: Feature[] = [
   {
     icon: 'shield',
     title: 'A contact form that fails closed',
-    body: 'Zod, a honeypot, Turnstile and Upstash rate limits. If Turnstile or Redis is down, it refuses and asks for an email.',
+    body: 'Zod, a honeypot, Turnstile and rate limits in Durable Objects. If Turnstile or a limit is unreachable, it refuses and asks for an email.',
   },
   {
     icon: 'lock',
@@ -67,7 +67,7 @@ export const STACK = [
   'Sanity',
   'Vercel',
   'Cloudflare',
-  'Upstash Redis',
+  'Cloudflare D1',
   'Sentry',
   'Playwright',
   'Vitest',

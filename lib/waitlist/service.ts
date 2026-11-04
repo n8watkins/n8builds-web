@@ -1,21 +1,19 @@
 import type { UpcomingSlug } from '@/data/upcoming'
-import { entryId, newToken, type WaitlistEntry, type WaitlistStore } from '@/lib/waitlist/store'
+import { entryId, type WaitlistEntry, type WaitlistStore } from '@/lib/waitlist/store'
 import { cleanInterest, cleanReferrer, normalizeEmail } from '@/lib/waitlist/schema'
 
 /**
- * The waitlist's rules, apart from HTTP and email:
+ * The waitlist's rules, apart from HTTP and email (the SQL is in store.ts):
  * - Joining never changes what an address is signed up for on its own: the
- *   projects and note it asks for wait in `requested` until someone clicks
+ *   projects and note it asks for wait as `requested` until someone clicks
  *   the confirm link sent to that address (double opt-in). So a stranger
  *   typing your address can't add you to anything.
  * - The visitor sees the same answer whether the address is new, pending or
  *   already confirmed, so the form can't be used to find out who is on it.
- * - Leaving deletes the entry outright.
+ * - A confirm link works once; leaving deletes the entry outright.
  */
 
-const union = (a: UpcomingSlug[], b: UpcomingSlug[]) => [...new Set([...a, ...b])]
-
-export type JoinRequest = {
+export type JoinInput = {
   email: string
   projects: UpcomingSlug[]
   note: string
@@ -23,72 +21,26 @@ export type JoinRequest = {
   referrer?: string
 }
 
-export async function joinWaitlist(store: WaitlistStore, request: JoinRequest, now = new Date()): Promise<WaitlistEntry> {
-  const email = normalizeEmail(request.email)
-  const id = entryId(email)
-  const at = now.toISOString()
-  const existing = await store.get(id)
-
-  const entry: WaitlistEntry = existing
-    ? {
-        ...existing,
-        requested: union(existing.requested, request.projects),
-        requestedNote: request.note || existing.requestedNote,
-        updatedAt: at,
-      }
-    : {
-        id,
-        email,
-        projects: [],
-        requested: request.projects,
-        note: '',
-        requestedNote: request.note,
-        createdAt: at,
-        updatedAt: at,
-        confirmedAt: '',
-        interest: cleanInterest(request.interest),
-        referrer: cleanReferrer(request.referrer),
-        token: newToken(),
-      }
-
-  await store.save(entry)
-  return entry
+export function joinWaitlist(store: WaitlistStore, request: JoinInput): Promise<WaitlistEntry> {
+  return store.join({
+    email: normalizeEmail(request.email),
+    projects: request.projects,
+    note: request.note,
+    interest: cleanInterest(request.interest),
+    referrer: cleanReferrer(request.referrer),
+  })
 }
 
-/** Applies what the address asked for. Null when the link is unknown or has expired. */
-export async function confirmWaitlist(store: WaitlistStore, token: string, now = new Date()): Promise<WaitlistEntry | null> {
-  const entry = await entryForToken(store, token)
-  if (!entry) return null
-  const at = now.toISOString()
-  const confirmed: WaitlistEntry = {
-    ...entry,
-    projects: union(entry.projects, entry.requested),
-    requested: [],
-    note: entry.requestedNote || entry.note,
-    requestedNote: '',
-    confirmedAt: entry.confirmedAt || at,
-    updatedAt: at,
-  }
-  await store.save(confirmed)
-  return confirmed
+/** Applies what the address asked for. Null when the link is unknown, used or expired. */
+export function confirmWaitlist(store: WaitlistStore, token: string): Promise<WaitlistEntry | null> {
+  return store.confirm(token)
 }
 
 /** Deletes the entry behind a leave link. False when there was nothing to delete. */
-export async function leaveWaitlist(store: WaitlistStore, token: string): Promise<boolean> {
-  const entry = await entryForToken(store, token)
-  if (!entry) return false
-  await store.remove(entry)
-  return true
+export function leaveWaitlist(store: WaitlistStore, token: string): Promise<boolean> {
+  return store.leave(token)
 }
 
-export async function findByEmail(store: WaitlistStore, email: string): Promise<WaitlistEntry | null> {
+export function findByEmail(store: WaitlistStore, email: string): Promise<WaitlistEntry | null> {
   return store.get(entryId(normalizeEmail(email)))
-}
-
-async function entryForToken(store: WaitlistStore, token: string): Promise<WaitlistEntry | null> {
-  const id = await store.idForToken(token)
-  if (!id) return null
-  const entry = await store.get(id)
-  // The link must still belong to that entry (a stale token key is ignored).
-  return entry && entry.token === token ? entry : null
 }

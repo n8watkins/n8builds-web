@@ -399,8 +399,8 @@ test.describe('Loadout tools and people', () => {
     const stacks = page.getByRole('region', { name: 'Stacks I build with' })
     // Every host in real use, each with what lives there; nothing deploys to Railway.
     const hosts = stacks.getByRole('region', { name: 'Where it runs' }).locator('[data-host]')
-    await expect(hosts).toHaveCount(7)
-    for (const host of ['Vercel', 'Cloudflare Workers', 'Firebase', 'Render', 'Turso', 'Upstash', 'GitHub Pages']) {
+    await expect(hosts).toHaveCount(6)
+    for (const host of ['Vercel', 'Cloudflare Workers', 'Firebase', 'Render', 'Turso', 'GitHub Pages']) {
       await expect(hosts.filter({ hasText: new RegExp(`^${host} - `) })).toHaveCount(1)
     }
     await expect(stacks).not.toContainText('Railway')

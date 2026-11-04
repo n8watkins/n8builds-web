@@ -7,7 +7,7 @@
   "main": "worker/index.js",
   "compatibility_date": "2026-11-01",
   // nodejs_compat is required by OpenNext; global_fetch_strictly_public keeps
-  // the server's own fetches (GitHub, Sanity, Upstash) on the public internet.
+  // the server's own fetches (GitHub, Sanity) on the public internet.
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
     "directory": ".open-next/assets",
@@ -43,6 +43,27 @@
   // minute per IP, before Next runs. The app's own limits (5 an hour per IP,
   // lib/security/rateLimiter.ts) come after it.
   "ratelimits": [{ "name": "CONTACT_RATE_LIMITER", "namespace_id": "2101", "simple": { "limit": 10, "period": 60 } }],
+  // The site's data (docs/DATABASE.md). This Worker owns both databases: only
+  // this repository holds their migrations (npm run db:migrate). The admin
+  // dashboard reads them, read-only in its code.
+  "d1_databases": [
+    // Personal data: the waitlist (lib/waitlist/store.ts).
+    {
+      "binding": "WAITLIST_DB",
+      "database_name": "n8builds-waitlist",
+      "database_id": "788b0aa9-fe2d-40ae-bcd4-b5590969ff60",
+      "migrations_dir": "migrations/waitlist"
+    },
+    // Anonymous counts: short links, contact sends, the dino game.
+    {
+      "binding": "ANALYTICS_DB",
+      "database_name": "n8builds-analytics",
+      "database_id": "3a0b72c8-fa2e-4f82-9e48-5d2d5ec7eb5c",
+      "migrations_dir": "migrations/analytics"
+    }
+  ],
+  // The daily cleanup of expired rows in both databases (worker/index.js, lib/retention.ts).
+  "triggers": { "crons": ["30 3 * * *"] },
   // Contact form, quote request and waitlist emails (lib/email/send.ts).
   "send_email": [{ "name": "EMAIL" }],
   "vars": {
@@ -53,8 +74,7 @@
     // as NEXT_PUBLIC_SENTRY_DSN, set at build time (DEPLOY.md).
     "SENTRY_DSN": "https://7e41d848c6abae7aaf931bd7fa5049e1@o4507767562371072.ingest.us.sentry.io/4511629733855232"
   },
-  // Secrets (wrangler secret put, see DEPLOY.md): ANALYTICS_REDIS_REST_URL,
-  // ANALYTICS_REDIS_REST_TOKEN, TURNSTILE_SECRET_KEY, GITHUB_TOKEN.
+  // Secrets (wrangler secret put, see DEPLOY.md): TURNSTILE_SECRET_KEY, GITHUB_TOKEN.
   "observability": { "enabled": true, "head_sampling_rate": 1 },
   // n8builds.dev and www as Workers custom domains: Cloudflare creates and
   // manages their DNS records and certificates. www redirects to the apex

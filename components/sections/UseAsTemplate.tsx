@@ -47,7 +47,7 @@ const TEMPLATES: Template[] = [
     mark: { image: '/tab/n8-icon-192.png' },
     description:
       'A server-rendered Next.js 16 site with a Sanity blog, a build log, a contact form behind Turnstile and rate limits, and a speed-first setup tested on five browsers. A clean start for building in public.',
-    tags: ['Next.js 16', 'Sanity', 'Tailwind CSS 4', 'Turnstile', 'Upstash', 'Vercel'],
+    tags: ['Next.js 16', 'Sanity', 'Tailwind CSS 4', 'Turnstile', 'Cloudflare D1', 'Cloudflare Workers'],
     howItsBuilt: '/builds/n8builds',
     repoName: 'n8builds-web',
     repo: 'https://github.com/n8watkins/n8builds-web',

@@ -1,0 +1,10 @@
+{
+  // The test databases (tests/unit/d1.ts): the same D1 bindings and
+  // migrations as wrangler.jsonc, nothing else, so unit tests start fast.
+  "name": "n8builds-web-unit",
+  "compatibility_date": "2026-11-01",
+  "d1_databases": [
+    { "binding": "WAITLIST_DB", "database_name": "n8builds-waitlist", "database_id": "test-waitlist", "migrations_dir": "../../../migrations/waitlist" },
+    { "binding": "ANALYTICS_DB", "database_name": "n8builds-analytics", "database_id": "test-analytics", "migrations_dir": "../../../migrations/analytics" }
+  ]
+}

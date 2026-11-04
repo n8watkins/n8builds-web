@@ -11,14 +11,14 @@ import { DIRECT_EMAIL, JOINED_MESSAGE, closed, fail, limited, readJson, unavaila
 /**
  * POST /api/waitlist - join the waitlist for one or more upcoming projects.
  *
- * In order, every free check before the first Redis call (as the contact form):
+ * In order, every free check before the first database call (as the contact form):
  * 1. Size, JSON content type, schema (the honeypot must be empty)
  * 2. The waitlist is configured (else 503 "opens soon")
  * 3. Cloudflare Turnstile
  * 4. Per-IP limit, then the site-wide daily email limit
  * 5. Save the request (it waits for confirmation, lib/waitlist/service.ts)
- * 6. The confirm email, unless this address already had 3 waitlist emails
- *    today (their earlier link confirms this request too)
+ * 6. New single-use links and the confirm email, unless this address already
+ *    had 3 waitlist emails today (an earlier unused link confirms this request too)
  * The answer is the same for a new, pending or confirmed address.
  */
 export async function POST(request: NextRequest) {
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     if (!parsed.success) return fail(400, 'Please check the form: a valid email and at least one project.')
     const input = parsed.data
 
-    const store = waitlistStore()
+    const store = await waitlistStore()
     if (!store) return closed()
 
     const ip = getClientIp(request.headers)
@@ -60,7 +60,9 @@ export async function POST(request: NextRequest) {
     const recipient = await checkRateLimit('waitlist-recipient', recipientKey(entry.email))
     if (recipient.allowed) {
       try {
-        await sendConfirmEmail(entry)
+        // Names what this request asked for, even a project the address already confirmed.
+        const asked = { ...entry, requested: [...new Set([...entry.requested, ...input.projects])] }
+        await sendConfirmEmail(asked, await store.issueLinks(entry))
       } catch (error) {
         logger.error('Waitlist confirm email failed:', error instanceof Error ? error.message : error)
         return fail(500, `The confirmation email didn't go out. Please try again in a minute, or email me at ${DIRECT_EMAIL}.`)

@@ -13,7 +13,8 @@ import { validateRequestSize, parseJsonBody } from '@/lib/security/validation'
 import { sendContactEmails } from '@/lib/email/sender'
 import { sendQuoteEmail } from '@/lib/email/quote'
 import { placeFrom } from '@/lib/game/stats'
-import { analyticsStore, countContactSent } from '@/lib/analyticsStore'
+import { countContactSent } from '@/lib/analyticsStore'
+import { analyticsDb } from '@/lib/db'
 
 const DIRECT_EMAIL = 'contact@n8builds.dev'
 
@@ -21,8 +22,7 @@ const DIRECT_EMAIL = 'contact@n8builds.dev'
  * POST /api/contact - Handle contact form submissions
  *
  * SECURITY LAYERS (in order). Every check that costs nothing runs before the
- * first Upstash call, so junk requests can't spend the Redis quota (and, once
- * it's gone, shut the form for everyone):
+ * first rate-limit counter, so junk requests never reach the Durable Objects:
  * 1. Request size validation (10KB limit) and a JSON content type, which
  *    also rules out cross-site "simple" form posts
  * 2. Input validation (Zod schema, which also requires the hidden honeypot
@@ -42,6 +42,12 @@ const DIRECT_EMAIL = 'contact@n8builds.dev'
  * quote with the visitor's address as the reply-to. No auto-reply (so no
  * per-recipient limit) and nothing stored.
  */
+/** The admin's "messages this month" count, in n8builds-analytics. */
+async function countSent() {
+  const db = await analyticsDb()
+  if (db) await countContactSent(db)
+}
+
 export async function POST(request: NextRequest) {
   logger.info('🚀 Contact API called')
 
@@ -112,8 +118,7 @@ export async function POST(request: NextRequest) {
       const { country } = placeFrom(request.headers)
       const sent = await sendQuoteEmail(validatedData.email, { country })
       if (!sent.success) return NextResponse.json({ error: sent.error }, { status: 500 })
-      const stats = analyticsStore()
-      if (stats) after(() => countContactSent(stats))
+      after(countSent)
       logger.info('🎉 Quote request sent')
       return NextResponse.json({ message: 'Quote request sent!' }, { status: 200 })
     }
@@ -136,8 +141,7 @@ export async function POST(request: NextRequest) {
     }
 
     // The admin's "messages this month" count; after the response, never blocking it.
-    const stats = analyticsStore()
-    if (stats) after(() => countContactSent(stats))
+    after(countSent)
 
     logger.info('🎉 Contact form submission successful!')
     return NextResponse.json(

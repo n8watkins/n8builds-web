@@ -4,7 +4,7 @@ import { logger } from '@/lib/logger'
 import { isContactTestMode } from '@/lib/security/testMode'
 
 /**
- * Contact-form and waitlist rate limiting
+ * Rate limiting: the contact form, the waitlist, and the counters
  *
  * The contact form has three limits (the waitlist's mirror them, see
  * RateLimitScope):
@@ -39,14 +39,35 @@ const WAITLIST_IP_LIMIT = process.env.NODE_ENV === 'development' ? 50 : 5
 const WAITLIST_RECIPIENT_LIMIT = 3
 const DEFAULT_WAITLIST_DAILY_LIMIT = 100
 
+// Counted things, not forms: an over-limit request still gets its answer,
+// it just isn't counted (docs/DATABASE.md, "Stuffing the counters").
+const MINUTE_MS = 60 * 1000
+// A game round takes 30 s, so a dozen starts a minute is far more than anyone plays.
+const GAME_PLAYER_LIMIT = 12
+// Five players at their own cap: a household or an office sharing one address.
+const GAME_IP_LIMIT = 60
+// Short-link clicks counted per IP an hour.
+const REF_IP_LIMIT = 20
+
 /**
  * - 'ip', 'global', 'recipient': the contact form (above)
  * - 'waitlist-ip': waitlist requests per IP (5/hour, IPv6 per /64)
  * - 'waitlist-global': waitlist emails per day site-wide (WAITLIST_DAILY_LIMIT,
  *   default 100), so the waitlist can't use up Gmail's sending quota
  * - 'waitlist-recipient': waitlist emails per address per day (3)
+ * - 'game-player', 'game-ip': dino game events per player hash and per IP a minute (12, 60)
+ * - 'ref-ip': short-link clicks counted per IP an hour (20)
  */
-export type RateLimitScope = 'ip' | 'global' | 'recipient' | 'waitlist-ip' | 'waitlist-global' | 'waitlist-recipient'
+export type RateLimitScope =
+  | 'ip'
+  | 'global'
+  | 'recipient'
+  | 'waitlist-ip'
+  | 'waitlist-global'
+  | 'waitlist-recipient'
+  | 'game-player'
+  | 'game-ip'
+  | 'ref-ip'
 
 export type RateLimitResult =
   | { allowed: true }
@@ -173,6 +194,9 @@ function memoryLimiters(): Record<RateLimitScope, Limiter> {
     'waitlist-ip': new MemoryLimiter(WAITLIST_IP_LIMIT, IP_WINDOW_MS),
     'waitlist-global': new MemoryLimiter(waitlistDailyLimit(), GLOBAL_WINDOW_MS),
     'waitlist-recipient': new MemoryLimiter(WAITLIST_RECIPIENT_LIMIT, RECIPIENT_WINDOW_MS),
+    'game-player': new MemoryLimiter(GAME_PLAYER_LIMIT, MINUTE_MS),
+    'game-ip': new MemoryLimiter(GAME_IP_LIMIT, MINUTE_MS),
+    'ref-ip': new MemoryLimiter(REF_IP_LIMIT, IP_WINDOW_MS),
   }
 }
 
@@ -190,6 +214,9 @@ function createLimiters(): Record<RateLimitScope, Limiter> {
       'waitlist-ip': new DurableObjectLimiter(counters, WAITLIST_IP_LIMIT, IP_WINDOW_MS, `${prefix}:waitlist-ip`),
       'waitlist-global': new DurableObjectLimiter(counters, waitlistDailyLimit(), GLOBAL_WINDOW_MS, `${prefix}:waitlist-global`),
       'waitlist-recipient': new DurableObjectLimiter(counters, WAITLIST_RECIPIENT_LIMIT, RECIPIENT_WINDOW_MS, `${prefix}:waitlist-recipient`),
+      'game-player': new DurableObjectLimiter(counters, GAME_PLAYER_LIMIT, MINUTE_MS, `${prefix}:game-player`),
+      'game-ip': new DurableObjectLimiter(counters, GAME_IP_LIMIT, MINUTE_MS, `${prefix}:game-ip`),
+      'ref-ip': new DurableObjectLimiter(counters, REF_IP_LIMIT, IP_WINDOW_MS, `${prefix}:ref-ip`),
     }
   }
 
@@ -203,6 +230,9 @@ function createLimiters(): Record<RateLimitScope, Limiter> {
     'waitlist-ip': unavailable,
     'waitlist-global': unavailable,
     'waitlist-recipient': unavailable,
+    'game-player': unavailable,
+    'game-ip': unavailable,
+    'ref-ip': unavailable,
   }
 }
 

@@ -1,6 +1,7 @@
 import { getCloudflareContext } from '@opennextjs/cloudflare'
 import { EMAIL_CONFIG } from '@/lib/email/config'
 import { EMAIL_ICONS } from '@/lib/email/icons'
+import { recordTestEmail } from '@/lib/email/outbox'
 import { isContactTestMode } from '@/lib/security/testMode'
 import { logger } from '@/lib/logger'
 
@@ -69,8 +70,11 @@ function icon(name: EmailImage) {
 
 /** Sends one email and returns its message ID; throws when it can't be sent. */
 export async function sendEmail(email: Email): Promise<string> {
-  // Test runs send nothing.
-  if (isContactTestMode()) return `test-${crypto.randomUUID()}`
+  // Test runs send nothing: the message waits in the test outbox instead.
+  if (isContactTestMode()) {
+    recordTestEmail({ to: email.to, subject: email.subject, text: email.text })
+    return `test-${crypto.randomUUID()}`
+  }
 
   const { messageId } = await binding().send({
     to: email.to,

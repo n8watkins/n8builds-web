@@ -3,9 +3,10 @@ import { SEND_TIMEOUT } from '../e2e-env'
 
 /**
  * /upcoming: the projects I'm outlining and their waitlist, driven like a
- * visitor would. The test server runs in CONTACT_TEST_MODE: sign-ups go to an
- * in-memory store, no email is sent, and Turnstile uses Cloudflare's
- * always-pass test key.
+ * visitor would. The test server runs in CONTACT_TEST_MODE: sign-ups go to a
+ * local D1 database (wrangler's simulation, with the real migrations), no
+ * email is sent (it waits in /api/test/outbox instead), and Turnstile uses
+ * Cloudflare's always-pass test key.
  */
 
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
@@ -110,6 +111,47 @@ test('a visitor can join the waitlist', async ({ page }) => {
 
   await expect(page.getByRole('heading', { name: 'Check your inbox' })).toBeVisible({ timeout: SEND_TIMEOUT })
   await expect(page.getByRole('heading', { name: 'Check your inbox' })).toBeFocused()
+})
+
+/** The link in the newest test-mode email to an address (lib/email/outbox.ts). */
+async function emailedLink(page: Page, to: string, path: '/upcoming/confirm' | '/upcoming/leave'): Promise<string> {
+  let link = ''
+  await expect(async () => {
+    const { emails } = await (await page.request.get(`/api/test/outbox?to=${encodeURIComponent(to)}`)).json()
+    const urls = emails.flatMap((e: { text: string }) => e.text.match(/https:\/\/n8builds\.dev\/upcoming\/(?:confirm|leave)\?t=[\w-]+/g) ?? [])
+    link = urls.filter((url: string) => url.includes(path)).at(-1) ?? ''
+    expect(link).not.toBe('')
+  }).toPass({ timeout: SEND_TIMEOUT })
+  // The emails link to the live site; follow them on the test server.
+  return link.replace('https://n8builds.dev', '')
+}
+
+test('a visitor joins, confirms from the email, and leaves again, with every step kept in the database', async ({ page }) => {
+  const email = uniqueEmail()
+  await page.goto('/upcoming?interest=feelium#feelium', { waitUntil: 'domcontentloaded' })
+  await waitForTurnstileToken(page)
+  await page.getByRole('textbox', { name: 'Email' }).fill(email)
+  await page.locator('#waitlist-projects label', { hasText: 'KeysReady' }).click()
+  await page.getByRole('button', { name: 'Join the waitlist' }).click()
+  await expect(page.getByRole('heading', { name: 'Check your inbox' })).toBeVisible({ timeout: SEND_TIMEOUT })
+
+  // The confirm email: its button confirms both projects, once.
+  const confirm = await emailedLink(page, email, '/upcoming/confirm')
+  await page.goto(confirm)
+  await page.getByRole('button', { name: 'Confirm my spot' }).click()
+  await expect(page.locator('main').getByRole('status')).toContainText("You're on the list for KeysReady and Feelium")
+  await page.goto(confirm)
+  await page.getByRole('button', { name: 'Confirm my spot' }).click()
+  await expect(page.locator('main').getByRole('alert')).toContainText('expired')
+
+  // Its leave link deletes the entry; after that, neither link does anything.
+  const leave = await emailedLink(page, email, '/upcoming/leave')
+  await page.goto(leave)
+  await page.getByRole('button', { name: 'Remove me from the waitlist' }).click()
+  await expect(page.locator('main').getByRole('status')).toContainText('everything stored with it are deleted')
+  await page.goto(leave)
+  await page.getByRole('button', { name: 'Remove me from the waitlist' }).click()
+  await expect(page.locator('main').getByRole('alert')).toContainText('no longer on the waitlist')
 })
 
 test('asks for a project and a valid email before sending anything', async ({ page }) => {

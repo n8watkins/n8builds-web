@@ -1,6 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
-import { MemoryWaitlistStore, type WaitlistStore } from '@/lib/waitlist/store'
+import { WaitlistStore, type WaitlistLinks } from '@/lib/waitlist/store'
+import { testDatabases, type TestDatabases } from './d1'
 
 const checkRateLimit = vi.fn()
 const verifyTurnstile = vi.fn()
@@ -30,7 +31,7 @@ vi.mock('next/server', async (importOriginal) => ({
 let store: WaitlistStore | null = null
 vi.mock('@/lib/waitlist/store', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/lib/waitlist/store')>()),
-  waitlistStore: () => store,
+  waitlistStore: async () => store,
 }))
 vi.mock('@/lib/logger', () => ({
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
@@ -61,20 +62,40 @@ async function call(handler: Handler, body: unknown, contentType = 'application/
       headers: { 'content-type': contentType },
     })
   )
-  return { status: response.status, json: await response.json() }
+  const result = { status: response.status, json: await response.json() }
+  await reload()
+  return result
 }
 
-let memory: MemoryWaitlistStore
-const saved = () => memory.entries.get(entryId('visitor@example.com'))
+let dbs: TestDatabases
+let real: WaitlistStore
+beforeAll(async () => {
+  dbs = await testDatabases()
+})
+afterAll(() => dbs.dispose())
 
-beforeEach(() => {
+/** The visitor's entry as stored now. */
+let current: Awaited<ReturnType<WaitlistStore['get']>> = null
+const saved = () => current
+async function reload() {
+  current = await real.get(entryId('visitor@example.com'))
+}
+const rows = async () => (await dbs.waitlist.prepare('SELECT COUNT(*) AS n FROM waitlist_subscribers').first<{ n: number }>())!.n
+/** The links in the latest confirm email. */
+const links = (): WaitlistLinks => sendConfirmEmail.mock.calls.at(-1)![1]
+/** The token in the latest leave-link email. */
+const leaveToken = (): string => sendLeaveEmail.mock.calls.at(-1)![1]
+
+beforeEach(async () => {
   checkRateLimit.mockReset().mockResolvedValue({ allowed: true })
   verifyTurnstile.mockReset().mockResolvedValue(true)
   sendConfirmEmail.mockReset().mockResolvedValue(undefined)
   sendLeaveEmail.mockReset().mockResolvedValue(undefined)
   afterCallbacks.length = 0
-  memory = new MemoryWaitlistStore()
-  store = memory
+  await dbs.reset()
+  real = new WaitlistStore(dbs.waitlist)
+  store = real
+  current = null
 })
 
 describe('POST /api/waitlist', () => {
@@ -92,7 +113,7 @@ describe('POST /api/waitlist', () => {
       referrer: 'https://getrelink.dev/pricing',
     })
     expect(saved()!.createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T/)
-    expect(sendConfirmEmail).toHaveBeenCalledWith(saved())
+    expect(sendConfirmEmail).toHaveBeenCalledWith(saved(), { confirm: expect.any(String), leave: expect.any(String) })
     expect(verifyTurnstile).toHaveBeenCalledWith('token', '1.2.3.4')
     expect(checkRateLimit.mock.calls).toEqual([
       ['waitlist-ip', 'key:1.2.3.4'],
@@ -140,7 +161,7 @@ describe('POST /api/waitlist', () => {
   ])('rejects %s without touching the store', async (_, change) => {
     const response = await call(join, { ...valid, ...change })
     expect(response.status).toBe(400)
-    expect(memory.entries.size).toBe(0)
+    expect(await rows()).toBe(0)
     expect(sendConfirmEmail).not.toHaveBeenCalled()
   })
 
@@ -149,7 +170,7 @@ describe('POST /api/waitlist', () => {
     expect(response.status).toBe(400)
     expect(verifyTurnstile).not.toHaveBeenCalled()
     expect(checkRateLimit).not.toHaveBeenCalled()
-    expect(memory.entries.size).toBe(0)
+    expect(await rows()).toBe(0)
   })
 
   it('rejects a non-JSON request', async () => {
@@ -167,7 +188,7 @@ describe('POST /api/waitlist', () => {
   it('rejects a failed Turnstile check', async () => {
     verifyTurnstile.mockResolvedValue(false)
     expect((await call(join, valid)).status).toBe(400)
-    expect(memory.entries.size).toBe(0)
+    expect(await rows()).toBe(0)
   })
 
   it('answers 429 over the per-IP limit, and 503 when the limiter is down', async () => {
@@ -175,11 +196,11 @@ describe('POST /api/waitlist', () => {
     expect(await call(join, valid)).toMatchObject({ status: 429, json: { type: 'rate_limit' } })
     checkRateLimit.mockResolvedValueOnce({ allowed: false, reason: 'unavailable' })
     expect(await call(join, valid)).toMatchObject({ status: 503, json: { type: 'unavailable' } })
-    expect(memory.entries.size).toBe(0)
+    expect(await rows()).toBe(0)
   })
 
   it('answers 503 and sends nothing when the store fails', async () => {
-    store = { ...memory, get: vi.fn().mockRejectedValue(new Error('Upstash down')) } as unknown as WaitlistStore
+    store = Object.assign(new WaitlistStore(dbs.waitlist), { join: vi.fn().mockRejectedValue(new Error('D1 down')) })
     expect(await call(join, valid)).toMatchObject({ status: 503, json: { type: 'unavailable' } })
     expect(sendConfirmEmail).not.toHaveBeenCalled()
   })
@@ -202,24 +223,42 @@ describe('POST /api/waitlist', () => {
 
   it("gives the same answer for a confirmed address, and doesn't change it until confirmed", async () => {
     await call(join, valid)
-    await call(confirm, { token: saved()!.token })
+    await call(confirm, { token: links().confirm })
     expect(saved()).toMatchObject({ projects: ['relink'], note: 'For my docs site' })
 
     const again = await call(join, { ...valid, projects: ['strollz'], note: 'Walks too' })
     expect(again).toEqual({ status: 200, json: { message: JOINED_MESSAGE } })
     expect(saved()).toMatchObject({ projects: ['relink'], requested: ['strollz'], note: 'For my docs site' })
 
-    await call(confirm, { token: saved()!.token })
+    await call(confirm, { token: links().confirm })
     expect(saved()).toMatchObject({ projects: ['relink', 'strollz'], requested: [], note: 'Walks too' })
+  })
+})
+
+describe('the confirm email after a repeat join', () => {
+  it('names the projects asked for, even ones the address already confirmed', async () => {
+    await call(join, valid)
+    await call(confirm, { token: links().confirm })
+    await call(join, valid)
+    expect(sendConfirmEmail.mock.calls.at(-1)![0]).toMatchObject({ projects: ['relink'], requested: ['relink'] })
   })
 })
 
 describe('POST /api/waitlist/confirm', () => {
   it('confirms the projects behind a link', async () => {
     await call(join, { ...valid, projects: ['relink', 'strollz'] })
-    const response = await call(confirm, { token: saved()!.token })
+    const response = await call(confirm, { token: links().confirm })
     expect(response).toEqual({ status: 200, json: { message: 'Confirmed', projects: 'Relink and Strollz' } })
     expect(saved()!.confirmedAt).toMatch(/^\d{4}-/)
+  })
+
+  it('works once: a replayed or leave link confirms nothing', async () => {
+    await call(join, valid)
+    const { confirm: token, leave: leaveLink } = links()
+    expect((await call(confirm, { token: leaveLink })).status).toBe(404)
+    expect(saved()!.confirmedAt).toBe('')
+    expect((await call(confirm, { token })).status).toBe(200)
+    expect((await call(confirm, { token })).status).toBe(404)
   })
 
   it('answers 404 for an unknown link and 400 for a malformed one', async () => {
@@ -228,7 +267,7 @@ describe('POST /api/waitlist/confirm', () => {
   })
 
   it('answers 503 when the store fails', async () => {
-    store = { idForToken: vi.fn().mockRejectedValue(new Error('down')) } as unknown as WaitlistStore
+    store = Object.assign(new WaitlistStore(dbs.waitlist), { confirm: vi.fn().mockRejectedValue(new Error('down')) })
     expect((await call(confirm, { token: 'x'.repeat(32) })).status).toBe(503)
   })
 })
@@ -236,11 +275,13 @@ describe('POST /api/waitlist/confirm', () => {
 describe('POST /api/waitlist/leave', () => {
   it('deletes the entry behind a leave link', async () => {
     await call(join, valid)
-    const { token } = saved()!
+    const { confirm: confirmLink, leave: token } = links()
+    // A confirm link isn't a leave link.
+    expect((await call(leave, { token: confirmLink })).status).toBe(404)
     expect(await call(leave, { token })).toEqual({ status: 200, json: { message: 'Removed' } })
-    expect(memory.entries.size).toBe(0)
-    // The link can't confirm or remove anything any more.
-    expect((await call(confirm, { token })).status).toBe(404)
+    expect(await rows()).toBe(0)
+    // Neither link can confirm or remove anything any more.
+    expect((await call(confirm, { token: confirmLink })).status).toBe(404)
     expect((await call(leave, { token })).status).toBe(404)
   })
 
@@ -250,7 +291,10 @@ describe('POST /api/waitlist/leave', () => {
     expect(response).toEqual({ status: 200, json: { message: LEAVE_LINK_MESSAGE } })
     expect(sendLeaveEmail).not.toHaveBeenCalled()
     await Promise.all(afterCallbacks.map((fn) => fn()))
-    expect(sendLeaveEmail).toHaveBeenCalledWith(saved())
+    expect(sendLeaveEmail).toHaveBeenCalledWith(saved(), expect.any(String))
+    // The emailed link works.
+    expect(await call(leave, { token: leaveToken() })).toEqual({ status: 200, json: { message: 'Removed' } })
+    expect(await rows()).toBe(0)
   })
 
   it('gives the same answer for an address that is not on the list, and sends nothing', async () => {

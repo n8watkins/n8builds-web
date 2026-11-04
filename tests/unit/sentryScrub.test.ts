@@ -13,6 +13,12 @@ describe('scrubContactBody', () => {
     expect(scrubbed.request?.url).toBe('https://n8builds.dev/api/contact')
   })
 
+  it('drops the body of every waitlist request (an address or a link token)', () => {
+    for (const path of ['/api/waitlist', '/api/waitlist/confirm', '/api/waitlist/leave']) {
+      expect(scrubContactBody(event(`https://n8builds.dev${path}`)).request?.data, path).toBeUndefined()
+    }
+  })
+
   it('leaves other events alone', () => {
     expect(scrubContactBody(event('https://n8builds.dev/blog')).request?.data).toBeDefined()
   })

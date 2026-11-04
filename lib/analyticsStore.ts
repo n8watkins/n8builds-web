@@ -1,28 +1,19 @@
 import 'server-only'
-import { Redis } from '@upstash/redis'
 import { logger } from '@/lib/logger'
-import { KEEP_DAYS, utcDate } from '@/lib/game/stats'
+import { utcDate } from '@/lib/game/stats'
+import { increment } from '@/lib/counters'
+import type { D1Database } from '@/lib/db'
 import type { RefSource, RefTarget } from '@/lib/referrals'
 
 /**
- * The analytics database (ANALYTICS_REDIS_REST_URL and _TOKEN), shared with
- * the admin dashboard, which reads these counters (n8builds-admin lib/store.ts):
- * - `ref:appturnity:<date>`  hash: link placement -> clicks to appturnity.com
- * - `ref:portfolio:<date>`   hash: link placement -> clicks to the portfolio (not shown in the admin yet)
- * - `contact:sent:<date>`    integer: contact messages delivered that day
- * Dates are UTC; keys expire after KEEP_DAYS, like the game's. Only counts,
- * never anything about the visitor. Null when the database isn't set.
+ * The daily counters in n8builds-analytics (docs/DATABASE.md), which the
+ * admin dashboard reads (n8builds-admin lib/store.ts):
+ * - `ref:<target>`  field: link placement -> clicks to appturnity.com, techforpros.com, the portfolio
+ * - `contact:sent`  contact messages delivered that day
+ * Dates are UTC; rows are deleted after KEEP_DAYS by the daily cleanup
+ * (lib/retention.ts). Only counts, never anything about the visitor.
  */
-let redis: Redis | null = null
-export function analyticsStore(): Redis | null {
-  const url = process.env.ANALYTICS_REDIS_REST_URL
-  const token = process.env.ANALYTICS_REDIS_REST_TOKEN
-  if (!url || !token) return null
-  redis ??= new Redis({ url, token })
-  return redis
-}
 
-const KEEP = KEEP_DAYS * 24 * 60 * 60
 // A count is never worth holding a request open: give up after this long.
 const TIMEOUT_MS = 2000
 
@@ -43,20 +34,11 @@ async function quietly(label: string, work: () => Promise<unknown>): Promise<voi
   }
 }
 
-type Counter = Pick<Redis, 'hincrby' | 'incr' | 'expire'>
-
-export function countReferral(store: Counter, target: RefTarget, from: RefSource, now = new Date()): Promise<void> {
-  const key = `ref:${target}:${utcDate(now)}`
-  return quietly(key, async () => {
-    await store.hincrby(key, from, 1)
-    await store.expire(key, KEEP)
-  })
+export function countReferral(db: D1Database, target: RefTarget, from: RefSource, now = new Date()): Promise<void> {
+  const metric = `ref:${target}`
+  return quietly(metric, () => increment(db, metric, utcDate(now), from).run())
 }
 
-export function countContactSent(store: Counter, now = new Date()): Promise<void> {
-  const key = `contact:sent:${utcDate(now)}`
-  return quietly(key, async () => {
-    await store.incr(key)
-    await store.expire(key, KEEP)
-  })
+export function countContactSent(db: D1Database, now = new Date()): Promise<void> {
+  return quietly('contact:sent', () => increment(db, 'contact:sent', utcDate(now)).run())
 }

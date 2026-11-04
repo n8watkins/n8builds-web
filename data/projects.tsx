@@ -391,8 +391,8 @@ export const projects = [
             icons: [{ icon: 'sanity.svg' }],
           },
           {
-            text: 'Contact form behind Turnstile and Upstash rate limits, failing closed',
-            icons: [{ icon: 'turnstile.svg' }, { icon: 'upstash.svg' }],
+            text: 'Contact form behind Turnstile and rate limits in Durable Objects, failing closed',
+            icons: [{ icon: 'turnstile.svg' }, { icon: 'cloudflare.svg' }],
           },
           {
             text: 'Errors and CSP violation reports in Sentry',

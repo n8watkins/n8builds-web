@@ -10,7 +10,7 @@ import { isWaitlistOpen } from '@/lib/waitlist/store'
  * tightens there (picks without taglines, less padding) to keep both on one screen,
  * and centres its content when the cards beside it are the taller.
  */
-export default function WaitlistPanel({
+export default async function WaitlistPanel({
   heading: Heading = 'h2',
   layout = 'page',
 }: {
@@ -18,7 +18,8 @@ export default function WaitlistPanel({
   layout?: 'page' | 'side'
 }) {
   const side = layout === 'side'
-  const open = isWaitlistOpen()
+  // Decided when the page is prerendered: the build sees the D1 binding through wrangler's local simulation.
+  const open = await isWaitlistOpen()
   // As the contact form: under `next dev` the server skips Turnstile.
   const turnstileSiteKey = process.env.NODE_ENV === 'development' ? '' : process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''
 

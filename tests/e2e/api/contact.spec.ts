@@ -94,7 +94,7 @@ test.describe('rate limiting', () => {
   })
 
   // Rate limits run only after validation and Turnstile, so junk requests never
-  // spend the Upstash quota (and can't lock a visitor out either).
+  // reach the rate-limit counters (and can't lock a visitor out either).
   test('invalid submissions never reach the per-IP limit', async ({ request }) => {
     const ip = uniqueIp()
     for (let i = 0; i < 6; i++) expect((await post(request, validForm({ name: '' }), ip)).status()).toBe(400)

@@ -29,8 +29,8 @@ vi.mock('next/server', async (importOriginal) => ({
 }))
 const countContactSent = vi.fn(async () => {})
 let store: object | null = {}
+vi.mock('@/lib/db', () => ({ analyticsDb: async () => store }))
 vi.mock('@/lib/analyticsStore', () => ({
-  analyticsStore: () => store,
   countContactSent: (...args: unknown[]) => countContactSent(...(args as [])),
 }))
 vi.mock('@/lib/logger', () => ({
@@ -90,7 +90,7 @@ describe('POST /api/contact', () => {
     expect(sendContactEmails).toHaveBeenCalledWith(expect.anything(), { autoReply: true, country: 'GB' })
   })
 
-  it('checks Turnstile before any rate limiter, so junk never reaches Redis', async () => {
+  it('checks Turnstile before any rate limiter, so junk never reaches the counters', async () => {
     verifyTurnstile.mockResolvedValue(false)
 
     const { status, json } = await post(validForm)
@@ -195,7 +195,8 @@ describe('POST /api/contact', () => {
     expect((await post(validForm)).status).toBe(500)
     store = null
     expect((await post(validForm)).status).toBe(200)
-    expect(afterCallbacks).toHaveLength(0)
+    await Promise.all(afterCallbacks.map((fn) => fn()))
+    expect(countContactSent).not.toHaveBeenCalled()
   })
 
   describe('a Tech for Pros quote request (just an email)', () => {

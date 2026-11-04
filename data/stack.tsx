@@ -171,7 +171,7 @@ export const dev_stack: AIStackItem[] = [
   { name: 'Vercel', icon: <SiVercel className={ICON} style={{ color: LIGHT }} />, description: 'Push to main and it ships.' },
   { name: 'Cloudflare', icon: <SiCloudflare className={ICON} style={{ color: '#F38020' }} />, description: 'R2 file storage and Turnstile spam checks.' },
   { name: 'Sanity', icon: <SiSanity className={ICON} style={{ color: '#F03E2F' }} />, description: 'The CMS behind my blog.' },
-  { name: 'Upstash', icon: <SiUpstash className={ICON} style={{ color: '#00E9A3' }} />, description: 'Redis for rate limits and the dino scores.' },
+  { name: 'Upstash', icon: <SiUpstash className={ICON} style={{ color: '#00E9A3' }} />, description: 'Serverless Redis for rate limits and counters.' },
   { name: 'Clerk', icon: <SiClerk className={ICON} style={{ color: LIGHT }} />, description: 'Drop-in sign-in and user management.' },
   { name: 'NextAuth', icon: <SiNextdotjs className={ICON} style={{ color: LIGHT }} />, description: 'Sign-in for Next.js apps I host myself.' },
   { name: 'Sentry', icon: <SiSentry className={ICON} style={{ color: LIGHT }} />, description: 'Tells me when something breaks in production.' },

@@ -2,10 +2,13 @@
 // site (.open-next/worker.js, written by `opennextjs-cloudflare build`),
 // wrapped by Sentry, plus byte-range answers for the videos. See DEPLOY.md.
 import * as Sentry from '@sentry/nextjs/cloudflare'
+import { WorkerEntrypoint } from 'cloudflare:workers'
 import openNext from '../.open-next/worker.js'
 import { dataCollection } from '../lib/sentry-data-collection'
 import { scrubContactBody } from '../lib/sentry-scrub'
 import { MEDIA, fetchWithRanges } from './range.js'
+import { purgeExpired } from '../lib/retention'
+import { WaitlistStore } from '../lib/waitlist/store'
 
 // The Durable Objects (wrangler.jsonc durable_objects): the ISR revalidation
 // queue, and the rate-limit counters.
@@ -31,8 +34,28 @@ function forBrowsers(response) {
  * @typedef {{
  *   ASSETS: { fetch: (request: Request) => Promise<Response> },
  *   CONTACT_RATE_LIMITER: { limit: (options: { key: string }) => Promise<{ success: boolean }> },
+ *   WAITLIST_DB: import('../lib/db').D1Database,
+ *   ANALYTICS_DB: import('../lib/db').D1Database,
  * }} Env
  */
+
+/**
+ * The one write n8builds-admin needs: deleting a waitlist address on request.
+ * A named entrypoint, reachable only through the admin's service binding
+ * (wrangler.jsonc there), never from the internet, so this Worker stays the
+ * only writer of n8builds-waitlist (docs/DATABASE.md).
+ * @extends {WorkerEntrypoint<Env>}
+ */
+export class WaitlistAdmin extends WorkerEntrypoint {
+  /**
+   * @param {string} id the entry's id (32 hex characters)
+   * @returns {Promise<boolean>} whether there was an entry to delete
+   */
+  async deleteSubscriber(id) {
+    if (typeof id !== 'string' || !/^[a-f0-9]{32}$/.test(id)) throw new Error('invalid waitlist id')
+    return new WaitlistStore(this.env.WAITLIST_DB).remove(id)
+  }
+}
 
 const worker = {
   /**
@@ -43,7 +66,7 @@ const worker = {
   async fetch(request, env, ctx) {
     const { pathname } = new URL(request.url)
     // A flood of contact posts is turned away here, before any of it reaches
-    // Turnstile, Upstash or Next. The form shows its own message for a bare 429.
+    // Turnstile, the rate-limit counters or Next. The form shows its own message for a bare 429.
     if (request.method === 'POST' && pathname === '/api/contact') {
       const ip = request.headers.get('cf-connecting-ip') ?? 'unknown'
       const { success } = await env.CONTACT_RATE_LIMITER.limit({ key: ip })
@@ -55,6 +78,17 @@ const worker = {
       if (response.status !== 404) return response
     }
     return forBrowsers(await openNext.fetch(request, env, ctx))
+  },
+
+  /**
+   * The daily cleanup (wrangler.jsonc triggers): deletes what has expired in
+   * both databases (lib/retention.ts). Counts only in the log.
+   * @param {ScheduledController} _controller
+   * @param {Env} env
+   */
+  async scheduled(_controller, env) {
+    const deleted = await purgeExpired({ waitlist: env.WAITLIST_DB, analytics: env.ANALYTICS_DB })
+    console.log(JSON.stringify({ message: 'retention cleanup', deleted }))
   },
 }
 

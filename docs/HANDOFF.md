@@ -33,7 +33,6 @@ This repo also covers the admin dashboard's context (its own repo `n8watkins/n8b
 
 ### Blocked on the owner
 
-- A second Upstash Redis database; `ANALYTICS_REDIS_REST_URL` and `ANALYTICS_REDIS_REST_TOKEN` on both the n8builds-web and n8builds-admin Vercel projects (dino stats are dropped until then).
 - The Sentry read token for the admin dashboard; one sign-in at admin.n8builds.dev.
 - Vercel retention (previews 7 days) for n8builds-web, portfolio and portfolio-rank.
 - Subdomain DNS for rank, trailers and echo.
@@ -59,7 +58,7 @@ Strategy and IA: `docs/N8BUILDS_PLAN.md`.
 
 - Live at https://n8builds.dev on Cloudflare Workers (the `n8builds-web` Worker, built by OpenNext), deploying from `main` (`DEPLOY.md`).
   The Vercel project `n8builds-web` (team natkins23s-projects) no longer deploys and stays a week as a rollback.
-- Stack: Next.js 16 (App Router, Turbopack for dev, tests and the production build), React 19, TypeScript, Tailwind 4 (configured in `app/globals.css`; there is no `tailwind.config`), Motion (`motion/react`; not framer-motion), Sanity (blog), Cloudflare Email Service, Cloudflare Turnstile, Upstash Redis (rate limits), Sentry, GA4, Cloudflare Web Analytics.
+- Stack: Next.js 16 (App Router, Turbopack for dev, tests and the production build), React 19, TypeScript, Tailwind 4 (configured in `app/globals.css`; there is no `tailwind.config`), Motion (`motion/react`; not framer-motion), Sanity (blog), Cloudflare Email Service, Cloudflare Turnstile, Durable Objects (rate limits), Cloudflare D1 (waitlist and counters), Sentry, GA4, Cloudflare Web Analytics.
 - Pages: `/` (hero, "What I'm working on", the Lab, notions, stack, work-with-me, contact, each in its own full-width band), `/blog` + `/blog/[slug]` (N8's Notions, ISR hourly), `/builds` (the build log, ISR hourly), `/builds/[slug]`, `/loadout`, `/privacy`, `/live` (redirects to the live stream, else lists the channels).
 - **Status (2026-10-24):** everything is merged and live, including the build log, the live player and the n8builds case study (PRs #10 to #15). Work now goes through pull requests (`docs/BUILD_PLAN.md`); what's left and what's needed from the owner is in `docs/NEXT_STEPS.md`.
   The review of the 2026-10-22/23 work (`docs/prompts/review-2026-10-22-changes.md`) ran on 2026-10-23; its fixes (Solara's private-repo link, 320px hero, modal mobile menu, em-dash sweep, blog fact fixes) are shipped.
@@ -98,7 +97,7 @@ E2E details:
   Set `E2E_SKIP_BUILD=1` to reuse an existing build.
 - The test server runs in `CONTACT_TEST_MODE` with Cloudflare's always-pass Turnstile test keys.
 - It is built with a made-up GA ID (`G-E2ETEST000`) so the consent banner and GA loader exist, and browsers run in the America/Los_Angeles time zone so the banner stays away unless a spec asks for it (`tests/e2e/consent.spec.ts` picks Europe/Berlin or America/Toronto and answers gtag.js itself).
-  No email is sent, and GA, Sentry and Upstash are forced off.
+  No email is sent (it waits in `/api/test/outbox`), the waitlist and counters use local D1, and GA and Sentry are forced off.
 - A running server on the port is reused locally; if it serves an old build, kill it first (`ss -ltnp | grep 3747`).
 - After upgrading `@playwright/test`, run `npx playwright install` or every browser test fails instantly.
 - Tests do not retry. A flaky test is a bug to fix.
@@ -214,6 +213,8 @@ Every free check runs before the first rate-limit counter, so requests without a
   Keys outside production are namespaced by `APP_ENV` (`contact:<APP_ENV>:*`, `contact:local:*` when it is unset), so other deployments never touch production's counters.
   `CONTACT_TEST_MODE` always uses an in-memory store, as does `next dev`.
   Until 2026-11-03 the counters were in an Upstash database from the Vercel Marketplace, which goes away with the Vercel account.
+  The dino game's per-player and per-IP limits and the short links' counting limit use the same counters.
+- **Data** (2026-11-04): the waitlist and the anonymous counters are in Cloudflare D1 (`n8builds-waitlist`, `n8builds-analytics`); `docs/DATABASE.md` has the tables, retention, migrations and threats.
 - **Edge rate limit:** the Worker (`worker/index.js`, the `CONTACT_RATE_LIMITER` binding in `wrangler.jsonc`) allows 10 `POST /api/contact` per minute per IP and answers 429 itself, before Next runs; the client shows its own message for a 429 without our JSON.
 - **Fail closed:** in production, a missing Turnstile secret, a Turnstile error, a missing counters binding, or a counter error or 3-second timeout all reject the submission, with a message telling the visitor to email directly.
 - **Turnstile** (`lib/security/turnstile.ts`): tokens must be issued on `n8builds.dev` or `www.n8builds.dev` (`TURNSTILE_ALLOWED_HOSTNAMES` overrides).
