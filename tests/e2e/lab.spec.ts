@@ -13,6 +13,8 @@ test.use({ contextOptions: { reducedMotion: 'reduce' } })
 /** Where each row lives: Scribe on /loadout, the featured builds in the homepage Lab. */
 const ROW_PAGE: Record<string, string> = { Scribe: '/loadout', OpenPing: '/', Solara: '/', 'Portfolio Rank': '/' }
 const ROWS = Object.keys(ROW_PAGE)
+/** Each row's repository under github.com/n8watkins. */
+const REPO: Record<string, string> = { Scribe: 'scribe', OpenPing: 'open-ping', Solara: 'solara', 'Portfolio Rank': 'portfolio-rank' }
 /**
  * A row's live-site button, named for what it opens (round 4 of 2026-11-02):
  * "Landing page" for a product's landing page, "Live Site" for Portfolio Rank,
@@ -83,23 +85,6 @@ test('Details opens the stack and the build log in a dialog, and closes with Esc
   await expect(dialog).toBeHidden()
   // The tech stack lives only in the dialog now, not in the row.
   await expect(row.getByRole('button', { name: 'Frontend' }).filter({ visible: true })).toHaveCount(0)
-})
-
-test('every row can be starred on GitHub, and Scribe takes Mac and Linux requests', async ({ page }) => {
-  for (const [name, repo] of [
-    ['Scribe', 'scribe'],
-    ['OpenPing', 'open-ping'],
-    ['Solara', 'solara'],
-    ['Portfolio Rank', 'portfolio-rank'],
-  ]) {
-    const row = await rowOf(page, name)
-    await expect(row.getByRole('link', { name: `Star ${name} on GitHub (opens in a new tab)` })).toHaveAttribute(
-      'href',
-      `https://github.com/n8watkins/${repo}`,
-    )
-  }
-  const request = (await rowOf(page, 'Scribe')).getByRole('link', { name: /Mac or Linux/ })
-  await expect(request).toHaveAttribute('href', /^https:\/\/github\.com\/n8watkins\/scribe\/issues\/new\?title=Request/)
 })
 
 test('the Lab says its builds are public and mostly open source', async ({ page }) => {
@@ -216,6 +201,7 @@ test('Scribe downloads the newest installer through a stable link, and takes Mac
 
   // Mac and Linux: the Apple and Tux marks sit by their words, under one continuous underline.
   const ask = row.getByRole('link', { name: /Mac or Linux/ })
+  await expect(ask).toHaveAttribute('href', /^https:\/\/github\.com\/n8watkins\/scribe\/issues\/new\?title=Request/)
   await expect(ask.locator('svg')).toHaveCount(2)
   for (const [i, os] of [[0, 'Mac'], [1, 'Linux?']] as const) {
     const [mark, text] = await Promise.all([ask.locator('svg').nth(i).boundingBox(), ask.getByText(os, { exact: true }).boundingBox()])
@@ -290,7 +276,10 @@ test('each row names its own Details, Landing page (or Live Site), Star and GitH
     await rowOf(page, title)
     await expect(page.getByRole('button', { name: `Details about ${title}`, exact: true })).toHaveCount(1)
     await expect(page.getByRole('link', { name: LIVE(title), exact: true })).toHaveCount(1)
-    await expect(page.getByRole('link', { name: `Star ${title} on GitHub (opens in a new tab)`, exact: true })).toHaveCount(1)
+    const star = page.getByRole('link', { name: `Star ${title} on GitHub (opens in a new tab)`, exact: true })
+    await expect(star).toHaveCount(1)
+    // Starring happens on the repo's page.
+    await expect(star).toHaveAttribute('href', `https://github.com/n8watkins/${REPO[title]}`)
     await expect(page.getByRole('link', { name: `${title} on GitHub (opens in a new tab)`, exact: true })).toHaveCount(1)
   }
   await rowOf(page, 'OpenPing')
