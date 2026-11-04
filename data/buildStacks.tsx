@@ -183,12 +183,11 @@ export const stackToolIcons: Record<string, ReactElement> = {
  * Railway (nothing deploys there). See docs/DECISIONS.md, round 5.
  */
 export const hosts: { name: string; what: string }[] = [
-  { name: 'Vercel', what: 'n8builds.dev, my portfolio, Portfolio Rank and Scribe’s site' },
-  { name: 'Cloudflare Workers', what: 'OpenPing, PR Post, Strollz and the upcoming projects’ landing pages' },
+  { name: 'Vercel', what: 'my portfolio, Portfolio Rank and Scribe’s site' },
+  { name: 'Cloudflare Workers', what: 'n8builds.dev (its data in D1), OpenPing, PR Post, Strollz and the upcoming projects’ landing pages' },
   { name: 'Firebase', what: 'Solara: its hosting, functions and Firestore' },
   { name: 'Render', what: 'the AI demos on my portfolio: Echo, Scout and GeminiGPT' },
   { name: 'Turso', what: 'SQLite databases, for Portfolio Rank and the portfolio’s demos' },
-  { name: 'Upstash', what: 'Redis for this site’s rate limits and counts' },
   { name: 'GitHub Pages', what: 'The Pull Request Post’s editions' },
 ]
 

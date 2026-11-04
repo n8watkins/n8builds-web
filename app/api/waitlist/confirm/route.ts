@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
   const parsed = tokenSchema.safeParse(body.data)
   if (!parsed.success) return fail(400, 'This link looks incomplete. Please open it from the email again.')
 
-  const store = waitlistStore()
+  const store = await waitlistStore()
   if (!store) return closed()
 
   const ipLimit = await checkRateLimit('waitlist-ip', rateLimitIpKey(getClientIp(request.headers)))

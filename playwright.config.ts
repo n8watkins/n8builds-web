@@ -64,9 +64,10 @@ export default defineConfig({
     ? undefined
     : {
         // E2E_SKIP_BUILD=1 reuses an existing test build instead of rebuilding.
+        // The local D1 databases (.wrangler/state) get every migration first.
         command: process.env.E2E_SKIP_BUILD
-          ? `npx next start -p ${E2E_PORT}`
-          : `npm run build && npx next start -p ${E2E_PORT}`,
+          ? `npm run db:migrate:local && npx next start -p ${E2E_PORT}`
+          : `npm run db:migrate:local && npm run build && npx next start -p ${E2E_PORT}`,
         url: `${E2E_BASE_URL}/api/health`,
         reuseExistingServer: !process.env.CI,
         timeout: 300_000,
@@ -96,9 +97,6 @@ export default defineConfig({
           TWITCH_CLIENT_SECRET: '',
           YOUTUBE_API_KEY: '',
           LIVE_YOUTUBE_VIDEO_ID: '',
-          // The analytics database (counters, waitlist): test mode keeps the waitlist in memory.
-          ANALYTICS_REDIS_REST_URL: '',
-          ANALYTICS_REDIS_REST_TOKEN: '',
           // Test mode is (deliberately) ignored on a deployed site, which sets APP_ENV.
           APP_ENV: '',
         },

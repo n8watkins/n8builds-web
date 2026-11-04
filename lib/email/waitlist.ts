@@ -2,7 +2,7 @@ import { UPCOMING, type UpcomingSlug } from '@/data/upcoming'
 import { EMAIL_CONFIG } from '@/lib/email/config'
 import { sendEmail } from '@/lib/email/send'
 import { C, FONT, MONO, brandBar, button, sanitizeHtml, shell } from '@/lib/email/templates'
-import { PENDING_DAYS, type WaitlistEntry } from '@/lib/waitlist/store'
+import { PENDING_DAYS, type WaitlistEntry, type WaitlistLinks } from '@/lib/waitlist/store'
 
 /**
  * The waitlist's two emails, in the contact emails' dark navy and cyan:
@@ -61,7 +61,7 @@ export function confirmSubject(entry: WaitlistEntry): string {
   return `Confirm your spot on the ${projectList(entry.requested)} waitlist`
 }
 
-export function createConfirmHtml(entry: WaitlistEntry): string {
+export function createConfirmHtml(entry: WaitlistEntry, links: WaitlistLinks): string {
   const projects = sanitizeHtml(projectList(entry.requested))
   const body = `${brandBar('Waitlist')}
 ${card(`                <tr>
@@ -72,35 +72,35 @@ ${card(`                <tr>
                 </tr>
                 <tr>
                   <td class="px" style="padding:22px 36px 26px;">
-                    ${button(confirmUrl(entry.token), 'Confirm my spot')}
-                    <p style="margin:14px 0 0;font-family:${MONO};font-size:11px;line-height:17px;color:${C.faint};word-break:break-all;">Or open ${confirmUrl(entry.token)}</p>
+                    ${button(confirmUrl(links.confirm), 'Confirm my spot')}
+                    <p style="margin:14px 0 0;font-family:${MONO};font-size:11px;line-height:17px;color:${C.faint};word-break:break-all;">Or open ${confirmUrl(links.confirm)}</p>
                   </td>
                 </tr>${signOff}`)}
 ${footnote(
-  `Not you? Ignore this email: nothing changes unless you confirm, and an unconfirmed request is deleted after ${PENDING_DAYS} days.<br>Changed your mind later? <a href="${leaveUrl(entry.token)}" style="color:${C.muted};text-decoration:underline;">Leave the waitlist</a> at any time.`
+  `Not you? Ignore this email: nothing changes unless you confirm, and an unconfirmed request is deleted after ${PENDING_DAYS} days.<br>Changed your mind later? <a href="${leaveUrl(links.leave)}" style="color:${C.muted};text-decoration:underline;">Leave the waitlist</a> at any time.`
 )}`
 
   return shell({ title: 'Confirm your spot', preheader: `Confirm to join the ${projects} waitlist.`, body })
 }
 
-export function createConfirmText(entry: WaitlistEntry): string {
+export function createConfirmText(entry: WaitlistEntry, links: WaitlistLinks): string {
   return [
     `Someone, hopefully you, asked to join the waitlist for ${projectList(entry.requested)} on n8builds.dev.`,
     "Confirm, and I'll email you when there is something to try. Nothing else: no newsletter.",
     '',
-    `Confirm my spot: ${confirmUrl(entry.token)}`,
+    `Confirm my spot: ${confirmUrl(links.confirm)}`,
     '',
     'Thanks,',
     'Nathan "n8" Watkins',
     '',
     `Not you? Ignore this email: nothing changes unless you confirm, and an unconfirmed request is deleted after ${PENDING_DAYS} days.`,
-    `Leave the waitlist at any time: ${leaveUrl(entry.token)}`,
+    `Leave the waitlist at any time: ${leaveUrl(links.leave)}`,
   ].join('\n')
 }
 
 export const LEAVE_SUBJECT = 'Your link to leave the n8builds waitlist'
 
-export function createLeaveHtml(entry: WaitlistEntry): string {
+export function createLeaveHtml(token: string): string {
   const body = `${brandBar('Waitlist')}
 ${card(`                <tr>
                   <td class="px" style="padding:34px 36px 8px;">
@@ -110,7 +110,7 @@ ${card(`                <tr>
                 </tr>
                 <tr>
                   <td class="px" style="padding:22px 36px 26px;">
-                    ${button(leaveUrl(entry.token), 'Remove me')}
+                    ${button(leaveUrl(token), 'Remove me')}
                   </td>
                 </tr>${signOff}`)}
 ${footnote("Didn't ask for this? Ignore it, and nothing changes.")}`
@@ -118,12 +118,12 @@ ${footnote("Didn't ask for this? Ignore it, and nothing changes.")}`
   return shell({ title: 'Leave the waitlist', preheader: 'One click removes your address from the waitlist.', body })
 }
 
-export function createLeaveText(entry: WaitlistEntry): string {
+export function createLeaveText(token: string): string {
   return [
     'You asked for a link to take this address off the n8builds.dev waitlist.',
     'One click removes it and everything stored with it:',
     '',
-    leaveUrl(entry.token),
+    leaveUrl(token),
     '',
     "Didn't ask for this? Ignore it, and nothing changes.",
   ].join('\n')
@@ -141,8 +141,8 @@ async function send(to: string, subject: string, html: string, text: string): Pr
   })
 }
 
-export const sendConfirmEmail = (entry: WaitlistEntry) =>
-  send(entry.email, confirmSubject(entry), createConfirmHtml(entry), createConfirmText(entry))
+export const sendConfirmEmail = (entry: WaitlistEntry, links: WaitlistLinks) =>
+  send(entry.email, confirmSubject(entry), createConfirmHtml(entry, links), createConfirmText(entry, links))
 
-export const sendLeaveEmail = (entry: WaitlistEntry) =>
-  send(entry.email, LEAVE_SUBJECT, createLeaveHtml(entry), createLeaveText(entry))
+export const sendLeaveEmail = (entry: WaitlistEntry, token: string) =>
+  send(entry.email, LEAVE_SUBJECT, createLeaveHtml(token), createLeaveText(token))

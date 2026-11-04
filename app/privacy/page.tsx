@@ -12,7 +12,7 @@ export const metadata = pageMetadata({
   path: '/privacy',
 })
 
-const UPDATED = 'November 2, 2026'
+const UPDATED = 'November 4, 2026'
 
 export default function PrivacyPolicy() {
   return (
@@ -74,7 +74,9 @@ export default function PrivacyPolicy() {
                     <Link href="/upcoming/leave" className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2">
                       leave page
                     </Link>
-                    . Sign-ups are kept in a private Upstash Redis database that only I can read.
+                    . Sign-ups are kept in a private Cloudflare D1 database, apart from everything
+                    else, that only I can read; the links in its emails are stored only as one-way
+                    hashes.
                   </li>
                   <li>
                     <span className="text-slate-100">Usage analytics.</span> With your permission
@@ -169,24 +171,12 @@ export default function PrivacyPolicy() {
                   <li>
                     <span className="text-slate-100">Email.</span> Contact-form submissions are
                     delivered to me by email so I can respond directly. Replies and waitlist emails
-                    are sent through Gmail.
-                  </li>
-                  <li>
-                    <span className="text-slate-100">Upstash.</span> The waitlist and the site&rsquo;s
-                    anonymous counters are stored with Upstash (Redis) under the{' '}
-                    <a
-                      href="https://upstash.com/trust/privacy.pdf"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
-                    >
-                      Upstash Privacy Policy
-                    </a>
-                    .
+                    are sent through Cloudflare Email Service.
                   </li>
                   <li>
                     <span className="text-slate-100">Hosting.</span> The site is hosted on Cloudflare,
-                    which may process basic request logs to serve and secure the site. Cloudflare Web
+                    which may process basic request logs to serve and secure the site, and keeps the
+                    waitlist and the site&rsquo;s anonymous counters in Cloudflare D1. Cloudflare Web
                     Analytics also counts page views and measures page speed, without cookies and
                     without any identifier that follows you from visit to visit.
                   </li>

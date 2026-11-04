@@ -17,9 +17,11 @@ The site runs on Cloudflare Workers as the `n8builds-web` Worker in the owner's 
 - Email (contact form, quote requests, waitlist links) goes through Cloudflare Email Service's `send_email` binding (`EMAIL`), from contact@n8builds.dev (`lib/email/send.ts`).
   n8builds.dev is onboarded for sending; Cloudflare added its records on `cf-bounce.n8builds.dev` and the DKIM key itself.
 - Cloudflare Web Analytics replaces Vercel Analytics and Speed Insights (`components/WebAnalytics.tsx`), once `NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN` is set at build time.
-- `APP_ENV=production` (a `wrangler.jsonc` var) replaces `VERCEL_ENV`: it keeps production's Redis key names and switches off the test modes.
+- `APP_ENV=production` (a `wrangler.jsonc` var) replaces `VERCEL_ENV`: it keeps production's rate-limit counter names and switches off the test modes.
 - The contact form's and waitlist's rate limits are sliding windows in Durable Objects (`RATE_LIMIT_COUNTERS`, `worker/rate-limit-counter.js`), one per limit and key; a Workers rate limit binding (`CONTACT_RATE_LIMITER`) also turns away floods of contact posts before Next runs.
-- The analytics database (dino stats, short-link counts, the waitlist) stays in the owner's own Upstash Redis account, reached over HTTPS.
+- The site's data is in two Cloudflare D1 databases that this Worker owns: `n8builds-waitlist` (`WAITLIST_DB`, the waitlist's personal data) and `n8builds-analytics` (`ANALYTICS_DB`, anonymous counts and the dino game).
+  A daily Cron Trigger (03:30 UTC) deletes what has expired, and the admin dashboard reads both, read-only.
+  [docs/DATABASE.md](docs/DATABASE.md) has the tables, retention, migrations, backups and threats.
 
 ## Configuration
 
@@ -28,15 +30,20 @@ Secrets are set once with `npx wrangler secret put <NAME>` (it reads the value f
 
 | Secret | Used for |
 | --- | --- |
-| `ANALYTICS_REDIS_REST_URL`, `ANALYTICS_REDIS_REST_TOKEN` | the analytics database: dino stats, short-link counts, the waitlist |
 | `TURNSTILE_SECRET_KEY` | Turnstile on the contact, quote and waitlist forms |
 | `GITHUB_TOKEN` | the build log, stars and downloads when pages revalidate |
 
 Build-time values (inlined into the pages) are public and set in the deploy workflow (`.github/workflows/deploy.yml`): the site URL, the Sanity project, the GA ID, the Turnstile site key and the Sentry DSN, plus `NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN` from a repository variable.
-`/upcoming` is prerendered and shows its waitlist form only when the analytics database is configured at build time, so the workflow also reads the `ANALYTICS_REDIS_REST_*` repository secrets.
+`/upcoming` is prerendered and shows its waitlist form when the `WAITLIST_DB` binding exists, which the build sees through wrangler's local simulation of `wrangler.jsonc`.
 For a deploy by hand, export the same values in the shell first.
 
 After changing bindings in `wrangler.jsonc`, run `npm run cf-typegen` to update `cloudflare-env.d.ts`.
+
+## Database migrations
+
+The migrations are in `migrations/waitlist/` and `migrations/analytics/`, and `npm run db:migrate` applies the new ones to both databases (`npm run db:migrate:local` for the local simulation).
+Apply them before the code that needs them goes live: by hand before merging, or in the Deploy workflow once its token has `D1: Edit` and the repository variable `D1_MIGRATE` is `1`.
+See [docs/DATABASE.md](docs/DATABASE.md#migrations).
 
 ## Automatic deploys
 

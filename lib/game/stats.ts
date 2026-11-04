@@ -1,10 +1,12 @@
 import { createHash, randomBytes } from 'node:crypto'
 import { requestGeo } from '@/lib/cloudflare/request'
+import { increment } from '@/lib/counters'
+import type { D1Database } from '@/lib/db'
 
 /**
  * The dino catch game's stats (components/features/dino/DinoGame.tsx), from
- * n8builds.dev and portfolio.n8builds.dev, kept in the analytics database the
- * admin dashboard reads (n8builds-admin, lib/store.ts).
+ * n8builds.dev and portfolio.n8builds.dev, kept in n8builds-analytics
+ * (docs/DATABASE.md), which the admin dashboard reads (n8builds-admin, lib/game.ts).
  *
  * Privacy first, Plausible-style: no cookies, nothing stored in the browser,
  * and no IP address or user agent stored anywhere. A player is a hash of
@@ -13,17 +15,13 @@ import { requestGeo } from '@/lib/cloudflare/request'
  * daily counters, the day's player hashes (to count unique players and
  * attempts per player) and the top scores with site, country and date.
  *
- * Keys (dates are UTC YYYY-MM-DD; everything expires after KEEP_DAYS):
- * - game:salt:<date>            the day's random salt (2 days)
- * - game:rounds:<date>          hash: start:<site> / end:<site> -> count
- * - game:players:<date>         HyperLogLog of player hashes (all sites)
- * - game:players:<date>:<site>  the same, per site
- * - game:attempts:<date>        hash: player hash -> rounds started
- * - game:scores:<date>          hash: score -> finished rounds
- * - game:countries:<date>       hash: country -> rounds started
- * - game:regions:<date>         hash: country-region -> rounds started
- * - game:round:<id>             a round in play: who, where, when (1 hour)
- * - game:top                    sorted set: the best scores, "site|country|date|id" -> score
+ * Tables (dates are UTC YYYY-MM-DD; the daily cleanup deletes rows after KEEP_DAYS):
+ * - analytics_daily  game:rounds (start:<site> / end:<site>), game:scores
+ *                    (score), game:countries (country), game:regions (country-region)
+ * - game_salts       the day's random salt (2 days)
+ * - game_players     (day, site, player hash) -> rounds started
+ * - game_rounds      a round in play: who, where, when (1 hour)
+ * - game_top         the best TOP_KEEP scores: site, country, date
  */
 
 export const SITES = ['n8builds', 'portfolio'] as const
@@ -41,41 +39,29 @@ export const ROUND_SECONDS = 30
 /** The most catches a 30-second round can honestly produce (two clicks a second on a moving target). */
 export const MAX_SCORE = 60
 export const KEEP_DAYS = 400
-const KEEP = KEEP_DAYS * 24 * 60 * 60
-const SALT_TTL = 2 * 24 * 60 * 60
-const ROUND_TTL = 60 * 60
+const SALT_DAYS = 2
+const ROUND_MS = 60 * 60 * 1000
 const TOP_KEEP = 50
-
-/** The commands used, so tests can run against an in-memory fake. */
-export interface GameStore {
-  get<T = string>(key: string): Promise<T | null>
-  set(key: string, value: string, opts: { ex: number; nx?: boolean }): Promise<unknown>
-  del(key: string): Promise<unknown>
-  hincrby(key: string, field: string, by: number): Promise<number>
-  pfadd(key: string, ...members: string[]): Promise<number>
-  expire(key: string, seconds: number): Promise<unknown>
-  zadd(key: string, entry: { score: number; member: string }): Promise<unknown>
-  zremrangebyrank(key: string, start: number, stop: number): Promise<unknown>
-  zrange<T = string[]>(key: string, start: number, stop: number, opts: { rev: true; withScores: true }): Promise<T>
-}
 
 export function utcDate(now: Date): string {
   return now.toISOString().slice(0, 10)
 }
 
+const daysBefore = (date: string, days: number) => utcDate(new Date(Date.parse(`${date}T00:00:00Z`) - days * 86_400_000))
+
 /** Today's salt, made once per UTC day by whichever request comes first. */
-async function dailySalt(store: GameStore, date: string): Promise<string> {
-  const key = `game:salt:${date}`
-  const existing = await store.get<string>(key)
-  if (existing) return existing
-  await store.set(key, randomBytes(32).toString('hex'), { ex: SALT_TTL, nx: true })
-  // Another request may have won the race: use whichever salt was kept.
-  return (await store.get<string>(key))!
+async function dailySalt(db: D1Database, date: string): Promise<string> {
+  const [, row] = await db.batch<{ salt: string }>([
+    // Another request may win the race: whichever salt was kept is used.
+    db.prepare('INSERT INTO game_salts (day, salt) VALUES (?, ?) ON CONFLICT (day) DO NOTHING').bind(date, randomBytes(32).toString('hex')),
+    db.prepare('SELECT salt FROM game_salts WHERE day = ?').bind(date),
+  ])
+  return row.results[0].salt
 }
 
 /** A player's id for today: never the IP or user agent themselves. */
-export async function playerHash(store: GameStore, now: Date, ip: string, userAgent: string): Promise<string> {
-  const salt = await dailySalt(store, utcDate(now))
+export async function playerHash(db: D1Database, now: Date, ip: string, userAgent: string): Promise<string> {
+  const salt = await dailySalt(db, utcDate(now))
   return createHash('sha256').update(`${salt}\n${ip}\n${userAgent}`).digest('hex').slice(0, 24)
 }
 
@@ -106,55 +92,68 @@ export function parseEvent(body: unknown): GameEvent | null {
   return null
 }
 
-async function bump(store: GameStore, key: string, field: string) {
-  await store.hincrby(key, field, 1)
-  await store.expire(key, KEEP)
-}
-
 /** A round started: counted, its player counted once a day, and a round id handed back. */
-export async function startRound(store: GameStore, now: Date, site: Site, player: string, place: Place) {
+export async function startRound(db: D1Database, now: Date, site: Site, player: string, place: Place) {
   const date = utcDate(now)
-  await bump(store, `game:rounds:${date}`, `start:${site}`)
-  await store.pfadd(`game:players:${date}`, player)
-  await store.expire(`game:players:${date}`, KEEP)
-  await store.pfadd(`game:players:${date}:${site}`, player)
-  await store.expire(`game:players:${date}:${site}`, KEEP)
-  await bump(store, `game:attempts:${date}`, player)
-  await bump(store, `game:countries:${date}`, place.country)
-  if (place.region) await bump(store, `game:regions:${date}`, `${place.country}-${place.region}`)
   const round = randomBytes(12).toString('hex')
-  await store.set(
-    `game:round:${round}`,
-    JSON.stringify({ player, site, country: place.country, at: now.getTime() }),
-    { ex: ROUND_TTL }
-  )
-  return { round, record: await record(store) }
+  await db.batch([
+    increment(db, 'game:rounds', date, `start:${site}`),
+    db
+      .prepare('INSERT INTO game_players (day, site, player, rounds) VALUES (?, ?, ?, 1) ON CONFLICT (day, site, player) DO UPDATE SET rounds = rounds + 1')
+      .bind(date, site, player),
+    increment(db, 'game:countries', date, place.country),
+    ...(place.region ? [increment(db, 'game:regions', date, `${place.country}-${place.region}`)] : []),
+    db
+      .prepare('INSERT INTO game_rounds (id, player, site, country, started_at, expires_at) VALUES (?, ?, ?, ?, ?, ?)')
+      .bind(round, player, site, place.country, now.getTime(), now.getTime() + ROUND_MS),
+  ])
+  return { round, record: await record(db) }
 }
 
 export type EndResult = 'counted' | 'unknown-round' | 'too-soon'
 
 /**
  * A round finished. Only a round this player started on this site counts, and
- * only once its 30 seconds can have passed; the score is already capped.
+ * only once its 30 seconds can have passed; the score is already capped. The
+ * round is consumed by a single DELETE, so it counts at most once.
  */
-export async function endRound(store: GameStore, now: Date, site: Site, player: string, round: string, score: number): Promise<EndResult> {
-  const raw = await store.get<string | { player: string; site: Site; country: string; at: number }>(`game:round:${round}`)
-  const started = typeof raw === 'string' ? JSON.parse(raw) : raw
-  if (!started || started.player !== player || started.site !== site) return 'unknown-round'
-  if (now.getTime() - started.at < (ROUND_SECONDS - 1) * 1000) return 'too-soon'
-  await store.del(`game:round:${round}`)
+export async function endRound(db: D1Database, now: Date, site: Site, player: string, round: string, score: number): Promise<EndResult> {
+  const at = now.getTime()
+  const started = await db
+    .prepare('SELECT started_at FROM game_rounds WHERE id = ? AND player = ? AND site = ? AND expires_at > ?')
+    .bind(round, player, site, at)
+    .first<{ started_at: number }>()
+  if (!started) return 'unknown-round'
+  if (at - started.started_at < (ROUND_SECONDS - 1) * 1000) return 'too-soon'
+  const taken = await db
+    .prepare('DELETE FROM game_rounds WHERE id = ? AND player = ? AND site = ? AND expires_at > ? RETURNING country')
+    .bind(round, player, site, at)
+    .first<{ country: string }>()
+  // Another request ended it first.
+  if (!taken) return 'unknown-round'
   const date = utcDate(now)
-  await bump(store, `game:rounds:${date}`, `end:${site}`)
-  await bump(store, `game:scores:${date}`, String(score))
-  if (score > 0) {
-    await store.zadd('game:top', { score, member: `${site}|${started.country}|${date}|${round}` })
-    await store.zremrangebyrank('game:top', 0, -(TOP_KEEP + 1))
-  }
+  await db.batch([
+    increment(db, 'game:rounds', date, `end:${site}`),
+    increment(db, 'game:scores', date, String(score)),
+    ...(score > 0
+      ? [
+          db.prepare('INSERT INTO game_top (round_id, score, site, country, day) VALUES (?, ?, ?, ?, ?)').bind(round, score, site, taken.country, date),
+          db
+            .prepare('DELETE FROM game_top WHERE round_id NOT IN (SELECT round_id FROM game_top ORDER BY score DESC, round_id DESC LIMIT ?)')
+            .bind(TOP_KEEP),
+        ]
+      : []),
+  ])
   return 'counted'
 }
 
 /** The best score ever, for "All-time best" next to the player's own. */
-export async function record(store: GameStore): Promise<number> {
-  const top = await store.zrange<(string | number)[]>('game:top', 0, 0, { rev: true, withScores: true })
-  return Number(top[1] ?? 0)
+export async function record(db: D1Database): Promise<number> {
+  const top = await db.prepare('SELECT MAX(score) AS best FROM game_top').first<{ best: number | null }>()
+  return Number(top?.best ?? 0)
 }
+
+/** The oldest day whose salt is still kept (today and yesterday). */
+export const saltCutoff = (today: string) => daysBefore(today, SALT_DAYS - 1)
+/** The oldest day whose counts are still kept. */
+export const keepCutoff = (today: string) => daysBefore(today, KEEP_DAYS)

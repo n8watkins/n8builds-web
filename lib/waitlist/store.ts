@@ -1,25 +1,21 @@
 import { createHash, randomBytes } from 'node:crypto'
-import { Redis } from '@upstash/redis'
 import { isUpcomingSlug, type UpcomingSlug } from '@/data/upcoming'
-import { isContactTestMode } from '@/lib/security/testMode'
+import { waitlistDb, type D1Database } from '@/lib/db'
 
 /**
- * Where waitlist sign-ups live: the analytics database (ANALYTICS_REDIS_REST_URL
- * and _TOKEN, lib/analyticsStore.ts), which the admin dashboard already reads
- * (its Waitlist page). Unlike the counters beside them, these hold what a
- * visitor typed: their email, projects and note, kept until they leave.
+ * Where waitlist sign-ups live: the n8builds-waitlist D1 database
+ * (docs/DATABASE.md has the tables, retention and threats). Unlike the
+ * anonymous counters, these hold what a visitor typed: their email, projects
+ * and note, kept until they leave.
  *
- * Keys (production; anything else is namespaced `waitlist:<env>:`, so local
- * runs and previews never touch the real list):
- * - `waitlist:entry:<id>`  hash, one per address (id = hash of the address)
- * - `waitlist:token:<t>`   the entry id behind a confirm or leave link
- * - `waitlist:all`         sorted set of entry ids by sign-up time
- * An unconfirmed entry and its token expire after PENDING_DAYS; confirming
- * keeps them until the visitor leaves (which deletes all three).
+ * Every write is one statement or one batch (a transaction), so a double
+ * click, a replayed link or two joins at once can't leave a half-done entry.
+ * Link tokens are stored as SHA-256 hashes only; a confirm link works once.
  */
 
 export const PENDING_DAYS = 7
-const PENDING_SECONDS = PENDING_DAYS * 24 * 60 * 60
+export const LEAVE_LINK_DAYS = 365
+const DAY_MS = 24 * 60 * 60 * 1000
 
 export type WaitlistEntry = {
   id: string
@@ -36,148 +32,205 @@ export type WaitlistEntry = {
   /** First touch: the `interest` the visitor arrived with, and the page that sent them. */
   interest: string
   referrer: string
-  /** The secret in this entry's confirm and leave links. */
-  token: string
 }
 
-export interface WaitlistStore {
-  get(id: string): Promise<WaitlistEntry | null>
-  /** Writes the entry, its token and its place in the list; unconfirmed entries expire. */
-  save(entry: WaitlistEntry): Promise<void>
-  idForToken(token: string): Promise<string | null>
-  remove(entry: WaitlistEntry): Promise<void>
+/** The secrets behind one email's links (only their hashes are stored). */
+export type WaitlistLinks = { confirm: string; leave: string }
+
+export type JoinRequest = {
+  /** Already normalized (normalizeEmail) and validated (joinSchema). */
+  email: string
+  projects: UpcomingSlug[]
+  note: string
+  interest: string
+  referrer: string
 }
 
 export const entryId = (normalizedEmail: string) => createHash('sha256').update(normalizedEmail).digest('hex').slice(0, 32)
 
 export const newToken = () => randomBytes(24).toString('base64url')
 
-const slugs = (value: string | undefined): UpcomingSlug[] => (value ?? '').split(',').filter(isUpcomingSlug)
+export const tokenHash = (token: string) => createHash('sha256').update(token).digest('hex')
 
-export function toFields(entry: WaitlistEntry): Record<string, string> {
+type SubscriberRow = {
+  id: string
+  email: string
+  note: string
+  requested_note: string
+  interest: string
+  referrer: string
+  created_at: string
+  updated_at: string
+  confirmed_at: string | null
+}
+
+type ProjectRow = { project: string; status: 'requested' | 'confirmed' }
+
+function toEntry(row: SubscriberRow, projects: ProjectRow[]): WaitlistEntry {
+  const slugs = (status: ProjectRow['status']) =>
+    projects.filter((p) => p.status === status && isUpcomingSlug(p.project)).map((p) => p.project as UpcomingSlug)
   return {
-    email: entry.email,
-    projects: entry.projects.join(','),
-    requested: entry.requested.join(','),
-    note: entry.note,
-    requestedNote: entry.requestedNote,
-    createdAt: entry.createdAt,
-    updatedAt: entry.updatedAt,
-    confirmedAt: entry.confirmedAt,
-    interest: entry.interest,
-    referrer: entry.referrer,
-    token: entry.token,
+    id: row.id,
+    email: row.email,
+    projects: slugs('confirmed'),
+    requested: slugs('requested'),
+    note: row.note,
+    requestedNote: row.requested_note,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    confirmedAt: row.confirmed_at ?? '',
+    interest: row.interest,
+    referrer: row.referrer,
   }
 }
 
-export function fromFields(id: string, fields: Record<string, string> | null): WaitlistEntry | null {
-  if (!fields || !fields.email || !fields.token) return null
-  return {
-    id,
-    email: fields.email,
-    projects: slugs(fields.projects),
-    requested: slugs(fields.requested),
-    note: fields.note ?? '',
-    requestedNote: fields.requestedNote ?? '',
-    createdAt: fields.createdAt ?? '',
-    updatedAt: fields.updatedAt ?? '',
-    confirmedAt: fields.confirmedAt ?? '',
-    interest: fields.interest ?? '',
-    referrer: fields.referrer ?? '',
-    token: fields.token,
-  }
-}
+// A row past its expiry is gone as far as every query is concerned; the
+// daily cleanup (lib/retention.ts) deletes it later.
+const LIVE = '(expires_at IS NULL OR expires_at > ?)'
 
-export class RedisWaitlistStore implements WaitlistStore {
+export class WaitlistStore {
   constructor(
-    private readonly redis: Pick<Redis, 'hgetall' | 'get' | 'multi'>,
-    private readonly prefix = 'waitlist'
+    private readonly db: D1Database,
+    private readonly now: () => Date = () => new Date()
   ) {}
 
-  private entryKey = (id: string) => `${this.prefix}:entry:${id}`
-  private tokenKey = (token: string) => `${this.prefix}:token:${token}`
-  private listKey = () => `${this.prefix}:all`
-
-  async get(id: string) {
-    return fromFields(id, await this.redis.hgetall<Record<string, string>>(this.entryKey(id)))
+  /** The live entry for an id, or null (unknown, or unconfirmed and expired). */
+  async get(id: string): Promise<WaitlistEntry | null> {
+    const at = this.now().getTime()
+    const [subscriber, projects] = await this.db.batch([
+      this.db.prepare(`SELECT * FROM waitlist_subscribers WHERE id = ? AND ${LIVE}`).bind(id, at),
+      this.db.prepare('SELECT project, status FROM waitlist_projects WHERE subscriber_id = ? ORDER BY requested_at, project').bind(id),
+    ])
+    const row = subscriber.results[0] as SubscriberRow | undefined
+    return row ? toEntry(row, projects.results as ProjectRow[]) : null
   }
 
-  async save(entry: WaitlistEntry) {
-    const tx = this.redis.multi()
-    tx.hset(this.entryKey(entry.id), toFields(entry))
-    tx.set(this.tokenKey(entry.token), entry.id)
-    tx.zadd(this.listKey(), { score: Date.parse(entry.createdAt), member: entry.id })
-    if (entry.confirmedAt) {
-      tx.persist(this.entryKey(entry.id))
-      tx.persist(this.tokenKey(entry.token))
-    } else {
-      tx.expire(this.entryKey(entry.id), PENDING_SECONDS)
-      tx.expire(this.tokenKey(entry.token), PENDING_SECONDS)
-    }
-    await tx.exec()
+  /**
+   * Adds the projects (and note) to the address's request, waiting on the
+   * confirm link; creates the entry if it is new. Never changes what an
+   * address is confirmed for. One transaction.
+   */
+  async join(request: JoinRequest): Promise<WaitlistEntry> {
+    const now = this.now()
+    const at = now.getTime()
+    const iso = now.toISOString()
+    const id = entryId(request.email)
+    await this.db.batch([
+      // An unconfirmed entry that expired but isn't purged yet starts over.
+      this.db.prepare('DELETE FROM waitlist_subscribers WHERE id = ? AND expires_at IS NOT NULL AND expires_at <= ?').bind(id, at),
+      this.db
+        .prepare(
+          `INSERT INTO waitlist_subscribers
+             (id, email, note, requested_note, interest, referrer, created_at, updated_at, confirmed_at, expires_at)
+           VALUES (?, ?, '', ?, ?, ?, ?, ?, NULL, ?)
+           ON CONFLICT (id) DO UPDATE SET
+             requested_note = CASE WHEN excluded.requested_note <> '' THEN excluded.requested_note ELSE requested_note END,
+             updated_at = excluded.updated_at,
+             expires_at = CASE WHEN confirmed_at IS NULL THEN excluded.expires_at ELSE NULL END`
+        )
+        .bind(id, request.email, request.note, request.interest, request.referrer, iso, iso, at + PENDING_DAYS * DAY_MS),
+      ...request.projects.map((project) =>
+        this.db
+          .prepare(
+            `INSERT INTO waitlist_projects (subscriber_id, project, status, requested_at)
+             VALUES (?, ?, 'requested', ?) ON CONFLICT (subscriber_id, project) DO NOTHING`
+          )
+          .bind(id, project, iso)
+      ),
+    ])
+    const entry = await this.get(id)
+    if (!entry) throw new Error('waitlist entry missing right after it was written')
+    return entry
   }
 
-  async idForToken(token: string) {
-    return this.redis.get<string>(this.tokenKey(token))
+  /** New confirm and leave links for an email about to be sent. */
+  async issueLinks(entry: WaitlistEntry): Promise<WaitlistLinks> {
+    const links = { confirm: newToken(), leave: newToken() }
+    const at = this.now().getTime()
+    const insert = 'INSERT INTO waitlist_tokens (token_hash, subscriber_id, purpose, created_at, expires_at) VALUES (?, ?, ?, ?, ?)'
+    await this.db.batch([
+      this.db.prepare(insert).bind(tokenHash(links.confirm), entry.id, 'confirm', at, at + PENDING_DAYS * DAY_MS),
+      this.db.prepare(insert).bind(tokenHash(links.leave), entry.id, 'leave', at, at + LEAVE_LINK_DAYS * DAY_MS),
+    ])
+    return links
   }
 
-  async remove(entry: WaitlistEntry) {
-    const tx = this.redis.multi()
-    tx.del(this.entryKey(entry.id), this.tokenKey(entry.token))
-    tx.zrem(this.listKey(), entry.id)
-    await tx.exec()
+  /** A new leave link, for the "email me a link" form. */
+  async issueLeaveLink(entry: WaitlistEntry): Promise<string> {
+    const token = newToken()
+    const at = this.now().getTime()
+    await this.db
+      .prepare("INSERT INTO waitlist_tokens (token_hash, subscriber_id, purpose, created_at, expires_at) VALUES (?, ?, 'leave', ?, ?)")
+      .bind(tokenHash(token), entry.id, at, at + LEAVE_LINK_DAYS * DAY_MS)
+      .run()
+    return token
+  }
+
+  /**
+   * Uses a confirm link: everything the address asked for becomes confirmed.
+   * Null when the link is unknown, expired or already used. One transaction:
+   * the token is spent by the first statement, and the others only act for
+   * the token that statement spent.
+   */
+  async confirm(token: string): Promise<WaitlistEntry | null> {
+    const now = this.now()
+    const at = now.getTime()
+    const iso = now.toISOString()
+    const hash = tokenHash(token)
+    const spent = 'SELECT subscriber_id FROM waitlist_tokens WHERE token_hash = ? AND used_at = ?'
+    const [use] = await this.db.batch([
+      this.db
+        .prepare("UPDATE waitlist_tokens SET used_at = ? WHERE token_hash = ? AND purpose = 'confirm' AND used_at IS NULL AND expires_at > ?")
+        .bind(at, hash, at),
+      this.db
+        .prepare(`UPDATE waitlist_projects SET status = 'confirmed', confirmed_at = ? WHERE status = 'requested' AND subscriber_id = (${spent})`)
+        .bind(iso, hash, at),
+      this.db
+        .prepare(
+          `UPDATE waitlist_subscribers SET
+             note = CASE WHEN requested_note <> '' THEN requested_note ELSE note END,
+             requested_note = '',
+             confirmed_at = COALESCE(confirmed_at, ?),
+             updated_at = ?,
+             expires_at = NULL
+           WHERE id = (${spent}) AND ${LIVE}`
+        )
+        .bind(iso, iso, hash, at, at),
+    ])
+    if (use.meta.changes === 0) return null
+    const row = await this.db.prepare('SELECT subscriber_id FROM waitlist_tokens WHERE token_hash = ?').bind(hash).first<{ subscriber_id: string }>()
+    return row ? this.get(row.subscriber_id) : null
+  }
+
+  /** Uses a leave link: deletes the entry and everything with it. False when there was nothing to delete. */
+  async leave(token: string): Promise<boolean> {
+    const at = this.now().getTime()
+    const { meta } = await this.db
+      .prepare(
+        "DELETE FROM waitlist_subscribers WHERE id = (SELECT subscriber_id FROM waitlist_tokens WHERE token_hash = ? AND purpose = 'leave' AND expires_at > ?)"
+      )
+      .bind(tokenHash(token), at)
+      .run()
+    return meta.changes > 0
+  }
+
+  /** Deletes an entry by id (a deletion request, from the admin). */
+  async remove(id: string): Promise<boolean> {
+    const { meta } = await this.db.prepare('DELETE FROM waitlist_subscribers WHERE id = ?').bind(id).run()
+    return meta.changes > 0
   }
 }
-
-/** For tests and CONTACT_TEST_MODE: one process's memory, gone on restart. Expiry isn't modelled. */
-export class MemoryWaitlistStore implements WaitlistStore {
-  readonly entries = new Map<string, WaitlistEntry>()
-  private readonly tokens = new Map<string, string>()
-
-  async get(id: string) {
-    const entry = this.entries.get(id)
-    return entry ? { ...entry } : null
-  }
-
-  async save(entry: WaitlistEntry) {
-    this.entries.set(entry.id, { ...entry })
-    this.tokens.set(entry.token, entry.id)
-  }
-
-  async idForToken(token: string) {
-    return this.tokens.get(token) ?? null
-  }
-
-  async remove(entry: WaitlistEntry) {
-    this.entries.delete(entry.id)
-    this.tokens.delete(entry.token)
-  }
-}
-
-/** Key prefix: production keeps the bare name, everything else is namespaced. */
-function keyPrefix(): string {
-  const env = process.env.APP_ENV || 'local'
-  return env === 'production' ? 'waitlist' : `waitlist:${env}`
-}
-
-let store: WaitlistStore | null = null
-const testStore = new MemoryWaitlistStore()
 
 /**
- * The waitlist's store, or null while the analytics database isn't configured
- * (the page then says the waitlist opens soon). Test mode keeps it in memory.
+ * The waitlist's store, or null while there is no database (the page then
+ * says the waitlist opens soon).
  */
-export function waitlistStore(): WaitlistStore | null {
-  if (isContactTestMode()) return testStore
-  const url = process.env.ANALYTICS_REDIS_REST_URL
-  const token = process.env.ANALYTICS_REDIS_REST_TOKEN
-  if (!url || !token) return null
-  // Its own client, without automatic JSON parsing: a note such as "42" must stay a string.
-  store ??= new RedisWaitlistStore(new Redis({ url, token, automaticDeserialization: false }), keyPrefix())
-  return store
+export async function waitlistStore(): Promise<WaitlistStore | null> {
+  const db = await waitlistDb()
+  return db ? new WaitlistStore(db) : null
 }
 
 /** Whether sign-ups can be stored at all; decides between the form and "opens soon". */
-export function isWaitlistOpen(): boolean {
-  return isContactTestMode() || Boolean(process.env.ANALYTICS_REDIS_REST_URL && process.env.ANALYTICS_REDIS_REST_TOKEN)
+export async function isWaitlistOpen(): Promise<boolean> {
+  return (await waitlistDb()) !== null
 }

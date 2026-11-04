@@ -13,7 +13,7 @@ The owner to-do list (what only the owner can do: keys, accounts, links) is Part
 - Tailwind CSS 4 (configured in `app/globals.css`), Motion (`motion/react`)
 - React Hook Form + Zod
 - Sanity (read-only CDN client) for the N8's Notions blog
-- Cloudflare Email Service, Cloudflare Turnstile, rate limits in Durable Objects, Upstash Redis for the analytics counters
+- Cloudflare Email Service, Cloudflare Turnstile, rate limits in Durable Objects, Cloudflare D1 for the waitlist and the anonymous counters ([docs/DATABASE.md](docs/DATABASE.md))
 - Sentry (on in production; inert without `NEXT_PUBLIC_SENTRY_DSN`), GA4, Cloudflare Web Analytics
 - Vitest (unit), Playwright + axe (E2E and accessibility), Lighthouse budgets
 
@@ -76,7 +76,7 @@ Under `next dev`, Turnstile verification is skipped and the rate limits are kept
 | `npm run analyze` | Turbopack bundle analyzer (`next analyze`; no build output) |
 
 Playwright builds and starts the app itself on port 3747 (`E2E_PORT` overrides it) in `CONTACT_TEST_MODE`, with Cloudflare's always-pass Turnstile test keys.
-No email is sent, and GA, Sentry and Upstash are forced off.
+No email is sent (the would-be emails wait in `/api/test/outbox`), the waitlist and counters use local D1 databases, and GA and Sentry are forced off.
 
 Lighthouse: `npm run build && npm run lighthouse` (`LIGHTHOUSE_PORT`, default 3747).
 It audits four pages three times each, checks the medians against the budgets in `scripts/lighthouse.mjs`, and writes HTML reports to `.lighthouse/`.

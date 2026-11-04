@@ -30,7 +30,7 @@ All are fixed in Next.js 16.4.1 and later.
 - [ ] **Portfolio Rank** - Verify Gemini API key configuration without exposing secrets; restore reliable continuous portfolio ELO scoring, automatic refresh, persistence, and error handling.
   - Blocked on the owner's new Gemini key (grading has been off since July). The "AI reviews" claim stays on n8builds.dev and the portfolio until then, by the owner's call (2026-10-27).
 - [ ] **Dino game stats** - Built (n8builds-web #73, dev-portfolio #14, n8builds-admin #2): plays, unique players (cookie-free), attempts and high scores per site and overall, by country, in the admin dashboard.
-  Waits on the owner's second Upstash Redis database (`ANALYTICS_REDIS_REST_URL` and `_TOKEN` on the n8builds-web and n8builds-admin Vercel projects); until then the panel shows "not connected".
+  Its data moved to Cloudflare D1 on 2026-11-04 (`docs/DATABASE.md`); the admin's Cloudflare Worker reads it, the Vercel copy of the admin shows "not connected".
 - [x] **Vercel Analytics** - Live on n8builds.dev since n8builds-web #76 (2026-10-28), alongside GA4 (cookie-free, so it also counts visitors who decline cookies).
 - [ ] **Projects audit follow-ups** - Report: https://claude.ai/artifact/8noJtJsWvWBefJ9jBE2qwu. Em dashes in the live titles of Portfolio Rank, Echo and Scout; Scribe has had no release since v0.8.0; Solara isn't on release-kit yet.
 

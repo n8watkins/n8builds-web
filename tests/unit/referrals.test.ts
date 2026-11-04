@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { isOutbound, refDestination, refHref, refSource } from '@/lib/referrals'
+import { testDatabases, type TestDatabases } from './d1'
 
 vi.mock('server-only', () => ({}))
 const afterCallbacks: (() => unknown)[] = []
@@ -9,31 +10,49 @@ vi.mock('next/server', async (importOriginal) => ({
   after: (fn: () => unknown) => afterCallbacks.push(fn),
 }))
 vi.mock('@/lib/logger', () => ({ logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }))
+let db: TestDatabases['analytics'] | null = null
+vi.mock('@/lib/db', () => ({ analyticsDb: async () => db }))
+const limit = vi.fn()
+vi.mock('@/lib/security/rateLimiter', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/lib/security/rateLimiter')>()),
+  checkRateLimit: (...args: unknown[]) => limit(...args),
+}))
 
 const { countContactSent, countReferral } = await import('@/lib/analyticsStore')
-const analytics = await import('@/lib/analyticsStore')
 const { GET: appturnity } = await import('@/app/appturnity/route')
 const { GET: portfolio } = await import('@/app/portfolio/route')
 const { GET: techforpros } = await import('@/app/techforpros/route')
 
-/** A fake Upstash client that records its calls. */
-function fakeStore({ fail = false, hang = false } = {}) {
-  const calls: string[] = []
-  const op = (name: string) => (...args: unknown[]) => {
-    calls.push(`${name} ${args.join(' ')}`)
-    if (hang) return new Promise(() => {})
-    return fail ? Promise.reject(new Error('down')) : Promise.resolve(1)
+/** A database that fails or never answers. */
+function brokenDb({ hang = false } = {}) {
+  const statement = {
+    bind: () => statement,
+    run: () => (hang ? new Promise(() => {}) : Promise.reject(new Error('down'))),
   }
-  return { calls, store: { hincrby: op('hincrby'), incr: op('incr'), expire: op('expire') } }
+  return { prepare: () => statement } as never
+}
+
+let dbs: TestDatabases
+beforeAll(async () => {
+  dbs = await testDatabases()
+})
+afterAll(() => dbs.dispose())
+
+/** The counts in analytics_daily, as "metric day field count". */
+async function counts(): Promise<string[]> {
+  const { results } = await dbs.analytics.prepare('SELECT metric, day, field, count FROM analytics_daily ORDER BY metric, day, field').all()
+  return results.map((r) => Object.values(r).join(' '))
 }
 
 const get = (handler: (r: NextRequest) => Response, path: string, ua = 'Mozilla/5.0') =>
   handler(new NextRequest(`https://n8builds.dev${path}`, { headers: { 'user-agent': ua } }))
 
 describe('counted short links', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     afterCallbacks.length = 0
-    vi.restoreAllMocks()
+    await dbs.reset()
+    db = dbs.analytics
+    limit.mockReset().mockResolvedValue({ allowed: true })
   })
 
   it('only knows a fixed set of placements; anything else is "other"', () => {
@@ -66,49 +85,52 @@ describe('counted short links', () => {
   })
 
   it('redirects at once and counts the click after, by day and placement', async () => {
-    const { calls, store } = fakeStore()
-    vi.spyOn(analytics, 'analyticsStore').mockReturnValue(store as never)
     const response = get(appturnity, '/appturnity?from=navbar&to=pricing')
     expect(response.status).toBe(302)
     expect(response.headers.get('location')).toBe('https://appturnity.com/pricing?utm_source=n8builds.dev&utm_medium=referral&utm_content=navbar')
     expect(response.headers.get('cache-control')).toBe('no-store')
-    expect(calls).toEqual([])
+    expect(await counts()).toEqual([])
+    get(appturnity, '/appturnity?from=navbar')
+    // Two clicks at once: both counted (one upsert each).
     await Promise.all(afterCallbacks.map((fn) => fn()))
     const today = new Date().toISOString().slice(0, 10)
-    expect(calls).toEqual([`hincrby ref:appturnity:${today} navbar 1`, `expire ref:appturnity:${today} ${400 * 86400}`])
+    expect(await counts()).toEqual([`ref:appturnity ${today} navbar 2`])
   })
 
-  it('counts the portfolio link under its own key', async () => {
-    const { calls, store } = fakeStore()
-    vi.spyOn(analytics, 'analyticsStore').mockReturnValue(store as never)
+  it('counts the portfolio and Tech for Pros links under their own metrics', async () => {
     expect(get(portfolio, '/portfolio?from=email').headers.get('location')).toMatch(/^https:\/\/portfolio\.n8builds\.dev\/\?utm_source=n8builds\.dev/)
-    await Promise.all(afterCallbacks.map((fn) => fn()))
-    expect(calls[0]).toMatch(/^hincrby ref:portfolio:\d{4}-\d{2}-\d{2} email 1$/)
-  })
-
-  it('counts the Tech for Pros link under its own key', async () => {
-    const { calls, store } = fakeStore()
-    vi.spyOn(analytics, 'analyticsStore').mockReturnValue(store as never)
     expect(get(techforpros, '/techforpros?from=navbar&to=https://evil.example').headers.get('location')).toBe(
       'https://techforpros.com/?utm_source=n8builds.dev&utm_medium=referral&utm_content=navbar'
     )
     await Promise.all(afterCallbacks.map((fn) => fn()))
-    expect(calls[0]).toMatch(/^hincrby ref:techforpros:\d{4}-\d{2}-\d{2} navbar 1$/)
+    const today = new Date().toISOString().slice(0, 10)
+    expect(await counts()).toEqual([`ref:portfolio ${today} email 1`, `ref:techforpros ${today} navbar 1`])
   })
 
-  it('still redirects when the database is missing, and skips bots', () => {
-    vi.spyOn(analytics, 'analyticsStore').mockReturnValue(null)
+  it("stops counting an address's clicks past its hourly limit, but still redirects", async () => {
+    limit.mockResolvedValue({ allowed: false, reason: 'limited' })
+    expect(get(appturnity, '/appturnity?from=navbar').status).toBe(302)
+    await Promise.all(afterCallbacks.map((fn) => fn()))
+    expect(limit).toHaveBeenCalledWith('ref-ip', expect.any(String))
+    expect(await counts()).toEqual([])
+  })
+
+  it('still redirects when the database is missing, and skips bots', async () => {
+    db = null
     expect(get(appturnity, '/appturnity').status).toBe(302)
-    vi.spyOn(analytics, 'analyticsStore').mockReturnValue(fakeStore().store as never)
+    await Promise.all(afterCallbacks.map((fn) => fn()))
+    afterCallbacks.length = 0
+    db = dbs.analytics
     expect(get(appturnity, '/appturnity', 'Slackbot-LinkExpanding 1.0').status).toBe(302)
     expect(afterCallbacks).toHaveLength(0)
+    expect(await counts()).toEqual([])
   })
 
   it('never throws when the database fails or hangs', async () => {
     vi.useFakeTimers()
     try {
-      await expect(countReferral(fakeStore({ fail: true }).store as never, 'appturnity', 'email')).resolves.toBeUndefined()
-      const hung = countContactSent(fakeStore({ hang: true }).store as never)
+      await expect(countReferral(brokenDb(), 'appturnity', 'email')).resolves.toBeUndefined()
+      const hung = countContactSent(brokenDb({ hang: true }))
       await vi.advanceTimersByTimeAsync(2500)
       await expect(hung).resolves.toBeUndefined()
     } finally {
@@ -117,8 +139,8 @@ describe('counted short links', () => {
   })
 
   it('counts delivered contact messages by day', async () => {
-    const { calls, store } = fakeStore()
-    await countContactSent(store as never, new Date('2026-10-28T23:00:00Z'))
-    expect(calls).toEqual(['incr contact:sent:2026-10-28', `expire contact:sent:2026-10-28 ${400 * 86400}`])
+    await countContactSent(dbs.analytics, new Date('2026-10-28T23:00:00Z'))
+    await countContactSent(dbs.analytics, new Date('2026-10-28T23:30:00Z'))
+    expect(await counts()).toEqual(['contact:sent 2026-10-28  2'])
   })
 })

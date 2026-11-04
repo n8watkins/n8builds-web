@@ -61,8 +61,8 @@ test('two cards: each links its site, says what it is built with, and opens its 
     'Sanity',
     'Tailwind CSS 4',
     'Turnstile',
-    'Upstash',
-    'Vercel',
+    'Cloudflare D1',
+    'Cloudflare Workers',
   ])
   // The N8 mark belongs to n8builds.dev.
   const icon = site.locator('img[src*="n8-icon"]')

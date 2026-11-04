@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
   const body = await readJson(request)
   if ('response' in body) return body.response
 
-  const store = waitlistStore()
+  const store = await waitlistStore()
   if (!store) return closed()
   const ip = getClientIp(request.headers)
 
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     try {
       const entry = await findByEmail(store, email)
       if (entry && (await checkRateLimit('waitlist-recipient', recipientKey(entry.email))).allowed) {
-        await sendLeaveEmail(entry)
+        await sendLeaveEmail(entry, await store.issueLeaveLink(entry))
       }
     } catch (error) {
       logger.error('Waitlist leave link failed:', error instanceof Error ? error.message : error)
