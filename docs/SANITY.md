@@ -29,5 +29,5 @@ npx sanity datasets import backup.tar.gz production --replace
 npx sanity datasets delete restore-check
 ```
 
-Run the `sanity` commands in `n8builds-studio` (or anywhere with `--project abgyc32w`), logged in with `npx sanity login`.
+Run the `sanity` commands in `n8builds-studio` (or anywhere with `-p abgyc32w`), logged in with `npx sanity login`.
 A restore was tested on 2026-11-04: the backup imported into a throwaway dataset with all 12 documents (4 published posts, 4 drafts, the live switch, 3 AI Assist states) and all 20 images, the posts matched production field for field, and the throwaway dataset was deleted.
