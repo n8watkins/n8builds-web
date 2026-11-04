@@ -183,7 +183,12 @@ const Hero = () => {
                 src="/hero/portrait.jpg"
                 className="rounded-full object-cover ring-1 ring-white/10"
                 fill
-                priority
+                // The LCP element: preloaded and fetched at high priority. Next
+                // 16's `priority` preloaded it at the browser's default (low)
+                // priority for images, behind the scripts, on a slow phone.
+                preload
+                loading="eager"
+                fetchPriority="high"
                 placeholder="blur"
                 blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
                 sizes={PORTRAIT_SIZES}

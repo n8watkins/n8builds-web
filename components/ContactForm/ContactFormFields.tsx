@@ -12,6 +12,7 @@ import { subjectOptions } from '@/lib/validations/contactOptions'
 import { CONTACT_PRESETS, CONTACT_PRESET_EVENT, isContactPresetId } from '@/lib/contactPresets'
 import { trackContactEvent } from '@/lib/analytics'
 import { useHydrated } from '@/hooks/useHydrated'
+import { useNearViewport } from '@/hooks/useNearViewport'
 import { SubmissionState } from './useContactFormSubmit'
 
 interface ContactFormFieldsProps {
@@ -48,6 +49,11 @@ export function ContactFormFields({
   // The server-rendered button has no click handler until hydration, so a
   // click before then would be silently lost.
   const hydrated = useHydrated()
+  // Turnstile loads once the form is near the screen, not with the page, as
+  // the waitlist and quote forms do (useNearViewport): its challenge ran about
+  // a second of script on a phone at every homepage load, for a form at the
+  // bottom of the page. A Send before it has a token waits for one.
+  const [formRef, near] = useNearViewport<HTMLFormElement>()
 
   // The topic radios are uncontrolled (ContactTopicCards): one picked before
   // hydration, on a slow connection, is only in the DOM, so adopt it.
@@ -90,6 +96,7 @@ export function ContactFormFields({
 
   return (
     <form
+      ref={formRef}
       // Send is a real submit button, so Enter (or Go on a phone keyboard)
       // submits too. Before hydration the button is disabled and React isn't
       // listening yet, so nothing can be lost.
@@ -191,7 +198,7 @@ export function ContactFormFields({
           site key is configured; otherwise useContactFormSubmit falls back to a
           placeholder token.
         */}
-        {turnstileSiteKey && (
+        {turnstileSiteKey && near && (
           <Turnstile
             siteKey={turnstileSiteKey}
             onSuccess={(token) => {

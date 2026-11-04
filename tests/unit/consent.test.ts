@@ -4,6 +4,7 @@ import {
   CONSENT_REGIONS,
   CONSENT_STORAGE_KEY,
   consentBootstrapScript,
+  GA_GRACE_MS,
   isConsentTimeZone,
   type ConsentApi,
 } from '@/lib/consent'
@@ -20,6 +21,8 @@ function boot({
   gpc = undefined as boolean | undefined,
   hostname = 'n8builds.dev',
   protocol = 'https:',
+  // Timers fire at once unless held, so "GA loads" means it loads eventually.
+  holdTimers = false,
 } = {}) {
   const jar = new Map<string, string>()
   for (const part of cookie.split(';').map((p) => p.trim()).filter(Boolean)) {
@@ -45,6 +48,8 @@ function boot({
     head: { appendChild: (s: { src: string }) => scripts.push(s.src) },
   }
   const events: string[] = []
+  const timers: { fn: () => void; ms: number }[] = []
+  const listeners = new Map<string, () => void>()
   const window: Record<string, unknown> = {
     location: { hostname, protocol },
     navigator: gpc === undefined ? {} : { globalPrivacyControl: gpc },
@@ -53,7 +58,11 @@ function boot({
       setItem: (k: string, v: string) => void storage.set(k, v),
     },
     requestIdleCallback: (f: () => void) => f(),
-    addEventListener: () => {},
+    setTimeout: (fn: () => void, ms: number) => (holdTimers ? timers.push({ fn, ms }) : fn()),
+    addEventListener: (type: string, fn: () => void) => void listeners.set(type, fn),
+    removeEventListener: (type: string, fn: () => void) => {
+      if (listeners.get(type) === fn) listeners.delete(type)
+    },
     dispatchEvent: (e: { type: string }) => events.push(e.type),
   }
   const Intl = { DateTimeFormat: () => ({ resolvedOptions: () => ({ timeZone }) }) }
@@ -77,6 +86,8 @@ function boot({
     jar,
     storage,
     events,
+    timers,
+    listeners,
   }
 }
 
@@ -113,6 +124,33 @@ describe('consent bootstrap', () => {
     const { consent, scripts } = boot()
     expect(consent.state).toBe('granted')
     expect(scripts).toEqual(['https://www.googletagmanager.com/gtag/js?id=G-TEST'])
+  })
+
+  it('waits for a first interaction to load GA, and loads it only once', () => {
+    const { scripts, timers, listeners } = boot({ holdTimers: true })
+    expect(scripts).toEqual([])
+    expect([...listeners.keys()]).toEqual(['pointerdown', 'keydown', 'scroll', 'touchstart', 'wheel'])
+    listeners.get('scroll')!()
+    expect(scripts).toEqual(['https://www.googletagmanager.com/gtag/js?id=G-TEST'])
+    expect(listeners.size).toBe(0)
+    // The grace timer firing later doesn't load it again.
+    for (const { fn } of timers) fn()
+    expect(scripts).toHaveLength(1)
+  })
+
+  it(`with no interaction, loads GA ${GA_GRACE_MS / 1000}s after the page has loaded`, () => {
+    const { scripts, timers, listeners } = boot({ holdTimers: true })
+    expect(timers.map((t) => t.ms)).toEqual([GA_GRACE_MS])
+    timers[0].fn()
+    expect(scripts).toHaveLength(1)
+    expect(listeners.size).toBe(0)
+  })
+
+  it('an Accept loads GA at once, without waiting for the grace period', () => {
+    const run = boot({ timeZone: 'Europe/Berlin', holdTimers: true })
+    expect(run.scripts).toEqual([])
+    run.consent.set('granted')
+    expect(run.scripts).toHaveLength(1)
   })
 
   it.each(['Europe/Berlin', 'America/Toronto'])('in %s with no choice: pending, GA not loaded', (timeZone) => {
