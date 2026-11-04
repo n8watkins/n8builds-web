@@ -35,3 +35,23 @@ unset secret
 ```
 
 Sanity's webhook log (Manage > API > Webhooks > the webhook > Attempts) shows each delivery and its status.
+
+## Draft previews
+
+The Studio's **Preview** button (on a post, next to Publish) opens the post at its real URL on n8builds.dev, drafts included.
+
+1. The button (`actions/previewAction.ts` in the Studio) writes a one-hour secret into the dataset with `@sanity/preview-url-secret`.
+   It is stored as a draft, so only signed-in project members and tokens can read it.
+2. It opens `https://n8builds.dev/api/draft-mode/enable?sanity-preview-secret=...&sanity-preview-pathname=/blog/<slug>`.
+3. The site checks the secret with its read token (`SANITY_VIEWER_TOKEN`, a Sanity robot token with the Viewer role, "n8builds-web draft preview" in Manage > API > Tokens).
+   A wrong, missing or expired secret gets a 401 and no cookie; without the token, previews are off (404).
+4. A valid one switches on Next's draft mode for that browser (the `__prerender_bypass` cookie, signed with a secret that changes on every build) and redirects to the post.
+
+While a preview is on:
+
+- Sanity reads use the `drafts` perspective with the read token, and skip Next's cache (`sanityFetch` in `lib/sanity.ts`), so a draft can't reach a cached public page.
+- The Worker sends `Cache-Control: private, no-store` and `X-Robots-Tag: noindex, nofollow` (`worker/index.js`), and the page has a robots `noindex` tag.
+- A "Preview. Drafts are showing." bar sits at the bottom of /blog and posts, with **Exit preview** (`/api/draft-mode/disable`, which only redirects within the site).
+- Drafts that were never published (new posts) open too; everyone else gets a 404 for them.
+
+The preview session ends when the browser closes, or with Exit preview.

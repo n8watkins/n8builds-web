@@ -15,15 +15,26 @@ import { WaitlistStore } from '../lib/waitlist/store'
 export { DOQueueHandler, DOShardedTagCache } from '../.open-next/worker.js'
 export { RateLimitCounter } from './rate-limit-counter.js'
 
+const DRAFT_MODE_COOKIE = /(?:^|;\s*)__prerender_bypass=/
+
 /**
  * Next marks prerendered pages `s-maxage=<revalidate>, stale-while-revalidate`
  * for a CDN in front of it. There is none here (OpenNext's own cache in R2
  * plays that part), and Firefox applies stale-while-revalidate itself, so a
  * second visit would show the old page first. Browsers get what Vercel sent
  * them instead: revalidate every time.
+ * @param {Request} request
  * @param {Response} response
  */
-function forBrowsers(response) {
+function forBrowsers(request, response) {
+  // A draft preview (Next's draft-mode cookie, docs/SANITY.md) is for the one
+  // browser that asked: never stored anywhere, never indexed.
+  if (DRAFT_MODE_COOKIE.test(request.headers.get('Cookie') ?? '')) {
+    const draft = new Response(response.body, response)
+    draft.headers.set('Cache-Control', 'private, no-store')
+    draft.headers.set('X-Robots-Tag', 'noindex, nofollow')
+    return draft
+  }
   if (!response.headers.get('Cache-Control')?.includes('s-maxage')) return response
   const fresh = new Response(response.body, response)
   fresh.headers.set('Cache-Control', 'public, max-age=0, must-revalidate')
@@ -77,7 +88,7 @@ const worker = {
       // A missing video gets the site's own 404 page.
       if (response.status !== 404) return response
     }
-    return forBrowsers(await openNext.fetch(request, env, ctx))
+    return forBrowsers(request, await openNext.fetch(request, env, ctx))
   },
 
   /**
