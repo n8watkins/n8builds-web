@@ -63,7 +63,7 @@ test.describe('desktop', () => {
     }
   })
 
-  test('each card has its own doors', async ({ page }) => {
+  test('each card has its own doors', { tag: '@smoke' }, async ({ page }) => {
     await page.goto('/')
     const dev = card(page, /Like the builds/)
     await expect(dev.getByText('Need a developer?')).toBeVisible()
@@ -113,7 +113,7 @@ test.describe('desktop', () => {
     expect(Object.keys(posted as object).sort()).toEqual(['email', 'honeypot', 'kind', 'turnstile'])
   })
 
-  test('the screenshot links stay out of the tab order; the buttons are reachable', async ({ page }) => {
+  test('the screenshot links stay out of the tab order; the buttons are reachable', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     const dev = card(page, /Like the builds/)
     // The developer card's screenshot (the Tech for Pros window has its own picker buttons).
@@ -130,7 +130,7 @@ test.describe('desktop', () => {
   test.describe('motion allowed', () => {
     test.use({ contextOptions: { reducedMotion: 'no-preference' } })
 
-    test('the full-length screenshots scroll in view and pause off screen', async ({ page }) => {
+    test('the full-length screenshots scroll in view and pause off screen', { tag: '@cross-browser' }, async ({ page }) => {
       await page.goto('/')
       // The portfolio's desktop shot (no phone since round 5 of 2026-11-02).
       await expect(section(page).locator('img[class*="scroll"]:not(.now-phone-scroll)')).toHaveCount(1)
@@ -162,7 +162,7 @@ test.describe('desktop', () => {
   test.describe('reduced motion', () => {
     test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
-    test('the screenshots hold still at the top of the page', async ({ page }) => {
+    test('the screenshots hold still at the top of the page', { tag: '@cross-browser' }, async ({ page }) => {
       await page.goto('/')
       await card(page, /Like the builds/).scrollIntoViewIfNeeded()
       await page.waitForTimeout(1500)
@@ -177,7 +177,7 @@ test.describe('desktop', () => {
 test.describe('phone', () => {
   test.use({ viewport: { width: 375, height: 812 } })
 
-  test('the screenshots sit above the copy, and nothing overflows', async ({ page }) => {
+  test('the screenshots sit above the copy, and nothing overflows', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     for (const name of [/Like the builds/, /Run a service business/]) {
       const c = card(page, name)

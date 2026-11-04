@@ -53,7 +53,7 @@ const cards = (page: Page) => page.locator('main a[href^="/blog/"]').filter({ ha
 test.describe('without JavaScript (the server HTML alone)', () => {
   test.use({ javaScriptEnabled: false })
 
-  test('the blog heading and the first row of cards still fade in', async ({ page }) => {
+  test('the blog heading and the first row of cards still fade in', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/blog')
     await expect.poll(() => seenOpacity(page.locator('h1')), FADE).toBe(1)
     const first = cards(page).first()
@@ -61,7 +61,7 @@ test.describe('without JavaScript (the server HTML alone)', () => {
     expect(await ancestorTransform(first)).toBe('none')
   })
 
-  test("a post's heading, cover and body still fade in", async ({ page }) => {
+  test("a post's heading, cover and body still fade in", { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto(await firstPostPath(page))
     await expect.poll(() => seenOpacity(page.locator('h1')), FADE).toBe(1)
     await expect.poll(() => seenOpacity(page.locator('article img').first()), FADE).toBe(1)
@@ -69,7 +69,7 @@ test.describe('without JavaScript (the server HTML alone)', () => {
   })
 })
 
-test('the first blog cards fade up on load, staggered', async ({ page }) => {
+test('the first blog cards fade up on load, staggered', { tag: '@cross-browser' }, async ({ page }) => {
   await page.goto('/blog')
   const fades = await cards(page).evaluateAll((links) =>
     links.slice(0, 3).map((link) => {
@@ -88,7 +88,7 @@ test('the first blog cards fade up on load, staggered', async ({ page }) => {
   }
 })
 
-test('blog cards past the first row are hidden until scrolled to, then fade in', async ({ page }) => {
+test('blog cards past the first row are hidden until scrolled to, then fade in', { tag: '@cross-browser' }, async ({ page }) => {
   await page.goto('/blog')
   await expect(cards(page).first()).toBeVisible()
   test.skip((await cards(page).count()) < 4, 'needs a second row of posts')
@@ -103,7 +103,7 @@ test('blog cards past the first row are hidden until scrolled to, then fade in',
     .toBe(1)
 })
 
-test("a post's related notes fade in as they scroll into view", async ({ page }) => {
+test("a post's related notes fade in as they scroll into view", { tag: '@cross-browser' }, async ({ page }) => {
   await page.goto(await firstPostPath(page))
   const related = page.getByRole('region', { name: 'More notes' })
   test.skip((await related.count()) === 0, 'the post has no related notes')
@@ -120,7 +120,7 @@ test("a post's related notes fade in as they scroll into view", async ({ page })
 test.describe('with reduced motion', () => {
   test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
-  test('the blog is simply shown: no fade, no rise, nothing to wait for', async ({ page }) => {
+  test('the blog is simply shown: no fade, no rise, nothing to wait for', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/blog')
     for (const target of [page.locator('h1'), cards(page).first()]) {
       expect(await seenOpacity(target)).toBe(1)
@@ -138,7 +138,7 @@ test.describe('with reduced motion', () => {
     expect(await ancestorTransform(last)).toBe('none')
   })
 
-  test('a post is simply shown', async ({ page }) => {
+  test('a post is simply shown', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto(await firstPostPath(page))
     for (const target of [page.locator('h1'), page.locator('article img').first(), page.locator('article p').first()]) {
       expect(await seenOpacity(target)).toBe(1)

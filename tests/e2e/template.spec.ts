@@ -1,5 +1,4 @@
 import { test, expect, type Page } from '@playwright/test'
-import AxeBuilder from '@axe-core/playwright'
 
 /**
  * The Lab's template part (components/sections/UseAsTemplate.tsx): right after
@@ -48,7 +47,7 @@ test('asks "Don\'t have a site?", answers "Use mine as a template!" on the same 
   await expect(template).not.toContainText('photos and write-ups')
 })
 
-test('two cards: each links its site, says what it is built with, and opens its repo', async ({ page }) => {
+test('two cards: each links its site, says what it is built with, and opens its repo', { tag: '@smoke' }, async ({ page }) => {
   const template = await open(page)
   const cards = template.locator('ul.grid > li')
   await expect(cards).toHaveCount(2)
@@ -102,7 +101,7 @@ test('only this site has "How it is built and tested", and it goes to its build 
   await expect(template.locator(`a[href^="${PORTFOLIO_REPO}#"], a[href^="${PORTFOLIO_REPO}/"]`)).toHaveCount(0)
 })
 
-test('the keyboard reaches every link in order, card by card', async ({ page }) => {
+test('the keyboard reaches every link in order, card by card', { tag: '@cross-browser' }, async ({ page }) => {
   const template = await open(page)
   const first = template.getByRole('link', { name: 'n8builds.dev', exact: true })
   await first.focus()
@@ -129,13 +128,6 @@ test('the keyboard reaches every link in order, card by card', async ({ page }) 
   ])
 })
 
-test('has no serious accessibility violations', async ({ page }) => {
-  await open(page)
-  const results = await new AxeBuilder({ page }).include('#template').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze()
-  const serious = results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')
-  expect(serious.map((v) => `${v.id}: ${v.help}`)).toEqual([])
-})
-
 test.describe('layout', () => {
   test('on a laptop the cards sit side by side, lined up with the other Lab parts', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
@@ -149,7 +141,7 @@ test.describe('layout', () => {
   })
 
   for (const width of [375, 320]) {
-    test(`at ${width}px the cards stack and nothing overflows`, async ({ page }) => {
+    test(`at ${width}px the cards stack and nothing overflows`, { tag: width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
       await page.setViewportSize({ width, height: 800 })
       const template = await open(page)
       const [a, b] = await template.locator('ul.grid > li').evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON()))

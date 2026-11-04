@@ -8,7 +8,7 @@ import { test, expect } from '@playwright/test'
 
 test.use({ viewport: { width: 320, height: 568 }, hasTouch: true, contextOptions: { reducedMotion: 'reduce' } })
 
-test('the heading, subheader and prompt -> repeat chips all fit on a 320px screen', async ({ page }) => {
+test('the heading, subheader and prompt -> repeat chips all fit on a 320px screen', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
   await page.goto('/')
   const hero = page.locator('#home')
   // The chain is prompt -> build -> ship -> repeat, in that order ("idea" was dropped).
@@ -68,7 +68,7 @@ test.describe('the hero portrait', () => {
   test.describe('with motion', () => {
     test.use({ contextOptions: { reducedMotion: 'no-preference' } })
 
-    test('fades in from the server HTML and ends fully visible', async ({ page }) => {
+    test('fades in from the server HTML and ends fully visible', { tag: '@cross-browser' }, async ({ page }) => {
       // JavaScript off: the entrance must not wait for hydration.
       await page.context().route('**/*.js', (route) => route.abort())
       await page.goto('/')
@@ -104,10 +104,14 @@ test.describe('the hero text column', () => {
     await expect(hero.getByText(/See what I.m building/)).toHaveCount(0)
   })
 
-  test('shows "Hiring? Check out my dev portfolio" above the social links', async ({ page }) => {
+  test('shows "Hiring? Check out my dev portfolio" above the social links', { tag: '@smoke' }, async ({ page }) => {
     await page.goto('/')
     const hero = page.locator('#home')
-    const hiring = await hero.getByRole('link', { name: 'Check out my dev portfolio' }).boundingBox()
+    const link = hero.getByRole('link', { name: 'Check out my dev portfolio' })
+    // A direct route to the developer portfolio for someone hiring.
+    await expect(link).toBeVisible()
+    await expect(link).toHaveAttribute('href', 'https://portfolio.n8builds.dev')
+    const hiring = await link.boundingBox()
     const socials = await hero.getByRole('navigation', { name: 'Social links' }).boundingBox()
     expect(hiring!.y + hiring!.height).toBeLessThanOrEqual(socials!.y)
   })
@@ -131,7 +135,7 @@ for (const [width, height] of [
   test.describe(`the first screen at ${width}x${height}`, () => {
     test.use({ viewport: { width, height }, hasTouch: false, contextOptions: { reducedMotion: 'reduce' } })
 
-    test('shows "What I\'m working on" and the top of its card as a sneak peek', async ({ page }) => {
+    test('shows "What I\'m working on" and the top of its card as a sneak peek', { tag: width === 1366 || width === 768 ? '@cross-browser' : [] }, async ({ page }) => {
       await page.goto('/')
       // The site styles its scrollbar (::-webkit-scrollbar), and WebKit then
       // draws a classic 8px one and measures media queries without it: a
@@ -246,7 +250,7 @@ test.describe('the hero grid', () => {
       })
     }
 
-    test('on a wide screen, lights cells across the full width, which fades out at the sides', async ({ page }) => {
+    test('on a wide screen, lights cells across the full width, which fades out at the sides', { tag: '@cross-browser' }, async ({ page }) => {
       test.setTimeout(45_000)
       await page.setViewportSize({ width: 1920, height: 1080 })
       await page.goto('/')
@@ -282,7 +286,7 @@ test.describe('the hero grid', () => {
       expect(mask).toContain('linear-gradient(90deg')
     })
 
-    test('holds still while the hero is scrolled off screen', async ({ page }) => {
+    test('holds still while the hero is scrolled off screen', { tag: '@cross-browser' }, async ({ page }) => {
       await page.goto('/')
       await page.waitForTimeout(2000)
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
@@ -325,7 +329,7 @@ for (const [width, height] of [
   test.describe(`the hero on a ${width}x${height} phone`, () => {
     test.use({ viewport: { width, height }, hasTouch: true, contextOptions: { reducedMotion: 'reduce' } })
 
-    test('shows the portrait above the heading, on the first screen', async ({ page }) => {
+    test('shows the portrait above the heading, on the first screen', { tag: width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
       await page.goto('/')
       const hero = page.locator('#home')
       const portrait = (await hero.getByRole('img', { name: /^Nathan Watkins/ }).boundingBox())!
@@ -337,7 +341,7 @@ for (const [width, height] of [
       expect(heading.y, 'heading on the first screen').toBeLessThan(height)
     })
 
-    test('keeps "Think bigger. Ship sooner." on one line', async ({ page }) => {
+    test('keeps "Think bigger. Ship sooner." on one line', { tag: width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
       await page.goto('/')
       const tagline = page.locator('#home').getByText('Think bigger. Ship sooner.')
       const { lines, right } = await tagline.evaluate((el) => {
@@ -378,7 +382,7 @@ test.describe('the whoami terminal', () => {
     expect(first, 'first sentence fits one line').toBe(1)
   })
 
-  test('has no "$ whoami" line (the title bar says it), and each line fits on one line at 320px', async ({ page }) => {
+  test('has no "$ whoami" line (the title bar says it), and each line fits on one line at 320px', { tag: '@cross-browser' }, async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 568 })
     await page.goto('/')
     const terminal = page.locator('#home [data-terminal]')
@@ -396,7 +400,7 @@ test.describe('the whoami terminal', () => {
     }
   })
 
-  test('the title bar fits a 320px screen', async ({ page }) => {
+  test('the title bar fits a 320px screen', { tag: '@cross-browser' }, async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 568 })
     await page.goto('/')
     const title = page.locator('#home [data-terminal-title]')
@@ -423,7 +427,7 @@ test.describe('the portrait swap', () => {
   test.describe('with motion', () => {
     test.use({ contextOptions: { reducedMotion: 'no-preference' } })
 
-    test('is not in the server HTML, then alternates with the photo', async ({ page }) => {
+    test('is not in the server HTML, then alternates with the photo', { tag: '@cross-browser' }, async ({ page }) => {
       test.setTimeout(30_000)
       const html = await (await page.request.get('/')).text()
       expect(html).not.toContain('portrait-watercolor')
@@ -451,7 +455,7 @@ test.describe('the portrait swap', () => {
       expect(lcp.at(-1), lcp.join(' > ')).not.toContain('watercolor')
     })
 
-    test('holds still while the hero is off screen', async ({ page }) => {
+    test('holds still while the hero is off screen', { tag: '@cross-browser' }, async ({ page }) => {
       test.setTimeout(30_000)
       await page.goto('/')
       await expect(swap(page)).toHaveCount(1, { timeout: 10_000 })
@@ -491,7 +495,7 @@ test.describe('the whoami typing', () => {
   test.describe('with motion', () => {
     test.use({ contextOptions: { reducedMotion: 'no-preference' } })
 
-    test('types each line out from the server HTML, without JavaScript, then shows the prompt', async ({ page }) => {
+    test('types each line out from the server HTML, without JavaScript, then shows the prompt', { tag: '@cross-browser' }, async ({ page }) => {
       await page.context().route('**/*.js', (route) => route.abort())
       await page.goto('/')
       await expect(lines(page)).toHaveText(['AI-first software developer.', 'I build apps and tools I wish existed.'])
@@ -526,7 +530,7 @@ test.describe('the whoami typing', () => {
   test.describe('with reduced motion', () => {
     test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
-    test('shows the whole text and the prompt at once', async ({ page }) => {
+    test('shows the whole text and the prompt at once', { tag: '@cross-browser' }, async ({ page }) => {
       await page.goto('/', { waitUntil: 'domcontentloaded' })
       for (const style of await lines(page).evaluateAll((els) => els.map((el) => [getComputedStyle(el).animationName, getComputedStyle(el).clipPath])))
         expect(style).toEqual(['none', 'none'])
@@ -542,7 +546,7 @@ test.describe('the whoami typing', () => {
  * (HeroChainMeter measures it), and still ends at 3 o'clock by the arrow.
  */
 for (const width of [1280, 375, 320]) {
-  test(`the prompt comet starts where the wire lands, at ${width}px`, async ({ page }) => {
+  test(`the prompt comet starts where the wire lands, at ${width}px`, { tag: width === 375 ? '@cross-browser' : [] }, async ({ page }) => {
     await page.setViewportSize({ width, height: 800 })
     await page.goto('/')
     const chip = page.locator('#home .n8-cnode').first()
@@ -603,7 +607,7 @@ for (const [width, height] of [
  * one-line subheader must not run under it.
  */
 for (const width of [768, 900, 1023, 1024]) {
-  test(`at ${width}px the subheader stays clear of the portrait`, async ({ page }) => {
+  test(`at ${width}px the subheader stays clear of the portrait`, { tag: width === 768 ? '@cross-browser' : [] }, async ({ page }) => {
     await page.setViewportSize({ width, height: 1024 })
     await page.goto('/')
     // A content width, as in the first-screen tests above: WebKit leaves the

@@ -49,7 +49,7 @@ const runningAnimations = async (page: Page, name: string) =>
 test.describe('with reduced motion', () => {
   test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
-  test('the case study renders every section, screenshot and number', async ({ page }) => {
+  test('the case study renders every section, screenshot and number', { tag: '@smoke' }, async ({ page }) => {
     const errors: string[] = []
     page.on('pageerror', (error) => errors.push(error.message))
 
@@ -85,7 +85,7 @@ test.describe('with reduced motion', () => {
     expect(errors).toEqual([])
   })
 
-  test('nothing animates: the pipeline and the counters show their final state', async ({ page }) => {
+  test('nothing animates: the pipeline and the counters show their final state', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto(PATH)
     for (const id of ['tested', 'speed']) {
       await page.locator(`#${id}`).scrollIntoViewIfNeeded()
@@ -105,7 +105,7 @@ test.describe('with reduced motion', () => {
     expect(serious.map((v) => `${v.id}: ${v.help}`)).toEqual([])
   })
 
-  test('every link on the case study is reachable with the keyboard, with a visible focus ring', async ({ page }) => {
+  test('every link on the case study is reachable with the keyboard, with a visible focus ring', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto(PATH)
     // Number the links, so the two identical Star | GitHub pairs count apart.
     const linkCount = await page.locator('main a[href]').evaluateAll((links) => {
@@ -142,7 +142,7 @@ test.describe('with reduced motion', () => {
 test.describe('with motion', () => {
   test.use({ contextOptions: { reducedMotion: 'no-preference' } })
 
-  test('the pipeline lights up and the counters count once they scroll into view', async ({ page }) => {
+  test('the pipeline lights up and the counters count once they scroll into view', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto(PATH)
     // Nothing animates before its section is revealed.
     expect(await animationStates(page, 'count')).toEqual([])

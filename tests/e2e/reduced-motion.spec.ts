@@ -24,20 +24,20 @@ test.describe('reduced motion', () => {
   test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
   for (const path of ['/', '/loadout']) {
-    test(`${path} runs no infinite animations`, async ({ page }) => {
+    test(`${path} runs no infinite animations`, { tag: '@cross-browser' }, async ({ page }) => {
       await page.goto(path)
       await expect(page.locator('h1').first()).toBeVisible()
       expect(await runningInfiniteAnimations(page)).toBe(0)
     })
   }
 
-  test('marquees list each item once', async ({ page }) => {
+  test('marquees list each item once', { tag: '@cross-browser' }, async ({ page }) => {
     // The homepage's AI kit (the only marquee since /loadout dropped its own).
     await page.goto('/')
     await expect(page.locator('[data-dino-panel]').getByText('Claude Code', { exact: true })).toHaveCount(1)
   })
 
-  test('scrolling jumps instead of animating', async ({ page }) => {
+  test('scrolling jumps instead of animating', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
     // Landing mid-page (as from a /#featured link) shows the button without
     // any further scrolling. Not /#contact: there the button steps aside so it
     // never covers the form (components/ui/ScrollToTop.tsx).
@@ -53,12 +53,12 @@ test.describe('reduced motion', () => {
 test.describe('motion allowed', () => {
   test.use({ contextOptions: { reducedMotion: 'no-preference' } })
 
-  test('anchor scrolling is smooth', async ({ page }) => {
+  test('anchor scrolling is smooth', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     expect(await htmlScrollBehavior(page)).toBe('smooth')
   })
 
-  test('marquees scroll a repeated track', async ({ page }) => {
+  test('marquees scroll a repeated track', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     // The server sends one copy of the items; hydration adds the loop's copies.
     await expect

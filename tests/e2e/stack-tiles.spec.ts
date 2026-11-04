@@ -10,7 +10,7 @@ import { test, expect } from '@playwright/test'
 test.describe('AI kit tiles (motion allowed)', () => {
   test.use({ contextOptions: { reducedMotion: 'no-preference' } })
 
-  test("the loop's copies move in step, never drifting over each other", async ({ page }) => {
+  test("the loop's copies move in step, never drifting over each other", { tag: '@cross-browser' }, async ({ page }) => {
     // The first copy is in the server HTML; the others join after hydration.
     await page.goto('/')
     await expect
@@ -28,7 +28,7 @@ test.describe('AI kit tiles (motion allowed)', () => {
       .toBe(true)
   })
 
-  test('every row moves at the same pace, however many tiles it has', async ({ page }) => {
+  test('every row moves at the same pace, however many tiles it has', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     // px/s of each row: one copy's width (plus the gap) over its loop time.
     const speeds = () =>
@@ -45,7 +45,7 @@ test.describe('AI kit tiles (motion allowed)', () => {
     for (const speed of pace) expect(speed, `row speeds ${pace.map(Math.round).join(', ')} px/s`).toBeLessThan(26)
   })
 
-  test('each item is a single tab stop', async ({ page }) => {
+  test('each item is a single tab stop', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     const panel = page.locator('[data-dino-panel]')
     // Hydration adds the loop's copies (four of a short row, two of the long dev stack).

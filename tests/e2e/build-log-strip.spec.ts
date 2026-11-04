@@ -99,7 +99,7 @@ test("holds the whole month, newest first, and shows the newest page of it", asy
   await expect(rows(page).filter({ hasText: /Shipped v\d+\.\d+\.\d+/ }).first()).toBeVisible()
 })
 
-test('a row opens its build in the full log, filtered', async ({ page }) => {
+test('a row opens its build in the full log, filtered', { tag: '@smoke' }, async ({ page }) => {
   await page.goto('/')
   const first = rows(page).first()
   await first.scrollIntoViewIfNeeded()
@@ -169,7 +169,7 @@ test('reduced motion holds the first figure and shows the final number at once; 
 test.describe('with motion', () => {
   test.use({ contextOptions: { reducedMotion: 'no-preference' } })
 
-  test('moves on by itself while in view, and holds while hovered', async ({ page }) => {
+  test('moves on by itself while in view, and holds while hovered', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     // An instant jump: with motion allowed the site scrolls smoothly.
     await stats(page).evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
@@ -188,7 +188,7 @@ test.describe('with motion', () => {
     await expect(current(page)).toHaveAttribute('data-stat', held!)
   })
 
-  test('the number counts up and the bars rise the first time the card comes into view', async ({ page }) => {
+  test('the number counts up and the bars rise the first time the card comes into view', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     const card = stats(page)
     // Off screen once hydrated: armed, waiting at zero with the bars flat.
@@ -256,14 +256,14 @@ test('the month arrows show the months before, each whole, and come back', async
   await expect(back).toBeDisabled()
 })
 
-test('"See the full build log" goes to /builds', async ({ page }) => {
+test('"See the full build log" goes to /builds', { tag: '@smoke' }, async ({ page }) => {
   await page.goto('/')
   await strip(page).getByRole('link', { name: 'See the full build log' }).click()
   await expect(page).toHaveURL(/\/builds$/)
   await expect(page.getByRole('heading', { level: 1, name: 'The build log' })).toBeVisible()
 })
 
-test('works from the keyboard: the button, the figures, each row, then the arrows', async ({ page }) => {
+test('works from the keyboard: the button, the figures, each row, then the arrows', { tag: '@cross-browser' }, async ({ page }) => {
   await page.goto('/')
   const button = strip(page).getByRole('link', { name: 'See the full build log' })
   await button.scrollIntoViewIfNeeded()
@@ -301,7 +301,7 @@ test('works from the keyboard: the button, the figures, each row, then the arrow
   expect(ring).not.toBe('none')
 })
 
-test('phones show four rows a page too, with the date on the name line', async ({ page }) => {
+test('phones show four rows a page too, with the date on the name line', { tag: '@cross-browser' }, async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 })
   await page.goto('/')
   await strip(page).scrollIntoViewIfNeeded()
@@ -376,7 +376,7 @@ test.describe('paging', () => {
     await expect(live(page)).toHaveText('')
   })
 
-  test('fades the old rows out to the right one after another, and the new ones in', async ({ page }) => {
+  test('fades the old rows out to the right one after another, and the new ones in', { tag: '@cross-browser' }, async ({ page }) => {
     await openList(page)
     // Clicked and read in one go: the fade starts with the click (before
     // paint) and is over in under a second, which a slow browser can spend
@@ -406,7 +406,7 @@ test.describe('paging', () => {
     for (let i = 1; i < into.length; i++) expect(into[i].delay).toBeGreaterThan(into[i - 1].delay)
   })
 
-  test('holds while hovered, and picks up where it left off', async ({ page }) => {
+  test('holds while hovered, and picks up where it left off', { tag: '@cross-browser' }, async ({ page }) => {
     await openList(page)
     await page.clock.fastForward(3000)
     await list(page).hover()
@@ -420,7 +420,7 @@ test.describe('paging', () => {
     await expect(position(page)).toHaveText(paging(page).at(2))
   })
 
-  test('holds while focused', async ({ page }) => {
+  test('holds while focused', { tag: '@cross-browser' }, async ({ page }) => {
     await openList(page)
     await rows(page).first().getByRole('link').focus()
     await expect(list(page)).not.toHaveAttribute('data-cycling')
@@ -432,7 +432,7 @@ test.describe('paging', () => {
     await expect(position(page)).toHaveText(paging(page).at(2))
   })
 
-  test('holds while off screen or while the tab is hidden', async ({ page }) => {
+  test('holds while off screen or while the tab is hidden', { tag: '@cross-browser' }, async ({ page }) => {
     await openList(page)
     await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }))
     await expect(list(page)).not.toHaveAttribute('data-in-view')
@@ -457,7 +457,7 @@ test.describe('paging', () => {
     await expect(position(page)).toHaveText(paging(page).at(2))
   })
 
-  test('the arrows and arrow keys page either way, wrapping, and announce each move', async ({ page }) => {
+  test('the arrows and arrow keys page either way, wrapping, and announce each move', { tag: '@cross-browser' }, async ({ page }) => {
     await openList(page)
     const next = list(page).getByRole('button', { name: 'Next updates' })
     const previous = list(page).getByRole('button', { name: 'Previous updates' })
@@ -515,7 +515,7 @@ test.describe('paging', () => {
     await expect(page).toHaveURL(/\/builds\?build=n8builds$/)
   })
 
-  test('keeps its height as the pages change, and fits narrow phones', async ({ page }) => {
+  test('keeps its height as the pages change, and fits narrow phones', { tag: '@cross-browser' }, async ({ page }) => {
     test.slow()
     await installClock(page)
     for (const width of [1440, 810, 390, 320]) {
@@ -539,7 +539,7 @@ test.describe('paging', () => {
   })
 })
 
-test('reduced motion: nothing moves by itself, and the arrows swap pages without a fade', async ({ page }) => {
+test('reduced motion: nothing moves by itself, and the arrows swap pages without a fade', { tag: '@cross-browser' }, async ({ page }) => {
   await installClock(page)
   await page.goto('/')
   await list(page).scrollIntoViewIfNeeded()
@@ -557,7 +557,7 @@ test('reduced motion: nothing moves by itself, and the arrows swap pages without
   ).toBe(0)
 })
 
-test('under the log, a small ad says release-kit writes it and links its repo', async ({ page }) => {
+test('under the log, a small ad says release-kit writes it and links its repo', { tag: '@cross-browser' }, async ({ page }) => {
   await page.goto('/')
   const ad = strip(page).getByRole('complementary', { name: /This log writes itself, with release-kit/ })
   await ad.scrollIntoViewIfNeeded()

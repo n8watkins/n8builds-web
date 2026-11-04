@@ -26,7 +26,7 @@ async function pick(page: Page, name: string, which: typeof chip = chip) {
   }).toPass({ timeout: 20_000 })
 }
 
-test('the build log leads with the builds, most recently active first', async ({ page }) => {
+test('the build log leads with the builds, most recently active first', { tag: '@smoke' }, async ({ page }) => {
   await page.goto('/builds')
   await expect(page.getByRole('heading', { level: 1, name: 'The build log' })).toBeVisible()
 
@@ -88,7 +88,7 @@ test('the feed groups entries by month, with highlights pinned and releases show
   expect(await page.locator('main').innerText()).not.toContain('—')
 })
 
-test('the build filter narrows the feed and lives in the URL', async ({ page }) => {
+test('the build filter narrows the feed and lives in the URL', { tag: '@smoke' }, async ({ page }) => {
   await page.goto('/builds')
   const total = await feedEntries(page).count()
   expect(total).toBeGreaterThan(20)
@@ -139,7 +139,7 @@ test('each entry carries its build icon on the timeline', async ({ page }) => {
   await expect(card.locator('h3 img')).toHaveCount(1)
 })
 
-test('a filtered link opens the feed already filtered', async ({ page }) => {
+test('a filtered link opens the feed already filtered', { tag: '@smoke' }, async ({ page }) => {
   await page.goto('/builds?build=tubevault#activity')
   await expect(chip(page, 'TubeVault')).toHaveAttribute('aria-pressed', 'true', { timeout: 15_000 })
   await expect(feedEntries(page).first()).toContainText('Shipped v0.3.80')
@@ -217,7 +217,7 @@ test('a build page shows its recent activity and links to its part of the log', 
 })
 
 test.describe('navigation to the build log', () => {
-  test("desktop: the Lab menu's first item scrolls to the Lab's build log, and the top bar has no Log link of its own", async ({ page, isMobile }) => {
+  test("desktop: the Lab menu's first item scrolls to the Lab's build log, and the top bar has no Log link of its own", { tag: '@cross-browser' }, async ({ page, isMobile }) => {
     test.skip(isMobile, 'the desktop navbar is hidden on phones')
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto('/loadout')
@@ -267,7 +267,7 @@ test.describe('navigation to the build log', () => {
   test.describe('mobile menu', () => {
     test.use({ viewport: { width: 390, height: 844 }, hasTouch: true })
 
-    test("the Build log link, the Lab's first, reaches the Lab's build log", async ({ page }) => {
+    test("the Build log link, the Lab's first, reaches the Lab's build log", { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
       await page.goto('/loadout')
       const button = page.getByRole('button', { name: 'Menu' })
       await expect(async () => {
@@ -283,7 +283,7 @@ test.describe('navigation to the build log', () => {
   })
 })
 
-test('the feed links are big enough to tap (WCAG 2.5.8: at least 24px), and none overlap', async ({ page }) => {
+test('the feed links are big enough to tap (WCAG 2.5.8: at least 24px), and none overlap', { tag: '@cross-browser' }, async ({ page }) => {
   // An entry's title link was 19px tall, and Lighthouse's target-size audit
   // failed /builds on it.
   await page.goto('/builds')

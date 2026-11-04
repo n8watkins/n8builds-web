@@ -29,7 +29,7 @@ const bringIn = (locator: Locator) =>
     window.scrollTo({ top: box.top + window.scrollY - window.innerHeight / 2 + box.height / 2, behavior: 'instant' })
   })
 
-test('on a desktop the tiles rise in from the first screen and end fully shown, chips too', async ({ page }) => {
+test('on a desktop the tiles rise in from the first screen and end fully shown, chips too', { tag: '@cross-browser' }, async ({ page }) => {
   // Tall enough that the first screen holds the machine's full-width tile and the row under it.
   await page.setViewportSize({ width: 1440, height: 1200 })
   await page.goto('/loadout')
@@ -46,7 +46,7 @@ test('on a desktop the tiles rise in from the first screen and end fully shown, 
   }
 })
 
-test('on a phone a tile below the window waits for the scroll, then plays, without moving the layout', async ({ page }) => {
+test('on a phone a tile below the window waits for the scroll, then plays, without moving the layout', { tag: '@cross-browser' }, async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/loadout')
   const last = tiles(page).last()
@@ -64,7 +64,7 @@ test('on a phone a tile below the window waits for the scroll, then plays, witho
   await expect(tiles(page).first()).not.toHaveAttribute('data-wait')
 })
 
-test('a tile lifts a little on hover and while a chip in it has keyboard focus', async ({ page, isMobile }) => {
+test('a tile lifts a little on hover and while a chip in it has keyboard focus', { tag: '@cross-browser' }, async ({ page, isMobile }) => {
   test.skip(isMobile, 'A touch screen has no hover')
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/loadout')
@@ -82,7 +82,7 @@ test('a tile lifts a little on hover and while a chip in it has keyboard focus',
 test.describe('with reduced motion', () => {
   test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
-  test('every tile and chip is simply shown: no animation, no waiting, no lift', async ({ page, isMobile }) => {
+  test('every tile and chip is simply shown: no animation, no waiting, no lift', { tag: '@cross-browser' }, async ({ page, isMobile }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/loadout')
     // Give the script its chance to hold anything (it must not).
@@ -105,7 +105,7 @@ test.describe('with reduced motion', () => {
 test.describe('without JavaScript', () => {
   test.use({ javaScriptEnabled: false })
 
-  test('the tiles still play and end fully shown, even below the window', async ({ page }) => {
+  test('the tiles still play and end fully shown, even below the window', { tag: '@cross-browser' }, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/loadout')
     const last = tiles(page).last()

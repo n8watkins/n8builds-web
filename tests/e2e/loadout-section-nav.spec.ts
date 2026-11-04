@@ -79,7 +79,7 @@ test.describe('at 1440px', () => {
     await expect(links).toHaveCount(PARTS.length)
   })
 
-  test('hidden beside the header, then marks the part being read', async ({ page }) => {
+  test('hidden beside the header, then marks the part being read', { tag: '@cross-browser' }, async ({ page }) => {
     await openLoadout(page)
     const nav = rail(page)
     // The header and its pills on screen: no rail.
@@ -105,7 +105,7 @@ test.describe('at 1440px', () => {
     await expect(current).toHaveAccessibleName('Tools I use')
   })
 
-  test('a click jumps to the part, below the sticky navbar, and marks it', async ({ page }) => {
+  test('a click jumps to the part, below the sticky navbar, and marks it', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
     // Several jumps in a row: under a full parallel run each can take a few seconds.
     test.setTimeout(60_000)
     await openLoadout(page)
@@ -133,7 +133,7 @@ test.describe('at 1440px', () => {
     }
   })
 
-  test('holds at the middle of the window, and rides out with the page at its foot', async ({
+  test('holds at the middle of the window, and rides out with the page at its foot', { tag: '@cross-browser' }, async ({
     page,
   }) => {
     await openLoadout(page)
@@ -183,23 +183,6 @@ test.describe('at 1440px', () => {
       expect(box.width).toBeGreaterThanOrEqual(24)
     }
   })
-
-  test('reduced motion: nothing moves (no comet spin, no sliding)', async ({ page }) => {
-    await openLoadout(page)
-    await place(page, 'tools-i-use')
-    await expect(rail(page)).toBeVisible(SHOW)
-    const motion = await page.locator('nav[aria-label="Loadout contents"]').evaluate((n) => {
-      const all = [n, ...n.querySelectorAll<HTMLElement>('*')].map((el) => getComputedStyle(el))
-      return {
-        animations: all.filter((cs) => cs.animationName !== 'none').length,
-        moving: all.filter(
-          (cs) =>
-            /translate|top|height/.test(cs.transitionProperty) && cs.transitionDuration !== '0s'
-        ).length,
-      }
-    })
-    expect(motion).toEqual({ animations: 0, moving: 0 })
-  })
 })
 
 test.describe('with motion', () => {
@@ -208,7 +191,7 @@ test.describe('with motion', () => {
     contextOptions: { reducedMotion: 'no-preference' },
   })
 
-  test('the current chip has its comet, and a click still lands on the part', async ({ page }) => {
+  test('the current chip has its comet, and a click still lands on the part', { tag: '@cross-browser' }, async ({ page }) => {
     await openLoadout(page)
     await place(page, 'workflow')
     const nav = rail(page)
@@ -239,7 +222,7 @@ test.describe('with motion', () => {
 })
 
 for (const width of [1280, 1366, 1440, 1536, 1920]) {
-  test(`at ${width}px it sits beside the content without overlapping it or scrolling sideways`, async ({
+  test(`at ${width}px it sits beside the content without overlapping it or scrolling sideways`, { tag: width === 1280 ? '@cross-browser' : [] }, async ({
     page,
   }) => {
     await page.setViewportSize({ width, height: 900 })
@@ -297,7 +280,7 @@ for (const { width, height } of [
   { width: 390, height: 844 },
   { width: 320, height: 640 },
 ]) {
-  test(`at ${width}px (tablet and phone) the pills lead to each part, with no rail`, async ({
+  test(`at ${width}px (tablet and phone) the pills lead to each part, with no rail`, { tag: width === 390 ? '@cross-browser' : [] }, async ({
     page,
   }) => {
     await page.setViewportSize({ width, height })

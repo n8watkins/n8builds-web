@@ -13,6 +13,8 @@ test.use({ contextOptions: { reducedMotion: 'reduce' } })
 /** Where each row lives: Scribe on /loadout, the featured builds in the homepage Lab. */
 const ROW_PAGE: Record<string, string> = { Scribe: '/loadout', OpenPing: '/', Solara: '/', 'Portfolio Rank': '/' }
 const ROWS = Object.keys(ROW_PAGE)
+/** Each row's repository under github.com/n8watkins. */
+const REPO: Record<string, string> = { Scribe: 'scribe', OpenPing: 'open-ping', Solara: 'solara', 'Portfolio Rank': 'portfolio-rank' }
 /**
  * A row's live-site button, named for what it opens (round 4 of 2026-11-02):
  * "Landing page" for a product's landing page, "Live Site" for Portfolio Rank,
@@ -27,7 +29,7 @@ async function rowOf(page: Page, title: string) {
   return page.getByRole('article', { name: title })
 }
 
-test('the Lab leads with the featured builds, OpenPing first, each with its icon and a way to its build page', async ({ page }) => {
+test('the Lab leads with the featured builds, OpenPing first, each with its icon and a way to its build page', { tag: '@smoke' }, async ({ page }) => {
   await page.goto('/')
   const featured = page.locator('#featured')
   await featured.scrollIntoViewIfNeeded()
@@ -69,7 +71,7 @@ test('Scribe\'s build page leads back to Tools I built and use on /loadout; Open
   }
 })
 
-test('Details opens the stack and the build log in a dialog, and closes with Escape', async ({ page }) => {
+test('Details opens the stack and the build log in a dialog, and closes with Escape', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
   await page.goto('/')
   const row = page.locator('#featured')
   await row.getByRole('button', { name: 'Details' }).first().scrollIntoViewIfNeeded()
@@ -83,23 +85,6 @@ test('Details opens the stack and the build log in a dialog, and closes with Esc
   await expect(dialog).toBeHidden()
   // The tech stack lives only in the dialog now, not in the row.
   await expect(row.getByRole('button', { name: 'Frontend' }).filter({ visible: true })).toHaveCount(0)
-})
-
-test('every row can be starred on GitHub, and Scribe takes Mac and Linux requests', async ({ page }) => {
-  for (const [name, repo] of [
-    ['Scribe', 'scribe'],
-    ['OpenPing', 'open-ping'],
-    ['Solara', 'solara'],
-    ['Portfolio Rank', 'portfolio-rank'],
-  ]) {
-    const row = await rowOf(page, name)
-    await expect(row.getByRole('link', { name: `Star ${name} on GitHub (opens in a new tab)` })).toHaveAttribute(
-      'href',
-      `https://github.com/n8watkins/${repo}`,
-    )
-  }
-  const request = (await rowOf(page, 'Scribe')).getByRole('link', { name: /Mac or Linux/ })
-  await expect(request).toHaveAttribute('href', /^https:\/\/github\.com\/n8watkins\/scribe\/issues\/new\?title=Request/)
 })
 
 test('the Lab says its builds are public and mostly open source', async ({ page }) => {
@@ -125,13 +110,6 @@ test('the Lab says its builds are public and mostly open source', async ({ page 
   for (const generic of ['No telemetry', 'No account to start', 'A vote takes five seconds', 'Free tools, no sign-up']) {
     await expect(page.locator('#lab').getByText(generic, { exact: true })).toHaveCount(0)
   }
-})
-
-test('the hero gives someone hiring a direct link to the developer portfolio', async ({ page }) => {
-  await page.goto('/')
-  const link = page.getByRole('link', { name: 'Check out my dev portfolio' })
-  await expect(link).toBeVisible()
-  await expect(link).toHaveAttribute('href', 'https://portfolio.n8builds.dev')
 })
 
 test('Portfolio Rank credits the list it is built on and invites visitors to add their portfolio', async ({ page }) => {
@@ -198,7 +176,7 @@ test('every featured row and its build page invite the visitor to try it', async
   await expect(page.locator('#cta-heading')).toHaveCount(0)
 })
 
-test('Scribe downloads the newest installer through a stable link, and takes Mac and Linux requests', async ({ page, request }) => {
+test('Scribe downloads the newest installer through a stable link, and takes Mac and Linux requests', { tag: '@smoke' }, async ({ page, request }) => {
   const row = await rowOf(page, 'Scribe')
   const download = row.getByRole('link', { name: 'Download for Windows' })
   await download.scrollIntoViewIfNeeded()
@@ -223,6 +201,7 @@ test('Scribe downloads the newest installer through a stable link, and takes Mac
 
   // Mac and Linux: the Apple and Tux marks sit by their words, under one continuous underline.
   const ask = row.getByRole('link', { name: /Mac or Linux/ })
+  await expect(ask).toHaveAttribute('href', /^https:\/\/github\.com\/n8watkins\/scribe\/issues\/new\?title=Request/)
   await expect(ask.locator('svg')).toHaveCount(2)
   for (const [i, os] of [[0, 'Mac'], [1, 'Linux?']] as const) {
     const [mark, text] = await Promise.all([ask.locator('svg').nth(i).boundingBox(), ask.getByText(os, { exact: true }).boundingBox()])
@@ -297,7 +276,10 @@ test('each row names its own Details, Landing page (or Live Site), Star and GitH
     await rowOf(page, title)
     await expect(page.getByRole('button', { name: `Details about ${title}`, exact: true })).toHaveCount(1)
     await expect(page.getByRole('link', { name: LIVE(title), exact: true })).toHaveCount(1)
-    await expect(page.getByRole('link', { name: `Star ${title} on GitHub (opens in a new tab)`, exact: true })).toHaveCount(1)
+    const star = page.getByRole('link', { name: `Star ${title} on GitHub (opens in a new tab)`, exact: true })
+    await expect(star).toHaveCount(1)
+    // Starring happens on the repo's page.
+    await expect(star).toHaveAttribute('href', `https://github.com/n8watkins/${REPO[title]}`)
     await expect(page.getByRole('link', { name: `${title} on GitHub (opens in a new tab)`, exact: true })).toHaveCount(1)
   }
   await rowOf(page, 'OpenPing')
@@ -305,7 +287,7 @@ test('each row names its own Details, Landing page (or Live Site), Star and GitH
   await expect(page.getByRole('button', { name: 'Previous OpenPing screenshot', exact: true })).toHaveCount(1)
 })
 
-test('each row puts its live site, Star | GitHub and Details in one row across its column, and no two buttons go to the same place', async ({
+test('each row puts its live site, Star | GitHub and Details in one row across its column, and no two buttons go to the same place', { tag: '@cross-browser' }, async ({
   page,
   isMobile,
 }) => {
@@ -358,7 +340,7 @@ test('each row puts its live site, Star | GitHub and Details in one row across i
   )
 })
 
-test("each row's buttons stay even, with one-line labels, at every width", async ({ page, isMobile }) => {
+test("each row's buttons stay even, with one-line labels, at every width", { tag: '@cross-browser' }, async ({ page, isMobile }) => {
   // Round 5 of 2026-11-02: from 1024px to about 1150px the thirds were too
   // narrow for "Landing page", which took more than Details. The buttons now
   // tighten there (and on the narrowest phones and at 768px) instead.
@@ -368,7 +350,7 @@ test("each row's buttons stay even, with one-line labels, at every width", async
   // Row by row (each page opens once), every width on each.
   for (const title of ROWS) {
     const row = await rowOf(page, title)
-    for (const width of [1440, 1280, 1100, 1040, 1024, 820, 768, 390, 320]) {
+    for (const width of [1920, 1440, 1366, 1280, 1100, 1040, 1024, 820, 768, 390, 320]) {
       await page.setViewportSize({ width, height: 900 })
       const live = row.getByRole('link', { name: LIVE(title) })
       const repo = row.getByRole('group', { name: `${title} on GitHub` })
@@ -393,6 +375,18 @@ test("each row's buttons stay even, with one-line labels, at every width", async
         ),
       )
       expect(clipped, `${at}: nothing clipped`).toEqual([false, false, false, false])
+      // On the laptop widths the buttons keep the same 8px gap and never
+      // touch (the owner caught Scribe's "1.2k | GitHub" running into Details,
+      // 2026-11-01). 1040, not 1024: WebKit's media queries see the window
+      // minus its scrollbar, so a 1024px window there still stacks them.
+      if ([1040, 1280, 1366, 1440, 1920].includes(width)) {
+        expect(Math.round(r!.y), `${at}: one row`).toBe(Math.round(l!.y))
+        expect(r!.x - (l!.x + l!.width), `${at}: Live Site to Star | GitHub`).toBeCloseTo(8, 0)
+        expect(d!.x - (r!.x + r!.width), `${at}: Star | GitHub to Details`).toBeCloseTo(8, 0)
+        expect(await repo.evaluate((g) => g.scrollWidth - g.clientWidth), `${at}: Star | GitHub fits its box`).toBeLessThanOrEqual(0)
+        const halves = await repo.getByRole('link').evaluateAll((links) => links.map((a) => a.getBoundingClientRect().right))
+        expect(Math.max(...halves), `${at}: GitHub ends inside the split button`).toBeLessThanOrEqual(r!.x + r!.width + 0.5)
+      }
     }
   }
 })
@@ -433,7 +427,7 @@ test.describe('the Lab gallery', () => {
   const activeDot = async (gallery: import('@playwright/test').Locator) =>
     dots(gallery).evaluateAll((els) => els.findIndex((el) => el.hasAttribute('data-active')))
 
-  test('steps through the screenshots by clicking the sides of the image, with no thumbnails under it', async ({ page, hasTouch }) => {
+  test('steps through the screenshots by clicking the sides of the image, with no thumbnails under it', { tag: ['@cross-browser', '@smoke'] }, async ({ page, hasTouch }) => {
     await page.goto('/')
     const gallery = page.getByRole('group', { name: 'OpenPing screenshots' })
     await gallery.scrollIntoViewIfNeeded()
@@ -466,7 +460,7 @@ test.describe('the Lab gallery', () => {
     await expect(gallery.getByRole('img', { name: /free tools/ })).toBeVisible()
   })
 
-  test('works from the keyboard: Tab to a side, Enter or the arrow keys step, and the arrow shows on focus', async ({ page }) => {
+  test('works from the keyboard: Tab to a side, Enter or the arrow keys step, and the arrow shows on focus', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     const gallery = page.getByRole('group', { name: 'OpenPing screenshots' })
     await gallery.scrollIntoViewIfNeeded()
@@ -498,7 +492,7 @@ test.describe('the Lab gallery', () => {
 test.describe('the Lab gallery on touch', () => {
   test.use({ hasTouch: true, viewport: { width: 375, height: 800 } })
 
-  test('a swipe steps through the screenshots, and a tap on a side does too', async ({ page }) => {
+  test('a swipe steps through the screenshots, and a tap on a side does too', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     const gallery = page.getByRole('group', { name: 'OpenPing screenshots' })
     await gallery.scrollIntoViewIfNeeded()
@@ -637,7 +631,7 @@ test('the Details dialog steps through the screenshots like the row does', async
 
 test.describe('the Lab rows on a 320px phone', () => {
   test.use({ viewport: { width: 320, height: 700 } })
-  test('nothing spills sideways, and Landing page and Details share a line above Star | GitHub', async ({ page }) => {
+  test('nothing spills sideways, and Landing page and Details share a line above Star | GitHub', { tag: '@cross-browser' }, async ({ page }) => {
     // Scribe's row (on /loadout), the one with the longest download caption.
     const row = await rowOf(page, 'Scribe')
     await row.scrollIntoViewIfNeeded()
@@ -665,7 +659,7 @@ test.describe('the Lab rows on a 320px phone', () => {
  * and in round 5 a step further again (13cqw, about 0.3em between letters).
  */
 for (const width of [1440, 390, 320]) {
-  test(`at ${width}px "Check out" spans the flask and title`, async ({ page }) => {
+  test(`at ${width}px "Check out" spans the flask and title`, { tag: width === 1440 || width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 })
     await page.goto('/')
     const eyebrow = page.locator('#lab .lab-eyebrow')
@@ -692,38 +686,5 @@ for (const width of [1440, 390, 320]) {
     expect(size).toBeGreaterThanOrEqual(width >= 640 ? 42 : 30)
     expect(spacing / size).toBeGreaterThan(0.15)
     expect(spacing / size).toBeLessThan(0.38)
-  })
-}
-
-/**
- * Every row's buttons keep the same gap and never touch (the owner caught
- * Scribe's "1.2k | GitHub" running into Details, 2026-11-01): a star count can
- * make the split button wider than a third of the column, and at the narrow
- * laptop widths even "GitHub" alone is close.
- */
-// 1040, not 1024: WebKit's media queries see the window minus its scrollbar,
-// so a 1024px window there is still in the tablet layout (buttons stacked).
-for (const width of [1040, 1280, 1366, 1440, 1920]) {
-  test(`at ${width}px the buttons in each row keep an even gap and never overlap`, async ({ page, isMobile }) => {
-    test.skip(isMobile, 'Phones stack the buttons: the 320px test covers them')
-    await page.setViewportSize({ width, height: 900 })
-    for (const title of ROWS) {
-      const row = await rowOf(page, title)
-      const repo = row.getByRole('group', { name: `${title} on GitHub` })
-      await repo.scrollIntoViewIfNeeded()
-      const [l, r, d] = await Promise.all(
-        [row.getByRole('link', { name: LIVE(title) }), repo, row.getByRole('button', { name: `Details about ${title}` })].map(
-          (el) => el.boundingBox(),
-        ),
-      )
-      // The buttons' 8px gap, both sides of the split button.
-      expect(r!.x - (l!.x + l!.width), `${title}: Live Site to Star | GitHub`).toBeCloseTo(8, 0)
-      expect(d!.x - (r!.x + r!.width), `${title}: Star | GitHub to Details`).toBeCloseTo(8, 0)
-      // Nothing spills out of a button: the split button's halves fit inside it.
-      const spill = await repo.evaluate((g) => g.scrollWidth - g.clientWidth)
-      expect(spill, `${title}: Star | GitHub fits its box`).toBeLessThanOrEqual(0)
-      const halves = await repo.getByRole('link').evaluateAll((links) => links.map((a) => a.getBoundingClientRect().right))
-      expect(Math.max(...halves), `${title}: GitHub ends inside the split button`).toBeLessThanOrEqual(r!.x + r!.width + 0.5)
-    }
   })
 }

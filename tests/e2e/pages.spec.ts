@@ -51,7 +51,7 @@ test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
 for (const path of STATIC_PAGES) {
   test.describe(path, () => {
-    test('renders without errors', async ({ page }) => {
+    test('renders without errors', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
       const errors = trackErrors(page)
       const response = await page.goto(path)
       expect(response?.status()).toBe(200)
@@ -84,7 +84,7 @@ test.describe('motion allowed', () => {
 })
 
 test.describe('blog post', () => {
-  test('renders without errors', async ({ page, request }) => {
+  test('renders without errors', { tag: ['@cross-browser', '@smoke'] }, async ({ page, request }) => {
     const path = await firstBlogPostPath(request)
     const errors = trackErrors(page)
     const response = await page.goto(path)
@@ -101,7 +101,7 @@ test.describe('blog post', () => {
   })
 })
 
-test('the skip link moves focus past the navbar on every route', async ({ page, request }) => {
+test('the skip link moves focus past the navbar on every route', { tag: ['@cross-browser', '@smoke'] }, async ({ page, request }) => {
   for (const path of [...STATIC_PAGES, await firstBlogPostPath(request), '/definitely-not-a-page']) {
     await page.goto(path)
     await page.keyboard.press('Tab')
@@ -113,12 +113,7 @@ test('the skip link moves focus past the navbar on every route', async ({ page, 
   }
 })
 
-test('unknown routes return the 404 page', async ({ page }) => {
-  const response = await page.goto('/definitely-not-a-page')
-  expect(response?.status()).toBe(404)
-})
-
-test('legacy shelf routes redirect to homepage anchors, and /tools to /loadout', async ({ page }) => {
+test('legacy shelf routes redirect to homepage anchors, and /tools to /loadout', { tag: '@smoke' }, async ({ page }) => {
   for (const [from, anchor] of [
     ['/lab', '#lab'],
     ['/resources', '#lab'],

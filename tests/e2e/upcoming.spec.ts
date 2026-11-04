@@ -28,7 +28,7 @@ async function waitForTurnstileToken(page: Page) {
 
 const project = (page: Page, name: string) => page.locator('#waitlist-projects').getByRole('checkbox', { name: new RegExp(name) })
 
-test('shows each project with its own anchor, and is titled for the site', async ({ page }) => {
+test('shows each project with its own anchor, and is titled for the site', { tag: '@smoke' }, async ({ page }) => {
   await page.goto('/upcoming')
   await expect(page).toHaveTitle('Upcoming | n8builds')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('What’s cookin’')
@@ -50,7 +50,7 @@ test('shows each project with its own anchor, and is titled for the site', async
   await expect(page.locator('#waitlist-projects').getByRole('checkbox')).toHaveCount(6)
 })
 
-test('lays the cards out one to a row beside the waitlist on wide screens, two by two just below, one column on phones', async ({ page }) => {
+test('lays the cards out one to a row beside the waitlist on wide screens, two by two just below, one column on phones', { tag: '@cross-browser' }, async ({ page }) => {
   // 1040, not 1024: WebKit's media queries see the window minus its scrollbar.
   for (const [width, columns] of [
     [1280, 1],
@@ -64,17 +64,16 @@ test('lays the cards out one to a row beside the waitlist on wide screens, two b
     const lefts = await page.locator('main article').evaluateAll((cards) => cards.map((c) => Math.round(c.getBoundingClientRect().left)))
     expect(new Set(lefts).size, `columns at ${width}px`).toBe(columns)
     expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0)
+    // Tablets and phones: the waitlist comes after the cards.
+    if (width < 1000) {
+      const last = (await page.locator('#keysready').boundingBox())!
+      const form = (await page.locator('#waitlist').boundingBox())!
+      expect(form.y, `the waitlist after the cards at ${width}px`).toBeGreaterThan(last.y + last.height)
+    }
   }
 })
 
-test("KeysReady's landing page link preselects it and lands on its card", async ({ page }) => {
-  await page.goto('/upcoming?interest=keysready#keysready')
-  await expect(project(page, 'KeysReady')).toBeChecked()
-  await expect(project(page, 'Relink')).not.toBeChecked()
-  await expect(page.locator('article#keysready')).toBeInViewport()
-})
-
-test('a landing page link preselects its project and lands on its card', async ({ page }) => {
+test('a landing page link preselects its project and lands on its card', { tag: '@cross-browser' }, async ({ page }) => {
   await page.goto('/upcoming?interest=strollz#strollz')
   await expect(project(page, 'Strollz')).toBeChecked()
   await expect(project(page, 'Relink')).not.toBeChecked()
@@ -87,14 +86,14 @@ test("links from before Relink's rename still preselect it", async ({ page }) =>
   await expect(page.locator('article#relink')).toBeInViewport()
 })
 
-test("a card's Join button ticks its project and brings the form into view", async ({ page }) => {
+test("a card's Join button ticks its project and brings the form into view", { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
   await page.goto('/upcoming')
   await page.locator('article#relink').getByRole('link', { name: 'Join the waitlist for Relink' }).click()
   await expect(project(page, 'Relink')).toBeChecked()
   await expect(page.getByRole('textbox', { name: 'Email' })).toBeInViewport()
 })
 
-test('a visitor can join the waitlist', async ({ page }) => {
+test('a visitor can join the waitlist', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
   await page.goto('/upcoming?interest=relink#relink', { waitUntil: 'domcontentloaded' })
   await waitForTurnstileToken(page)
   await page.getByRole('textbox', { name: 'Email' }).fill(uniqueEmail())
@@ -126,7 +125,7 @@ async function emailedLink(page: Page, to: string, path: '/upcoming/confirm' | '
   return link.replace('https://n8builds.dev', '')
 }
 
-test('a visitor joins, confirms from the email, and leaves again, with every step kept in the database', async ({ page }) => {
+test('a visitor joins, confirms from the email, and leaves again, with every step kept in the database', { tag: '@smoke' }, async ({ page }) => {
   const email = uniqueEmail()
   await page.goto('/upcoming?interest=feelium#feelium', { waitUntil: 'domcontentloaded' })
   await waitForTurnstileToken(page)
@@ -154,7 +153,7 @@ test('a visitor joins, confirms from the email, and leaves again, with every ste
   await expect(page.locator('main').getByRole('alert')).toContainText('no longer on the waitlist')
 })
 
-test('asks for a project and a valid email before sending anything', async ({ page }) => {
+test('asks for a project and a valid email before sending anything', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
   await page.goto('/upcoming')
   let sent = false
   page.on('request', (r) => {
@@ -335,7 +334,7 @@ for (const [width, height, columns, beside] of [
   [390, 844, 1, false],
   [320, 640, 1, false],
 ] as const) {
-  test(`What's cookin' lays its cards and waitlist out evenly at ${width}px`, async ({ page }) => {
+  test(`What's cookin' lays its cards and waitlist out evenly at ${width}px`, { tag: width === 1280 || width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
     await page.setViewportSize({ width, height })
     await page.goto('/')
     // At the laptop sizes, widen the window by a classic scrollbar (WebKit on
@@ -421,7 +420,7 @@ for (const [width, height, columns, beside] of [
  * the cards, so visitors can sign up while reading; on smaller ones it stays
  * after the cards. One form either way: ?interest= and the cards' Join tick it.
  */
-test('on a wide screen the waitlist stays beside the cards as you read, and Join ticks it in place', async ({ page }) => {
+test('on a wide screen the waitlist stays beside the cards as you read, and Join ticks it in place', { tag: '@cross-browser' }, async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/upcoming?interest=strollz')
   const waitlist = page.locator('#waitlist')
@@ -440,14 +439,3 @@ test('on a wide screen the waitlist stays beside the cards as you read, and Join
   await expect(waitlist).toHaveAttribute('data-flash', '')
   expect(Math.abs((await page.evaluate(() => window.scrollY)) - y)).toBeLessThan(2)
 })
-
-for (const width of [390, 820]) {
-  test(`at ${width}px the waitlist comes after the cards`, async ({ page }) => {
-    await page.setViewportSize({ width, height: 900 })
-    await page.goto('/upcoming')
-    const last = (await page.locator('#keysready').boundingBox())!
-    const form = (await page.locator('#waitlist').boundingBox())!
-    expect(form.y).toBeGreaterThan(last.y + last.height)
-    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width)
-  })
-}

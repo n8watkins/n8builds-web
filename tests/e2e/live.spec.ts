@@ -37,7 +37,7 @@ async function waitForPlayer(page: Page) {
 test.describe('desktop', () => {
   test.use({ viewport: DESKTOP })
 
-  test('offline: no player, no live dot, and no player code or frames are downloaded', async ({ page, context, browser }) => {
+  test('offline: no player, no live dot, and no player code or frames are downloaded', { tag: '@smoke' }, async ({ page, context, browser }) => {
     await goLive(context, 'none')
     const offlineScripts = new Set<string>()
     const thirdParty: string[] = []
@@ -68,7 +68,7 @@ test.describe('desktop', () => {
     await liveContext.close()
   })
 
-  test('live on Twitch: muted embed, Unmute, Watch on Twitch, and the navbar dot', async ({ page, context }) => {
+  test('live on Twitch: muted embed, Unmute, Watch on Twitch, and the navbar dot', { tag: '@smoke' }, async ({ page, context }) => {
     await goLive(context, 'twitch')
     await openHome(page)
     await waitForPlayer(page)
@@ -135,7 +135,7 @@ test.describe('desktop', () => {
     await expect(frame(page)).toHaveCount(0)
   })
 
-  test('moves between corners, and remembers the corner', async ({ page, context }) => {
+  test('moves between corners, and remembers the corner', { tag: '@cross-browser' }, async ({ page, context }) => {
     await goLive(context, 'twitch')
     await openHome(page)
     await waitForPlayer(page)
@@ -209,7 +209,7 @@ test.describe('desktop', () => {
     await expect(region.getByRole('link', { name: /Watch on Twitch/ })).toHaveCount(0)
   })
 
-  test('keyboard: every control is reachable, Escape minimizes, focus follows', async ({ page, context }) => {
+  test('keyboard: every control is reachable, Escape minimizes, focus follows', { tag: '@cross-browser' }, async ({ page, context }) => {
     await goLive(context, 'both')
     await openHome(page)
     await waitForPlayer(page)
@@ -255,7 +255,7 @@ test.describe('desktop', () => {
 test.describe('phone', () => {
   test.use({ viewport: PHONE })
 
-  test('starts as the Live pill at the bottom and opens full width', async ({ page, context }) => {
+  test('starts as the Live pill at the bottom and opens full width', { tag: '@cross-browser' }, async ({ page, context }) => {
     await goLive(context, 'twitch')
     // Even a visitor who left it open on desktop gets the pill on a phone.
     await page.addInitScript(() => localStorage.setItem('n8-live:prefs', JSON.stringify({ corner: 'top-left', minimized: false })))
@@ -302,7 +302,7 @@ test.describe('phone', () => {
 test.describe('reduced motion', () => {
   test.use({ viewport: DESKTOP, contextOptions: { reducedMotion: 'reduce' } })
 
-  test('the live dots do not pulse', async ({ page, context }) => {
+  test('the live dots do not pulse', { tag: '@cross-browser' }, async ({ page, context }) => {
     await goLive(context, 'twitch')
     await openHome(page)
     await waitForPlayer(page)

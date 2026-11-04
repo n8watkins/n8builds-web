@@ -10,7 +10,7 @@ import { expect, test } from '@playwright/test'
 test.describe('a build page', () => {
   test.use({ viewport: { width: 1440, height: 900 } })
 
-  test('Scribe leads with its icon, its tech and a download', async ({ page }) => {
+  test('Scribe leads with its icon, its tech and a download', { tag: '@smoke' }, async ({ page }) => {
     await page.goto('/builds/scribe')
     const header = page.locator('main header').first()
     await expect(header.getByRole('heading', { level: 1, name: 'Scribe' })).toBeVisible()
@@ -39,7 +39,7 @@ test.describe('a build page', () => {
   // and window controls. It never overlaps the picture, at any width.
   for (const width of [1440, 1024, 820, 390, 320]) {
     for (const slug of ['scribe', 'openping', 'solara']) {
-      test(`${slug}'s live site never covers its screenshot at ${width}px`, async ({ page }) => {
+      test(`${slug}'s live site never covers its screenshot at ${width}px`, { tag: width === 1024 || width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
         await page.setViewportSize({ width, height: 900 })
         await page.goto(`/builds/${slug}`)
         const header = page.locator('main header').first()
@@ -81,7 +81,7 @@ test.describe('a build page', () => {
     expect(live.y < source.y || (Math.abs(live.y - source.y) < 2 && live.x < source.x)).toBe(true)
   })
 
-  test('fits a phone with no sideways scroll', async ({ page }) => {
+  test('fits a phone with no sideways scroll', { tag: '@cross-browser' }, async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 })
     for (const path of ['/builds/scribe', '/builds/openping', '/builds']) {
       await page.goto(path)

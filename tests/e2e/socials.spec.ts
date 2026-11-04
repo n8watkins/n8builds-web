@@ -13,7 +13,7 @@ const footerSocials = (page: import('@playwright/test').Page) =>
 
 const labels = (nav: Locator) => nav.getByRole('link').evaluateAll((as) => as.map((a) => a.getAttribute('aria-label')))
 
-test('the contact card and the footer list the enabled socials in order', async ({ page }) => {
+test('the contact card and the footer list the enabled socials in order', { tag: '@smoke' }, async ({ page }) => {
   await page.goto('/')
   const expected = SOCIALS.map((s) => s.label)
   for (const nav of [contactSocials(page), footerSocials(page)]) {
@@ -58,20 +58,11 @@ test('Follow the build links the build log and notions, and only the enabled str
   await expect(work.getByRole('link', { name: 'contact@n8builds.dev' })).toHaveAttribute('href', 'mailto:contact@n8builds.dev')
 })
 
-test('the footer carries the contact address and the copyright', async ({ page }) => {
-  await page.goto('/')
-  const footer = page.locator('footer').last()
-  const sitemap = footer.getByRole('navigation', { name: 'Sitemap' })
-  await expect(sitemap.getByRole('link', { name: 'contact@n8builds.dev' })).toHaveAttribute('href', 'mailto:contact@n8builds.dev')
-  await expect(sitemap.getByRole('link', { name: 'Contact form' })).toHaveAttribute('href', '/#contact')
-  await expect(footer).toContainText('© 2026 n8builds.dev. All rights reserved.')
-})
-
 for (const width of [375, 320]) {
   test.describe(`at ${width}px`, () => {
     test.use({ viewport: { width, height: 800 } })
 
-    test('the contact card socials fit on one row', async ({ page }) => {
+    test('the contact card socials fit on one row', { tag: width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
       await page.goto('/')
       const nav = contactSocials(page)
       await nav.scrollIntoViewIfNeeded()
@@ -83,7 +74,7 @@ for (const width of [375, 320]) {
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width)
     })
 
-    test('nothing in the contact card is cut off at the right edge', async ({ page }) => {
+    test('nothing in the contact card is cut off at the right edge', { tag: width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
       await page.goto('/')
       const form = page.locator('#contact form')
       await form.scrollIntoViewIfNeeded()

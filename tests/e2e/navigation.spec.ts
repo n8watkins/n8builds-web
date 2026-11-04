@@ -17,7 +17,7 @@ async function openMenu(page: Page) {
   }).toPass()
 }
 
-test('the logo goes home from any page', async ({ page }) => {
+test('the logo goes home from any page', { tag: '@smoke' }, async ({ page }) => {
   await page.goto('/loadout')
   await page.getByRole('link', { name: 'n8builds.dev home' }).click()
   await expect(page).toHaveURL(/\/$/)
@@ -27,7 +27,7 @@ test('the logo goes home from any page', async ({ page }) => {
 const KOFI = 'https://ko-fi.com/n8watkins'
 
 test.describe('the Ko-fi link', () => {
-  test('sits left of Portfolio in the navbar and opens Ko-fi in a new tab', async ({ page }) => {
+  test('sits left of Portfolio in the navbar and opens Ko-fi in a new tab', { tag: '@smoke' }, async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto('/')
     const nav = page.locator('nav[aria-label="Primary"]')
@@ -60,7 +60,7 @@ test.describe('the Ko-fi link', () => {
 test.describe('the Contact link', () => {
   const form = (page: Page) => page.locator('#contact form')
 
-  test('scrolls to the form on the homepage', async ({ page }) => {
+  test('scrolls to the form on the homepage', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto('/')
     await expect(form(page)).not.toBeInViewport()
@@ -69,7 +69,7 @@ test.describe('the Contact link', () => {
     await expect(page).toHaveURL(/\/#contact$/)
   })
 
-  test('takes you to the form from another page', async ({ page }) => {
+  test('takes you to the form from another page', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto('/loadout')
     await page.locator('nav[aria-label="Primary"]').getByRole('link', { name: 'Contact', exact: true }).click()
@@ -77,7 +77,7 @@ test.describe('the Contact link', () => {
     await expect(form(page)).toBeInViewport()
   })
 
-  test('is in the mobile menu', async ({ page }) => {
+  test('is in the mobile menu', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/')
     await openMenu(page)
@@ -127,7 +127,7 @@ test('the navbar links techforpros.com in a pill like Ko-fi and Portfolio, throu
   expect(curve.width).toBeGreaterThan(text.width * 0.85)
 })
 
-test('the techforpros.com underline is one shallow, symmetric arch that never animates', async ({ page, isMobile }) => {
+test('the techforpros.com underline is one shallow, symmetric arch that never animates', { tag: '@cross-browser' }, async ({ page, isMobile }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
   const path = underline(page)
@@ -155,7 +155,7 @@ test('the techforpros.com underline is one shallow, symmetric arch that never an
 
 // On phones the link sits between the logo and the menu button, on one line.
 for (const width of [320, 375, 390]) {
-  test(`at ${width}px the techforpros.com link fits between the logo and the menu button`, async ({ page }) => {
+  test(`at ${width}px the techforpros.com link fits between the logo and the menu button`, { tag: width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
     await page.setViewportSize({ width, height: 800 })
     await page.goto('/')
     const link = (await techForPros(page).boundingBox())!
@@ -172,7 +172,7 @@ for (const width of [320, 375, 390]) {
 test.describe('tablet width', () => {
   test.use({ viewport: { width: 810, height: 1080 } })
 
-  test('nothing in the navbar is pushed off-screen, and the menu button is there', async ({ page }) => {
+  test('nothing in the navbar is pushed off-screen, and the menu button is there', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     const box = await techForPros(page).boundingBox()
     expect(box!.x + box!.width).toBeLessThanOrEqual(810)
@@ -187,7 +187,7 @@ test.describe('tablet width', () => {
 test.describe('mobile menu', () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true })
 
-  test('opens as an overlay: announced, scroll-locked, closed by Escape or the backdrop', async ({ page }) => {
+  test('opens as an overlay: announced, scroll-locked, closed by Escape or the backdrop', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
     await page.goto('/')
     const button = menuButton(page)
     await expect(button).toHaveAttribute('aria-expanded', 'false')
@@ -209,7 +209,7 @@ test.describe('mobile menu', () => {
     expect(page.url()).toBe(url)
   })
 
-  test('is modal: Tab stays in the navbar and menu, and the page behind is inert until it closes', async ({ page }) => {
+  test('is modal: Tab stays in the navbar and menu, and the page behind is inert until it closes', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     await openMenu(page)
     const main = page.locator('#main-content')
@@ -234,7 +234,7 @@ test.describe('mobile menu', () => {
 test.describe('mobile menu on a landscape phone', () => {
   test.use({ viewport: { width: 750, height: 340 }, hasTouch: true })
 
-  test('scrolls, so every link can be reached', async ({ page }) => {
+  test('scrolls, so every link can be reached', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     await openMenu(page)
     const menu = page.locator('#mobile-menu')
@@ -249,7 +249,7 @@ test.describe('mobile menu on a landscape phone', () => {
 
 // Round 5 of 2026-11-02: a client-side visit to the homepage logged React's "Encountered a
 // script tag" error (the old /#my-tools redirect lived in the page; it is in the layout now).
-test('moving between pages logs no console errors', async ({ page }) => {
+test('moving between pages logs no console errors', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
   const errors: string[] = []
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()))
   page.on('pageerror', (e) => errors.push(e.message))
