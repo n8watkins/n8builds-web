@@ -108,7 +108,7 @@ const Detail = ({ ext }: { ext: Ext }) => {
  */
 const ExtensionsShowcase = () => (
   // A full-bleed part of the Lab in its own indigo wash (`.lab-part-wash` in app/globals.css).
-  <section id="extensions" aria-label="Chrome Extensions" className="lab-accent-extensions lab-part-wash py-12">
+  <section id="extensions" data-pause-offscreen="" aria-label="Chrome Extensions" className="lab-accent-extensions lab-part-wash py-12">
     <div className="mx-auto max-w-6xl px-5 sm:px-8">
     <LabSubheader title="Chrome Extensions" />
 

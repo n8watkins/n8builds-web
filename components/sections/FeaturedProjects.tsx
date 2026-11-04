@@ -612,7 +612,7 @@ const Rows = ({ group, facts, bleed = true }: { group: FeaturedProject['group'];
 const FeaturedProjects = async () => {
   const facts = await downloadFacts()
   return (
-    <section id="featured" aria-label="Featured builds" className="lab-accent-featured py-10">
+    <section id="featured" data-pause-offscreen="" aria-label="Featured builds" className="lab-accent-featured py-10">
       <Reveal className={`${container} pb-4`}>
         <LabSubheader title="Featured builds" blurb="Free to use and open source, with no sign-up to start." />
       </Reveal>

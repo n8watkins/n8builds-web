@@ -61,7 +61,7 @@ function Band({
   return (
     // A band with a side rail is where its rail's first row lands: its top
     // edge right under the 69px navbar (as #lab), with no strip of the band above.
-    <Tag id={id} className={`relative z-10 ${rail ? 'scroll-mt-[-11px]' : ''} ${background}`}>
+    <Tag id={id} data-pause-offscreen="" className={`relative z-10 ${rail ? 'scroll-mt-[-11px]' : ''} ${background}`}>
       {rail}
       <div className="mx-auto max-w-6xl px-5 py-6 sm:px-8">{reveal ? <Reveal>{children}</Reveal> : children}</div>
     </Tag>
@@ -117,7 +117,7 @@ export default async function HomePage({ posts }: { posts: Post[] }) {
           {/* The intro picks up the raised tone the band above ends on and eases it out,
                so the top of the Lab has no lighter strip under the navbar; a faint cyan
                glow sits behind the heading. Centred across the full content width. */}
-          <div className="bg-[radial-gradient(50%_320px_at_50%_0,rgb(34_211_238/0.08),transparent_100%),linear-gradient(to_bottom,rgb(255_255_255/0.022),transparent_220px)]">
+          <div data-pause-offscreen="" className="bg-[radial-gradient(50%_320px_at_50%_0,rgb(34_211_238/0.08),transparent_100%),linear-gradient(to_bottom,rgb(255_255_255/0.022),transparent_220px)]">
             <Reveal className="mx-auto flex max-w-6xl flex-col items-center px-5 pt-16 pb-6 text-center sm:px-8 sm:pt-20">
               {/* "Check out" spans exactly the flask and title below it: its
                    letters spread across that width (the owner's ask, 2026-10-27;

@@ -5,17 +5,35 @@ import { MY_TOOLS_HASH, MY_TOOLS_TARGET } from '@/lib/movedAnchors'
 import { useSectionTracking } from '@/hooks/useSectionTracking'
 import { useScrollTracking } from '@/hooks/useScrollTracking'
 import { useHydrated } from '@/hooks/useHydrated'
+import { latestEntry } from '@/lib/intersection'
 
 /**
  * The homepage's script that belongs to no one section: section and scroll
- * analytics, the ambient color glows behind the page, and sending an old
- * /#my-tools link on to /loadout.
+ * analytics, the ambient color glows behind the page, pausing the animations
+ * of blocks off screen, and sending an old /#my-tools link on to /loadout.
  */
 export default function HomeEffects() {
   useSectionTracking()
   useScrollTracking()
   const hydrated = useHydrated()
   const router = useRouter()
+
+  // Every homepage band and Lab part (data-pause-offscreen) is marked
+  // data-offscreen while it is out of view, and app/globals.css pauses the
+  // animations inside it: the page runs a dozen looping animations (marquees,
+  // the flask, shimmers, spinners), and restyling and repainting them every
+  // frame where no one sees them was most of a phone's main thread after load
+  // (2026-11-04). On screen they run as before.
+  useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') return
+    const observer = new IntersectionObserver((entries) => {
+      const byTarget = new Map<Element, IntersectionObserverEntry[]>()
+      for (const entry of entries) byTarget.set(entry.target, [...(byTarget.get(entry.target) ?? []), entry])
+      for (const [target, list] of byTarget) target.toggleAttribute('data-offscreen', !latestEntry(list).isIntersecting)
+    })
+    for (const el of document.querySelectorAll('[data-pause-offscreen]')) observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   // A client-side arrival at /#my-tools (the root layout's script handles a full load).
   useEffect(() => {

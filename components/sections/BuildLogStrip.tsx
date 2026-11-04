@@ -246,6 +246,7 @@ export default async function BuildLogStrip() {
     <LogMonthProvider lines={months.map((m) => m.line)}>
       <section
         id="build-log"
+        data-pause-offscreen=""
         aria-labelledby="build-log-heading"
         className="lab-accent-buildlog lab-part-wash py-12"
       >

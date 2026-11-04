@@ -79,6 +79,17 @@
   }
 }
 
+/* Homepage blocks off screen (data-offscreen, set by components/HomeEffects.tsx
+   on each [data-pause-offscreen] band and Lab part) hold their animations
+   still: looping marquees, shimmers and spinners otherwise restyle and repaint
+   every frame where no one sees them. !important beats the inline play states
+   some carousels set. They resume, where they were, on coming into view. */
+[data-pause-offscreen][data-offscreen] *,
+[data-pause-offscreen][data-offscreen] *::before,
+[data-pause-offscreen][data-offscreen] *::after {
+  animation-play-state: paused !important;
+}
+
 @utility fade-up {
   animation: fade-up 0.55s cubic-bezier(0.25, 0.1, 0.25, 1) both;
 

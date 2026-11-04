@@ -135,6 +135,7 @@ const UseAsTemplate = () => (
   // `.lab-accent-template` in app/globals.css), its content at the Lab's width.
   <section
     id="template"
+    data-pause-offscreen=""
     aria-label="Use my sites as templates"
     className="lab-accent-template lab-part-wash py-12"
   >
