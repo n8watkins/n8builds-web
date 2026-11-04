@@ -31,6 +31,21 @@ function forBrowsers(response) {
 }
 
 /**
+ * Adds how long the Worker took to produce the response's headers, as
+ * `Server-Timing: worker;dur=<ms>`, so a slow first byte can be told apart
+ * from the network in the browser's devtools, Lighthouse and curl. In a
+ * Worker the clock only moves on I/O, so this is the time spent waiting on the
+ * cache and R2 (and rendering), not the CPU time between them.
+ * @param {Response} response
+ * @param {number} ms
+ */
+function withServerTiming(response, ms) {
+  const timed = new Response(response.body, response)
+  timed.headers.append('Server-Timing', `worker;dur=${Math.round(ms)}`)
+  return timed
+}
+
+/**
  * @typedef {{
  *   ASSETS: { fetch: (request: Request) => Promise<Response> },
  *   CONTACT_RATE_LIMITER: { limit: (options: { key: string }) => Promise<{ success: boolean }> },
@@ -77,7 +92,8 @@ const worker = {
       // A missing video gets the site's own 404 page.
       if (response.status !== 404) return response
     }
-    return forBrowsers(await openNext.fetch(request, env, ctx))
+    const started = performance.now()
+    return withServerTiming(forBrowsers(await openNext.fetch(request, env, ctx)), performance.now() - started)
   },
 
   /**
