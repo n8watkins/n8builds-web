@@ -87,6 +87,8 @@ export default defineConfig({
           TURNSTILE_SECRET_KEY: '1x0000000000000000000000000000000AA',
           NEXT_PUBLIC_SITE_URL: 'https://n8builds.dev',
           NEXT_PUBLIC_SANITY_PROJECT_ID: 'abgyc32w',
+          // Signs the Sanity webhook in tests/e2e/api/sanity-revalidate.spec.ts.
+          SANITY_WEBHOOK_SECRET: 'e2e-sanity-webhook-secret',
           // The build log reads its recorded GitHub fixture, never live GitHub.
           BUILD_LOG_FIXTURE: '1',
           GITHUB_TOKEN: '',

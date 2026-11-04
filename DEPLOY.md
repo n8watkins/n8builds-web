@@ -13,7 +13,7 @@ The site runs on Cloudflare Workers as the `n8builds-web` Worker in the owner's 
   Pages and API routes get the full set (CSP included) from `lib/security/headers.mjs`.
 - `next/image` resizes through the Cloudflare Images binding (`IMAGES`).
 - ISR (`export const revalidate`, revalidated fetches) is kept in the R2 bucket `n8builds-web-opennext-cache`, with a regional Cache API layer and a Durable Object queue (`DOQueueHandler`) for background revalidation (`open-next.config.ts`).
-  There is no tag cache, because nothing calls `revalidateTag` or `revalidatePath`.
+  A Durable Object tag cache (`DOShardedTagCache`) tracks the site's own cache tags, so publishing in Sanity refreshes the blog at once ([docs/SANITY.md](docs/SANITY.md)).
 - Email (contact form, quote requests, waitlist links) goes through Cloudflare Email Service's `send_email` binding (`EMAIL`), from contact@n8builds.dev (`lib/email/send.ts`).
   n8builds.dev is onboarded for sending; Cloudflare added its records on `cf-bounce.n8builds.dev` and the DKIM key itself.
 - Cloudflare Web Analytics replaces Vercel Analytics and Speed Insights (`components/WebAnalytics.tsx`), once `NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN` is set at build time.
@@ -32,6 +32,7 @@ Secrets are set once with `npx wrangler secret put <NAME>` (it reads the value f
 | --- | --- |
 | `TURNSTILE_SECRET_KEY` | Turnstile on the contact, quote and waitlist forms |
 | `GITHUB_TOKEN` | the build log, stars and downloads when pages revalidate |
+| `SANITY_WEBHOOK_SECRET` | checks the signature on Sanity's publish webhook ([docs/SANITY.md](docs/SANITY.md)) |
 
 Build-time values (inlined into the pages) are public and set in the deploy workflow (`.github/workflows/deploy.yml`): the site URL, the Sanity project, the GA ID, the Turnstile site key and the Sentry DSN, plus `NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN` from a repository variable.
 `/upcoming` is prerendered and shows its waitlist form when the `WAITLIST_DB` binding exists, which the build sees through wrangler's local simulation of `wrangler.jsonc`.

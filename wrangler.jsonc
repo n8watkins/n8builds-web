@@ -21,12 +21,14 @@
   // Next's image optimizer (next/image) runs on Cloudflare Images.
   "images": { "binding": "IMAGES" },
   // ISR (export const revalidate, fetch revalidate) keeps pages in R2, with a
-  // Durable Object queue that deduplicates the background revalidations. The
-  // site never calls revalidateTag or revalidatePath, so there is no tag cache.
+  // Durable Object queue that deduplicates the background revalidations, and a
+  // Durable Object tag cache for on-demand revalidation (Sanity's publish
+  // webhook, app/api/sanity/revalidate).
   "r2_buckets": [{ "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "n8builds-web-opennext-cache" }],
   "durable_objects": {
     "bindings": [
       { "name": "NEXT_CACHE_DO_QUEUE", "class_name": "DOQueueHandler" },
+      { "name": "NEXT_TAG_CACHE_DO_SHARDED", "class_name": "DOShardedTagCache" },
       // The contact form's and waitlist's limits (lib/security/rateLimiter.ts,
       // worker/rate-limit-counter.js): 5 an hour per IP, the daily caps, the
       // auto-replies per address.
@@ -35,7 +37,8 @@
   },
   "migrations": [
     { "tag": "v1", "new_sqlite_classes": ["DOQueueHandler"] },
-    { "tag": "v2", "new_sqlite_classes": ["RateLimitCounter"] }
+    { "tag": "v2", "new_sqlite_classes": ["RateLimitCounter"] },
+    { "tag": "v3", "new_sqlite_classes": ["DOShardedTagCache"] }
   ],
   // The revalidation queue renders pages again by calling the worker itself.
   "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "n8builds-web" }],
@@ -74,7 +77,8 @@
     // as NEXT_PUBLIC_SENTRY_DSN, set at build time (DEPLOY.md).
     "SENTRY_DSN": "https://7e41d848c6abae7aaf931bd7fa5049e1@o4507767562371072.ingest.us.sentry.io/4511629733855232"
   },
-  // Secrets (wrangler secret put, see DEPLOY.md): TURNSTILE_SECRET_KEY, GITHUB_TOKEN.
+  // Secrets (wrangler secret put, see DEPLOY.md): TURNSTILE_SECRET_KEY, GITHUB_TOKEN,
+  // SANITY_WEBHOOK_SECRET.
   "observability": { "enabled": true, "head_sampling_rate": 1 },
   // n8builds.dev and www as Workers custom domains: Cloudflare creates and
   // manages their DNS records and certificates. www redirects to the apex

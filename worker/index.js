@@ -11,8 +11,8 @@ import { purgeExpired } from '../lib/retention'
 import { WaitlistStore } from '../lib/waitlist/store'
 
 // The Durable Objects (wrangler.jsonc durable_objects): the ISR revalidation
-// queue, and the rate-limit counters.
-export { DOQueueHandler } from '../.open-next/worker.js'
+// queue, the tag cache (on-demand revalidation), and the rate-limit counters.
+export { DOQueueHandler, DOShardedTagCache } from '../.open-next/worker.js'
 export { RateLimitCounter } from './rate-limit-counter.js'
 
 /**
