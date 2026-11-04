@@ -8,12 +8,17 @@ on:
   # with GITHUB_TOKEN start no workflows). With no base to diff against, the
   # "What changed" job runs everything.
   workflow_dispatch:
+  # Nightly runs this whole workflow (every browser, sharded, and Lighthouse)
+  # on a schedule; with no base commit, "What changed" runs everything.
+  workflow_call:
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.ref }}
+  # The event is part of the group, so a nightly run never queues behind or
+  # cancels a push run on main.
+  group: ci-${{ github.event_name }}-${{ github.ref }}
   # Superseded PR pushes can be cancelled; every commit on main keeps its result.
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
