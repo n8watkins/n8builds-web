@@ -73,7 +73,10 @@ test('the footer has a sitemap and the public contact address', { tag: '@smoke' 
   await expect(tfp).toHaveAttribute('href', '/techforpros?from=footer')
   await expect(tfp.locator('img[src*="techforpros"]')).toBeAttached()
   await expect(footer.locator('a[href^="mailto:"]').first()).toHaveAttribute('href', 'mailto:contact@n8builds.dev')
+  await expect(sitemap.getByRole('link', { name: 'contact@n8builds.dev' })).toHaveAttribute('href', 'mailto:contact@n8builds.dev')
+  await expect(sitemap.getByRole('link', { name: 'Contact form' })).toHaveAttribute('href', '/#contact')
   await expect(footer.locator('a[href*="gmail"]')).toHaveCount(0)
+  await expect(footer).toContainText('© 2026 n8builds.dev. All rights reserved.')
 })
 
 test('the contact form labels and placeholders do not repeat each other', async ({ page }) => {

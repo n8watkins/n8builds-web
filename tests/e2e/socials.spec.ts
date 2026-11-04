@@ -58,15 +58,6 @@ test('Follow the build links the build log and notions, and only the enabled str
   await expect(work.getByRole('link', { name: 'contact@n8builds.dev' })).toHaveAttribute('href', 'mailto:contact@n8builds.dev')
 })
 
-test('the footer carries the contact address and the copyright', async ({ page }) => {
-  await page.goto('/')
-  const footer = page.locator('footer').last()
-  const sitemap = footer.getByRole('navigation', { name: 'Sitemap' })
-  await expect(sitemap.getByRole('link', { name: 'contact@n8builds.dev' })).toHaveAttribute('href', 'mailto:contact@n8builds.dev')
-  await expect(sitemap.getByRole('link', { name: 'Contact form' })).toHaveAttribute('href', '/#contact')
-  await expect(footer).toContainText('© 2026 n8builds.dev. All rights reserved.')
-})
-
 for (const width of [375, 320]) {
   test.describe(`at ${width}px`, () => {
     test.use({ viewport: { width, height: 800 } })
