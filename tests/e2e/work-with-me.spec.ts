@@ -75,6 +75,8 @@ test.describe('desktop', () => {
     await expect(apt.getByRole('heading', { level: 3 })).toHaveText('Run a service business? Websites built for pros.')
     await expect(apt).toContainText('A few details about your business become a launch')
     await expect(apt.getByRole('group', { name: 'Tech for Pros templates' })).toHaveCount(1)
+    // The phone's page loads once the carousel is near the screen (TemplateCarousel).
+    await apt.getByRole('group', { name: 'Tech for Pros templates' }).scrollIntoViewIfNeeded()
     await expect(apt.locator('img[src*="hvac-phone-full"]')).toHaveCount(1)
     await expect(apt.getByRole('list', { name: 'Next up' })).toHaveCount(0)
     // techforpros.com isn't live yet, so its name in the header is plain text, and nothing links there.
@@ -136,15 +138,16 @@ test.describe('desktop', () => {
       await expect(section(page).locator('img[class*="scroll"]:not(.now-phone-scroll)')).toHaveCount(1)
       // The Tech for Pros phone scrolls as at the top of the page, and pauses off screen too.
       const phone = card(page, /Run a service business/).locator('img.now-phone-scroll')
-      await expect(phone).toHaveCount(1)
       const phoneState = () => phone.evaluate((img) => img.getAnimations()[0]?.playState ?? 'none')
 
-      // At the top of the page the cards are off screen: paused.
+      // At the top of the page the cards are off screen: paused (and the phone's
+      // page not loaded yet: it loads once the carousel is near the screen).
       await expect.poll(async () => (await scrollState(page)).map((s) => s.playState)).toEqual(['paused'])
-      await expect.poll(phoneState).toBe('paused')
+      await expect(phone).toHaveCount(0)
       // The card, not the image: the phone's full-length page is far taller than its frame,
       // and WebKit scrolls the whole image into view, leaving the card off screen.
       await card(page, /Run a service business/).locator('[data-shots]').scrollIntoViewIfNeeded()
+      await expect(phone).toHaveCount(1)
       await expect.poll(phoneState).toBe('running')
 
       await card(page, /Like the builds/).locator('a[aria-hidden="true"]').scrollIntoViewIfNeeded()
@@ -156,6 +159,7 @@ test.describe('desktop', () => {
 
       await page.evaluate(() => window.scrollTo(0, 0))
       await expect.poll(async () => (await scrollState(page))[0].playState).toBe('paused')
+      await expect.poll(phoneState).toBe('paused')
     })
   })
 

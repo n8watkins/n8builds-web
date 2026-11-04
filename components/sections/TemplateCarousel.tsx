@@ -36,8 +36,9 @@ export const TEMPLATE_EVERY_MS = 5000
  * the tab is shown, and holds while hovered or focused (WCAG 2.2.2); under
  * reduced motion it never moves by itself and the line is hidden. Small icons
  * in the window's title bar jump to a template. Every slide is in the server
- * HTML, the first showing; the frames keep their images' aspect ratios, so
- * nothing shifts.
+ * HTML, the first showing with its image; the other images and the phone's
+ * page load once the carousel is near the screen. The frames keep their
+ * images' aspect ratios, so nothing shifts.
  */
 export default function TemplateCarousel({ slides, phone }: { slides: TemplateSlide[]; phone: NowShot }) {
   const [index, setIndex] = useState(0)
@@ -45,6 +46,11 @@ export default function TemplateCarousel({ slides, phone }: { slides: TemplateSl
   const [hovered, setHovered] = useState(false)
   const [focused, setFocused] = useState(false)
   const [onScreen, setOnScreen] = useState(false)
+  // Whether the carousel has come near the screen. The other three templates
+  // and the phone's full-length page (about 75 KB and 250 KB) load from then
+  // on, not with the page: on a phone they were fetched before the hero had
+  // painted, on a slow connection right behind it.
+  const [near, setNear] = useState(false)
   const [tabShown, setTabShown] = useState(true)
   const [announce, setAnnounce] = useState('')
   const reduceMotion = usePrefersReducedMotion()
@@ -58,12 +64,22 @@ export default function TemplateCarousel({ slides, phone }: { slides: TemplateSl
     if (!el) return
     const observer = new IntersectionObserver((entries) => setOnScreen(latestEntry(entries).isIntersecting))
     observer.observe(el)
+    const nearObserver = new IntersectionObserver(
+      (entries) => {
+        if (!latestEntry(entries).isIntersecting) return
+        setNear(true)
+        nearObserver.disconnect()
+      },
+      { rootMargin: '400px' }
+    )
+    nearObserver.observe(el)
     const onVisibility = () => setTabShown(document.visibilityState === 'visible')
     document.addEventListener('visibilitychange', onVisibility)
     // Watching from here on (tests wait for this).
     el.dataset.watching = ''
     return () => {
       observer.disconnect()
+      nearObserver.disconnect()
       document.removeEventListener('visibilitychange', onVisibility)
     }
   }, [])
@@ -152,14 +168,16 @@ export default function TemplateCarousel({ slides, phone }: { slides: TemplateSl
                   current ? 'translate-x-0' : leaving ? '-translate-x-full' : 'translate-x-full'
                 } ${current || leaving ? '' : 'invisible'} ${current ? '' : 'pointer-events-none'}`}
               >
-                <Image
-                  src={slide.src}
-                  alt={`${slide.label}: an example Tech for Pros site`}
-                  width={slide.width}
-                  height={slide.height}
-                  sizes="(min-width: 1280px) 560px, (min-width: 1024px) 46vw, (min-width: 640px) 520px, 85vw"
-                  className="block h-auto w-full"
-                />
+                {(i === 0 || near) && (
+                  <Image
+                    src={slide.src}
+                    alt={`${slide.label}: an example Tech for Pros site`}
+                    width={slide.width}
+                    height={slide.height}
+                    sizes="(min-width: 1280px) 560px, (min-width: 1024px) 46vw, (min-width: 640px) 520px, 85vw"
+                    className="block h-auto w-full"
+                  />
+                )}
               </div>
             )
           })}
@@ -189,19 +207,25 @@ export default function TemplateCarousel({ slides, phone }: { slides: TemplateSl
             className="relative overflow-hidden rounded-[0.7rem] [transform:translateZ(0)]"
             style={{ aspectRatio: `${phone.width} / ${phone.frameHeight ?? phone.height}` }}
           >
-            <Image
-              src={phone.src}
-              alt=""
-              width={phone.width}
-              height={phone.height}
-              sizes="(min-width: 640px) 140px, 24vw"
-              className={`block h-auto w-full ${phone.frameHeight ? 'now-phone-scroll' : ''}`}
-              style={
-                phone.frameHeight
-                  ? { ['--travel' as string]: `${(-(1 - phone.frameHeight / phone.height) * 100).toFixed(3)}%` }
-                  : undefined
-              }
-            />
+            {near && (
+              <Image
+                src={phone.src}
+                alt=""
+                width={phone.width}
+                height={phone.height}
+                sizes="(min-width: 640px) 140px, 24vw"
+                // As is: the file is already a 280px WebP, and Cloudflare's
+                // optimizer can't make an AVIF this tall, so for browsers that
+                // take AVIF it sent a 250 KB JPEG instead (2026-11-04).
+                unoptimized={phone.frameHeight !== undefined}
+                className={`block h-auto w-full ${phone.frameHeight ? 'now-phone-scroll' : ''}`}
+                style={
+                  phone.frameHeight
+                    ? { ['--travel' as string]: `${(-(1 - phone.frameHeight / phone.height) * 100).toFixed(3)}%` }
+                    : undefined
+                }
+              />
+            )}
           </div>
         </div>
       </div>
