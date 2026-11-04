@@ -1,0 +1,99 @@
+# Nightly backup of the Sanity dataset behind N8's Notions (project abgyc32w,
+# dataset production): every document, drafts included, and every image and
+# file, as the tarball `sanity datasets import` restores (docs/SANITY.md).
+#
+# It goes to the private R2 bucket n8builds-sanity-backups (no public URL,
+# no custom domain), which deletes objects after 30 days. Nothing is kept on
+# the runner or uploaded as a workflow artifact: this repository is public.
+name: Sanity backup
+
+on:
+  schedule:
+    - cron: '40 4 * * *' # 04:40 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write # to file an issue when a scheduled backup fails
+
+concurrency:
+  group: sanity-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # A Sanity robot token with the Viewer role (reads drafts, writes nothing).
+      SANITY_AUTH_TOKEN: ${{ secrets.SANITY_BACKUP_TOKEN }}
+      # The deploy token: its R2 permission writes the object.
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: b2c564cf83cb9184dd6d7cc4ff8b38bf
+      BUCKET: n8builds-sanity-backups
+    steps:
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+
+      - name: Require secrets
+        run: |
+          missing=
+          [ -z "$SANITY_AUTH_TOKEN" ] && missing="$missing SANITY_BACKUP_TOKEN"
+          [ -z "$CLOUDFLARE_API_TOKEN" ] && missing="$missing CLOUDFLARE_API_TOKEN"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing secrets:$missing (docs/SANITY.md)"
+            exit 1
+          fi
+
+      - name: Export the dataset
+        run: npx -y @sanity/cli@7.2.3 datasets export production "$RUNNER_TEMP/backup.tar.gz" --project abgyc32w --overwrite
+
+      # A backup that can't be restored is worse than none: check the tarball
+      # holds the posts and every image and file the documents point to.
+      - name: Check the tarball
+        run: |
+          cd "$RUNNER_TEMP"
+          mkdir check && tar -xzf backup.tar.gz -C check
+          node - "$(find check -name data.ndjson)" <<'EOF'
+          const fs = require('node:fs')
+          const path = require('node:path')
+          const file = process.argv[2]
+          const docs = fs.readFileSync(file, 'utf8').split('\n').filter(Boolean).map((line) => JSON.parse(line))
+          const posts = docs.filter((d) => d._type === 'post').length
+          // Each image or file reference names its file in the tarball: "image@file://./images/<name>".
+          const refs = [...new Set([...JSON.stringify(docs).matchAll(/"_sanityAsset":"\w+@file:\/\/\.\/([^"]+)"/g)].map((m) => m[1]))]
+          const missing = refs.filter((ref) => !fs.existsSync(path.join(path.dirname(file), ref)))
+          console.log(`documents=${docs.length} (drafts included) posts=${posts} assets=${refs.length} missing=${missing.length}`)
+          if (!posts) throw new Error('The export has no posts; not uploading it.')
+          if (missing.length) throw new Error(`The export is missing ${missing.length} asset files: ${missing.join(', ')}`)
+          EOF
+          rm -rf check
+          echo "size=$(du -h backup.tar.gz | cut -f1)"
+
+      - name: Upload to R2
+        run: |
+          key="production/$(date -u +%Y-%m-%d).tar.gz"
+          npx -y wrangler@4.157.0 r2 object put "$BUCKET/$key" \
+            --file "$RUNNER_TEMP/backup.tar.gz" --content-type application/gzip --remote
+          echo "::notice::Backed up to r2://$BUCKET/$key"
+
+      - name: Remove the local copy
+        if: always()
+        run: rm -f "$RUNNER_TEMP/backup.tar.gz"
+
+      - name: Open an issue on failure
+        if: failure() && github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          title="Sanity backup failed"
+          url="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          num=$(gh issue list --state open --search "\"$title\" in:title" --json number,title \
+            --jq ".[] | select(.title==\"$title\") | .number" | head -1)
+          if [ -n "$num" ]; then
+            gh issue comment "$num" --body "Failed again: $url"
+          else
+            gh issue create --title "$title" --body "The nightly Sanity backup failed: $url (docs/SANITY.md)." >/dev/null
+          fi
