@@ -46,6 +46,7 @@
     "@marsidev/react-turnstile": "^1.5.3",
     "@opennextjs/cloudflare": "1.20.15",
     "@portabletext/react": "^8.0.1",
+    "@portabletext/to-html": "^6.0.0",
     "@sanity/client": "^8.14.1",
     "@sentry/nextjs": "^11.10.0",
     "@sentry/replay": "11.10.0",

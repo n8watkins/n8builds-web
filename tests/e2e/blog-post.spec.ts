@@ -8,7 +8,7 @@ import { test, expect } from '@playwright/test'
  */
 test('body images reserve their space, so the end of a post does not move as they load', { tag: '@cross-browser' }, async ({ page, request }) => {
   const html = await (await request.get('/blog')).text()
-  const path = html.match(/href="(\/blog\/[^"?#]+)"/)?.[1]
+  const path = html.match(/href="(\/blog\/[a-z0-9-]+)"/)?.[1]
   expect(path, 'blog index links to at least one post').toBeTruthy()
   await page.goto(path!)
 

@@ -32,7 +32,7 @@ function trackErrors(page: Page): string[] {
  */
 async function firstBlogPostPath(request: APIRequestContext): Promise<string> {
   const html = await (await request.get('/blog')).text()
-  const href = html.match(/href="(\/blog\/[^"?#]+)"/)?.[1]
+  const href = html.match(/href="(\/blog\/[a-z0-9-]+)"/)?.[1]
   expect(href, 'blog index links to at least one post').toBeTruthy()
   return href!
 }
