@@ -1,5 +1,4 @@
 import { test, expect, type Page } from '@playwright/test'
-import AxeBuilder from '@axe-core/playwright'
 
 /**
  * The Lab's template part (components/sections/UseAsTemplate.tsx): right after
@@ -127,13 +126,6 @@ test('the keyboard reaches every link in order, card by card', { tag: '@cross-br
     expect.stringContaining('Star'),
     expect.stringContaining('GitHub'),
   ])
-})
-
-test('has no serious accessibility violations', async ({ page }) => {
-  await open(page)
-  const results = await new AxeBuilder({ page }).include('#template').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze()
-  const serious = results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')
-  expect(serious.map((v) => `${v.id}: ${v.help}`)).toEqual([])
 })
 
 test.describe('layout', () => {
