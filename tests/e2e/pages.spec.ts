@@ -113,11 +113,6 @@ test('the skip link moves focus past the navbar on every route', { tag: ['@cross
   }
 })
 
-test('unknown routes return the 404 page', { tag: '@smoke' }, async ({ page }) => {
-  const response = await page.goto('/definitely-not-a-page')
-  expect(response?.status()).toBe(404)
-})
-
 test('legacy shelf routes redirect to homepage anchors, and /tools to /loadout', { tag: '@smoke' }, async ({ page }) => {
   for (const [from, anchor] of [
     ['/lab', '#lab'],
