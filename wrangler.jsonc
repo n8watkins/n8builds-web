@@ -78,7 +78,7 @@
     "SENTRY_DSN": "https://7e41d848c6abae7aaf931bd7fa5049e1@o4507767562371072.ingest.us.sentry.io/4511629733855232"
   },
   // Secrets (wrangler secret put, see DEPLOY.md): TURNSTILE_SECRET_KEY, GITHUB_TOKEN,
-  // SANITY_WEBHOOK_SECRET.
+  // SANITY_WEBHOOK_SECRET, SANITY_VIEWER_TOKEN.
   "observability": { "enabled": true, "head_sampling_rate": 1 },
   // n8builds.dev and www as Workers custom domains: Cloudflare creates and
   // manages their DNS records and certificates. www redirects to the apex

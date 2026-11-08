@@ -33,6 +33,7 @@ Secrets are set once with `npx wrangler secret put <NAME>` (it reads the value f
 | `TURNSTILE_SECRET_KEY` | Turnstile on the contact, quote and waitlist forms |
 | `GITHUB_TOKEN` | the build log, stars and downloads when pages revalidate |
 | `SANITY_WEBHOOK_SECRET` | checks the signature on Sanity's publish webhook ([docs/SANITY.md](docs/SANITY.md)) |
+| `SANITY_VIEWER_TOKEN` | a Sanity robot token (Viewer role) that checks Studio preview links and reads drafts during a preview; without it previews are off ([docs/SANITY.md](docs/SANITY.md)) |
 
 Build-time values (inlined into the pages) are public and set in the deploy workflow (`.github/workflows/deploy.yml`): the site URL, the Sanity project, the GA ID, the Turnstile site key and the Sentry DSN, plus `NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN` from a repository variable.
 `/upcoming` is prerendered and shows its waitlist form when the `WAITLIST_DB` binding exists, which the build sees through wrangler's local simulation of `wrangler.jsonc`.
