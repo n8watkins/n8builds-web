@@ -41,8 +41,7 @@ export type SnapshotRelease = {
 export type ReleaseNote = { section: ReleaseSection; text: string }
 export type ReleaseSection = 'breaking' | 'new' | 'fixed' | 'faster' | 'safer'
 
-/** The most notes a release shows; the rest wait on GitHub ("and N more"). */
-export const RELEASE_NOTES_SHOWN = 5
+export { RELEASE_NOTES_SHOWN } from '@/lib/build-log-display'
 
 // release-kit's headings, plain ("New") and classic ("Features") alike.
 const NOTE_SECTIONS: [RegExp, ReleaseSection][] = [
@@ -652,8 +651,8 @@ const HIGHLIGHTS_QUERY = `*[_type == "logEntry" && defined(date) && defined(buil
 async function fetchHighlights(): Promise<Highlight[]> {
   try {
     // Imported here so the pure helpers above load without Sanity's env.
-    const { sanity } = await import('@/lib/sanity')
-    return await sanity.fetch<Highlight[]>(HIGHLIGHTS_QUERY)
+    const { sanityFetch } = await import('@/lib/sanity')
+    return await sanityFetch<Highlight[]>('logEntry', HIGHLIGHTS_QUERY)
   } catch (error) {
     logger.warn('[build-log] Sanity highlights unavailable:', error)
     return []

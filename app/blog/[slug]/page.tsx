@@ -21,6 +21,7 @@ import {
 import Reveal from '@/components/ui/Reveal'
 import FadeIn from '@/components/ui/FadeIn'
 import ShareBar from '@/components/blog/ShareBar'
+import PreviewBanner from '@/components/blog/PreviewBanner'
 
 export const revalidate = 3600
 
@@ -204,6 +205,7 @@ export default async function PostPage({ params }: PostPageProps) {
           </section>
         )}
       </main>
+      <PreviewBanner path={`/blog/${slug}`} />
     </>
   )
 }

@@ -48,6 +48,8 @@
     "@portabletext/react": "^8.0.1",
     "@portabletext/to-html": "^6.0.0",
     "@sanity/client": "^8.14.1",
+    "@sanity/preview-url-secret": "^4.1.5",
+    "@sanity/webhook": "^4.0.4",
     "@sentry/nextjs": "^11.10.0",
     "@sentry/replay": "11.10.0",
     "clsx": "^2.1.1",

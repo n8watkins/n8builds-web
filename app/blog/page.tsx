@@ -5,6 +5,7 @@ import { getAllPosts } from '@/lib/sanity'
 import { pageMetadata } from '@/lib/seo'
 import { FEED_PATH } from '@/lib/rss'
 import FadeIn from '@/components/ui/FadeIn'
+import PreviewBanner from '@/components/blog/PreviewBanner'
 
 export const revalidate = 3600
 
@@ -53,6 +54,7 @@ export default async function BlogIndexPage() {
           <NotionsList posts={posts} />
         </div>
       </main>
+      <PreviewBanner path="/blog" />
     </>
   )
 }
