@@ -96,7 +96,9 @@ const Mark = ({ mark }: { mark: Template['mark'] }) =>
 
 /** One side of the comparison: a template's name and site, what it is for, what you get, and its links. */
 const TemplateColumn = ({ t }: { t: Template }) => (
-  <li className="flex min-w-0 flex-col p-5 sm:p-6 lg:p-7" data-template={t.repoName}>
+  // Four rows (name, what it is for, what you get, links) shared with the other column
+  // (a subgrid from 768px), so each starts level with its neighbour's.
+  <li className="flex min-w-0 flex-col p-5 sm:p-6 md:row-span-4 md:grid md:grid-rows-subgrid lg:p-7" data-template={t.repoName}>
     <div className="flex items-center gap-3">
       <Mark mark={t.mark} />
       <div className="min-w-0">
@@ -113,30 +115,26 @@ const TemplateColumn = ({ t }: { t: Template }) => (
         )}
       </div>
     </div>
-    <dl className="mt-4 grid gap-3 text-sm sm:text-[0.95rem]">
-      <div>
-        <dt className={label}>For</dt>
-        <dd className="mt-1 leading-relaxed text-pretty text-slate-200" data-template-for>
-          {t.forWhat}
-        </dd>
-      </div>
-      <div>
-        <dt className={label}>You get</dt>
-        <dd className="mt-1.5">
-          <ul className="grid gap-1.5" aria-label={`What you get with ${t.title.toLowerCase()}`}>
-            {t.gets.map((point) => (
-              <li key={point} className="flex items-start gap-2 leading-snug text-[#9cadc5]">
-                <FiCheck aria-hidden="true" className="mt-[3px] h-3.5 w-3.5 shrink-0 text-cyan-300" />
-                {point}
-              </li>
-            ))}
-          </ul>
-        </dd>
-      </div>
-    </dl>
+    <div className="mt-4 text-sm sm:text-[0.95rem]">
+      <p className={label}>For</p>
+      <p className="mt-1 leading-relaxed text-pretty text-slate-200" data-template-for>
+        {t.forWhat}
+      </p>
+    </div>
+    <div className="mt-3 text-sm sm:text-[0.95rem]">
+      <p className={label}>You get</p>
+      <ul className="mt-1.5 grid gap-1.5" aria-label={`What you get with ${t.title.toLowerCase()}`}>
+        {t.gets.map((point) => (
+          <li key={point} className="flex items-start gap-2 leading-snug text-[#9cadc5]">
+            <FiCheck aria-hidden="true" className="mt-[3px] h-3.5 w-3.5 shrink-0 text-cyan-300" />
+            {point}
+          </li>
+        ))}
+      </ul>
+    </div>
 
     {/* The full story, then the repo. Pinned to the bottom so the two columns line up. */}
-    <div className="mt-auto flex flex-wrap items-center gap-2 pt-5">
+    <div className="mt-auto flex flex-wrap items-center gap-2 self-end pt-5">
       {t.story && (
         <Link href={t.story} className={primary}>
           <FiFileText className="h-3.5 w-3.5" aria-hidden="true" />
@@ -174,7 +172,7 @@ const UseAsTemplate = () => (
       />
       {/* One panel, the two templates compared side by side from 768px, one over the other on a phone. */}
       <ul
-        className="grid divide-y divide-white/8 rounded-2xl border border-white/10 bg-white/[0.03] md:grid-cols-2 md:divide-x md:divide-y-0"
+        className="grid divide-y divide-white/8 rounded-2xl border border-white/10 bg-white/[0.03] md:grid-cols-2 md:grid-rows-[repeat(4,auto)] md:divide-x md:divide-y-0"
         aria-label="My two templates, compared"
         data-template-compare
       >
