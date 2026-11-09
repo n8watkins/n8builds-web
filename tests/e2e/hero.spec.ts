@@ -625,3 +625,72 @@ for (const width of [768, 900, 1023, 1024]) {
     expect(sub.x + sub.width).toBeLessThanOrEqual(portrait.x)
   })
 }
+
+/**
+ * Each step of the chain explains itself (owner, 2026-11-08): a button that
+ * opens one sentence under the chain on hover, keyboard focus or a tap, one
+ * at a time; Escape or a tap elsewhere closes it, and it never leaves the
+ * screen or moves the page.
+ */
+const STEP_COPY: Record<string, RegExp> = {
+  prompt: /clear spec/,
+  build: /review it/,
+  ship: /release-kit/,
+  repeat: /next prompt/,
+}
+
+test.describe('the chain steps explain themselves', () => {
+  test.use({ contextOptions: { reducedMotion: 'reduce' } })
+
+  test('hover and keyboard focus open one step at a time; Escape closes it', { tag: '@cross-browser' }, async ({ page, isMobile }) => {
+    test.skip(isMobile, 'hover and Tab are desktop input')
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto('/')
+    const chips = page.locator('#home .n8-cnode')
+    const pop = page.locator('#home [data-step]')
+    await expect(chips.first()).toHaveAttribute('aria-expanded', 'false')
+    await expect(pop).toBeHidden()
+    for (const [word, copy] of Object.entries(STEP_COPY)) {
+      const chip = page.getByRole('button', { name: word, exact: true })
+      await chip.hover()
+      await expect(chip).toHaveAttribute('aria-expanded', 'true')
+      await expect(page.locator('#home [aria-expanded="true"]')).toHaveCount(1)
+      await expect(pop).toBeVisible()
+      await expect(pop).toContainText(copy)
+    }
+    await page.mouse.move(5, 5)
+    await expect(pop).toBeHidden()
+    await page.getByRole('button', { name: 'prompt', exact: true }).focus()
+    await expect(pop).toContainText(STEP_COPY.prompt)
+    await page.keyboard.press('Tab')
+    await expect(page.getByRole('button', { name: 'build', exact: true })).toHaveAttribute('aria-expanded', 'true')
+    await expect(pop).toContainText(STEP_COPY.build)
+    await page.keyboard.press('Escape')
+    await expect(pop).toBeHidden()
+    await expect(page.locator('#home [aria-expanded="true"]')).toHaveCount(0)
+  })
+
+  for (const width of [390, 320]) {
+    test(`at ${width}px a tap opens a step inside the screen without moving the page, and a tap elsewhere closes it`, { tag: width === 320 ? '@cross-browser' : [] }, async ({ browser }) => {
+      const context = await browser.newContext({ viewport: { width, height: 800 }, hasTouch: true, isMobile: true, reducedMotion: 'reduce' })
+      const page = await context.newPage()
+      await page.goto('/')
+      const pop = page.locator('#home [data-step]')
+      const terminal = page.locator('#home [data-terminal]')
+      await expect(page.locator('#home .n8-cnode').first()).toBeVisible()
+      const before = await page.evaluate(() => document.documentElement.scrollHeight)
+      for (const [word, copy] of Object.entries(STEP_COPY)) {
+        await page.getByRole('button', { name: word, exact: true }).tap()
+        await expect(pop).toContainText(copy)
+        const box = (await pop.boundingBox())!
+        expect(box.x).toBeGreaterThanOrEqual(0)
+        expect(box.x + box.width).toBeLessThanOrEqual(width)
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBe(before)
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width)
+      await terminal.tap()
+      await expect(pop).toBeHidden()
+      await context.close()
+    })
+  }
+})

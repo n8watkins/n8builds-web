@@ -386,6 +386,11 @@ Where these conflict with an older entry above, these win; the older entries are
   The scroll reveal is clearer: a 40px fade-up over 0.9s on a gentle ease-out (was 24px over 0.55s, which read as no animation).
   Clickable cards and rows have hover states: What's cookin' rows, the template cards and the phone Notions rows lift or tint, and Scribe's row brightens its tour frame and title.
   The flask, puzzle, star and pot icons stay.
+  The hero chain's steps explain themselves (owner: "elaborate what's in each one of these chains"): each chip is a button that opens one sentence under the chain on hover, keyboard focus or a tap, one at a time (Escape or a tap elsewhere closes it; `components/sections/HeroChain.tsx`).
+  prompt: "I turn the idea into a clear spec the AI can build from."
+  build: "AI writes the code; I review it, run it and test it."
+  ship: "It ships tested, release-kit writes the notes, and it lands in the build log."
+  repeat: "What users and the build log teach me becomes the next prompt."
 
 ## Publishing and releases (2026-10-25)
 
