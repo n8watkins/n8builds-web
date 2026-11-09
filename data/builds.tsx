@@ -476,6 +476,53 @@ images: [
     repo: 'n8watkins/portfolio-rank',
   },
   {
+    // release-kit, the tool that writes this site's release notes and build log (round 9 of
+    // 2026-11-09: the homepage's release-kit column links here, "how it works"). A dev tool,
+    // so not on the homepage's Lab; every claim is from its README and STANDARD.md.
+    slug: 'release-kit',
+    name: 'release-kit',
+    homepage: false,
+    tagline: 'Releases that write themselves',
+    category: 'Dev tool',
+    tags: ['CLI', 'GitHub Actions', 'Open source'],
+    highlights: [
+      'Checks every commit message, as it is written and again in CI',
+      'Picks each version from the commits: SemVer, no guessing',
+      'Writes release notes for users: New, Fixed, Faster and Safer',
+      'Publishes a GitHub Release when a version tag is pushed',
+      'An optional release train ships on a schedule, only when users would notice',
+      'Briefs your coding agents with the same rules, in AGENTS.md',
+    ],
+    color: 'from-cyan-500/20 to-blue-600/20',
+    problem:
+      'Release notes are written last, by hand, from a history full of "wip" and "fix stuff". Versions are guessed, and on a repo where coding agents write most of the commits, a rule in a doc is not followed unless something checks it.',
+    solution:
+      'release-kit sets up a whole release process in a GitHub repo with one command. Commits follow Conventional Commits (feat, fix, perf and the rest), checked by a hook and by CI, so the history already says what changed and for whom. From that history it picks the next version, writes the notes and publishes the release. This site, its build log and every project in it release this way.',
+    stack: [
+      { name: 'Node.js scripts', layer: 'Frontend', detail: 'The CLI and the commit hook: plain Node, with no runtime dependencies', tech: ['node'] },
+      { name: 'GitHub Actions', layer: 'Cloud', detail: 'Commit checks on every push and pull request title, the Release workflow, the release train and a weekly OSV security scan; every action pinned to a commit', tech: ['actions'] },
+      { name: 'Dependabot', layer: 'Cloud', detail: 'One grouped pull request per kit release keeps each repo current' },
+    ],
+    process: [
+      'Install: one command in the repo (npx --allow-git=root github:n8watkins/release-kit .) adds the commit hook, the workflows, RELEASING.md and a short rules block in AGENTS.md, then you review the diff and commit it.',
+      'Commit: every message is a Conventional Commit: type(scope): subject. A commit-msg hook rejects a bad one as it is written, and CI checks every pushed commit and every pull request title, since a squash merge commits the title.',
+      'Write for users: feat, fix, perf and security subjects are the release notes, so they read as patch notes ("the logo strip no longer stutters"). A Release-note: line rewords a technical subject, or keeps it out; chores, docs and tests never show.',
+      'Release: npm run release -- --push (or the scheduled release train) reads the commits since the last tag, picks major, minor or patch, writes the CHANGELOG section, runs the checks and pushes a vX.Y.Z tag.',
+      'Publish: the tag runs the Release workflow, which checks the tag against every version file, runs the checks again, checksums any files it ships and creates the GitHub Release with those notes.',
+      'Show it: this site reads every project\'s releases and user-facing commits from GitHub each hour, and that is the build log on the homepage and at /builds.',
+    ],
+    images: [],
+    cta: {
+      heading: 'Set it up on your repo',
+      body: 'It needs a package.json and a package-lock.json. Run the one command in the repo, review what it added, commit it, and your next release writes its own notes.',
+      label: 'Get release-kit on GitHub',
+      href: 'https://github.com/n8watkins/release-kit#quick-start',
+    },
+    tryIt: { label: 'Get release-kit', href: 'https://github.com/n8watkins/release-kit' },
+    github: 'https://github.com/n8watkins/release-kit',
+    repo: 'n8watkins/release-kit',
+  },
+  {
     // This site. Every claim here is checked against the repo (tests, CI, headers,
     // Lighthouse runs); refresh the test counts when the suites grow.
     slug: 'n8builds',

@@ -413,7 +413,10 @@ async function buildFacts(build: Build, activity: LogEntry[]): Promise<BuildFact
   const release = activity.find((e) => e.kind === 'release')
   const version = release ? /v\d+(?:\.\d+)*\S*/.exec(release.title)?.[0] : undefined
   const newest = activity[0]
-  const live = build.liveSite ?? (build.tryIt && /^https?:/.test(build.tryIt.href) ? build.tryIt.href : undefined)
+  // A tryIt to the repo itself (release-kit's "Get release-kit") isn't a live site: Source already links it.
+  const live =
+    build.liveSite ??
+    (build.tryIt && /^https?:/.test(build.tryIt.href) && !build.tryIt.href.startsWith('https://github.com/') ? build.tryIt.href : undefined)
   return {
     name: build.name,
     category: build.category,

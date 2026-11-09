@@ -118,16 +118,6 @@ export const logOnlyBuilds: LogBuild[] = [
     href: '/upcoming#whoami',
   },
   {
-    slug: 'release-kit',
-    name: 'release-kit',
-    tagline: 'Conventional Commits, SemVer tags and GitHub Releases on any repo',
-    category: 'Dev tool',
-    color: 'from-cyan-500/20 to-blue-600/20',
-    github: 'https://github.com/n8watkins/release-kit',
-    repo: 'n8watkins/release-kit',
-    href: '/loadout#release-kit',
-  },
-  {
     slug: 'pass-env',
     name: 'pass-env',
     tagline: 'Your AI agents use your API keys without seeing them',

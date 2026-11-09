@@ -43,6 +43,8 @@ test('the build log leads with the builds, most recently active first', { tag: '
     'portfolio-rank',
     'tubevault',
     'voicedock',
+    // release-kit's page (round 9 of 2026-11-09): the fixture has nothing logged for it yet.
+    'release-kit',
     'relink',
     'strollz',
     'keysready',
@@ -52,7 +54,6 @@ test('the build log leads with the builds, most recently active first', { tag: '
     'fitflow7',
     'pivot',
     'whoami',
-    'release-kit',
     'pass-env',
     'devguard',
     'pr-post',

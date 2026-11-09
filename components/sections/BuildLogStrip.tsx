@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { FiArrowUpRight, FiCheck, FiGithub, FiStar } from 'react-icons/fi'
+import { FiArrowRight, FiArrowUpRight, FiGithub, FiStar } from 'react-icons/fi'
 import { formatStars, repoStars } from '@/lib/github-stars'
 import Reveal from '@/components/ui/Reveal'
 import LabSubheader from '@/components/sections/LabSubheader'
@@ -11,8 +11,8 @@ import { allBuilds, dayKey, getBuildLog, monthLabel, type LogEntry } from '@/lib
 import { dailyCounts, shippedStats } from '@/lib/log-stats'
 
 // The homepage's compact build log: the newest month of /builds at a glance.
-// Its updates two at a time, moving on one by one through the month
-// (LatestUpdates, round 4 of 2026-11-08), a card that cycles through the month's figures (ShippedStats),
+// Its updates a page of three at a time, round the month
+// (BuildLogPages, restored in round 9 of 2026-11-09), a card that cycles through the month's figures (ShippedStats),
 // with arrows back to the months before (BuildLogMonths, round 5 of 2026-11-02;
 // /builds shows the same card). Rendered on the server from the same hourly-cached GitHub log
 // as /builds (lib/build-log.ts), so the page stays static; only the pages' and
@@ -57,13 +57,8 @@ function lastDayOf(month: string): string {
 
 const RELEASE_KIT = 'https://github.com/n8watkins/release-kit'
 
-/** What release-kit sets up, in a few words each (its README, 2026-11-09). */
-const RELEASE_KIT_POINTS = [
-  'Checks every commit message',
-  'Picks each version for you',
-  'Writes the notes, and this log',
-  'Briefs your coding agents too',
-]
+/** What release-kit does, in a few words each (its README): three at most (owner, round 9 of 2026-11-09). */
+const RELEASE_KIT_POINTS = ['Checks every commit message', 'Picks each version for you', 'Writes the notes, and this log']
 
 /** Its one-command install, as its README gives it (npm 12 needs --allow-git). */
 const RELEASE_KIT_INSTALL = 'npx --allow-git=root github:n8watkins/release-kit .'
@@ -74,7 +69,8 @@ const RELEASE_KIT_INSTALL = 'npx --allow-git=root github:n8watkins/release-kit .
  * of 2026-11-09): every project here runs release-kit, so its commits become
  * versions, release notes and this log on their own. Round 8 of 2026-11-09
  * (owner: "more information about what it does, so people want to try it"):
- * its mark and name, the headline, what it sets up as four checks, the
+ * its mark and name, the headline, what it does as three bullets (round 9: no check boxes, and "How it works" to
+ * /builds/release-kit), the
  * one-command install, and "Get release-kit" with its live star count beside
  * it (lib/github-stars.ts, the same hourly count as the Lab's Star buttons;
  * just the star while there is none). Stacked in the card's third column from
@@ -102,18 +98,27 @@ async function ReleaseKitAd() {
             <span className="block text-[0.68rem] font-semibold tracking-[0.12em] text-slate-400 uppercase">Open source · MIT</span>
           </span>
         </p>
-        <h4 id="release-kit-ad" className="text-[0.95rem] leading-snug font-bold text-balance text-slate-50">
+        {/* One line at desktop width (owner, round 9 of 2026-11-09). */}
+        <h4 id="release-kit-ad" className="text-[0.95rem] leading-snug font-bold text-balance text-slate-50 lg:text-[0.9rem] lg:whitespace-nowrap">
           Releases that{' '}
           <span className="bg-linear-to-r from-cyan-300 to-emerald-300 bg-clip-text text-transparent">write themselves</span>
         </h4>
-        <ul className="mt-0.5 flex flex-col gap-1" aria-label="What release-kit sets up">
+        {/* Plain bullets, not check boxes (owner, round 9 of 2026-11-09). */}
+        <ul className="mt-0.5 flex flex-col gap-1" aria-label="What release-kit does">
           {RELEASE_KIT_POINTS.map((point) => (
-            <li key={point} className="flex items-start gap-1.5 text-[13px] leading-snug text-slate-200">
-              <FiCheck aria-hidden="true" className="mt-[3px] h-3.5 w-3.5 shrink-0 text-emerald-300" />
+            <li key={point} className="flex items-start gap-2 text-[13px] leading-snug text-slate-200">
+              <span aria-hidden="true" className="mt-[7px] size-1.5 shrink-0 rounded-full bg-emerald-300" />
               {point}
             </li>
           ))}
         </ul>
+        <Link
+          href="/builds/release-kit"
+          className="group inline-flex w-fit items-center gap-1 text-[13px] font-semibold text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 transition-colors hover:text-cyan-200"
+        >
+          How it works
+          <FiArrowRight aria-hidden="true" className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+        </Link>
       </div>
 
       <div className="relative flex flex-col gap-2">
@@ -185,6 +190,7 @@ export async function getLogMonths(): Promise<LogMonth[] | null> {
   const today = dayKey(asOf)
   const view = (rows: LogEntry[]) => ({
     rows: rows.map((entry) => <LogRow key={entry.id} entry={entry} twoLines />),
+    labels: rows.map((entry) => `${names[entry.build] ?? entry.build}, ${entry.title}`),
   })
 
   // The first view: this month, or in a quiet one the last 30 days (the latest from every build).
