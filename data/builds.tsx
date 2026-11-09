@@ -352,6 +352,8 @@ export const builds: Build[] = [
     liveSite: 'https://solara-uv.web.app',
     liveSiteIsLanding: true,
     repo: 'n8watkins/solara',
+    // Refactors and internal milestones the filters let through.
+    logHide: ['fmtH', 'V1 hardening'],
   },
   {
     slug: 'portfolio-rank',
@@ -452,8 +454,9 @@ export const builds: Build[] = [
     liveSite: 'https://n8builds.dev',
     // The site's own releases (release-kit) and user-facing feat/fix/perf commits.
     repo: 'n8watkins/n8builds-web',
-    // CI plumbing the filters let through.
-    logHide: ['debugging port'],
+    // CI plumbing and internal history the filters let through: the retired
+    // free tools, the split from the old portfolio repo, Sentry config jargon.
+    logHide: ['debugging port', 'CanIHost', 'Portfolio 2.0', 'official skill'],
   },
 ]
 

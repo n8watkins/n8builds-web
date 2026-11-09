@@ -250,6 +250,12 @@ describe('entries for a build', () => {
       'fix: apply pre-submission hardenings from the compliance audit',
       'V2 P7a: client-side ICS export',
       'Wire P7b live calendar-feed client side',
+      'feat: harden imported events: bounded parsing, per-account caps (REVIEW4 M2 M3 M4 L1-L3)',
+      'Review fix: report slot-occupancy UV, not window UV; dedupe now()',
+      'feat: add outbound notification pipeline (Phase 4a)',
+      'feat: add embed-code generator to /share (the G4 front door)',
+      'feat: mark requested stops in last_stop',
+      'feat: add research_person.py to draft a profile for someone new',
     ]) {
       expect(classifyCommit({ message, author: 'n8watkins', parents: 1 }), message).toMatchObject({ kind: 'drop', reason: 'internal' })
     }
