@@ -187,7 +187,7 @@ export const inApps: { name: string; icon: ReactElement; color: string; whatFor:
     name: 'Gemini API',
     icon: <SiGooglegemini className="h-full w-full" />,
     color: '#4285F4',
-    whatFor: 'Long-context chat, research and analysis: GeminiGPT, Scout, Echo and Net-Trailer run on it.',
+    whatFor: 'Long-context chat, research and analysis: Net-Trailer runs on it.',
   },
   {
     name: 'OpenAI API',
