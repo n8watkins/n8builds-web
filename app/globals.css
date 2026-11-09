@@ -3,18 +3,16 @@
 /* Dark-only site: next-themes puts `.dark` on <html>. */
 @custom-variant dark (&:is(.dark *));
 /* A Lab row's three buttons (FeaturedProjects.tsx) tighten where their
-   columns are too narrow for the regular size, so the columns stay even and
-   every label stays on one line: two across (phones, tablets) under 19rem,
-   three across (from 1024px) under 30.5rem. The row's grid is the
-   `lab-actions` container. */
+   columns are too narrow for the regular size, so every label stays on one
+   line: two across (the primary on its own line, then Full story and
+   Star | GitHub) under 19rem, three across (from 31rem) under 33rem. The
+   row's button block is the `lab-actions` container. */
 @custom-variant lab-tight {
   @container lab-actions (width < 19rem) {
     @slot;
   }
-  @media (width >= 64rem) {
-    @container lab-actions (width < 30.5rem) {
-      @slot;
-    }
+  @container lab-actions (31rem <= width < 33rem) {
+    @slot;
   }
 }
 
@@ -714,10 +712,6 @@
   .lab-accent-solara {
     --lab-from: 251 146 60;
     --lab-to: 251 146 60;
-  }
-  .lab-accent-rank {
-    --lab-from: 251 191 36;
-    --lab-to: 251 191 36;
   }
   /* A part's colours, used by its subheader bar. */
   /* The build log (components/sections/BuildLogStrip.tsx), the Lab's first part: shipped green to teal. */

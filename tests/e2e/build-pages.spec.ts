@@ -4,8 +4,9 @@ import { expect, test } from '@playwright/test'
  * A build's page (2026-10-27, the owner's round 13): the app icon first, the
  * kind and tech pills under the title, the main action near the top, the live
  * site with the other actions (never on the screenshot, since round 5 of
- * 2026-11-02), a checklist of what it does, and the Details dialog's "how it's
- * built" explainer.
+ * 2026-11-02), a checklist of what it does, and the "how it's built"
+ * explainer. Since 2026-11-08 it is the build's full story: it carries the
+ * stack, the features and every way in its Lab row leaves out.
  */
 test.describe('a build page', () => {
   test.use({ viewport: { width: 1440, height: 900 } })
@@ -22,7 +23,7 @@ test.describe('a build page', () => {
     expect(kind.y).toBeGreaterThan(title.y + title.height - 1)
     const tech = header.getByRole('list', { name: 'Scribe is built with' })
     for (const name of ['Tauri', 'Rust', 'whisper.cpp', 'SQLite', 'React']) await expect(tech.getByText(name, { exact: true })).toBeVisible()
-    const source = (await header.getByRole('link', { name: /View source/ }).boundingBox())!
+    const source = (await header.getByRole('group', { name: 'Scribe on GitHub' }).boundingBox())!
     expect(source.y).toBeGreaterThan((await tech.boundingBox())!.y)
 
     // The download is up top, through the same route as the Lab.
@@ -35,19 +36,20 @@ test.describe('a build page', () => {
     expect(Math.abs(live.x - download.x)).toBeLessThan(2)
   })
 
-  // Round 5 of 2026-11-02: over the screenshot it covered the app's Start button
-  // and window controls. It never overlaps the picture, at any width.
+  // Round 5 of 2026-11-02: over the screenshot the live site covered the app's
+  // Start button and window controls. No action overlaps the picture, at any width.
   for (const width of [1440, 1024, 820, 390, 320]) {
     for (const slug of ['scribe', 'openping', 'solara']) {
-      test(`${slug}'s live site never covers its screenshot at ${width}px`, { tag: width === 1024 || width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
+      test(`${slug}'s actions never cover its screenshot at ${width}px`, { tag: width === 1024 || width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
         await page.setViewportSize({ width, height: 900 })
         await page.goto(`/builds/${slug}`)
         const header = page.locator('main header').first()
         const shot = (await header.locator('img[alt]:not([alt=""])').last().boundingBox())!
-        const live = (await header.getByRole('link', { name: /Visit the landing page/ }).boundingBox())!
-        const apart =
-          live.x + live.width <= shot.x || live.x >= shot.x + shot.width || live.y + live.height <= shot.y || live.y >= shot.y + shot.height
-        expect(apart, `${slug} at ${width}px`).toBe(true)
+        for (const link of await header.getByRole('link').all()) {
+          const box = (await link.boundingBox())!
+          const apart = box.x + box.width <= shot.x || box.x >= shot.x + shot.width || box.y + box.height <= shot.y || box.y >= shot.y + shot.height
+          expect(apart, `${slug} at ${width}px: ${await link.textContent()}`).toBe(true)
+        }
       })
     }
   }
@@ -60,7 +62,8 @@ test.describe('a build page', () => {
     await how.scrollIntoViewIfNeeded()
     for (const tab of ['Frontend', 'Backend', 'Cloud']) await expect(how.getByRole('button', { name: tab })).toBeVisible()
     await how.getByRole('button', { name: 'Backend' }).click()
-    await expect(how.getByText('whisper.cpp', { exact: true })).toBeVisible()
+    // (Every build's parts are also laid out invisibly, to size it: only the shown one counts.)
+    await expect(how.getByText('whisper.cpp', { exact: true }).filter({ visible: true })).toBeVisible()
     // Every Stack card carries its technology's mark.
     const stack = page.getByRole('region', { name: 'Tech stack' })
     const cards = stack.getByRole('listitem')
@@ -68,17 +71,23 @@ test.describe('a build page', () => {
     for (const card of await cards.all()) await expect(card.locator('svg, img').first()).toBeAttached()
   })
 
-  test('a build without a download leads with its landing page', async ({ page }) => {
+  test('a build leads with its one main action, then the other ways in, then Star | GitHub', async ({ page }) => {
     await page.goto('/builds/openping')
     const header = page.locator('main header').first()
     await expect(header.getByRole('link', { name: /Download/ })).toHaveCount(0)
-    // Named for what it opens (round 4 of 2026-11-02): OpenPing's site is its landing page.
-    await expect(header.getByRole('link', { name: /Visit the landing page/ })).toHaveAttribute('href', 'https://openping.n8builds.dev')
-    await expect(header.getByRole('link', { name: /Visit live site/ })).toHaveCount(0)
-    // With no download, the landing page is the first action, before the source.
-    const live = (await header.getByRole('link', { name: /Visit the landing page/ }).boundingBox())!
-    const source = (await header.getByRole('link', { name: /View source/ }).boundingBox())!
-    expect(live.y < source.y || (Math.abs(live.y - source.y) < 2 && live.x < source.x)).toBe(true)
+    // OpenPing's landing page is the product (owner, 2026-11-08), offered once.
+    const actions = header.getByRole('link')
+    const names = [/^Check it out/, /^Try the free tools/, /^Deploy your own/, /^Star OpenPing on GitHub/, /^OpenPing on GitHub/]
+    await expect(actions).toHaveCount(names.length)
+    for (const [i, name] of names.entries()) await expect(actions.nth(i)).toHaveAccessibleName(name)
+    await expect(actions.first()).toHaveAttribute('href', 'https://openping.n8builds.dev')
+    await expect(header.getByRole('link', { name: /Visit/ })).toHaveCount(0)
+    // In reading order on screen.
+    const boxes = await Promise.all((await actions.all()).map((a) => a.boundingBox()))
+    for (let i = 1; i < boxes.length; i++) {
+      const [a, b] = [boxes[i - 1]!, boxes[i]!]
+      expect(b.y > a.y + 1 || (Math.abs(b.y - a.y) < 2 && b.x > a.x), `action ${i}`).toBe(true)
+    }
   })
 
   test('fits a phone with no sideways scroll', { tag: '@cross-browser' }, async ({ page }) => {

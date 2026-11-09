@@ -3,13 +3,13 @@ import Link from 'next/link'
 import { FiArrowUpRight } from 'react-icons/fi'
 import Reveal from '@/components/ui/Reveal'
 import LabSubheader from '@/components/sections/LabSubheader'
+import LogRow from '@/components/log/LogRow'
 import BuildLogMonths, {
   LogMonthLine,
   LogMonthProvider,
   type LogMonth,
 } from '@/components/sections/BuildLogMonths'
 import { allBuilds, dayKey, getBuildLog, monthLabel, type LogEntry } from '@/lib/build-log'
-import { BUILD_ICONS } from '@/lib/build-meta'
 import { dailyCounts, shippedStats } from '@/lib/log-stats'
 
 // The homepage's compact build log: the newest month of /builds at a glance.
@@ -61,73 +61,6 @@ function daysBefore(day: string, days: number): string {
 function lastDayOf(month: string): string {
   const [y, m] = month.split('-').map(Number)
   return new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10)
-}
-
-function Row({ entry }: { entry: LogEntry }) {
-  const name = names[entry.build] ?? entry.build
-  const icon = BUILD_ICONS[entry.build]
-  const version = entry.kind === 'release' ? /^Shipped (v\S+)$/.exec(entry.title)?.[1] : undefined
-  // The row's link is named by the build and the entry ("Solara: Setup: centered steps..."), not the build alone.
-  const id = `strip-${entry.id.replace(/[^\w-]/g, '-')}`
-  return (
-    <div className="group relative flex items-start gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-white/[0.04] sm:items-center sm:gap-3.5">
-      {icon ? (
-        <Image
-          src={icon}
-          alt=""
-          width={32}
-          height={32}
-          unoptimized={icon.endsWith('.svg')}
-          className="mt-0.5 h-8 w-8 shrink-0 rounded-lg sm:mt-0"
-        />
-      ) : (
-        <span
-          aria-hidden
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/6 font-mono text-xs text-slate-300"
-        >
-          {name.charAt(0)}
-        </span>
-      )}
-      <div className="min-w-0 flex-1">
-        <p className="font-mono text-[0.7rem] font-semibold uppercase tracking-wider text-slate-400">
-          {/* Stretched over the row: it opens this build's part of the full log. */}
-          <Link
-            href={`/builds?build=${entry.build}`}
-            aria-labelledby={`${id}-build ${id}-title`}
-            className="after:absolute after:inset-0 after:rounded-xl after:content-[''] focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-cyan-400/60"
-          >
-            <span id={`${id}-build`}>{name}</span>
-          </Link>
-          {/* Phones: the date rides on this line, so the title gets the width. */}
-          <span className="font-normal text-slate-475 sm:hidden">
-            {' '}
-            / <span className="text-slate-450">{entry.dayLabel}</span>
-          </span>
-        </p>
-        <p
-          id={`${id}-title`}
-          className="line-clamp-2 text-[0.95rem] sm:line-clamp-none sm:truncate font-semibold leading-snug text-slate-100 transition-colors group-hover:text-cyan-100"
-        >
-          {version ? (
-            <>
-              Shipped <span className="font-mono text-[0.92em] text-cyan-300">{version}</span>
-              {entry.detail && (
-                <span className="font-normal text-[#9cadc5]"> - {entry.detail}</span>
-              )}
-            </>
-          ) : (
-            entry.title
-          )}
-        </p>
-      </div>
-      <time
-        dateTime={entry.date}
-        className="hidden shrink-0 self-start pt-0.5 font-mono sm:block text-[0.7rem] uppercase tracking-wider text-slate-450"
-      >
-        {entry.dayLabel}
-      </time>
-    </div>
-  )
 }
 
 const RELEASE_KIT = 'https://github.com/n8watkins/release-kit'
@@ -198,7 +131,7 @@ export default async function BuildLogStrip() {
   // "October", or "December 2025" for another year.
   const shortName = (month: string) => monthLabel(month).replace(` ${year}`, '')
   const view = (rows: LogEntry[]) => ({
-    rows: rows.map((entry) => <Row key={entry.id} entry={entry} />),
+    rows: rows.map((entry) => <LogRow key={entry.id} entry={entry} />),
     labels: rows.map(rowLabel),
   })
 

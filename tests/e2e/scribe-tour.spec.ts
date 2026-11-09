@@ -4,7 +4,7 @@ import { test, expect, type Page } from '@playwright/test'
  * Scribe's row shows the app, not its landing page (round 4 of 2026-11-02): a
  * silent, looping screen recording of someone using it (round 5), like a GIF, where the other rows
  * have screenshots. It plays only on screen, stays on its first frame under
- * reduced motion, and the row still links to the landing page.
+ * reduced motion. Its landing page is on its build page (owner, 2026-11-08).
  */
 
 const tourOf = (page: Page, path: string) =>
@@ -20,8 +20,8 @@ for (const path of ['/loadout', '/']) {
       await page.goto(path)
       const row = page.locator('#tools-i-built').getByRole('article', { name: 'Scribe' })
       const video = tourOf(page, path)
-      // The row's own; the Details dialog holds a second copy, shown when it opens.
-      await expect(row.locator('[data-tour] video')).toHaveCount(2)
+      // The row's own, the only one (there is no Details dialog).
+      await expect(row.locator('[data-tour] video')).toHaveCount(1)
       // Its first frame is a lazy image behind the video, not a poster fetched with the page.
       await expect(video).not.toHaveAttribute('poster')
       await expect(row.locator('[data-tour] img[data-tour-poster][src*="tour-poster.webp"]').first()).toHaveAttribute('loading', 'lazy')
@@ -88,22 +88,17 @@ for (const path of ['/loadout', '/']) {
   })
 }
 
-test("Scribe's row keeps a clear Landing page button beside its download and GitHub", async ({ page }) => {
+test("Scribe's row offers its download, its full story and GitHub; the landing page is on its build page", async ({ page }) => {
   await page.goto('/loadout')
   const row = page.locator('#tools-i-built').getByRole('article', { name: 'Scribe' })
-  const landing = row.getByRole('link', { name: 'Landing page of Scribe (opens in a new tab)', exact: true })
-  await expect(landing).toBeVisible()
-  // What a sighted visitor reads, the screen-reader text aside.
-  const visible = await landing.evaluate((a) => {
-    const copy = a.cloneNode(true) as HTMLElement
-    copy.querySelectorAll('.sr-only').forEach((el) => el.remove())
-    return copy.textContent!.trim()
-  })
-  expect(visible).toBe('Landing page')
+  await expect(row.getByRole('link', { name: 'Download for Windows' })).toBeVisible()
+  await expect(row.getByRole('link', { name: 'Full story of Scribe', exact: true })).toHaveAttribute('href', '/builds/scribe')
+  await expect(row.getByRole('link', { name: 'Scribe on GitHub (opens in a new tab)', exact: true })).toBeVisible()
+  await expect(row.locator('a[href="https://scribe.n8builds.dev"]')).toHaveCount(0)
+  await page.goto('/builds/scribe')
+  const landing = page.locator('main header').getByRole('link', { name: /^Visit the landing page/ })
   await expect(landing).toHaveAttribute('href', 'https://scribe.n8builds.dev')
   await expect(landing).toHaveAttribute('target', '_blank')
-  await expect(row.getByRole('link', { name: 'Download for Windows' })).toBeVisible()
-  await expect(row.getByRole('link', { name: 'Scribe on GitHub (opens in a new tab)', exact: true })).toBeVisible()
 })
 
 test("the tour's files and its poster are served", async ({ request }) => {

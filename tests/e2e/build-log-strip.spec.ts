@@ -295,9 +295,9 @@ test('works from the keyboard: the button, the figures, each row, then the arrow
   await expect(list(page).getByRole('button', { name: 'Next updates' })).toBeFocused()
   await expect(list(page).getByRole('button', { name: /rotation/ })).toHaveCount(0)
 
-  // The focused row shows a ring.
+  // The focused row (the whole row is its link) shows a ring.
   await rows(page).first().locator('a').first().focus()
-  const ring = await page.evaluate(() => getComputedStyle(document.activeElement!, '::after').boxShadow)
+  const ring = await page.evaluate(() => getComputedStyle(document.activeElement!).outlineStyle)
   expect(ring).not.toBe('none')
 })
 

@@ -25,7 +25,7 @@ const labMenu: LabItem[] = [
   // It lands on the top of the Lab (round 5 of 2026-11-02), so "Check out / The Lab" and the
   // intro are in view above it: the build log is where the Lab starts.
   { label: 'Build log', href: '/#build-log', desc: 'What I shipped lately, every build', fallback: '/builds', land: 'lab' },
-  { label: 'Featured', href: '/#featured', desc: 'OpenPing, Solara and Portfolio Rank' },
+  { label: 'Featured', href: '/#featured', desc: 'OpenPing and Solara' },
   { label: 'Chrome Extensions', href: '/#extensions', desc: 'Browser tools, local-first' },
   // The Lab's last part: upcoming projects, each with a waitlist (full detail on /upcoming).
   { label: "What's cookin'", href: '/#upcoming', desc: 'Upcoming projects, with a waitlist' },

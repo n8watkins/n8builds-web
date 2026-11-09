@@ -202,16 +202,21 @@ test('the feed is in the HTML, visible before any JavaScript, and hydrated in pl
   expect(await owned()).toBe(true)
 })
 
-test('a build page shows its recent activity and links to its part of the log', async ({ page }) => {
+test("a build page shows its build log, in the homepage strip's rows, and links to its part of the full log", async ({ page }) => {
   await page.goto('/builds/tubevault')
-  const section = page.getByRole('region', { name: 'Recent activity' })
+  const section = page.getByRole('region', { name: 'Build log' })
   await expect(section).toBeVisible()
-  const entries = section.locator('li[data-kind]')
-  await expect(entries).toHaveCount(5)
+  // Its newest entries, up to ten (owner, 2026-11-08; five before), newest first: all seven of the fixture's for TubeVault.
+  const entries = section.getByRole('list', { name: "TubeVault's latest updates" }).locator('[data-kind]')
+  await expect(entries).toHaveCount(7)
   await expect(entries.first()).toContainText('Shipped v0.3.80')
   await expect(entries.first()).toContainText('Cross-platform native-host setup (macOS/Linux), no hardcoded user')
+  const days = await entries.locator('time').evaluateAll((els) => els.map((el) => el.getAttribute('datetime')!))
+  expect([...days].sort().reverse()).toEqual(days)
+  // Each row opens its entry on GitHub (the whole row is the link).
+  await expect(entries.first()).toHaveAttribute('href', /^https:\/\/github\.com\/n8watkins\/tube-vault\//)
 
-  await section.getByRole('link', { name: 'Full log for TubeVault' }).click()
+  await section.getByRole('link', { name: 'See the full build log' }).click()
   await expect(page).toHaveURL(/\/builds\?build=tubevault#activity$/)
   await expect(chip(page, 'TubeVault')).toHaveAttribute('aria-pressed', 'true')
 })

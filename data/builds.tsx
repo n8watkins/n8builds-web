@@ -12,6 +12,15 @@ export interface BuildImage {
   alt: string
 }
 
+export interface BuildAction {
+  label: string
+  href: string
+  /** One of lib/downloads.ts's DOWNLOADS: a download mark, and what you get under the button. */
+  download?: string
+  /** A text link under the buttons instead of a button. */
+  quiet?: boolean
+}
+
 export interface Build {
   slug: string
   name: string
@@ -23,6 +32,12 @@ export interface Build {
    * drivers", not the Lab, whatever its category.
    */
   mine?: boolean
+  /**
+   * `false`: not on the homepage (Portfolio Rank, which moved to the developer
+   * portfolio on 2026-11-08). Its page stays, listed in the /builds index, and
+   * leads back there.
+   */
+  homepage?: false
   tags: string[]
   /** What the build does, as a checklist near the top of its page. */
   highlights?: string[]
@@ -35,14 +50,29 @@ export interface Build {
   images: BuildImage[]
   /** People and projects the build stands on, credited with links on its page. */
   credits?: { name: string; href: string; note: string }[]
-  /** An invitation to the visitor on the build's page (Portfolio Rank: add your portfolio). */
+  /**
+   * An invitation lower on the build's page, for a door its header doesn't
+   * already open (Portfolio Rank: add your portfolio).
+   */
   cta?: { heading: string; body: string; label: string; href: string }
+  /**
+   * The one main action, to the live thing: the app, the download or the
+   * product's landing page when that is the product (owner, 2026-11-08). The
+   * Lab row's primary button and the first action on the build's page.
+   */
+  tryIt?: BuildAction
+  /**
+   * More ways in, on the build's page only, never on its Lab row (OpenPing's
+   * free tools and install guide; owner, 2026-11-08). `quiet` ones are a text
+   * link under the buttons.
+   */
+  moreActions?: BuildAction[]
   github?: string
   liveSite?: string
   /**
    * `liveSite` is the product's landing page, not the app itself (Scribe's,
-   * OpenPing's and Solara's): its buttons say "Landing page", not "Live site"
-   * (round 4 of 2026-11-02).
+   * OpenPing's and Solara's): its build page says "Visit the landing page", not
+   * "Visit live site" (round 4 of 2026-11-02).
    */
   liveSiteIsLanding?: boolean
   /**
@@ -218,12 +248,15 @@ export const builds: Build[] = [
       { src: '/builds/scribe/app-models-language.webp', alt: 'Scribe models and language: the active Whisper model, the model catalog, language and GPU acceleration' },
       { src: '/builds/scribe/app-appearance-emerald.webp', alt: 'Scribe appearance: seven color themes, here switched to Emerald' },
     ],
-    cta: {
-      heading: 'Try Scribe',
-      body: 'Free and open source, for Windows. No account and no telemetry: your voice never leaves your PC. I dictate with it every day.',
-      label: 'Download for Windows',
-      href: '/download/scribe',
-    },
+    tryIt: { label: 'Download for Windows', href: '/download/scribe', download: 'scribe' },
+    moreActions: [
+      {
+        // Non-breaking spaces keep "Ask for it" together on the narrowest phones.
+        label: 'Want it on Mac or Linux? Ask\u00a0for\u00a0it',
+        href: 'https://github.com/n8watkins/scribe/issues/new?title=Request%3A%20Scribe%20for%20macOS%20or%20Linux&body=Which%20platform%20would%20you%20use%20Scribe%20on%20(macOS%20or%20Linux%2C%20and%20which%20version)%3F%0A%0AWhat%20would%20you%20use%20it%20for%3F',
+        quiet: true,
+      },
+    ],
     github: 'https://github.com/n8watkins/scribe',
     liveSite: 'https://scribe.n8builds.dev',
     liveSiteIsLanding: true,
@@ -267,12 +300,13 @@ export const builds: Build[] = [
       { src: '/builds/openping/status.webp', alt: 'The live n8 status page: Echo, GeminiGPT and Scout with 90 days of uptime bars' },
       { src: '/builds/openping/tools.webp', alt: 'OpenPing free tools: Is it down?, uptime and subnet calculators, cron tester, DNS and MX lookup' },
     ],
-    cta: {
-      heading: 'Try OpenPing',
-      body: 'Use its free tools with no sign-up ("Is it down?", DNS and MX lookups, a cron tester), or deploy your own on Cloudflare\'s free plan. I check it every day.',
-      label: 'Open the free tools',
-      href: 'https://openping.n8builds.dev/tools',
-    },
+    // The landing page is the product's front door (owner, 2026-11-08).
+    tryIt: { label: 'Check it out', href: 'https://openping.n8builds.dev' },
+    moreActions: [
+      { label: 'Try the free tools', href: 'https://openping.n8builds.dev/tools' },
+      // The step-by-step install guide.
+      { label: 'Deploy your own', href: 'https://github.com/n8watkins/open-ping/blob/main/docs/INSTALL.md' },
+    ],
     github: 'https://github.com/n8watkins/open-ping',
     liveSite: 'https://openping.n8builds.dev',
     liveSiteIsLanding: true,
@@ -311,12 +345,8 @@ export const builds: Build[] = [
       'A planning aid, not medical advice: the app says so up front, because UV and individual sensitivity change quickly.',
     ],
     images: [{ src: '/builds/solara/og-image.png', alt: 'Solara - know your sun window' }],
-    cta: {
-      heading: 'Find your sun window',
-      body: 'Free to use, and no account needed to start. Sign in free to keep your plan on every device.',
-      label: 'Try Solara',
-      href: 'https://solara-uv.web.app',
-    },
+    // Straight into the planner.
+    tryIt: { label: 'Find your sun window', href: 'https://solara-uv.web.app/app/' },
     github: 'https://github.com/n8watkins/solara',
     liveSite: 'https://solara-uv.web.app',
     liveSiteIsLanding: true,
@@ -325,6 +355,8 @@ export const builds: Build[] = [
   {
     slug: 'portfolio-rank',
     name: 'Portfolio Rank',
+    // On the developer portfolio since 2026-11-08, not a Lab row.
+    homepage: false,
     tagline: 'The developer portfolio leaderboard',
     category: 'Web app',
     tags: ['Next.js', 'TypeScript', 'Open source'],
@@ -372,8 +404,10 @@ export const builds: Build[] = [
       heading: 'Vote, or add your portfolio',
       body: 'Pick the better of two portfolios in about five seconds, or add yours: it gets a screenshot, Lighthouse scores and an AI review, and joins the head-to-head rankings.',
       label: 'Add yours on Portfolio Rank',
-      href: 'https://portfoliorank.vercel.app/',
+      // The leaderboard's Browse section, where its "Submit yours" button sits.
+      href: 'https://portfoliorank.vercel.app/#browse',
     },
+    tryIt: { label: 'Vote in a face-off', href: 'https://portfoliorank.vercel.app/rank' },
     github: 'https://github.com/n8watkins/portfolio-rank',
     liveSite: 'https://portfoliorank.vercel.app',
     repo: 'n8watkins/portfolio-rank',

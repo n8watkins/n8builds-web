@@ -2,13 +2,16 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { FiArrowLeft, FiArrowRight, FiArrowUpRight, FiCheck, FiDownload, FiGithub } from 'react-icons/fi'
+import { FiArrowLeft, FiArrowUpRight, FiCheck, FiDownload, FiGithub } from 'react-icons/fi'
 import Navbar from '@/components/layout/Navbar'
-import { builds, getBuild } from '@/data/builds'
+import { builds, getBuild, type Build } from '@/data/builds'
 import { shelfMeta, getShelf } from '@/data/shelves'
 import { pageMetadata, summarize } from '@/lib/seo'
 import Reveal from '@/components/ui/Reveal'
-import LogEntryItem, { Timeline } from '@/components/log/LogEntryItem'
+import BuildPageLog, { BUILD_PAGE_LOG_SIZE } from '@/components/log/BuildPageLog'
+import RepoButtons from '@/components/ui/RepoButtons'
+import ActionLabel from '@/components/ui/ActionLabel'
+import { downloadCaption } from '@/lib/downloads'
 import { getRecentActivity } from '@/lib/build-log'
 import N8buildsCaseStudy from '@/components/builds/n8builds/CaseStudy'
 import TechStackCycle from '@/components/Projects/TechStackCycle'
@@ -50,13 +53,15 @@ export default async function BuildPage({ params }: BuildPageProps) {
   if (!build) notFound()
 
   const shelf = shelfMeta[getShelf(build)]
-  const activity = await getRecentActivity(slug)
+  const activity = await getRecentActivity(slug, BUILD_PAGE_LOG_SIZE)
   // The tech pills: every technology on the Stack cards, in order, once.
   const techs = [...new Set(build.stack.flatMap((item) => item.tech ?? []))] as TechKey[]
-  // The same "how it's built" explainer as the Lab's Details dialog (data/projects.tsx).
+  // The "how it's built" explainer (data/projects.tsx).
   const technologies = projects.find((p) => p.title === build.name)?.technologies
+  // Every build page's explainer, so each is as tall as the tallest (owner, 2026-11-08).
+  const explainers = builds.flatMap((b) => projects.find((p) => p.title === b.name)?.technologies ?? [])
   const icon = BUILD_ICONS[build.slug]
-  const download = build.cta?.href.startsWith('/download/') ? build.cta : undefined
+  const caption = build.tryIt?.download ? await downloadCaption(build.tryIt.download) : undefined
 
   // This site's own page is its own layout: a case study for developers
   // deciding whether to fork it (linked from the homepage's "Use as a template").
@@ -126,32 +131,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
                 </ul>
               )}
 
-              <div className="mt-6 flex flex-wrap items-center gap-3">
-                {download && (
-                  <a
-                    href={download.href}
-                    className="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:scale-[1.02] hover:from-blue-500 hover:to-cyan-400"
-                  >
-                    <FiDownload className="h-4 w-4" />
-                    {download.label}
-                  </a>
-                )}
-                {/* The live site goes with the other actions, never on the screenshot,
-                    where it covered the app's own controls (round 5 of 2026-11-02). */}
-                {build.liveSite && <LiveSite href={build.liveSite} landing={build.liveSiteIsLanding} primary={!download} />}
-                {build.github && (
-                  <a
-                    href={build.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-slate-200 transition-all duration-200 hover:scale-[1.02] hover:bg-white/10"
-                  >
-                    <FiGithub className="h-4 w-4" />
-                    View source
-                    <span className="sr-only"> (opens in a new tab)</span>
-                  </a>
-                )}
-              </div>
+              <BuildActions build={build} caption={caption} />
             </div>
 
             {build.images.length > 0 && (
@@ -216,8 +196,8 @@ export default async function BuildPage({ params }: BuildPageProps) {
             </section>
           </Reveal>
 
-          {/* An invitation to the visitor, when the build has one (a download is already up top) */}
-          {build.cta && !download && (
+          {/* An invitation to the visitor, for a door the header doesn't already open */}
+          {build.cta && (
             <Reveal>
               <section
                 aria-labelledby="cta-heading"
@@ -229,19 +209,13 @@ export default async function BuildPage({ params }: BuildPageProps) {
                 </div>
                 <a
                   href={build.cta.href}
-                  // An outside site opens in a new tab; a download (/download/...) starts here.
-                  {...(build.cta.href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:scale-[1.02] hover:from-blue-500 hover:to-cyan-400"
                 >
                   {build.cta.label}
-                  {build.cta.href.startsWith('http') ? (
-                    <>
-                      <FiArrowUpRight className="h-4 w-4" />
-                      <span className="sr-only"> (opens in a new tab)</span>
-                    </>
-                  ) : (
-                    <FiDownload className="h-4 w-4" />
-                  )}
+                  <FiArrowUpRight className="h-4 w-4" />
+                  <span className="sr-only"> (opens in a new tab)</span>
                 </a>
               </section>
             </Reveal>
@@ -271,7 +245,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
             </Reveal>
           )}
 
-          {/* How it's built: the Details dialog's explainer, front to back */}
+          {/* How it's built: front end, back end and cloud, one part at a time */}
           {technologies && (
             <Reveal>
               <section className="mt-12" aria-labelledby="how-built-heading">
@@ -280,7 +254,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
                   <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">built</span>
                 </h2>
                 <div className="mt-5 rounded-2xl border border-white/8 bg-linear-to-br from-blue-500/[0.06] to-cyan-500/[0.04] p-5 sm:p-6">
-                  <TechStackCycle technologies={technologies} />
+                  <TechStackCycle technologies={technologies} sizers={explainers} />
                 </div>
               </section>
             </Reveal>
@@ -339,33 +313,8 @@ export default async function BuildPage({ params }: BuildPageProps) {
             </section>
           </Reveal>
 
-          {/* Recent activity, from the build log */}
-          {activity.length > 0 && (
-            <Reveal>
-              <section className="mt-12" aria-labelledby="activity-heading">
-                <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
-                  <h2 id="activity-heading" className="text-2xl font-bold tracking-tight">
-                    Recent{' '}
-                    <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                      activity
-                    </span>
-                  </h2>
-                  <Link
-                    href={`/builds?build=${build.slug}#activity`}
-                    className="-my-2.5 inline-flex items-center gap-1.5 py-2.5 text-sm font-semibold text-slate-400 transition-colors hover:text-cyan-300"
-                  >
-                    Full log for {build.name}
-                    <FiArrowRight className="h-4 w-4" />
-                  </Link>
-                </div>
-                <Timeline className="mt-6">
-                  {activity.map((entry) => (
-                    <LogEntryItem key={entry.id} entry={entry} buildName={build.name} showBuild={false} />
-                  ))}
-                </Timeline>
-              </section>
-            </Reveal>
-          )}
+          {/* Its build log: the newest entries, and the way to the full log */}
+          <BuildPageLog slug={build.slug} name={build.name} entries={activity} />
 
           {/* Footer nav */}
           <footer className="mt-16 pt-8 border-t border-white/8 flex flex-wrap items-center justify-between gap-4">
@@ -392,25 +341,85 @@ export default async function BuildPage({ params }: BuildPageProps) {
   )
 }
 
+const outline =
+  'inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-slate-200 transition-colors duration-200 hover:bg-white/10'
+
+/** Opens in a new tab when it leaves the site. */
+const away = (href: string) => (/^https?:/.test(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {})
+
 /**
- * "Visit live site" ("Visit the landing page" when it is one), opening in a new
- * tab: the main action (solid) unless a download is, then beside it in outline.
+ * The page's actions (owner, 2026-11-08): the build's one main action to the
+ * live thing (the same as its Lab row's), then every other way in that the row
+ * leaves out (OpenPing's free tools and install guide, the landing page beside
+ * an app or a download), then the Star | GitHub split button. The live site
+ * sits with them, never on the screenshot, where it covered the app's own
+ * controls (round 5 of 2026-11-02), and never twice.
  */
-function LiveSite({ href, landing = false, primary }: { href: string; landing?: boolean; primary: boolean }) {
+async function BuildActions({ build, caption }: { build: Build; caption?: string }) {
+  const main = build.tryIt
+  const quiet = (build.moreActions ?? []).filter((a) => a.quiet)
+  const more = (build.moreActions ?? []).filter((a) => !a.quiet)
+  const sameAs = (a: string, b: string) => a.replace(/\/$/, '') === b.replace(/\/$/, '')
+  const live = build.liveSite && !(main && sameAs(main.href, build.liveSite)) ? build.liveSite : undefined
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 hover:scale-[1.02] ${
-        primary
-          ? 'bg-linear-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-400 hover:to-blue-500'
-          : 'border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10'
-      }`}
-    >
-      {landing ? 'Visit the landing page' : 'Visit live site'}
-      <FiArrowUpRight className="h-4 w-4" />
-      <span className="sr-only"> (opens in a new tab)</span>
-    </a>
+    <div className="mt-6">
+      <div className="flex flex-wrap items-start gap-3">
+        {main ? (
+          // A download carries what it fetches close under it.
+          <div className="flex max-w-full flex-col items-start gap-1.5">
+            <a
+              href={main.href}
+              {...away(main.href)}
+              {...(caption ? { 'aria-describedby': 'build-download-facts' } : {})}
+              className="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:from-blue-700 hover:to-cyan-800"
+            >
+              {main.download ? <FiDownload aria-hidden className="h-4 w-4" /> : null}
+              <ActionLabel label={main.label} />
+              {/^https?:/.test(main.href) ? (
+                <>
+                  <FiArrowUpRight aria-hidden className="h-4 w-4" />
+                  <span className="sr-only"> (opens in a new tab)</span>
+                </>
+              ) : null}
+            </a>
+            {caption ? (
+              <p id="build-download-facts" className="text-xs text-slate-400">
+                {caption}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+        {more.map((action) => (
+          <a key={action.href} href={action.href} {...away(action.href)} className={outline}>
+            {action.label}
+            <FiArrowUpRight aria-hidden className="h-4 w-4" />
+            <span className="sr-only"> (opens in a new tab)</span>
+          </a>
+        ))}
+        {live ? (
+          <a href={live} {...away(live)} className={outline}>
+            {build.liveSiteIsLanding ? 'Visit the landing page' : 'Visit live site'}
+            <FiArrowUpRight aria-hidden className="h-4 w-4" />
+            <span className="sr-only"> (opens in a new tab)</span>
+          </a>
+        ) : null}
+        {build.github ? <RepoButtons href={build.github} name={build.name} className="[&>a]:py-2.5" /> : null}
+      </div>
+      {quiet.map((action) => (
+        <a
+          key={action.href}
+          href={action.href}
+          {...away(action.href)}
+          className="mt-3 inline-flex items-center gap-1.5 py-1 text-sm font-semibold text-slate-300 transition-colors hover:text-cyan-200"
+        >
+          {/* One underline under the whole label, marks included (a bottom border:
+              a text underline would break at each mark). */}
+          <span className="border-b border-white/30 pb-px">
+            <ActionLabel label={action.label} />
+          </span>
+          <span className="sr-only"> (opens in a new tab)</span>
+        </a>
+      ))}
+    </div>
   )
 }
