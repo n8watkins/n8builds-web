@@ -25,6 +25,14 @@ export interface BuildAction {
   quiet?: boolean
 }
 
+/** A clip: VP9 WebM first, H.264 MP4 for browsers without it, the poster, and what it shows. */
+export interface BuildClip {
+  webm: string
+  mp4: string
+  poster: string
+  alt: string
+}
+
 export interface Build {
   slug: string
   name: string
@@ -57,10 +65,22 @@ export interface Build {
   process: string[]
   images: BuildImage[]
   /**
-   * A short silent clip of the product in use, from its live public pages
-   * (scripts/product-clips/), shown in the page's header in place of a still.
+   * A short silent clip of the product in use (scripts/product-clips/), shown
+   * full width under the page's header in place of a still, and its `phone`
+   * take: the same use on a phone, for the stage's Phone view and for phones.
    */
-  clip?: { webm: string; mp4: string; poster: string; alt: string }
+  clip?: BuildClip & { phone?: BuildClip }
+  /**
+   * The live product, to use right on its build page (owner, 2026-11-09):
+   * its public pages that need no sign-up, a tab each, in a sandboxed frame.
+   * A page shows only while its site lets n8builds.dev frame it
+   * (lib/embeddable.ts); otherwise the clip stands in.
+   */
+  demo?: {
+    views: { label: string; url: string }[]
+    /** One line under the live demo: what it is and what to try. */
+    note: string
+  }
   /** People and projects the build stands on, credited with links on its page. */
   credits?: { name: string; href: string; note: string }[]
   /**
@@ -320,7 +340,21 @@ images: [
       webm: '/builds/openping/clip.webm',
       mp4: '/builds/openping/clip.mp4',
       poster: '/builds/openping/clip-poster.webp',
-      alt: "A short clip of OpenPing in use: its landing page and features, then the free Is it down? tool checking n8builds.dev and finding it up",
+      alt: 'A short clip of OpenPing in use: a status page with three services, then adding a check for n8builds.dev, which is checked at once, comes up and joins the status page as operational',
+      phone: {
+        webm: '/builds/openping/clip-phone.webm',
+        mp4: '/builds/openping/clip-phone.mp4',
+        poster: '/builds/openping/clip-phone-poster.webp',
+        alt: 'The same on a phone: OpenPing\'s status page, adding a check for n8builds.dev from the phone layout, and the status page showing it operational',
+      },
+    },
+    demo: {
+      views: [
+        { label: 'Is it down?', url: 'https://openping.n8builds.dev/tools/is-it-down' },
+        { label: 'Free tools', url: 'https://openping.n8builds.dev/tools' },
+        { label: 'Status page', url: 'https://openping.n8builds.dev/status' },
+      ],
+      note: "The real OpenPing, live: check any site from Cloudflare's edge, or try its free tools. No sign-up.",
     },
     // The landing page is the product's front door (owner, 2026-11-08).
     tryIt: { label: 'Check it out', href: 'https://openping.n8builds.dev' },
@@ -378,6 +412,16 @@ images: [
       mp4: '/builds/solara/clip.mp4',
       poster: '/builds/solara/clip-poster.webp',
       alt: "A short clip of Solara in use: picking Sydney and a skin type, the day's UV by the hour, then adding a run and getting its lower-UV window",
+      phone: {
+        webm: '/builds/solara/clip-phone.webm',
+        mp4: '/builds/solara/clip-phone.mp4',
+        poster: '/builds/solara/clip-phone-poster.webp',
+        alt: "The same on a phone: picking Sydney and a skin type, then adding a run and getting its lower-UV window",
+      },
+    },
+    demo: {
+      views: [{ label: 'Planner', url: 'https://solara-uv.web.app/app/' }],
+      note: 'The real Solara, live, as a guest: pick a city and your skin type, then add an activity. Your plan stays in this browser.',
     },
     // Straight into the planner.
     tryIt: { label: 'Find your sun window', href: 'https://solara-uv.web.app/app/' },
