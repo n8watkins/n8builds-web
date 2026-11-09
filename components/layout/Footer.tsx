@@ -115,7 +115,7 @@ const Footer = () => {
                       key={label}
                       href={href}
                       {...(isExternal(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                      aria-label={label}
+                      aria-label={isExternal(href) ? `${label} (opens in a new tab)` : label}
                       title={label}
                       className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 sm:h-10 sm:w-10 bg-white/4 text-slate-400 transition-all duration-200 hover:scale-[1.05] hover:border-cyan-400/30 hover:text-cyan-300"
                     >

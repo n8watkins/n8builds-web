@@ -93,6 +93,7 @@ const textLink =
 const External = ({ link }: { link: NamedLink }) => (
   <a href={link.href} target="_blank" rel="noopener noreferrer" className={textLink}>
     {link.name}
+    <span className="sr-only"> (opens in a new tab)</span>
   </a>
 )
 
@@ -277,6 +278,7 @@ const ToolItem = ({ tool }: { tool: UsedTool }) => {
               , by{' '}
               <a href={tool.maker.href} target="_blank" rel="noopener noreferrer" className={makerLink}>
                 {tool.maker.name}
+                <span className="sr-only"> (opens in a new tab)</span>
               </a>
             </>
           )}
@@ -459,6 +461,7 @@ const RecentActivity = ({ person }: { person: Person }) => {
               <span className="ml-1.5 font-mono text-xs text-slate-450">
                 {item.repo} · <time dateTime={item.date}>{activityDate(item.date)}</time>
               </span>
+              <span className="sr-only"> (opens in a new tab)</span>
             </a>
           </li>
         ))}

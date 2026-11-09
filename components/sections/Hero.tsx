@@ -175,7 +175,7 @@ const Hero = () => {
                 { href: LINKEDIN_URL, label: 'LinkedIn', icon: <CiLinkedin className="w-8 h-8" /> },
                 { href: 'https://x.com/n8watkins', label: 'X', icon: <FaXTwitter className="w-[1.4rem] h-[1.4rem]" /> },
               ].map(s => (
-                <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label}
+                <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={`${s.label} (opens in a new tab)`}
                   className="w-12 h-12 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/8 transition-all duration-150">
                   {s.icon}
                 </a>

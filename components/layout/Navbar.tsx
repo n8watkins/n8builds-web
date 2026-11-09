@@ -278,6 +278,7 @@ const Navbar = () => {
                 {l.icon}
                 {l.label}
                 {l.live && <NavLiveDot />}
+                {l.href.startsWith('http') && <span className="sr-only"> (opens in a new tab)</span>}
               </a>
             ))}
           </div>
@@ -293,6 +294,7 @@ const Navbar = () => {
             >
               <FiBriefcase className="w-4 h-4" aria-hidden />
               Portfolio
+              <span className="sr-only"> (opens in a new tab)</span>
             </a>
             {/* My company, by its address (owner, 2026-11-01): a bordered pill
                 like Portfolio (same height, radius and border, with a
@@ -412,6 +414,7 @@ const Navbar = () => {
             {l.icon}
             {l.label}
             {l.live && <NavLiveDot />}
+            {l.href.startsWith('http') && <span className="sr-only"> (opens in a new tab)</span>}
           </a>
         ))}
         <hr className="border-white/8 my-1" />
@@ -422,7 +425,8 @@ const Navbar = () => {
           onClick={() => setMobileOpen(false)}
           className="px-3 py-2.5 text-sm text-slate-400 hover:text-slate-100 rounded-lg hover:bg-white/5 transition-colors"
         >
-          Portfolio ↗
+          Portfolio <span aria-hidden>↗</span>
+          <span className="sr-only"> (opens in a new tab)</span>
         </a>
       </div>
     </>

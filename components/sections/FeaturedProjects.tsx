@@ -497,6 +497,7 @@ const ProjectRow = ({ project, flipped, facts }: { project: FeaturedProject; fli
               className="text-slate-300 underline decoration-white/25 underline-offset-4 hover:text-cyan-200"
             >
               {project.credit.name}
+              <span className="sr-only"> (opens in a new tab)</span>
             </a>
             {project.credit.after}
           </p>

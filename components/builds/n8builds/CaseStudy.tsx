@@ -567,6 +567,7 @@ export default function CaseStudy({ build, activity }: { build: Build; activity:
           >
             <FiGithub className="h-4 w-4" />
             github.com/n8watkins
+            <span className="sr-only"> (opens in a new tab)</span>
           </a>
         </footer>
       </div>
