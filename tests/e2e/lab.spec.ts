@@ -213,7 +213,9 @@ test('Portfolio Rank left the Lab, and keeps its page, its credits and its place
   await expect(page.getByRole('region', { name: 'Credits' })).toHaveCount(0)
 })
 
-test('every row and its build page lead with the same one action, to the live thing', async ({ page }) => {
+test('every row and its build page lead with the same one action, to the live thing', async ({ page, isMobile }) => {
+  // Scribe offers the visitor's OS: Windows here (Desktop Safari's user agent says Mac).
+  if (!isMobile) await page.addInitScript(asWindows)
   for (const title of ROWS) {
     const row = await rowOf(page, title)
     const [label, href] = PRIMARY[title]
@@ -400,17 +402,25 @@ test('each row names its own Full story, Star and GitHub controls for screen rea
   }
 })
 
-test('each row has one primary action, then Full story, then Star | GitHub, and no two go to the same place', { tag: '@cross-browser' }, async ({ page }) => {
+test('each row has one primary action, then Full story, then Star | GitHub, and no two go to the same place', { tag: '@cross-browser' }, async ({ page, isMobile }) => {
+  // Scribe offers the visitor's OS: Windows here (Desktop Safari's user agent says Mac).
+  if (!isMobile) await page.addInitScript(asWindows)
   for (const title of ROWS) {
     const row = await rowOf(page, title)
     const [primary, story, repo] = controls(row, title)
     await primary.scrollIntoViewIfNeeded()
     // Exactly these links: the primary, Full story, and the repo twice (Star and GitHub).
+    // On a phone Scribe's Full story leads, its Windows download second (ScribeActions, 2026-11-09).
+    const lead = title === 'Scribe' && isMobile ? [`/builds/${SLUG[title]}`, PRIMARY[title][1]] : [PRIMARY[title][1], `/builds/${SLUG[title]}`]
     const hrefs = await row.locator('a').evaluateAll((links) => links.map((a) => a.getAttribute('href')))
-    expect(hrefs, title).toEqual([PRIMARY[title][1], `/builds/${SLUG[title]}`, `https://github.com/n8watkins/${REPO[title]}`, `https://github.com/n8watkins/${REPO[title]}`])
+    expect(hrefs, title).toEqual([...lead, `https://github.com/n8watkins/${REPO[title]}`, `https://github.com/n8watkins/${REPO[title]}`])
     // In that order on screen: one line, or the primary on its own line and the other two under it.
     const [p, f, r] = await Promise.all([primary, story, repo].map((el) => el.boundingBox()))
-    if (title === 'Scribe') {
+    if (title === 'Scribe' && isMobile) {
+      // Full story first, then the download (side by side or stacked), Star | GitHub under them.
+      expect(f!.x < p!.x || f!.y < p!.y, 'Scribe on a phone: Full story, then the download').toBe(true)
+      expect(r!.y, 'Scribe: Star | GitHub under them').toBeGreaterThan(Math.max(p!.y + p!.height, f!.y + f!.height) - 1)
+    } else if (title === 'Scribe') {
       // Scribe's download and Full story side by side (ScribeActions, 2026-11-09), Star | GitHub under them.
       expect(p!.x < f!.x && Math.round(p!.y) === Math.round(f!.y), 'Scribe: download, then Full story').toBe(true)
       expect(r!.y, 'Scribe: Star | GitHub under them').toBeGreaterThan(f!.y + f!.height - 1)
@@ -432,6 +442,8 @@ test("each row's buttons fit their column, with one-line labels, at every width"
   test.skip(isMobile, 'phones set their own width; the desktop projects walk the widths')
   // Rows times widths, each a relayout: WebKit under a full parallel run needs more than 30s.
   test.setTimeout(90_000)
+  // Scribe offers the visitor's OS: Windows here (Desktop Safari's user agent says Mac).
+  await page.addInitScript(asWindows)
   // Row by row (each page opens once), every width on each.
   for (const title of ROWS) {
     const row = await rowOf(page, title)

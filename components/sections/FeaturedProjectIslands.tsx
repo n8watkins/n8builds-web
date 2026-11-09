@@ -286,6 +286,9 @@ export function ProjectTour({
           preload="none"
           disablePictureInPicture
           disableRemotePlayback
+          // Not a stop for the keyboard: it has no controls (its button pauses it), and
+          // Firefox would otherwise make the video itself a tab stop.
+          tabIndex={-1}
           className="absolute inset-0 h-full w-full object-cover"
         >
           {started && (
