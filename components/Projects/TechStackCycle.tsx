@@ -3,12 +3,20 @@ import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import Image from 'next/image'
 
 import { techNameMapping } from '@/data/projects'
-import { Technologies, TechNameMappingInterface } from '@/lib/types'
+import type { Technologies, TechnologyCategory, TechNameMappingInterface } from '@/lib/types'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import { latestEntry } from '@/lib/intersection'
 
 interface TechStackCycleProps {
   technologies: Technologies
+  /**
+   * Every build's technologies, this one's included: each of their categories
+   * is laid out invisibly in the same grid cell as the one on show, so the
+   * explainer is as tall as the tallest of them at any width, the same on
+   * every build page, and never changes height as it cycles (owner,
+   * 2026-11-08).
+   */
+  sizers?: Technologies[]
 }
 
 interface FlatIcon {
@@ -22,7 +30,7 @@ const CYCLE_INTERVAL = 3000
 const getTechName = (icon: string): string =>
   (techNameMapping as TechNameMappingInterface)[icon] || icon
 
-const TechStackCycle: React.FC<TechStackCycleProps> = ({ technologies }) => {
+const TechStackCycle: React.FC<TechStackCycleProps> = ({ technologies, sizers = [technologies] }) => {
   const categories = useMemo(
     () => Object.keys(technologies) as (keyof Technologies)[],
     [technologies]
@@ -48,8 +56,8 @@ const TechStackCycle: React.FC<TechStackCycleProps> = ({ technologies }) => {
   const currentCategory = active.category
   const highlightedPart = active.partIndex
 
-  // Cycle only while on screen: inside a closed Details dialog it would
-  // re-render every few seconds for no one.
+  // Cycle only while on screen: off screen it would re-render every few
+  // seconds for no one.
   const root = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
   useEffect(() => {
@@ -136,10 +144,20 @@ const TechStackCycle: React.FC<TechStackCycleProps> = ({ technologies }) => {
   const isActive = (tech: FlatIcon) =>
     hoveredIcons.includes(tech.icon) || allIcons[activeIndex]?.icon === tech.icon
 
+  // Every category of every build, for the sizers: its parts and its dock's icons, once each.
+  const sizerCategories = sizers.flatMap((techs) =>
+    (Object.values(techs) as TechnologyCategory[]).map((category) => ({
+      parts: category.descriptionParts.map((part) => part.text),
+      icons: [...new Set(category.descriptionParts.flatMap((part) => part.icons.map((tech) => tech.icon)))],
+    }))
+  )
+  // The cells the sizers share with what's on show: one grid area, every child in it.
+  const stack = 'grid grid-cols-[minmax(0,1fr)] *:col-start-1 *:row-start-1'
+
   return (
-    <div ref={root} className="flex flex-col gap-4 select-none">
+    <div ref={root} className="flex flex-col items-center gap-4 select-none">
       {/* Category tabs */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center justify-center gap-2">
         {categories.map((category) => (
           <button
             key={category}
@@ -155,19 +173,28 @@ const TechStackCycle: React.FC<TechStackCycleProps> = ({ technologies }) => {
         ))}
       </div>
 
-      {/* Description bullets */}
-      {/* The list slides in from the right when the category changes (a
-          keyed CSS entrance, `slide-in` in app/globals.css; the animations
-          here are CSS, so the Lab's Details dialogs don't load motion). Clip
-          it sideways so the slide can't widen the page. */}
-      <div className="min-h-26 overflow-x-clip">
-        <ul key={currentCategory} className="slide-in flex flex-col gap-1">
+      {/* Description bullets, centred in the tallest list's space. The list
+          slides in from the right when the category changes (a keyed CSS
+          entrance, `slide-in` in app/globals.css). Clipped sideways so the
+          slide can't widen the page. */}
+      <div className={`${stack} w-full items-center justify-items-center overflow-x-clip`}>
+        {sizerCategories.map((category, i) => (
+          <ul key={i} aria-hidden="true" data-sizer className="invisible flex max-w-full flex-col gap-1">
+            {category.parts.map((text, j) => (
+              <li key={j} className={`${partClass} translate-x-1.5`}>
+                <span className="mt-[0.7em] h-1.5 w-1.5 shrink-0" />
+                <span>{text}</span>
+              </li>
+            ))}
+          </ul>
+        ))}
+        <ul key={currentCategory} className="slide-in flex max-w-full flex-col gap-1">
           {technologies[currentCategory].descriptionParts.map((part, index) => (
             <li
               key={index}
               onMouseEnter={() => handlePartHover(index)}
               onMouseLeave={resume}
-              className={`flex items-start gap-2.5 text-[0.95rem] leading-relaxed text-[#9cadc5] cursor-pointer rounded-lg px-2.5 py-1.5 w-fit max-w-[calc(100%-0.5rem)] transition-[translate,opacity] duration-200 ${
+              className={`${partClass} cursor-pointer transition-[translate,opacity] duration-200 ${
                 index === highlightedPart ? 'translate-x-1.5 bg-blue-500/10 text-slate-200 opacity-100' : 'opacity-65'
               }`}
             >
@@ -180,35 +207,55 @@ const TechStackCycle: React.FC<TechStackCycleProps> = ({ technologies }) => {
       </div>
 
       {/* Icon dock: each tech's icon centred over its name. The active one
-          lights up in place (no lift), so icons and names stay aligned. */}
-      <ul className="flex flex-wrap items-start gap-x-2 gap-y-3 pt-1">
-        {categoryIcons.map((tech) => {
-          const on = isActive(tech)
-          return (
-            <li
-              key={`${currentCategory}-${tech.icon}`}
-              onMouseEnter={() => handleIconHover(tech.icon)}
-              onMouseLeave={resume}
-              className="flex w-20 cursor-pointer flex-col items-center gap-1.5 text-center"
-            >
-              <span
-                className={`relative flex h-12 w-12 items-center justify-center rounded-full border bg-[#0a1428] p-2.5 transition-[border-color,box-shadow] duration-200 motion-reduce:transition-none ${
-                  on ? 'border-blue-400 shadow-[0_0_0_3px_rgba(96,165,250,0.18)]' : 'border-white/15'
-                }`}
+          lights up in place (no lift), so icons and names stay aligned. As
+          tall as the fullest dock of any build. */}
+      <div className={`${stack} w-full items-center pt-1`}>
+        {sizerCategories.map((category, i) => (
+          <ul key={i} aria-hidden="true" data-sizer className={`invisible ${dockClass}`}>
+            {category.icons.map((icon) => (
+              <li key={icon} className={dockItemClass}>
+                <span className="h-12 w-12" />
+                <span className="text-xs font-semibold leading-tight">{getTechName(icon)}</span>
+              </li>
+            ))}
+          </ul>
+        ))}
+        <ul className={dockClass}>
+          {categoryIcons.map((tech) => {
+            const on = isActive(tech)
+            return (
+              <li
+                key={`${currentCategory}-${tech.icon}`}
+                onMouseEnter={() => handleIconHover(tech.icon)}
+                onMouseLeave={resume}
+                className={`${dockItemClass} cursor-pointer`}
               >
-                <span className="relative h-full w-full">
-                  <Image src={`/projectIcons/${tech.icon}`} alt="" fill sizes="48px" style={{ objectFit: 'contain' }} />
+                <span
+                  className={`relative flex h-12 w-12 items-center justify-center rounded-full border bg-[#0a1428] p-2.5 transition-[border-color,box-shadow] duration-200 motion-reduce:transition-none ${
+                    on ? 'border-blue-400 shadow-[0_0_0_3px_rgba(96,165,250,0.18)]' : 'border-white/15'
+                  }`}
+                >
+                  <span className="relative h-full w-full">
+                    <Image src={`/projectIcons/${tech.icon}`} alt="" fill sizes="48px" style={{ objectFit: 'contain' }} />
+                  </span>
                 </span>
-              </span>
-              <span className={`text-xs font-semibold leading-tight transition-colors duration-200 ${on ? 'text-blue-200' : 'text-slate-400'}`}>
-                {getTechName(tech.icon)}
-              </span>
-            </li>
-          )
-        })}
-      </ul>
+                <span className={`text-xs font-semibold leading-tight transition-colors duration-200 ${on ? 'text-blue-200' : 'text-slate-400'}`}>
+                  {getTechName(tech.icon)}
+                </span>
+              </li>
+            )
+          })}
+        </ul>
+      </div>
     </div>
   )
 }
+
+/** A description part: its dot and text, as wide as its text. */
+const partClass =
+  'flex w-fit max-w-[calc(100%-0.5rem)] items-start gap-2.5 rounded-lg px-2.5 py-1.5 text-[0.95rem] leading-relaxed text-[#9cadc5]'
+/** The dock: its icons in centred rows. */
+const dockClass = 'flex flex-wrap items-start justify-center gap-x-2 gap-y-3'
+const dockItemClass = 'flex w-20 flex-col items-center gap-1.5 text-center'
 
 export default TechStackCycle
