@@ -88,6 +88,7 @@ Strategy and IA: `docs/N8BUILDS_PLAN.md`.
 | `npm run lint` | ESLint |
 | `npm run type-check` | `tsc --noEmit` |
 | `npm run test:unit` | Vitest unit tests (`tests/unit/`) |
+| `npm run test:affected` | Playwright: only the specs for the areas this branch changes (`tests/e2e/areas.json`); the default for agents |
 | `npm run test:e2e` | Playwright: contact API + Chromium browser tests against a production build |
 | `npm run test:e2e:all` | Playwright on every browser project (Chromium, Firefox, WebKit, mobile) |
 | `npm test` | Unit + E2E |

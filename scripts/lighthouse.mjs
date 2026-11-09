@@ -6,7 +6,9 @@
 // median run to .lighthouse/. Exits 1 if an "error" budget fails; "warn"
 // budgets only print.
 //
-// Env: LIGHTHOUSE_PORT (default 3747), CHROME_PATH (needed under WSL: a Linux Chrome).
+// Env: LIGHTHOUSE_PORT (default 3747), CHROME_PATH (needed under WSL: a Linux Chrome),
+// LIGHTHOUSE_PAGES (a comma-separated subset of PAGES to audit; CI's pull
+// requests pass the pages their change can affect, from scripts/e2e-matrix.mjs).
 
 import { spawn } from 'node:child_process'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
@@ -73,10 +75,14 @@ function mobileConfig(benchmark) {
   }
 }
 
+const ONLY = process.env.LIGHTHOUSE_PAGES ? process.env.LIGHTHOUSE_PAGES.split(',').map((p) => p.trim()).filter(Boolean) : null
+for (const page of ONLY ?? []) if (!PAGES.includes(page)) throw new Error(`LIGHTHOUSE_PAGES: ${page} is not one of ${PAGES.join(', ')}`)
+const only = (pages) => (ONLY ? pages.filter((p) => ONLY.includes(p)) : pages)
+
 const FORMS = [
-  { name: 'desktop', config: () => desktopConfig, pages: PAGES, budgets: BUDGETS, runs: RUNS },
+  { name: 'desktop', config: () => desktopConfig, pages: only(PAGES), budgets: BUDGETS, runs: RUNS },
   // Three runs: its budgets are loose regression guards, and CI time matters.
-  { name: 'mobile', config: mobileConfig, pages: MOBILE_PAGES, budgets: MOBILE_BUDGETS, runs: 3 },
+  { name: 'mobile', config: mobileConfig, pages: only(MOBILE_PAGES), budgets: MOBILE_BUDGETS, runs: 3 },
 ]
 
 /** Why a Lighthouse run can't be scored (its own runtime error, or empty metrics), or null. */

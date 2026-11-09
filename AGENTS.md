@@ -43,3 +43,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Keep every commit header at 100 characters or less: the commit check runs on every commit in a PR, and force pushes are blocked, so a long header means a fresh branch and new PR. Check with `git log --format=%s origin/main.. | awk 'length>100'`.
 - Build from a clean `.next` (`rm -rf .next`) before a local preview or Playwright run: a reused build cache once shipped stale Tailwind CSS that wasn't on the live site.
 - Stop any old server on the E2E port first: `reuseExistingServer` silently tests a stale build.
+
+## Browser tests: run what you changed, let CI run the rest
+
+- A pull request's CI runs `@smoke` plus the Playwright specs of the areas it changes (`tests/e2e/areas.json`, `scripts/e2e-matrix.mjs`); a change to a shared file (layout, `globals.css`, config, `package.json`) runs the whole suite. `tests/e2e/README.md` has the rules.
+- Locally, run only the affected specs: `npm run test:affected` (`-- --list` shows what and why). Don't run the whole suite (`npm run test:e2e`, `test:e2e:all`) by default: CI runs it, nightly runs every browser, and a local full run costs many minutes and much memory.
+- Adding a spec, a section, a component folder or a route: add it to `tests/e2e/areas.json` in the same change (`npm run test:unit` fails until you do). New `lib/`, `hooks/`, `data/` and `components/ui/` files need nothing: they take the areas of whatever imports them.
+- Lighthouse follows the same map: a pull request audits only the pages its change can affect, and skips it for tests, docs and data.
+- When a change reaches further than its imports show (site-wide behaviour, a risky refactor), label the pull request `full-e2e` to run everything on every browser.
