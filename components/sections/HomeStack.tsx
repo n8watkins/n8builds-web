@@ -65,18 +65,18 @@ function DefaultStack({ stack }: { stack: BuildStack }) {
         {stack.name}
       </h4>
       <p className="mt-0.5 text-sm font-semibold text-(--accent)">{stack.tagline}</p>
-      <ul className="mt-4 grid gap-x-5 gap-y-2.5 min-[480px]:grid-cols-2" aria-label={`${stack.name}: what it is made of`}>
+      <ul className="mt-4 grid grid-cols-2 gap-x-3 gap-y-2.5 sm:gap-x-5" aria-label={`${stack.name}: what it is made of`}>
         {[...stack.tools, ...stack.hosting].map((tool) => (
-          <li key={tool} className="flex min-w-0 items-center gap-2.5 text-sm" data-default-tool>
+          <li key={tool} className="flex min-w-0 items-center gap-2 text-sm sm:gap-2.5" data-default-tool>
             <span
               aria-hidden="true"
-              className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-[#0a1428] [&_img]:size-4 [&_svg]:size-4"
+              className="flex size-7 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-[#0a1428] sm:size-8 [&_img]:size-4 [&_svg]:size-4"
             >
               {stackToolIcons[tool]}
             </span>
             <span className="min-w-0 leading-tight">
               <span className="block font-semibold text-slate-100">{tool}</span>
-              {stackRoles[tool] && <span className="block truncate text-[0.8rem] text-[#9cadc5]">{stackRoles[tool]}</span>}
+              {stackRoles[tool] && <span className="block text-[0.8rem] text-[#9cadc5]">{stackRoles[tool]}</span>}
             </span>
           </li>
         ))}
