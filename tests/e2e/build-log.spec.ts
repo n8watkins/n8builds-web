@@ -120,7 +120,9 @@ test('the kind filter narrows the feed and its build chips, and lives in the URL
   expect(builds.every((b) => ['tldw', 'tubevault', 'voicedock'].includes(b!))).toBe(true)
   // Only that kind's builds are offered, each with its icon.
   const offered = feed(page).getByRole('group', { name: 'Filter by build' }).getByRole('button')
-  expect(await offered.allInnerTexts()).toEqual(['TL;DW', 'TubeVault', 'VoiceDock'])
+  // Each with its count of updates (round 4 of 2026-11-08).
+  expect((await offered.allInnerTexts()).map((t) => t.replace(/\s*\d+\s*updates?$/, '').trim())).toEqual(['TL;DW', 'TubeVault', 'VoiceDock'])
+  expect((await offered.allInnerTexts()).every((t) => /\d+\s*updates?$/.test(t.trim()))).toBe(true)
   expect(await offered.evaluateAll((els) => els.every((el) => !!el.querySelector('img')))).toBe(true)
 
   // A build within the kind narrows further; unpicking it goes back to the kind.
@@ -128,6 +130,36 @@ test('the kind filter narrows the feed and its build chips, and lives in the URL
   await expect(page).toHaveURL(/\/builds\?kind=extensions&build=tubevault$/)
   await chip(page, 'TubeVault').click()
   await expect(page).toHaveURL(/\/builds\?kind=extensions$/)
+})
+
+test('the feed is one continuous list: month headers, more loading as you scroll and with Load more', async ({ page }) => {
+  await page.goto('/builds')
+  // No box scrolling on its own (round 4 of 2026-11-08): the page scrolls.
+  await expect(feed(page).locator('[data-log-scroll]')).toHaveCount(0)
+  const first = await feedEntries(page).count()
+  expect(first).toBe(30)
+  const more = feed(page).getByRole('button', { name: /^Load more/ })
+  await expect(more).toBeVisible()
+  await more.click()
+  await expect.poll(() => feedEntries(page).count()).toBeGreaterThan(first)
+  // The month headers stay under the navbar as their months scroll by.
+  const header = feed(page).locator('section h3').first()
+  expect(await header.evaluate((h) => getComputedStyle(h).position)).toBe('sticky')
+  // Reaching the foot loads the rest.
+  for (let i = 0; i < 10 && (await more.count()); i++) {
+    await feed(page).locator('[data-log-list] > div').last().evaluate((el) => el.scrollIntoView({ block: 'end', behavior: 'instant' }))
+    await page.waitForTimeout(200)
+  }
+  await expect(more).toHaveCount(0)
+})
+
+test('every entry has the same icon frame, and a release says so with a badge', async ({ page }) => {
+  await page.goto('/builds')
+  const frames = await feedEntries(page).locator('img').evaluateAll((imgs) => [...new Set(imgs.map((i) => getComputedStyle(i).boxShadow))])
+  expect(frames).toHaveLength(1)
+  const release = feedEntries(page).filter({ hasText: /Shipped v\d/ }).first()
+  await expect(release.getByText('Release', { exact: true })).toBeVisible()
+  await expect(feedEntries(page).filter({ hasNotText: /Shipped v\d/ }).first().getByText('Release', { exact: true })).toHaveCount(0)
 })
 
 test('each entry carries its build icon on the timeline', async ({ page }) => {

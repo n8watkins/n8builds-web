@@ -1,5 +1,5 @@
 'use client'
-import { Suspense, useCallback, useLayoutEffect, useMemo, useState } from 'react'
+import { Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import LogEntryItem, { Timeline } from '@/components/log/LogEntryItem'
@@ -9,10 +9,12 @@ import { LOG_KINDS, type LogKind } from '@/lib/build-meta'
 // The activity feed on /builds: month by month, newest first, with two
 // filters: the kind of build (Tools, Web apps, Chrome extensions, This site)
 // and the build itself (chips with each build's icon, like the N8 Notions
-// topic filter). Both live in the URL (`/builds?kind=extensions`,
-// `/builds?build=scribe`), so build pages can link to their part of the log
-// and a filtered view can be shared. It opens on the last 12 months; older
-// months wait behind "Show older entries".
+// topic filter), each with its count. Both live in the URL
+// (`/builds?kind=extensions`, `/builds?build=scribe`), so build pages can link
+// to their part of the log and a filtered view can be shared. One continuous
+// list (owner, round 4 of 2026-11-08; it was a box scrolling on its own):
+// month headers stick under the navbar, and more entries load as the list's
+// foot comes into view, or with "Load more".
 //
 // The feed is prerendered unfiltered and hydrated in place: it is visible in
 // the HTML before any JavaScript runs, and no entry animates in. Only the URL
@@ -23,7 +25,6 @@ type FeedProps = {
   /** Builds in index order, for the chips and entry labels. */
   builds: { slug: string; name: string; href: string; kind: LogKind; icon?: string }[]
   months: Record<string, string>
-  recentFrom: string | null
 }
 
 // Runs while the page parses: a shared filtered link (?build=x, ?kind=x) hides the
@@ -62,12 +63,14 @@ function setFilter({ kind = null, build = null }: { kind?: LogKind | null; build
   window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`)
 }
 
-export default function LogFeed({ entries, builds, months, recentFrom }: FeedProps) {
+export default function LogFeed({ entries, builds, months }: FeedProps) {
   // Null until the URL is read: the prerendered feed is unfiltered.
   const [active, setActive] = useState<string | null>(null)
   const [kind, setKind] = useState<LogKind | null>(null)
   const [synced, setSynced] = useState(false)
-  const [showOlder, setShowOlder] = useState(false)
+  // How many entries show; more load as the foot of the list comes into view.
+  const [limit, setLimit] = useState(PAGE)
+  const sentinel = useRef<HTMLDivElement>(null)
   const bySlug = useMemo(() => Object.fromEntries(builds.map((b) => [b.slug, b])), [builds])
   const withEntries = useMemo(() => builds.filter((b) => entries.some((e) => e.build === b.slug)), [builds, entries])
   const kinds = useMemo(() => LOG_KINDS.filter((k) => withEntries.some((b) => b.kind === k.id)), [withEntries])
@@ -93,13 +96,32 @@ export default function LogFeed({ entries, builds, months, recentFrom }: FeedPro
     : kind
       ? entries.filter((e) => bySlug[e.build]?.kind === kind)
       : entries
-  const isRecent = (e: LogEntry) => !recentFrom || e.month >= recentFrom
-  const recent = visible.filter(isRecent)
-  const older = visible.filter((e) => !isRecent(e))
-  const shown = showOlder ? visible : recent
+  const shown = visible.slice(0, limit)
+  const more = visible.length - shown.length
+  // A new filter starts from the top again.
+  const filterKey = `${active ?? ''}|${kind ?? ''}`
+  const [lastKey, setLastKey] = useState(filterKey)
+  if (lastKey !== filterKey) {
+    setLastKey(filterKey)
+    setLimit(PAGE)
+  }
+  // Load more as the list's foot nears the screen.
+  useEffect(() => {
+    const el = sentinel.current
+    if (!el || more <= 0) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) setLimit((n) => n + PAGE)
+      },
+      { rootMargin: '600px 0px' },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [more, limit])
   // The build chips: every build, or the chosen kind's.
   const buildChips = kind ? withEntries.filter((b) => b.kind === kind) : withEntries
   const countFor = (k: LogKind) => entries.filter((e) => bySlug[e.build]?.kind === k).length
+  const countForBuild = (slug: string) => entries.filter((e) => e.build === slug).length
 
   // Entries arrive in feed order, so each month is one contiguous run.
   const groups: { month: string; entries: LogEntry[] }[] = []
@@ -164,6 +186,7 @@ export default function LogFeed({ entries, builds, months, recentFrom }: FeedPro
                   <Image src={b.icon} alt="" width={18} height={18} unoptimized={b.icon.endsWith('.svg')} className="h-[18px] w-[18px] rounded-[5px]" />
                 )}
                 {b.name}
+                <Count n={countForBuild(b.slug)} />
               </button>
             ))}
           </div>
@@ -171,74 +194,59 @@ export default function LogFeed({ entries, builds, months, recentFrom }: FeedPro
       )}
 
       {groups.length > 0 ? (
-        // Its own scroll area, so the feed doesn't run the page on forever: a
-        // focusable region (arrow keys scroll it), months sticky at its top, and
-        // a fade at the foot saying there is more below.
-        <div
-          role="region"
-          aria-label="Activity feed"
-          tabIndex={0}
-          data-log-scroll
-          className="relative mt-8 max-h-[70vh] overflow-y-auto overscroll-contain rounded-2xl border border-white/8 bg-white/[0.015] px-4 pb-10 [mask-image:linear-gradient(to_bottom,black_calc(100%-3rem),transparent)] focus-visible:outline-2 focus-visible:outline-cyan-400/60 sm:px-6"
-        >
-        <div className="space-y-8 pt-2">
-          {groups.map((group) => (
-            <section key={group.month} aria-labelledby={`month-${group.month}`}>
-              <h3
-                className="sticky top-0 z-10 -mx-4 mb-4 flex items-center gap-3 bg-[#060d1c]/95 px-4 py-3 font-mono text-xs font-bold uppercase tracking-[0.18em] text-cyan-400 backdrop-blur-sm after:h-px after:flex-1 after:bg-white/8 sm:-mx-6 sm:px-6"
+        <div data-log-list className="mt-8">
+          <div className="space-y-8">
+            {groups.map((group) => (
+              <section key={group.month} aria-labelledby={`month-${group.month}`}>
+                {/* Sticks under the navbar while its month scrolls by. */}
+                <h3 className="sticky top-[68px] z-10 -mx-4 mb-4 flex items-center gap-3 bg-[#060d1c]/95 px-4 py-3 font-mono text-xs font-bold uppercase tracking-[0.18em] text-cyan-400 backdrop-blur-sm after:h-px after:flex-1 after:bg-white/8 sm:-mx-6 sm:px-6">
+                  {/* The month alone names its region; the counts follow it. */}
+                  <span id={`month-${group.month}`} className="bg-linear-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent">
+                    {months[group.month]}
+                  </span>
+                  <span className="font-sans text-[0.7rem] font-semibold normal-case tracking-normal text-slate-450">
+                    {updates(group.entries.length)}
+                    {group.entries.some((e) => e.kind === 'release') &&
+                      `, ${group.entries.filter((e) => e.kind === 'release').length} ${group.entries.filter((e) => e.kind === 'release').length === 1 ? 'release' : 'releases'}`}
+                  </span>
+                </h3>
+                <Timeline className="ml-3">
+                  {group.entries.map((entry) => (
+                    <LogEntryItem
+                      key={entry.id}
+                      entry={entry}
+                      buildName={bySlug[entry.build]?.name ?? entry.build}
+                      buildHref={bySlug[entry.build]?.href}
+                      icon={bySlug[entry.build]?.icon}
+                    />
+                  ))}
+                </Timeline>
+              </section>
+            ))}
+          </div>
+          {more > 0 && (
+            <div ref={sentinel} className="mt-8 flex flex-col items-start gap-2">
+              <button
+                type="button"
+                onClick={() => setLimit((n) => n + PAGE)}
+                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-200 transition-colors hover:border-cyan-400/30 hover:bg-white/10"
               >
-                {/* The month alone names its region; the counts follow it. */}
-                <span id={`month-${group.month}`} className="bg-linear-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent">
-                  {months[group.month]}
-                </span>
-                <span className="font-sans text-[0.7rem] font-semibold normal-case tracking-normal text-slate-450">
-                  {updates(group.entries.length)}
-                  {group.entries.some((e) => e.kind === 'release') &&
-                    `, ${group.entries.filter((e) => e.kind === 'release').length} ${group.entries.filter((e) => e.kind === 'release').length === 1 ? 'release' : 'releases'}`}
-                </span>
-              </h3>
-              <Timeline className="ml-3">
-                {group.entries.map((entry) => (
-                  <LogEntryItem
-                    key={entry.id}
-                    entry={entry}
-                    buildName={bySlug[entry.build]?.name ?? entry.build}
-                    buildHref={bySlug[entry.build]?.href}
-                    icon={bySlug[entry.build]?.icon}
-                  />
-                ))}
-              </Timeline>
-            </section>
-          ))}
-        </div>
-        {older.length > 0 && !showOlder && (
-          <button
-            type="button"
-            onClick={() => setShowOlder(true)}
-            className="mt-8 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-200 transition-colors hover:bg-white/10"
-          >
-            Show older entries<span className="ml-1.5 text-xs text-slate-400">{older.length}</span>
-          </button>
-        )}
+                Load more<span className="ml-1.5 text-xs text-slate-400">{more}</span>
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         <p className="mt-12 font-mono text-sm text-slate-450">
-          {emptyName ? `// nothing from ${emptyName} in the last 12 months.` : '// nothing logged yet - check back soon.'}
+          {emptyName ? `// nothing from ${emptyName} logged yet.` : '// nothing logged yet - check back soon.'}
         </p>
       )}
-      {groups.length === 0 && older.length > 0 && !showOlder && (
-        <button
-          type="button"
-          onClick={() => setShowOlder(true)}
-          className="mt-6 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-200 transition-colors hover:bg-white/10"
-        >
-          Show older entries<span className="ml-1.5 text-xs text-slate-400">{older.length}</span>
-        </button>
-      )}
-
     </div>
   )
 }
+
+/** Entries shown at first, and added each time more load. */
+const PAGE = 30
 
 const updates = (n: number) => `${n} ${n === 1 ? 'update' : 'updates'}`
 
@@ -253,7 +261,9 @@ function Count({ n }: { n: number }) {
 }
 
 function chip(isActive: boolean, withIcon = false): string {
-  return `rounded-full border ${withIcon ? 'py-1 pl-1.5 pr-3' : 'px-3 py-1'} text-sm font-semibold transition-all ${
+  // relative: the count's screen-reader text (absolute) stays inside the chip, so the phones'
+  // sideways-scrolling row of build chips can't widen the page.
+  return `relative rounded-full border ${withIcon ? 'py-1 pl-1.5 pr-3' : 'px-3 py-1'} text-sm font-semibold transition-all ${
     isActive
       ? 'border-cyan-400/40 bg-cyan-400/10 text-cyan-300'
       : 'border-white/10 bg-white/3 text-slate-400 hover:bg-white/6 hover:text-slate-200'

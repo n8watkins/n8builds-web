@@ -1,3 +1,4 @@
+import { FiGithub } from 'react-icons/fi'
 import Navbar from '@/components/layout/Navbar'
 import JsonLd from '@/components/JsonLd'
 import BuildIndex from '@/components/log/BuildIndex'
@@ -112,10 +113,12 @@ export default async function BuildLogPage() {
                   href="https://github.com/n8watkins/release-kit"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-slate-300 underline decoration-white/20 underline-offset-4 hover:text-cyan-200"
+                  className="inline-flex items-center gap-1 text-slate-300 underline decoration-white/20 underline-offset-4 hover:text-cyan-200"
                 >
+                  {/* GitHub's mark: that is where it goes (round 4 of 2026-11-08). */}
+                  <FiGithub className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                   release-kit
-                  <span className="sr-only"> (opens in a new tab)</span>
+                  <span className="sr-only"> on GitHub (opens in a new tab)</span>
                 </a>
                 , my release standard, as each project adopts it.
               </FadeIn>
@@ -141,7 +144,7 @@ export default async function BuildLogPage() {
             </div>
             {months && (
               <FadeIn delay={0.3} className="lab-accent-buildlog">
-                <LogMonthProvider lines={months.map((m) => m.line)}>
+                <LogMonthProvider>
                   <BuildLogMonths months={months.map((m) => ({ ...m, rows: [] }))} rows={false} />
                 </LogMonthProvider>
               </FadeIn>
@@ -182,7 +185,6 @@ export default async function BuildLogPage() {
                   icon: BUILD_ICONS[b.slug],
                 }))}
                 months={log.months}
-                recentFrom={log.recentFrom}
               />
             </Reveal>
           </section>
