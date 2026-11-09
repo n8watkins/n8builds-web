@@ -77,8 +77,8 @@ function Row({ project: p }: { project: UpcomingProject }) {
  * single line: its mark, its name (the link to its landing page) over a few
  * words, and its GitHub button when the repo is public (round 8). No statuses
  * (every one has a live landing page). "Join the waitlist" opens the same form
- * as /upcoming in a modal (WaitlistDialog). The full cards and code links stay
- * on /upcoming.
+ * as /upcoming in a modal (WaitlistDialog); since round 10 it sits top right,
+ * beside "See all upcoming". The full cards and code links stay on /upcoming.
  */
 export default function UpcomingStrip() {
   const projects = UPCOMING.filter((p) => p.homepage !== false)
@@ -94,13 +94,21 @@ export default function UpcomingStrip() {
             title={<>What&rsquo;s cookin&rsquo;</>}
             blurb="Things I’m building in public, each with a landing page and a waitlist."
           />
-          <Link
-            href="/upcoming"
-            className="group mb-8 -mt-3 inline-flex sm:mt-0 items-center gap-1.5 text-sm font-semibold text-slate-300 transition-colors hover:text-cyan-200"
-          >
-            See all upcoming
-            <FiArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </Link>
+          {/* Top right, the waitlist beside the full list (owner, round 10 of 2026-11-09:
+              more compact; the Join button sat alone under the groups before). Under the
+              heading on a phone. */}
+          <div className="mb-6 -mt-3 flex flex-wrap items-center gap-x-5 gap-y-3 sm:mt-0 sm:mb-8" data-upcoming-actions>
+            <WaitlistDialog>
+              <WaitlistPanel heading="h2" headingId="waitlist-dialog-title" layout="modal" />
+            </WaitlistDialog>
+            <Link
+              href="/upcoming"
+              className="group inline-flex items-center gap-1.5 text-sm font-semibold text-slate-300 transition-colors hover:text-cyan-200"
+            >
+              See all upcoming
+              <FiArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-5">
@@ -132,11 +140,6 @@ export default function UpcomingStrip() {
           })}
         </div>
 
-        <div className="mt-5">
-          <WaitlistDialog>
-            <WaitlistPanel heading="h2" headingId="waitlist-dialog-title" layout="modal" />
-          </WaitlistDialog>
-        </div>
       </div>
     </section>
   )

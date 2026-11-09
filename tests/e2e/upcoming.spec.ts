@@ -327,8 +327,14 @@ test("the homepage Lab ends with a compact What's cookin' part: projects grouped
   // No status labels: every project has a live landing page.
   await expect(band.getByText('Status:')).toHaveCount(0)
 
-  // The waitlist: the same form as /upcoming, in a modal opened by one button.
+  // The waitlist: the same form as /upcoming, in a modal opened by one button, which sits
+  // top right beside "See all upcoming" (round 10 of 2026-11-09), not under the groups.
   const join = band.getByRole('button', { name: 'Join the waitlist' })
+  const all = band.getByRole('link', { name: 'See all upcoming' })
+  const [joinBox, allBox, firstGroup] = [(await join.boundingBox())!, (await all.boundingBox())!, (await band.locator('section[data-group]').first().boundingBox())!]
+  expect(joinBox.y + joinBox.height).toBeLessThan(firstGroup.y)
+  expect(Math.abs(joinBox.y + joinBox.height / 2 - (allBox.y + allBox.height / 2))).toBeLessThan(2)
+  expect(allBox.x).toBeGreaterThan(joinBox.x + joinBox.width)
   await expect(join).toHaveAttribute('aria-haspopup', 'dialog')
   const dialog = page.getByRole('dialog', { name: 'Join the waitlist' })
   await expect(dialog).toBeHidden()
