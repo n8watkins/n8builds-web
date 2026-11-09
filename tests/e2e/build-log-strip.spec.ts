@@ -509,7 +509,8 @@ test.describe('paging', () => {
     await list(page).getByRole('button', { name: 'Next updates' }).click()
     // "One Lab section" (the sixth row) is on the second page at every width.
     const link = list(page).locator('li[data-row="5"]').getByRole('link')
-    await expect(link).toHaveAccessibleName(/^n8builds\.dev One Lab section/)
+    // The whole row is the link, named as it reads (on phones the date rides on the name line).
+    await expect(link).toHaveAccessibleName(/^n8builds\.dev (\w{3} \d{1,2} )?One Lab section/)
     await page.clock.resume()
     await link.click()
     await expect(page).toHaveURL(/\/builds\?build=n8builds$/)

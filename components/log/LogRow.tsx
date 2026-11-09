@@ -58,7 +58,7 @@ export default function LogRow({ entry, showBuild = true }: {
           {/* Phones: the date rides on this line, so the title gets the width. */}
           <span className="font-normal text-slate-475 sm:hidden">
             {' '}
-            / <span className="text-slate-450">{entry.dayLabel}</span>
+            <span aria-hidden>/</span> <span className="text-slate-450">{entry.dayLabel}</span>
           </span>
         </p>
         <p
