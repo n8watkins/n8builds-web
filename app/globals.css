@@ -1079,6 +1079,37 @@
     transform: none;
   }
 }
+/* The hammer (HammerIcon): it swings from the end of its handle, so its own box
+   isn't the pivot; the drawing's is (4.5, 19.5 in its 24-unit square). */
+.part-icon .hammer-head {
+  transform-box: view-box;
+  transform-origin: 4.5px 19.5px;
+}
+.part-icon .hammer-spark {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  :is(.reveal[data-revealed], a[aria-current]) .part-icon .hammer-head {
+    animation: part-hammer 2.4s cubic-bezier(0.5, 0, 0.5, 1) 0.2s infinite both;
+  }
+  :is(.reveal[data-revealed], a[aria-current]) .part-icon .hammer-spark {
+    animation: part-hammer-spark 2.4s linear 0.2s infinite both;
+  }
+}
+@keyframes part-hammer {
+  0%, 100% { transform: none; }
+  /* Raised, then down hard: two strikes, then it rests. */
+  12% { transform: rotate(-24deg); animation-timing-function: cubic-bezier(0.6, 0, 1, 1); }
+  20% { transform: rotate(6deg); }
+  25% { transform: rotate(0deg); }
+  37% { transform: rotate(-24deg); animation-timing-function: cubic-bezier(0.6, 0, 1, 1); }
+  45% { transform: rotate(6deg); }
+  52% { transform: none; }
+}
+@keyframes part-hammer-spark {
+  0%, 19%, 27%, 44%, 52%, 100% { opacity: 0; }
+  21%, 46% { opacity: 1; }
+}
 @keyframes part-pot-steam {
   0% {
     transform: translateY(2px);

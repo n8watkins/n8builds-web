@@ -203,10 +203,10 @@ export const BuiltToolsGrid = ({
             <div className={column}>
               <Sub
                 id={`built-${group.id}-title`}
-                className="mb-5 flex items-center gap-3 font-mono text-xs font-bold tracking-[0.16em] text-cyan-300 uppercase"
+                // No rule after it (round 8 of 2026-11-09: it read as an underline under the blurb above).
+                className="mb-5 font-mono text-xs font-bold tracking-[0.16em] text-cyan-300 uppercase"
               >
                 {group.title}
-                <span aria-hidden="true" className="h-px flex-1 bg-linear-to-r from-cyan-300/25 to-transparent" />
               </Sub>
             </div>
             {group.id === 'dev' && lead && <div className="mb-8 md:mb-10">{lead}</div>}

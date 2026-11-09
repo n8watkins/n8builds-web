@@ -9,7 +9,6 @@ import {
   LuCircuitBoard,
   LuCpu,
   LuGlobe,
-  LuHammer,
   LuHardDrive,
   LuHeadphones,
   LuKeyRound,
@@ -56,6 +55,7 @@ import {
 import { VscVscode } from 'react-icons/vsc'
 import { GgmlMark } from '@/data/stack'
 import type { RailPart } from '@/components/ui/SectionRail'
+import { HammerIcon } from '@/components/ui/PartIcons'
 
 // The Loadout - "who I am" without a resume. You ARE your loadout.
 // Each item: what it is + what I use it for + my one-line take.
@@ -82,7 +82,7 @@ export const loadoutParts: readonly LoadoutPart[] = [
   { id: 'workflow', label: 'How I work', icon: LuWorkflow, accent: '251 146 60' },
   { id: 'in-apps', label: 'Inside my apps', icon: LuBot, accent: '96 165 250' },
   { id: 'stacks', label: 'Stacks I build with', short: 'Stacks', icon: LuLayers, accent: '52 211 153' },
-  { id: 'tools-i-built', label: 'Tools I built and use', short: 'My tools', icon: LuHammer, accent: '251 191 36' },
+  { id: 'tools-i-built', label: 'Tools I built and use', short: 'My tools', icon: HammerIcon, accent: '251 191 36' },
   { id: 'tools-i-use', label: 'Tools I use', icon: LuWrench, accent: '129 140 248' },
   { id: 'gear', label: 'The gear', icon: LuHeadphones, accent: '244 114 182' },
 ]
