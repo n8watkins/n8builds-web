@@ -415,6 +415,7 @@ Where these conflict with an older entry above, these win; the older entries are
   The hero's portfolio link is just "Check out my portfolio" behind a briefcase (no "Hiring?"), still counted and in a new tab.
   Each of the build log's three latest updates is exactly two lines under its build's name, so every entry is the same height and the column never jumps: the title and one line of what's in it, or a title alone over both lines (a short one leaves the second empty).
   The release-kit column is a product ad, not a note: its mark and name ("Open source · MIT"), "Releases that write themselves", In and Out as a commit (`feat: dark mode`) turning into a release (`v1.4.0`, notes, this log), "One command adds it to any repo", and "Get release-kit" with its live GitHub star count beside it (the Lab's hourly count; just the star while it has none).
+  The build log's scroll icon keeps a subtle loop after it unrolls: now and then its two lines are written again, one after the other (CSS only, nothing under reduced motion).
 
 ## Publishing and releases (2026-10-25)
 

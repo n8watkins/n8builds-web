@@ -45,6 +45,25 @@ test("sits right under What I'm working on, above the Lab, in the server-rendere
   expect(await page.locator('main').innerText()).not.toContain('—')
 })
 
+test('the heading icon keeps writing its lines, softly, and holds still under reduced motion', async ({ browser }) => {
+  for (const reducedMotion of ['no-preference', 'reduce'] as const) {
+    const context = await browser.newContext({ reducedMotion })
+    const page = await context.newPage()
+    await page.goto('/')
+    const icon = strip(page).locator('.part-icon-scroll')
+    await icon.scrollIntoViewIfNeeded()
+    await expect(strip(page).locator('.reveal[data-revealed]').first()).toBeAttached()
+    // The lines' loop (owner, 2026-11-09): CSS only, on both lines, after the scroll has unrolled.
+    const loops = () =>
+      icon.locator('.scroll-line').evaluateAll((lines) =>
+        lines.map((line) => getComputedStyle(line).animationName.split(', ').includes('part-scroll-rewrite')),
+      )
+    if (reducedMotion === 'reduce') expect(await loops()).toEqual([false, false])
+    else await expect.poll(loops).toEqual([true, true])
+    await context.close()
+  }
+})
+
 test("shows three of the month's updates at a time, newest first, each with a line of what's in it", async ({ page }) => {
   await page.goto('/')
   await strip(page).scrollIntoViewIfNeeded()
