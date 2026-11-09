@@ -50,8 +50,8 @@ function UrlFilter({ onChange }: { onChange: (build: string | null, kind: string
   return null
 }
 
-/** Sets the filters in the URL: a kind, and optionally one of its builds. */
-function setFilter({ kind = null, build = null }: { kind?: LogKind | null; build?: string | null }) {
+/** Sets the filters in the URL: a kind, and optionally one of its builds. The build cards above the feed use it too. */
+export function setFilter({ kind = null, build = null }: { kind?: LogKind | null; build?: string | null }) {
   const url = new URL(window.location.href)
   url.searchParams.delete('kind')
   url.searchParams.delete('build')

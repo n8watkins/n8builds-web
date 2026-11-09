@@ -56,16 +56,38 @@ test('the build log leads with the builds, most recently active first', { tag: '
   // A project with nothing logged yet is a quiet card that links where the site shows it.
   const relink = cards.and(page.locator('[data-build="relink"]'))
   await expect(relink).toContainText('Nothing logged yet')
-  await expect(relink.getByRole('link', { name: 'Relink' })).toHaveAttribute('href', '/upcoming#relink')
-  await expect(cards.and(page.locator('[data-build="pr-post"]')).getByRole('link', { name: 'PR Post' })).toHaveAttribute('href', '/#pr-post-edition')
+  await expect(relink.getByRole('link', { name: 'Full story of Relink' })).toHaveAttribute('href', '/upcoming#relink')
+  await expect(cards.and(page.locator('[data-build="pr-post"]')).getByRole('link', { name: 'Full story of PR Post' })).toHaveAttribute('href', '/#pr-post-edition')
   await expect(cards.first()).toContainText('Last shipped Oct 2026')
   // Quiet builds read as finished, not abandoned.
   await expect(page.getByRole('list', { name: 'Builds by latest activity' })).not.toContainText(/\bago\b/)
 
-  // A card opens its build page.
+  // A card's "Full story" opens its build page.
   // Found by its build, not its position, so a new build doesn't move it.
-  await cards.and(page.locator('[data-build="scribe"]')).getByRole('link', { name: 'Scribe' }).click()
+  await cards.and(page.locator('[data-build="scribe"]')).getByRole('link', { name: 'Full story of Scribe' }).click()
   await expect(page).toHaveURL(/\/builds\/scribe$/)
+})
+
+test('a build card filters the activity below to that build, shows it is picked, and a second click clears it', { tag: '@cross-browser' }, async ({ page }) => {
+  await page.goto('/builds')
+  const card = page.getByRole('list', { name: 'Builds by latest activity' }).locator('[data-build="openping"]')
+  const button = card.getByRole('button', { name: /^OpenPing/ })
+  await expect(button).toHaveAttribute('aria-pressed', 'false')
+  // Retried: a click before hydration does nothing.
+  await expect(async () => {
+    await button.click()
+    await expect(page).toHaveURL(/\/builds\?build=openping$/, { timeout: 2000 })
+  }).toPass({ timeout: 20_000 })
+  await expect(button).toHaveAttribute('aria-pressed', 'true')
+  await expect(card).toHaveAttribute('data-selected', '')
+  const builds = await feedEntries(page).evaluateAll((els) => [...new Set(els.map((el) => el.getAttribute('data-build')))])
+  expect(builds).toEqual(['openping'])
+  // The chip below agrees.
+  await expect(chip(page, 'OpenPing')).toHaveAttribute('aria-pressed', 'true')
+  await button.click()
+  await expect(page).toHaveURL(/\/builds$/)
+  await expect(button).toHaveAttribute('aria-pressed', 'false')
+  await expect(card).not.toHaveAttribute('data-selected')
 })
 
 test('the feed groups entries by month, with highlights pinned and releases shown as versions', async ({ page }) => {
