@@ -157,6 +157,8 @@ export async function placeIcon(page: Page, partId: string, offset: number) {
 export async function expectSwitchAtIconMidline(page: Page, rail: Locator, parts: readonly { id: string; label: string }[]) {
   for (let i = 1; i < parts.length; i++) {
     await placeIcon(page, parts[i].id, 12)
+    // The rail shows on a frame after the scroll: a loaded WebKit can take several seconds.
+    await expect(rail).toBeVisible({ timeout: 15_000 })
     await expect(rail.locator('[aria-current]'), `${parts[i].id}: icon under the line`).toHaveAccessibleName(parts[i - 1].label)
     await placeIcon(page, parts[i].id, -12)
     await expect(rail.locator('[aria-current]'), `${parts[i].id}: icon over the line`).toHaveAccessibleName(parts[i].label)
