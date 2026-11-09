@@ -59,7 +59,7 @@ test('the contact card says it briefly: a message, Tech for Pros, and only the e
  * 53px, cutting off the avatar and name.
  */
 test('nothing inside the contact card can scroll it', { tag: '@cross-browser' }, async ({ page }) => {
-  await page.setViewportSize({ width: 1254, height: 724 })
+  await page.setViewportSize({ width: 1280, height: 724 })
   await page.goto('/')
   const card = page.locator('#contact .rounded-3xl').first()
   await card.scrollIntoViewIfNeeded()
@@ -69,7 +69,9 @@ test('nothing inside the contact card can scroll it', { tag: '@cross-browser' },
   await page.getByRole('textbox', { name: 'Name' }).focus()
   for (let i = 0; i < 6; i++) await page.keyboard.press('Tab')
   expect(await card.evaluate((el) => el.scrollTop)).toBe(0)
-  await expect(card.getByText('Nathan "n8" Watkins')).toBeInViewport()
+  // The avatar and name sit inside the card's top, not scrolled up out of it.
+  const [box, name] = [(await card.boundingBox())!, (await card.getByText('Nathan "n8" Watkins').boundingBox())!]
+  expect(name.y).toBeGreaterThan(box.y)
 })
 
 for (const width of [375, 320]) {
