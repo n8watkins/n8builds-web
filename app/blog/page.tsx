@@ -42,12 +42,14 @@ export default async function BlogIndexPage() {
             <p className="mt-4 max-w-[600px] text-base leading-relaxed text-[#9cadc5] sm:text-lg/7">
               Notes, essays, and lessons from building software in public.
             </p>
+            {/* A real button, in RSS orange (round 8 of 2026-11-09: the quiet mono link was easy to miss). */}
             <a
               href={FEED_PATH}
-              className="mt-2 inline-flex items-center gap-2 py-2 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-slate-400 transition-colors hover:text-cyan-300"
+              data-rss-subscribe
+              className="mt-5 inline-flex items-center gap-2 rounded-xl border border-orange-400/35 bg-orange-400/[0.08] px-4 py-2 text-sm font-semibold text-orange-100 transition-colors hover:border-orange-300/60 hover:bg-orange-400/[0.15] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-300"
             >
-              <FiRss aria-hidden className="h-3.5 w-3.5" />
-              RSS feed
+              <FiRss aria-hidden className="h-4 w-4 text-orange-400" />
+              Subscribe with RSS
             </a>
           </FadeIn>
 
