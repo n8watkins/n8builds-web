@@ -572,7 +572,7 @@ export const PersonCard = ({ person }: { person: Person }) => (
         Society), each column as wide as its longest link. In a narrow card a
         long name wraps inside its button, and the buttons in a row share its height. */}
     <ul
-      className="mt-auto grid auto-cols-[minmax(min-content,max-content)] grid-flow-col grid-rows-[auto_auto] justify-start gap-1.5 sm:gap-2"
+      className="@container mt-auto grid auto-cols-[minmax(min-content,max-content)] grid-flow-col grid-rows-[auto_auto] justify-start gap-1.5 sm:gap-2"
       aria-label={`${person.name} online`}
     >
       {person.links.map((link) => {
@@ -584,13 +584,17 @@ export const PersonCard = ({ person }: { person: Person }) => (
               href={link.href}
               target="_blank"
               rel="noopener noreferrer"
+              title={handle ?? undefined}
               className={personLink}
             >
               <span aria-hidden="true" className="shrink-0">
                 {icon}
               </span>
               {handle ? (
-                <span className="min-w-0 truncate">
+                // Where the card is too narrow for two handles side by side (under 17.5rem: a
+                // 320px phone, three cards across at 1024px), the icon alone; the handle is
+                // still read out, and shows on hover.
+                <span className="min-w-0 whitespace-nowrap @max-[17.5rem]:sr-only" data-person-handle>
                   {/* The icon says which platform; a screen reader hears it said. */}
                   <span className="sr-only">{label} </span>
                   {handle}
