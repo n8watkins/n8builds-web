@@ -99,7 +99,8 @@ export function tierFor(event, full) {
 // The area map (tests/e2e/areas.json)
 
 /** @typedef {{ specs: string[], sources: string[] }} Group */
-/** @typedef {{ shared: string[], none: string[], inherit: string[], always: string[], groups: Record<string, Group> }} Areas */
+/** @typedef {{ pages: Record<string, string>, run: string[], skip: string[] }} LighthouseMap */
+/** @typedef {{ shared: string[], none: string[], inherit: string[], always: string[], lighthouse: LighthouseMap, groups: Record<string, Group> }} Areas */
 
 /** @returns {Areas} */
 export function loadAreas(root = ROOT) {
@@ -330,11 +331,89 @@ export function affectedMatrix(specs, root = ROOT) {
  */
 export function planFor(event, full, changed, root = ROOT) {
   const tier = tierFor(event, full)
-  if (tier !== 'pr' || event !== 'pull_request' || !changed) return { tier, jobs: MATRIX[tier], selection: null }
-  const selection = selectFor(changed, loadAreas(root), buildImporters(root))
-  if (selection.full) return { tier: 'pr', jobs: MATRIX.pr, selection }
-  return { tier: 'affected', jobs: affectedMatrix(selection.specs, root), selection }
+  if (tier !== 'pr' || event !== 'pull_request' || !changed) return { tier, jobs: MATRIX[tier], selection: null, lighthouse: { pages: 'all', reasons: {} } }
+  const areas = loadAreas(root)
+  const importers = buildImporters(root)
+  const selection = selectFor(changed, areas, importers)
+  const lighthouse = lighthouseFor(changed, areas, importers)
+  if (selection.full) return { tier: 'pr', jobs: MATRIX.pr, selection, lighthouse }
+  return { tier: 'affected', jobs: affectedMatrix(selection.specs, root), selection, lighthouse }
 }
+
+// ---------------------------------------------------------------------------
+// Lighthouse: which of its pages a pull request can slow down.
+
+/**
+ * The Lighthouse pages one changed path can affect: 'all', or a list (empty
+ * when it can't affect any). See areas.json's "lighthouse" entry.
+ * @param {string} path
+ * @param {Areas} areas
+ * @param {Map<string, Set<string>>} importers
+ * @returns {{ pages: 'all' | string[], why: string }}
+ */
+export function lighthouseExplain(path, areas, importers) {
+  const { pages, run, skip } = areas.lighthouse
+  if (matchesAny(path, run)) return { pages: 'all', why: 'the audit itself' }
+  if (matchesAny(path, skip)) return { pages: [], why: 'tests and data' }
+  if (matchesAny(path, areas.shared)) return { pages: 'all', why: 'a shared file' }
+  if (matchesAny(path, areas.none)) return { pages: [], why: 'no page uses it' }
+
+  let starts = [path]
+  if (path.startsWith('public/')) {
+    // An image or a clip: the code of the areas that own it.
+    const owners = Object.values(areas.groups).filter((g) => matchesAny(path, g.sources))
+    if (owners.length === 0) return { pages: 'all', why: 'an asset no area owns' }
+    const ownGlobs = owners.flatMap((g) => g.sources.filter((glob) => !glob.startsWith('public/')))
+    starts = [...new Set([...importers.keys(), ...[...importers.values()].flatMap((s) => [...s])])].filter((f) => matchesAny(f, ownGlobs))
+  } else {
+    const known = isSpec(path) || matchesAny(path, areas.inherit) || Object.values(areas.groups).some((g) => matchesAny(path, g.sources))
+    if (!known) return { pages: 'all', why: `not in ${AREAS_FILE}` }
+  }
+
+  const routes = new Map(Object.entries(pages).map(([page, route]) => [route, page]))
+  const hit = new Set()
+  const seen = new Set(starts)
+  const queue = [...starts]
+  while (queue.length) {
+    const file = queue.shift()
+    // The layout renders on every page: whatever reaches it can slow them all.
+    if (!starts.includes(file) && matchesAny(file, areas.shared)) return { pages: 'all', why: `${file} uses it` }
+    if (routes.has(file)) hit.add(routes.get(file))
+    for (const importer of importers.get(file) ?? []) {
+      if (!seen.has(importer)) {
+        seen.add(importer)
+        queue.push(importer)
+      }
+    }
+  }
+  if (hit.size > 0) return { pages: Object.keys(pages).filter((p) => hit.has(p)), why: 'its pages' }
+  return { pages: [], why: 'no audited page uses it' }
+}
+
+/**
+ * The Lighthouse pages a pull request audits: 'all', or a list (empty: skip).
+ * @param {string[]} changed
+ * @param {Areas} areas
+ * @param {Map<string, Set<string>>} importers
+ */
+export function lighthouseFor(changed, areas, importers) {
+  /** @type {Record<string, ReturnType<typeof lighthouseExplain>>} */
+  const reasons = {}
+  const pages = new Set()
+  let all = false
+  for (const path of changed) {
+    const r = lighthouseExplain(path, areas, importers)
+    reasons[path] = r
+    if (r.pages === 'all') all = true
+    else for (const p of r.pages) pages.add(p)
+  }
+  const every = Object.keys(areas.lighthouse.pages)
+  if (all || every.every((p) => pages.has(p))) return { pages: /** @type {'all'} */ ('all'), reasons }
+  return { pages: every.filter((p) => pages.has(p)), reasons }
+}
+
+/** The changes job's `lighthouse` output: "all", "none", or the pages, comma-separated. */
+export const lighthouseOutput = (lighthouse) => (lighthouse.pages === 'all' ? 'all' : lighthouse.pages.join(',') || 'none')
 
 /** A Markdown summary of the selection, for $GITHUB_STEP_SUMMARY. */
 export function summarize(plan) {
@@ -348,6 +427,13 @@ export function summarize(plan) {
     if (plan.tier === 'affected') lines.push('', `Specs: ${plan.selection.specs.map((s) => `\`${s.slice(E2E_DIR.length)}\``).join(', ') || 'none (only @smoke)'}`)
   }
   lines.push('', `Jobs: ${plan.jobs.map((j) => j.name).join('; ')}`)
+  const lh = lighthouseOutput(plan.lighthouse)
+  lines.push('', `### Lighthouse: ${lh === 'all' ? 'every page' : lh === 'none' ? 'skipped' : lh}`)
+  const lhReasons = Object.entries(plan.lighthouse.reasons)
+  if (lhReasons.length) {
+    lines.push('', '| Changed | Audits |', '| --- | --- |')
+    for (const [path, r] of lhReasons) lines.push(`| \`${path}\` | ${r.pages === 'all' ? 'every page' : r.pages.join(', ') || 'nothing'} (${r.why}) |`)
+  }
   return lines.join('\n')
 }
 
@@ -364,6 +450,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     const plan = planFor(event, full, changed)
     console.log(`tier=${plan.tier}`)
     console.log(`matrix=${JSON.stringify({ include: plan.jobs })}`)
+    console.log(`lighthouse=${lighthouseOutput(plan.lighthouse)}`)
     if (process.env.GITHUB_STEP_SUMMARY) {
       appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${summarize(plan)}\n`)
     }

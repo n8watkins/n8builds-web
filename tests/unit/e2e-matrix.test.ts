@@ -2,7 +2,7 @@
 import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { MATRIX as matrix, buildImporters, explain, globToRegExp, loadAreas, matchesAny, planFor, selectFor, tierFor } from '@/scripts/e2e-matrix.mjs'
+import { MATRIX as matrix, buildImporters, explain, globToRegExp, lighthouseFor, lighthouseOutput, loadAreas, matchesAny, planFor, selectFor, tierFor } from '@/scripts/e2e-matrix.mjs'
 
 type Job = (typeof matrix)['full'][number]
 const PROJECTS = ['api', 'chromium', 'firefox', 'webkit', 'mobile-chrome', 'mobile-safari']
@@ -239,5 +239,56 @@ describe('the affected tier', () => {
     const label = readFileSync('.github/workflows/full-e2e.yml', 'utf8')
     expect(label).toContain("github.event.label.name == 'full-e2e'")
     expect(label).toContain('gh workflow run ci.yml')
+  })
+})
+
+describe('Lighthouse on a pull request', () => {
+  const pagesFor = (...changed: string[]) => lighthouseFor(changed, areas, importers).pages
+
+  it('maps exactly the pages scripts/lighthouse.mjs audits, each to a route that exists', () => {
+    const script = readFileSync('scripts/lighthouse.mjs', 'utf8')
+    const audited = JSON.parse(script.match(/^const PAGES = (\[.*\])$/m)![1].replace(/'/g, '"'))
+    expect(Object.keys(areas.lighthouse.pages)).toEqual(audited)
+    for (const route of Object.values(areas.lighthouse.pages)) expect(tracked, route).toContain(route)
+  })
+
+  it('audits every page for a shared file, the audit itself, and a path the map does not know', () => {
+    for (const f of ['app/layout.tsx', 'app/globals.css', 'next.config.mjs', 'package.json', 'package-lock.json', 'scripts/lighthouse.mjs', 'brand-new-folder/x.ts'])
+      expect(pagesFor(f), f).toBe('all')
+  })
+
+  it('audits every page for what the layout renders on all of them', () => {
+    expect(pagesFor('components/consent/ConsentLoader.tsx')).toBe('all')
+    expect(pagesFor('components/layout/SiteFooter.tsx')).toBe('all')
+  })
+
+  it('audits only the pages whose route uses the change', () => {
+    expect(pagesFor('components/log/LogFeed.tsx')).toEqual(['/builds'])
+    expect(pagesFor('components/sections/HeroGrid.tsx')).toEqual(['/'])
+    expect(pagesFor('components/builds/BuildSidebar.tsx')).toEqual(['/builds/solara'])
+    expect(pagesFor('components/sections/HeroGrid.tsx', 'components/log/LogFeed.tsx')).toEqual(['/', '/builds'])
+  })
+
+  it("audits an image's pages through the areas that own it, and every page for one no area owns", () => {
+    const shot = tracked.find((f) => f.startsWith('public/builds/solara/'))!
+    expect(pagesFor(shot)).toEqual(expect.arrayContaining(['/builds/solara']))
+    expect(pagesFor('public/brand-new-folder/x.webp')).toBe('all')
+  })
+
+  it('skips tests, docs, data, and code no audited page uses', () => {
+    for (const f of ['tests/e2e/hero.spec.ts', 'tests/unit/seo.test.ts', 'tests/e2e/areas.json', 'docs/HANDOFF.md', 'data/builds.tsx', 'app/api/contact/route.ts', 'lib/email/waitlist.ts', 'app/upcoming/page.tsx'])
+      expect(pagesFor(f), f).toEqual([])
+  })
+
+  it('prints all, none or the pages, and ci.yml skips the job on none and passes the pages on', () => {
+    expect(lighthouseOutput({ pages: 'all' })).toBe('all')
+    expect(lighthouseOutput({ pages: [] })).toBe('none')
+    expect(lighthouseOutput({ pages: ['/', '/builds'] })).toBe('/,/builds')
+    expect(planFor('push', '', null).lighthouse.pages).toBe('all')
+    expect(planFor('pull_request', 'true', ['tests/unit/seo.test.ts']).lighthouse.pages).toBe('all')
+    const ci = readFileSync('.github/workflows/ci.yml', 'utf8')
+    expect(ci).toContain("if: needs.changes.outputs.code == 'true' && needs.changes.outputs.lighthouse != 'none'")
+    expect(ci).toContain("LIGHTHOUSE_PAGES: ${{ needs.changes.outputs.lighthouse != 'all' && needs.changes.outputs.lighthouse || '' }}")
+    expect(ci).toContain('lighthouse: ${{ steps.e2e.outputs.lighthouse }}')
   })
 })

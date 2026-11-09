@@ -72,6 +72,22 @@
     "tests/e2e/*.ts"
   ],
   "always": ["site"],
+  "lighthouse": {
+    "$comment": [
+      "Which Lighthouse pages (scripts/lighthouse.mjs PAGES) a pull request audits, by the route file each page renders.",
+      "A changed file audits the pages whose route imports it, however indirectly; a shared file (and anything in run) audits them all; skip, none and pages no audited route uses audit nothing.",
+      "An image under public/ audits the pages of the areas that own it (or all of them when no area does)."
+    ],
+    "pages": {
+      "/": "app/page.tsx",
+      "/blog": "app/blog/page.tsx",
+      "/builds": "app/builds/page.tsx",
+      "/builds/solara": "app/builds/[slug]/page.tsx",
+      "/loadout": "app/loadout/page.tsx"
+    },
+    "run": ["scripts/lighthouse.mjs"],
+    "skip": ["data/**", "tests/**", "playwright.config.ts", "migrations/**", "scripts/e2e-matrix.mjs"]
+  },
   "groups": {
     "site": {
       "specs": ["tests/e2e/pages.spec.ts", "tests/e2e/security-headers.spec.ts"],

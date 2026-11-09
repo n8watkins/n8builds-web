@@ -58,6 +58,18 @@ So a new spec, section or route needs a line here in the same pull request:
 - A new section, component folder or route: add it to an area's `sources` (a new area needs its own specs).
 - A new building block under `lib/`, `hooks/`, `data/` or `components/ui/`: nothing to do, unless only shared files import it (then add it to `shared`).
 
+## Lighthouse on a pull request
+
+The Lighthouse job (`scripts/lighthouse.mjs`) follows the same map, through its `lighthouse` entry:
+
+- It audits only the pages a pull request can slow down: each audited page is listed with its route file, and a changed file audits the pages whose route imports it, however indirectly.
+- An image or clip under `public/` audits the pages of the areas that own it, or every page when no area does.
+- Anything that reaches the layout (the consent banner, the site footer), a shared file, `scripts/lighthouse.mjs` itself, or a path the map doesn't know audits every page.
+- Tests, docs, `data/`, and code no audited page uses (an API route, `/upcoming`) skip it; a skipped Lighthouse passes "CI result" like a docs-only change.
+- A push to `main`, nightly, the release train and `full-e2e` audit every page.
+
+`LIGHTHOUSE_PAGES=/,/builds npm run lighthouse` audits a subset locally.
+
 ## Running tests locally
 
 Run only the specs your branch affects, and leave the full run to CI:
