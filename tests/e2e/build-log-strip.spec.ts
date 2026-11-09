@@ -4,7 +4,7 @@ import { test, expect, type Page } from '@playwright/test'
  * The homepage's compact build log (#build-log), right under "What I'm working
  * on" (2026-11-08): the month's two latest updates (round 3 of 2026-11-08; a
  * paged list of four before), a card cycling through the month's figures, a
- * one-line release-kit ad and a link to /builds. Against the recorded GitHub
+ * release-kit ad and a link to /builds. Against the recorded GitHub
  * fixture (BUILD_LOG_FIXTURE=1), whose capture time is the strip's "now", so
  * these don't drift as the months pass.
  *
@@ -276,22 +276,30 @@ test('phones show three updates at a time too, with the date on the name line', 
   expect(await strip(page).evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true)
 })
 
-test('beside the log, a compact note says release-kit writes it and links its repo on GitHub', { tag: '@cross-browser' }, async ({ page }) => {
+test('beside the log, an ad for release-kit: In and Out, and Get release-kit with its stars', { tag: '@cross-browser' }, async ({ page }) => {
   await page.goto('/')
-  const ad = strip(page).getByRole('complementary', { name: /This log writes itself with release-kit/ })
+  // A product ad, not a note (round 6 of 2026-11-09).
+  const ad = strip(page).getByRole('complementary', { name: 'release-kit Releases that write themselves' })
   await ad.scrollIntoViewIfNeeded()
-  await expect(ad).toContainText('Conventional Commits')
-  await expect(ad).toContainText('versions, release notes and this log')
+  await expect(ad).toContainText('Open source · MIT')
+  const how = ad.locator('dl')
+  await expect(how.locator('dt')).toHaveText(['In', 'Out'])
+  await expect(how.locator('dd').first()).toHaveText('feat: dark mode')
   await expect(ad).toContainText('One command adds it to any repo')
   const link = ad.getByRole('link', { name: /^Get release-kit/ })
   await expect(link).toHaveAttribute('href', 'https://github.com/n8watkins/release-kit')
   await expect(link).toHaveAttribute('target', '_blank')
   await expect(link).toHaveAccessibleName(/on GitHub/)
-  // GitHub's mark and the arrow out.
-  await expect(link.locator('svg')).toHaveCount(2)
+  await expect(link.locator('svg')).toHaveCount(1)
+  // Its star, beside it: the live count when it has one (the fixture has none for release-kit, so just the star).
+  const star = ad.getByRole('link', { name: /^Star release-kit on GitHub/ })
+  await expect(star).toHaveAttribute('href', 'https://github.com/n8watkins/release-kit')
+  await expect(star.locator('[data-stars]')).toHaveCount(0)
   // "release-kit" never breaks at its hyphen.
-  const lines = await ad.locator('.font-mono').evaluate((el) => new Set([...el.getClientRects()].map((r) => Math.round(r.top))).size)
+  const lines = await ad.locator('#release-kit-name').evaluate((el) => new Set([...el.getClientRects()].map((r) => Math.round(r.top))).size)
   expect(lines).toBe(1)
+  // Nothing in it spills past its column.
+  expect(await ad.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true)
   // From 1024px it is the card's third column, beside the updates (round 4 of 2026-11-08).
   if ((page.viewportSize()?.width ?? 0) >= 1100) {
     const [note, updates] = [(await ad.boundingBox())!, (await list(page).boundingBox())!]
