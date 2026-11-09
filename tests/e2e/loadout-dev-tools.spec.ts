@@ -314,6 +314,31 @@ test.describe('Loadout tools and people', () => {
     await expect(card.getByRole('link', { name: 'Check out how he works (a video, opens in a new tab)' })).toHaveAttribute('href', 'https://youtu.be/iQyg-KypKAA')
   })
 
+  for (const width of [1280, 390]) {
+    test(`every People I follow card has the same shape: a short note and a second line, 4 or 5 lines in all (${width}px)`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 })
+      await page.goto('/#people')
+      const lines = await page.locator('#people article').evaluateAll((cards) =>
+        cards.map((card) => {
+          const count = (el: Element | null) => (el ? Math.round(el.getBoundingClientRect().height / parseFloat(getComputedStyle(el).lineHeight)) : 0)
+          return {
+            id: card.id,
+            note: count(card.querySelector('[data-person-note]')),
+            more: count(card.querySelector('[data-person-more]')),
+          }
+        }),
+      )
+      expect(lines).toHaveLength(3)
+      for (const card of lines) {
+        expect(card.note, card.id).toBeLessThanOrEqual(3)
+        expect(card.more, card.id).toBeGreaterThanOrEqual(1)
+        expect(card.note + card.more, card.id).toBeLessThanOrEqual(width < 640 ? 5 : 4)
+      }
+      const totals = lines.map((c) => c.note + c.more)
+      expect(Math.max(...totals) - Math.min(...totals)).toBeLessThanOrEqual(1)
+    })
+  }
+
   test('Phaedrus\'s card describes the software factory he is building', async ({ page }) => {
     await page.goto('/')
     const card = page.locator('#phaedrus')

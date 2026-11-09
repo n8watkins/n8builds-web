@@ -343,8 +343,17 @@ export interface Person {
   avatar?: string
   /** Who they are, in one sentence. */
   role: string
-  /** What they are working on in public, in one or two plain sentences. */
+  /**
+   * What they are working on in public, in one short sentence (two lines on
+   * a card at most; owner, round 8 of 2026-11-09: every card's description is
+   * about the same length, four or five lines in all with the role).
+   */
   note: string
+  /**
+   * A second short paragraph, a line or so (a blank line apart, as on Kun's
+   * card, whose second is the link to how he works).
+   */
+  more?: string
   /** Their own links only (from their channels or profiles); never a guessed one. */
   links: PersonLink[]
   /** Where they show how they work and their setup (a video). */
@@ -397,7 +406,8 @@ export const people: Person[] = [
     avatar: '/people/phaedrus.webp',
     role: 'Runs Misty Step, an AI-native software agency.',
     // From mistystack's README and mistystep.io (2026-11-01).
-    note: 'Building what amounts to a software factory: mistystack, one method his agents load as skills across Claude Code, Codex and more, with builds and tests run on a fleet of workers. Misty Step ships its own games on it, and he created pass-env.',
+    note: 'Building a software factory, mistystack: one method his agents share, and a fleet of workers for builds\u00a0and\u00a0tests.',
+    more: 'Misty Step ships its own games on it, and he created\u00a0pass-env.',
     links: [
       { kind: 'x', href: 'https://x.com/moomooskycow' },
       { kind: 'github', href: 'https://github.com/moomooskycow' },
@@ -410,7 +420,9 @@ export const people: Person[] = [
     initials: 'NH',
     avatar: '/people/nate-herk.webp',
     role: 'AI automation educator.',
-    note: 'Teaching AI automation on YouTube and running the AI Automation Society community.',
+    // From his YouTube channel's about page (2026-11-09).
+    note: 'Teaching AI automation on YouTube, after leaving Goldman Sachs to build an AI\u00a0consultancy.',
+    more: 'He founded the AI Automation Society\u00a0community.',
     links: [
       { kind: 'youtube', href: 'https://www.youtube.com/@nateherk' },
       { kind: 'x', href: 'https://x.com/nateherk' },

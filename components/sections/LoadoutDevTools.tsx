@@ -542,9 +542,18 @@ export const PersonCard = ({ person }: { person: Person }) => (
         <p className="mt-0.5 text-sm leading-snug text-slate-300">{person.role}</p>
       </div>
     </div>
-    <p className="text-[15px] leading-relaxed text-pretty text-[#9cadc5]">{person.note}</p>
+    {/* The same shape on every card (round 8 of 2026-11-09): a short note, then a
+        second short paragraph a line apart, four or five lines in all with the role. */}
+    <p className="text-[15px] leading-relaxed text-pretty text-[#9cadc5]" data-person-note>
+      {person.note}
+    </p>
+    {person.more && (
+      <p className="-mt-1 text-sm leading-relaxed text-pretty text-slate-400" data-person-more>
+        {person.more}
+      </p>
+    )}
     {person.howTheyWork && (
-      <p className="-mt-1 text-sm leading-relaxed text-slate-400">
+      <p className="-mt-1 text-sm leading-relaxed text-slate-400" data-person-more>
         <a href={person.howTheyWork.href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-semibold whitespace-nowrap text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 hover:text-cyan-200">
           <span aria-hidden="true" className="[&_svg]:h-3.5 [&_svg]:w-3.5">
             <SiYoutube />
