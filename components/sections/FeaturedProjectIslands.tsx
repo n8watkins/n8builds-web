@@ -190,6 +190,9 @@ export function ClipTurns({ children }: { children: React.ReactNode }) {
   return <TurnsContext.Provider value={turns}>{children}</TurnsContext.Provider>
 }
 
+/** Whether any pointer on this device can hover (a mouse, a trackpad): not a phone or a tablet. */
+const canHover = () => typeof window !== 'undefined' && window.matchMedia('(any-hover: hover)').matches
+
 /**
  * One card of a ClipTurns group: pointing at it or moving keyboard focus into
  * it gives its clip the turn; leaving gives it back.
@@ -202,11 +205,14 @@ export function ClipSlot({ slot, className, children }: { slot: number; classNam
         data-clip-slot={slot}
         data-clip-turn={turns?.active === slot ? '' : undefined}
         className={className}
+        // A mouse on a device that can hover. A phone (no hover) never takes a turn
+        // this way: WebKit sends it mouse enters and leaves under a resting finger
+        // as the page scrolls, which handed the turn back to the other clip.
         onPointerEnter={(e) => {
-          if (e.pointerType === 'mouse') turns?.enter(slot)
+          if (e.pointerType === 'mouse' && canHover()) turns?.enter(slot)
         }}
         onPointerLeave={(e) => {
-          if (e.pointerType === 'mouse') turns?.leave(slot)
+          if (e.pointerType === 'mouse' && canHover()) turns?.leave(slot)
         }}
         onFocus={() => turns?.enter(slot)}
         onBlur={(e) => {
@@ -380,6 +386,11 @@ export function ProjectTour({
             type="button"
             onFocus={() => (focusPause.current = true)}
             onBlur={() => (focusPause.current = false)}
+            // Picked as the finger or the mouse goes down, not on the click: pressing it
+            // focuses it first, which hands its clip the turn and swaps this button for
+            // the pause button, so the click that follows lands elsewhere and a tap
+            // never kept the turn. The click still picks for Enter and Space.
+            onPointerDown={() => turns?.pick(slot ?? 0)}
             onClick={() => turns?.pick(slot ?? 0)}
             aria-label={`Play the ${title} ${noun}`}
             data-clip-play
