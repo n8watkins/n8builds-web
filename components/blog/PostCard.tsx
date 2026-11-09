@@ -113,3 +113,35 @@ export function FeaturedPostCard({ post }: { post: Post }) {
     </Link>
   )
 }
+
+/**
+ * A note as one compact row (owner, 2026-11-08): a small thumbnail of its
+ * cover beside the date, title and a two-line excerpt. The homepage's N8's
+ * Notions band lists its notes this way on phones, where a full card each ran
+ * to about 2,200px for four.
+ */
+export function PostRow({ post }: { post: Post }) {
+  return (
+    <Link
+      href={`/blog/${post.slug.current}`}
+      className="group flex items-start gap-3.5 rounded-xl border border-white/8 bg-white/2 p-3 transition-colors duration-200 hover:border-cyan-400/30 hover:bg-white/4"
+    >
+      <CoverBanner
+        coverUrl={post.coverUrl}
+        coverAlt={post.coverAlt}
+        seed={post.slug.current}
+        topic={post.topics?.[0]}
+        bare
+        sizes="96px"
+        className="aspect-[4/3] w-24 shrink-0 rounded-lg ring-1 ring-white/8"
+      />
+      <div className="min-w-0 flex-1">
+        <time dateTime={post.publishedAt} className="font-mono text-[0.65rem] uppercase tracking-wider text-slate-450">
+          {formatPostDate(post.publishedAt)}
+        </time>
+        <h3 className="mt-0.5 font-bold leading-snug text-balance text-slate-50 group-hover:text-cyan-100">{post.title}</h3>
+        {post.excerpt && <p className="mt-1 line-clamp-2 text-[13px] leading-snug text-[#9cadc5]">{post.excerpt}</p>}
+      </div>
+    </Link>
+  )
+}
