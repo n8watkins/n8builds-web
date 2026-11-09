@@ -33,27 +33,29 @@ test.describe('a build page', () => {
     // The download is up top, through the same route as the Lab.
     await expect(header.getByRole('link', { name: 'Download for Windows' })).toHaveAttribute('href', '/download/scribe')
 
-    // The landing page sits with the other actions, after the download.
+    // The landing page sits with the other actions, after the download, and
+    // the header is one centred column (owner, 2026-11-09).
     const download = (await header.getByRole('link', { name: 'Download for Windows' }).boundingBox())!
     const live = (await header.getByRole('link', { name: /Visit the landing page/ }).boundingBox())!
     expect(live.y).toBeGreaterThanOrEqual(download.y)
-    expect(Math.abs(live.x - download.x)).toBeLessThan(2)
+    const box = (await header.boundingBox())!
+    expect(Math.abs(download.x + download.width / 2 - (box.x + box.width / 2))).toBeLessThan(2)
+    expect(Math.abs(title.x + title.width / 2 - (box.x + box.width / 2))).toBeLessThan(50)
   })
 
   // Round 5 of 2026-11-02: over the screenshot the live site covered the app's
-  // Start button and window controls. No action overlaps the picture, at any width.
+  // Start button and window controls. Since 2026-11-09 the product sits full
+  // width under the header: every action is above it, at any width.
   for (const width of [1440, 1024, 820, 390, 320]) {
     for (const slug of ['scribe', 'openping', 'solara']) {
-      test(`${slug}'s actions never cover its screenshot at ${width}px`, { tag: width === 1024 || width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
+      test(`${slug}'s actions sit above its product, never over it, at ${width}px`, { tag: width === 1024 || width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
         await page.setViewportSize({ width, height: 900 })
         await page.goto(`/builds/${slug}`)
         const header = page.locator('main header').first()
-        // The header's picture: the product's clip, or its first screenshot.
-        const shot = (await header.locator('[data-tour], img[alt]:not([alt=""])').last().boundingBox())!
+        const picture = (await page.locator('[data-build-picture]').boundingBox())!
         for (const link of await header.getByRole('link').all()) {
           const box = (await link.boundingBox())!
-          const apart = box.x + box.width <= shot.x || box.x >= shot.x + shot.width || box.y + box.height <= shot.y || box.y >= shot.y + shot.height
-          expect(apart, `${slug} at ${width}px: ${await link.textContent()}`).toBe(true)
+          expect(box.y + box.height, `${slug} at ${width}px: ${await link.textContent()}`).toBeLessThanOrEqual(picture.y)
         }
       })
     }
@@ -90,16 +92,17 @@ test.describe('a build page', () => {
     await expect(page.getByRole('region', { name: "How it's built" }).getByRole('tab')).toHaveText(['Frontend', 'Backend'])
   })
 
-  test('OpenPing and Solara show a short clip of the product in use, loaded lazily', async ({ page }) => {
+  test('OpenPing and Solara show a short clip of the product in use, loaded lazily, with a phone take', async ({ page }) => {
     for (const slug of ['openping', 'solara']) {
       await page.goto(`/builds/${slug}`)
-      const video = page.locator('main header [data-tour] video')
+      const video = page.locator('#demo [data-tour] video').filter({ visible: true })
+      await expect(video, slug).toHaveCount(1)
       await expect(video, slug).toHaveAttribute('aria-label', /A short clip of/)
       await expect(video, slug).toHaveAttribute('preload', 'none')
-      for (const ext of ['webm', 'mp4', 'poster.webp'].map((e) => (e === 'poster.webp' ? 'clip-poster.webp' : `clip.${e}`))) {
-        const response = await page.request.get(`/builds/${slug}/${ext}`)
-        expect(response.status(), `${slug}/${ext}`).toBe(200)
-        expect(Number(response.headers()['content-length'] ?? (await response.body()).length), `${slug}/${ext} is small`).toBeLessThan(1_500_000)
+      for (const file of ['clip.webm', 'clip.mp4', 'clip-poster.webp', 'clip-phone.webm', 'clip-phone.mp4', 'clip-phone-poster.webp']) {
+        const response = await page.request.get(`/builds/${slug}/${file}`)
+        expect(response.status(), `${slug}/${file}`).toBe(200)
+        expect(Number(response.headers()['content-length'] ?? (await response.body()).length), `${slug}/${file} is small`).toBeLessThan(1_500_000)
       }
     }
   })

@@ -91,6 +91,9 @@ export default defineConfig({
           SANITY_WEBHOOK_SECRET: 'e2e-sanity-webhook-secret',
           // The build log reads its recorded GitHub fixture, never live GitHub.
           BUILD_LOG_FIXTURE: '1',
+          // Every build's live demo frames (lib/embeddable.ts) without asking the
+          // products; the specs that open one stub the framed pages.
+          EMBED_FIXTURE: 'allow',
           GITHUB_TOKEN: '',
           // A made-up GA ID (not the real property), so the consent banner and the
           // GA loader are built and tested (tests/e2e/consent.spec.ts).
