@@ -46,8 +46,10 @@ const STILL = 2 // px/s: a row moving slower than this is still
 // On a starved machine the marquee (a compositor animation) can report the
 // same place for a frame or two, or across one long frame, while it runs on;
 // a visitor's pause holds far longer.
-const PAUSED_AFTER = 0.15 // s
-const PAUSED_FRAMES = 4
+// 0.15s and 4 frames still let a loaded CI runner's stalls through (2026-11-09: the
+// dino fell off a running row in a different test each run); a hover holds for seconds.
+const PAUSED_AFTER = 0.4 // s
+const PAUSED_FRAMES = 8
 const LANDING = 20 // px past the far edge of a gap that a hop lands
 // Faster than any marquee row ever scrolls, px/s. A row "moving" faster than
 // this in a frame has been laid out again (the window was resized, a font
