@@ -107,12 +107,15 @@
    never shifts layout, and it ends on `transform: none`, leaving no
    containing block behind. Reduced motion simply shows it. */
 @layer components {
+  /* A clear fade-up: 40px over 0.9s, on a gentle ease-out so the fade is
+     seen, not over in a few frames (2026-11-08: 24px over 0.55s read as no
+     animation at all to the owner). */
   .reveal {
     opacity: 0;
-    transform: translateY(24px);
+    transform: translateY(40px);
     transition:
-      opacity 0.55s cubic-bezier(0.25, 0.1, 0.25, 1),
-      transform 0.55s cubic-bezier(0.25, 0.1, 0.25, 1);
+      opacity 0.9s cubic-bezier(0.33, 1, 0.68, 1),
+      transform 0.9s cubic-bezier(0.33, 1, 0.68, 1);
   }
 
   /* Safari only: not the scroll anchor while it rises.
@@ -576,9 +579,9 @@
    (components/features/WhoamiTerminal.tsx). Each line is in the HTML at full
    size; a clip-path steps across it one character per step (font-mono, so a
    step is exactly 1ch), and a block cursor rides the end of the typed text.
-   --chars, --start and --hold come from the component. The prompt line then
-   appears with a blinking cursor. Clip-path and transform only: no layout
-   shift. Reduced motion skips it all: the text, and the prompt, show at once. */
+   --chars, --start and --hold come from the component. A blinking cursor then
+   stays at the end of the last line (2026-11-08; a prompt line before). Clip-path and transform only: no layout
+   shift. Reduced motion skips it all: the text, and the cursor, show at once. */
 .whoami-type {
   position: relative;
   display: inline-block;

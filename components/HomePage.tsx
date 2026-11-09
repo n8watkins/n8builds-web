@@ -112,12 +112,18 @@ export default async function HomePage({ posts }: { posts: Post[] }) {
           {/* Desktop only: a sticky rail in the left gutter marking the Lab part on screen. */}
           <LabSectionNav />
           <ShimmerWhenSeen />
-          {/* The intro picks up the raised tone the band above ends on and eases it out,
-               so the top of the Lab has no lighter strip under the navbar; a faint cyan
-               glow sits behind the heading. Centred across the full content width. */}
-          <div className="bg-[radial-gradient(50%_320px_at_50%_0,rgb(34_211_238/0.08),transparent_100%),linear-gradient(to_bottom,rgb(255_255_255/0.022),transparent_220px)]">
+          {/* The intro: a faint cyan glow behind the heading, drawn by its own layer that
+               fades to nothing well inside its edges and reaches past the intro both
+               ways, so there is no band and no seam above or below it (2026-11-08: a
+               background on the short intro itself ended in hard edges). Centred
+               across the full content width. */}
+          <div className="relative">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute top-1/2 left-1/2 -z-10 h-[20rem] w-[min(64rem,100%)] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(closest-side,rgb(34_211_238/0.075),rgb(34_211_238/0.03)_55%,transparent)]"
+            />
             {/* Just the flask and "The Lab" (owner, 2026-11-08: no eyebrow, subtitle, points or pills). */}
-            <Reveal className="mx-auto flex max-w-6xl flex-col items-center px-5 pt-14 pb-2 text-center sm:px-8 sm:pt-16">
+            <Reveal className="relative mx-auto flex max-w-6xl flex-col items-center px-5 pt-14 pb-2 text-center sm:px-8 sm:pt-16">
               {/* The Lab's mark (the owner's pick, 2026-10-26): a flask in a chip like the rows' app icons. */}
               <div className="flex items-center gap-4 sm:gap-5">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-300/30 sm:h-16 sm:w-16">
