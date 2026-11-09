@@ -16,7 +16,9 @@ const action =
  * download for the visitor's OS right in its row (usePlatform and
  * lib/downloads, as on its build page) beside the link to its page. On the
  * homepage's Loadout and on /loadout, one row per thing, its actions on the
- * right from 640px and under it on a phone.
+ * right from 640px and under it on a phone: lined up with its words, or
+ * under 360px from the row's left edge, so "Download for macOS (Beta)" fits a
+ * narrow Mac window.
  */
 export default async function DevSetupShare({ className = '' }: { className?: string }) {
   const downloads = await scribeDownloads()
@@ -39,7 +41,7 @@ export default async function DevSetupShare({ className = '' }: { className?: st
                   <span className="block text-[13px] leading-snug text-[#9cadc5]">{share.what}</span>
                 </span>
               </div>
-              <div className="flex shrink-0 flex-wrap gap-2 pl-11 sm:pl-0">
+              <div className="flex shrink-0 flex-wrap gap-2 min-[360px]:pl-11 sm:pl-0">
                 <a href={url} target="_blank" rel="noopener noreferrer" className={action}>
                   <FiGithub aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
                   Browse
@@ -62,7 +64,7 @@ export default async function DevSetupShare({ className = '' }: { className?: st
               <span className="block text-[13px] leading-snug text-[#9cadc5]">Local dictation I use every day: your audio never leaves your PC.</span>
             </span>
           </div>
-          <div className="flex shrink-0 flex-wrap gap-2 pl-11 sm:pl-0">
+          <div className="flex shrink-0 flex-wrap gap-2 min-[360px]:pl-11 sm:pl-0">
             <ScribeDownloadButton downloads={downloads} />
             <Link href="/builds/scribe" className={action}>
               <FiFileText aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
