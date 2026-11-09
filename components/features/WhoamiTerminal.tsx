@@ -81,7 +81,7 @@ export default function WhoamiTerminal({ className = '' }: { className?: string 
                 line (owner, 2026-11-08; it had a "$" prompt line of its own before). */}
             {i === whoami.length - 1 && (
               <span className="whoami-prompt" style={{ ['--start' as string]: `${typing.end}s` }}>
-                <span className="whoami-cursor text-cyan-400/85">▊</span>
+                <span className="whoami-cursor" aria-hidden="true" />
               </span>
             )}
           </p>

@@ -586,19 +586,24 @@
   position: relative;
   display: inline-block;
 }
-.whoami-type::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0.2em;
-  width: 0.62em;
-  height: 1.15em;
-  background: rgb(34 211 238 / 0.85);
-  opacity: 0;
-  pointer-events: none;
-}
+/* The typing caret and the cursor that stays are the same block: one
+   character wide, cap height, sitting on the text's baseline (inline, so it
+   lines up with the letters in any monospace font, with nothing above the
+   capitals or below the line; round 3 of 2026-11-08). The caret follows the
+   text in the line and slides back to its start, taking no width of its own. */
+.whoami-type::after,
 .whoami-cursor {
   display: inline-block;
+  width: 1ch;
+  height: 0.7em;
+  vertical-align: baseline;
+  background: rgb(34 211 238 / 0.85);
+}
+.whoami-type::after {
+  content: '';
+  margin-right: -1ch;
+  opacity: 0;
+  pointer-events: none;
 }
 @media (prefers-reduced-motion: no-preference) {
   .whoami-type > span {
@@ -627,8 +632,8 @@
   to   { clip-path: inset(0 0 0 0); }
 }
 @keyframes whoami-caret-move {
-  from { transform: translateX(0); }
-  to   { transform: translateX(calc(var(--chars) * 1ch)); }
+  from { transform: translateX(calc(var(--chars) * -1ch)); }
+  to   { transform: translateX(0); }
 }
 @keyframes whoami-caret-on {
   from, to { opacity: 1; }
