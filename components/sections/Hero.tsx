@@ -56,9 +56,12 @@ const Hero = () => {
               <FadeIn
                 as="h1"
                 delay={0.08}
-                className="text-[3.2rem] sm:text-6xl/none lg:text-7xl/none xl:text-[5rem] font-extrabold leading-none tracking-tight text-slate-50"
+                // "n8builds.dev" since 2026-11-08 (owner). On phones it scales with the
+                // screen so it stays on one line, at most 3.2rem; on tablets (md), where
+                // it shares the row with the portrait, it steps down to 3rem.
+                className="whitespace-nowrap text-[min(3.2rem,calc((100vw-2.5rem)/6.6))] sm:text-6xl/none md:text-5xl/none lg:text-7xl/none xl:text-[5rem] font-extrabold leading-none tracking-tight text-slate-50"
               >
-                n8builds
+                n8builds.dev
               </FadeIn>
               <FadeIn
                 as="p"

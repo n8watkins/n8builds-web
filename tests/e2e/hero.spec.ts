@@ -15,7 +15,7 @@ test('the heading, subheader and prompt -> repeat chips all fit on a 320px scree
   await expect(hero.locator('.n8-cnode')).toHaveText(['prompt', 'build', 'ship', 'repeat'])
   await expect(hero.getByText('idea', { exact: true })).toHaveCount(0)
   const targets = [
-    hero.getByRole('heading', { level: 1, name: 'n8builds' }),
+    hero.getByRole('heading', { level: 1, name: 'n8builds.dev' }),
     hero.getByText('Think big. Ship fast.'),
     hero.getByText('prompt', { exact: true }),
     hero.getByText('repeat', { exact: true }),
@@ -100,7 +100,7 @@ test.describe('the hero text column', () => {
   test('has no "See what I\'m building" button', async ({ page }) => {
     await page.goto('/')
     const hero = page.locator('#home')
-    await expect(hero.getByRole('heading', { level: 1, name: 'n8builds' })).toBeVisible()
+    await expect(hero.getByRole('heading', { level: 1, name: 'n8builds.dev' })).toBeVisible()
     await expect(hero.getByText(/See what I.m building/)).toHaveCount(0)
   })
 
@@ -333,7 +333,7 @@ for (const [width, height] of [
       await page.goto('/')
       const hero = page.locator('#home')
       const portrait = (await hero.getByRole('img', { name: /^Nathan Watkins/ }).boundingBox())!
-      const heading = (await hero.getByRole('heading', { level: 1, name: 'n8builds' }).boundingBox())!
+      const heading = (await hero.getByRole('heading', { level: 1, name: 'n8builds.dev' }).boundingBox())!
       expect(portrait.width, 'portrait size').toBeGreaterThanOrEqual(140)
       expect(portrait.y, 'portrait clears the navbar').toBeGreaterThanOrEqual(68)
       expect(portrait.y + portrait.height, 'portrait on the first screen').toBeLessThanOrEqual(height)
@@ -499,6 +499,9 @@ test.describe('the whoami typing', () => {
       await page.context().route('**/*.js', (route) => route.abort())
       await page.goto('/')
       await expect(lines(page)).toHaveText(['AI-first software developer.', 'I build apps and tools I wish existed.'])
+      // The cursor ends the last line, not a prompt line of its own (2026-11-08).
+      await expect(page.locator('#home [data-terminal] p').filter({ has: page.locator('.whoami-prompt') })).toContainText('I build apps and tools I wish existed.')
+      await expect(prompt(page)).not.toContainText('$')
       // Pause every animation early on: line 1 part typed, line 2 and the prompt not yet.
       await page.evaluate(() => {
         // Time-based animations only: the Lab's scroll-driven washes run on scroll progress.

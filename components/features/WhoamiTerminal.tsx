@@ -56,7 +56,7 @@ export default function WhoamiTerminal({ className = '' }: { className?: string 
         </p>
       </div>
       {/* The body types itself out on load, one line after the other, then
-          the prompt comes back with a blinking cursor. All CSS (whoami-type
+          a blinking cursor stays at the end of the last line. All CSS (whoami-type
           in app/globals.css): the text is in the server HTML at full size, so
           it reads without JavaScript, search engines get it, and its space is
           reserved (no layout shift); only a clip-path steps across it, one
@@ -77,11 +77,15 @@ export default function WhoamiTerminal({ className = '' }: { className?: string 
             >
               <span>{line}</span>
             </span>
+            {/* Once typing is done the cursor stays, blinking, at the end of the last
+                line (owner, 2026-11-08; it had a "$" prompt line of its own before). */}
+            {i === whoami.length - 1 && (
+              <span className="whoami-prompt" style={{ ['--start' as string]: `${typing.end}s` }}>
+                <span className="whoami-cursor text-cyan-400/85">▊</span>
+              </span>
+            )}
           </p>
         ))}
-        <p className="whoami-prompt text-slate-475" style={{ ['--start' as string]: `${typing.end}s` }}>
-          <span className="text-cyan-400">$</span> <span className="whoami-cursor">▊</span>
-        </p>
       </div>
     </FadeIn>
   )
