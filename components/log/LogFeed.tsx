@@ -1,3 +1,4 @@
+// Sample change for measuring CI (do not merge).
 'use client'
 import { Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
