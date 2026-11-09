@@ -140,7 +140,7 @@ test('the Lab is headed by its flask, and says its builds are open source once, 
   // The claims every build shares sit once, under "The Lab" (owner, 2026-11-09), on one line from 1024px.
   const checks = page.locator('#lab').getByRole('list', { name: 'Open source' })
   await expect(checks).toHaveCount(1)
-  await expect(checks.getByRole('listitem')).toHaveText(['Public on GitHub', 'MIT-licensed', 'Tested on every pull request', 'Star, fork or open an issue'])
+  await expect(checks.getByRole('listitem')).toHaveText(['Public on GitHub', 'MIT-licensed', 'Star, fork or open an issue'])
   const [headingBox, checksBox] = await Promise.all([heading.boundingBox(), checks.boundingBox()])
   expect(checksBox!.y).toBeGreaterThan(headingBox!.y + headingBox!.height)
   expect(checksBox!.y).toBeLessThan((await page.locator('#featured').boundingBox())!.y)

@@ -25,10 +25,10 @@ import type { Post } from '@/lib/sanity'
 
 /**
  * Under "The Lab": true of its featured builds, extensions and templates (each
- * repo is public, MIT-licensed and runs its checks on every pull request); the
+ * repo is public and MIT-licensed; "Tested on every pull request" left on 2026-11-09, round 8); the
  * upcoming projects are plans, some with no public repo yet.
  */
-const LAB_POINTS = ['Public on GitHub', 'MIT-licensed', 'Tested on every pull request', 'Star, fork or open an issue']
+const LAB_POINTS = ['Public on GitHub', 'MIT-licensed', 'Star, fork or open an issue']
 
 /**
  * A full-width homepage band. Alternating tones and a hairline between bands
