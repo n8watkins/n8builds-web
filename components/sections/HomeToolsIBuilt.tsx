@@ -1,9 +1,10 @@
-import { DailyDriverRows } from '@/components/sections/FeaturedProjects'
 import { BuiltToolsGrid, TOOLS_I_BUILT_BLURB, TOOLS_I_BUILT_TITLE } from '@/components/sections/LoadoutDevTools'
+import ScribeToolRow from '@/components/sections/ScribeToolRow'
 
 /**
  * "Tools I built and use" on the homepage, inside its Loadout (the owner's
- * call, 2026-11-01), after the default stack: Scribe's row, then the same
+ * call, 2026-11-01), after the default stack: Scribe's compact row
+ * (ScribeToolRow, since 2026-11-08), then the same
  * cards as on /loadout, in the same groups (round 3 of 2026-11-02). Not pr-post
  * (round 5): The Pull Request Post's card under People I follow, higher on
  * the page, is its one place. Headed like "My default
@@ -20,7 +21,7 @@ export default function HomeToolsIBuilt() {
         <p className="mt-0.5 text-sm font-semibold text-blue-300">{TOOLS_I_BUILT_BLURB}</p>
       </div>
       <div className="mt-8">
-        <BuiltToolsGrid heading="h4" lead={<DailyDriverRows bleed={false} />} />
+        <BuiltToolsGrid heading="h4" lead={<ScribeToolRow />} />
       </div>
     </section>
   )
