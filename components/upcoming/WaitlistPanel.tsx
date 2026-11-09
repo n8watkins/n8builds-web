@@ -6,9 +6,10 @@ import { isWaitlistOpen } from '@/lib/waitlist/store'
  * waitlist is closed. Shared by /upcoming and the homepage's What's cookin'
  * (owner, 2026-11-02), so both pick projects the same way. Server-rendered;
  * the caller wraps it in the section the cards' Join buttons scroll to.
- * `layout="side"` is the homepage's: beside the cards from 1024px up, so it
- * tightens there (picks without taglines, less padding) to keep both on one screen,
- * and centres its content when the cards beside it are the taller.
+ * `layout="side"` is /upcoming's: beside its cards from 1024px up, so it
+ * tightens there (picks without taglines, less padding), and centres its
+ * content when the cards beside it are the taller. The homepage shows it
+ * behind a "Join the waitlist" button (WaitlistDisclosure, 2026-11-08).
  */
 export default async function WaitlistPanel({
   heading: Heading = 'h2',
