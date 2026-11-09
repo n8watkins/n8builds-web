@@ -217,7 +217,7 @@ export default function TemplateCarousel({ slides, phone }: { slides: TemplateSl
           right side, beside the phone's foot; on phones, where one row doesn't
           fit, two by two under the phone. */}
       <div className="relative mt-3 sm:mt-[calc(0.75rem-7%)] sm:pl-[23%]">
-        <div className="mx-auto grid max-w-xs grid-cols-2 gap-1.5 sm:mx-0 sm:flex sm:max-w-none sm:flex-wrap sm:justify-end sm:gap-2 lg:gap-1.5">
+        <div className="mx-auto grid max-w-xs grid-cols-2 gap-1.5 sm:mx-0 sm:flex sm:max-w-none sm:flex-wrap sm:justify-end sm:gap-2 lg:gap-1">
           {slides.map((slide, i) => {
             const Icon = ICONS[slide.kind]
             const current = i === index
@@ -228,7 +228,7 @@ export default function TemplateCarousel({ slides, phone }: { slides: TemplateSl
                 aria-label={`Show the ${slide.label}`}
                 aria-current={current}
                 onClick={() => pick(i)}
-                className={`inline-flex h-8 items-center justify-center gap-1.5 rounded-full border px-2.5 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-cyan-300 sm:px-3 sm:text-[13px] lg:h-7 lg:px-2.5 lg:text-xs ${
+                className={`inline-flex h-8 items-center justify-center gap-1.5 rounded-full border px-2.5 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-cyan-300 sm:px-3 sm:text-[13px] lg:h-7 lg:gap-1 lg:px-2 lg:text-xs ${
                   current
                     ? 'border-cyan-300/45 bg-cyan-400/15 text-cyan-100'
                     : 'border-white/12 bg-white/4 text-slate-300 hover:border-white/20 hover:bg-white/8 hover:text-slate-100'

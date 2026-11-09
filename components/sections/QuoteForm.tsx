@@ -133,7 +133,7 @@ export default function QuoteForm({ turnstileSiteKey }: { turnstileSiteKey: stri
       ref={formRef}
       id={QUOTE_ANCHOR}
       noValidate
-      className="scroll-mt-28"
+      className="@container scroll-mt-28"
       aria-label="Get a Tech for Pros quote"
       data-scroll-top-avoid
       onSubmit={(e) => {
@@ -159,7 +159,10 @@ export default function QuoteForm({ turnstileSiteKey }: { turnstileSiteKey: stri
       >
         Where should the quote go?
       </label>
-      <div className="mt-2 flex flex-col gap-2.5 sm:flex-row">
+      {/* The field and the button side by side where the form has room (a container
+          query, 24rem: the copy column is narrow from 1024px), stacked where it hasn't, so
+          the placeholder always has room (2026-11-08). */}
+      <div className="mt-2 flex flex-col gap-2.5 @sm:flex-row @sm:gap-2">
         <input
           ref={input}
           id="quote-email"
@@ -177,7 +180,7 @@ export default function QuoteForm({ turnstileSiteKey }: { turnstileSiteKey: stri
             setEmail(e.target.value)
             setInvalid(false)
           }}
-          className={`h-11 w-full min-w-0 rounded-xl sm:w-auto sm:flex-1 border bg-[#081120] px-3.5 text-[15px] text-slate-100 placeholder:text-slate-450 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60 disabled:opacity-60 ${
+          className={`h-11 w-full min-w-0 rounded-xl @sm:w-auto @sm:flex-1 border bg-[#081120] px-3 text-[15px] text-slate-100 placeholder:text-slate-450 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60 disabled:opacity-60 ${
             invalid
               ? 'border-rose-400/70'
               : 'border-white/12 hover:border-white/20 focus:border-sky-400/60'
@@ -186,7 +189,7 @@ export default function QuoteForm({ turnstileSiteKey }: { turnstileSiteKey: stri
         <button
           type="submit"
           disabled={!hydrated || busy}
-          className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#1066f4] px-5 text-sm font-bold text-white transition-all duration-200 hover:bg-[#3b82f6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400 disabled:cursor-not-allowed disabled:opacity-70"
+          className="inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-[#1066f4] px-4 text-sm font-bold text-white transition-all duration-200 hover:bg-[#3b82f6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {busy ? 'Sending...' : 'Get my quote'}
           {!busy && <FiArrowRight aria-hidden="true" className="h-4 w-4" />}

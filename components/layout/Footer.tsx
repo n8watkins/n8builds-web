@@ -63,9 +63,10 @@ const Footer = () => {
             {/* top accent line */}
             <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-cyan-400 via-blue-500 to-cyan-400" />
 
-            <div className="relative grid grid-cols-[minmax(0,1fr)] gap-6 p-5 sm:p-7 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] md:gap-8 md:p-8">
+            <div className="relative grid grid-cols-[minmax(0,1fr)] gap-6 p-5 sm:p-7 xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] xl:gap-8 xl:p-8">
               {/* Left - branded panel */}
-              <div className="flex flex-col gap-5">
+              {/* Side by side from 1280px (stacked below it, where the form was too narrow for its Topic choices); centred against the form, so the shorter copy and the socials read as one block (2026-11-08). */}
+              <div className="flex flex-col gap-5 xl:justify-center">
                 <div className="flex items-center gap-4">
                   <div className="relative h-16 w-16 shrink-0">
                     <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-cyan-500/30 to-blue-600/30 blur-lg" />
@@ -108,7 +109,7 @@ const Footer = () => {
                 </div>
 
                 {/* socials */}
-                <nav aria-label="Contact social media links" className="mt-auto flex items-center justify-between gap-1 sm:justify-start sm:gap-2">
+                <nav aria-label="Contact social media links" className="flex items-center justify-between gap-1 sm:justify-start sm:gap-2">
                   {SOCIALS.map(({ label, href, Icon, size, color }) => (
                     <a
                       key={label}

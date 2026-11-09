@@ -17,7 +17,7 @@ const Card = ({ now, turnstileSiteKey }: { now: NowState; turnstileSiteKey: stri
   // One grid: from lg up the copy sits in the left column from the top (so the
   // first screen's sneak peek shows the title row), the picture beside it,
   // centred; below lg the picture comes between the copy and the buttons.
-  <div className="grid gap-5 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.4fr)] lg:grid-rows-[auto_auto_auto_1fr] lg:gap-x-12">
+  <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] lg:grid-rows-[auto_auto_auto_1fr] lg:gap-x-12">
     <div className="flex flex-wrap items-center gap-3 lg:col-start-1 lg:row-start-1">
       {now.mark && <span className="h-9 w-9 shrink-0 sm:h-10 sm:w-10">{now.mark}</span>}
       <h3 className="text-[1.4rem] font-extrabold sm:text-2xl tracking-tight text-slate-50">
