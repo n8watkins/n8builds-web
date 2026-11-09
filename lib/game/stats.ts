@@ -36,8 +36,11 @@ export const ORIGINS: Record<string, Site> = {
 
 /** A round is 30 s of the dino on screen; it can last longer (paused off screen), never shorter. */
 export const ROUND_SECONDS = 30
-/** The most catches a 30-second round can honestly produce (two clicks a second on a moving target). */
-export const MAX_SCORE = 60
+/**
+ * The most a 30-second round can honestly score: two clicks a second on a moving target,
+ * and a catch while the dino is rainbow counts three (round 11 of 2026-11-09).
+ */
+export const MAX_SCORE = 100
 export const KEEP_DAYS = 400
 const SALT_DAYS = 2
 const ROUND_MS = 60 * 60 * 1000

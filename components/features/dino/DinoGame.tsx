@@ -108,6 +108,12 @@ const COLORS = { body: '#cfdbe9', eye: '#081427', shine: '#ffffff' } as const
 const RAINBOW_ODDS = 1 / 12
 // And always on the visit's 5th click, so it gets found.
 const RAINBOW_CLICK = 5
+// Rainbow mode lasts a while, then it takes a colour again (owner, round 11 of
+// 2026-11-09: not forever). While it lasts it runs much faster, and in a round
+// each catch of a rainbow dino counts for more.
+const RAINBOW_FOR = 6 // s
+const RAINBOW_PACE = 1.8 // times its speed
+const RAINBOW_BONUS = 3 // catches a rainbow catch counts for
 const RAINBOW = ['#f87171', '#fb923c', '#facc15', '#4ade80', '#22d3ee', '#818cf8', '#e879f9']
 // Where rainbow mode's sparkles twinkle, in the dino's box (px), and when (s into a 1.2s loop).
 const SPARKLES = [
@@ -135,13 +141,15 @@ const ROUND = 30
 type Reaction = 'flip' | 'fall' | 'leap' | 'dash'
 const REACTIONS: Reaction[] = ['flip', 'fall', 'leap', 'dash']
 const DASH_T = 0.7 // s of dashing
-const DASH_SPEED = 3 // times its walking speed
+// Its escape from a click: quick, but catchable (owner, round 11 of 2026-11-09: 3x was a little fast).
+const DASH_SPEED = 2.4 // times its walking speed
 const PACE_PER_CATCH = 0.06
 const MAX_PACE = 2.2
 const RESULT_FOR = 5 // s the final score shows
 const URGENT = 5 // s left when the countdown turns red
-// The most a round can score in the stats (the server checks it too).
-const MAX_STATS_SCORE = 60
+// The most a round can score in the stats (lib/game/stats.ts's MAX_SCORE checks it too):
+// two catches a second, and rainbow catches count RAINBOW_BONUS.
+const MAX_STATS_SCORE = 100
 const BEST_KEY = 'n8-dino-best'
 const ROAR_FOR = 1.1 // s the bubble stays up
 const FLIP_T = 0.7 // s per backflip
@@ -256,6 +264,8 @@ interface DinoTiming {
   reactions?: readonly Reaction[]
   /** A catch round's length, s (the tests shorten it). */
   round?: number
+  /** How long rainbow mode lasts, s (the tests shorten it). */
+  rainbow?: number
   /** Roaming choices and ways back in, the same way. */
   choices?: readonly Choice[]
   entries?: readonly Entry[]
@@ -422,6 +432,14 @@ export default function DinoGame() {
     let commit: { to: number; dir: 1 | -1; left: number } | null = null
     const COMMIT_FOR = 6 // s at most
     let hue = 210 // the body's last random hue
+    let rainbowLeft = 0 // s of rainbow mode left
+    // A new random colour for its body, out of rainbow mode.
+    const recolour = () => {
+      const next = randomHue(hue)
+      hue = next.hue
+      dino.style.setProperty('--dino-body', next.color)
+      delete dino.dataset.rainbow
+    }
     // The game (see ROUND): a round's time left and catches, the best so far,
     // and how long the final score has left on screen.
     let roundLeft = 0
@@ -483,6 +501,7 @@ export default function DinoGame() {
     }
     const timing = (window as { __n8DinoTiming?: DinoTiming }).__n8DinoTiming
     const roundFor = timing?.round ?? ROUND
+    const rainbowFor = timing?.rainbow ?? RAINBOW_FOR
     // Game stats (lib/game/stats.ts in n8builds-web): a round's start and its
     // score go to the endpoint the panel names in data-dino-stats, without
     // cookies; the answer brings the all-time record. No endpoint, no stats.
@@ -681,6 +700,14 @@ export default function DinoGame() {
       if (!dt) return
       // The round's clock, and the final score's time on screen, run on real
       // time: on a device that can't keep up, a 30 s round still lasts 30 s.
+      // Rainbow mode wears off on real time, and it takes a colour again.
+      if (rainbowLeft > 0) {
+        rainbowLeft -= realDt
+        if (rainbowLeft <= 0) {
+          rainbowLeft = 0
+          recolour()
+        }
+      }
       if (roundLeft > 0) {
         roundLeft -= realDt
         if (roundLeft <= 0) {
@@ -775,7 +802,7 @@ export default function DinoGame() {
         // the line stays put long enough to read (on a phone too).
         frame = 'stepA'
       } else if (mode === 'walk' && current) {
-        const speed = SPEED * pace * (dashLeft > 0 ? DASH_SPEED : 1)
+        const speed = SPEED * pace * (dashLeft > 0 ? DASH_SPEED : 1) * (rainbowLeft > 0 ? RAINBOW_PACE : 1)
         dashLeft = Math.max(0, dashLeft - dt)
         x += dir * speed * dt
         walked += speed * dt
@@ -1061,7 +1088,9 @@ export default function DinoGame() {
       // A catch: the first click starts a round (or a new one once the last
       // score has had a moment on screen), then every click counts.
       if (roundLeft > 0) {
-        catches += 1
+        // A rainbow dino is worth more.
+        catches += rainbowLeft > 0 ? RAINBOW_BONUS : 1
+        dino.dataset.bonus = rainbowLeft > 0 ? String(RAINBOW_BONUS) : ''
       } else if (resultLeft < RESULT_FOR - 1.5) {
         roundLeft = roundFor
         statsRound = null
@@ -1079,18 +1108,17 @@ export default function DinoGame() {
       pace = roundLeft > 0 ? Math.min(1 + catches * PACE_PER_CATCH, MAX_PACE) : 1
       dino.dataset.catches = String(catches)
       scoreboard()
-      // A new colour every time; sometimes a rainbow.
+      // A new colour every time; sometimes a rainbow, which lasts RAINBOW_FOR
+      // (a click while it is rainbow keeps it so).
       const rainbow =
         Math.random() < RAINBOW_ODDS || roars === RAINBOW_CLICK || (roundLeft > 0 && catches % 10 === 0)
-      if (rainbow) {
+      if (rainbowLeft > 0) {
+        // Still rainbow.
+      } else if (rainbow) {
         dino.style.setProperty('--dino-body', `url(#${rainbowId})`)
         dino.dataset.rainbow = 'true'
-      } else {
-        const next = randomHue(hue)
-        hue = next.hue
-        dino.style.setProperty('--dino-body', next.color)
-        delete dino.dataset.rainbow
-      }
+        rainbowLeft = rainbowFor
+      } else recolour()
       dino.dataset.roars = String(roars)
       // A reaction, if it is walking (mid-jump or falling, it only roars).
       const current = levels[level]
