@@ -124,3 +124,41 @@ test('on the homepage the Loadout comes right after People I follow, with no Too
   // The tools are inside the Loadout section, not a section beside it.
   await expect(page.locator('#loadout #tools-i-built')).toHaveCount(1)
 })
+
+/**
+ * Round 8 of 2026-11-09 (owner): on the homepage, Tools I built and use is headed
+ * by its hammer, hammering (CSS only, still under reduced motion), with no
+ * "Built by me" eyebrow, no accent bar and no rule after its group's heading.
+ */
+for (const reducedMotion of ['no-preference', 'reduce'] as const) {
+  test(`the homepage's Tools I built and use: a hammering hammer, no badge, bar or rule (${reducedMotion})`, async ({ browser }) => {
+    const context = await browser.newContext({ reducedMotion })
+    const page = await context.newPage()
+    await page.goto('/')
+    const built = page.locator('#tools-i-built')
+    await built.scrollIntoViewIfNeeded()
+    await expect(built).not.toContainText('Built by me')
+    // No accent bar beside the heading (it was a left border), and no rule after "Dev tools I built".
+    const heading = built.getByRole('heading', { level: 3, name: 'Tools I built and use' })
+    expect(await heading.evaluate((h) => getComputedStyle(h.closest('div')!.parentElement!).borderLeftWidth)).toBe('0px')
+    await expect(built.locator('[data-built-group] h4 span')).toHaveCount(0)
+    const head = built.locator('.part-icon-hammer .hammer-head')
+    await expect(built.locator('.part-icon-hammer')).toBeVisible()
+    if (reducedMotion === 'reduce') {
+      expect(await head.evaluate((g) => getComputedStyle(g).animationName)).toBe('none')
+    } else {
+      await expect.poll(() => head.evaluate((g) => getComputedStyle(g).animationName)).toBe('part-hammer')
+      // It really swings: the head's rotation changes over time.
+      const angles = new Set<string>()
+      for (let i = 0; i < 6; i++) {
+        angles.add(await head.evaluate((g) => getComputedStyle(g).transform))
+        await page.waitForTimeout(120)
+      }
+      expect(angles.size).toBeGreaterThan(1)
+    }
+    // /loadout's part head and both side rails use the same hammer.
+    await page.goto('/loadout')
+    await expect(page.locator('#tools-i-built-title').locator('xpath=ancestor::div[2]').locator('.part-icon-hammer')).toHaveCount(1)
+    await context.close()
+  })
+}
