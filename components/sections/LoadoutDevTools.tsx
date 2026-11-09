@@ -375,7 +375,7 @@ const SetupChip = ({ entry }: { entry: SetupEntry }) => {
 export const DevSetup = () => (
   <section aria-labelledby="dev-setup-title">
     <SectionHead id="dev-setup-title" part="dev-setup" path="~/loadout/dev-setup" title="My dev setup">
-      One Windows 11 PC doing Linux work in WSL2, with Claude Code and Codex running side by side in herdr. Every piece, grouped.
+      Windows 11 with WSL2, and Claude Code and Codex in herdr.
     </SectionHead>
     <ul id="setup-tiles" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {devSetup.map((tile, i) => {
