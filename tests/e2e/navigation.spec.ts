@@ -62,9 +62,11 @@ test.describe('the Contact link', () => {
     await expect(form(page)).toBeInViewport()
     // Under the navbar at the page's scroll-padding-top, not 80px lower: WebKit
     // counted the padding twice while the open menu held the body's overflow.
+    // Within a few pixels: WebKit's smooth scroll on CI's Linux runner settles
+    // 5px past the mark (75, 2026-11-09), which no one sees; the bug was 80px.
     await expect
-      .poll(() => page.locator('#contact').evaluate((el) => Math.round(el.getBoundingClientRect().top)), { timeout: 10_000 })
-      .toBe(80)
+      .poll(() => page.locator('#contact').evaluate((el) => Math.abs(Math.round(el.getBoundingClientRect().top) - 80)), { timeout: 10_000 })
+      .toBeLessThanOrEqual(8)
   })
 })
 
