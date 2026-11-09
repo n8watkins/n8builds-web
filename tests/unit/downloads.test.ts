@@ -50,7 +50,7 @@ describe('Scribe on every desktop OS (2026-11-09)', () => {
     expect(all.windows).toEqual({ href: '/download/scribe', facts: 'Windows 10 and 11, 64-bit · v0.8.0 · 12 MB', beta: false })
     expect(all.mac.href).toBe('/download/scribe-mac')
     expect(all.mac.facts).toMatch(/^macOS, Apple silicon and Intel · v0\.8\.0 · /)
-    expect(all.mac.note).toBe('Not notarized by Apple: right-click Scribe and choose Open the first time.')
+    expect(all.mac.note).toBe('Not notarized by Apple: open it once, then allow it in System Settings > Privacy & Security > Open Anyway.')
     expect(all.linux).toMatchObject({ href: '/download/scribe-linux', beta: true, alt: { href: '/download/scribe-deb', label: '.deb' } })
     expect(all.linux.facts).toMatch(/^Linux, 64-bit AppImage · v0\.8\.0 · /)
   })

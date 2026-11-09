@@ -262,7 +262,7 @@ test('Scribe downloads the newest installer through a stable link, and its page 
 test("Scribe's build page leads with the download for the visitor's OS, the others quiet under it", async ({ browser }) => {
   for (const [as, platform, name, href, quiet, describe] of [
     [asWindows, 'windows', 'Download for Windows', '/download/scribe', ['Mac (beta, not notarized)', 'Linux (beta)'], /^Windows 10 and 11, 64-bit · v0\.8\.0 · 12 MB$/],
-    [asMac, 'mac', 'Download for macOS Beta', '/download/scribe-mac', ['Windows', 'Linux (beta)'], /^macOS, Apple silicon and Intel · v0\.8\.0 · \d+ MB ?Not notarized by Apple: right-click Scribe and choose Open the first time\.$/],
+    [asMac, 'mac', 'Download for macOS Beta', '/download/scribe-mac', ['Windows', 'Linux (beta)'], /^macOS, Apple silicon and Intel · v0\.8\.0 · \d+ MB ?Not notarized by Apple: open it once, then allow it in System Settings > Privacy & Security > Open Anyway\.$/],
     [asLinux, 'linux', 'Download for Linux Beta', '/download/scribe-linux', ['Windows', 'Mac (beta, not notarized)'], /^Linux, 64-bit AppImage · v0\.8\.0 · \d+ MB · Also as a \.deb$/],
     [asPhone, 'other', 'Download for Windows', '/download/scribe', ['Mac (beta, not notarized)', 'Linux (beta)'], /^Windows 10 and 11/],
   ] as const) {
@@ -310,7 +310,7 @@ test("Scribe's row offers the download for the visitor's OS, and leads with its 
   expect(win).toMatchObject({ platform: 'windows', href: '/download/scribe', download: true, story: false, note: 'Windows 10 and 11, 64-bit · v0.8.0 · 12 MB' })
   const mac = await look(asMac, 'Download for macOS Beta')
   expect(mac).toMatchObject({ platform: 'mac', href: '/download/scribe-mac', download: true, story: false })
-  expect(mac.note).toMatch(/^macOS, Apple silicon and Intel · v0\.8\.0 · \d+ MB ?Not notarized by Apple: right-click Scribe and choose Open the first time\.$/)
+  expect(mac.note).toMatch(/^macOS, Apple silicon and Intel · v0\.8\.0 · \d+ MB ?Not notarized by Apple: open it once, then allow it in System Settings > Privacy & Security > Open Anyway\.$/)
   const linux = await look(asLinux, 'Download for Linux Beta')
   expect(linux).toMatchObject({ platform: 'linux', href: '/download/scribe-linux', download: true, story: false })
   expect(linux.note).toMatch(/^Linux, 64-bit AppImage · v0\.8\.0 · \d+ MB · Also as a \.deb$/)

@@ -48,7 +48,7 @@ const SCRIBE: Record<DesktopOs, { app: string; runsOn: string; beta: boolean; no
     app: 'scribe-mac',
     runsOn: 'macOS, Apple silicon and Intel',
     beta: true,
-    note: 'Not notarized by Apple: right-click Scribe and choose Open the first time.',
+    note: 'Not notarized by Apple: open it once, then allow it in System Settings > Privacy & Security > Open Anyway.',
   },
   linux: { app: 'scribe-linux', runsOn: 'Linux, 64-bit AppImage', beta: true, alt: { app: 'scribe-deb', label: '.deb' } },
 }

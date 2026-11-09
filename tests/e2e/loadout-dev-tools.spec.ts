@@ -559,7 +559,7 @@ test.describe('Loadout tools and people', () => {
     // Windows, and macOS and Linux in beta (owner, 2026-11-09).
     for (const [userAgent, platform, name, href, note] of [
       ['Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Safari/537.36', 'windows', 'Download for Windows', '/download/scribe', /^Windows 10 and 11, 64-bit · v0\.8\.0 · 12 MB$/],
-      ['Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15', 'mac', 'Download for macOS Beta', '/download/scribe-mac', /^macOS, Apple silicon and Intel · v0\.8\.0 · \d+ MBNot notarized by Apple: right-click Scribe and choose Open the first time\.$/],
+      ['Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15', 'mac', 'Download for macOS Beta', '/download/scribe-mac', /^macOS, Apple silicon and Intel · v0\.8\.0 · \d+ MBNot notarized by Apple: open it once, then allow it in System Settings > Privacy & Security > Open Anyway\.$/],
       ['Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Safari/537.36', 'linux', 'Download for Linux Beta', '/download/scribe-linux', /^Linux, 64-bit AppImage · v0\.8\.0 · \d+ MB · Also as a \.deb$/],
       ['Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1', 'other', 'Download for Windows', '/download/scribe', 'Desktop app for Windows, with macOS and Linux in beta.'],
     ] as const) {
