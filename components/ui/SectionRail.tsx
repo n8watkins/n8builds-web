@@ -75,6 +75,10 @@ export default function SectionRail({
 }: SectionRailProps) {
   const [parts, setParts] = useState<readonly RailPart[]>(allParts)
   const [active, setActive] = useState(-1)
+  // The parts on the page, in order: the current one is marked data-rail-current, which
+  // runs its heading icon's animation (app/globals.css), so the heading's icon and the
+  // rail's play together and stop together (owner, round 11 of 2026-11-09).
+  const partsRef = useRef<HTMLElement[]>([])
   const [shown, setShown] = useState(false)
   const listRef = useRef<HTMLUListElement>(null)
   const navRef = useRef<HTMLElement>(null)
@@ -85,6 +89,11 @@ export default function SectionRail({
   const jumpRef = useRef<{ index: number; stop: () => void; landed?: number } | null>(null)
   // The scroll-spy's update, for a jump to hand back to when it settles.
   const updateRef = useRef<() => void>(() => {})
+
+  useEffect(() => {
+    partsRef.current.forEach((el, i) => el.toggleAttribute('data-rail-current', i === active))
+  }, [active])
+  useEffect(() => () => partsRef.current.forEach((el) => el.removeAttribute('data-rail-current')), [])
 
   // The rail sticks at the viewport's middle: its own height (which changes
   // with the breakpoint) goes to --nav-h so it can centre itself.
@@ -107,6 +116,9 @@ export default function SectionRail({
     )
     const present = found.map((x) => x.s)
     const els = found.map((x) => x.el)
+    partsRef.current = els
+    // Its parts' heading icons run with the rail (globals.css), not on their own.
+    els.forEach((el) => el.setAttribute('data-rail-part', ''))
     // Each part's heading icon, where it has one (LoadoutPartHeading, LabSubheader).
     const marks = els.map((el) => el.querySelector<HTMLElement>('[data-part-icon]'))
     const container = document.getElementById(containerId)
@@ -155,6 +167,8 @@ export default function SectionRail({
       const box = container.getBoundingClientRect()
       if (box.bottom <= 0 || box.top >= window.innerHeight) {
         setShown(false)
+        // No part is current off screen: its heading icon stops with the rail's.
+        setActive(-1)
         return
       }
       // A part becomes current once it reaches the rail's level, the viewport's
@@ -208,6 +222,7 @@ export default function SectionRail({
     // Hydrated and measuring: the rail can show from here on (tests wait for this).
     column.dataset.ready = ''
     return () => {
+      els.forEach((el) => el.removeAttribute('data-rail-part'))
       resize.disconnect()
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onScroll)
