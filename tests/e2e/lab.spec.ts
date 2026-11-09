@@ -36,6 +36,14 @@ async function rowOf(page: Page, title: string) {
   return page.getByRole('article', { name: title })
 }
 
+/**
+ * Makes the page's browser report Windows, or a Mac, through Chromium's client
+ * hint (the rows read it first). Playwright's desktop browsers already claim
+ * Windows in their user agent; its phones don't.
+ */
+const asWindows = () => Object.defineProperty(navigator, 'userAgentData', { get: () => ({ platform: 'Windows' }) })
+const asMac = () => Object.defineProperty(navigator, 'userAgentData', { get: () => ({ platform: 'macOS' }) })
+
 /** A row's three controls: the primary action, Full story and the Star | GitHub group. */
 const controls = (row: Locator, title: string) => [
   row.getByRole('link', { name: PRIMARY[title][0] }),
@@ -192,6 +200,8 @@ test('every row and its build page lead with the same one action, to the live th
 })
 
 test('Scribe downloads the newest installer through a stable link, and its page takes Mac and Linux requests', { tag: '@smoke' }, async ({ page, request }) => {
+  // On Windows, where the download leads.
+  await page.addInitScript(asWindows)
   const row = await rowOf(page, 'Scribe')
   const download = row.getByRole('link', { name: 'Download for Windows' })
   await download.scrollIntoViewIfNeeded()
@@ -241,7 +251,35 @@ test('Scribe downloads the newest installer through a stable link, and its page 
 
 })
 
+test("Scribe's row leads with its download on Windows and with its full story anywhere else, without moving", { tag: '@cross-browser' }, async ({ browser }) => {
+  const look = async (windows: boolean) => {
+    const context = await browser.newContext({ reducedMotion: 'reduce' })
+    const page = await context.newPage()
+    await page.addInitScript(windows ? asWindows : asMac)
+    const row = await rowOf(page, 'Scribe')
+    await expect(row.locator('[data-platform]')).toHaveAttribute('data-platform', windows ? 'windows' : 'other')
+    const [download, story] = controls(row, 'Scribe')
+    await download.scrollIntoViewIfNeeded()
+    const solid = async (el: Locator) => el.evaluate((e) => getComputedStyle(e).backgroundImage !== 'none')
+    const result = {
+      download: await solid(download),
+      story: await solid(story),
+      note: await row.getByText(windows ? 'Windows 10 and 11, 64-bit · v0.8.0 · 12 MB' : 'Windows app. Mac and Linux coming.').isVisible(),
+      boxes: await Promise.all([download, story].map((el) => el.boundingBox())),
+    }
+    await context.close()
+    return result
+  }
+  const [win, other] = [await look(true), await look(false)]
+  expect([win.download, win.story, win.note]).toEqual([true, false, true])
+  expect([other.download, other.story, other.note]).toEqual([false, true, true])
+  // Only colours and words change: both buttons keep their boxes.
+  expect(other.boxes).toEqual(win.boxes)
+})
+
 test("each row's primary action is in its product's colour", async ({ page }) => {
+  // Scribe's download leads (in its colour) on Windows.
+  await page.addInitScript(asWindows)
   const colours: string[] = []
   for (const title of ROWS) {
     const row = await rowOf(page, title)
@@ -504,8 +542,8 @@ test.describe('the Lab rows on a 320px phone', () => {
     const [p, f, r] = await Promise.all(controls(row, 'Scribe').map((el) => el.boundingBox()))
     expect(f!.y).toBeGreaterThan(p!.y + p!.height - 1)
     expect(Math.round(f!.y)).toBe(Math.round(r!.y))
-    // The download caption stays inside the column.
-    const caption = row.getByText(/Windows 10 and 11, 64-bit/)
+    // The download caption (or, away from Windows, the note) stays inside the column.
+    const caption = row.locator('#scribe-download-facts')
     const box = (await caption.boundingBox())!
     expect(box.x + box.width).toBeLessThanOrEqual(320)
   })

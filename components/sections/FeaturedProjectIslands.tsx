@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import Image from 'next/image'
 import { FiChevronLeft, FiChevronRight, FiPause, FiPlay } from 'react-icons/fi'
 import { useHydrated } from '@/hooks/useHydrated'
@@ -278,6 +278,37 @@ export function ProjectTour({
           </button>
         )}
       </div>
+    </div>
+  )
+}
+
+function noSubscription() {
+  return () => {}
+}
+
+/**
+ * Whether this browser runs on Windows: the client hint where there is one
+ * (Chromium), else the user agent string. Phones and tablets are never Windows.
+ */
+function onWindows(): boolean {
+  const platform = (navigator as Navigator & { userAgentData?: { platform?: string } }).userAgentData?.platform
+  if (platform) return /^windows$/i.test(platform)
+  return /Windows NT/i.test(navigator.userAgent)
+}
+
+/**
+ * Marks its children with the visitor's platform (`data-platform`, "windows"
+ * or "other", on a `group/platform` that takes no box of its own), so a row
+ * whose app runs only on Windows can lead with its download there and with its
+ * full story anywhere else (owner, 2026-11-08), by CSS alone: the server
+ * renders the Windows version, the browser checks its platform once hydrated,
+ * and only colours and words change, never sizes, so nothing moves.
+ */
+export function PlatformGroup({ children }: { children: React.ReactNode }) {
+  const windows = useSyncExternalStore(noSubscription, onWindows, () => true)
+  return (
+    <div className="group/platform contents" data-platform={windows ? 'windows' : 'other'}>
+      {children}
     </div>
   )
 }

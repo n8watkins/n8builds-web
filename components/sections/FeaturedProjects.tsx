@@ -4,7 +4,7 @@ import { FiBookOpen, FiDownload, FiExternalLink } from 'react-icons/fi'
 import Reveal from '@/components/ui/Reveal'
 import RepoButtons from '@/components/ui/RepoButtons'
 import ActionLabel from '@/components/ui/ActionLabel'
-import { ProjectGallery, ProjectTour, type GalleryImage, type ProjectTourVideo } from '@/components/sections/FeaturedProjectIslands'
+import { PlatformGroup, ProjectGallery, ProjectTour, type GalleryImage, type ProjectTourVideo } from '@/components/sections/FeaturedProjectIslands'
 import { getBuild, type BuildAction } from '@/data/builds'
 import LabSubheader from '@/components/sections/LabSubheader'
 import { downloadCaption } from '@/lib/downloads'
@@ -136,6 +136,19 @@ const buttonBase =
  */
 const tightButton = 'lab-tight:gap-1.5 lab-tight:px-2.5 lab-tight:text-[0.8125rem]'
 
+/** The quiet look of Full story (and of a Windows download elsewhere). */
+const outline = 'border-white/12 bg-white/4 text-slate-200 hover:bg-white/8 hover:text-slate-50'
+
+/**
+ * A Windows-only app's row away from Windows (PlatformGroup, owner,
+ * 2026-11-08): the download turns quiet and Full story takes Scribe's solid
+ * blue. Only colours change, so nothing moves.
+ */
+const awayDownload =
+  'group-data-[platform=other]/platform:bg-none group-data-[platform=other]/platform:border-white/12 group-data-[platform=other]/platform:bg-white/4 group-data-[platform=other]/platform:text-slate-200 group-data-[platform=other]/platform:hover:bg-white/8'
+const awayStory =
+  'group-data-[platform=other]/platform:border-transparent group-data-[platform=other]/platform:bg-linear-to-r group-data-[platform=other]/platform:from-blue-600 group-data-[platform=other]/platform:to-sky-700 group-data-[platform=other]/platform:text-white group-data-[platform=other]/platform:hover:from-blue-700 group-data-[platform=other]/platform:hover:to-sky-800'
+
 /** The row's one primary button, to the live thing, in the product's colour. */
 const PrimaryButton = ({ project, action, captionId }: { project: FeaturedProject; action: BuildAction; captionId?: string }) => {
   const external = action.href.startsWith('http')
@@ -144,7 +157,7 @@ const PrimaryButton = ({ project, action, captionId }: { project: FeaturedProjec
       href={action.href}
       {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
       {...(captionId ? { 'aria-describedby': captionId } : {})}
-      className={`${buttonBase} ${tightButton} btn-shimmer ${accents[project.accent].primary}`}
+      className={`${buttonBase} ${tightButton} btn-shimmer border border-transparent ${accents[project.accent].primary} ${action.download ? awayDownload : ''}`}
     >
       {action.download ? <FiDownload className="h-4 w-4 shrink-0" aria-hidden="true" /> : null}
       <ActionLabel label={action.label} />
@@ -161,6 +174,36 @@ const ProjectRow = async ({ project, flipped }: { project: FeaturedProject; flip
   const action = build?.tryIt
   const caption = action?.download ? await downloadCaption(action.download) : undefined
   const captionId = caption ? `${slugOf(project)}-download-facts` : undefined
+  // The primary, what a download fetches, and Full story: for a Windows-only
+  // download, marked with the visitor's platform (PlatformGroup).
+  const lead = (
+    <>
+      {action ? (
+        <div className="col-span-2 grid @[31rem]/lab-actions:col-span-1">
+          <PrimaryButton project={project} action={action} captionId={captionId} />
+        </div>
+      ) : null}
+      {/* What a download fetches, close under it: on its own line under the
+          primary on narrow columns, under the whole row on wide ones. Away
+          from Windows it says the app is for Windows for now. */}
+      {caption ? (
+        <p
+          id={captionId}
+          className="col-span-2 -mt-1 text-xs text-slate-400 @[31rem]/lab-actions:order-last @[31rem]/lab-actions:col-span-3"
+        >
+          <span className="group-data-[platform=other]/platform:hidden">{caption}</span>
+          <span className="hidden group-data-[platform=other]/platform:inline">Windows app. Mac and Linux coming.</span>
+        </p>
+      ) : null}
+      <Link
+        href={`/builds/${project.buildSlug}`}
+        className={`${buttonBase} ${tightButton} border ${outline} ${action?.download ? awayStory : ''}`}
+      >
+        <FiBookOpen className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+        Full story<span className="sr-only"> of {project.title}</span>
+      </Link>
+    </>
+  )
   return (
     <Reveal className={`flex flex-col ${flipped ? 'md:flex-row-reverse' : 'md:flex-row'} items-center gap-6 md:gap-12`}>
       {project.tour ? (
@@ -201,27 +244,11 @@ const ProjectRow = async ({ project, flipped }: { project: FeaturedProject; flip
             than its button. */}
         <div className="@container/lab-actions mt-5">
           <div className="grid grid-cols-[repeat(2,minmax(max-content,1fr))] gap-2 @[31rem]/lab-actions:grid-cols-[minmax(max-content,1.25fr)_repeat(2,minmax(max-content,1fr))]">
-            {action ? (
-              <div className="col-span-2 grid @[31rem]/lab-actions:col-span-1">
-                <PrimaryButton project={project} action={action} captionId={captionId} />
-              </div>
-            ) : null}
-            <Link
-              href={`/builds/${project.buildSlug}`}
-              className={`${buttonBase} ${tightButton} border border-white/12 bg-white/4 text-slate-200 hover:bg-white/8 hover:text-slate-50`}
-            >
-              <FiBookOpen className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-              Full story<span className="sr-only"> of {project.title}</span>
-            </Link>
+            {action?.download ? <PlatformGroup>{lead}</PlatformGroup> : lead}
             {project.github && (
               <RepoButtons href={project.github} name={project.title} halfClassName={tightButton} className="w-full" />
             )}
           </div>
-          {caption ? (
-            <p id={captionId} className="mt-1.5 text-xs text-slate-400">
-              {caption}
-            </p>
-          ) : null}
         </div>
       </div>
     </Reveal>
