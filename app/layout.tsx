@@ -24,7 +24,7 @@ const inter = localFont({
   fallback: ['system-ui', 'arial'],
 })
 
-const description = 'Think bigger. Ship sooner. Apps, AI tools, Chrome extensions, local utilities, and the build logs behind them.'
+const description = 'Think big. Ship fast. Apps, AI tools, Chrome extensions, local utilities, and the build logs behind them.'
 
 // Site-wide defaults. Each page replaces title, description, canonical, and the
 // share cards through pageMetadata() (lib/seo.ts); these cover anything else,

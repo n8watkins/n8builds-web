@@ -16,7 +16,7 @@ test('the heading, subheader and prompt -> repeat chips all fit on a 320px scree
   await expect(hero.getByText('idea', { exact: true })).toHaveCount(0)
   const targets = [
     hero.getByRole('heading', { level: 1, name: 'n8builds' }),
-    hero.getByText('Think bigger. Ship sooner.'),
+    hero.getByText('Think big. Ship fast.'),
     hero.getByText('prompt', { exact: true }),
     hero.getByText('repeat', { exact: true }),
   ]
@@ -341,9 +341,9 @@ for (const [width, height] of [
       expect(heading.y, 'heading on the first screen').toBeLessThan(height)
     })
 
-    test('keeps "Think bigger. Ship sooner." on one line', { tag: width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
+    test('keeps "Think big. Ship fast." on one line', { tag: width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
       await page.goto('/')
-      const tagline = page.locator('#home').getByText('Think bigger. Ship sooner.')
+      const tagline = page.locator('#home').getByText('Think big. Ship fast.')
       const { lines, right } = await tagline.evaluate((el) => {
         const range = document.createRange()
         range.selectNodeContents(el)
@@ -614,7 +614,7 @@ for (const width of [768, 900, 1023, 1024]) {
     // styled scrollbar out of its media queries.
     const gutter = await page.evaluate(() => window.innerWidth - document.documentElement.clientWidth)
     if (gutter > 0) await page.setViewportSize({ width: width + gutter, height: 1024 })
-    const sub = (await page.locator('#home').getByText('Think bigger. Ship sooner.').boundingBox())!
+    const sub = (await page.locator('#home').getByText('Think big. Ship fast.').boundingBox())!
     const portrait = (await page.locator('#home .hero-portrait-in').boundingBox())!
     expect(sub.height, 'one line').toBeLessThan(50)
     // Beside the portrait, from md up.
