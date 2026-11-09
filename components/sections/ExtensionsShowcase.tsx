@@ -20,21 +20,21 @@ interface Ext {
 const exts: Ext[] = [
   {
     slug: 'voicedock',
-    icon: '/builds/voicedock/icon.png',
+    icon: '/builds/voicedock/icon.svg',
     shot: '/builds/voicedock/popup.png',
     oss: true,
     blurb: 'Highlight text on any page and hear it read aloud by Piper or Kokoro voices running on your own machine. No cloud, no keys.',
   },
   {
     slug: 'tubevault',
-    icon: '/builds/tubevault/icon.png',
+    icon: '/builds/tubevault/icon.svg',
     shot: '/builds/tubevault/tubevault-popup.png',
     oss: true,
     blurb: 'Save YouTube videos, playlists and channels to your own disk, with thumbnails and metadata. No remote servers.',
   },
   {
     slug: 'tldw',
-    icon: '/builds/tldw/icon.png',
+    icon: '/builds/tldw/icon.svg',
     shot: null,
     oss: true,
     blurb: "Get a short summary of any YouTube video right on the page, from Gemini with your own free key, or open it in ChatGPT or Claude.",
@@ -64,7 +64,7 @@ const Detail = ({ ext }: { ext: Ext }) => {
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-[#0a1a33] to-[#081427]">
-            <Image src={ext.icon} alt={`${build.name} icon`} width={88} height={88} className="rounded-2xl" />
+            <Image src={ext.icon} alt={`${build.name} icon`} width={88} height={88} unoptimized className="rounded-2xl ring-1 ring-white/10" />
           </div>
         )}
         <div className="absolute inset-0 bg-linear-to-t from-darkBlue/50 to-transparent" />
@@ -73,7 +73,7 @@ const Detail = ({ ext }: { ext: Ext }) => {
       {/* Text */}
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-3">
-          <Image src={ext.icon} alt="" width={36} height={36} className="rounded-xl" />
+          <Image src={ext.icon} alt="" width={36} height={36} unoptimized className="rounded-xl ring-1 ring-white/10" />
           <div>
             <h3 className="text-xl font-extrabold leading-tight text-slate-50">{build.name}</h3>
             <p className="text-sm text-slate-400">{build.tagline}</p>

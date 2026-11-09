@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="TubeVault">
+  <rect width="64" height="64" rx="14" fill="#1a1013"/>
+  <!-- The vault door's hinge, its ring and bolts, and a play button at its heart. -->
+  <rect x="7" y="22" width="6" height="20" rx="2" fill="#94a3b8"/>
+  <circle cx="34" cy="32" r="21" fill="#2a1a1f" stroke="#cbd5e1" stroke-width="4"/>
+  <g fill="#cbd5e1">
+    <circle cx="34" cy="15.5" r="1.9"/>
+    <circle cx="34" cy="48.5" r="1.9"/>
+    <circle cx="17.5" cy="32" r="1.9"/>
+    <circle cx="50.5" cy="32" r="1.9"/>
+    <circle cx="22.3" cy="20.3" r="1.9"/>
+    <circle cx="45.7" cy="20.3" r="1.9"/>
+    <circle cx="22.3" cy="43.7" r="1.9"/>
+    <circle cx="45.7" cy="43.7" r="1.9"/>
+  </g>
+  <circle cx="34" cy="32" r="11" fill="#ef4444"/>
+  <path d="M30.5 26.5v11l9-5.5z" fill="#fff" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/>
+</svg>
