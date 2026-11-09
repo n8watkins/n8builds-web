@@ -81,10 +81,11 @@ for (const width of [390, 320]) {
       expect(b.height).toBeLessThan(160)
       expect(b.right).toBeLessThanOrEqual(width)
     }
-    // The four notes take well under 600px (about 2,200px as cards).
+    // The four notes take under about 600px on a 390px phone (about 2,200px as cards); a
+    // 320px phone wraps the titles a line more.
     const first = (await rows.first().boundingBox())!
     const last = (await rows.last().boundingBox())!
-    expect(last.y + last.height - first.y).toBeLessThan(600)
+    expect(last.y + last.height - first.y).toBeLessThan(width >= 390 ? 600 : 700)
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width)
   })
 }

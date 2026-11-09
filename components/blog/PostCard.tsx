@@ -139,7 +139,7 @@ export function PostRow({ post }: { post: Post }) {
         <time dateTime={post.publishedAt} className="font-mono text-[0.65rem] uppercase tracking-wider text-slate-450">
           {formatPostDate(post.publishedAt)}
         </time>
-        <h3 className="mt-0.5 font-bold leading-snug text-balance text-slate-50 group-hover:text-cyan-100">{post.title}</h3>
+        <h3 className="mt-0.5 line-clamp-2 font-bold leading-snug text-balance text-slate-50 group-hover:text-cyan-100">{post.title}</h3>
         {post.excerpt && <p className="mt-1 line-clamp-2 text-[13px] leading-snug text-[#9cadc5]">{post.excerpt}</p>}
       </div>
     </Link>

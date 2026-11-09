@@ -131,7 +131,8 @@ test.describe('with reduced motion', () => {
   test('the homepage points to the case study from the Lab template part, not a featured row', async ({ page }) => {
     await page.goto('/')
     await expect(page.locator('#featured').locator(`a[href="${PATH}"]`)).toHaveCount(0)
-    const link = page.locator('#template').getByRole('link', { name: 'How it is built and tested' })
+    // "Full story" since 2026-11-08 ("How it is built and tested" before).
+    const link = page.locator('#template').getByRole('link', { name: /^Full story/ })
     await link.scrollIntoViewIfNeeded()
     await link.click()
     await expect(page).toHaveURL(new RegExp(`${PATH}$`))
