@@ -59,10 +59,14 @@ function Row({ entry }: { entry: LogEntry }) {
   const name = names[entry.build] ?? entry.build
   const icon = BUILD_ICONS[entry.build]
   const version = entry.kind === 'release' ? /^Shipped (v\S+)$/.exec(entry.title)?.[1] : undefined
+  const more =
+    entry.detail ??
+    (entry.notes?.length ? entry.notes.map((n) => n.text).join('. ') : undefined) ??
+    (entry.more > 0 ? `And ${entry.more} more ${entry.more === 1 ? 'change' : 'changes'} that day.` : undefined)
   // The row's link is named by the build and the entry ("Solara: Setup: centered steps..."), not the build alone.
   const id = `strip-${entry.id.replace(/[^\w-]/g, '-')}`
   return (
-    <div className="group relative flex items-start gap-3 rounded-xl px-2 py-2.5 transition-colors hover:bg-white/[0.04] sm:gap-3.5">
+    <div className="group relative flex items-start gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-white/[0.04] sm:gap-3.5">
       {icon ? (
         <Image
           src={icon}
@@ -105,19 +109,19 @@ function Row({ entry }: { entry: LogEntry }) {
         </p>
         <p
           id={`${id}-title`}
-          className="line-clamp-2 text-[0.95rem] font-semibold leading-snug text-slate-100 transition-colors group-hover:text-cyan-100"
+          className="line-clamp-1 text-base font-semibold leading-snug text-slate-100 transition-colors group-hover:text-cyan-100"
         >
           {version ? (
             <>
               Shipped <span className="font-mono text-[0.92em] text-cyan-300">{version}</span>
-              {entry.detail && (
-                <span className="font-normal text-[#9cadc5]"> - {entry.detail}</span>
-              )}
             </>
           ) : (
             entry.title
           )}
         </p>
+        {/* A line of what's in it (round 5 of 2026-11-08): the release's note or the day's other
+            changes, at most two lines. */}
+        {more && <p className="mt-0.5 line-clamp-2 text-sm leading-snug text-[#9cadc5]">{more}</p>}
       </div>
       <time
         dateTime={entry.date}
@@ -132,26 +136,32 @@ function Row({ entry }: { entry: LogEntry }) {
 const RELEASE_KIT = 'https://github.com/n8watkins/release-kit'
 
 /**
- * Beside the log, a compact note on what writes it (round 5 of 2026-11-02; a
- * column of the card since round 4 of 2026-11-08): every project here runs
- * release-kit, so its commits and releases become this log on their own.
- * "Get release-kit" carries GitHub's mark, since that is where it goes.
+ * Beside the log, a compact pitch for what writes it (round 5 of 2026-11-02; a
+ * column of the card since round 4 of 2026-11-08, saying more since round 5):
+ * every project here runs release-kit, so its commits and releases become
+ * this log on their own. "Get release-kit" carries GitHub's mark.
  */
 function ReleaseKitNote() {
   return (
     <aside
       aria-labelledby="release-kit-ad"
-      className="flex h-full flex-col justify-center gap-3 bg-linear-to-b from-cyan-400/[0.05] to-transparent p-4 sm:flex-row sm:items-center lg:flex-col lg:items-stretch lg:px-5"
+      className="flex h-full flex-col justify-center gap-3 bg-linear-to-b from-cyan-400/[0.05] to-transparent p-4 lg:px-5"
     >
-      <p id="release-kit-ad" className="flex min-w-0 flex-1 items-start gap-2.5 text-sm leading-snug text-[#9cadc5] lg:flex-none">
-        <Image src="/log/release-kit.svg" alt="" width={24} height={24} unoptimized className="mt-0.5 h-6 w-6 shrink-0 rounded-md" />
+      <p id="release-kit-ad" className="flex items-center gap-2 text-sm font-semibold text-slate-100">
+        <Image src="/log/release-kit.svg" alt="" width={24} height={24} unoptimized className="h-6 w-6 shrink-0 rounded-md" />
         <span>
-          <span className="font-semibold text-slate-100">
-            This log writes itself with <span className="font-mono whitespace-nowrap text-cyan-300">release-kit</span>:
-          </span>{' '}
-          commits in, versions and release notes out.
+          This log writes itself with <span className="font-mono whitespace-nowrap text-cyan-300">release-kit</span>
         </span>
       </p>
+      <ul className="space-y-1 text-[13px] leading-snug text-[#9cadc5]">
+        <li>
+          <span className="text-slate-200">In:</span> Conventional Commits.
+        </li>
+        <li>
+          <span className="text-slate-200">Out:</span> versions, release notes and this log.
+        </li>
+        <li>One command adds it to any repo.</li>
+      </ul>
       <a
         href={RELEASE_KIT}
         target="_blank"

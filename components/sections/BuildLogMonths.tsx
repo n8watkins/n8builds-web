@@ -46,8 +46,8 @@ const arrowClass =
  * the months before (as far as the /builds feed's 12-month window) and
  * forward again, going round at either end (round 4 of 2026-11-08), each
  * named with its year. Each month is the same card and rows as the current one:
- * its figures and day bars, and its updates two at a time, moving on one by
- * one (round 4 of 2026-11-08). `rows={false}` is
+ * its figures and day bars, and its updates three at a time, moving on one
+ * by one (rounds 4 and 5 of 2026-11-08). `rows={false}` is
  * the card alone (/builds, where the feed below has every update).
  *
  * Every month's rows are rendered on the server and arrive with the page's
@@ -136,8 +136,8 @@ export default function BuildLogMonths({
         <ShippedStats stats={month.stats} days={month.days} period={month.name} header={header} />
       </div>
       {rows && (
-        // The month's updates, two at a time, moving on one by one (LatestUpdates).
-        <div key={`rows-${month.id}`} className={`flex flex-col justify-center p-3 sm:p-4 ${index ? 'log-month-in' : ''}`}>
+        // The month's updates, three at a time, moving on one by one (LatestUpdates).
+        <div key={`rows-${month.id}`} className={`p-3 sm:p-4 ${index ? 'log-month-in' : ''}`}>
           <LatestUpdates rows={month.rows} label={month.listLabel} />
         </div>
       )}
