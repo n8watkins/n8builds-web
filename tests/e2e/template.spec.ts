@@ -120,7 +120,8 @@ test.describe('layout', () => {
     await page.setViewportSize({ width: 1280, height: 800 })
     const template = await open(page)
     const left = async (selector: string) => page.locator(selector).first().evaluate((el) => Math.round(el.getBoundingClientRect().left))
-    expect(await left('#template h3')).toBe(await left('#featured h3'))
+    // Each part's heading bar lines up (the heading text sits after an icon where a part has one).
+    expect(await left('#template .lab-sub-bar')).toBe(await left('#featured .lab-sub-bar'))
     const [a, b] = await template.locator('ul.grid > li').evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON()))
     expect(Math.round(a.top)).toBe(Math.round(b.top))
     expect(Math.round(a.height)).toBe(Math.round(b.height))

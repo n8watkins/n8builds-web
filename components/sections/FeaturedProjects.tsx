@@ -7,6 +7,7 @@ import ActionLabel from '@/components/ui/ActionLabel'
 import { PlatformGroup, ProjectGallery, ProjectTour, type GalleryImage, type ProjectTourVideo } from '@/components/sections/FeaturedProjectIslands'
 import { getBuild, type BuildAction } from '@/data/builds'
 import LabSubheader from '@/components/sections/LabSubheader'
+import { StarIcon } from '@/components/ui/PartIcons'
 import { downloadCaption } from '@/lib/downloads'
 
 /**
@@ -295,7 +296,7 @@ const FeaturedProjects = () => {
   return (
     <section id="featured" aria-label="Featured builds" className="lab-accent-featured py-10">
       <Reveal className={`${container} pb-4`}>
-        <LabSubheader title="Featured builds" blurb="Free to use and open source, with no sign-up to start." />
+        <LabSubheader title="Featured builds" icon={<StarIcon />} blurb="Free to use and open source, with no sign-up to start." />
         {/* The open-source checks, under the heading (2026-11-08, from the Lab's
             old intro, in its style): cyan checks, one line where it fits. */}
         <ul aria-label="Open source" className="-mt-5 mb-8 flex flex-wrap items-center gap-x-5 gap-y-1.5 pl-4">
