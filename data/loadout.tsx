@@ -775,12 +775,28 @@ export const devSetup: DevSetupTile[] = [
       {
         id: 'shipping',
         title: 'Shipping',
+        // Cloudflare first (round 8 of 2026-11-09): the live apps run there; Vercel is for quick ones.
         items: [
-          { name: 'Vercel', icon: mark(SiVercel, LIGHT) },
           { name: 'Cloudflare', note: 'Wrangler', icon: mark(SiCloudflare, '#f38020') },
           { name: 'Turso', icon: mark(SiTurso, '#4ff8d2') },
+          { name: 'Vercel', note: 'for quick ones', icon: mark(SiVercel, LIGHT) },
         ],
       },
     ],
   },
 ]
+
+/**
+ * The video I point people to for setting up their own (owner, round 8 of
+ * 2026-11-09): Kun Chen builds his agentic dev environment from scratch
+ * (his channel, 2026-07-05; the chapters: Nix and nix-darwin, a dotfiles repo,
+ * home-manager, zsh and Starship, WezTerm, Neovim, herdr and a global
+ * AGENTS.md). Its thumbnail is self-hosted, like the people's avatars.
+ */
+export const devSetupVideo = {
+  title: "Kun's Agentic Dev Environment From Scratch",
+  by: 'kun-chen',
+  href: 'https://www.youtube.com/watch?v=5N-okeDdIuI',
+  thumbnail: '/loadout/kun-dev-environment.webp',
+  covers: ['Nix', 'dotfiles', 'zsh', 'WezTerm', 'Neovim', 'herdr', 'a global AGENTS.md'],
+}

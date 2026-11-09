@@ -13,7 +13,7 @@ import SectionRail, { type RailPart } from '@/components/ui/SectionRail'
 const SECTIONS: readonly RailPart[] = [
   { id: 'my-setup', label: 'Dev setup', icon: LuSquareTerminal },
   { id: 'ai-kit', label: 'AI kit', icon: LuSparkles },
-  { id: 'default-stack', label: 'Default stack', icon: LuLayers },
+  { id: 'default-stack', label: 'Default stacks', icon: LuLayers },
   { id: 'tools-i-built', label: 'Tools I built and use', short: 'My tools', icon: HammerIcon },
 ]
 

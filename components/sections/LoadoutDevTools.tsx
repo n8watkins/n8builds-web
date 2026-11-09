@@ -6,6 +6,7 @@ import { LuExternalLink, LuGlobe, LuUsers } from 'react-icons/lu'
 import { SiGithub, SiSubstack, SiX, SiYoutube } from 'react-icons/si'
 import {
   devSetup,
+  devSetupVideo,
   loadoutPart,
   loadoutParts,
   people,
@@ -374,7 +375,7 @@ const SetupChip = ({ entry }: { entry: SetupEntry }) => {
 export const DevSetup = () => (
   <section aria-labelledby="dev-setup-title">
     <SectionHead id="dev-setup-title" part="dev-setup" path="~/loadout/dev-setup" title="My dev setup">
-      Windows 11 with WSL2, Claude Code and Codex, and the tools around them.
+      One Windows 11 PC doing Linux work in WSL2, with Claude Code and Codex running side by side in herdr. Every piece, grouped:
     </SectionHead>
     <ul id="setup-tiles" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {devSetup.map((tile, i) => {
@@ -420,8 +421,50 @@ export const DevSetup = () => (
       })}
     </ul>
     <SetupTilesMotion gridId="setup-tiles" />
+    <SetupVideo />
   </section>
 )
+
+/**
+ * Under the setup (owner, round 8 of 2026-11-09): the video I recommend for
+ * setting up your own, Kun Chen building his from scratch, as a card with its
+ * thumbnail (the whole card is the link, to YouTube in a new tab).
+ */
+const SetupVideo = () => {
+  const by = people.find((p) => p.id === devSetupVideo.by)!
+  return (
+    <a
+      href={devSetupVideo.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      data-setup-video
+      className="group mt-6 grid items-center gap-4 rounded-2xl border border-white/8 bg-linear-to-r from-cyan-400/[0.06] via-white/[0.02] to-transparent p-4 transition-colors duration-200 hover:border-cyan-300/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 sm:grid-cols-[minmax(0,16rem)_minmax(0,1fr)] sm:gap-6 sm:p-5"
+    >
+      <span className="relative block aspect-video overflow-hidden rounded-xl ring-1 ring-white/10">
+        <Image src={devSetupVideo.thumbnail} alt="" fill sizes="(min-width: 640px) 256px, 100vw" className="object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none" />
+        <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center bg-black/10 transition-colors group-hover:bg-black/0">
+          <span className="flex size-11 items-center justify-center rounded-full bg-[#ff0033] text-white shadow-lg shadow-black/40 [&_svg]:size-5">
+            <SiYoutube />
+          </span>
+        </span>
+      </span>
+      <span className="min-w-0">
+        <span className="block font-mono text-xs font-bold tracking-[0.16em] text-cyan-300 uppercase">Setting up your own?</span>
+        <span className="mt-1.5 block text-lg leading-snug font-bold text-slate-50 group-hover:text-cyan-100">
+          Watch {by.name} build his agentic dev environment from scratch
+        </span>
+        <span className="mt-1.5 block text-sm leading-relaxed text-pretty text-[#9cadc5]">
+          The video I point people to: {devSetupVideo.covers.slice(0, -1).join(', ')} and {devSetupVideo.covers.at(-1)}, step by step, all reproducible.
+        </span>
+        <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 group-hover:text-cyan-200">
+          {devSetupVideo.title}, on YouTube
+          <LuExternalLink aria-hidden="true" className="size-3.5" />
+        </span>
+        <span className="sr-only"> (a video by {by.name}, opens in a new tab)</span>
+      </span>
+    </a>
+  )
+}
 
 const LINKS: Record<PersonLink['kind'], { label: string; icon: ReactNode }> = {
   youtube: { label: 'YouTube', icon: <SiYoutube /> },

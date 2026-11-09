@@ -16,7 +16,7 @@ test.use({ contextOptions: { reducedMotion: 'reduce' } })
 const PARTS = [
   { id: 'my-setup', label: 'Dev setup' },
   { id: 'ai-kit', label: 'AI kit' },
-  { id: 'default-stack', label: 'Default stack' },
+  { id: 'default-stack', label: 'Default stacks' },
   { id: 'tools-i-built', label: 'Tools I built and use' },
 ] as const
 
