@@ -528,7 +528,7 @@ export default function CaseStudy({ build, activity }: { build: Build; activity:
         </section>
 
         {/* Its build log: the newest entries, and the way to the full log */}
-        <BuildPageLog slug={build.slug} name={build.name} entries={activity} className="mt-24" />
+        <BuildPageLog name={build.name} entries={activity} className="mt-24" />
 
         {/* The next builds to look at */}
         <MoreBuilds current={build.slug} className="mt-24" />

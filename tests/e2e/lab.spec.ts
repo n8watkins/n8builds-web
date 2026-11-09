@@ -527,8 +527,13 @@ test("the row's stack and features moved to the build page", async ({ page }) =>
     ['Solara', 'Firebase', 'Live UV forecasts on a dashboard and a week calendar'],
   ]) {
     await page.goto(`/builds/${SLUG[title]}`)
-    await expect(page.getByRole('region', { name: 'Tech stack' }).getByRole('list', { name: `${title} is built with` }).getByText(tech, { exact: true })).toBeVisible()
-    await expect(page.getByRole('region', { name: `What ${title} does` }).getByText(feature)).toBeVisible()
+    const how = page.getByRole('region', { name: "How it's built" })
+    for (const tab of await how.getByRole('tab').all()) {
+      await tab.click()
+      if (await how.getByRole('tabpanel').getByText(tech).count()) break
+    }
+    await expect(how.getByRole('tabpanel').getByText(tech).first()).toBeVisible()
+    await expect(page.getByRole('region', { name: `What ${title} does` }).getByText(feature).filter({ visible: true })).toBeVisible()
   }
 })
 

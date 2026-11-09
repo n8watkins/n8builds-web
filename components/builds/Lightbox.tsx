@@ -165,7 +165,7 @@ export function LightboxThumb({
       onClick={(e) => open?.(index, e.currentTarget)}
       aria-label={`Open screenshot: ${label}`}
       aria-haspopup="dialog"
-      className={`group/shot relative block w-full cursor-zoom-in overflow-hidden text-left transition-[border-color,box-shadow,translate] duration-300 hover:-translate-y-0.5 hover:border-cyan-300/30 hover:shadow-lg hover:shadow-cyan-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 disabled:cursor-default motion-reduce:transition-none motion-reduce:hover:translate-y-0 ${className}`}
+      className={`group/shot relative block cursor-zoom-in overflow-hidden text-left transition-[border-color,box-shadow,translate] duration-300 hover:-translate-y-0.5 hover:border-cyan-300/30 hover:shadow-lg hover:shadow-cyan-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 disabled:cursor-default motion-reduce:transition-none motion-reduce:hover:translate-y-0 ${className}`}
     >
       {children}
       <span

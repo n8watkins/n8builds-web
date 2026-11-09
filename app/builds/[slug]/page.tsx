@@ -8,7 +8,7 @@ import { builds, getBuild, type Build } from '@/data/builds'
 import { shelfMeta, getShelf } from '@/data/shelves'
 import { pageMetadata, summarize } from '@/lib/seo'
 import Reveal from '@/components/ui/Reveal'
-import BuildPageLog, { BUILD_PAGE_LOG_SIZE } from '@/components/log/BuildPageLog'
+import BuildPageLog from '@/components/log/BuildPageLog'
 import RepoButtons from '@/components/ui/RepoButtons'
 import ActionLabel from '@/components/ui/ActionLabel'
 import { downloadCaption } from '@/lib/downloads'
@@ -17,10 +17,11 @@ import N8buildsCaseStudy from '@/components/builds/n8builds/CaseStudy'
 import { LightboxGallery, LightboxThumb } from '@/components/builds/Lightbox'
 import MoreBuilds from '@/components/builds/MoreBuilds'
 import FadeIn from '@/components/ui/FadeIn'
-import TechStackCycle from '@/components/Projects/TechStackCycle'
-import { projects } from '@/data/projects'
+import FeatureShots, { type Feature } from '@/components/builds/FeatureShots'
+import StackTabs from '@/components/builds/StackTabs'
+import { ProjectTour } from '@/components/sections/FeaturedProjectIslands'
 import { BUILD_ICONS } from '@/lib/build-meta'
-import { TECH, TechGlyph, type TechKey } from '@/lib/tech-icons'
+import { TechGlyph } from '@/lib/tech-icons'
 
 interface BuildPageProps {
   params: Promise<{ slug: string }>
@@ -61,11 +62,13 @@ export default async function BuildPage({ params }: BuildPageProps) {
   if (!build) notFound()
 
   const shelf = shelfMeta[getShelf(build)]
-  const activity = await getRecentActivity(slug, BUILD_PAGE_LOG_SIZE)
-  // The tech pills: every technology on the Stack cards, in order, once.
-  const techs = [...new Set(build.stack.flatMap((item) => item.tech ?? []))] as TechKey[]
-  // The "how it's built" explainer (data/projects.tsx).
-  const technologies = projects.find((p) => p.title === build.name)?.technologies
+  const activity = await getRecentActivity(slug, Infinity)
+  // How it's built: the layers this build has, in order.
+  const layers = (['Frontend', 'Backend', 'Cloud'] as const).filter((layer) => build.stack.some((item) => item.layer === layer))
+  // Its features, each with the index of its screenshot, if it has one.
+  const features: Feature[] = (build.highlights ?? []).map((h) =>
+    typeof h === 'string' ? { text: h } : { text: h.text, shot: build.images.findIndex((i) => i.src === h.shot) },
+  )
   const icon = BUILD_ICONS[build.slug]
   const caption = build.tryIt?.download ? await downloadCaption(build.tryIt.download) : undefined
 
@@ -136,13 +139,20 @@ export default async function BuildPage({ params }: BuildPageProps) {
                 <BuildActions build={build} caption={caption} />
               </FadeIn>
 
-              {build.images.length > 0 && (
+              {build.clip ? (
+                // The product in use, a few silent seconds on a loop (scripts/product-clips/).
                 <FadeIn delay={0.12}>
-                  <LightboxThumb
-                    index={0}
-                    label={build.images[0].alt}
-                    className={`rounded-2xl border border-white/8 bg-linear-to-br ${build.color}`}
-                  >
+                  <ProjectTour
+                    title={build.name}
+                    tour={build.clip}
+                    className="w-full"
+                    frameClassName="rounded-2xl border border-white/10 shadow-2xl shadow-black/40"
+                    sizes="(max-width: 1024px) 100vw, 560px"
+                  />
+                </FadeIn>
+              ) : build.images.length > 0 ? (
+                <FadeIn delay={0.12}>
+                  <LightboxThumb index={0} label={build.images[0].alt} className={`w-full rounded-2xl border border-white/8 bg-linear-to-br ${build.color}`}>
                     <span className="relative block aspect-video">
                       <Image
                         src={build.images[0].src}
@@ -155,58 +165,19 @@ export default async function BuildPage({ params }: BuildPageProps) {
                     </span>
                   </LightboxThumb>
                 </FadeIn>
-              )}
+              ) : null}
             </header>
 
-            {/* What it does, as a checklist */}
-            {build.highlights && build.highlights.length > 0 && (
+            {/* What it does: each feature beside its own screenshot (owner, 2026-11-08) */}
+            {features.length > 0 && (
               <Reveal>
                 <section aria-labelledby="highlights-heading" className="mt-14">
                   <h2 id="highlights-heading" className="sr-only">
                     What {build.name} does
                   </h2>
-                  <ul className="grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
-                    {build.highlights.map((item) => (
-                      <li
-                        key={item}
-                        className="flex items-start gap-2.5 text-[0.95rem] leading-snug text-slate-200"
-                      >
-                        <FiCheck aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
+                  <FeatureShots features={features} images={build.images} />
                 </section>
               </Reveal>
-            )}
-
-            {/* The other screenshots, each opening large too */}
-            {build.images.length > 1 && (
-              // A single extra shot shows large and centred, not alone in a three-column row.
-              <section
-                className={`mt-10 grid gap-4 ${build.images.length === 2 ? 'mx-auto max-w-3xl grid-cols-1' : 'grid-cols-2 md:grid-cols-3'}`}
-                aria-label="More screenshots"
-              >
-                {build.images.slice(1).map((img, i) => (
-                  <Reveal key={img.src} delay={i * 0.06}>
-                    <LightboxThumb
-                      index={i + 1}
-                      label={img.alt}
-                      className="rounded-xl border border-white/8 bg-white/3"
-                    >
-                      <span className="relative block aspect-video">
-                        <Image
-                          src={img.src}
-                          alt={img.alt}
-                          fill
-                          sizes="(max-width: 768px) 50vw, 330px"
-                          className="object-contain p-2 transition-transform duration-500 group-hover/shot:scale-[1.03] motion-reduce:transition-none"
-                        />
-                      </span>
-                    </LightboxThumb>
-                  </Reveal>
-                ))}
-              </section>
             )}
           </LightboxGallery>
 
@@ -287,81 +258,55 @@ export default async function BuildPage({ params }: BuildPageProps) {
             </Reveal>
           )}
 
-          {/* How it's built: front end, back end and cloud, one part at a time */}
-          {technologies && (
+          {/* How it's built: one section, a tab per layer, each with its stack
+              cards and the one-line choice behind each (owner, 2026-11-08) */}
+          {layers.length > 0 && (
             <Reveal>
               <section className="mt-16" aria-labelledby="how-built-heading">
-                <h2
-                  id="how-built-heading"
-                  className="text-center text-3xl font-bold tracking-tight"
-                >
+                <h2 id="how-built-heading" className="text-center text-3xl font-bold tracking-tight">
                   How it&apos;s{' '}
-                  <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                    built
-                  </span>
+                  <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">built</span>
                 </h2>
-                <div className="mt-6 rounded-2xl border border-white/8 bg-linear-to-br from-blue-500/[0.06] to-cyan-500/[0.04] p-5 sm:p-7">
-                  <TechStackCycle technologies={technologies} />
+                <div className="mt-6">
+                  <StackTabs
+                    tabs={layers.map((layer) => ({
+                      label: layer,
+                      panel: (
+                        // A lone card sits centred, not alone in a two-column grid.
+                        <ul
+                          aria-label={`${build.name}: ${layer}`}
+                          className={`grid gap-3 ${build.stack.filter((item) => item.layer === layer).length > 1 ? 'sm:grid-cols-2' : 'mx-auto max-w-xl'}`}
+                        >
+                          {build.stack
+                            .filter((item) => item.layer === layer)
+                            .map((item) => (
+                              <li
+                                key={item.name}
+                                className="flex gap-3.5 rounded-xl border border-white/8 bg-white/3 p-4 transition-[border-color,background-color,translate] duration-200 hover:-translate-y-0.5 hover:border-white/15 hover:bg-white/5 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                              >
+                                {item.tech && item.tech.length > 0 && (
+                                  <span aria-hidden className="flex shrink-0 -space-x-1.5 pt-0.5">
+                                    {item.tech.slice(0, 3).map((t) => (
+                                      <span key={t} className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-[#0a1428]">
+                                        <TechGlyph tech={t} className="h-[18px] w-[18px]" />
+                                      </span>
+                                    ))}
+                                  </span>
+                                )}
+                                <span className="min-w-0">
+                                  <span className="block text-sm font-bold text-slate-100">{item.name}</span>
+                                  <span className="mt-1 block text-sm leading-relaxed text-slate-400">{item.detail}</span>
+                                </span>
+                              </li>
+                            ))}
+                        </ul>
+                      ),
+                    }))}
+                  />
                 </div>
               </section>
             </Reveal>
           )}
-
-          {/* Stack */}
-          <Reveal>
-            <section className="mt-16" aria-label="Tech stack">
-              <h2 className="text-center text-3xl font-bold tracking-tight">
-                Stack{' '}
-                <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                  &amp; choices
-                </span>
-              </h2>
-              {/* The whole stack at a glance, each with its mark (moved here from the header, 2026-11-08). */}
-              {techs.length > 0 && (
-                <ul
-                  aria-label={`${build.name} is built with`}
-                  className="mx-auto mt-5 flex max-w-3xl flex-wrap justify-center gap-1.5"
-                >
-                  {techs.map((t) => (
-                    <li
-                      key={t}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-white/8 bg-white/4 px-2.5 py-1 text-xs font-semibold text-slate-300 transition-colors duration-200 hover:border-cyan-400/30 hover:bg-white/8 hover:text-slate-100"
-                    >
-                      <TechGlyph tech={t} className="h-3.5 w-3.5" />
-                      {TECH[t].label}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <ul className="mt-6 grid sm:grid-cols-2 gap-3">
-                {build.stack.map((item) => (
-                  <li
-                    key={item.name}
-                    className="flex gap-3.5 rounded-xl border border-white/8 bg-white/3 p-4 transition-[border-color,background-color,translate] duration-200 hover:-translate-y-0.5 hover:border-white/15 hover:bg-white/5 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
-                  >
-                    {item.tech && item.tech.length > 0 && (
-                      <span aria-hidden className="flex shrink-0 -space-x-1.5 pt-0.5">
-                        {item.tech.slice(0, 3).map((t) => (
-                          <span
-                            key={t}
-                            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-[#0a1428]"
-                          >
-                            <TechGlyph tech={t} className="h-[18px] w-[18px]" />
-                          </span>
-                        ))}
-                      </span>
-                    )}
-                    <span className="min-w-0">
-                      <span className="block text-sm font-bold text-slate-100">{item.name}</span>
-                      <span className="mt-1 block text-sm leading-relaxed text-slate-400">
-                        {item.detail}
-                      </span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          </Reveal>
 
           {/* Process notes */}
           <Reveal>
@@ -385,8 +330,8 @@ export default async function BuildPage({ params }: BuildPageProps) {
             </section>
           </Reveal>
 
-          {/* Its build log: the newest entries, and the way to the full log */}
-          <BuildPageLog slug={build.slug} name={build.name} entries={activity} className="mt-16" />
+          {/* Its whole build log, by month */}
+          <BuildPageLog name={build.name} entries={activity} className="mt-16" />
 
           {/* The next builds to look at */}
           <MoreBuilds current={build.slug} />

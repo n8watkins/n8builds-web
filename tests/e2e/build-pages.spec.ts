@@ -23,8 +23,6 @@ test.describe('a build page', () => {
     const kind = (await header.getByText('Desktop app', { exact: true }).boundingBox())!
     expect(kind.y + kind.height).toBeLessThanOrEqual(title.y + 1)
     await expect(header.getByRole('list', { name: 'Scribe is built with' })).toHaveCount(0)
-    const tech = page.getByRole('region', { name: 'Tech stack' }).getByRole('list', { name: 'Scribe is built with' })
-    for (const name of ['Tauri', 'Rust', 'whisper.cpp', 'SQLite', 'React']) await expect(tech.getByText(name, { exact: true })).toBeVisible()
     // The main action has a line of its own, larger than the rest.
     const [main, other] = await Promise.all(
       [header.getByRole('link', { name: 'Download for Windows' }), header.getByRole('link', { name: /Visit the landing page/ })].map((l) => l.boundingBox()),
@@ -50,7 +48,8 @@ test.describe('a build page', () => {
         await page.setViewportSize({ width, height: 900 })
         await page.goto(`/builds/${slug}`)
         const header = page.locator('main header').first()
-        const shot = (await header.locator('img[alt]:not([alt=""])').last().boundingBox())!
+        // The header's picture: the product's clip, or its first screenshot.
+        const shot = (await header.locator('[data-tour], img[alt]:not([alt=""])').last().boundingBox())!
         for (const link of await header.getByRole('link').all()) {
           const box = (await link.boundingBox())!
           const apart = box.x + box.width <= shot.x || box.x >= shot.x + shot.width || box.y + box.height <= shot.y || box.y >= shot.y + shot.height
@@ -60,21 +59,49 @@ test.describe('a build page', () => {
     }
   }
 
-  test('says what it does, how it is built, and shows each technology', async ({ page }) => {
+  test('says what it does, and how it is built: a tab per layer with its stack cards', async ({ page }) => {
     await page.goto('/builds/scribe')
     const checklist = page.getByRole('region', { name: 'What Scribe does' })
     await expect(checklist.getByRole('listitem')).toHaveCount(6)
+    // One section (owner, 2026-11-08): no separate Stack & choices, no animation box.
+    await expect(page.getByRole('heading', { name: 'Stack & choices' })).toHaveCount(0)
     const how = page.getByRole('region', { name: "How it's built" })
     await how.scrollIntoViewIfNeeded()
-    for (const tab of ['Frontend', 'Backend', 'Cloud']) await expect(how.getByRole('button', { name: tab })).toBeVisible()
-    await how.getByRole('button', { name: 'Backend' }).click()
-    // (Every build's parts are also laid out invisibly, to size it: only the shown one counts.)
-    await expect(how.getByText('whisper.cpp', { exact: true }).filter({ visible: true })).toBeVisible()
-    // Every Stack card carries its technology's mark.
-    const stack = page.getByRole('region', { name: 'Tech stack' })
-    const cards = stack.getByRole('listitem')
-    expect(await cards.count()).toBeGreaterThan(3)
-    for (const card of await cards.all()) await expect(card.locator('svg, img').first()).toBeAttached()
+    const tabs = how.getByRole('tab')
+    await expect(tabs).toHaveText(['Frontend', 'Backend', 'Cloud'])
+    await expect(tabs.first()).toHaveAttribute('aria-selected', 'true')
+    const panel = how.getByRole('tabpanel')
+    await expect(panel).toHaveCount(1)
+    await expect(panel).toContainText('React · TypeScript · Vite')
+    const height = (await how.boundingBox())!.height
+    await tabs.nth(1).click()
+    await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true')
+    for (const name of ['Tauri 2 · Rust', 'whisper.cpp', 'SQLite']) await expect(how.getByRole('tabpanel').getByText(name, { exact: true })).toBeVisible()
+    // The arrow keys move between tabs, and the section keeps its height.
+    await page.keyboard.press('ArrowRight')
+    await expect(tabs.nth(2)).toBeFocused()
+    await expect(tabs.nth(2)).toHaveAttribute('aria-selected', 'true')
+    await expect(how.getByRole('tabpanel')).toContainText('GitHub Actions · Releases')
+    expect(Math.abs((await how.boundingBox())!.height - height)).toBeLessThan(1)
+    // Every card carries its technology's mark.
+    for (const card of await how.getByRole('tabpanel').getByRole('listitem').all()) await expect(card.locator('svg, img').first()).toBeAttached()
+    // A build without a layer shows no tab for it: VoiceDock runs on your machine, nothing in the cloud.
+    await page.goto('/builds/voicedock')
+    await expect(page.getByRole('region', { name: "How it's built" }).getByRole('tab')).toHaveText(['Frontend', 'Backend'])
+  })
+
+  test('OpenPing and Solara show a short clip of the product in use, loaded lazily', async ({ page }) => {
+    for (const slug of ['openping', 'solara']) {
+      await page.goto(`/builds/${slug}`)
+      const video = page.locator('main header [data-tour] video')
+      await expect(video, slug).toHaveAttribute('aria-label', /A short clip of/)
+      await expect(video, slug).toHaveAttribute('preload', 'none')
+      for (const ext of ['webm', 'mp4', 'poster.webp'].map((e) => (e === 'poster.webp' ? 'clip-poster.webp' : `clip.${e}`))) {
+        const response = await page.request.get(`/builds/${slug}/${ext}`)
+        expect(response.status(), `${slug}/${ext}`).toBe(200)
+        expect(Number(response.headers()['content-length'] ?? (await response.body()).length), `${slug}/${ext} is small`).toBeLessThan(1_500_000)
+      }
+    }
   })
 
   test('a build leads with its one main action, then the other ways in, then Star | GitHub', async ({ page }) => {
@@ -112,37 +139,35 @@ test.describe('build page screenshots', () => {
   ] as const) {
     test.describe(label, () => {
       test.use({ viewport, hasTouch: touch })
-      test('every screenshot opens large in a lightbox: arrows, Escape, and focus back where it was', { tag: '@cross-browser' }, async ({ page }) => {
+      test('each feature shows its screenshot, which opens large in a lightbox: arrows, Escape, focus back', { tag: '@cross-browser' }, async ({ page }) => {
         await page.goto('/builds/openping')
-        const shots = page.getByRole('button', { name: /^Open screenshot/ })
-        await expect(shots).toHaveCount(3)
-        const second = shots.nth(1)
-        await second.scrollIntoViewIfNeeded()
-        await expect(second).toBeEnabled()
-        await second.click()
+        const features = page.getByRole('region', { name: 'What OpenPing does' })
+        await features.scrollIntoViewIfNeeded()
+        let opener
+        if (!touch) {
+          // From 1024px: hovering or clicking a feature puts its screenshot in the panel.
+          const feature = features.getByRole('button', { name: /^Schedule-aware/ })
+          await feature.hover()
+          await expect(feature).toHaveAttribute('aria-pressed', 'true')
+          opener = features.getByRole('button', { name: /^Open screenshot: Schedule-aware/ })
+        } else {
+          // Phones: each feature with a screenshot carries a thumbnail that opens it.
+          opener = features.getByRole('button', { name: /^Open screenshot: Schedule-aware/ })
+        }
+        await expect(opener).toBeVisible()
+        await expect(opener).toBeEnabled()
+        await opener.click()
         const dialog = page.getByRole('dialog', { name: 'OpenPing screenshots' })
         await expect(dialog).toBeVisible()
-        await expect(dialog.getByRole('img')).toHaveAccessibleName(/status page/)
-        await expect(dialog).toContainText('2 / 3')
-        // The keys step through, wrapping round.
+        await expect(dialog.getByRole('img')).toHaveAccessibleName(/Schedule-aware/)
+        await expect(dialog).toContainText('3 / 5')
         await page.keyboard.press('ArrowRight')
-        await expect(dialog).toContainText('3 / 3')
-        await page.keyboard.press('ArrowRight')
-        await expect(dialog).toContainText('1 / 3')
-        // So do the buttons.
+        await expect(dialog).toContainText('4 / 5')
         await dialog.getByRole('button', { name: 'Previous screenshot' }).click()
-        await expect(dialog).toContainText('3 / 3')
+        await expect(dialog).toContainText('3 / 5')
         await page.keyboard.press('Escape')
         await expect(dialog).toBeHidden()
-        await expect(second).toBeFocused()
-        // The header picture opens too, and the close button shuts it.
-        const first = shots.first()
-        await first.scrollIntoViewIfNeeded()
-        await first.click()
-        await expect(dialog).toContainText('1 / 3')
-        await dialog.getByRole('button', { name: 'Close screenshots' }).click()
-        await expect(dialog).toBeHidden()
-        await expect(first).toBeFocused()
+        await expect(opener).toBeFocused()
       })
     })
   }
@@ -167,7 +192,7 @@ test('every build page ends with More builds: three others, the featured ones fi
 
 test('the section headings are centred', async ({ page }) => {
   await page.goto('/builds/openping')
-  for (const name of ["How it's built", 'Stack & choices', 'Process notes', 'Build log', 'More builds']) {
+  for (const name of ["How it's built", 'Process notes', 'Build log', 'More builds']) {
     const heading = page.getByRole('heading', { level: 2, name, exact: true })
     await expect(heading, name).toHaveCSS('text-align', 'center')
   }

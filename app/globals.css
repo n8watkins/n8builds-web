@@ -208,28 +208,6 @@
   }
 }
 
-/* A keyed entrance from the side (TechStackCycle's list and label, the
-   extensions' detail panel): the element is re-keyed on each change, so it
-   mounts fresh and slides in from --slide-from. */
-@keyframes slide-in {
-  from {
-    opacity: 0;
-    translate: var(--slide-from, 24px) 0;
-  }
-  to {
-    opacity: 1;
-    translate: 0 0;
-  }
-}
-
-@utility slide-in {
-  animation: slide-in 0.3s ease-out both;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
-}
-
 /* A build page's lightbox picture settles in from a touch smaller (components/builds/Lightbox.tsx). */
 @keyframes lightbox-in {
   from {
