@@ -1,0 +1,288 @@
+{
+  "$comment": [
+    "Which browser tests a pull request runs (scripts/e2e-matrix.mjs, tests/e2e/README.md).",
+    "shared: a change here runs the whole suite. none: no browser test depends on it.",
+    "groups: each area's spec files and the source files that own it. A changed file runs the specs of its own groups and of every group owning a file that imports it, however indirectly.",
+    "inherit: building blocks with no area of their own; they take the groups of what imports them.",
+    "always: groups that join every pull request that runs any area.",
+    "Anything this file doesn't name runs the whole suite. tests/unit/e2e-matrix.test.ts fails when a spec or a source file is missing from it."
+  ],
+  "shared": [
+    "app/layout.tsx",
+    "app/provider.tsx",
+    "app/globals.css",
+    "app/fonts/**",
+    "app/web-vitals.tsx",
+    "components/ErrorBoundary.tsx",
+    "components/WebVitalsHUD.tsx",
+    "lib/performance.ts",
+    "lib/security/headers.mjs",
+    "lib/sentry/**",
+    "lib/sentry-*.ts",
+    "next.config.mjs",
+    "postcss.config.mjs",
+    "tsconfig.json",
+    "package.json",
+    "package-lock.json",
+    ".npmrc",
+    "playwright.config.ts",
+    "tests/e2e-env.ts",
+    "tests/e2e/areas.json",
+    "scripts/e2e-matrix.mjs",
+    "instrumentation.ts",
+    "instrumentation-client.ts",
+    "sentry.edge.config.ts",
+    "sentry.server.config.ts",
+    "wrangler.jsonc",
+    "migrations/**",
+    "public/_headers",
+    ".github/**"
+  ],
+  "none": [
+    "**/*.md",
+    "docs/**",
+    "LICENSE",
+    "tests/unit/**",
+    "scripts/**",
+    "worker/**",
+    "eslint.config.mjs",
+    "vitest.config.mts",
+    "components.json",
+    "global.d.ts",
+    "cloudflare-env.d.ts",
+    "open-next.config.ts",
+    "vercel.json",
+    ".vercelignore",
+    ".env.example",
+    ".gitignore",
+    ".prettierrc.json",
+    ".release.json",
+    ".local-ops.yaml",
+    ".husky/**",
+    ".vscode/**"
+  ],
+  "inherit": [
+    "lib/**",
+    "hooks/**",
+    "data/**",
+    "components/ui/**",
+    "components/MotionProvider.tsx",
+    "components/SectionErrorBoundary.tsx",
+    "components/ShimmerWhenSeen.tsx",
+    "tests/e2e/*.ts"
+  ],
+  "always": ["site"],
+  "lighthouse": {
+    "$comment": [
+      "Which Lighthouse pages (scripts/lighthouse.mjs PAGES) a pull request audits, by the route file each page renders.",
+      "A changed file audits the pages whose route imports it, however indirectly; a shared file (and anything in run) audits them all; skip, none and pages no audited route uses audit nothing.",
+      "An image under public/ audits the pages of the areas that own it (or all of them when no area does)."
+    ],
+    "pages": {
+      "/": "app/page.tsx",
+      "/blog": "app/blog/page.tsx",
+      "/builds": "app/builds/page.tsx",
+      "/builds/solara": "app/builds/[slug]/page.tsx",
+      "/loadout": "app/loadout/page.tsx"
+    },
+    "run": ["scripts/lighthouse.mjs"],
+    "skip": ["data/**", "tests/**", "playwright.config.ts", "migrations/**", "scripts/e2e-matrix.mjs"]
+  },
+  "groups": {
+    "site": {
+      "specs": ["tests/e2e/pages.spec.ts", "tests/e2e/security-headers.spec.ts"],
+      "sources": ["app/not-found.tsx", "app/global-error.tsx", "app/api/health/**", "app/monitoring/**", "app/privacy/**", "public/.well-known/**"]
+    },
+    "home": {
+      "specs": ["tests/e2e/reduced-motion.spec.ts", "tests/e2e/reveal.spec.ts"],
+      "sources": ["app/page.tsx", "components/HomePage.tsx", "components/HomeEffects.tsx"]
+    },
+    "chrome": {
+      "specs": [
+        "tests/e2e/navigation.spec.ts",
+        "tests/e2e/navigation-scroll.spec.ts",
+        "tests/e2e/header-hovers.spec.ts",
+        "tests/e2e/socials.spec.ts"
+      ],
+      "sources": ["components/layout/**", "data/socials.ts", "public/brand/**", "public/footer-grid.svg"]
+    },
+    "hero": {
+      "specs": ["tests/e2e/hero.spec.ts"],
+      "sources": ["components/sections/Hero*.tsx", "components/features/WhoamiTerminal.tsx", "public/hero/**"]
+    },
+    "now": {
+      "specs": ["tests/e2e/now.spec.ts", "tests/e2e/tech-for-pros.spec.ts"],
+      "sources": [
+        "components/sections/NowBuilding.tsx",
+        "components/sections/NowCarousel.tsx",
+        "components/sections/QuoteForm.tsx",
+        "components/sections/TemplateCarousel.tsx",
+        "data/now.tsx",
+        "lib/techForPros.ts",
+        "app/techforpros/**",
+        "app/appturnity/**",
+        "public/now/**"
+      ]
+    },
+    "build-log": {
+      "specs": [
+        "tests/e2e/build-log.spec.ts",
+        "tests/e2e/build-log-strip.spec.ts",
+        "tests/e2e/api/build-log.spec.ts"
+      ],
+      "sources": [
+        "app/builds/page.tsx",
+        "app/builds/og.png/**",
+        "components/log/**",
+        "components/sections/BuildLogStrip.tsx",
+        "components/sections/BuildLogMonths.tsx",
+        "components/sections/LatestUpdates.tsx",
+        "components/sections/ShippedStats.tsx",
+        "data/logBuilds.ts",
+        "tests/fixtures/build-log-github.json",
+        "public/log/**"
+      ]
+    },
+    "build-pages": {
+      "specs": [
+        "tests/e2e/build-pages.spec.ts",
+        "tests/e2e/build-page-stage.spec.ts",
+        "tests/e2e/n8builds-build.spec.ts",
+        "tests/e2e/api/n8builds-build.spec.ts"
+      ],
+      "sources": ["app/builds/[slug]/**", "app/download/**", "components/builds/**", "public/builds/**", "public/work/**"]
+    },
+    "lab": {
+      "specs": [
+        "tests/e2e/lab.spec.ts",
+        "tests/e2e/lab-section-nav.spec.ts",
+        "tests/e2e/template.spec.ts",
+        "tests/e2e/extensions.spec.ts"
+      ],
+      "sources": [
+        "components/sections/FeaturedProjects.tsx",
+        "components/sections/FeaturedProjectIslands.tsx",
+        "components/sections/LabSectionNav.tsx",
+        "components/sections/LabSubheader.tsx",
+        "components/sections/ExtensionsShowcase.tsx",
+        "components/sections/ExtensionsCarousel.tsx",
+        "components/sections/UseAsTemplate.tsx",
+        "components/sections/PortfolioAd.tsx",
+        "components/sections/ScribeActions.tsx",
+        "app/portfolio/**",
+        "public/projects/**",
+        "public/ads/**",
+        "public/bridge/**"
+      ]
+    },
+    "loadout": {
+      "specs": [
+        "tests/e2e/loadout-dev-tools.spec.ts",
+        "tests/e2e/loadout-section-nav.spec.ts",
+        "tests/e2e/loadout-setup-motion.spec.ts",
+        "tests/e2e/loadout-tools-i-built.spec.ts",
+        "tests/e2e/home-loadout-nav.spec.ts",
+        "tests/e2e/scribe-tour.spec.ts"
+      ],
+      "sources": [
+        "app/loadout/**",
+        "components/sections/Loadout.tsx",
+        "components/sections/LoadoutDevTools.tsx",
+        "components/sections/LoadoutSectionNav.tsx",
+        "components/sections/HomeLoadoutNav.tsx",
+        "components/sections/HomePeople.tsx",
+        "components/sections/HomeStack.tsx",
+        "components/sections/HomeToolsIBuilt.tsx",
+        "components/sections/SetupTilesMotion.tsx",
+        "components/sections/ScribeToolRow.tsx",
+        "components/sections/BuildStacks.tsx",
+        "data/loadout.tsx",
+        "public/loadout/**",
+        "public/people/**",
+        "public/brands/**"
+      ]
+    },
+    "ai-kit": {
+      "specs": [
+        "tests/e2e/ai-kit.spec.ts",
+        "tests/e2e/stack-tiles.spec.ts",
+        "tests/e2e/marquee-focus.spec.ts",
+        "tests/e2e/dino-music.spec.ts"
+      ],
+      "sources": [
+        "components/sections/HomeStack.tsx",
+        "components/features/AITechStack.tsx",
+        "components/features/dino/**",
+        "components/magicui/**",
+        "components/ui/StackTile.tsx",
+        "data/stack.tsx",
+        "app/api/game/**",
+        "public/tech/**",
+        "public/projectIcons/**"
+      ]
+    },
+    "contact": {
+      "specs": ["tests/e2e/contact-form.spec.ts", "tests/e2e/api/contact.spec.ts"],
+      "sources": [
+        "components/ContactForm/**",
+        "components/ContactFormErrorBoundary.tsx",
+        "app/api/contact/**",
+        "lib/validations/**",
+        "public/email/**"
+      ]
+    },
+    "upcoming": {
+      "specs": ["tests/e2e/upcoming.spec.ts", "tests/e2e/api/waitlist.spec.ts"],
+      "sources": [
+        "app/upcoming/**",
+        "app/api/waitlist/**",
+        "app/api/test/**",
+        "components/upcoming/**",
+        "components/sections/UpcomingStrip.tsx",
+        "data/upcoming.ts",
+        "public/upcoming/**",
+        "public/email/**"
+      ]
+    },
+    "consent": {
+      "specs": ["tests/e2e/consent.spec.ts"],
+      "sources": ["components/consent/**", "components/WebAnalytics.tsx", "lib/consent.ts", "lib/analytics.ts"]
+    },
+    "live": {
+      "specs": ["tests/e2e/live.spec.ts", "tests/e2e/api/live.spec.ts"],
+      "sources": ["components/live/**", "app/live/**", "app/api/live/**", "lib/live.ts", "lib/live-shared.ts"]
+    },
+    "blog": {
+      "specs": [
+        "tests/e2e/blog-motion.spec.ts",
+        "tests/e2e/blog-post.spec.ts",
+        "tests/e2e/share.spec.ts",
+        "tests/e2e/notions-strip.spec.ts",
+        "tests/e2e/api/feed.spec.ts",
+        "tests/e2e/api/draft-preview.spec.ts",
+        "tests/e2e/api/sanity-revalidate.spec.ts"
+      ],
+      "sources": [
+        "app/blog/**",
+        "app/api/draft-mode/**",
+        "app/api/sanity/**",
+        "app/notions-cover/**",
+        "components/blog/**",
+        "components/sections/NotionsStrip.tsx"
+      ]
+    },
+    "seo": {
+      "specs": ["tests/e2e/api/seo.spec.ts", "tests/e2e/api/image-optimizer.spec.ts"],
+      "sources": [
+        "app/sitemap.ts",
+        "app/**/og.png/**",
+        "lib/seo.ts",
+        "lib/og-card.tsx",
+        "components/JsonLd.tsx",
+        "public/og/**",
+        "public/tab/**",
+        "public/robots.txt"
+      ]
+    }
+  }
+}

@@ -12,9 +12,11 @@ import { E2E_BASE_URL, E2E_PORT, E2E_REMOTE_URL } from './tests/e2e-env'
  * - chromium: every browser test (pages, accessibility, the contact form...)
  * - firefox / webkit / mobile: the same browser tests
  *
- * CI runs them by tier (tests/e2e/README.md): pull requests run api and all of
- * chromium plus the @cross-browser tests on the other projects, a push to main
- * the @smoke tests on chromium, and the nightly run everything everywhere.
+ * CI runs them by tier (tests/e2e/README.md): a pull request runs @smoke and
+ * the specs of the areas it changes (tests/e2e/areas.json) on chromium and
+ * their @cross-browser tests on the other projects (all of them when it
+ * changes a shared file), a push to main the @smoke tests on chromium, and
+ * the nightly run everything everywhere.
  */
 // No test run is ever heard (the dino game has music): the browsers get no
 // sound device (under WSLg every Linux process, headless browsers included,
