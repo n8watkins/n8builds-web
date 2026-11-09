@@ -113,3 +113,5 @@ Tag a test `@smoke` only when it is the one test that proves a page or a key int
 - Every test runs on every project nightly, so a test that is right only on Chromium must say so with `test.skip(browserName !== 'chromium', 'why')`.
 - Don't add retries: fix the flake (`playwright.config.ts` sets `retries: 0`).
 - Before adding a test, check for one that already asserts the same thing; extend it instead of repeating its setup.
+
+Sample change for measuring CI (do not merge).
