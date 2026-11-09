@@ -22,9 +22,10 @@ export default function LogRow({
   entry: LogEntry
   /**
    * Exactly two lines under the mono line, whatever the entry (the homepage's
-   * latest updates, owner 2026-11-09), so rows that move on keep one height:
-   * the title and one line of what's in it, or a title alone over both lines
-   * (a short one keeps the second line empty).
+   * latest updates, owner 2026-11-09; round 8: one line each, always), so
+   * rows that move on, and the months, keep one height: the title on one line,
+   * and one line of what's in it under it, kept (empty) when there is none.
+   * The mono line never wraps either.
    */
   twoLines?: boolean
   /**
@@ -64,7 +65,7 @@ export default function LogRow({
         </span>
       )}
       <div className="min-w-0 flex-1">
-        <p className="font-mono text-[0.7rem] font-semibold tracking-wider text-slate-400 uppercase">
+        <p className={`font-mono text-[0.7rem] font-semibold tracking-wider text-slate-400 uppercase ${twoLines ? 'truncate' : ''}`}>
           {showBuild ? name : <time dateTime={entry.date}>{entry.dayLabel}</time>}
           {entry.kind === 'release' && (
             <>
@@ -80,10 +81,8 @@ export default function LogRow({
             </span>
           )}
         </p>
-        <div className={twoLines ? 'h-11 overflow-hidden' : undefined}>
-          <p
-            className={`${twoLines && !more ? 'line-clamp-2' : 'line-clamp-1'} text-base leading-snug font-semibold text-slate-100 transition-colors group-hover:text-cyan-100`}
-          >
+        <div className={twoLines ? 'h-11 overflow-hidden' : undefined} data-row-text={twoLines ? '' : undefined}>
+          <p className="line-clamp-1 text-base leading-snug font-semibold text-slate-100 transition-colors group-hover:text-cyan-100">
             {version ? (
               <>
                 Shipped <span className="font-mono text-[0.92em] text-cyan-300">{version}</span>
@@ -93,9 +92,14 @@ export default function LogRow({
             )}
             {external && <span className="sr-only"> (opens in a new tab)</span>}
           </p>
-          {more && (
+          {more ? (
             <p className={`mt-0.5 ${twoLines ? 'line-clamp-1' : 'line-clamp-2'} text-sm leading-snug text-[#9cadc5]`}>{more}</p>
-          )}
+          ) : twoLines ? (
+            // The detail line's room, kept when there is nothing to say.
+            <p aria-hidden="true" className="mt-0.5 text-sm leading-snug" data-row-empty>
+              {'\u00a0'}
+            </p>
+          ) : null}
         </div>
       </div>
       {showBuild ? (

@@ -4,8 +4,11 @@ import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import { latestEntry } from '@/lib/intersection'
 
-/** How long each step shows before the next update moves in; the progress bar fills over it. */
-export const LATEST_EVERY_MS = 6500
+/**
+ * How long each step shows before the next update moves in; the progress bar
+ * fills over it (6.5s until round 8 of 2026-11-09: the owner found it slow).
+ */
+export const LATEST_EVERY_MS = 4000
 /** Updates on show at once. */
 const SHOWN = 3
 
@@ -91,6 +94,13 @@ export default function LatestUpdates({ rows, label }: { rows: ReactNode[]; labe
           </li>
         ))}
       </ul>
+      {/* A month with three updates or fewer keeps the same height (round 8 of
+          2026-11-09: switching months never changes the card's height): its
+          missing rows and the controls' row keep their room. */}
+      {Array.from({ length: SHOWN - shown.length }, (_, i) => (
+        <div key={`empty-${i}`} aria-hidden="true" className="mt-0.5 h-[4.8rem]" data-row-slot />
+      ))}
+      {!steps && <div aria-hidden="true" className="mt-2 h-7" data-latest-controls-room />}
       {steps && (
         <div className="mt-2 flex items-center gap-2 px-2" data-latest-controls>
           <button type="button" onClick={() => goTo(start - 1)} aria-label="Previous update" title="Previous update" className={arrowClass}>

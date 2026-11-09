@@ -336,16 +336,21 @@ test('phones show three updates at a time too, with the date on the name line', 
   expect(await strip(page).evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true)
 })
 
-test('beside the log, an ad for release-kit: In and Out, and Get release-kit with its stars', { tag: '@cross-browser' }, async ({ page }) => {
+test('beside the log, an ad for release-kit: what it sets up, its one-command install, and Get release-kit with its stars', { tag: '@cross-browser' }, async ({ page }) => {
   await page.goto('/')
   // A product ad, not a note (round 6 of 2026-11-09).
   const ad = strip(page).getByRole('complementary', { name: 'release-kit Releases that write themselves' })
   await ad.scrollIntoViewIfNeeded()
   await expect(ad).toContainText('Open source · MIT')
-  const how = ad.locator('dl')
-  await expect(how.locator('dt')).toHaveText(['In', 'Out'])
-  await expect(how.locator('dd').first()).toHaveText('feat: dark mode')
-  await expect(ad).toContainText('One command adds it to any repo')
+  // What it does, so people want to try it (round 8 of 2026-11-09): four checks and the install.
+  await expect(ad.getByRole('list', { name: 'What release-kit sets up' }).getByRole('listitem')).toHaveText([
+    'Checks every commit message',
+    'Picks each version for you',
+    'Writes the notes, and this log',
+    'Briefs your coding agents too',
+  ])
+  await expect(ad).toContainText('Set it up with one command')
+  await expect(ad.locator('[data-release-kit-install]')).toHaveText('$ npx --allow-git=root github:n8watkins/release-kit .')
   const link = ad.getByRole('link', { name: /^Get release-kit/ })
   await expect(link).toHaveAttribute('href', 'https://github.com/n8watkins/release-kit')
   await expect(link).toHaveAttribute('target', '_blank')
@@ -378,6 +383,8 @@ test.describe('the updates with motion', () => {
     await expect(updates).toHaveAttribute('data-cycling', '', { timeout: 20_000 })
     // A thin line fills along the foot until the next step.
     await expect(updates.locator('[data-latest-timer] .template-timer')).toHaveCSS('animation-play-state', 'running')
+    // Quicker since round 8 of 2026-11-09: 4 seconds a step (6.5 before).
+    await expect(updates.locator('[data-latest-timer] .template-timer')).toHaveCSS('animation-duration', '4s')
     await expect(updates).toHaveAttribute('data-position', '2', { timeout: 12_000 })
     await list(page).hover()
     await expect(updates).not.toHaveAttribute('data-cycling')
@@ -423,6 +430,40 @@ test('under reduced motion the bars of a new month are just there', async ({ pag
   const names = await stats(page).locator('[data-bars] [data-day]').evaluateAll((list) => list.map((bar) => getComputedStyle(bar).animationName))
   expect(names.every((n) => n === 'none')).toBe(true)
 })
+
+for (const width of [1280, 820, 390]) {
+  test(`every month's card is the same height, and so is every latest change (${width}px)`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto('/')
+    const card = strip(page).locator('[data-log-months]')
+    await card.scrollIntoViewIfNeeded()
+    const months = Number(await card.getAttribute('data-log-months'))
+    expect(months).toBeGreaterThan(2)
+    const seen: { month: string; card: number; rows: number[]; text: number[] }[] = []
+    for (let i = 0; i < months; i++) {
+      seen.push(
+        await card.evaluate((el) => ({
+          month: el.querySelector('[data-month]')!.textContent!,
+          card: el.getBoundingClientRect().height,
+          rows: [...el.querySelectorAll('ul[aria-label^="Latest"] > li')].map((li) => li.getBoundingClientRect().height),
+          // Two lines of text under the mono line in every row, the detail line kept when empty.
+          text: [...el.querySelectorAll('[data-row-text]')].map((t) => t.children.length),
+        })),
+      )
+      await strip(page).getByRole('button', { name: /^Previous month/ }).click()
+    }
+    expect(new Set(seen.map((m) => m.month)).size).toBe(months)
+    const heights = seen.map((m) => m.card)
+    expect(Math.max(...heights) - Math.min(...heights), JSON.stringify(seen)).toBeLessThan(0.5)
+    const rows = seen.flatMap((m) => m.rows)
+    expect(Math.max(...rows) - Math.min(...rows)).toBeLessThan(0.5)
+    expect(seen.flatMap((m) => m.text).every((n) => n === 2)).toBe(true)
+    // Stepping through a month's changes keeps it too.
+    const before = await card.evaluate((el) => el.getBoundingClientRect().height)
+    for (let i = 0; i < 4; i++) await strip(page).getByRole('button', { name: 'Next update' }).click()
+    expect(Math.abs((await card.evaluate((el) => el.getBoundingClientRect().height)) - before)).toBeLessThan(0.5)
+  })
+}
 
 test('the release-kit column is as wide as the month card, so the card is symmetric', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
