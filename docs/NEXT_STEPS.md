@@ -37,6 +37,8 @@ Last checked: 2026-11-02.
 ### B. Accounts and keys (do these yourself; never paste secrets in chat)
 
 - [x] **Solara's live-site link:** now https://solara-uv.web.app (the old address redirects there), and its GitHub link is back since the repo is public (2026-10-24).
+- [ ] **Actions minutes token (new 2026-11-09; 3 minutes):** create a fine-grained token with only Plan: Read-only and store it with `! gh secret set ACTIONS_USAGE_TOKEN -R n8watkins/n8builds-web`; the steps are in [ACTIONS_USAGE.md](ACTIONS_USAGE.md).
+  Until then the daily Actions minutes check skips.
 - [ ] **Delete the old reCAPTCHA key** at https://www.google.com/recaptcha/admin (the old portfolio site entry). It leaked in git history in 2025; it's unused, and deleting it makes the leak worthless. 1 minute.
   Only the owner can do it (it's in their Google account). No replacement is needed: the contact form uses Cloudflare Turnstile, not reCAPTCHA.
 - [ ] **Twitch developer app** (for live detection; 2 minutes): dev.twitch.tv, Your Console, Register Your Application. Name `n8builds.dev`, OAuth Redirect URL `http://localhost`, category Website Integration, client type Confidential. In the project folder run `! vercel env add TWITCH_CLIENT_ID production` and `! vercel env add TWITCH_CLIENT_SECRET production` and paste the values at the prompts.

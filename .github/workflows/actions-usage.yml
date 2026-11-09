@@ -1,0 +1,41 @@
+# Early warning for the Actions minutes of n8watkins's private repos (GitHub
+# Free: 2,000 Linux minutes a month; public repos, like this one, are free).
+# Daily, it compares this month's usage with the month's pace and opens or
+# updates an issue assigned to the owner when a limit is crossed, so GitHub
+# emails him; each alert fires once a month. scripts/actions-usage.mjs has the
+# rules, docs/ACTIONS_USAGE.md the token setup. Until the ACTIONS_USAGE_TOKEN
+# secret exists, runs skip with a notice.
+name: Actions minutes
+
+on:
+  schedule:
+    - cron: '23 14 * * *' # 14:23 UTC, early morning Pacific
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write # to open, update and close the alert issue
+
+concurrency:
+  group: actions-usage
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: Check Actions minutes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: scripts
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      # The script needs no packages.
+      - run: node scripts/actions-usage.mjs
+        env:
+          # A fine-grained token with only the "Plan" user permission (read).
+          ACTIONS_USAGE_TOKEN: ${{ secrets.ACTIONS_USAGE_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
