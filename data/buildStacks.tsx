@@ -85,12 +85,8 @@ export interface BuildStack {
    * explicitly): the hosts, the database and file storage, by name.
    */
   hosting: string[]
-  /**
-   * A stack that runs on one provider's products (the Production stack, all
-   * Cloudflare): each service by name with what it does there, in plain
-   * words, for the homepage's "My tech stacks" (round 9 of 2026-11-09).
-   */
-  services?: { provider: string; summary: string; items: { name: string; purpose: string }[] }
+  /** What a piece does in this stack, where it differs from stackRoles (the Cloudflare stack's Next.js). */
+  roles?: Record<string, string>
   accent: 'cyan' | 'blue' | 'sky' | 'teal' | 'orange'
 }
 
@@ -98,36 +94,30 @@ export const buildStacks: BuildStack[] = [
   {
     id: 'quick',
     name: 'Quick stack',
-    tagline: 'Get something up fast',
-    // What the quick apps really use (round 9 of 2026-11-09, from their repos: Pivot, Feelium,
-    // Portfolio Rank and Net Trailers): Auth.js with GitHub sign-in and a Turso database, on
-    // Vercel. No Firebase Auth (the owner doesn't use it here).
-    tools: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Auth.js'],
+    // Round 11 of 2026-11-09 (owner): push it to Vercel, with Better Auth for sign-in in both
+    // stacks (Wren runs better-auth 1.7; Auth.js is now maintained by the Better Auth team,
+    // and the older apps on next-auth v5 beta move over). Turso stays: Pivot, Feelium,
+    // Portfolio Rank and Net Trailers keep their data there.
+    tagline: 'Push it to Vercel',
+    tools: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Better Auth'],
     hosting: ['Vercel', 'Turso'],
     accent: 'blue',
   },
   {
     id: 'production',
-    name: 'Production stack',
-    tagline: 'What my live apps run on',
-    tools: ['Next.js', 'TypeScript', 'OpenNext', 'Hono'],
-    hosting: ['Workers', 'D1', 'R2', 'Durable Objects', 'Images', 'Email Service'],
-    // Every service is Cloudflare's (round 9 of 2026-11-09), from the wrangler configs of
-    // n8builds.dev, Wren, OpenPing and Portfolio Rank. The email is Cloudflare Email Service
-    // (the send_email binding, in n8builds.dev and Wren); OpenPing's alerts go through Resend.
-    services: {
-      provider: 'Cloudflare',
-      // Round 10 of 2026-11-09 (owner): the card reads as "Cloudflare", everything on it,
-      // Next.js included; no line about the code under the services.
-      summary: 'everything runs here, Next.js included',
-      items: [
-        { name: 'Workers', purpose: 'runs Next.js, through OpenNext' },
-        { name: 'D1', purpose: 'the database (SQLite)' },
-        { name: 'R2', purpose: 'stores files and the page cache' },
-        { name: 'Durable Objects', purpose: 'per-user state and live counters' },
-        { name: 'Images', purpose: 'resizes images' },
-        { name: 'Email Service', purpose: 'sends the email' },
-      ],
+    // Round 11 of 2026-11-09 (owner): the Cloudflare stack, front end included: Next.js on
+    // Cloudflare Workers through OpenNext, with TypeScript and Tailwind, and the Cloudflare
+    // services the live apps use (the wrangler configs of n8builds.dev, Wren, OpenPing and
+    // Portfolio Rank).
+    name: 'Cloudflare stack',
+    tagline: 'Next.js on Cloudflare Workers, through OpenNext',
+    tools: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Better Auth'],
+    hosting: ['Workers', 'D1', 'R2', 'Durable Objects'],
+    roles: {
+      'Next.js': 'on Workers, via OpenNext',
+      Workers: 'runs the app',
+      R2: 'files and the page cache',
+      'Durable Objects': 'per-user state, live counters',
     },
     accent: 'orange',
   },
@@ -159,6 +149,7 @@ export const stackRoles: Record<string, string> = {
   TypeScript: 'strict, everywhere',
   'Tailwind CSS': 'styling',
   'Auth.js': 'GitHub sign-in',
+  'Better Auth': 'sign-in',
   Vercel: 'a push ships it',
   Turso: 'SQLite database',
   OpenNext: 'Next.js on Workers',

@@ -2,7 +2,6 @@ import type { CSSProperties, ReactNode } from 'react'
 import Link from 'next/link'
 import { FiArrowUpRight } from 'react-icons/fi'
 import { LuBackpack, LuServer, LuSparkles, LuSquareTerminal } from 'react-icons/lu'
-import { SiCloudflare } from 'react-icons/si'
 import SectionMark from '@/components/ui/SectionMark'
 import AITechStack from '@/components/features/AITechStack'
 import { buildStacks, stackRoles, stackToolIcons, type BuildStack } from '@/data/buildStacks'
@@ -44,7 +43,7 @@ const atAGlance = SETUP_AT_A_GLANCE.map(({ name, label }) => {
   return { name: label ?? name, icon: item.icon }
 })
 
-/** The Quick stack and the Production stack (data/buildStacks.tsx). */
+/** The Quick stack and the Cloudflare stack (data/buildStacks.tsx). */
 const defaults = buildStacks.filter((s) => s.id === 'quick' || s.id === 'production')
 
 const ACCENT: Record<BuildStack['accent'], string> = {
@@ -75,10 +74,8 @@ function StackPiece({ name, role, icon }: { name: string; role?: string; icon?: 
 
 /**
  * One of my tech stacks: its name and what it is for, then each piece with its
- * mark and what it does there. A stack on one provider (the Production stack)
- * reads as that provider, Cloudflare, under its name, then lists each service
- * with what it does in plain words: Next.js is in there, on Workers through
- * OpenNext, so there is no footnote about the code (round 10 of 2026-11-09).
+ * mark and what it does there, one line each (round 11 of 2026-11-09: the
+ * Cloudflare stack lists its front end too; no footnotes).
  */
 function TechStack({ stack }: { stack: BuildStack }) {
   return (
@@ -92,26 +89,11 @@ function TechStack({ stack }: { stack: BuildStack }) {
       <h4 id={`default-${stack.id}-title`} className="text-xl font-bold tracking-tight whitespace-nowrap text-slate-50">
         {stack.name}
       </h4>
-      {stack.services ? (
-        // Reads as the provider it all runs on (round 10 of 2026-11-09): Cloudflare, Next.js included.
-        <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm" data-stack-provider>
-          <span className="inline-flex items-center gap-1.5 text-base font-bold text-orange-200">
-            <SiCloudflare aria-hidden="true" className="size-5 text-[#f38020]" />
-            {stack.services.provider}
-          </span>
-          <span className="font-semibold text-(--accent)">{stack.services.summary}</span>
-        </p>
-      ) : (
-        <p className="mt-0.5 text-sm font-semibold text-(--accent)">{stack.tagline}</p>
-      )}
+      <p className="mt-0.5 text-sm font-semibold text-(--accent)">{stack.tagline}</p>
       <ul className="mt-4 grid grid-cols-2 gap-x-3 gap-y-2.5 sm:gap-x-5" aria-label={`${stack.name}: what it is made of`}>
-        {stack.services
-          ? stack.services.items.map((service) => (
-              <StackPiece key={service.name} name={service.name} role={service.purpose} icon={stackToolIcons[service.name]} />
-            ))
-          : [...stack.tools, ...stack.hosting].map((tool) => (
-              <StackPiece key={tool} name={tool} role={stackRoles[tool]} icon={stackToolIcons[tool]} />
-            ))}
+        {[...stack.tools, ...stack.hosting].map((tool) => (
+          <StackPiece key={tool} name={tool} role={stack.roles?.[tool] ?? stackRoles[tool]} icon={stackToolIcons[tool]} />
+        ))}
       </ul>
     </article>
   )
