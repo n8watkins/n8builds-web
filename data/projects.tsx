@@ -218,7 +218,7 @@ export const projects = [
       },
     },
     github: 'https://github.com/n8watkins/portfolio-rank',
-    liveSite: 'https://portfoliorank.vercel.app/',
+    liveSite: 'https://portfoliorank.n8builds.dev/',
   },
   {
     id: 7,

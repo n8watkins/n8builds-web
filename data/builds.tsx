@@ -406,11 +406,11 @@ export const builds: Build[] = [
       body: 'Pick the better of two portfolios in about five seconds, or add yours: it gets a screenshot, Lighthouse scores and an AI review, and joins the head-to-head rankings.',
       label: 'Add yours on Portfolio Rank',
       // The leaderboard's Browse section, where its "Submit yours" button sits.
-      href: 'https://portfoliorank.vercel.app/#browse',
+      href: 'https://portfoliorank.n8builds.dev/#browse',
     },
-    tryIt: { label: 'Vote in a face-off', href: 'https://portfoliorank.vercel.app/rank' },
+    tryIt: { label: 'Vote in a face-off', href: 'https://portfoliorank.n8builds.dev/rank' },
     github: 'https://github.com/n8watkins/portfolio-rank',
-    liveSite: 'https://portfoliorank.vercel.app',
+    liveSite: 'https://portfoliorank.n8builds.dev',
     repo: 'n8watkins/portfolio-rank',
   },
   {

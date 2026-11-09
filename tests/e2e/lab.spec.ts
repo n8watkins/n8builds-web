@@ -140,10 +140,10 @@ test('Portfolio Rank left the Lab, and keeps its page, its credits and its place
   // The build page: its main action, the invitation to add a portfolio, and
   // credits for the list and the tweet that started it.
   await page.goto('/builds/portfolio-rank')
-  await expect(page.locator('main header').getByRole('link', { name: /^Vote in a face-off/ })).toHaveAttribute('href', 'https://portfoliorank.vercel.app/rank')
+  await expect(page.locator('main header').getByRole('link', { name: /^Vote in a face-off/ })).toHaveAttribute('href', 'https://portfoliorank.n8builds.dev/rank')
   await expect(page.getByRole('heading', { name: 'Vote, or add your portfolio' })).toBeVisible()
   // The leaderboard's Browse section, where its own "Submit yours" button is: not the same door as the live site.
-  await expect(page.getByRole('link', { name: /Add yours on Portfolio Rank/ })).toHaveAttribute('href', 'https://portfoliorank.vercel.app/#browse')
+  await expect(page.getByRole('link', { name: /Add yours on Portfolio Rank/ })).toHaveAttribute('href', 'https://portfoliorank.n8builds.dev/#browse')
   const credits = page.getByRole('region', { name: 'Credits' })
   await expect(credits.getByRole('link', { name: 'Emma Bostian, developer-portfolios' })).toHaveAttribute(
     'href',
