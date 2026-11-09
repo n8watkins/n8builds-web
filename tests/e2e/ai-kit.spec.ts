@@ -577,6 +577,16 @@ test.describe('dino easter egg (motion allowed)', () => {
     for (let i = 1; i < words.length; i++) expect(words[i], words.join(', ')).not.toBe(words[i - 1])
     expect(new Set(words).size).toBeGreaterThan(1)
     await expect(dino(page)).toHaveAttribute('data-rainbow', 'true')
+    // Rainbow mode moves (round 10 of 2026-11-09): its bands flow across the body, and
+    // sparkles twinkle around it.
+    const sparkles = dino(page).locator('[data-dino-sparkles]')
+    await expect(sparkles).toBeVisible()
+    await expect(sparkles.locator('.dino-sparkle')).toHaveCount(5)
+    const twinkle = () => sparkles.locator('.dino-sparkle').first().evaluate((el) => getComputedStyle(el).opacity)
+    const seen = new Set<string>()
+    await expect.poll(async () => seen.add(await twinkle()).size, { message: 'a sparkle twinkles' }).toBeGreaterThan(2)
+    const flow = dino(page).locator('linearGradient animateTransform')
+    await expect(flow).toHaveAttribute('type', 'translate')
   })
 
   test('once back in from a side, it walks well into the panel before turning or leaving', async ({ page, browserName }) => {

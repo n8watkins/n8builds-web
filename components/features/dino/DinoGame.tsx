@@ -109,6 +109,14 @@ const RAINBOW_ODDS = 1 / 12
 // And always on the visit's 5th click, so it gets found.
 const RAINBOW_CLICK = 5
 const RAINBOW = ['#f87171', '#fb923c', '#facc15', '#4ade80', '#22d3ee', '#818cf8', '#e879f9']
+// Where rainbow mode's sparkles twinkle, in the dino's box (px), and when (s into a 1.2s loop).
+const SPARKLES = [
+  { x: -10, y: -8, size: 9, delay: 0 },
+  { x: W + 2, y: 2, size: 7, delay: 0.35 },
+  { x: W - 4, y: -14, size: 10, delay: 0.7 },
+  { x: -12, y: H - 16, size: 7, delay: 0.95 },
+  { x: W / 2 - 4, y: -18, size: 6, delay: 0.5 },
+]
 function randomHue(last: number) {
   const hue = (last + 60 + Math.random() * 240) % 360
   return { hue, color: `hsl(${hue.toFixed(0)} 85% 70%)` }
@@ -1159,18 +1167,20 @@ export default function DinoGame() {
             shapeRendering="crispEdges"
             className="block overflow-visible"
           >
-            {/* The rainbow body, its bands turning slowly. */}
+            {/* The rainbow body (round 10 of 2026-11-09: it moves, not a still rainbow):
+                diagonal bands that repeat every half body and flow across it, one
+                period a second, so the loop is seamless. SMIL on a 30x30 sprite: cheap. */}
             <defs>
-              <linearGradient id={rainbowId} x1="0" y1="0" x2="1" y2="1">
-                {RAINBOW.map((c, i) => (
-                  <stop key={c} offset={i / (RAINBOW.length - 1)} stopColor={c} />
+              <linearGradient id={rainbowId} x1="0" y1="0" x2="0.5" y2="0.5" spreadMethod="repeat">
+                {[...RAINBOW, RAINBOW[0]].map((c, i) => (
+                  <stop key={`${c}-${i}`} offset={i / RAINBOW.length} stopColor={c} />
                 ))}
                 <animateTransform
                   attributeName="gradientTransform"
-                  type="rotate"
-                  from="0 0.5 0.5"
-                  to="360 0.5 0.5"
-                  dur="3s"
+                  type="translate"
+                  from="0 0"
+                  to="0.5 0.5"
+                  dur="1s"
                   repeatCount="indefinite"
                 />
               </linearGradient>
@@ -1183,6 +1193,18 @@ export default function DinoGame() {
               </g>
             ))}
           </svg>
+          {/* Rainbow mode's sparkles: a few twinkling stars around it, shown (and so
+              animated) only while it is rainbow; CSS transforms and opacity only
+              (.dino-sparkle in app/globals.css), none under reduced motion. */}
+          <span aria-hidden="true" className="pointer-events-none absolute inset-0 hidden group-data-[rainbow=true]/dino:block" data-dino-sparkles>
+            {SPARKLES.map((sp, i) => (
+              <span
+                key={i}
+                className="dino-sparkle"
+                style={{ left: sp.x, top: sp.y, width: sp.size, height: sp.size, color: RAINBOW[(i * 2) % RAINBOW.length], animationDelay: `${sp.delay}s` }}
+              />
+            ))}
+          </span>
         </div>
         <div ref={roarsRef} className="contents">
           {ROARS.map((b, i) => (
