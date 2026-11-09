@@ -318,7 +318,7 @@ test.describe('Loadout tools and people', () => {
     test(`every People I follow card has the same shape: a short note and a second line, 4 or 5 lines in all (${width}px)`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 })
       await page.goto('/#people')
-      const lines = await page.locator('#people article').evaluateAll((cards) =>
+      const lines = await page.locator('#people li > article').evaluateAll((cards) =>
         cards.map((card) => {
           const count = (el: Element | null) => (el ? Math.round(el.getBoundingClientRect().height / parseFloat(getComputedStyle(el).lineHeight)) : 0)
           return {

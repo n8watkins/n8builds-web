@@ -86,7 +86,7 @@ for (const width of [1280, 390]) {
     await page.goto('/')
     const cards = page.locator('#featured article')
     await expect(cards).toHaveCount(2)
-    const boxes = []
+    const boxes: { top: number; bottom: number }[] = []
     for (const title of ['OpenPing', 'Solara']) {
       const card = page.getByRole('article', { name: title })
       await card.scrollIntoViewIfNeeded()
@@ -101,9 +101,12 @@ for (const width of [1280, 390]) {
       // ... and the name and buttons sit under it.
       expect(heading!.y, title).toBeGreaterThan(clip!.y + clip!.height)
       expect(primary!.y, title).toBeGreaterThan(clip!.y + clip!.height)
-      boxes.push(article!)
+      boxes.push(await card.evaluate((el) => {
+        const r = el.getBoundingClientRect()
+        return { top: r.top + window.scrollY, bottom: r.bottom + window.scrollY }
+      }))
     }
-    expect(boxes[1].y).toBeGreaterThan(boxes[0].y + boxes[0].height)
+    expect(boxes[1].top).toBeGreaterThanOrEqual(boxes[0].bottom)
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
   })
 }

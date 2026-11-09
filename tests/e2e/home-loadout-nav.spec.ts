@@ -105,18 +105,19 @@ test.describe('at 1440px', () => {
   test('appears once the Loadout reaches the middle of the window, level with its first part', { tag: '@cross-browser' }, async ({ page }) => {
     await openHome(page)
     const nav = rail(page)
-    // The band's heading on screen, the dev setup line still in the lower half: no rail.
-    await place(page, 'my-setup', 620)
+    // The band's heading on screen, the dev setup's heading still in the lower half: no rail.
+    // (Since round 8 of 2026-11-09 the setup is a card with its own heading, which the rail lines up with.)
+    await place(page, 'my-setup-title', 620)
     await page.waitForTimeout(300)
     await expect(nav).toBeHidden()
-    await place(page, 'my-setup', 470)
+    await place(page, 'my-setup-title', 470)
     await page.waitForTimeout(300)
     await expect(nav).toBeHidden()
     // The first part reaches the middle of the window (owner, 2026-11-02): the rail shows, level with it, whole.
-    await place(page, 'my-setup', 448)
+    await place(page, 'my-setup-title', 448)
     await expect(nav).toBeVisible(SHOW)
     await expect(nav).toBeInViewport({ ratio: 1 })
-    const kitTop = await page.locator('#my-setup').evaluate((el) => el.getBoundingClientRect().top)
+    const kitTop = await page.locator('#my-setup-title').evaluate((el) => el.getBoundingClientRect().top)
     expect(Math.abs((await nav.boundingBox())!.y - kitTop)).toBeLessThanOrEqual(3)
   })
 

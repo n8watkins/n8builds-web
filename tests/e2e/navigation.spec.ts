@@ -71,7 +71,8 @@ test.describe('the Contact link', () => {
 /**
  * The navbar's Tech for Pros link (2026-11-01): a bordered pill like
  * Portfolio, holding its icon and techforpros.com over a clean curved
- * underline (round 3 of 2026-11-02: one smooth arc, static, never animated).
+ * underline (round 3 of 2026-11-02: one smooth arc; since round 8 of
+ * 2026-11-09 nothing at rest, drawn in on hover or focus).
  */
 const techForPros = (page: Page) => page.locator('nav[aria-label="Primary"]').getByRole('link', { name: /^techforpros\.com/ })
 const underline = (page: Page) => techForPros(page).locator('svg.tfp-underline path')
@@ -104,12 +105,13 @@ test('the navbar links techforpros.com in a pill like Portfolio, through the cou
   expect(curve.width).toBeGreaterThan(text.width * 0.85)
 })
 
-test('the techforpros.com underline is one shallow, symmetric arch that never animates', { tag: '@cross-browser' }, async ({ page, isMobile }) => {
+test('the techforpros.com underline is one shallow, symmetric arch, drawn whole on hover', { tag: '@cross-browser' }, async ({ page, isMobile }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
   const path = underline(page)
   await expect(path).toHaveCSS('animation-name', 'none')
-  await expect(path).toHaveCSS('stroke-dasharray', 'none')
+  // Round 8 of 2026-11-09: nothing at rest; it draws in on hover (tests/e2e/header-hovers.spec.ts).
+  await expect(path).toHaveCSS('opacity', '0')
   // One cubic segment: no S or second C joining wobbles together.
   expect((await path.getAttribute('d'))!.match(/[CSQ]/gi)).toHaveLength(1)
   // Round 5 of 2026-11-02: symmetric, centred under the label, and a gentle arch: the
@@ -126,8 +128,8 @@ test('the techforpros.com underline is one shallow, symmetric arch that never an
   expect(shape.start[1] - shape.middle[1]).toBeLessThan(2)
   await techForPros(page).hover()
   await expect(techForPros(page).locator('svg.tfp-underline')).toHaveCSS('animation-name', 'none')
-  // It brightens on hover (a touch screen has none).
-  if (!isMobile) await expect(techForPros(page).locator('svg.tfp-underline')).toHaveCSS('opacity', '1')
+  // It shows on hover (a touch screen has none).
+  if (!isMobile) await expect(path).toHaveCSS('opacity', '1')
 })
 
 // On phones the link sits between the logo and the menu button, on one line.

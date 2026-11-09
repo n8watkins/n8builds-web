@@ -21,8 +21,8 @@ for (const reducedMotion of ['no-preference', 'reduce'] as const) {
       // Drawing in: part of the way along soon after the hover, then whole.
       await expect.poll(async () => (await look()).offset).toBeLessThan(101)
     } else {
-      // No transition: whole at once.
-      expect(await line.evaluate((p) => getComputedStyle(p).transitionDuration)).toBe('0s')
+      // No transition to speak of: whole at once (the site's reduced-motion rule leaves 0.01ms).
+      expect(parseFloat(await line.evaluate((p) => getComputedStyle(p).transitionDuration))).toBeLessThan(0.01)
     }
     await expect.poll(look).toEqual({ offset: 0, opacity: '1' })
     // Keyboard focus draws it too.
