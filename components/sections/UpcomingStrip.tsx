@@ -103,7 +103,7 @@ export default function UpcomingStrip() {
           </Link>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-2 lg:gap-5">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-5">
           {UPCOMING_GROUPS.map((group) => {
             const members = projects.filter((p) => p.group === group.id)
             if (members.length === 0) return null
