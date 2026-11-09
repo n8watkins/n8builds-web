@@ -148,15 +148,17 @@ const Hero = () => {
               </svg>
             </FadeIn>
 
-            {/* The direct route for someone hiring: the developer portfolio, behind a
-                briefcase (owner, 2026-11-09: no "Hiring?" lead-in). */}
-            <FadeIn as="p" effect="in" delay={0.55} className="text-sm">
+            {/* The direct route for someone hiring: "Hiring? Check out my portfolio",
+                the briefcase leading the link so it marks what to click (owner,
+                round 7, 2026-11-09). */}
+            <FadeIn as="p" effect="in" delay={0.55} className="flex flex-wrap items-center gap-x-2 text-sm text-slate-400">
+              <span>Hiring?</span>
               {/* Counted and in a new tab, like every Portfolio link (2026-11-08). */}
               <a
                 href={refHref('portfolio', 'hero')}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group inline-flex items-center gap-2 font-semibold text-cyan-300 transition-colors hover:text-cyan-200"
+                className="group inline-flex items-center gap-1.5 font-semibold text-cyan-300 transition-colors hover:text-cyan-200"
               >
                 <FiBriefcase className="h-4 w-4 shrink-0" aria-hidden="true" />
                 <span className="underline decoration-cyan-300/40 underline-offset-4 transition-colors group-hover:decoration-cyan-200">
