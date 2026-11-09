@@ -8,11 +8,11 @@ import Reveal from '@/components/ui/Reveal'
 
 /**
  * In the Lab, right after the featured builds: a prompt to the visitor who is
- * building their own site, with both of mine as public templates. Two cards
- * with the anatomy of a Lab row (components/sections/FeaturedProjects.tsx)
- * and no screenshots: what you get if you fork it, what it's built with, how
- * it is built and tested (this site), and the repo. Hiring is the PortfolioAd section's
- * job, not this one's.
+ * building their own site, with both of mine as public templates. Two short
+ * cards (owner, 2026-11-08): the name, the live site, one sentence on what
+ * you get if you fork it, then the full story (this site's build page) and
+ * the repo. No stack pills: the build page has the stack. Hiring is the
+ * PortfolioAd section's job, not this one's.
  */
 
 interface Template {
@@ -21,15 +21,13 @@ interface Template {
   site: { label: string; href: string; internal?: boolean }
   /** The N8 mark belongs to n8builds.dev; the portfolio gets a neutral icon chip. */
   mark: { image: string } | { icon: IconType }
-  /** What you get if you fork it. */
+  /** What you get if you fork it, in one sentence. */
   description: string
-  /** What it's built with. */
-  tags: string[]
   /**
-   * How it is built and tested: a build page on this site. The portfolio has
-   * none, and its repo is already the GitHub half of RepoButtons.
+   * Its full story: a build page on this site. The portfolio has none, and its
+   * repo is already the GitHub half of RepoButtons.
    */
-  howItsBuilt?: string
+  story?: string
   repoName: string
   repo: string
 }
@@ -42,13 +40,12 @@ const POINTS = ['Open source', 'MIT-licensed', 'Tested on every pull request']
 
 const TEMPLATES: Template[] = [
   {
-    title: 'This site',
+    title: 'My personal site',
     site: { label: 'n8builds.dev', href: '/', internal: true },
     mark: { image: '/tab/n8-icon-192.png' },
     description:
-      'A server-rendered Next.js 16 site with a Sanity blog, a build log, a contact form behind Turnstile and rate limits, and a speed-first setup tested on five browsers. A clean start for building in public.',
-    tags: ['Next.js 16', 'Sanity', 'Tailwind CSS 4', 'Turnstile', 'Cloudflare D1', 'Cloudflare Workers'],
-    howItsBuilt: '/builds/n8builds',
+      'A fast Next.js 16 site with a blog, a build log and a contact form, tested on five browsers: a clean start for building in public.',
+    story: '/builds/n8builds',
     repoName: 'n8builds-web',
     repo: 'https://github.com/n8watkins/n8builds-web',
   },
@@ -57,8 +54,7 @@ const TEMPLATES: Template[] = [
     site: { label: 'portfolio.n8builds.dev', href: 'https://portfolio.n8builds.dev' },
     mark: { icon: FiBriefcase },
     description:
-      'A Next.js 16 portfolio with a page per project, live demo status from OpenPing, room for client work and experience, and generated share cards. A clean start for a portfolio of your own.',
-    tags: ['Next.js 16', 'Tailwind CSS', 'Framer Motion', 'Vercel'],
+      'A Next.js 16 portfolio with a page per project and live demo status: a clean start for a portfolio of your own.',
     repoName: 'dev-portfolio',
     repo: 'https://github.com/n8watkins/dev-portfolio',
   },
@@ -106,23 +102,14 @@ const TemplateCard = ({ t }: { t: Template }) => (
       </div>
     </div>
     <p className="mt-3 text-sm leading-relaxed text-[#9cadc5] sm:text-[0.95rem]">{t.description}</p>
-    <ul aria-label={`${t.title} is built with`} className="mt-2.5 flex flex-wrap gap-1.5">
-      {t.tags.map((tag) => (
-        <li
-          key={tag}
-          className="rounded-md border border-white/8 bg-white/3 px-2 py-0.5 font-mono text-[0.68rem] text-slate-400"
-        >
-          {tag}
-        </li>
-      ))}
-    </ul>
 
-    {/* How it's built, then the repo. Pinned to the bottom so the two cards line up. */}
-    <div className="mt-auto flex flex-wrap items-center gap-2 pt-5">
-      {t.howItsBuilt && (
-        <Link href={t.howItsBuilt} className={primary}>
+    {/* The full story, then the repo. Pinned to the bottom so the two cards line up. */}
+    <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
+      {t.story && (
+        <Link href={t.story} className={primary}>
           <FiFileText className="h-3.5 w-3.5" aria-hidden="true" />
-          How it is built and tested
+          Full story
+          <span className="sr-only"> of {t.title}</span>
         </Link>
       )}
       <RepoButtons href={t.repo} name={t.repoName} />
