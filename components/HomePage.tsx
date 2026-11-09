@@ -108,7 +108,12 @@ export default async function HomePage({ posts }: { posts: Post[] }) {
         {/* Jumping to #lab (the navbar's Lab menu) lands its top edge right under the
              69px navbar, not 11px lower (html scroll-padding-top is 80px), so no strip
              of the band above shows between the two. */}
-        <div id="lab" className="relative z-10 scroll-mt-[-11px] border-t border-white/[0.06]">
+        <div id="lab" className="relative z-10 scroll-mt-[-11px]">
+          {/* The cut into the Lab (round 4 of 2026-11-08: "a switch to a new section"): a
+               cyan line, brightest in the middle and gone at the edges, over a soft glow
+               that fades out within it. */}
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-cyan-300/50 to-transparent" />
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-[radial-gradient(45%_100%_at_50%_0,rgb(34_211_238/0.09),transparent)]" />
           {/* Desktop only: a sticky rail in the left gutter marking the Lab part on screen. */}
           <LabSectionNav />
           <ShimmerWhenSeen />
