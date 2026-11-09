@@ -123,6 +123,7 @@ export default function LogRow({
       {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
       className={`${row} focus-visible:outline-2 focus-visible:outline-cyan-400/60`}
     >
+      {/* new-tab-hint: from children (content says it when external) */}
       {content}
     </Link>
   ) : (

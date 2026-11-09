@@ -419,14 +419,14 @@ async function BuildActions({ build, caption }: { build: Build; caption?: string
           <a key={action.href} href={action.href} {...away(action.href)} className={outline}>
             {action.label}
             <FiArrowUpRight aria-hidden className="h-4 w-4" />
-            <span className="sr-only"> (opens in a new tab)</span>
+            {/^https?:/.test(action.href) && <span className="sr-only"> (opens in a new tab)</span>}
           </a>
         ))}
         {live ? (
           <a href={live} {...away(live)} className={outline}>
             {build.liveSiteIsLanding ? 'Visit the landing page' : 'Visit live site'}
             <FiArrowUpRight aria-hidden className="h-4 w-4" />
-            <span className="sr-only"> (opens in a new tab)</span>
+            {/^https?:/.test(live) && <span className="sr-only"> (opens in a new tab)</span>}
           </a>
         ) : null}
         {build.github ? (
@@ -445,7 +445,7 @@ async function BuildActions({ build, caption }: { build: Build; caption?: string
           <span className="border-b border-white/30 pb-px">
             <ActionLabel label={action.label} />
           </span>
-          <span className="sr-only"> (opens in a new tab)</span>
+          {/^https?:/.test(action.href) && <span className="sr-only"> (opens in a new tab)</span>}
         </a>
       ))}
     </div>

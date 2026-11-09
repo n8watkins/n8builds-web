@@ -26,7 +26,8 @@ function links(source: string): { block: string; line: number }[] {
   for (const m of source.matchAll(/<(a|Link)\b[\s\S]*?<\/\1>/g)) {
     // Comments don't count: one may well mention "a new tab".
     const block = m[0].replace(/\{\/\*[\s\S]*?\*\/\}/g, '').replace(/^\s*\/\/.*$/gm, '')
-    found.push({ block, line: source.slice(0, m.index).split('\n').length })
+    // A component whose hint comes from its children says so in a comment.
+    found.push({ block: m[0].includes('new-tab-hint: from children') ? '' : block, line: source.slice(0, m.index).split('\n').length })
   }
   return found
 }
@@ -55,7 +56,7 @@ function hintKind(block: string): 'always' | 'conditional' | 'none' {
 function mismatches(file: string): Mismatch[] {
   const out: Mismatch[] = []
   for (const { block, line } of links(readFileSync(file, 'utf8'))) {
-    if (block.includes('new-tab-hint: from children')) continue
+    if (!block) continue
     const target = targetKind(block)
     const hint = hintKind(block)
     if (target === 'always' && hint === 'none') out.push(`${file}:${line} opens a new tab without saying so`)
