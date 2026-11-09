@@ -1,77 +1,42 @@
-import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import type { IconType } from 'react-icons'
-import { FaApple, FaLinux, FaWindows } from 'react-icons/fa6'
-import { FiActivity, FiCheck, FiDownload, FiExternalLink, FiFileText, FiGithub } from 'react-icons/fi'
+import { FiBookOpen, FiCheck, FiDownload, FiExternalLink } from 'react-icons/fi'
 import Reveal from '@/components/ui/Reveal'
 import RepoButtons from '@/components/ui/RepoButtons'
-import {
-  ProjectDetails,
-  ProjectGallery,
-  ProjectTour,
-  type GalleryImage,
-  type ProjectTourVideo,
-} from '@/components/sections/FeaturedProjectIslands'
-import TechStackCycle from '@/components/Projects/TechStackCycle'
-import { projects } from '@/data/projects'
-import { builds } from '@/data/builds'
+import ActionLabel from '@/components/ui/ActionLabel'
+import { PlatformGroup, ProjectGallery, ProjectTour, type GalleryImage, type ProjectTourVideo } from '@/components/sections/FeaturedProjectIslands'
+import { getBuild, type BuildAction } from '@/data/builds'
 import LabSubheader from '@/components/sections/LabSubheader'
-import { DOWNLOADS, formatSize, latestAsset } from '@/lib/downloads'
+import { downloadCaption } from '@/lib/downloads'
 
 /**
- * Each row's checks and main action take its product's colour, so the four
- * rows don't read as one repeated block: Scribe's sky blue, OpenPing's uptime
- * green, Solara's sun orange, Portfolio Rank's leaderboard gold. Every pairing
- * here passes WCAG AA: white on blue-600 or darker (5.2:1 and up), dark text on
- * the light fills, and the light accent tints on the dark page.
+ * Each row's main action takes its product's colour, so the rows don't read as
+ * one repeated block: Scribe's sky blue, OpenPing's uptime green, Solara's sun
+ * orange. Every pairing passes WCAG AA: white on blue-600 or darker (5.2:1 and
+ * up), dark text on the light fills.
  */
 const accents = {
   scribe: {
     // Near-solid blue: a slight shift into sky, darker on hover, so the white label stays above 5:1.
     primary: 'bg-linear-to-r from-blue-600 to-sky-700 text-white hover:from-blue-700 hover:to-sky-800',
-    link: 'hover:text-sky-200',
-    check: 'text-sky-300',
   },
   openping: {
     primary: 'bg-emerald-400 text-slate-950 hover:bg-emerald-300',
-    link: 'hover:text-emerald-200',
-    check: 'text-emerald-300',
   },
   solara: {
     // Mostly solid orange with a slight warm shift; orange into amber was too loud.
     primary: 'bg-linear-to-r from-orange-500 to-orange-400 text-slate-950 hover:from-orange-400 hover:to-orange-300',
-    link: 'hover:text-orange-200',
-    check: 'text-orange-300',
   },
-  rank: {
-    // Portfolio Rank's own accent, #fbbf24 (amber-400).
-    primary: 'bg-amber-400 text-slate-950 hover:bg-amber-300',
-    link: 'hover:text-amber-200',
-    check: 'text-amber-300',
-  },
-} satisfies Record<string, { primary: string; link: string; check: string }>
+} satisfies Record<string, { primary: string }>
 
-interface ActionLink {
-  label: string
-  href: string
-  /** primary: the product's main action, a button; link: a quiet text link under the features. */
-  kind: 'primary' | 'link'
-  /** Opens in a new tab. A link without it (a download) stays in this one. */
-  external?: boolean
-  /** Fetches a file from one of DOWNLOADS: shows a download mark, and what you get under it. */
-  download?: keyof typeof DOWNLOADS
-  /** Marks set right before a word of the label: { Windows: FaWindows } puts the logo by "Windows". */
-  marks?: Record<string, IconType>
-}
-
-/** One of a row's features: plain text, or text that links somewhere. */
-type Feature = string | { text: string; href: string }
-
+/**
+ * A Lab row says what the build is and invites you to try it, nothing more
+ * (owner, 2026-11-08): its icon, name, tagline, a sentence or two, and three
+ * buttons. The stack, the features and every other way in live on the build's
+ * full story page (/builds/<slug>), one click away.
+ */
 interface FeaturedProject {
   title: string
-  /** The title as the product writes it (Portfolio Rank's gold "Rank"); reads the same as `title`. */
-  wordmark?: React.ReactNode
   /** The app's own icon, shown left of its name. */
   icon: string
   /**
@@ -79,9 +44,9 @@ interface FeaturedProject {
    * and use" (Scribe), or the Lab's featured builds.
    */
   group: 'daily' | 'featured'
-  /** A few words; the features carry the detail. */
+  /** A few words. */
   subtitle: string
-  /** What it is, in about two lines; the features are the checks, the tech goes in `tags`. */
+  /** What it is, in a sentence or two; the features and the tech are on its full story page. */
   description: string
   /** The screenshots, first one shown; the gallery steps through the rest. */
   images: GalleryImage[]
@@ -91,36 +56,21 @@ interface FeaturedProject {
    * of the app; round 4 of 2026-11-02).
    */
   tour?: ProjectTourVideo
-  tags: string[]
   github?: string
-  liveSite?: string
-  /** Its page on this site (/builds/<slug>), from data/builds.tsx. */
+  /** Its page on this site (/builds/<slug>) and its data, in data/builds.tsx: the primary action is its `tryIt`. */
   buildSlug: string
   /** object-position for the images, when the top-centre crop cuts the art. */
   imagePosition?: string
-  /** Who the build stands on, credited under the description. */
-  credit?: { before: string; name: string; href: string; after?: string }
-  /** The product's colour, for its checks and its main action. */
+  /** The product's colour, for its main action. */
   accent: keyof typeof accents
-  /**
-   * What it actually does, shown as checks in its colour. The claims every row
-   * shares (free, open source) live once, under the part's heading.
-   */
-  features: Feature[]
-  /**
-   * The product's main action (a button beside the tech pills) and any quiet
-   * links (under the features). None goes where the row's Landing page (or Live Site) or GitHub
-   * button already goes: each is a different door (the download, the app
-   * itself, the install guide, the vote).
-   */
-  actions: ActionLink[]
 }
 
 // Scribe, the owner's daily driver, leads "Tools I built and use" on /loadout
 // and in the homepage's Loadout (the owner's call, 2026-11-01); the rest are the Lab's featured builds,
-// OpenPing first. n8builds itself is not a row: how it is built and tested
-// lives in the Lab's template part, right after these rows (UseAsTemplate.tsx).
-// Features come from each project's README and live site.
+// OpenPing first. Portfolio Rank left the Lab on 2026-11-08 for the developer
+// portfolio; its page (/builds/portfolio-rank) stays. n8builds itself is not a
+// row: how it is built and tested lives in the Lab's template part, right after
+// these rows (UseAsTemplate.tsx).
 const featured: FeaturedProject[] = [
   {
     title: 'Scribe',
@@ -139,24 +89,9 @@ const featured: FeaturedProject[] = [
       poster: '/builds/scribe/tour-poster.webp',
       alt: 'A tour of the Scribe app, recorded as someone uses it: starting a dictation and watching the words appear live, then History, the Dictation, Words, Models and Hotkeys settings, and switching to the Emerald theme',
     },
-    // Three pills, so the download fits on their line; the full stack is in Details.
-    tags: ['Tauri', 'Rust', 'whisper.cpp'],
     github: 'https://github.com/n8watkins/scribe',
-    liveSite: 'https://scribe.n8builds.dev',
     buildSlug: 'scribe',
     accent: 'scribe',
-    features: ['Works in any app', 'Push-to-talk hotkey', 'Local Whisper models', 'Searchable history'],
-    actions: [
-      { label: 'Download for Windows', href: '/download/scribe', kind: 'primary', download: 'scribe', marks: { Windows: FaWindows } },
-      {
-        // Non-breaking spaces keep "Ask for it" together on the narrowest phones.
-        label: 'Want it on Mac or Linux? Ask\u00a0for\u00a0it',
-        marks: { Mac: FaApple, Linux: FaLinux },
-        href: 'https://github.com/n8watkins/scribe/issues/new?title=Request%3A%20Scribe%20for%20macOS%20or%20Linux&body=Which%20platform%20would%20you%20use%20Scribe%20on%20(macOS%20or%20Linux%2C%20and%20which%20version)%3F%0A%0AWhat%20would%20you%20use%20it%20for%3F',
-        kind: 'link',
-        external: true,
-      },
-    ],
   },
   {
     title: 'OpenPing',
@@ -170,17 +105,9 @@ const featured: FeaturedProject[] = [
       { src: '/builds/openping/status.webp', alt: 'An OpenPing public status page: all systems operational, with 90 days of uptime bars per service' },
       { src: '/builds/openping/tools.webp', alt: "OpenPing's free tools: is it down, uptime calculator, subnet calculator, cron tester, DNS and MX lookup" },
     ],
-    tags: ['Cloudflare Workers', 'D1', 'Hono', 'React'],
     github: 'https://github.com/n8watkins/open-ping',
-    liveSite: 'https://openping.n8builds.dev',
     buildSlug: 'openping',
     accent: 'openping',
-    features: ['Schedule-aware checks', 'Public status pages', 'Slack, Discord and email alerts', 'Six monitor types'],
-    actions: [
-      { label: 'Try the free tools', href: 'https://openping.n8builds.dev/tools', kind: 'primary', external: true },
-      // The step-by-step install guide, not the landing page (the row's Landing page button).
-      { label: 'Deploy your own', href: 'https://github.com/n8watkins/open-ping/blob/main/docs/INSTALL.md', kind: 'link', external: true },
-    ],
   },
   {
     title: 'Solara',
@@ -192,260 +119,91 @@ const featured: FeaturedProject[] = [
     // A wide social card: anchor left so the cover crop keeps the sun.
     images: [{ src: '/builds/solara/og-image.png', alt: 'Solara: know your sun window' }],
     imagePosition: 'object-left',
-    tags: ['Next.js', 'Firebase', 'Open-Meteo'],
     github: 'https://github.com/n8watkins/solara',
-    liveSite: 'https://solara-uv.web.app',
     buildSlug: 'solara',
     accent: 'solara',
-    features: ['Sun windows per activity', 'Fits your skin and sunscreen', 'A week calendar', 'No account needed'],
-    // Straight into the planner; the row's Landing page button is the landing page.
-    actions: [{ label: 'Find your sun window', href: 'https://solara-uv.web.app/app/', kind: 'primary', external: true }],
-  },
-  {
-    title: 'Portfolio Rank',
-    wordmark: (
-      <>
-        Portfolio <span className="text-[#fbbf24]">Rank</span>
-      </>
-    ),
-    icon: '/builds/portfolio-rank/icon.png',
-    group: 'featured',
-    subtitle: 'The developer portfolio leaderboard',
-    description:
-      'Browse 1,700+ developer portfolios ranked by head-to-head votes, not A to Z, and find ideas for your own.',
-    images: [{ src: '/projects/PortfolioRank-1.png', alt: 'Portfolio Rank - developer portfolio ranker screenshot' }],
-    tags: ['Next.js', 'Gemini', 'Turso', 'Vercel'],
-    github: 'https://github.com/n8watkins/portfolio-rank',
-    liveSite: 'https://portfoliorank.vercel.app/',
-    buildSlug: 'portfolio-rank',
-    credit: {
-      before: 'Built on',
-      name: "Emma Bostian's developer-portfolios list",
-      href: 'https://github.com/emmabostian/developer-portfolios',
-      after: ', curated by thousands.',
-    },
-    accent: 'rank',
-    features: [
-      'Head-to-head voting',
-      'ELO leaderboard',
-      'Lighthouse and AI reviews',
-      // The leaderboard's Browse section, where its "Submit yours" button sits.
-      { text: 'Add your portfolio and see how you compare', href: 'https://portfoliorank.vercel.app/#browse' },
-    ],
-    actions: [{ label: 'Vote in a face-off', href: 'https://portfoliorank.vercel.app/rank', kind: 'primary', external: true }],
   },
 ]
-
-/** What the download button fetches, from the newest release; less when GitHub can't say. */
-type DownloadFacts = Partial<Record<keyof typeof DOWNLOADS, string>>
-
-async function downloadFacts(): Promise<DownloadFacts> {
-  const facts: DownloadFacts = {}
-  for (const app of Object.keys(DOWNLOADS) as (keyof typeof DOWNLOADS)[]) {
-    const asset = await latestAsset(DOWNLOADS[app])
-    // Scribe supports Windows 10 and 11, 64-bit only (its README).
-    facts[app] = ['Windows 10 and 11, 64-bit', ...(asset ? [asset.version, formatSize(asset.size)] : [])].join(' · ')
-  }
-  return facts
-}
-
-/** A link label as runs of plain text and marked words (each with its mark). */
-function labelRuns(link: ActionLink): { text: string; mark?: IconType }[] {
-  const runs: { text: string; mark?: IconType }[] = []
-  for (const token of link.label.split(/(\s+)/)) {
-    const mark = link.marks?.[token.replace(/[^\w]/g, '')]
-    const last = runs[runs.length - 1]
-    if (mark) runs.push({ text: token, mark })
-    else if (last && !last.mark) last.text += token
-    else runs.push({ text: token })
-  }
-  return runs
-}
 
 /** A Lab button. None of them grows on hover: the row's buttons sit level. */
 const buttonBase =
   'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-sm font-semibold transition-colors duration-200'
 
 /**
- * The row's three buttons where their columns are narrow (the `lab-tight`
- * variant, app/globals.css): tighter padding and gap and 13px labels, so the
- * columns stay even and every label fits on one line.
+ * The row's buttons where their columns are narrow (the `lab-tight` variant,
+ * app/globals.css): tighter padding and gap and 13px labels, so every label
+ * stays on one line.
  */
 const tightButton = 'lab-tight:gap-1.5 lab-tight:px-2.5 lab-tight:text-[0.8125rem]'
 
-const ActionLinkView = ({ project, link, facts }: { project: FeaturedProject; link: ActionLink; facts: DownloadFacts }) => {
-  const accent = accents[project.accent]
-  const fact = link.download ? facts[link.download] : undefined
-  const isLink = link.kind === 'link'
+/** The quiet look of Full story (and of a Windows download elsewhere). */
+const outline = 'border-white/12 bg-white/4 text-slate-200 hover:bg-white/8 hover:text-slate-50'
+
+/**
+ * A Windows-only app's row away from Windows (PlatformGroup, owner,
+ * 2026-11-08): the download turns quiet and Full story takes Scribe's solid
+ * blue. Only colours change, so nothing moves.
+ */
+const awayDownload =
+  'group-data-[platform=other]/platform:bg-none group-data-[platform=other]/platform:border-white/12 group-data-[platform=other]/platform:bg-white/4 group-data-[platform=other]/platform:text-slate-200 group-data-[platform=other]/platform:hover:bg-white/8'
+const awayStory =
+  'group-data-[platform=other]/platform:border-transparent group-data-[platform=other]/platform:bg-linear-to-r group-data-[platform=other]/platform:from-blue-600 group-data-[platform=other]/platform:to-sky-700 group-data-[platform=other]/platform:text-white group-data-[platform=other]/platform:hover:from-blue-700 group-data-[platform=other]/platform:hover:to-sky-800'
+
+/** The row's one primary button, to the live thing, in the product's colour. */
+const PrimaryButton = ({ project, action, captionId }: { project: FeaturedProject; action: BuildAction; captionId?: string }) => {
+  const external = action.href.startsWith('http')
   return (
     <a
-      href={link.href}
-      {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-      {...(fact ? { 'aria-describedby': `${project.buildSlug}-download-facts` } : {})}
-      className={
-        isLink
-          ? `inline-flex items-center gap-1.5 py-1 text-sm font-semibold text-slate-300 transition-colors ${accent.link}`
-          : `${buttonBase} btn-shimmer rounded-lg px-3.5 ${accent.primary}`
-      }
+      href={action.href}
+      {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+      {...(captionId ? { 'aria-describedby': captionId } : {})}
+      className={`${buttonBase} ${tightButton} btn-shimmer border border-transparent ${accents[project.accent].primary} ${action.download ? awayDownload : ''}`}
     >
-      {link.download ? <FiDownload className="h-4 w-4" aria-hidden="true" /> : null}
-      {/* A text link's underline is one line under its whole label, marks included
-          (a bottom border: a text underline would break at each mark). */}
-      <span className={isLink ? 'border-b border-white/30 pb-px' : undefined}>
-        {labelRuns(link).map((run, i) =>
-          run.mark ? (
-            <span key={i} className="whitespace-nowrap">
-              <run.mark className={`mr-1 inline-block h-3.5 w-3.5 align-[-2px] ${isLink ? 'text-slate-400' : ''}`} aria-hidden="true" />
-              {run.text}
-            </span>
-          ) : (
-            <React.Fragment key={i}>{run.text}</React.Fragment>
-          )
-        )}
-      </span>
-      {link.external && !isLink ? <FiExternalLink className="h-3.5 w-3.5" aria-hidden="true" /> : null}
-      {link.external ? <span className="sr-only"> (opens in a new tab)</span> : null}
+      {action.download ? <FiDownload className="h-4 w-4 shrink-0" aria-hidden="true" /> : null}
+      <ActionLabel label={action.label} />
+      {external ? <FiExternalLink className="h-3.5 w-3.5 shrink-0" aria-hidden="true" /> : null}
+      {external ? <span className="sr-only"> (opens in a new tab)</span> : null}
     </a>
   )
 }
 
-/** The row's main action, beside its tech pills; a download carries its caption close under it. */
-const PrimaryAction = ({ project, facts }: { project: FeaturedProject; facts: DownloadFacts }) => {
-  const link = project.actions.find((a) => a.kind === 'primary')
-  if (!link) return null
-  const fact = link.download ? facts[link.download] : undefined
-  return (
-    <div className="flex max-w-full flex-col items-start gap-1">
-      <ActionLinkView project={project} link={link} facts={facts} />
-      {fact ? (
-        <p id={`${project.buildSlug}-download-facts`} className="text-xs text-slate-400">
-          {fact}
+const slugOf = (project: FeaturedProject) => project.buildSlug
+
+const ProjectRow = async ({ project, flipped }: { project: FeaturedProject; flipped: boolean }) => {
+  const build = getBuild(project.buildSlug)
+  const action = build?.tryIt
+  const caption = action?.download ? await downloadCaption(action.download) : undefined
+  const captionId = caption ? `${slugOf(project)}-download-facts` : undefined
+  // The primary, what a download fetches, and Full story: for a Windows-only
+  // download, marked with the visitor's platform (PlatformGroup).
+  const lead = (
+    <>
+      {action ? (
+        <div className="col-span-2 grid @[31rem]/lab-actions:col-span-1">
+          <PrimaryButton project={project} action={action} captionId={captionId} />
+        </div>
+      ) : null}
+      {/* What a download fetches, close under it: on its own line under the
+          primary on narrow columns, under the whole row on wide ones. Away
+          from Windows it says the app is for Windows for now. */}
+      {caption ? (
+        <p
+          id={captionId}
+          className="col-span-2 -mt-1 text-xs text-slate-400 @[31rem]/lab-actions:order-last @[31rem]/lab-actions:col-span-3"
+        >
+          <span className="group-data-[platform=other]/platform:hidden">{caption}</span>
+          <span className="hidden group-data-[platform=other]/platform:inline">Windows app. Mac and Linux coming.</span>
         </p>
       ) : null}
-    </div>
-  )
-}
-
-/**
- * What the project does, as checks in its colour, two by two from small
- * screens up; one per line on tablets, where the row's text column is too
- * narrow for two without wrapping them.
- */
-const Features = ({ project }: { project: FeaturedProject }) => {
-  const accent = accents[project.accent]
-  return (
-    <ul aria-label={`What ${project.title} does`} className="mt-4 grid gap-x-5 gap-y-1.5 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
-      {project.features.map((feature) => {
-        const text = typeof feature === 'string' ? feature : feature.text
-        return (
-          // A linked feature is a sentence, so it takes the whole line.
-          <li key={text} className={`flex items-start gap-2 text-sm font-medium text-slate-200 ${typeof feature === 'string' ? '' : 'col-span-full'}`}>
-            <FiCheck className={`mt-[3px] h-4 w-4 shrink-0 ${accent.check}`} aria-hidden="true" />
-            {typeof feature === 'string' ? (
-              text
-            ) : (
-              <a
-                href={feature.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`underline decoration-white/30 underline-offset-4 transition-colors ${accent.link}`}
-              >
-                {text}
-                <span className="sr-only"> (opens in a new tab)</span>
-              </a>
-            )}
-          </li>
-        )
-      })}
-    </ul>
-  )
-}
-
-/**
- * The row's detail view: the tech stack and the way to the full story, kept
- * out of the row so the row stays short. Rendered here on the server; the
- * Details button and its native <dialog> are an island (ProjectDetails).
- */
-const DetailsBody = ({ project, technologies }: { project: FeaturedProject; technologies: ReturnType<typeof techFor> }) => (
-  <>
-    <p className="mt-8 text-xs font-bold uppercase tracking-[0.16em] text-slate-450">How it&apos;s built</p>
-    <div className="mt-4">
-      {technologies ? (
-        <TechStackCycle technologies={technologies} />
-      ) : (
-        <div className="flex flex-wrap gap-2">
-          {project.tags.map((tag) => (
-            <span key={tag} className="rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-sm font-semibold text-slate-300">
-              {tag}
-            </span>
-          ))}
-        </div>
-      )}
-    </div>
-
-    <div className="mt-8 flex flex-wrap gap-3 border-t border-white/8 pt-6">
       <Link
         href={`/builds/${project.buildSlug}`}
-        className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-700 px-5 py-2.5 text-[0.95rem] font-semibold text-white transition-colors duration-200 hover:from-blue-700 hover:to-cyan-800"
+        className={`${buttonBase} ${tightButton} border ${outline} ${action?.download ? awayStory : ''}`}
       >
-        <FiFileText className="h-4 w-4 shrink-0" aria-hidden="true" />
-        Full story
+        <FiBookOpen className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+        Full story<span className="sr-only"> of {project.title}</span>
       </Link>
-      {/* Straight to this build's part of the /builds log. */}
-      <Link
-        href={`/builds?build=${project.buildSlug}#activity`}
-        className="flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-5 py-2.5 text-[0.95rem] font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8"
-      >
-        <FiActivity className="h-4 w-4 shrink-0" aria-hidden="true" />
-        Build log
-      </Link>
-      {project.github && (
-        <a
-          href={project.github}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-5 py-2.5 text-[0.95rem] font-semibold text-slate-300 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8"
-        >
-          <FiGithub className="h-4 w-4 shrink-0" aria-hidden="true" />
-          Source
-          <span className="sr-only"> (opens in a new tab)</span>
-        </a>
-      )}
-    </div>
-  </>
-)
-
-const DetailsHeader = ({ project }: { project: FeaturedProject }) => (
-  <>
-    <Image
-      src={project.icon}
-      alt=""
-      width={56}
-      height={56}
-      className="h-14 w-14 shrink-0 rounded-2xl ring-1 ring-white/10"
-      unoptimized={project.icon.endsWith('.svg')}
-    />
-    <div className="min-w-0 flex-1">
-      <h4 id={`${slugOf(project)}-details-title`} className="text-2xl font-bold tracking-tight text-slate-50 sm:text-3xl">
-        {project.wordmark ?? project.title}
-      </h4>
-      <p className="mt-1 text-base font-medium text-blue-300">{project.subtitle}</p>
-    </div>
-  </>
-)
-
-const slugOf = (project: FeaturedProject) => project.buildSlug
-/**
- * The row's link to its live site, named for what it opens: "Landing page"
- * when that is the product's landing page (data/builds.tsx, round 4 of
- * 2026-11-02), "Live Site" when it is the app itself (Portfolio Rank).
- */
-const liveSiteLabel = (project: FeaturedProject) =>
-  builds.find((b) => b.slug === project.buildSlug)?.liveSiteIsLanding ? 'Landing page' : 'Live Site'
-const techFor = (project: FeaturedProject) => projects.find((p) => p.title === project.title)?.technologies
-
-const ProjectRow = ({ project, flipped, facts }: { project: FeaturedProject; flipped: boolean; facts: DownloadFacts }) => {
-  const technologies = techFor(project)
+    </>
+  )
   return (
     <Reveal className={`flex flex-col ${flipped ? 'md:flex-row-reverse' : 'md:flex-row'} items-center gap-6 md:gap-12`}>
       {project.tour ? (
@@ -470,103 +228,27 @@ const ProjectRow = ({ project, flipped, facts }: { project: FeaturedProject; fli
           />
           <div className="min-w-0">
             <h3 id={`${slugOf(project)}-title`} className="text-2xl font-bold tracking-tight text-slate-50 sm:text-3xl">
-              {project.wordmark ?? project.title}
+              {project.title}
             </h3>
             <p className="text-sm font-semibold text-blue-300">{project.subtitle}</p>
           </div>
         </div>
         <p className="mt-3 text-sm leading-relaxed text-[#9cadc5] sm:text-[0.95rem]">{project.description}</p>
-        {/* The tech as pills, with the product's main action on the same line. */}
-        <div className="mt-3 flex flex-wrap items-start justify-between gap-x-3 gap-y-3">
-          <ul aria-label={`${project.title} is built with`} className="flex flex-wrap gap-1.5 py-1">
-            {project.tags.map((tag) => (
-              <li key={tag} className="rounded-md border border-white/10 bg-white/[0.04] px-2 py-1 font-mono text-xs text-slate-300">
-                {tag}
-              </li>
-            ))}
-          </ul>
-          <PrimaryAction project={project} facts={facts} />
-        </div>
-        {project.credit && (
-          <p className="mt-2 text-xs italic text-slate-400">
-            {project.credit.before}{' '}
-            <a
-              href={project.credit.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-slate-300 underline decoration-white/25 underline-offset-4 hover:text-cyan-200"
-            >
-              {project.credit.name}
-            </a>
-            {project.credit.after}
-          </p>
-        )}
-        <Features project={project} />
-        {project.actions.some((a) => a.kind === 'link') && (
-          <div className="mt-2.5 flex flex-wrap gap-x-5">
-            {project.actions
-              .filter((a) => a.kind === 'link')
-              .map((link) => (
-                <ActionLinkView key={link.href} project={project} link={link} facts={facts} />
-              ))}
-          </div>
-        )}
 
-        {/* One row across the column: the live site (Landing page, or Live Site
-            for Portfolio Rank, whose site is the app), the Star | GitHub split
-            button, Details, in even thirds. Where the thirds are narrow (1024px
-            up to about 1150px) the buttons tighten (`tightButton`) so they
-            still fit evenly. A third is never narrower than its button, though:
-            a long star count can make the split button wider than a third, and
-            then it takes what it needs and the other two share the rest evenly,
-            so no two buttons ever touch. On phones and tablets (where the row's
-            text column is narrow), the live site and Details share a line in
-            even halves (tightened on the narrowest phones and at 768px), and
-            the split button takes the next. */}
-        <div className="@container/lab-actions mt-5 grid grid-cols-[repeat(2,minmax(max-content,1fr))] gap-2 sm:grid-cols-[repeat(3,minmax(max-content,1fr))] md:grid-cols-[repeat(2,minmax(max-content,1fr))] lg:grid-cols-[repeat(3,minmax(max-content,1fr))]">
-          {project.liveSite && (
-            <a
-              href={project.liveSite}
-              target="_blank"
-              rel="noopener noreferrer"
-              // Blue into a dark cyan, so the white label passes AA across the whole button.
-              className={`${buttonBase} ${tightButton} bg-linear-to-r from-blue-600 to-cyan-700 text-white hover:from-blue-700 hover:to-cyan-800`}
-            >
-              <FiExternalLink className="h-3.5 w-3.5 shrink-0" />
-              {liveSiteLabel(project)}
-              <span className="sr-only"> of {project.title} (opens in a new tab)</span>
-            </a>
-          )}
-          {project.github && (
-            <RepoButtons
-              href={project.github}
-              name={project.title}
-              halfClassName={tightButton}
-              className="order-last col-span-2 w-full sm:order-none sm:col-span-1 md:order-last md:col-span-2 lg:order-none lg:col-span-1"
-            />
-          )}
-          <ProjectDetails
-            title={project.title}
-            buttonClassName={tightButton}
-            labelledBy={`${slugOf(project)}-details-title`}
-            header={<DetailsHeader project={project} />}
-            media={
-              // The row's tour or gallery again, at the dialog's width.
-              project.tour ? (
-                <ProjectTour title={project.title} tour={project.tour} className="w-full" />
-              ) : (
-                <ProjectGallery
-                  title={project.title}
-                  images={project.images}
-                  className="w-full"
-                  sizes="(max-width: 1024px) 45vw, 500px"
-                  imageClassName={`object-cover ${project.imagePosition ?? 'object-top'}`}
-                />
-              )
-            }
-          >
-            <DetailsBody project={project} technologies={technologies} />
-          </ProjectDetails>
+        {/* One button rule for every row (owner, 2026-11-08): the primary
+            action to the live thing, in the product's colour, then "Full
+            story" (its build page), then the Star | GitHub split button. One
+            line where the column is wide enough for all three (from 31rem in
+            the size container `lab-actions`); below that the primary takes the first
+            line and the other two share the next. A column is never narrower
+            than its button. */}
+        <div className="@container/lab-actions mt-5">
+          <div className="grid grid-cols-[repeat(2,minmax(max-content,1fr))] gap-2 @[31rem]/lab-actions:grid-cols-[minmax(max-content,1.25fr)_repeat(2,minmax(max-content,1fr))]">
+            {action?.download ? <PlatformGroup>{lead}</PlatformGroup> : lead}
+            {project.github && (
+              <RepoButtons href={project.github} name={project.title} halfClassName={tightButton} className="w-full" />
+            )}
+          </div>
         </div>
       </div>
     </Reveal>
@@ -581,7 +263,7 @@ const container = 'mx-auto max-w-6xl px-5 sm:px-8'
 // washes fade out at their edges, so the rows' padding doubles as the gap between them.
 // `bleed` off: a row inside a page's own content column (the homepage's
 // Loadout), with no wash, since a glow cut off at the column's edge would show a seam.
-const Rows = ({ group, facts, bleed = true }: { group: FeaturedProject['group']; facts: DownloadFacts; bleed?: boolean }) => (
+const Rows = ({ group, bleed = true }: { group: FeaturedProject['group']; bleed?: boolean }) => (
   <div className="flex flex-col">
     {featured
       .filter((p) => p.group === group)
@@ -597,10 +279,10 @@ const Rows = ({ group, facts, bleed = true }: { group: FeaturedProject['group'];
           >
             {bleed ? (
               <div className={container}>
-                <ProjectRow project={p} flipped={flipped} facts={facts} />
+                <ProjectRow project={p} flipped={flipped} />
               </div>
             ) : (
-              <ProjectRow project={p} flipped={flipped} facts={facts} />
+              <ProjectRow project={p} flipped={flipped} />
             )}
           </article>
         )
@@ -609,14 +291,23 @@ const Rows = ({ group, facts, bleed = true }: { group: FeaturedProject['group'];
 )
 
 /** The Lab's featured builds, the first part under its intro. */
-const FeaturedProjects = async () => {
-  const facts = await downloadFacts()
+const FeaturedProjects = () => {
   return (
     <section id="featured" aria-label="Featured builds" className="lab-accent-featured py-10">
       <Reveal className={`${container} pb-4`}>
         <LabSubheader title="Featured builds" blurb="Free to use and open source, with no sign-up to start." />
+        {/* The open-source checks, under the heading (2026-11-08, from the Lab's
+            old intro, in its style): cyan checks, one line where it fits. */}
+        <ul aria-label="Open source" className="-mt-5 mb-8 flex flex-wrap items-center gap-x-5 gap-y-1.5 pl-4">
+          {['Public on GitHub', 'MIT-licensed', 'Star, fork or open an issue'].map((point) => (
+            <li key={point} className="flex items-center gap-1.5 text-sm font-semibold text-slate-200">
+              <FiCheck className="h-3.5 w-3.5 shrink-0 text-cyan-300" aria-hidden="true" />
+              {point}
+            </li>
+          ))}
+        </ul>
       </Reveal>
-      <Rows group="featured" facts={facts} />
+      <Rows group="featured" />
     </section>
   )
 }
@@ -628,8 +319,6 @@ const FeaturedProjects = async () => {
  * sets the same column inside; `bleed={false}` puts them in a column as they
  * are, with no wash (the homepage's Loadout).
  */
-export const DailyDriverRows = async ({ bleed = true }: { bleed?: boolean }) => (
-  <Rows group="daily" facts={await downloadFacts()} bleed={bleed} />
-)
+export const DailyDriverRows = ({ bleed = true }: { bleed?: boolean }) => <Rows group="daily" bleed={bleed} />
 
 export default FeaturedProjects

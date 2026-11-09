@@ -20,7 +20,7 @@ const labMenu: LabItem[] = [
   // The build log sits under "What I'm working on", just above the Lab (owner, 2026-11-08),
   // so it leads the menu, in page order; the full log is its "See the full build log" link and the footer.
   { label: 'Build log', href: '/#build-log', desc: 'What I shipped lately, every build', fallback: '/builds' },
-  { label: 'Featured', href: '/#featured', desc: 'OpenPing, Solara and Portfolio Rank' },
+  { label: 'Featured', href: '/#featured', desc: 'OpenPing and Solara' },
   { label: 'Chrome Extensions', href: '/#extensions', desc: 'Browser tools, local-first' },
   // The Lab's last part: upcoming projects, each with a waitlist (full detail on /upcoming).
   { label: "What's cookin'", href: '/#upcoming', desc: 'Upcoming projects, with a waitlist' },

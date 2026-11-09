@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { useSyncExternalStore } from 'react'
+import { useOnWindows } from '@/hooks/useOnWindows'
 import { FaWindows } from 'react-icons/fa6'
 import { FiDownload, FiFileText } from 'react-icons/fi'
 
@@ -10,20 +10,6 @@ const button =
 // Scribe's own blue (the Lab's Scribe row), white on it at 5:1 and up.
 const solid = `${button} border border-transparent bg-linear-to-r from-blue-600 to-sky-700 text-white hover:from-blue-700 hover:to-sky-800`
 const outline = `${button} border border-white/12 bg-white/4 text-slate-200 hover:border-white/20 hover:bg-white/8 hover:text-white`
-
-function subscribe() {
-  return () => {}
-}
-
-/**
- * Whether this browser runs on Windows: the client hint where there is one
- * (Chromium), else the user agent string. Phones and tablets are never Windows.
- */
-function onWindows(): boolean {
-  const platform = (navigator as Navigator & { userAgentData?: { platform?: string } }).userAgentData?.platform
-  if (platform) return /^windows$/i.test(platform)
-  return /Windows NT/i.test(navigator.userAgent)
-}
 
 /**
  * Scribe's two main buttons and the line under them (owner, 2026-11-08).
@@ -46,7 +32,7 @@ export default function ScribeActions({
   /** The installer's facts (Windows versions, release, size). */
   facts: string
 }) {
-  const windows = useSyncExternalStore(subscribe, onWindows, () => true)
+  const windows = useOnWindows()
   const downloadLink = (
     <a key="download" href={download} aria-describedby="scribe-download-note" className={windows ? solid : outline}>
       <FiDownload className="h-4 w-4 shrink-0" aria-hidden="true" />

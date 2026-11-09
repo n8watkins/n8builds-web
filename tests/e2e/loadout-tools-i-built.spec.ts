@@ -4,7 +4,7 @@ import { test, expect } from '@playwright/test'
  * /loadout's "Tools I built and use" (the owner's calls, 2026-11-01): Scribe,
  * out of the homepage Lab's "My tools", leads it as the Lab's own full-bleed
  * row, then the small CLIs' cards. OpenPing went the other way, into the
- * Lab's Featured builds. The row's own behaviour (download, gallery, Details)
+ * Lab's Featured builds. The row's own behaviour (download, gallery, Full story)
  * is covered in lab.spec.ts, the cards in loadout-dev-tools.spec.ts.
  */
 
@@ -110,7 +110,7 @@ test('old links land on Tools I built and use: the Lab\'s /#my-tools, and /loado
 test("the navbar's Lab menu lists Featured with OpenPing in it, and no My tools", async ({ page }) => {
   await page.goto('/loadout')
   const nav = page.getByRole('navigation', { name: 'Primary' })
-  await expect(nav.locator('a[href="/#featured"]').first()).toContainText('OpenPing, Solara and Portfolio Rank')
+  await expect(nav.locator('a[href="/#featured"]').first()).toContainText('OpenPing and Solara')
   await expect(nav.locator('a[href="/#my-tools"]')).toHaveCount(0)
 })
 

@@ -6,9 +6,9 @@ import type { Build } from './builds'
 
 // The owner's daily drivers lead /loadout's "Tools I built and use"; every other
 // build is in the homepage Lab: extensions in their showcase, everything else
-// (web apps and tools alike) a featured row. The Lab has no tools part (the
+// (web apps and tools alike) a featured row, unless it is kept off the homepage. The Lab has no tools part (the
 // owner's call, 2026-11-01): the tools I built and use are in the Loadout.
-export type Shelf = 'mine' | 'featured' | 'extension'
+export type Shelf = 'mine' | 'featured' | 'extension' | 'index'
 
 export interface ShelfMeta {
   id: Shelf
@@ -21,12 +21,15 @@ export const shelfMeta: Record<Shelf, ShelfMeta> = {
   mine: { id: 'mine', href: '/loadout#tools-i-built', label: 'Tools I built and use' },
   featured: { id: 'featured', href: '/#featured', label: 'Featured' },
   extension: { id: 'extension', href: '/#extensions', label: 'Extensions' },
+  // A build that isn't on the homepage (Portfolio Rank): the /builds index lists it.
+  index: { id: 'index', href: '/builds', label: 'all builds' },
 }
 
 // Classify a build onto a shelf: the owner's daily drivers, the extensions
 // (and the extension starter), and everything else featured.
 export function getShelf(build: Build): Shelf {
   if (build.mine) return 'mine'
+  if (build.homepage === false) return 'index'
   switch (build.category) {
     case 'Chrome extension':
     case 'Starter template':

@@ -69,7 +69,7 @@ function Band({
 /**
  * The homepage, rendered on the server. Only its interactive parts are client
  * components (islands): the navbar, the hero's grid and wire meter, the
- * carousels, the Lab rows' gallery and Details, the scroll reveals, the
+ * carousels, the Lab rows' gallery, the scroll reveals, the
  * contact form, and HomeEffects (analytics and the ambient glows). A phone
  * downloads and hydrates those, not every section's code.
  */
