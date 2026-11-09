@@ -390,7 +390,7 @@ export const people: Person[] = [
     // Non-breaking spaces keep the last words together (no one-word last line).
     role: 'Former L8 principal engineer at Meta, Microsoft and\u00a0Atlassian.',
     // A non-breaking hyphen (U+2011) keeps "no-mistakes" from splitting across lines.
-    note: 'Building agent tools in the open: no\u2011mistakes, firstmate, gnhf, treehouse and the AXI\u00a0interfaces.',
+    note: 'Building agent tools in the open: no\u2011mistakes, gnhf and treehouse.',
     howTheyWork: { href: 'https://youtu.be/iQyg-KypKAA' },
     links: [
       { kind: 'youtube', href: 'https://www.youtube.com/channel/UCb69t9ZkE5z1KvCmfJoaifA' },
@@ -406,7 +406,7 @@ export const people: Person[] = [
     avatar: '/people/phaedrus.webp',
     role: 'Runs Misty Step, an AI-native software agency.',
     // From mistystack's README and mistystep.io (2026-11-01).
-    note: 'Building a software factory, mistystack: one method his agents share, and a fleet of workers for builds\u00a0and\u00a0tests.',
+    note: 'Building a software factory: mistystack, one method all his agents\u00a0share.',
     more: 'Misty Step ships its own games on it, and he created\u00a0pass-env.',
     links: [
       { kind: 'x', href: 'https://x.com/moomooskycow' },
@@ -421,7 +421,7 @@ export const people: Person[] = [
     avatar: '/people/nate-herk.webp',
     role: 'AI automation educator.',
     // From his YouTube channel's about page (2026-11-09).
-    note: 'Teaching AI automation on YouTube, after leaving Goldman Sachs to build an AI\u00a0consultancy.',
+    note: 'Teaching AI automation on YouTube, after leaving Goldman\u00a0Sachs.',
     more: 'He founded the AI Automation Society\u00a0community.',
     links: [
       { kind: 'youtube', href: 'https://www.youtube.com/@nateherk' },

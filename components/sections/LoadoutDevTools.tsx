@@ -561,7 +561,7 @@ export const PersonCard = ({ person }: { person: Person }) => (
           Check out how he works
           <span className="sr-only"> (a video, opens in a new tab)</span>
         </a>{' '}
-        for more on his setup.
+        for more on his{'\u00a0'}setup.
       </p>
     )}
     <RecentActivity person={person} />
