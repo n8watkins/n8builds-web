@@ -416,6 +416,8 @@ Where these conflict with an older entry above, these win; the older entries are
   Each of the build log's three latest updates is exactly two lines under its build's name, so every entry is the same height and the column never jumps: the title and one line of what's in it, or a title alone over both lines (a short one leaves the second empty).
   The release-kit column is a product ad, not a note: its mark and name ("Open source · MIT"), "Releases that write themselves", In and Out as a commit (`feat: dark mode`) turning into a release (`v1.4.0`, notes, this log), "One command adds it to any repo", and "Get release-kit" with its live GitHub star count beside it (the Lab's hourly count; just the star while it has none).
   The build log's scroll icon keeps a subtle loop after it unrolls: now and then its two lines are written again, one after the other (CSS only, nothing under reduced motion).
+  The Lab's open-source checks sit once, centred under "The Lab": Public on GitHub, MIT-licensed, Tested on every pull request (true of every Lab repo: each is MIT and runs CI on pull requests), Star, fork or open an issue; one line from 1024px. Not under Featured, and the template part has no checks of its own any more.
+  The template part's heading is "Don't have a site? Use mine!" (was "Use mine as a template!"), one line on phones too.
 
 ## Publishing and releases (2026-10-25)
 

@@ -90,7 +90,7 @@ test('Details opens the stack and the build log in a dialog, and closes with Esc
   await expect(row.getByRole('button', { name: 'Frontend' }).filter({ visible: true })).toHaveCount(0)
 })
 
-test('the Lab is headed by its flask, and says its builds are open source once, under Featured', async ({ page }) => {
+test('the Lab is headed by its flask, and says its builds are open source once, under its heading', async ({ page }) => {
   await page.goto('/')
   // Its heading carries the Lab's flask mark (percolating), beside it in a chip.
   const heading = page.locator('#lab').getByRole('heading', { level: 2, name: 'The Lab' })
@@ -103,8 +103,18 @@ test('the Lab is headed by its flask, and says its builds are open source once, 
   await expect(mark.locator('.flask-escape')).toHaveCount(1)
   const [h, m] = await Promise.all([heading.boundingBox(), mark.boundingBox()])
   expect(Math.abs(h!.y + h!.height / 2 - (m!.y + m!.height / 2))).toBeLessThan(4)
-  // The claims every row shares sit once, under each part's heading, not in the rows.
-  await expect(page.locator('#featured')).toContainText('Free to use and open source, with no sign-up to start.')
+  // The claims every build shares sit once, under "The Lab" (owner, 2026-11-09), on one line from 1024px.
+  const checks = page.locator('#lab').getByRole('list', { name: 'Open source' })
+  await expect(checks).toHaveCount(1)
+  await expect(checks.getByRole('listitem')).toHaveText(['Public on GitHub', 'MIT-licensed', 'Tested on every pull request', 'Star, fork or open an issue'])
+  const [headingBox, checksBox] = await Promise.all([heading.boundingBox(), checks.boundingBox()])
+  expect(checksBox!.y).toBeGreaterThan(headingBox!.y + headingBox!.height)
+  expect(checksBox!.y).toBeLessThan((await page.locator('#featured').boundingBox())!.y)
+  if ((page.viewportSize()?.width ?? 0) >= 1024) {
+    const tops = await checks.getByRole('listitem').evaluateAll((items) => new Set(items.map((li) => Math.round(li.getBoundingClientRect().top))).size)
+    expect(tops).toBe(1)
+  }
+  await expect(page.locator('#template').getByText('MIT-licensed')).toHaveCount(0)
   for (const generic of ['No telemetry', 'No account to start', 'A vote takes five seconds', 'Free tools, no sign-up']) {
     await expect(page.locator('#lab').getByText(generic, { exact: true })).toHaveCount(0)
   }
