@@ -189,6 +189,7 @@ export function ProjectTour({
   className = 'w-full shrink-0 md:w-1/2',
   frameClassName = 'rounded-2xl border border-white/8',
   sizes = '(min-width: 1152px) 576px, (min-width: 768px) 50vw, 100vw',
+  noun = 'tour',
 }: {
   title: string
   tour: ProjectTourVideo
@@ -198,6 +199,8 @@ export function ProjectTour({
   frameClassName?: string
   /** The poster's rendered width, for its image sizes (half the row by default). */
   sizes?: string
+  /** What its pause button calls it: "Pause the Scribe tour", "Pause the OpenPing clip". */
+  noun?: string
 }) {
   const ref = useRef<HTMLVideoElement>(null)
   const [inView, setInView] = useState(false)
@@ -270,7 +273,7 @@ export function ProjectTour({
           <button
             type="button"
             onClick={() => setPaused((p) => !p)}
-            aria-label={`${paused ? 'Play' : 'Pause'} the ${title} tour`}
+            aria-label={`${paused ? 'Play' : 'Pause'} the ${title} ${noun}`}
             aria-pressed={paused}
             className="absolute right-2.5 bottom-2.5 flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-[#07101d]/75 text-slate-100 shadow-lg shadow-black/40 backdrop-blur-sm transition-colors hover:bg-[#07101d]/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300"
           >

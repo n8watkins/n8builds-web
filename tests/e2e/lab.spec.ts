@@ -188,7 +188,7 @@ test('every row and its build page lead with the same one action, to the live th
   await page.goto('/builds/openping')
   const header = page.locator('main header')
   await expect(header.getByRole('link', { name: /^Try the free tools/ })).toHaveAttribute('href', 'https://openping.n8builds.dev/tools')
-  await expect(header.getByRole('link', { name: /^Deploy your own/ })).toHaveAttribute('href', 'https://github.com/n8watkins/open-ping/blob/main/docs/INSTALL.md')
+  await expect(header.getByRole('link', { name: /^Deploy your own/ })).toHaveAttribute('href', 'https://openping.n8builds.dev/install')
   // Its landing page is the main action, so it isn't offered twice.
   await expect(header.getByRole('link', { name: /Visit the landing page/ })).toHaveCount(0)
   // Solara's landing page sits beside the planner.

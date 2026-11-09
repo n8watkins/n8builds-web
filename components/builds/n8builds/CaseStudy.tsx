@@ -535,7 +535,7 @@ export default function CaseStudy({ build, activity }: { build: Build; activity:
 
         <footer className="mt-16 flex flex-wrap items-center justify-between gap-4 border-t border-white/8 pt-8">
           <Link
-            href="/#lab"
+            href="/builds"
             className="-my-2.5 inline-flex items-center gap-2 py-2.5 text-sm font-semibold text-slate-400 transition-colors hover:text-cyan-300"
           >
             <FiArrowLeft className="h-4 w-4" />

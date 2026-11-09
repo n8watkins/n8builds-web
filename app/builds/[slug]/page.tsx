@@ -148,6 +148,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
                     className="w-full"
                     frameClassName="rounded-2xl border border-white/10 shadow-2xl shadow-black/40"
                     sizes="(max-width: 1024px) 100vw, 560px"
+                    noun="clip"
                   />
                 </FadeIn>
               ) : build.images.length > 0 ? (
@@ -339,7 +340,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
           {/* Footer nav */}
           <footer className="mt-16 pt-8 border-t border-white/8 flex flex-wrap items-center justify-between gap-4">
             <Link
-              href="/#lab"
+              href="/builds"
               className="-my-2.5 inline-flex items-center gap-2 py-2.5 text-sm font-semibold text-slate-400 hover:text-cyan-300 transition-colors"
             >
               <FiArrowLeft className="w-4 h-4" />

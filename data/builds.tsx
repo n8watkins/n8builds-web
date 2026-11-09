@@ -326,8 +326,8 @@ images: [
     tryIt: { label: 'Check it out', href: 'https://openping.n8builds.dev' },
     moreActions: [
       { label: 'Try the free tools', href: 'https://openping.n8builds.dev/tools' },
-      // The step-by-step install guide.
-      { label: 'Deploy your own', href: 'https://github.com/n8watkins/open-ping/blob/main/docs/INSTALL.md' },
+      // The step-by-step install guide on its site.
+      { label: 'Deploy your own', href: 'https://openping.n8builds.dev/install' },
     ],
     github: 'https://github.com/n8watkins/open-ping',
     liveSite: 'https://openping.n8builds.dev',
