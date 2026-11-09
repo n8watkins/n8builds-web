@@ -43,6 +43,8 @@ async function rowOf(page: Page, title: string) {
  */
 const asWindows = () => Object.defineProperty(navigator, 'userAgentData', { get: () => ({ platform: 'Windows' }) })
 const asMac = () => Object.defineProperty(navigator, 'userAgentData', { get: () => ({ platform: 'macOS' }) })
+const asLinux = () => Object.defineProperty(navigator, 'userAgentData', { get: () => ({ platform: 'Linux' }) })
+const asPhone = () => Object.defineProperty(navigator, 'userAgentData', { get: () => ({ platform: 'Android', mobile: true }) })
 
 /** A row's three controls: the primary action, Full story and the Star | GitHub group. */
 const controls = (row: Locator, title: string) => [
@@ -262,30 +264,43 @@ test('Scribe downloads the newest installer through a stable link, and its page 
 
 })
 
-test("Scribe's row leads with its download on Windows and with its full story anywhere else, without moving", { tag: '@cross-browser' }, async ({ browser }) => {
-  const look = async (windows: boolean) => {
+test("Scribe's row offers the download for the visitor's OS, and leads with its full story on a phone, without moving", { tag: '@cross-browser' }, async ({ browser }) => {
+  // Windows, and macOS and Linux in beta (owner, 2026-11-09).
+  const look = async (as: () => unknown, name: string) => {
     const context = await browser.newContext({ reducedMotion: 'reduce' })
     const page = await context.newPage()
-    await page.addInitScript(windows ? asWindows : asMac)
+    await page.addInitScript(as)
     const row = await rowOf(page, 'Scribe')
-    await expect(row.locator('[data-platform]')).toHaveAttribute('data-platform', windows ? 'windows' : 'other')
-    const [download, story] = controls(row, 'Scribe')
+    const download = row.getByRole('link', { name, exact: true })
+    const story = row.getByRole('link', { name: 'Full story of Scribe', exact: true })
     await download.scrollIntoViewIfNeeded()
     const solid = async (el: Locator) => el.evaluate((e) => getComputedStyle(e).backgroundImage !== 'none')
     const result = {
+      platform: await row.locator('[data-scribe-platform]').getAttribute('data-scribe-platform'),
+      href: await download.getAttribute('href'),
       download: await solid(download),
       story: await solid(story),
-      note: await row.getByText(windows ? 'Windows 10 and 11, 64-bit · v0.8.0 · 12 MB' : 'Windows app. Mac and Linux coming.').isVisible(),
-      boxes: await Promise.all([download, story].map((el) => el.boundingBox())),
+      note: (await row.locator('#scribe-download-note').innerText()).replace(/\s+/g, ' '),
+      boxes: await Promise.all([download, story].map(async (el) => {
+        const { width, height } = (await el.boundingBox())!
+        return { width: Math.round(width), height: Math.round(height) }
+      })),
     }
     await context.close()
     return result
   }
-  const [win, other] = [await look(true), await look(false)]
-  expect([win.download, win.story, win.note]).toEqual([true, false, true])
-  expect([other.download, other.story, other.note]).toEqual([false, true, true])
-  // Only colours and words change: both buttons keep their boxes.
-  expect(other.boxes).toEqual(win.boxes)
+  const win = await look(asWindows, 'Download for Windows')
+  expect(win).toMatchObject({ platform: 'windows', href: '/download/scribe', download: true, story: false, note: 'Windows 10 and 11, 64-bit · v0.8.0 · 12 MB' })
+  const mac = await look(asMac, 'Download for macOS Beta')
+  expect(mac).toMatchObject({ platform: 'mac', href: '/download/scribe-mac', download: true, story: false })
+  expect(mac.note).toMatch(/^macOS, Apple silicon and Intel · v0\.8\.0 · \d+ MB ?Not notarized by Apple: right-click Scribe and choose Open the first time\.$/)
+  const linux = await look(asLinux, 'Download for Linux Beta')
+  expect(linux).toMatchObject({ platform: 'linux', href: '/download/scribe-linux', download: true, story: false })
+  expect(linux.note).toMatch(/^Linux, 64-bit AppImage · v0\.8\.0 · \d+ MB · Also as a \.deb$/)
+  const phone = await look(asPhone, 'Download for Windows')
+  expect(phone).toMatchObject({ platform: 'other', download: false, story: true, note: 'Desktop app for Windows, with macOS and Linux in beta.' })
+  // Only colours and words change: the buttons keep their size.
+  for (const other of [mac, linux, phone]) expect(other.boxes).toEqual(win.boxes)
 })
 
 test("each row's primary action is in its product's colour", async ({ page }) => {
@@ -556,15 +571,23 @@ test("the row's stack and features moved to the build page", async ({ page }) =>
 test.describe('the Lab rows on a 320px phone', () => {
   test.use({ viewport: { width: 320, height: 700 } })
   test('nothing spills sideways: the primary takes its own line, Full story and Star | GitHub the next', { tag: '@cross-browser' }, async ({ page }) => {
-    // Scribe's row (on /loadout), the one with the longest primary and download caption.
+    // OpenPing's row: the primary on its own line, Full story and Star | GitHub sharing the next.
+    const open = await rowOf(page, 'OpenPing')
+    await open.scrollIntoViewIfNeeded()
+    const [p, f, r] = await Promise.all(controls(open, 'OpenPing').map((el) => el.boundingBox()))
+    expect(f!.y).toBeGreaterThan(p!.y + p!.height - 1)
+    expect(Math.round(f!.y)).toBe(Math.round(r!.y))
+    // Scribe's row (on /loadout), the one with the longest download caption: its two buttons
+    // stack (ScribeActions), Star | GitHub under them.
+    await page.addInitScript(asWindows)
     const row = await rowOf(page, 'Scribe')
     await row.scrollIntoViewIfNeeded()
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
-    const [p, f, r] = await Promise.all(controls(row, 'Scribe').map((el) => el.boundingBox()))
-    expect(f!.y).toBeGreaterThan(p!.y + p!.height - 1)
-    expect(Math.round(f!.y)).toBe(Math.round(r!.y))
-    // The download caption (or, away from Windows, the note) stays inside the column.
-    const caption = row.locator('#scribe-download-facts')
+    const [d, s, g] = await Promise.all(controls(row, 'Scribe').map((el) => el.boundingBox()))
+    expect(s!.y).toBeGreaterThan(d!.y + d!.height - 1)
+    expect(g!.y).toBeGreaterThan(s!.y + s!.height - 1)
+    // The download caption stays inside the column.
+    const caption = row.locator('#scribe-download-note')
     const box = (await caption.boundingBox())!
     expect(box.x + box.width).toBeLessThanOrEqual(320)
   })
