@@ -84,3 +84,15 @@ export function formatSize(bytes: number): string {
   const mb = bytes / (1024 * 1024)
   return mb >= 10 ? `${Math.round(mb)} MB` : `${mb.toFixed(1)} MB`
 }
+
+/**
+ * What a download button fetches, said under it: "Windows 10 and 11, 64-bit ·
+ * v0.8.0 · 12 MB" from the newest release, just the platforms when GitHub
+ * can't say. Scribe supports Windows 10 and 11, 64-bit only (its README).
+ */
+export async function downloadCaption(app: string): Promise<string | undefined> {
+  const download = DOWNLOADS[app]
+  if (!download) return undefined
+  const asset = await latestAsset(download)
+  return ['Windows 10 and 11, 64-bit', ...(asset ? [asset.version, formatSize(asset.size)] : [])].join(' · ')
+}

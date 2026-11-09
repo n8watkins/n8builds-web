@@ -258,7 +258,8 @@ test('works from the keyboard: the button, the figures, each row, then release-k
 
   // The focused row shows a ring.
   await rows(page).first().locator('a').first().focus()
-  const ring = await page.evaluate(() => getComputedStyle(document.activeElement!, '::after').boxShadow)
+  // The whole row is its link, so the ring is its own outline.
+  const ring = await page.evaluate(() => getComputedStyle(document.activeElement!).outlineStyle)
   expect(ring).not.toBe('none')
 })
 

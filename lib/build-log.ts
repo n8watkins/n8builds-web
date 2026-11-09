@@ -57,7 +57,7 @@ const NOTE_SECTIONS: [RegExp, ReleaseSection][] = [
  * under its New / Fixed / Faster / Safer (or Features / Fixes / Performance /
  * Security) headings, as plain text. Anything else (GitHub's generated "What's
  * Changed" list, a "Full Changelog" link) is left out, so an older release
- * simply shows no notes.
+ * simply shows no notes. So is a note with an internal code or code jargon.
  */
 export function parseReleaseNotes(body: string | null | undefined): ReleaseNote[] {
   if (!body) return []
@@ -80,7 +80,8 @@ export function parseReleaseNotes(body: string | null | undefined): ReleaseNote[
       .replace(/^\*\*[^*]+:\*\*\s*/, '') // **scope:**
       .replace(/\*\*|__|`/g, '')
       .trim()
-    if (text) notes.push({ section, text: text.charAt(0).toUpperCase() + text.slice(1) })
+    // Internal codes and code jargon stay out of the notes, as out of the commits.
+    if (text && !INTERNAL.test(text) && !CODE.test(text)) notes.push({ section, text: text.charAt(0).toUpperCase() + text.slice(1) })
   }
   return notes
 }
@@ -219,10 +220,15 @@ const NOISE =
 
 /**
  * Internal work that reads as process, not news: sprints, audits, batches,
- * coverage numbers and phase codes ("V2 P7a: ..."). Checked after the noise
- * filter, on the cleaned title.
+ * coverage numbers, phase and review codes ("V2 P7a: ...", "(Phase 4a)",
+ * "(REVIEW4 M2 M3)", "Review fix: ...", "the G4 front door"). Checked after
+ * the noise filter, on the cleaned title.
  */
-const INTERNAL = /\b(sprints?|audits?|batch(?:es)?|coverage|compliance|backlog|tickets?|P\d+[a-z]?)\b/i
+const INTERNAL =
+  /\b(sprints?|audits?|batch(?:es)?|coverage|compliance|backlog|tickets?|P\d+[a-z]?|phase \d+[a-z]?|review ?\d+|review fix(?:es)?|G\d+)\b/i
+
+/** Code in a title: a function call ("now()") or a snake_case name ("last_stop", "research_person.py"). */
+const CODE = /\w\(\)|\b[a-z]+_[a-z][a-z_]*\b/
 
 /** Three or more separate numbers ("1692 live, 44 dead, 43 error") read as an operations log. */
 const NUMBER_HEAVY = (text: string) => (text.match(/\b\d+\b/g) ?? []).length >= 3
@@ -283,7 +289,7 @@ export function classifyCommit(commit: Pick<SnapshotCommit, 'message' | 'author'
   if (NOISE.test(subject)) return { kind: 'drop', reason: 'upkeep' }
   const title = cleanTitle(subject)
   // On the cleaned title, so stripped work codes ("(W4-A)", "(#67)") don't count.
-  if (INTERNAL.test(title) || NUMBER_HEAVY(title)) return { kind: 'drop', reason: 'internal' }
+  if (INTERNAL.test(title) || CODE.test(title) || NUMBER_HEAVY(title)) return { kind: 'drop', reason: 'internal' }
   if (title.length < 8) return { kind: 'drop', reason: 'too short' }
   return { kind: 'change', title, score }
 }

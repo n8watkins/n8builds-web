@@ -108,9 +108,11 @@ test.describe('with reduced motion', () => {
   test('every link on the case study is reachable with the keyboard, with a visible focus ring', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto(PATH)
     // Number the links, so the two identical Star | GitHub pairs count apart.
+    // Only the links on screen: the build log's older months wait, folded, under "Earlier".
     const linkCount = await page.locator('main a[href]').evaluateAll((links) => {
-      links.forEach((el, i) => el.setAttribute('data-k', String(i)))
-      return links.length
+      const shown = links.filter((el) => el.checkVisibility())
+      shown.forEach((el, i) => el.setAttribute('data-k', String(i)))
+      return shown.length
     })
     const reached = new Set<string>()
     for (let i = 0; i < 120 && reached.size < linkCount; i++) {

@@ -162,7 +162,10 @@ test('the feed is one continuous list: month headers, more loading as you scroll
   expect(first).toBe(30)
   const more = feed(page).getByRole('button', { name: /^Load more/ })
   await expect(more).toBeVisible()
-  await more.click()
+  // Pressed where it is, without scrolling to it: scrolling the foot into view
+  // loads more on its own, which could replace the button mid-click (a flaky
+  // timeout, 2026-11-08). The scrolling is checked below.
+  await more.evaluate((button: HTMLButtonElement) => button.click())
   await expect.poll(() => feedEntries(page).count()).toBeGreaterThan(first)
   // The month headers stay under the navbar as their months scroll by.
   const header = feed(page).locator('section h3').first()
@@ -256,18 +259,30 @@ test('the feed is in the HTML, visible before any JavaScript, and hydrated in pl
   expect(await owned()).toBe(true)
 })
 
-test('a build page shows its recent activity and links to its part of the log', async ({ page }) => {
+test("a build page shows its whole build log by month, in the homepage strip's rows", async ({ page }) => {
   await page.goto('/builds/tubevault')
-  const section = page.getByRole('region', { name: 'Recent activity' })
+  const section = page.getByRole('region', { name: 'Build log' })
   await expect(section).toBeVisible()
-  const entries = section.locator('li[data-kind]')
-  await expect(entries).toHaveCount(5)
+  // All of the build's entries (owner, 2026-11-08): the fixture's seven for TubeVault, newest first.
+  const entries = section.locator('[data-kind]')
+  await expect(entries).toHaveCount(7)
   await expect(entries.first()).toContainText('Shipped v0.3.80')
   await expect(entries.first()).toContainText('Cross-platform native-host setup (macOS/Linux), no hardcoded user')
-
-  await section.getByRole('link', { name: 'Full log for TubeVault' }).click()
-  await expect(page).toHaveURL(/\/builds\?build=tubevault#activity$/)
-  await expect(chip(page, 'TubeVault')).toHaveAttribute('aria-pressed', 'true')
+  const days = await entries.locator('time').evaluateAll((els) => els.map((el) => el.getAttribute('datetime')!))
+  expect([...days].sort().reverse()).toEqual(days)
+  // Each row opens its entry on GitHub (the whole row is the link).
+  await expect(entries.first()).toHaveAttribute('href', /^https:\/\/github\.com\/n8watkins\/tube-vault\//)
+  // By month: the two newest open, the rest under "Earlier".
+  const months = section.getByRole('heading', { level: 3 })
+  expect(await months.count()).toBeGreaterThan(0)
+  const earlier = section.locator('details')
+  if (await earlier.count()) {
+    await expect(earlier.locator('[data-kind]').first()).toBeHidden()
+    await earlier.locator('summary').click()
+    await expect(earlier.locator('[data-kind]').first()).toBeVisible()
+  }
+  await section.getByRole('link', { name: 'See the log for every build' }).click()
+  await expect(page).toHaveURL(/\/builds#activity$/)
 })
 
 test.describe('navigation to the build log', () => {

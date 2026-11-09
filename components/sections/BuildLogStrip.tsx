@@ -5,9 +5,8 @@ import Reveal from '@/components/ui/Reveal'
 import LabSubheader from '@/components/sections/LabSubheader'
 import { ScrollIcon } from '@/components/ui/PartIcons'
 import BuildLogMonths, { LogMonthProvider, type LogMonth } from '@/components/sections/BuildLogMonths'
-import { ReleaseBadge } from '@/components/log/LogEntryItem'
+import LogRow from '@/components/log/LogRow'
 import { allBuilds, dayKey, getBuildLog, monthLabel, type LogEntry } from '@/lib/build-log'
-import { BUILD_ICONS } from '@/lib/build-meta'
 import { dailyCounts, shippedStats } from '@/lib/log-stats'
 
 // The homepage's compact build log: the newest month of /builds at a glance.
@@ -53,84 +52,6 @@ function daysBefore(day: string, days: number): string {
 function lastDayOf(month: string): string {
   const [y, m] = month.split('-').map(Number)
   return new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10)
-}
-
-function Row({ entry }: { entry: LogEntry }) {
-  const name = names[entry.build] ?? entry.build
-  const icon = BUILD_ICONS[entry.build]
-  const version = entry.kind === 'release' ? /^Shipped (v\S+)$/.exec(entry.title)?.[1] : undefined
-  const more =
-    entry.detail ??
-    (entry.notes?.length ? entry.notes.map((n) => n.text).join('. ') : undefined) ??
-    (entry.more > 0 ? `And ${entry.more} more ${entry.more === 1 ? 'change' : 'changes'} that day.` : undefined)
-  // The row's link is named by the build and the entry ("Solara: Setup: centered steps..."), not the build alone.
-  const id = `strip-${entry.id.replace(/[^\w-]/g, '-')}`
-  return (
-    <div className="group relative flex items-start gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-white/[0.04] sm:gap-3.5">
-      {icon ? (
-        <Image
-          src={icon}
-          alt=""
-          width={32}
-          height={32}
-          unoptimized={icon.endsWith('.svg')}
-          // The same frame for every row, release or not (round 4 of 2026-11-08).
-          className="mt-0.5 h-8 w-8 shrink-0 rounded-lg ring-1 ring-white/10 sm:mt-0"
-        />
-      ) : (
-        <span
-          aria-hidden
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/6 font-mono text-xs text-slate-300"
-        >
-          {name.charAt(0)}
-        </span>
-      )}
-      <div className="min-w-0 flex-1">
-        <p className="font-mono text-[0.7rem] font-semibold uppercase tracking-wider text-slate-400">
-          {/* Stretched over the row: it opens this build's part of the full log. */}
-          <Link
-            href={`/builds?build=${entry.build}`}
-            aria-labelledby={`${id}-build ${id}-title`}
-            className="after:absolute after:inset-0 after:rounded-xl after:content-[''] focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-cyan-400/60"
-          >
-            <span id={`${id}-build`}>{name}</span>
-          </Link>
-          {entry.kind === 'release' && (
-            <>
-              {' '}
-              <ReleaseBadge />
-            </>
-          )}
-          {/* Phones: the date rides on this line, so the title gets the width. */}
-          <span className="font-normal text-slate-475 sm:hidden">
-            {' '}
-            / <span className="text-slate-450">{entry.dayLabel}</span>
-          </span>
-        </p>
-        <p
-          id={`${id}-title`}
-          className="line-clamp-1 text-base font-semibold leading-snug text-slate-100 transition-colors group-hover:text-cyan-100"
-        >
-          {version ? (
-            <>
-              Shipped <span className="font-mono text-[0.92em] text-cyan-300">{version}</span>
-            </>
-          ) : (
-            entry.title
-          )}
-        </p>
-        {/* A line of what's in it (round 5 of 2026-11-08): the release's note or the day's other
-            changes, at most two lines. */}
-        {more && <p className="mt-0.5 line-clamp-2 text-sm leading-snug text-[#9cadc5]">{more}</p>}
-      </div>
-      <time
-        dateTime={entry.date}
-        className="hidden shrink-0 self-start pt-0.5 font-mono sm:block text-[0.7rem] uppercase tracking-wider text-slate-450"
-      >
-        {entry.dayLabel}
-      </time>
-    </div>
-  )
 }
 
 const RELEASE_KIT = 'https://github.com/n8watkins/release-kit'
@@ -203,7 +124,7 @@ export async function getLogMonths(): Promise<LogMonth[] | null> {
   const isThisMonth = thisMonth.length >= MONTH_MIN
   const today = dayKey(asOf)
   const view = (rows: LogEntry[]) => ({
-    rows: rows.map((entry) => <Row key={entry.id} entry={entry} />),
+    rows: rows.map((entry) => <LogRow key={entry.id} entry={entry} />),
   })
 
   // The first view: this month, or in a quiet one the last 30 days (the latest from every build).
