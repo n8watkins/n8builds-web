@@ -252,6 +252,11 @@ test('the homepage advertises the developer portfolio right after the Lab', asyn
   for (const [name, slug] of [['a realtime voice agent', 'echo'], ['a research agent', 'scout'], ['a chat platform with retrieval', 'geminigpt']]) {
     await expect(ad.getByRole('link', { name: new RegExp(`^${name}`) })).toHaveAttribute('href', `https://portfolio.n8builds.dev/projects/${slug}`)
   }
+  // The portfolio in use, a muted loop with a pause button, not a still (2026-11-09).
+  const clip = ad.locator('[data-tour] video')
+  await expect(clip).toHaveAttribute('aria-label', /developer portfolio's homepage/)
+  await expect(ad.locator('[data-tour] img[data-tour-poster]')).toHaveCount(1)
+  await expect(ad.getByRole('link', { name: '' })).toHaveCount(0)
   const order = await page.evaluate(() => {
     const lab = document.getElementById('lab')!
     const adEl = document.getElementById('portfolio-ad-heading')!
