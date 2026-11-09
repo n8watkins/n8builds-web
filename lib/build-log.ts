@@ -57,7 +57,7 @@ const NOTE_SECTIONS: [RegExp, ReleaseSection][] = [
  * under its New / Fixed / Faster / Safer (or Features / Fixes / Performance /
  * Security) headings, as plain text. Anything else (GitHub's generated "What's
  * Changed" list, a "Full Changelog" link) is left out, so an older release
- * simply shows no notes.
+ * simply shows no notes. So is a note with an internal code or code jargon.
  */
 export function parseReleaseNotes(body: string | null | undefined): ReleaseNote[] {
   if (!body) return []
@@ -80,7 +80,8 @@ export function parseReleaseNotes(body: string | null | undefined): ReleaseNote[
       .replace(/^\*\*[^*]+:\*\*\s*/, '') // **scope:**
       .replace(/\*\*|__|`/g, '')
       .trim()
-    if (text) notes.push({ section, text: text.charAt(0).toUpperCase() + text.slice(1) })
+    // Internal codes and code jargon stay out of the notes, as out of the commits.
+    if (text && !INTERNAL.test(text) && !CODE.test(text)) notes.push({ section, text: text.charAt(0).toUpperCase() + text.slice(1) })
   }
   return notes
 }

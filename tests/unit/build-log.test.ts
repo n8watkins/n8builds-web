@@ -584,6 +584,11 @@ describe('parseReleaseNotes', () => {
     ])
   })
 
+  it('leaves out notes with internal codes or code jargon', () => {
+    const body = ['### New', '- Add embed-code generator to /share (the G4 front door)', '- Mark requested stops in last_stop', '- A share card for every page'].join('\n')
+    expect(parseReleaseNotes(body)).toEqual([{ section: 'new', text: 'A share card for every page' }])
+  })
+
   it("leaves out GitHub's generated lists, so an older release shows no notes", () => {
     const body = "## What's Changed\n* Prepare 0.8.0 by @n8watkins in https://github.com/n8watkins/scribe/pull/6\n\n**Full Changelog**: https://github.com/n8watkins/scribe/compare/v0.7.0...v0.8.0"
     expect(parseReleaseNotes(body)).toEqual([])
