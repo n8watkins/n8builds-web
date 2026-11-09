@@ -1,3 +1,5 @@
+'use client'
+
 import React, { createContext, useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'

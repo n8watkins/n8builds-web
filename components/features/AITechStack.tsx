@@ -1,5 +1,4 @@
-'use client'
-import React, { type CSSProperties } from 'react'
+import type { CSSProperties } from 'react'
 import Marquee from '@/components/magicui/marquee'
 import StackTile from '@/components/ui/StackTile'
 import DinoEasterEgg from '@/components/features/dino/DinoEasterEgg'
@@ -15,6 +14,12 @@ import { ai_agents, ai_tools, dev_stack, rowDuration } from '@/data/stack'
  * falls through them; the dino's jumps are sized from the measured gaps.
  * Under reduced motion (no dino, the tiles wrap into a grid) they keep the
  * tighter default spacing.
+ *
+ * A server component: the tiles' brand icons render into the page's HTML and
+ * never ship as JavaScript. As a client component it sent all 60 icons' path
+ * data as a 30 KB script on every homepage load, which pushed the phone LCP
+ * past its Lighthouse budget (2026-11-09). Marquee and StackTile stay client
+ * components and take the tiles as children.
  */
 export function AITechStack({ dino = false }: { dino?: boolean }) {
   return (

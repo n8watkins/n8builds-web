@@ -43,7 +43,10 @@ export default function StackTile({
     >
       <figcaption className="flex w-48 flex-col items-center font-medium text-white">
         <div className="flex items-center gap-2 text-xl transition-[font-size,line-height] duration-300 ease-in-out group-hover/tile:text-base group-focus/tile:text-base">
+          {/* The name says it: the mark is for the eye only. (The AI kit renders its tiles on the
+              server, outside the app's IconContext that hides react-icons from assistive tech.) */}
           <span
+            aria-hidden="true"
             className={cn(
               'flex size-7 shrink-0 items-center justify-center transition-[width,height] duration-300 ease-in-out *:size-full! group-hover/tile:size-5 group-focus/tile:size-5',
               iconClassName
