@@ -153,16 +153,14 @@ export default function QuoteForm({ turnstileSiteKey }: { turnstileSiteKey: stri
           aria-hidden="true"
         />
       </div>
-      <label
-        htmlFor="quote-email"
-        className="text-[0.7rem] font-bold tracking-[0.1em] text-slate-450 uppercase min-[400px]:tracking-[0.16em]"
-      >
+      {/* Named for screen readers only: the placeholder and the button say it (owner, round 3 of 2026-11-08). */}
+      <label htmlFor="quote-email" className="sr-only">
         Where should the quote go?
       </label>
       {/* The field and the button side by side where the form has room (a container
           query, 24rem: the copy column is narrow from 1024px), stacked where it hasn't, so
           the placeholder always has room (2026-11-08). */}
-      <div className="mt-2 flex flex-col gap-2.5 @sm:flex-row @sm:gap-2">
+      <div className="flex flex-col gap-2.5 @sm:flex-row @sm:gap-2">
         <input
           ref={input}
           id="quote-email"
@@ -205,9 +203,6 @@ export default function QuoteForm({ turnstileSiteKey }: { turnstileSiteKey: stri
           {state.message}
         </p>
       )}
-      <p className="mt-2 text-xs leading-relaxed text-slate-450">
-        Just your email. It comes straight to me, and this site doesn&apos;t store or share it.
-      </p>
       {/* Invisible unless Cloudflare needs a challenge; see the contact form. */}
       {turnstileSiteKey && near && (
         <Turnstile

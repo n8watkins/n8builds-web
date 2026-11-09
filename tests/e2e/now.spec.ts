@@ -43,11 +43,22 @@ test('the card reads like an ad: headline, the service, the quote field and the 
   await expect(title).toBeVisible()
   await expect(title.locator('xpath=..').locator('img[src*="techforpros"]')).toBeVisible()
   await expect(section).not.toContainText(/launching soon/i)
-  // The quote request in place; no booking page or site yet, so no buttons for them.
+  // The quote request in place, with no label or note on show (round 3 of 2026-11-08):
+  // the field is still named for screen readers.
   await expect(quoteField(page)).toHaveAttribute('type', 'email')
   await expect(quoteButton(page)).toBeVisible()
+  await expect(section.getByText('Where should the quote go?')).toHaveClass(/sr-only/)
+  await expect(section).not.toContainText("this site doesn't store or share it")
   await expect(section.getByRole('link', { name: /^Get a quote/ })).toHaveCount(0)
-  await expect(section.getByRole('link', { name: /Book an intro call|Visit techforpros\.com/ })).toHaveCount(0)
+  // The site, twice: its name and mark at the top, and "Visit techforpros.com", both in a new
+  // tab through the counted short link. No booking page yet.
+  for (const link of [section.getByRole('link', { name: /^techforpros\.com/ }), section.getByRole('link', { name: /^Visit techforpros\.com/ })]) {
+    await expect(link).toHaveAttribute('href', '/techforpros?from=hero')
+    await expect(link).toHaveAttribute('target', '_blank')
+  }
+  await expect(section.getByRole('link', { name: /Book an intro call/ })).toHaveCount(0)
+  // "Don't see yours? We'll build it." is a small ad of its own: it goes to the quote field.
+  await expect(section.getByRole('link', { name: "Don't see yours? We'll build it." })).toHaveAttribute('href', '#quote')
   await expect(section.locator('a[href*="techforpros.com"], a[href*="appturnity"], a[href*="github.com"]')).toHaveCount(0)
   await expect(section).not.toContainText(/free website/i)
 

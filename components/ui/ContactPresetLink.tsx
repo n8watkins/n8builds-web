@@ -1,6 +1,7 @@
 'use client'
 import type { ReactNode } from 'react'
 import { CONTACT_PRESET_EVENT, isContactPresetId } from '@/lib/contactPresets'
+import { isOutbound } from '@/lib/referrals'
 
 /**
  * A link that may lead into the contact form with a preset (lib/contactPresets.ts),
@@ -11,7 +12,8 @@ import { CONTACT_PRESET_EVENT, isContactPresetId } from '@/lib/contactPresets'
  */
 export default function ContactPresetLink({ href, className, children }: { href: string; className?: string; children: ReactNode }) {
   const url = new URL(href, 'https://n8builds.dev')
-  const internal = href.startsWith('/')
+  // A counted short link (/techforpros?from=...) leaves the site too.
+  const internal = href.startsWith('/') && !isOutbound(href)
   const preset = internal ? url.searchParams.get('inquiry') : null
   return (
     <a

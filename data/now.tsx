@@ -29,6 +29,8 @@ export interface NowState {
   title?: string
   /** The project's own mark, beside its heading; it fills the box it's given. */
   mark?: ReactNode
+  /** Where its heading (mark and title) links, in a new tab. */
+  href?: string
   /** The ad's headline; `accent` is the highlighted end of it. */
   headline: { lead: string; accent: string }
   /** The ad's pitch, one short paragraph. */
@@ -52,6 +54,9 @@ export const nowItems: NowState[] = [
     project: TECH_FOR_PROS.name,
     // Its address as the heading, beside its icon (owner, 2026-11-01).
     title: TECH_FOR_PROS.domain,
+    // The heading and "Visit techforpros.com" both go to the site, through the counted
+    // short link under "hero" (owner, round 3 of 2026-11-08).
+    href: refHref('techforpros', 'hero'),
     mark: <TechForProsMark className="h-full w-full" sizes="44px" />,
     // Owner, 2026-11-02: "Websites built for pros"; the copy is about the
     // service, never a list of trades (the templates show those), and there
@@ -71,13 +76,12 @@ export const nowItems: NowState[] = [
     // frame. A new filename, not the old crop's: image caches key on the URL.
     phone: { src: '/now/hvac-phone-full.webp', width: 280, height: 7685, frameHeight: 700, label: 'HVAC template' },
     // The quote request right on the card (owner, 2026-11-08; it was a "Get a quote"
-    // button down to a quote field lower on the page), then a booking page and the
-    // site once they exist (TECH_FOR_PROS_LINKS). The site goes through the
-    // counted short link, under "hero": this card is the first screen's sneak peek.
+    // button down to a quote field lower on the page), then a booking page once
+    // there is one, and the site.
     quote: true,
     ctas: [
       ...(TECH_FOR_PROS_LINKS.booking ? [{ label: 'Book an intro call', href: TECH_FOR_PROS_LINKS.booking }] : []),
-      ...(TECH_FOR_PROS_LINKS.siteLive ? [{ label: `Visit ${TECH_FOR_PROS.domain}`, href: refHref('techforpros', 'hero') }] : []),
+      { label: `Visit ${TECH_FOR_PROS.domain}`, href: refHref('techforpros', 'hero') },
     ],
   },
 ]

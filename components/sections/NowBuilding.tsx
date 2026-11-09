@@ -5,6 +5,7 @@ import NowCarousel from '@/components/sections/NowCarousel'
 import TemplateCarousel from '@/components/sections/TemplateCarousel'
 import ContactPresetLink from '@/components/ui/ContactPresetLink'
 import QuoteForm from '@/components/sections/QuoteForm'
+import { isOutbound } from '@/lib/referrals'
 
 /**
  * One now-item as an ad (round 3 of 2026-11-02, the original layout): brand,
@@ -19,10 +20,29 @@ const Card = ({ now, turnstileSiteKey }: { now: NowState; turnstileSiteKey: stri
   // centred; below lg the picture comes between the copy and the buttons.
   <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] lg:grid-rows-[auto_auto_auto_1fr] lg:gap-x-12">
     <div className="flex flex-wrap items-center gap-3 lg:col-start-1 lg:row-start-1">
-      {now.mark && <span className="h-9 w-9 shrink-0 sm:h-10 sm:w-10">{now.mark}</span>}
-      <h3 className="text-[1.4rem] font-extrabold sm:text-2xl tracking-tight text-slate-50">
-        {now.title ?? now.project}
-      </h3>
+      {now.href ? (
+        // The mark and name link the site, in a new tab (owner, round 3 of 2026-11-08).
+        <a
+          href={now.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group/site flex min-w-0 items-center gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
+        >
+          {now.mark && <span className="h-9 w-9 shrink-0 sm:h-10 sm:w-10">{now.mark}</span>}
+          <h3 className="flex items-center gap-1.5 text-[1.25rem] font-extrabold tracking-tight text-slate-50 underline decoration-transparent decoration-2 underline-offset-4 transition-colors group-hover/site:decoration-cyan-300/60 min-[360px]:text-[1.4rem] sm:text-2xl">
+            {now.title ?? now.project}
+            <FiArrowUpRight className="h-4 w-4 shrink-0 text-slate-400 transition-colors group-hover/site:text-cyan-200 sm:h-5 sm:w-5" aria-hidden />
+          </h3>
+          <span className="sr-only"> (opens in a new tab)</span>
+        </a>
+      ) : (
+        <>
+          {now.mark && <span className="h-9 w-9 shrink-0 sm:h-10 sm:w-10">{now.mark}</span>}
+          <h3 className="text-[1.4rem] font-extrabold sm:text-2xl tracking-tight text-slate-50">
+            {now.title ?? now.project}
+          </h3>
+        </>
+      )}
     </div>
 
     <div className="lg:col-start-1 lg:row-start-2">
@@ -47,13 +67,13 @@ const Card = ({ now, turnstileSiteKey }: { now: NowState; turnstileSiteKey: stri
       {now.ctas.length > 0 && (
         <div className={`grid gap-3 sm:flex sm:flex-wrap sm:items-center ${now.quote ? 'mt-4' : ''}`}>
           {now.ctas.map((cta, i) => {
-            const away = !cta.href.startsWith('/')
+            const away = !cta.href.startsWith('/') || isOutbound(cta.href)
             return (
               <ContactPresetLink
                 key={cta.href}
                 href={cta.href}
                 className={
-                  i === 0
+                  i === 0 && !now.quote
                     ? 'flex items-center justify-center gap-2 rounded-xl border border-transparent bg-origin-border bg-linear-to-r from-blue-600 to-cyan-500 px-4 sm:px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-cyan-950/50 transition-all duration-200 hover:scale-[1.02] hover:from-blue-500 hover:to-cyan-400 motion-reduce:hover:scale-100'
                     : 'flex items-center justify-center gap-2 rounded-xl border border-white/12 bg-white/4 px-5 py-2.5 text-sm font-semibold text-slate-200 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8 motion-reduce:hover:scale-100'
                 }
@@ -85,7 +105,7 @@ const NowBuilding = () => {
   const turnstileSiteKey =
     process.env.NODE_ENV === 'development' ? '' : process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''
   return (
-    <section id="now" aria-label="What I'm working on" className="pt-14 pb-14 md:pt-4 md:pb-16">
+    <section id="now" aria-label="What I'm working on" className="pt-14 pb-4 md:pt-4 md:pb-6">
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="mb-2 flex items-center gap-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-cyan-400">

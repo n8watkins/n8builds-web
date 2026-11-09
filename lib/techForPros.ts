@@ -16,8 +16,9 @@ export const TECH_FOR_PROS = {
 
 /**
  * Where the homepage's Tech for Pros ad sends people (owner, 2026-11-02).
- * techforpros.com has no site yet and there is no booking page yet, so those
- * two are unset and their buttons don't show; set one and its button appears.
+ * There is no booking page yet, so its button doesn't show; set it and the
+ * button appears. The ad always links techforpros.com (its heading and "Visit
+ * techforpros.com", owner, round 3 of 2026-11-08), through the counted short link.
  * The quote request itself sits on the ad (components/sections/QuoteForm.tsx,
  * owner, 2026-11-08): one email address, sent to the owner through this
  * site's contact backend until techforpros.com has a form of its own. The
@@ -27,10 +28,4 @@ export const TECH_FOR_PROS = {
 export const TECH_FOR_PROS_LINKS: {
   /** "Book an intro call": a booking page, once there is one. */
   booking?: string
-  /**
-   * "Visit techforpros.com": set to true once the site is live. The button
-   * goes through the counted short link (/techforpros?from=hero), never the
-   * plain URL.
-   */
-  siteLive?: boolean
 } = {}

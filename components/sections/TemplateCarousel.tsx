@@ -2,6 +2,7 @@
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import type { IconType } from 'react-icons'
+import { FiArrowRight } from 'react-icons/fi'
 import { LuFan, LuHouse, LuTrees, LuWaves } from 'react-icons/lu'
 import type { NowShot } from '@/data/now'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
@@ -30,8 +31,8 @@ export const TEMPLATE_EVERY_MS = 5000
  * The Tech for Pros ad's picture (round 3 of 2026-11-02): its trade templates
  * in a browser window, sliding side to side without end, a full-length page
  * scrolling on a phone in front of it, and under the window's right side one
- * labelled chip per trade, then "Don't see yours? We'll build it." (owner,
- * 2026-11-08). A thin line along the window's bottom fills up until the next template:
+ * labelled chip per trade, then "Don't see yours? We'll build it." as a
+ * link to the card's quote field (owner, 2026-11-08). A thin line along the window's bottom fills up until the next template:
  * the slide moves on when that line's CSS animation ends, so pausing the line
  * pauses the carousel exactly where it is. It runs only while on screen and
  * the tab is shown, and holds while hovered or focused (WCAG 2.2.2); under
@@ -240,7 +241,17 @@ export default function TemplateCarousel({ slides, phone }: { slides: TemplateSl
             )
           })}
         </div>
-        <p className="mt-2 text-center text-[0.7rem] font-medium text-slate-450 sm:text-right sm:text-xs">Don&apos;t see yours? We&apos;ll build it.</p>
+        {/* A small ad of its own (owner, round 3 of 2026-11-08): it goes to the quote
+            field on this card (QuoteForm focuses it on arrival at #quote). */}
+        <p className="mt-3 text-center sm:text-right">
+          <a
+            href="#quote"
+            className="group/cta inline-flex items-center gap-1.5 rounded-md text-sm font-bold text-cyan-200 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 sm:text-[15px]"
+          >
+            Don&apos;t see yours? We&apos;ll build it.
+            <FiArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover/cta:translate-x-0.5 motion-reduce:transition-none" />
+          </a>
+        </p>
       </div>
       <p className="sr-only" aria-live="polite">
         {announce}
