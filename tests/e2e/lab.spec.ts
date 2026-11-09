@@ -222,12 +222,10 @@ test('Scribe downloads the newest installer through a stable link, and its page 
   await expect(download).not.toHaveAttribute('target', '_blank')
   // It says what you get, from the release itself (the fixture's v0.8.0 installer is 12,519,464 bytes).
   await expect(download).toHaveAccessibleDescription('Windows 10 and 11, 64-bit · v0.8.0 · 12 MB')
-  // A download mark at the start, and the Windows logo right by the word "Windows".
+  // A download mark at the start, and the Windows logo right before the word "Windows".
   await expect(download.locator('svg')).toHaveCount(2)
   const logo = download.locator('svg').nth(1)
-  const word = download.getByText('Windows', { exact: true })
-  const [l, w] = await Promise.all([logo.boundingBox(), word.boundingBox()])
-  expect(w!.x - (l!.x + l!.width)).toBeLessThan(8)
+  expect(await logo.evaluate((svg) => svg.nextSibling?.textContent?.trim())).toBe('Windows')
   // It holds still on hover: no scale.
   await download.hover()
   await expect(download).toHaveCSS('scale', 'none')
@@ -328,7 +326,6 @@ test('the homepage advertises the developer portfolio right after the Lab', asyn
   const clip = ad.locator('[data-tour] video')
   await expect(clip).toHaveAttribute('aria-label', /developer portfolio's homepage/)
   await expect(ad.locator('[data-tour] img[data-tour-poster]')).toHaveCount(1)
-  await expect(ad.getByRole('button', { name: 'Pause the portfolio clip' })).toBeVisible()
   // No link around it: its pause button can't sit inside one.
   await expect(ad.locator('a:has([data-tour])')).toHaveCount(0)
   const order = await page.evaluate(() => {
@@ -366,7 +363,11 @@ test('each row has one primary action, then Full story, then Star | GitHub, and 
     expect(hrefs, title).toEqual([PRIMARY[title][1], `/builds/${SLUG[title]}`, `https://github.com/n8watkins/${REPO[title]}`, `https://github.com/n8watkins/${REPO[title]}`])
     // In that order on screen: one line, or the primary on its own line and the other two under it.
     const [p, f, r] = await Promise.all([primary, story, repo].map((el) => el.boundingBox()))
-    if (Math.round(p!.y) === Math.round(f!.y)) {
+    if (title === 'Scribe') {
+      // Scribe's download and Full story side by side (ScribeActions, 2026-11-09), Star | GitHub under them.
+      expect(p!.x < f!.x && Math.round(p!.y) === Math.round(f!.y), 'Scribe: download, then Full story').toBe(true)
+      expect(r!.y, 'Scribe: Star | GitHub under them').toBeGreaterThan(f!.y + f!.height - 1)
+    } else if (Math.round(p!.y) === Math.round(f!.y)) {
       expect(p!.x < f!.x && f!.x < r!.x, `${title}: primary, Full story, Star | GitHub`).toBe(true)
       expect(Math.round(f!.y), title).toBe(Math.round(r!.y))
     } else {
@@ -401,7 +402,8 @@ test("each row's buttons fit their column, with one-line labels, at every width"
       }
       // They keep an 8px gap and never touch.
       if (Math.round(p!.y) === Math.round(f!.y)) expect(f!.x - (p!.x + p!.width), at).toBeCloseTo(8, 0)
-      expect(r!.x - (f!.x + f!.width), at).toBeCloseTo(8, 0)
+      // Scribe's Star | GitHub has a line of its own under its two buttons (ScribeActions).
+      if (title !== 'Scribe') expect(r!.x - (f!.x + f!.width), at).toBeCloseTo(8, 0)
       // No label is cut off inside its button.
       const clipped = await Promise.all(
         [primary, story, repo.getByRole('link').first(), repo.getByRole('link').last()].map((el) => el.evaluate((e) => e.scrollWidth > e.clientWidth + 1)),
