@@ -276,11 +276,8 @@ export const builds: Build[] = [
       { src: '/builds/scribe/app-appearance-emerald.webp', alt: 'Scribe appearance: seven color themes, here switched to Emerald' },
     ],
     tryIt: { label: 'Download for Windows', href: '/download/scribe', download: 'scribe' },
-    // macOS and Linux builds ship as betas since 2026-11-09 (owner); the Mac app is not notarized.
-    moreActions: [
-      { label: 'Mac (beta, not notarized)', href: '/download/scribe-mac', quiet: true },
-      { label: 'Linux (beta)', href: '/download/scribe-linux', quiet: true },
-    ],
+    // macOS and Linux ship as betas since 2026-11-09 (owner; the Mac app is not notarized): its build
+    // page leads with the visitor's OS and lists the others quietly (components/builds/PlatformDownload.tsx).
     github: 'https://github.com/n8watkins/scribe',
     liveSite: 'https://scribe.n8builds.dev',
     liveSiteIsLanding: true,

@@ -11,7 +11,8 @@ import Reveal from '@/components/ui/Reveal'
 import BuildPageLog from '@/components/log/BuildPageLog'
 import RepoButtons from '@/components/ui/RepoButtons'
 import ActionLabel from '@/components/ui/ActionLabel'
-import { downloadCaption } from '@/lib/downloads'
+import { downloadCaption, scribeDownloads } from '@/lib/downloads'
+import PlatformDownload from '@/components/builds/PlatformDownload'
 import { getRecentActivity } from '@/lib/build-log'
 import N8buildsCaseStudy from '@/components/builds/n8builds/CaseStudy'
 import { LightboxGallery, LightboxThumb } from '@/components/builds/Lightbox'
@@ -448,9 +449,13 @@ async function BuildActions({ build, caption }: { build: Build; caption?: string
   const sameAs = (a: string, b: string) => a.replace(/\/$/, '') === b.replace(/\/$/, '')
   const live =
     build.liveSite && !(main && sameAs(main.href, build.liveSite)) ? build.liveSite : undefined
+  // A desktop app with a build per OS (Scribe) leads with the visitor's OS, the others quiet under it.
+  const perOs = main?.download === 'scribe' ? await scribeDownloads() : null
   return (
     <div className="mt-8 flex flex-col items-center">
-      {main ? (
+      {perOs ? (
+        <PlatformDownload downloads={perOs} />
+      ) : main ? (
         // A download carries what it fetches close under it.
         <div className="flex max-w-full flex-col items-center gap-1.5">
           <a
