@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { FiArrowUpRight } from 'react-icons/fi'
 import Reveal from '@/components/ui/Reveal'
 import LabSubheader from '@/components/sections/LabSubheader'
+import { ScrollIcon } from '@/components/ui/PartIcons'
 import BuildLogMonths, {
   LogMonthLine,
   LogMonthProvider,
@@ -240,14 +241,15 @@ export default async function BuildLogStrip() {
   const months = [first, ...earlier]
 
   return (
-    // A full-bleed part of the Lab in its own green wash (`.lab-accent-buildlog` in
-    // app/globals.css), owned here so that a missing log leaves no empty part behind.
+    // A full-bleed band under "What I'm working on" (owner, 2026-11-08) in its own green
+    // wash (`.lab-accent-buildlog` in app/globals.css), with the hairline a homepage band
+    // opens on; owned here so that a missing log leaves no empty band behind.
     // The provider shares the month the card shows with the line under the heading.
     <LogMonthProvider lines={months.map((m) => m.line)}>
       <section
         id="build-log"
         aria-labelledby="build-log-heading"
-        className="lab-accent-buildlog lab-part-wash py-12"
+        className="lab-accent-buildlog lab-part-wash relative z-10 border-t border-white/[0.06] py-12"
       >
         <div className="mx-auto max-w-6xl px-5 sm:px-8">
           <Reveal>
@@ -257,8 +259,8 @@ export default async function BuildLogStrip() {
               <LabSubheader
                 id="build-log-heading"
                 title="Build log"
+                icon={<ScrollIcon />}
                 kicker={<LogMonthLine className="text-emerald-300" />}
-                blurb="What changed across my builds lately, pulled from GitHub."
               />
               <Link
                 href="/builds"

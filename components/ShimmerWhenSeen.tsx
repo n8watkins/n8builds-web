@@ -3,14 +3,14 @@
 import { useEffect } from 'react'
 
 /**
- * Runs the page's shimmers (.btn-shimmer, .lab-eyebrow) only while they're on
+ * Runs the page's shimmers (.btn-shimmer) only while they're on
  * screen, each on its own random rhythm so no two sweep at once. Sets
  * data-seen while an element is in view, plus --shimmer-every (5 to 9s) and
  * --shimmer-delay (0 to 3s) once; app/globals.css does the rest.
  */
 export default function ShimmerWhenSeen() {
   useEffect(() => {
-    const els = document.querySelectorAll<HTMLElement>('.btn-shimmer, .lab-eyebrow')
+    const els = document.querySelectorAll<HTMLElement>('.btn-shimmer')
     els.forEach((el) => {
       el.style.setProperty('--shimmer-every', `${(5 + Math.random() * 4).toFixed(2)}s`)
       el.style.setProperty('--shimmer-delay', `${(Math.random() * 3).toFixed(2)}s`)

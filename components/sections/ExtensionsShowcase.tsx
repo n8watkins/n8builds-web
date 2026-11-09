@@ -5,6 +5,7 @@ import { FiArrowUpRight } from 'react-icons/fi'
 import RepoButtons from '@/components/ui/RepoButtons'
 import { getBuild } from '@/data/builds'
 import LabSubheader from '@/components/sections/LabSubheader'
+import { PuzzleIcon } from '@/components/ui/PartIcons'
 import ExtensionsCarousel from '@/components/sections/ExtensionsCarousel'
 
 interface Ext {
@@ -110,7 +111,7 @@ const ExtensionsShowcase = () => (
   // A full-bleed part of the Lab in its own indigo wash (`.lab-part-wash` in app/globals.css).
   <section id="extensions" aria-label="Chrome Extensions" className="lab-accent-extensions lab-part-wash py-12">
     <div className="mx-auto max-w-6xl px-5 sm:px-8">
-    <LabSubheader title="Chrome Extensions" />
+    <LabSubheader title="Chrome Extensions" icon={<PuzzleIcon />} />
 
     {/* ===== Desktop: 3 side-by-side + auto-cycle detail ===== */}
     <ExtensionsCarousel
