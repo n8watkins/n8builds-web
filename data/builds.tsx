@@ -291,13 +291,14 @@ export const builds: Build[] = [
     ],
     process: [
       'Schedule-aware checking is the idea the rest follows: Render\'s free tier sleeps between visits, so OpenPing keeps the apps awake only when they matter and never counts the off-hours as an outage.',
-      'It runs live at openping.n8builds.dev, watching the Render demos on the developer portfolio (Echo, Scout and GeminiGPT); the portfolio\'s status pills read its public feed.',
+      'It runs live at openping.n8builds.dev, watching my own sites and apps, with a public status page anyone can check.',
       'Secrets are handled like a product: monitor settings are encrypted with AES-GCM, heartbeat tokens are stored only as hashes, and first-run setup needs a one-time setup token.',
       'It stays inside Cloudflare\'s free plan: one scheduled run every 12 minutes, at most 200 checks per run.',
     ],
     images: [
       { src: '/builds/openping/landing.webp', alt: 'OpenPing landing page: uptime monitoring that runs in your own Cloudflare account' },
-      { src: '/builds/openping/status.webp', alt: 'The live n8 status page: Echo, GeminiGPT and Scout with 90 days of uptime bars' },
+      // Recapture once the live status page changes (the services it shows were retired on 2026-11-08).
+      { src: '/builds/openping/status.webp', alt: 'A live OpenPing status page: each monitored service with 90 days of uptime bars' },
       { src: '/builds/openping/tools.webp', alt: 'OpenPing free tools: Is it down?, uptime and subnet calculators, cron tester, DNS and MX lookup' },
     ],
     // The landing page is the product's front door (owner, 2026-11-08).

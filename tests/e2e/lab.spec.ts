@@ -257,10 +257,9 @@ test('the homepage advertises the developer portfolio right after the Lab', asyn
   await ad.scrollIntoViewIfNeeded()
   await expect(ad.getByRole('link', { name: /See my portfolio/ })).toHaveAttribute('href', 'https://portfolio.n8builds.dev')
   await expect(ad.getByRole('link', { name: /Jump to the projects/ })).toHaveAttribute('href', 'https://portfolio.n8builds.dev/#projects')
-  // Each AI project named in the sentence links to its page on the portfolio.
-  for (const [name, slug] of [['a realtime voice agent', 'echo'], ['a research agent', 'scout'], ['a chat platform with retrieval', 'geminigpt']]) {
-    await expect(ad.getByRole('link', { name: new RegExp(`^${name}`) })).toHaveAttribute('href', `https://portfolio.n8builds.dev/projects/${slug}`)
-  }
+  // Echo, Scout and GeminiGPT were retired on 2026-11-08: the ad names no project and links none.
+  await expect(ad.locator('a[href*="/projects/"]')).toHaveCount(0)
+  await expect(ad).not.toContainText(/voice agent|research agent|GeminiGPT/)
   const order = await page.evaluate(() => {
     const lab = document.getElementById('lab')!
     const adEl = document.getElementById('portfolio-ad-heading')!
