@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { SiKofi, SiTwitch } from 'react-icons/si'
+import { SiTwitch } from 'react-icons/si'
 import { FiMenu, FiX, FiChevronDown, FiBriefcase } from 'react-icons/fi'
 import { useLiveStatus } from '@/components/live/liveStore'
 import NavLiveDot from '@/components/live/NavLiveDot'
@@ -11,20 +11,15 @@ import { refHref } from '@/lib/referrals'
 import { TECH_FOR_PROS } from '@/lib/techForPros'
 import TechForProsMark from '@/components/ui/TechForProsMark'
 
-// The owner's Ko-fi page (the same one Portfolio Rank links in its header).
-const KOFI_URL = 'https://ko-fi.com/n8watkins'
-
 // The Lab is one homepage section; its parts live in a hover dropdown so the
 // top nav stays short. Each item scrolls to its anchor on the homepage.
 // `fallback`: where an item goes when its section isn't on the page (the build
-// log part hides when the log can't load): the full log. `land`: the element
-// the jump puts at the top instead of the section itself.
-type LabItem = { label: string; href: string; desc: string; fallback?: string; land?: string }
+// log hides when the log can't load): the full log.
+type LabItem = { label: string; href: string; desc: string; fallback?: string }
 const labMenu: LabItem[] = [
-  // The Lab's first part (the owner's ask, 2026-11-02); the full log is its "See the full build log" link and the footer.
-  // It lands on the top of the Lab (round 5 of 2026-11-02), so "Check out / The Lab" and the
-  // intro are in view above it: the build log is where the Lab starts.
-  { label: 'Build log', href: '/#build-log', desc: 'What I shipped lately, every build', fallback: '/builds', land: 'lab' },
+  // The build log sits under "What I'm working on", just above the Lab (owner, 2026-11-08),
+  // so it leads the menu, in page order; the full log is its "See the full build log" link and the footer.
+  { label: 'Build log', href: '/#build-log', desc: 'What I shipped lately, every build', fallback: '/builds' },
   { label: 'Featured', href: '/#featured', desc: 'OpenPing, Solara and Portfolio Rank' },
   { label: 'Chrome Extensions', href: '/#extensions', desc: 'Browser tools, local-first' },
   // The Lab's last part: upcoming projects, each with a waitlist (full detail on /upcoming).
@@ -100,7 +95,7 @@ const Navbar = () => {
   // we drive it directly (scrollIntoView honors html { scroll-padding-top }).
   // On other pages we fall through and let the link navigate to "/#id". A
   // section missing from the homepage sends its item to its fallback page.
-  const goToSection = (e: React.MouseEvent, href: string, fallback?: string, land?: string) => {
+  const goToSection = (e: React.MouseEvent, href: string, fallback?: string) => {
     setLabOpen(false)
     setMobileOpen(false)
     if (!href.startsWith('/#')) return
@@ -114,12 +109,11 @@ const Navbar = () => {
       return
     }
     e.preventDefault()
-    const target = (land && document.getElementById(land)) || el
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     // A frame later, once the mobile menu has closed: while it is open the body
     // has overflow: hidden, and WebKit then counts scroll-padding-top twice,
     // landing the section 80px low (the contact form below the fold on an iPhone).
-    requestAnimationFrame(() => target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }))
+    requestAnimationFrame(() => el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }))
     window.history.replaceState(null, '', href)
   }
 
@@ -139,23 +133,14 @@ const Navbar = () => {
   // Arriving on the homepage at a Lab item's section that isn't there (the build
   // log hides when the log can't load), from another page: go to its fallback.
   // A hash change counts too: a click before hydration jumps natively.
-  // Arriving at one that lands elsewhere (the build log, on the Lab's top), it
-  // moves there once the browser's own jump to the section is done; only on
-  // arrival, so the Lab's own pills and rail still go to the part itself.
   useEffect(() => {
     if (pathname !== '/') return
-    const check = (arrival: boolean) => {
-      const item = labMenu.find((i) => (i.fallback || i.land) && window.location.hash === i.href.slice(1))
-      if (!item) return
-      if (!document.getElementById(item.href.slice(2))) {
-        if (item.fallback) router.replace(item.fallback)
-        return
-      }
-      const land = arrival && item.land ? document.getElementById(item.land) : null
-      if (land) requestAnimationFrame(() => land.scrollIntoView({ behavior: 'instant' }))
+    const check = () => {
+      const item = labMenu.find((i) => i.fallback && window.location.hash === i.href.slice(1))
+      if (item?.fallback && !document.getElementById(item.href.slice(2))) router.replace(item.fallback)
     }
-    check(true)
-    const onHash = () => check(false)
+    check()
+    const onHash = () => check()
     window.addEventListener('hashchange', onHash)
     return () => window.removeEventListener('hashchange', onHash)
   }, [pathname, router])
@@ -256,7 +241,7 @@ const Navbar = () => {
                     <Link
                       key={item.href}
                       href={item.href}
-                      onClick={(e) => goToSection(e, item.href, item.fallback, item.land)}
+                      onClick={(e) => goToSection(e, item.href, item.fallback)}
                       className="group/item flex flex-col gap-0.5 px-3 py-2 rounded-lg hover:bg-white/6 transition-colors"
                     >
                       <span className="text-sm font-semibold text-slate-200 transition-colors group-hover/item:text-cyan-300">
@@ -300,16 +285,6 @@ const Navbar = () => {
           {/* Right actions */}
           <div className="flex items-center gap-2">
             <a
-              href={KOFI_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Support me on Ko-fi"
-              className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-semibold text-slate-200 hover:text-white border border-white/15 rounded-lg hover:border-white/20 hover:bg-white/5 transition-all duration-150"
-            >
-              <SiKofi className="w-4 h-4" aria-hidden />
-              Ko-fi
-            </a>
-            <a
               href="https://portfolio.n8builds.dev"
               target="_blank"
               rel="noopener noreferrer"
@@ -319,7 +294,7 @@ const Navbar = () => {
               Portfolio
             </a>
             {/* My company, by its address (owner, 2026-11-01): a bordered pill
-                like Ko-fi and Portfolio (same height, radius and border, with a
+                like Portfolio (same height, radius and border, with a
                 faint brand tint), holding its icon and techforpros.com over a
                 clean curved underline, the style of the old Appturnity hero's
                 (round 3 of 2026-11-02: one smooth arc, no hand-drawn wobble, no
@@ -406,7 +381,7 @@ const Navbar = () => {
           <Link
             key={item.href}
             href={item.href}
-            onClick={(e) => goToSection(e, item.href, item.fallback, item.land)}
+            onClick={(e) => goToSection(e, item.href, item.fallback)}
             className="px-3 py-2.5 text-sm text-slate-300 hover:text-slate-100 rounded-lg hover:bg-white/5 transition-colors"
           >
             {item.label}
@@ -447,16 +422,6 @@ const Navbar = () => {
           className="px-3 py-2.5 text-sm text-slate-400 hover:text-slate-100 rounded-lg hover:bg-white/5 transition-colors"
         >
           Portfolio ↗
-        </a>
-        <a
-          href={KOFI_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() => setMobileOpen(false)}
-          className="flex items-center gap-2 px-3 py-2.5 text-sm text-slate-400 hover:text-slate-100 rounded-lg hover:bg-white/5 transition-colors"
-        >
-          <SiKofi className="w-4 h-4" aria-hidden />
-          Ko-fi ↗
         </a>
       </div>
     </>

@@ -20,7 +20,6 @@ const SITEMAP: { heading: string; links: { label: string; href: string; mark?: R
     links: [
       { label: 'Featured builds', href: '/#featured' },
       { label: 'Chrome extensions', href: '/#extensions' },
-      { label: 'Build log', href: '/builds' },
       { label: 'Upcoming', href: '/upcoming' },
       { label: 'Use as a template', href: '/#template' },
       { label: 'Tools I built and use', href: '/#tools-i-built' },
@@ -29,6 +28,8 @@ const SITEMAP: { heading: string; links: { label: string; href: string; mark?: R
   {
     heading: 'Read and watch',
     links: [
+      // Not a Lab part since 2026-11-08: it sits above the Lab, under "What I'm working on".
+      { label: 'Build log', href: '/builds' },
       { label: 'Notions', href: '/blog' },
       { label: 'Live', href: '/live' },
       { label: 'People I follow', href: '/#people' },
