@@ -1,3 +1,5 @@
+import { usesFixtures } from '@/lib/fixtures'
+
 /**
  * Stable download links for builds that ship installers: n8builds.dev/download/<app>
  * always points at the newest release's file, though its name carries the
@@ -118,7 +120,7 @@ export interface Asset {
 export async function latestAsset(download: Download): Promise<Asset | null> {
   try {
     let release: Release
-    if (process.env.BUILD_LOG_FIXTURE === '1') {
+    if (usesFixtures()) {
       release = FIXTURE
     } else {
       const token = process.env.GITHUB_TOKEN

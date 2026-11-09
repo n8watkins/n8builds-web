@@ -1,3 +1,4 @@
+import { usesFixtures } from '@/lib/fixtures'
 import { cache } from 'react'
 import { builds, type Build } from '@/data/builds'
 import { logOnlyBuilds, type LogBuild } from '@/data/logBuilds'
@@ -672,7 +673,7 @@ const loadFixture = async (): Promise<Fixture> =>
 
 /** The fetchers, swapped for the recorded fixture under BUILD_LOG_FIXTURE=1. */
 function fetchers() {
-  if (process.env.BUILD_LOG_FIXTURE === '1') {
+  if (usesFixtures()) {
     return {
       snapshot: async (repo: string) => {
         const found = (await loadFixture()).snapshots.find((s) => s.repo === repo)

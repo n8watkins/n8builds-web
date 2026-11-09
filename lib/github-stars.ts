@@ -1,3 +1,5 @@
+import { usesFixtures } from '@/lib/fixtures'
+
 /**
  * A public repo's facts from GitHub: its star count (the Star half of
  * RepoButtons) and its license (a build page's sidebar). Fetched on the
@@ -14,7 +16,7 @@ export const FIXTURE_LICENSES: Record<string, string> = { 'n8watkins/open-ping':
 export type RepoFacts = { stars: number | null; license: string | null }
 
 export async function repoFacts(repo: string): Promise<RepoFacts> {
-  if (process.env.BUILD_LOG_FIXTURE === '1') return { stars: FIXTURE_STARS[repo] ?? null, license: FIXTURE_LICENSES[repo] ?? null }
+  if (usesFixtures()) return { stars: FIXTURE_STARS[repo] ?? null, license: FIXTURE_LICENSES[repo] ?? null }
   try {
     const token = process.env.GITHUB_TOKEN
     const res = await fetch(`https://api.github.com/repos/${repo}`, {
