@@ -27,7 +27,7 @@ import Reveal from '@/components/ui/Reveal'
 import RepoButtons from '@/components/ui/RepoButtons'
 import BuildPageLog from '@/components/log/BuildPageLog'
 import MoreBuilds from '@/components/builds/MoreBuilds'
-import { E2E_PROJECTS, FEATURES, SPEED, SPEED_MORE, STACK, WORKFLOW, type FeatureIcon, type SpeedResult } from './content'
+import { E2E_PROJECTS, FEATURES, SPEED, SPEED_MORE, STACK, UNDER_THE_HOOD, WORKFLOW, type FeatureIcon, type SpeedResult } from './content'
 import styles from './CaseStudy.module.css'
 
 /**
@@ -336,26 +336,50 @@ export default function CaseStudy({ build, activity }: { build: Build; activity:
               lead="Not a starter with placeholders: the site that runs n8builds.dev, with everything below already wired and tested."
             />
           </Reveal>
-          <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Each feature with a picture of it on this site (owner, round 11 of 2026-11-09). */}
+          <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" data-features>
             {FEATURES.map((f, k) => {
               const Icon = ICONS[f.icon]
               return (
                 <li key={f.title}>
-                  <Reveal delay={(k % 4) * 0.07} className="h-full">
-                    <div className={`${styles.card} flex h-full gap-4 rounded-2xl border border-white/8 bg-white/[0.03] p-4 sm:block sm:p-5`}>
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-cyan-400/20 bg-cyan-400/10">
-                        <Icon className="h-4.5 w-4.5 text-cyan-300" aria-hidden="true" />
-                      </span>
-                      <div>
-                        <h3 className="font-bold text-slate-50 sm:mt-4">{f.title}</h3>
-                        <p className="mt-1 text-sm leading-relaxed text-slate-400 sm:mt-1.5">{f.body}</p>
-                      </div>
-                    </div>
+                  <Reveal delay={(k % 3) * 0.07} className="h-full">
+                    <figure className={`${styles.card} flex h-full flex-col overflow-hidden rounded-2xl border border-white/8 bg-white/[0.03]`}>
+                      {f.shot && (
+                        <div className="relative aspect-16/10 overflow-hidden border-b border-white/8 bg-[#070b16]">
+                          <Image src={f.shot.src} alt={f.shot.alt} fill sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw" className="object-cover object-top" />
+                        </div>
+                      )}
+                      <figcaption className="flex gap-3 p-4 sm:p-5">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-cyan-400/20 bg-cyan-400/10">
+                          <Icon className="h-4 w-4 text-cyan-300" aria-hidden="true" />
+                        </span>
+                        <span>
+                          <span className="block font-bold text-slate-50">{f.title}</span>
+                          <span className="mt-1 block text-sm leading-relaxed text-slate-400">{f.body}</span>
+                        </span>
+                      </figcaption>
+                    </figure>
                   </Reveal>
                 </li>
               )
             })}
           </ul>
+          {/* Nothing to look at, so a line each. */}
+          <Reveal>
+            <ul className="mt-5 grid gap-3 rounded-2xl border border-white/8 bg-white/[0.02] p-4 sm:grid-cols-2 sm:p-5" aria-label="Also under the hood">
+              {UNDER_THE_HOOD.map((f) => {
+                const Icon = ICONS[f.icon]
+                return (
+                  <li key={f.title} className="flex gap-3">
+                    <Icon className="mt-0.5 h-4 w-4 shrink-0 text-cyan-300" aria-hidden="true" />
+                    <span className="text-sm leading-relaxed text-slate-400">
+                      <span className="font-semibold text-slate-100">{f.title}.</span> {f.body}
+                    </span>
+                  </li>
+                )
+              })}
+            </ul>
+          </Reveal>
           <Reveal>
             <ul className="mt-6 flex flex-wrap gap-2" aria-label="Tech stack">
               {STACK.map((s) => (
@@ -528,7 +552,7 @@ export default function CaseStudy({ build, activity }: { build: Build; activity:
         </section>
 
         {/* Its build log: the newest entries, and the way to the full log */}
-        <BuildPageLog name={build.name} entries={activity} className="mt-24" />
+        <BuildPageLog name={build.name} entries={activity} slug={build.slug} limit={6} className="mt-24" />
 
         {/* The next builds to look at */}
         <MoreBuilds current={build.slug} className="mt-24" />

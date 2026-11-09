@@ -13,49 +13,65 @@ export interface Feature {
   icon: FeatureIcon
   title: string
   body: string
+  /**
+   * A picture of the feature on this site (owner, round 11 of 2026-11-09: a real
+   * screenshot of each, no stock or generated art), 960x600 in
+   * public/builds/n8builds/features/. Retake one when its feature changes.
+   */
+  shot?: { src: string; alt: string }
 }
 
-/** What a fork starts with. */
+/** What a fork starts with: the features you can see, each with its picture. */
 export const FEATURES: Feature[] = [
   {
     icon: 'layers',
     title: 'The Lab and a build log',
-    body: 'Every build lives in one typed file. The /builds log reads each one\'s releases and commits from GitHub, refreshed hourly.',
+    body: 'Every build in one typed file; the log reads its releases and commits from GitHub, hourly.',
+    shot: { src: '/builds/n8builds/features/build-log.webp', alt: "The homepage's build log: November's 263 changes shipped, a chart by day, and the latest releases" },
   },
   {
     icon: 'edit',
     title: 'A blog on Sanity',
-    body: 'Posts come through Sanity\'s CDN client, so a new post needs no deploy. Each one gets a generated cover.',
-  },
-  {
-    icon: 'shield',
-    title: 'A contact form that fails closed',
-    body: 'Zod, a honeypot, Turnstile and rate limits in Durable Objects. If Turnstile or a limit is unreachable, it refuses and asks for an email.',
-  },
-  {
-    icon: 'lock',
-    title: 'Strict security headers',
-    body: 'An enforced CSP lists every third-party origin, beside COOP and a Permissions-Policy. A test fails on any violation.',
+    body: 'Write in Sanity Studio and the post is live: no deploy, and a cover is drawn for it.',
+    shot: { src: '/builds/n8builds/features/blog.webp', alt: "N8's Notions, the blog: its title, topic filters and the newest posts with their covers" },
   },
   {
     icon: 'image',
     title: 'A share card for every page',
-    body: '1200x630 cards drawn with next/og. A test walks the sitemap for canonical URLs, unique titles and images that load.',
-  },
-  {
-    icon: 'tag',
-    title: 'Releases from commits',
-    body: 'Conventional Commits, enforced by a hook and CI. One command bumps the version, writes the changelog and tags it.',
-  },
-  {
-    icon: 'activity',
-    title: 'Errors without the weight',
-    body: 'Sentry loads once the page is idle, through a same-origin tunnel. Errors from before it loads are queued, not lost.',
+    body: '1200x630 cards drawn on the server, checked by a test that walks the sitemap.',
+    shot: { src: '/builds/n8builds/features/share-card.webp', alt: "A blog post's share card, as generated: the N8 mark, Building in public and the post's title" },
   },
   {
     icon: 'radio',
     title: 'A live-stream corner player',
-    body: 'Twitch, YouTube and X, with a live dot in the navbar and a switch in Sanity Studio to go live by hand.',
+    body: 'Live on Twitch, YouTube or X? A corner player opens, and the navbar shows a live dot.',
+    shot: { src: '/builds/n8builds/features/live-player.webp', alt: 'The corner player over the homepage while live on Twitch: the stream, its title, Unmute and Watch on Twitch' },
+  },
+  {
+    icon: 'shield',
+    title: 'A contact form that fails closed',
+    body: 'Turnstile, a honeypot and rate limits; if a check is down, it asks for an email instead.',
+    shot: { src: '/builds/n8builds/features/contact.webp', alt: 'The contact form: name, email, a topic picked from cards, the message and Send Message, protected by Cloudflare Turnstile' },
+  },
+  {
+    icon: 'tag',
+    title: 'Releases from commits',
+    body: 'Conventional Commits in, version, changelog and tag out, with one command (release-kit).',
+    shot: { src: '/builds/n8builds/features/releases.webp', alt: "release-kit's page on this site: Releases that write themselves, and what it does" },
+  },
+]
+
+/** The rest of what a fork starts with: nothing to look at, so a line each. */
+export const UNDER_THE_HOOD: Feature[] = [
+  {
+    icon: 'lock',
+    title: 'Strict security headers',
+    body: 'An enforced CSP naming every third-party origin, COOP and a Permissions-Policy; a test fails on any violation.',
+  },
+  {
+    icon: 'activity',
+    title: 'Errors without the weight',
+    body: 'Sentry loads once the page is idle, through a same-origin tunnel; errors from before are queued.',
   },
 ]
 
@@ -65,7 +81,6 @@ export const STACK = [
   'TypeScript',
   'Tailwind CSS 4',
   'Sanity',
-  'Vercel',
   'Cloudflare',
   'Cloudflare D1',
   'Sentry',
