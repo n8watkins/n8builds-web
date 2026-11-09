@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { FiBookOpen, FiDownload, FiExternalLink } from 'react-icons/fi'
+import { FiBookOpen, FiCheck, FiDownload, FiExternalLink } from 'react-icons/fi'
 import Reveal from '@/components/ui/Reveal'
 import RepoButtons from '@/components/ui/RepoButtons'
 import ActionLabel from '@/components/ui/ActionLabel'
@@ -296,6 +296,16 @@ const FeaturedProjects = () => {
     <section id="featured" aria-label="Featured builds" className="lab-accent-featured py-10">
       <Reveal className={`${container} pb-4`}>
         <LabSubheader title="Featured builds" blurb="Free to use and open source, with no sign-up to start." />
+        {/* The open-source checks, under the heading (2026-11-08, from the Lab's
+            old intro, in its style): cyan checks, one line where it fits. */}
+        <ul aria-label="Open source" className="-mt-5 mb-8 flex flex-wrap items-center gap-x-5 gap-y-1.5 pl-4">
+          {['Public on GitHub', 'MIT-licensed', 'Star, fork or open an issue'].map((point) => (
+            <li key={point} className="flex items-center gap-1.5 text-sm font-semibold text-slate-200">
+              <FiCheck className="h-3.5 w-3.5 shrink-0 text-cyan-300" aria-hidden="true" />
+              {point}
+            </li>
+          ))}
+        </ul>
       </Reveal>
       <Rows group="featured" />
     </section>

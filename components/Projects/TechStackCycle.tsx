@@ -161,7 +161,7 @@ const TechStackCycle: React.FC<TechStackCycleProps> = ({ technologies, sizers = 
           <button
             key={category}
             onClick={() => handleCategoryClick(category)}
-            className={`text-sm font-semibold px-3.5 py-1.5 rounded-full border transition-all duration-200 ${
+            className={`rounded-full border px-4 py-2 text-[0.95rem] font-semibold transition-all duration-200 sm:px-5 sm:py-2.5 sm:text-base ${
               category === currentCategory
                 ? 'bg-blue-500/15 border-blue-400/40 text-blue-300'
                 : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/8 hover:text-slate-300'

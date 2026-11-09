@@ -26,6 +26,7 @@ import type { LogEntry } from '@/lib/build-log'
 import Reveal from '@/components/ui/Reveal'
 import RepoButtons from '@/components/ui/RepoButtons'
 import BuildPageLog from '@/components/log/BuildPageLog'
+import MoreBuilds from '@/components/builds/MoreBuilds'
 import { E2E_PROJECTS, FEATURES, SPEED, SPEED_MORE, STACK, WORKFLOW, type FeatureIcon, type SpeedResult } from './content'
 import styles from './CaseStudy.module.css'
 
@@ -528,6 +529,9 @@ export default function CaseStudy({ build, activity }: { build: Build; activity:
 
         {/* Its build log: the newest entries, and the way to the full log */}
         <BuildPageLog slug={build.slug} name={build.name} entries={activity} className="mt-24" />
+
+        {/* The next builds to look at */}
+        <MoreBuilds current={build.slug} className="mt-24" />
 
         <footer className="mt-16 flex flex-wrap items-center justify-between gap-4 border-t border-white/8 pt-8">
           <Link

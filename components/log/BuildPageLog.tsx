@@ -30,27 +30,22 @@ export default function BuildPageLog({
   return (
     <Reveal>
       <section className={className} aria-labelledby="build-log-heading">
-        <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+        <div className="text-center">
           <div>
-            <h2 id="build-log-heading" className="text-2xl font-bold tracking-tight">
+            <h2 id="build-log-heading" className="text-3xl font-bold tracking-tight">
               Build{' '}
-              <span className="bg-linear-to-r from-emerald-300 to-teal-300 bg-clip-text text-transparent">log</span>
+              <span className="bg-linear-to-r from-emerald-300 to-teal-300 bg-clip-text text-transparent">
+                log
+              </span>
             </h2>
             <p className="mt-1.5 text-sm text-[#9cadc5]">
               The latest {entries.length === 1 ? 'update' : `${entries.length} updates`} to {name}
-              {releases > 0 ? `, ${releases} of them ${releases === 1 ? 'a release' : 'releases'}` : ''}, pulled from GitHub.
+              {releases > 0
+                ? `, ${releases} of them ${releases === 1 ? 'a release' : 'releases'}`
+                : ''}
+              , pulled from GitHub.
             </p>
           </div>
-          <Link
-            href={`/builds?build=${slug}#activity`}
-            className="group flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:border-emerald-400/40 hover:bg-white/8 hover:text-emerald-200"
-          >
-            See the full build log
-            <FiArrowUpRight
-              aria-hidden
-              className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-            />
-          </Link>
         </div>
 
         {/* The strip's look: its green-to-teal tint, the rows on a quiet card. */}
@@ -64,6 +59,18 @@ export default function BuildPageLog({
             </li>
           ))}
         </ul>
+        <div className="mt-5 flex justify-center">
+          <Link
+            href={`/builds?build=${slug}#activity`}
+            className="group flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:border-emerald-400/40 hover:bg-white/8 hover:text-emerald-200"
+          >
+            See the full build log
+            <FiArrowUpRight
+              aria-hidden
+              className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+            />
+          </Link>
+        </div>
       </section>
     </Reveal>
   )

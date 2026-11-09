@@ -17,14 +17,20 @@ test.describe('a build page', () => {
     await expect(header.getByRole('heading', { level: 1, name: 'Scribe' })).toBeVisible()
     await expect(header.getByText('Speech-to-text for Windows')).toBeVisible()
 
-    // The kind and the tech pills sit under the title, not beside the buttons.
+    // A quiet header (owner, 2026-11-08): the kind is one small line over the
+    // name, and the tech pills moved down to Stack & choices.
     const title = (await header.getByRole('heading', { level: 1 }).boundingBox())!
     const kind = (await header.getByText('Desktop app', { exact: true }).boundingBox())!
-    expect(kind.y).toBeGreaterThan(title.y + title.height - 1)
-    const tech = header.getByRole('list', { name: 'Scribe is built with' })
+    expect(kind.y + kind.height).toBeLessThanOrEqual(title.y + 1)
+    await expect(header.getByRole('list', { name: 'Scribe is built with' })).toHaveCount(0)
+    const tech = page.getByRole('region', { name: 'Tech stack' }).getByRole('list', { name: 'Scribe is built with' })
     for (const name of ['Tauri', 'Rust', 'whisper.cpp', 'SQLite', 'React']) await expect(tech.getByText(name, { exact: true })).toBeVisible()
-    const source = (await header.getByRole('group', { name: 'Scribe on GitHub' }).boundingBox())!
-    expect(source.y).toBeGreaterThan((await tech.boundingBox())!.y)
+    // The main action has a line of its own, larger than the rest.
+    const [main, other] = await Promise.all(
+      [header.getByRole('link', { name: 'Download for Windows' }), header.getByRole('link', { name: /Visit the landing page/ })].map((l) => l.boundingBox()),
+    )
+    expect(main!.height).toBeGreaterThan(other!.height)
+    expect(other!.y).toBeGreaterThan(main!.y + main!.height - 1)
 
     // The download is up top, through the same route as the Lab.
     await expect(header.getByRole('link', { name: 'Download for Windows' })).toHaveAttribute('href', '/download/scribe')
@@ -97,6 +103,74 @@ test.describe('a build page', () => {
       expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth), path).toBeLessThanOrEqual(0)
     }
   })
+})
+
+test.describe('build page screenshots', () => {
+  for (const [label, viewport, touch] of [
+    ['desktop', { width: 1280, height: 900 }, false],
+    ['phone', { width: 390, height: 844 }, true],
+  ] as const) {
+    test.describe(label, () => {
+      test.use({ viewport, hasTouch: touch })
+      test('every screenshot opens large in a lightbox: arrows, Escape, and focus back where it was', { tag: '@cross-browser' }, async ({ page }) => {
+        await page.goto('/builds/openping')
+        const shots = page.getByRole('button', { name: /^Open screenshot/ })
+        await expect(shots).toHaveCount(3)
+        const second = shots.nth(1)
+        await second.scrollIntoViewIfNeeded()
+        await expect(second).toBeEnabled()
+        await second.click()
+        const dialog = page.getByRole('dialog', { name: 'OpenPing screenshots' })
+        await expect(dialog).toBeVisible()
+        await expect(dialog.getByRole('img')).toHaveAccessibleName(/status page/)
+        await expect(dialog).toContainText('2 / 3')
+        // The keys step through, wrapping round.
+        await page.keyboard.press('ArrowRight')
+        await expect(dialog).toContainText('3 / 3')
+        await page.keyboard.press('ArrowRight')
+        await expect(dialog).toContainText('1 / 3')
+        // So do the buttons.
+        await dialog.getByRole('button', { name: 'Previous screenshot' }).click()
+        await expect(dialog).toContainText('3 / 3')
+        await page.keyboard.press('Escape')
+        await expect(dialog).toBeHidden()
+        await expect(second).toBeFocused()
+        // The header picture opens too, and the close button shuts it.
+        const first = shots.first()
+        await first.scrollIntoViewIfNeeded()
+        await first.click()
+        await expect(dialog).toContainText('1 / 3')
+        await dialog.getByRole('button', { name: 'Close screenshots' }).click()
+        await expect(dialog).toBeHidden()
+        await expect(first).toBeFocused()
+      })
+    })
+  }
+})
+
+test('every build page ends with More builds: three others, the featured ones first, never itself', async ({ page }) => {
+  for (const [slug, expected] of [
+    ['openping', ['Solara', 'Scribe', 'Portfolio Rank']],
+    ['solara', ['OpenPing', 'Scribe', 'Portfolio Rank']],
+    ['tubevault', ['OpenPing', 'Solara', 'Scribe']],
+    ['n8builds', ['OpenPing', 'Solara', 'Scribe']],
+  ] as const) {
+    await page.goto(`/builds/${slug}`)
+    const more = page.getByRole('region', { name: 'More builds' })
+    const cards = more.getByRole('link')
+    await expect(cards, slug).toHaveCount(3)
+    for (const [i, name] of expected.entries()) await expect(cards.nth(i), slug).toContainText(name)
+  }
+  await page.getByRole('region', { name: 'More builds' }).getByRole('link', { name: /OpenPing/ }).click()
+  await expect(page).toHaveURL(/\/builds\/openping$/)
+})
+
+test('the section headings are centred', async ({ page }) => {
+  await page.goto('/builds/openping')
+  for (const name of ["How it's built", 'Stack & choices', 'Process notes', 'Build log', 'More builds']) {
+    const heading = page.getByRole('heading', { level: 2, name, exact: true })
+    await expect(heading, name).toHaveCSS('text-align', 'center')
+  }
 })
 
 test('the build log opens with its figures, and each month counts its updates', async ({ page }) => {
