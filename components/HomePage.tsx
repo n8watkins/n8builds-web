@@ -26,7 +26,8 @@ import type { Post } from '@/lib/sanity'
  * A full-width homepage band. Alternating tones and a hairline between bands
  * separate the sections, which otherwise ran together on one flat background.
  * The band right under the hero uses `fadeIn` instead: no hairline, and its
- * tone eases in, so the hero flows into it. Its content fades up as it scrolls
+ * tone eases in and out again, so the hero flows into it and it into the
+ * build log. Its content fades up as it scrolls
  * into view; a tall band (the Lab) passes `reveal={false}` and reveals its
  * parts one by one instead.
  */
@@ -49,7 +50,9 @@ function Band({
   children: React.ReactNode
 }) {
   const background = fadeIn
-    ? 'bg-linear-to-b from-transparent to-white/[0.022] to-[260px]'
+    ? // Eases in under the hero and out again at its foot (round 5 of 2026-11-08), so the
+      // build log below meets it with no edge.
+      'bg-linear-to-b from-transparent via-white/[0.022] to-transparent'
     : tone === 'raised'
       ? 'border-t border-white/[0.06] bg-white/[0.022]'
       : 'border-t border-white/[0.06]'
@@ -109,11 +112,8 @@ export default async function HomePage({ posts }: { posts: Post[] }) {
              69px navbar, not 11px lower (html scroll-padding-top is 80px), so no strip
              of the band above shows between the two. */}
         <div id="lab" className="relative z-10 scroll-mt-[-11px]">
-          {/* The cut into the Lab (round 4 of 2026-11-08: "a switch to a new section"): a
-               cyan line, brightest in the middle and gone at the edges, over a soft glow
-               that fades out within it. */}
-          <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-cyan-300/50 to-transparent" />
-          <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-[radial-gradient(45%_100%_at_50%_0,rgb(34_211_238/0.09),transparent)]" />
+          {/* No line into the Lab (round 5 of 2026-11-08): the build log's wash fades out
+               above and the glow behind "The Lab" fades in, so one flows into the other. */}
           {/* Desktop only: a sticky rail in the left gutter marking the Lab part on screen. */}
           <LabSectionNav />
           <ShimmerWhenSeen />

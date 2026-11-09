@@ -107,7 +107,7 @@ export default function TemplateCarousel({ slides, phone }: { slides: TemplateSl
       aria-roledescription="carousel"
       aria-label="Tech for Pros templates"
       data-playing={playing ? '' : undefined}
-      className="relative mx-auto w-full max-w-[38rem] lg:max-w-none"
+      className="relative mx-auto w-full max-w-[38rem] lg:mr-0 lg:max-w-[28rem]"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onFocus={() => setFocused(true)}
@@ -138,7 +138,12 @@ export default function TemplateCarousel({ slides, phone }: { slides: TemplateSl
             </span>
           </div>
 
-          <div className="relative overflow-hidden" style={{ aspectRatio: `${first.width} / ${first.height}` }}>
+          {/* From 1024px the window shows the top of each template a little wider than its
+              shot (round 5 of 2026-11-08), so the picture is no taller than the copy beside it. */}
+          <div
+            className="relative overflow-hidden [aspect-ratio:var(--shot)] lg:[aspect-ratio:var(--shot-wide)]"
+            style={{ ['--shot' as string]: `${first.width} / ${first.height}`, ['--shot-wide' as string]: `${first.width} / ${Math.round(first.height * 0.86)}` }}
+          >
             {slides.map((slide, i) => {
               const current = i === index
               const leaving = i === prev && !current
@@ -186,7 +191,7 @@ export default function TemplateCarousel({ slides, phone }: { slides: TemplateSl
             a pause, back up). CSS only (now-phone-scroll in app/globals.css);
             it pauses while the card is off screen (NowCarousel) and holds
             still under reduced motion. */}
-        <div aria-hidden className="absolute bottom-0 left-0 w-[20%] rotate-[-4deg]">
+        <div aria-hidden className="absolute bottom-[6%] left-0 w-[20%] rotate-[-4deg]">
           <div className="overflow-hidden rounded-[1.1rem] border-[5px] border-[#0b1220] bg-[#0b1220] shadow-2xl shadow-black/60 ring-1 ring-white/12">
             <div
               className="relative overflow-hidden rounded-[0.7rem] [transform:translateZ(0)]"

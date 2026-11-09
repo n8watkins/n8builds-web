@@ -20,7 +20,7 @@ const Card = ({ now, turnstileSiteKey }: { now: NowState; turnstileSiteKey: stri
   // foot, level with the foot of the picture beside it (its chips and "Don't
   // see yours?", round 4 of 2026-11-08); below lg the picture comes between
   // the copy and the form.
-  <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] lg:grid-rows-[auto_auto_1fr] lg:gap-x-12">
+  <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-rows-[auto_auto_1fr] lg:gap-x-12">
     <div className="flex flex-wrap items-center gap-3 lg:col-start-1 lg:row-start-1">
       {now.href ? (
         // The mark and name link the site, in a new tab (owner, round 3 of 2026-11-08).
@@ -50,7 +50,8 @@ const Card = ({ now, turnstileSiteKey }: { now: NowState; turnstileSiteKey: stri
     <div className="lg:col-start-1 lg:row-start-2">
       <p className="text-balance text-3xl font-extrabold leading-[1.1] tracking-tight text-slate-50 sm:text-4xl lg:text-[2.6rem]">
         {now.headline.lead}{' '}
-        <span className="bg-linear-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
+        {/* On its own line from 1024px, as the ad has always read there. */}
+        <span className="bg-linear-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent lg:block">
           {now.headline.accent}
         </span>
       </p>
