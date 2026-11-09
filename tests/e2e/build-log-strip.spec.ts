@@ -83,9 +83,40 @@ test("shows three of the month's updates at a time, newest first, each with a li
   // Every entry is two lines under its name, note or not, so all three are the same height (owner, 2026-11-09).
   const heights = await rows(page).evaluateAll((items) => items.map((li) => Math.round(li.getBoundingClientRect().height)))
   expect(new Set(heights).size, heights.join(', ')).toBe(1)
-  // No step arrows: under reduced motion it holds still, with no timer line.
-  await expect(strip(page).getByRole('button', { name: /update/i })).toHaveCount(0)
-  await expect(strip(page).locator('[data-latest-timer]')).toHaveCount(0)
+  // Under reduced motion it holds still (no filling timer), but the arrows still step by hand.
+  await expect(strip(page).locator('[data-latest-timer] .template-timer')).toHaveCount(0)
+  await expect(strip(page).getByRole('button', { name: 'Next update' })).toBeVisible()
+})
+
+/**
+ * Round 7 of 2026-11-09 (owner): visitors step through "Some of the latest
+ * changes I've made" themselves, with arrows either side of the progress bar,
+ * and a click on the bar jumps there. Reduced motion here, so only the
+ * visitor moves it.
+ */
+test('the arrows and the progress bar step through the updates by hand, and say where they are', async ({ page }) => {
+  await page.goto('/')
+  const updates = strip(page).locator('[data-watching]:has(ul[aria-label^="Latest"])')
+  await list(page).scrollIntoViewIfNeeded()
+  await expect(updates).toHaveAttribute('data-watching', '')
+  const firstRow = await rows(page).first().getAttribute('data-row')
+  await strip(page).getByRole('button', { name: 'Next update' }).click()
+  await expect(updates).toHaveAttribute('data-position', '2')
+  // The one that was second moves up to first.
+  await expect(rows(page).first()).toHaveAttribute('data-row', String(Number(firstRow) + 1))
+  await expect(strip(page).locator('[aria-live="polite"]').filter({ hasText: /^Updates 2 to 4 of \d+$/ })).toHaveCount(1)
+  await strip(page).getByRole('button', { name: 'Previous update' }).click()
+  await expect(updates).toHaveAttribute('data-position', '1')
+  // Back from the first goes round to the last.
+  await strip(page).getByRole('button', { name: 'Previous update' }).click()
+  const last = Number(await updates.getAttribute('data-position'))
+  expect(last).toBeGreaterThan(3)
+  // A click near the end of the bar jumps to the last step, near its start to the first.
+  const bar = (await updates.locator('[data-latest-timer]').boundingBox())!
+  await page.mouse.click(bar.x + 2, bar.y + bar.height / 2)
+  await expect(updates).toHaveAttribute('data-position', '1')
+  await page.mouse.click(bar.x + bar.width - 2, bar.y + bar.height / 2)
+  await expect(updates).toHaveAttribute('data-position', String(last))
 })
 
 test('a row opens its build in the full log, filtered', { tag: '@smoke' }, async ({ page }) => {
@@ -274,6 +305,15 @@ test('works from the keyboard: the button, the figures, each row, then release-k
     order.push(await page.evaluate(() => document.activeElement?.getAttribute('href') ?? ''))
   }
   expect(order.every((href) => href.startsWith('/builds?build='))).toBe(true)
+  // Then the updates' arrows (round 7 of 2026-11-09): Enter steps on, and focus stays put.
+  await page.keyboard.press('Tab')
+  await expect(strip(page).getByRole('button', { name: 'Previous update' })).toBeFocused()
+  await page.keyboard.press('Tab')
+  const next = strip(page).getByRole('button', { name: 'Next update' })
+  await expect(next).toBeFocused()
+  await page.keyboard.press('Enter')
+  await expect(strip(page).locator('[data-position="2"]')).toHaveCount(1)
+  await expect(next).toBeFocused()
   // Then the release-kit ad's link.
   await page.keyboard.press('Tab')
   await expect(strip(page).getByRole('link', { name: /^Get release-kit/ })).toBeFocused()
@@ -343,4 +383,81 @@ test.describe('the updates with motion', () => {
     await expect(updates).not.toHaveAttribute('data-cycling')
     await expect(updates.locator('[data-latest-timer] .template-timer')).toHaveCSS('animation-play-state', 'paused')
   })
+})
+
+/**
+ * Round 7 of 2026-11-09 (owner): a month's day bars fill in from left to right,
+ * day by day, when the visitor switches months (CSS, nothing under reduced motion).
+ */
+test.describe('switching months with motion', () => {
+  test.use({ contextOptions: { reducedMotion: 'no-preference' } })
+
+  test("the month's bars fill in from left to right, a day at a time", async ({ page }) => {
+    await page.goto('/')
+    await stats(page).evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
+    await expect(stats(page)).toHaveAttribute('data-in-view', '')
+    // Not before a switch: the first month's bars are as rendered.
+    await expect(stats(page).locator('[data-bars] .log-bar-fill')).toHaveCount(0)
+    await strip(page).getByRole('button', { name: /^Previous month/ }).click()
+    const bars = stats(page).locator('[data-bars] [data-day]')
+    const timing = await bars.evaluateAll((list) =>
+      list.map((bar) => {
+        const s = getComputedStyle(bar)
+        return { name: s.animationName, delay: parseFloat(s.animationDelay) }
+      }),
+    )
+    expect(timing.every((t) => t.name === 'log-bar-fill')).toBe(true)
+    // Each day a step after the one before it.
+    for (let i = 1; i < timing.length; i++) expect(timing[i].delay).toBeGreaterThan(timing[i - 1].delay)
+    // And they all end standing.
+    await expect
+      .poll(() => bars.last().evaluate((bar) => getComputedStyle(bar).transform), { timeout: 3000 })
+      .toMatch(/^(none|matrix\(1, 0, 0, 1, 0, 0\))$/)
+  })
+})
+
+test('under reduced motion the bars of a new month are just there', async ({ page }) => {
+  await page.goto('/')
+  await stats(page).scrollIntoViewIfNeeded()
+  await strip(page).getByRole('button', { name: /^Previous month/ }).click()
+  const names = await stats(page).locator('[data-bars] [data-day]').evaluateAll((list) => list.map((bar) => getComputedStyle(bar).animationName))
+  expect(names.every((n) => n === 'none')).toBe(true)
+})
+
+test('the release-kit column is as wide as the month card, so the card is symmetric', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/')
+  await stats(page).scrollIntoViewIfNeeded()
+  const month = (await stats(page).locator('xpath=..').boundingBox())!
+  const ad = (await strip(page).getByRole('complementary').locator('xpath=..').boundingBox())!
+  expect(Math.abs(month.width - ad.width)).toBeLessThan(1.5)
+})
+
+/**
+ * Round 7 of 2026-11-09 (owner): a white box showed when the card's controls
+ * were clicked or tapped. None of them draws a box for a pointer (no tap
+ * highlight, no background behind the figure, no text selection on a quick
+ * double click); the keyboard still gets a ring, and a month arrow keeps focus
+ * when its month changes.
+ */
+test('no box for a click or a tap on the card, a ring for the keyboard, and the arrow keeps focus', async ({ page }) => {
+  await page.goto('/')
+  await stats(page).scrollIntoViewIfNeeded()
+  const card = strip(page).locator('[data-log-months]')
+  await expect(card).toHaveCSS('-webkit-tap-highlight-color', 'rgba(0, 0, 0, 0)')
+  const figure = stats(page).locator('button:has([data-stat])')
+  await figure.hover()
+  await expect(figure).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
+  await figure.dblclick()
+  expect(await page.evaluate(() => String(getSelection()))).toBe('')
+  for (const control of [figure, dots(page).first(), strip(page).getByRole('button', { name: 'Next update' })]) {
+    await expect(control).toHaveCSS('user-select', 'none')
+  }
+  // The keyboard: Enter on a month arrow changes the month and leaves focus on the arrow, with its ring.
+  const back = strip(page).getByRole('button', { name: /^Previous month/ })
+  await back.focus()
+  await page.keyboard.press('Enter')
+  await expect(strip(page).locator('[data-month]')).not.toHaveText('October 2026')
+  await expect(back).toBeFocused()
+  expect(await back.evaluate((el) => getComputedStyle(el).boxShadow)).not.toBe('none')
 })

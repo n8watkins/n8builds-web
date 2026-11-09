@@ -75,6 +75,7 @@ const components = {
           className="text-cyan-300 underline decoration-cyan-300/40 underline-offset-4 transition-colors hover:decoration-cyan-300"
         >
           {children}
+          {external && <span className="sr-only"> (opens in a new tab)</span>}
         </a>
       )
     },

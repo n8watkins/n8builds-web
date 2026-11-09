@@ -120,7 +120,7 @@ const SiteFooter = () => (
               key={label}
               href={href}
               {...(isExternal(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-              aria-label={label}
+              aria-label={isExternal(href) ? `${label} (opens in a new tab)` : label}
               title={label}
               className="flex h-11 w-11 items-center justify-center rounded-full text-slate-400 transition-colors duration-200 hover:bg-white/10 hover:text-slate-200"
             >

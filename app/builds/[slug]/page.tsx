@@ -250,6 +250,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
                         className="font-semibold text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 hover:text-cyan-200"
                       >
                         {credit.name}
+                        <span className="sr-only"> (opens in a new tab)</span>
                       </a>
                       : {credit.note}
                     </li>
@@ -354,6 +355,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
             >
               <FiGithub className="w-4 h-4" />
               github.com/n8watkins
+              <span className="sr-only"> (opens in a new tab)</span>
             </a>
           </footer>
         </div>

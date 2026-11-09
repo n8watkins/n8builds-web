@@ -84,7 +84,7 @@ test('the navbar links techforpros.com in a pill like Portfolio, through the cou
   await expect(link).toHaveAttribute('target', '_blank')
   await expect(link.locator('img[src*="techforpros"]')).toBeVisible()
   // The same height, radius and border as the buttons beside it.
-  const portfolio = page.locator('nav[aria-label="Primary"]').getByRole('link', { name: 'Portfolio', exact: true })
+  const portfolio = page.locator('nav[aria-label="Primary"]').getByRole('link', { name: 'Portfolio (opens in a new tab)', exact: true })
   const style = (el: HTMLElement | SVGElement) => {
     const s = getComputedStyle(el)
     return { radius: s.borderTopLeftRadius, border: s.borderTopWidth, style: s.borderTopStyle, height: el.getBoundingClientRect().height }
@@ -155,7 +155,7 @@ test.describe('tablet width', () => {
     expect(box!.x + box!.width).toBeLessThanOrEqual(810)
     await expect(menuButton(page)).toBeVisible()
     // Portfolio fits too, clear of the logo.
-    const portfolio = (await page.locator('nav[aria-label="Primary"]').getByRole('link', { name: 'Portfolio', exact: true }).boundingBox())!
+    const portfolio = (await page.locator('nav[aria-label="Primary"]').getByRole('link', { name: 'Portfolio (opens in a new tab)', exact: true }).boundingBox())!
     const logo = (await page.getByRole('link', { name: 'n8builds.dev home' }).boundingBox())!
     expect(portfolio.x).toBeGreaterThan(logo.x + logo.width)
   })

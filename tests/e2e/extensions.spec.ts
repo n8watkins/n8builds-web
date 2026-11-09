@@ -105,10 +105,15 @@ test.describe('desktop', () => {
     test.use({ contextOptions: { reducedMotion: 'no-preference' } })
 
     test('it auto-advances, and hovering a tab picks it and holds the cycle', { tag: '@cross-browser' }, async ({ page }) => {
-      test.setTimeout(60_000)
-      const { tabs } = await openShowcase(page)
+      test.setTimeout(90_000)
+      const { section, tabs } = await openShowcase(page)
+      // A tab with a clip holds for one loop of it (round 7 of 2026-11-09), at least CYCLE_MS.
+      const hold = async (i: number) => {
+        const clip = section.locator(`#${await tabs.nth(i).getAttribute('aria-controls')} [data-clip-ms]`)
+        return Math.max(CYCLE_MS, (await clip.count()) ? Number(await clip.getAttribute('data-clip-ms')) : 0)
+      }
       await page.mouse.move(0, 0)
-      await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true', { timeout: CYCLE_MS + 2000 })
+      await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true', { timeout: (await hold(0)) + 2000 })
       await expect(activePanelHeading(page)).toHaveText('TubeVault')
 
       await tabs.nth(2).hover()
@@ -123,7 +128,29 @@ test.describe('desktop', () => {
 
       // Leaving the showcase resumes the cycle.
       await page.mouse.move(0, 0)
-      await expect(tabs.nth(0)).toHaveAttribute('aria-selected', 'true', { timeout: CYCLE_MS + 2000 })
+      await expect(tabs.nth(0)).toHaveAttribute('aria-selected', 'true', { timeout: (await hold(2)) + 2000 })
+    })
+
+    test("a clip's tab holds for the whole clip, only the shown clip plays, and it starts over when shown again", async ({ page }) => {
+      test.setTimeout(60_000)
+      const { section, tabs } = await openShowcase(page)
+      await page.mouse.move(0, 0)
+      const clipMs = Number(await section.locator('#ext-panel-voicedock [data-clip-ms]').getAttribute('data-clip-ms'))
+      expect(clipMs).toBeGreaterThan(CYCLE_MS)
+      const video = (slug: string) => section.locator(`#ext-panel-${slug} video`)
+      await expect.poll(() => video('voicedock').evaluate((v: HTMLVideoElement) => !v.paused && v.currentTime > 0)).toBe(true)
+      // Still on VoiceDock after the old 5s cycle.
+      await page.waitForTimeout(CYCLE_MS + 1000)
+      await expect(tabs.nth(0)).toHaveAttribute('aria-selected', 'true')
+      // TL;DW's hidden clip waits, paused.
+      expect(await video('tldw').evaluate((v: HTMLVideoElement) => v.paused)).toBe(true)
+      // Shown, it plays from the start; VoiceDock's pauses.
+      await tabs.nth(2).hover()
+      await expect.poll(() => video('tldw').evaluate((v: HTMLVideoElement) => !v.paused)).toBe(true)
+      expect(await video('tldw').evaluate((v: HTMLVideoElement) => v.currentTime)).toBeLessThan(2)
+      await expect.poll(() => video('voicedock').evaluate((v: HTMLVideoElement) => v.paused)).toBe(true)
+      await tabs.nth(0).hover()
+      await expect.poll(() => video('voicedock').evaluate((v: HTMLVideoElement) => !v.paused && v.currentTime < 2)).toBe(true)
     })
 
     test('focus anywhere in the showcase holds the cycle, so a focused link never disappears', { tag: '@cross-browser' }, async ({ page }) => {
