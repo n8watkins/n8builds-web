@@ -21,8 +21,9 @@ import { latestEntry } from '@/lib/intersection'
 // 2.2.2) and hold the first figure under reduced motion; the dots pick one.
 // Screen readers hear a figure only when someone picks it, never on the timer.
 
-const EVERY_MS = 4000
-const COUNT_MS = 1100
+// Slower since round 3 of 2026-11-08 (was 4s a figure and a 1.1s count).
+const EVERY_MS = 7000
+const COUNT_MS = 1600
 
 /** The other figures, the most telling first: the headline number is `changes`. */
 const ORDER: ShippedStat['id'][] = ['busiest', 'streak', 'releases', 'builds', 'days']

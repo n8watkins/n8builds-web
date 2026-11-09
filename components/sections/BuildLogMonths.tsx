@@ -1,7 +1,6 @@
 'use client'
 import React, { createContext, useContext, useState } from 'react'
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
-import BuildLogPages from '@/components/sections/BuildLogPages'
 import ShippedStats from '@/components/sections/ShippedStats'
 import type { DayCount, ShippedStat } from '@/lib/log-stats'
 
@@ -15,9 +14,9 @@ export type LogMonth = {
   name: string
   stats: ShippedStat[]
   days: DayCount[]
+  /** The latest updates (two at most), rendered on the server. */
   rows: React.ReactNode[]
-  labels: string[]
-  /** The rows' carousel name: "Updates this month", "Updates in October 2026". */
+  /** The rows' name: "Latest this month", "Latest in October 2026". */
   listLabel: string
   /** The line under the part's "Build log" heading: "Shipped this month", "Shipped in October". */
   line: string
@@ -58,7 +57,9 @@ const arrowClass =
  * visitors switch months"): the card's month has arrows beside it, back to
  * the months before (as far as the /builds feed's 12-month window) and
  * forward again. Each month is the same card and rows as the current one:
- * its figures and day bars, and its updates four to a page.
+ * its figures and day bars, and its two latest updates (round 3 of
+ * 2026-11-08; four to a page, paging by itself, before). `rows={false}` is
+ * the card alone (/builds, where the feed below has every update).
  *
  * Every month's rows are rendered on the server and arrive with the page's
  * component payload (small: the whole year is about a hundred rows, and no
@@ -67,7 +68,7 @@ const arrowClass =
  * about what it did with one month. A new month fades in (not under
  * reduced motion), and its name is announced.
  */
-export default function BuildLogMonths({ months }: { months: LogMonth[] }) {
+export default function BuildLogMonths({ months, rows = true }: { months: LogMonth[]; rows?: boolean }) {
   const { index, setIndex } = useContext(MonthContext)
   const [announce, setAnnounce] = useState('')
   const month = months[index]
@@ -112,15 +113,31 @@ export default function BuildLogMonths({ months }: { months: LogMonth[] }) {
   )
 
   return (
-    <div className="grid grid-cols-1 overflow-hidden rounded-2xl border border-white/8 bg-[#0a1526]/70 md:grid-cols-[17rem_minmax(0,1fr)]" data-log-months={months.length}>
+    <div
+      className={`grid grid-cols-1 overflow-hidden rounded-2xl border border-white/8 bg-[#0a1526]/70 ${rows ? 'md:grid-cols-[17rem_minmax(0,1fr)]' : ''}`}
+      data-log-months={months.length}
+    >
       {/* A month's card and rows remount together, so each starts on its first figure and page. */}
-      <div key={`stats-${month.id}`} className={`flex flex-col border-b border-white/8 px-5 py-4 md:border-r md:border-b-0 md:px-6 md:py-5 ${index ? 'log-month-in' : ''}`}>
+      <div
+        key={`stats-${month.id}`}
+        className={`flex flex-col px-5 py-4 md:px-6 md:py-5 ${rows ? 'border-b border-white/8 md:border-r md:border-b-0' : ''} ${index ? 'log-month-in' : ''}`}
+      >
         {/* The month is named once, here; each row carries its own day. */}
         <ShippedStats stats={month.stats} days={month.days} period={month.name} header={header} />
       </div>
-      <div key={`rows-${month.id}`} className={`p-3 sm:p-4 ${index ? 'log-month-in' : ''}`}>
-        <BuildLogPages rows={month.rows} labels={month.labels} label={month.listLabel} />
-      </div>
+      {rows && (
+        // The latest two, newest first, centred beside the card.
+        <div key={`rows-${month.id}`} className={`flex flex-col justify-center p-3 sm:p-4 ${index ? 'log-month-in' : ''}`}>
+          <p className="mb-1 px-2 font-mono text-[0.68rem] font-bold tracking-[0.16em] text-emerald-300/90 uppercase" aria-hidden="true">
+            Latest
+          </p>
+          <ul aria-label={month.listLabel} className="space-y-1">
+            {month.rows.map((row, i) => (
+              <li key={i}>{row}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       <p className="sr-only" aria-live="polite">
         {announce}
       </p>

@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { FiArrowUpRight } from 'react-icons/fi'
+import { FiArrowUpRight, FiGithub } from 'react-icons/fi'
 import Reveal from '@/components/ui/Reveal'
 import LabSubheader from '@/components/sections/LabSubheader'
 import { ScrollIcon } from '@/components/ui/PartIcons'
@@ -14,17 +14,19 @@ import { BUILD_ICONS } from '@/lib/build-meta'
 import { dailyCounts, shippedStats } from '@/lib/log-stats'
 
 // The homepage's compact build log: the newest month of /builds at a glance.
-// The month's updates as rows, a page of them at a time, moving on every few
-// seconds (BuildLogPages), and a card that cycles through the month's figures
-// (ShippedStats), with arrows back to the months before (BuildLogMonths, round 5
-// of 2026-11-02). Rendered on the server from the same hourly-cached GitHub log
+// Its two latest updates (owner, round 3 of 2026-11-08: at most one or two,
+// no paging), and a card that cycles through the month's figures (ShippedStats),
+// with arrows back to the months before (BuildLogMonths, round 5 of 2026-11-02;
+// /builds shows the same card). Rendered on the server from the same hourly-cached GitHub log
 // as /builds (lib/build-log.ts), so the page stays static; only the pages' and
 // the figures' timers run in the browser. If the log can't be read at all, the
 // strip is left out; it never breaks the page.
 //
-// It is the Lab's first part (the owner's ask, 2026-11-02: "Build log should be
-// at the top of the lab"), in its own green wash, right under the Lab's intro.
-// It reads as a log (mono dates, the feed's timeline dots), not an ad.
+// It sits right under "What I'm working on" (2026-11-08), in its own green wash.
+// It reads as a log (mono dates, build icons), not an ad.
+
+/** The updates shown beside a month's card: the latest ones only. */
+const LATEST = 2
 
 /** A quiet month's card covers this many days back instead. */
 const QUIET_DAYS = 30
@@ -44,11 +46,6 @@ function pickRows(entries: LogEntry[], latestOnly = false): LogEntry[] {
     rows.push(e)
   }
   return rows
-}
-
-/** The words a row is announced by when someone pages to it: build, then title. */
-function rowLabel(entry: LogEntry): string {
-  return `${names[entry.build] ?? entry.build}, ${entry.title}`
 }
 
 /** `YYYY-MM-DD`, `days` days before `day`. */
@@ -134,43 +131,36 @@ function Row({ entry }: { entry: LogEntry }) {
 const RELEASE_KIT = 'https://github.com/n8watkins/release-kit'
 
 /**
- * Under the log, a small ad for what writes it (round 5 of 2026-11-02): every
- * project here runs release-kit, so its Conventional Commits and releases
- * become this log on their own. One line of pitch and a link to the repo.
+ * Under the log, a one-line ad for what writes it (round 5 of 2026-11-02,
+ * one line since round 3 of 2026-11-08): every project here runs
+ * release-kit, so its commits and releases become this log on their own.
+ * "Get release-kit" carries GitHub's mark, since that is where it goes.
  */
 function ReleaseKitAd() {
   return (
     <aside
       aria-labelledby="release-kit-ad"
-      className="mt-4 flex flex-col gap-3 rounded-2xl border border-white/8 bg-linear-to-r from-cyan-400/[0.06] via-white/[0.02] to-transparent px-4 py-3.5 sm:flex-row sm:items-center sm:gap-4 sm:px-5"
+      className="mt-3 flex flex-col gap-2.5 rounded-2xl border border-white/8 bg-linear-to-r from-cyan-400/[0.06] via-white/[0.02] to-transparent px-4 py-2.5 sm:flex-row sm:items-center sm:gap-4 sm:pr-2.5 sm:pl-4"
     >
-      <div className="flex min-w-0 flex-1 items-start gap-3 sm:items-center">
-        <Image
-          src="/log/release-kit.svg"
-          alt=""
-          width={36}
-          height={36}
-          unoptimized
-          className="h-9 w-9 shrink-0 rounded-lg"
-        />
-        <p className="min-w-0 text-sm leading-snug text-[#9cadc5]">
-          <span id="release-kit-ad" className="font-semibold text-slate-100">
-            This log writes itself, with{' '}
-            <span className="font-mono whitespace-nowrap text-cyan-300">release-kit</span>.
+      <p id="release-kit-ad" className="flex min-w-0 flex-1 items-center gap-2.5 text-sm leading-snug text-[#9cadc5]">
+        <Image src="/log/release-kit.svg" alt="" width={24} height={24} unoptimized className="h-6 w-6 shrink-0 rounded-md" />
+        <span>
+          <span className="font-semibold text-slate-100">
+            This log writes itself with <span className="font-mono whitespace-nowrap text-cyan-300">release-kit</span>:
           </span>{' '}
-          Write Conventional Commits and it cuts the versions, release notes and every update above.
-          No changelog to keep by hand: one command adds it to any repo.
-        </p>
-      </div>
+          commits in, versions and release notes out.
+        </span>
+      </p>
       <a
         href={RELEASE_KIT}
         target="_blank"
         rel="noopener noreferrer"
-        className="group flex shrink-0 items-center justify-center gap-2 self-stretch rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-200 transition-all duration-200 hover:border-cyan-400/40 hover:bg-white/8 hover:text-cyan-200 sm:self-auto"
+        className="group flex shrink-0 items-center justify-center gap-2 self-stretch rounded-xl border border-white/12 bg-white/4 px-3.5 py-1.5 text-sm font-semibold text-slate-200 transition-all duration-200 hover:border-cyan-400/40 hover:bg-white/8 hover:text-cyan-200 sm:self-auto"
       >
+        <FiGithub className="h-4 w-4" aria-hidden="true" />
         Get release-kit
         <FiArrowUpRight
-          className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+          className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
           aria-hidden="true"
         />
         <span className="sr-only"> on GitHub (opens in a new tab)</span>
@@ -179,7 +169,13 @@ function ReleaseKitAd() {
   )
 }
 
-export default async function BuildLogStrip() {
+/**
+ * The build log's months for the card (and the homepage's latest rows): this
+ * month (or a quiet month's last 30 days), then each month before it with
+ * something shipped, back to the feed's 12-month window. Null when the log
+ * can't be read or is empty. Shared with /builds, which shows the same card.
+ */
+export async function getLogMonths(): Promise<LogMonth[] | null> {
   let entries: LogEntry[]
   let asOf: string
   let recentFrom: string | null
@@ -199,8 +195,7 @@ export default async function BuildLogStrip() {
   // "October", or "December 2025" for another year.
   const shortName = (month: string) => monthLabel(month).replace(` ${year}`, '')
   const view = (rows: LogEntry[]) => ({
-    rows: rows.map((entry) => <Row key={entry.id} entry={entry} />),
-    labels: rows.map(rowLabel),
+    rows: rows.slice(0, LATEST).map((entry) => <Row key={entry.id} entry={entry} />),
   })
 
   // The first view: this month, or in a quiet one the last 30 days (the latest from every build).
@@ -216,7 +211,7 @@ export default async function BuildLogStrip() {
       ? dailyCounts(firstPeriod, `${current}-01`, lastDayOf(current), today)
       : dailyCounts(firstPeriod, cutoff, today, today),
     ...view(isThisMonth ? pickRows(thisMonth) : pickRows(entries, true)),
-    listLabel: isThisMonth ? 'Updates this month' : 'Recent updates',
+    listLabel: isThisMonth ? 'Latest this month' : 'Latest updates',
     line: isThisMonth ? 'Shipped this month' : `Shipped in the last ${QUIET_DAYS} days`,
   }
   // Then each month before it with something shipped, back to the /builds feed's 12-month window
@@ -233,23 +228,29 @@ export default async function BuildLogStrip() {
         stats: shippedStats(period, entries, asOf, names, { streak: false }),
         days: dailyCounts(period, `${m}-01`, lastDayOf(m), today),
         ...view(pickRows(period)),
-        listLabel: `Updates in ${monthLabel(m)}`,
+        listLabel: `Latest in ${monthLabel(m)}`,
         line: `Shipped in ${shortName(m)}`,
       }
     })
 
-  const months = [first, ...earlier]
+  return [first, ...earlier]
+}
+
+export default async function BuildLogStrip() {
+  const months = await getLogMonths()
+  if (!months) return null
 
   return (
     // A full-bleed band under "What I'm working on" (owner, 2026-11-08) in its own green
-    // wash (`.lab-accent-buildlog` in app/globals.css), with the hairline a homepage band
-    // opens on; owned here so that a missing log leaves no empty band behind.
+    // wash (`.lab-accent-buildlog` in app/globals.css), close under it with no hairline
+    // (round 3: the gap read as a big break); owned here so that a missing log leaves no
+    // empty band behind.
     // The provider shares the month the card shows with the line under the heading.
     <LogMonthProvider lines={months.map((m) => m.line)}>
       <section
         id="build-log"
         aria-labelledby="build-log-heading"
-        className="lab-accent-buildlog lab-part-wash relative z-10 border-t border-white/[0.06] py-12"
+        className="lab-accent-buildlog lab-part-wash relative z-10 pt-2 pb-12 md:pt-4"
       >
         <div className="mx-auto max-w-6xl px-5 sm:px-8">
           <Reveal>
