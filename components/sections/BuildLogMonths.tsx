@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import ShippedStats from '@/components/sections/ShippedStats'
-import LatestUpdates from '@/components/sections/LatestUpdates'
+import BuildLogPages from '@/components/sections/BuildLogPages'
 import type { DayCount, ShippedStat } from '@/lib/log-stats'
 
 /** One month of the homepage's build log, worked out and its rows rendered on the server (BuildLogStrip.tsx). */
@@ -17,6 +17,8 @@ export type LogMonth = {
   days: DayCount[]
   /** The month's updates, newest first, rendered on the server (shown two at a time). */
   rows: React.ReactNode[]
+  /** Each row's build and title, read out when the visitor pages to it. */
+  labels: string[]
   /** The rows' name: "Latest this month", "Latest in October 2026". */
   listLabel: string
 }
@@ -46,8 +48,7 @@ const arrowClass =
  * the months before (as far as the /builds feed's 12-month window) and
  * forward again, going round at either end (round 4 of 2026-11-08), each
  * named with its year. Each month is the same card and rows as the current one:
- * its figures and day bars, and its updates three at a time, moving on one
- * by one (rounds 4 and 5 of 2026-11-08). `rows={false}` is
+ * its figures and day bars, and its updates a page of three at a time (round 9 of 2026-11-09). `rows={false}` is
  * the card alone (/builds, where the feed below has every update).
  *
  * Every month's rows are rendered on the server and arrive with the page's
@@ -156,9 +157,9 @@ export default function BuildLogMonths({
         <ShippedStats stats={month.stats} days={month.days} period={month.name} header={header} fill={switched} />
       </div>
       {rows && (
-        // The month's updates, three at a time, moving on one by one (LatestUpdates).
+        // The month's updates, a page of three at a time, with the staggered fade (BuildLogPages).
         <div key={`rows-${month.id}`} className={`p-3 sm:p-4 ${index ? 'log-month-in' : ''}`}>
-          <LatestUpdates rows={month.rows} label={month.listLabel} />
+          <BuildLogPages rows={month.rows} labels={month.labels} label={month.listLabel} />
         </div>
       )}
       {aside && (

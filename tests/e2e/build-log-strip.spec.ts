@@ -2,8 +2,9 @@ import { test, expect, type Page } from '@playwright/test'
 
 /**
  * The homepage's compact build log (#build-log), right under "What I'm working
- * on" (2026-11-08): the month's two latest updates (round 3 of 2026-11-08; a
- * paged list of four before), a card cycling through the month's figures, a
+ * on" (2026-11-08): the month's updates a page of three at a time, with the
+ * staggered fade and the countdown bar (restored in round 9 of 2026-11-09 from
+ * the 2026-11-02 version, #121), a card cycling through the month's figures, a
  * release-kit ad and a link to /builds. Against the recorded GitHub
  * fixture (BUILD_LOG_FIXTURE=1), whose capture time is the strip's "now", so
  * these don't drift as the months pass.
@@ -15,9 +16,28 @@ import { test, expect, type Page } from '@playwright/test'
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
 const strip = (page: Page) => page.locator('#build-log')
-/** The latest updates (two at most since round 3 of 2026-11-08; a paged list of four before). */
-const list = (page: Page) => strip(page).getByRole('list', { name: /^Latest/ })
+/** The paged updates and their controls (BuildLogPages), named for the month: "Latest this month". */
+const list = (page: Page) => strip(page).getByRole('group', { name: /^Latest/ })
+/** The rows showing (the other pages' are aria-hidden, so out of the role tree). */
 const rows = (page: Page) => list(page).getByRole('listitem')
+/** Every row of the month, shown or not (not the newest again, filling the last page). */
+const allRows = (page: Page) => list(page).locator('li[data-row]:not([data-wrap])')
+const position = (page: Page) => list(page).locator('[data-position]')
+const live = (page: Page) => list(page).locator('[aria-live="polite"]')
+const shownRows = (page: Page) => list(page).locator('li[data-shown]').evaluateAll((els) => els.map((el) => el.getAttribute('data-row')))
+/** How long a hold is checked for: past a whole turn (4s), with margin. */
+const HOLD_MS = 7000
+/** Three rows a page, every page full: the last wraps round to the newest rows. */
+function paging(count: number) {
+  const per = 3
+  const pages = Math.ceil(count / per)
+  /** The rows (`data-row`) on page `k`, from 0. */
+  const rowsOn = (k: number) => Array.from({ length: per }, (_, i) => (k * per + i) % count)
+  /** The position text on page `n`, from 1. */
+  const at = (n: number) => `${n} / ${pages}`
+  return { per, pages, rowsOn, at }
+}
+const asText = (rows: number[]) => rows.map(String)
 const stats = (page: Page) => strip(page).getByRole('group', { name: /^Shipped / })
 const slides = (page: Page) => stats(page).locator('[data-stat]')
 const current = (page: Page) => stats(page).locator('[data-stat][aria-hidden="false"]')
@@ -83,40 +103,9 @@ test("shows three of the month's updates at a time, newest first, each with a li
   // Every entry is two lines under its name, note or not, so all three are the same height (owner, 2026-11-09).
   const heights = await rows(page).evaluateAll((items) => items.map((li) => Math.round(li.getBoundingClientRect().height)))
   expect(new Set(heights).size, heights.join(', ')).toBe(1)
-  // Under reduced motion it holds still (no filling timer), but the arrows still step by hand.
-  await expect(strip(page).locator('[data-latest-timer] .template-timer')).toHaveCount(0)
-  await expect(strip(page).getByRole('button', { name: 'Next update' })).toBeVisible()
-})
-
-/**
- * Round 7 of 2026-11-09 (owner): visitors step through "Some of the latest
- * changes I've made" themselves, with arrows either side of the progress bar,
- * and a click on the bar jumps there. Reduced motion here, so only the
- * visitor moves it.
- */
-test('the arrows and the progress bar step through the updates by hand, and say where they are', async ({ page }) => {
-  await page.goto('/')
-  const updates = strip(page).locator('[data-watching]:has(ul[aria-label^="Latest"])')
-  await list(page).scrollIntoViewIfNeeded()
-  await expect(updates).toHaveAttribute('data-watching', '')
-  const firstRow = await rows(page).first().getAttribute('data-row')
-  await strip(page).getByRole('button', { name: 'Next update' }).click()
-  await expect(updates).toHaveAttribute('data-position', '2')
-  // The one that was second moves up to first.
-  await expect(rows(page).first()).toHaveAttribute('data-row', String(Number(firstRow) + 1))
-  await expect(strip(page).locator('[aria-live="polite"]').filter({ hasText: /^Updates 2 to 4 of \d+$/ })).toHaveCount(1)
-  await strip(page).getByRole('button', { name: 'Previous update' }).click()
-  await expect(updates).toHaveAttribute('data-position', '1')
-  // Back from the first goes round to the last.
-  await strip(page).getByRole('button', { name: 'Previous update' }).click()
-  const last = Number(await updates.getAttribute('data-position'))
-  expect(last).toBeGreaterThan(3)
-  // A click near the end of the bar jumps to the last step, near its start to the first.
-  const bar = (await updates.locator('[data-latest-timer]').boundingBox())!
-  await page.mouse.click(bar.x + 2, bar.y + bar.height / 2)
-  await expect(updates).toHaveAttribute('data-position', '1')
-  await page.mouse.click(bar.x + bar.width - 2, bar.y + bar.height / 2)
-  await expect(updates).toHaveAttribute('data-position', String(last))
+  // Under reduced motion it holds still (no countdown bar), but the arrows still page by hand.
+  await expect(list(page).locator('[data-progress]')).toHaveCount(0)
+  await expect(list(page).getByRole('button', { name: 'Next updates' })).toBeVisible()
 })
 
 test('a row opens its build in the full log, filtered', { tag: '@smoke' }, async ({ page }) => {
@@ -248,7 +237,7 @@ test('the month arrows go back through the year and round, each month with its y
     await expect(strip(page).locator('[data-month]')).toHaveText(previous, { timeout: 2000 })
   }).toPass({ timeout: 15_000 })
   // Its own updates, from that month; its own card.
-  const earlier = strip(page).getByRole('list', { name: `Latest in ${previous}` })
+  const earlier = strip(page).getByRole('group', { name: `Latest in ${previous}` })
   await expect(earlier).toBeVisible()
   const month = previous.split(' ')[0].slice(0, 3).toUpperCase()
   // textContent: on phones the row's <time> is hidden (its day rides on the name line).
@@ -305,16 +294,18 @@ test('works from the keyboard: the button, the figures, each row, then release-k
     order.push(await page.evaluate(() => document.activeElement?.getAttribute('href') ?? ''))
   }
   expect(order.every((href) => href.startsWith('/builds?build='))).toBe(true)
-  // Then the updates' arrows (round 7 of 2026-11-09): Enter steps on, and focus stays put.
+  // Then the pages' arrows (no pause button under reduced motion): Enter pages on, and focus stays put.
   await page.keyboard.press('Tab')
-  await expect(strip(page).getByRole('button', { name: 'Previous update' })).toBeFocused()
+  await expect(list(page).getByRole('button', { name: 'Previous updates' })).toBeFocused()
   await page.keyboard.press('Tab')
-  const next = strip(page).getByRole('button', { name: 'Next update' })
+  const next = list(page).getByRole('button', { name: 'Next updates' })
   await expect(next).toBeFocused()
   await page.keyboard.press('Enter')
-  await expect(strip(page).locator('[data-position="2"]')).toHaveCount(1)
+  await expect(position(page)).toHaveText(/^2 \/ \d+$/)
   await expect(next).toBeFocused()
-  // Then the release-kit ad's link.
+  // Then the release-kit ad: How it works, then Get release-kit.
+  await page.keyboard.press('Tab')
+  await expect(strip(page).getByRole('link', { name: 'How it works' })).toBeFocused()
   await page.keyboard.press('Tab')
   await expect(strip(page).getByRole('link', { name: /^Get release-kit/ })).toBeFocused()
 
@@ -342,13 +333,11 @@ test('beside the log, an ad for release-kit: what it sets up, its one-command in
   const ad = strip(page).getByRole('complementary', { name: 'release-kit Releases that write themselves' })
   await ad.scrollIntoViewIfNeeded()
   await expect(ad).toContainText('Open source · MIT')
-  // What it does, so people want to try it (round 8 of 2026-11-09): four checks and the install.
-  await expect(ad.getByRole('list', { name: 'What release-kit sets up' }).getByRole('listitem')).toHaveText([
-    'Checks every commit message',
-    'Picks each version for you',
-    'Writes the notes, and this log',
-    'Briefs your coding agents too',
-  ])
+  // What it does (round 9 of 2026-11-09): three plain bullets, no check boxes, and a page on how it works.
+  const points = ad.getByRole('list', { name: 'What release-kit does' }).getByRole('listitem')
+  await expect(points).toHaveText(['Checks every commit message', 'Picks each version for you', 'Writes the notes, and this log'])
+  await expect(points.locator('svg')).toHaveCount(0)
+  await expect(ad.getByRole('link', { name: 'How it works' })).toHaveAttribute('href', '/builds/release-kit')
   await expect(ad).toContainText('Set it up with one command')
   await expect(ad.locator('[data-release-kit-install]')).toHaveText('$ npx --allow-git=root github:n8watkins/release-kit .')
   const link = ad.getByRole('link', { name: /^Get release-kit/ })
@@ -369,27 +358,225 @@ test('beside the log, an ad for release-kit: what it sets up, its one-command in
   if ((page.viewportSize()?.width ?? 0) >= 1100) {
     const [note, updates] = [(await ad.boundingBox())!, (await list(page).boundingBox())!]
     expect(note.x).toBeGreaterThan(updates.x + updates.width)
+    // "Releases that write themselves" on one line at desktop width (round 9 of 2026-11-09).
+    const headline = await ad.locator('#release-kit-ad').evaluate((el) => new Set([...el.getClientRects()].map((r) => Math.round(r.top))).size)
+    expect(headline).toBe(1)
   }
 })
 
-test.describe('the updates with motion', () => {
+async function installClock(page: Page) {
+  await page.route('https://challenges.cloudflare.com/**', (route) => route.abort())
+  await page.clock.install()
+}
+
+/**
+ * Opens the homepage on a clock the test drives. The page loads in real time;
+ * the clock stops while the list is still below the fold (so its timer hasn't
+ * started), then the list is brought into view and waits there, its timer
+ * running only when the test moves the clock on. The clock jumps
+ * (fastForward) rather than runs: running it would also play every frame of
+ * the homepage's other animations, which WebKit works through slowly.
+ * Returns how many updates the month has.
+ */
+async function openList(page: Page) {
+  await installClock(page)
+  await page.goto('/')
+  await expect(list(page)).toBeAttached()
+  await expect(list(page)).not.toHaveAttribute('data-in-view')
+  // The page's clock keeps running while this is sent: aim a little ahead,
+  // and again if a loaded machine let it pass the mark first.
+  await expect(async () => {
+    const now = await page.evaluate(() => Date.now())
+    await page.clock.pauseAt(now + 500)
+  }).toPass({ timeout: 10_000 })
+  // An instant jump: with motion allowed the site scrolls smoothly.
+  await list(page).evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
+  await expect(list(page)).toHaveAttribute('data-in-view', '', { timeout: 20_000 })
+  await page.mouse.move(0, 0)
+  // The jump only fires a timer already set: wait for the list to set it.
+  await expect(list(page)).toHaveAttribute('data-cycling', '')
+  return allRows(page).count()
+}
+
+const focusAway = (page: Page) => strip(page).getByRole('link', { name: 'See the full build log' }).focus()
+
+/**
+ * The updates, a page of three at a time (round 9 of 2026-11-09: the owner's
+ * favourite, the 2026-11-02 version, brought back): every 4 seconds the rows
+ * fade out to the right one after another and the next page's fade in from
+ * the left behind them, staggered; the bar at the foot counts down to the
+ * next page and starts over with it.
+ */
+test.describe('paging', () => {
   test.use({ contextOptions: { reducedMotion: 'no-preference' } })
 
-  test('move on one by one while in view, and hold while hovered', async ({ page }) => {
-    await page.goto('/')
-    const updates = strip(page).locator('[data-watching]:has(ul[aria-label^="Latest"])')
-    await list(page).evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
-    await page.mouse.move(0, 0)
-    await expect(updates).toHaveAttribute('data-cycling', '', { timeout: 20_000 })
-    // A thin line fills along the foot until the next step.
-    await expect(updates.locator('[data-latest-timer] .template-timer')).toHaveCSS('animation-play-state', 'running')
-    // Quicker since round 8 of 2026-11-09: 4 seconds a step (6.5 before).
-    await expect(updates.locator('[data-latest-timer] .template-timer')).toHaveCSS('animation-duration', '4s')
-    await expect(updates).toHaveAttribute('data-position', '2', { timeout: 12_000 })
-    await list(page).hover()
-    await expect(updates).not.toHaveAttribute('data-cycling')
-    await expect(updates.locator('[data-latest-timer] .template-timer')).toHaveCSS('animation-play-state', 'paused')
+  test('moves on a page by itself every 4 seconds, round the month, and never announces it', async ({ page }) => {
+    const count = await openList(page)
+    const { pages, rowsOn, at } = paging(count)
+    expect(pages).toBeGreaterThan(2)
+    expect(await shownRows(page)).toEqual(asText(rowsOn(0)))
+    // The countdown: it fills over the page's 4 seconds, and starts over with each page.
+    await expect(list(page).locator('[data-progress]')).toHaveCSS('animation-duration', '4s')
+    await expect(list(page).locator('[data-progress]')).toHaveCSS('animation-play-state', 'running')
+    await page.clock.fastForward(3900)
+    await expect(position(page)).toHaveText(at(1))
+    await page.clock.fastForward(200)
+    await expect(position(page)).toHaveText(at(2))
+    expect(await shownRows(page)).toEqual(asText(rowsOn(1)))
+    // A full page, even the last (it wraps round to the newest), then round to the start.
+    await expect(rows(page)).toHaveCount(3)
+    for (let n = 3; n <= pages + 1; n++) {
+      await expect(list(page)).toHaveAttribute('data-cycling', '')
+      await page.clock.fastForward(4100)
+      await expect(position(page)).toHaveText(at(n > pages ? 1 : n))
+    }
+    await expect(live(page)).toHaveText('')
   })
+
+  test('fades the old rows out to the right one after another, and the new ones in from the left', { tag: '@cross-browser' }, async ({ page }) => {
+    const count = await openList(page)
+    // Clicked and read in one go: the fade starts with the click (before
+    // paint) and is over in under a second, which a slow browser can spend
+    // between two separate steps.
+    const flights = await list(page).evaluate(async (el) => {
+      el.querySelector<HTMLButtonElement>('button[aria-label="Next updates"]')!.click()
+      // React commits a click's update in a microtask; the fade starts in that commit.
+      await Promise.resolve()
+      return [...el.querySelectorAll('li[data-row]')].flatMap((li) =>
+        li.getAnimations().filter((a) => !(a instanceof CSSTransition)).map((a) => {
+          const timing = a.effect!.getComputedTiming()
+          const frames = (a.effect as KeyframeEffect).getKeyframes()
+          return { row: Number(li.getAttribute('data-row')), delay: Number(timing.delay), from: Number(frames[0].opacity), first: String(frames[0].transform), to: String(frames.at(-1)!.transform) }
+        }),
+      )
+    })
+    const out = flights.filter((f) => f.from === 1)
+    const into = flights.filter((f) => f.from === 0)
+    const { rowsOn } = paging(count)
+    expect(out.map((f) => f.row)).toEqual(rowsOn(0))
+    expect(into.map((f) => f.row)).toEqual(rowsOn(1))
+    // Out to the right, each a beat after the one above it.
+    expect(out.every((f) => /translateX\(28px\)/.test(f.to))).toBe(true)
+    for (let i = 1; i < out.length; i++) expect(out[i].delay).toBeGreaterThan(out[i - 1].delay)
+    // In from the left after the rows they replace, staggered the same way.
+    expect(into.every((f) => /translateX\(-20px\)/.test(f.first))).toBe(true)
+    for (let i = 0; i < into.length; i++) expect(into[i].delay).toBeGreaterThan(out[i].delay)
+    for (let i = 1; i < into.length; i++) expect(into[i].delay).toBeGreaterThan(into[i - 1].delay)
+  })
+
+  test('holds while hovered, and picks up where it left off', { tag: '@cross-browser' }, async ({ page }) => {
+    const { at } = paging(await openList(page))
+    await page.clock.fastForward(2000)
+    await list(page).hover()
+    await expect(list(page)).not.toHaveAttribute('data-cycling')
+    await expect(list(page).locator('[data-progress]')).toHaveCSS('animation-play-state', 'paused')
+    await page.clock.fastForward(HOLD_MS)
+    await expect(position(page)).toHaveText(at(1))
+    await page.mouse.move(0, 0)
+    await expect(list(page)).toHaveAttribute('data-cycling', '')
+    // Two seconds were left of its turn, not a fresh four.
+    await page.clock.fastForward(2100)
+    await expect(position(page)).toHaveText(at(2))
+  })
+
+  test('holds while focused', { tag: '@cross-browser' }, async ({ page }) => {
+    const { at } = paging(await openList(page))
+    await rows(page).first().getByRole('link').focus()
+    await expect(list(page)).not.toHaveAttribute('data-cycling')
+    await page.clock.fastForward(HOLD_MS)
+    await expect(position(page)).toHaveText(at(1))
+    await focusAway(page)
+    await expect(list(page)).toHaveAttribute('data-cycling', '')
+    await page.clock.fastForward(4100)
+    await expect(position(page)).toHaveText(at(2))
+  })
+
+  test('holds while off screen or while the tab is hidden', { tag: '@cross-browser' }, async ({ page }) => {
+    const { at } = paging(await openList(page))
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }))
+    await expect(list(page)).not.toHaveAttribute('data-in-view')
+    await expect(list(page)).not.toHaveAttribute('data-cycling')
+    await page.clock.fastForward(HOLD_MS)
+    await expect(position(page)).toHaveText(at(1))
+
+    await list(page).evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
+    await expect(list(page)).toHaveAttribute('data-in-view', '', { timeout: 20_000 })
+    const setHidden = (hidden: boolean) =>
+      page.evaluate((hidden) => {
+        Object.defineProperty(document, 'visibilityState', { value: hidden ? 'hidden' : 'visible', configurable: true })
+        document.dispatchEvent(new Event('visibilitychange'))
+      }, hidden)
+    await setHidden(true)
+    await expect(list(page)).not.toHaveAttribute('data-cycling')
+    await page.clock.fastForward(HOLD_MS)
+    await expect(position(page)).toHaveText(at(1))
+    await setHidden(false)
+    await expect(list(page)).toHaveAttribute('data-cycling', '')
+    await page.clock.fastForward(4100)
+    await expect(position(page)).toHaveText(at(2))
+  })
+
+  test('the arrows and arrow keys page either way, wrapping, and announce each move', { tag: '@cross-browser' }, async ({ page }) => {
+    const count = await openList(page)
+    const next = list(page).getByRole('button', { name: 'Next updates' })
+    const previous = list(page).getByRole('button', { name: 'Previous updates' })
+    const { pages, rowsOn, at } = paging(count)
+    await next.click()
+    await expect(position(page)).toHaveText(at(2))
+    await expect(live(page)).toHaveText(new RegExp(`^Updates ${rowsOn(1)[0] + 1} to ${rowsOn(1)[2] + 1} of ${count}: `))
+    await previous.click()
+    await previous.click()
+    // Back past the first page wraps round to the last.
+    await expect(position(page)).toHaveText(at(pages))
+
+    // From the keyboard: arrows page while focus is in the list, and focus
+    // follows to the new page's first row rather than staying on a hidden one.
+    await rows(page).first().getByRole('link').focus()
+    await page.keyboard.press('ArrowRight')
+    await expect(position(page)).toHaveText(at(1))
+    await expect(allRows(page).first().getByRole('link')).toBeFocused()
+    await page.keyboard.press('ArrowLeft')
+    await expect(position(page)).toHaveText(at(pages))
+    await expect(list(page).locator(`li[data-row="${rowsOn(pages - 1)[0]}"] a`).first()).toBeFocused()
+  })
+
+  test('the pause button stops it for good, and play starts it again', async ({ page }) => {
+    const { at } = paging(await openList(page))
+    // From the keyboard, so the pointer never rests on the list (hovering holds it too).
+    await list(page).getByRole('button', { name: 'Pause rotation' }).focus()
+    await page.keyboard.press('Enter')
+    await expect(list(page).getByRole('button', { name: 'Resume rotation' })).toBeFocused()
+    await focusAway(page)
+    await expect(list(page)).not.toHaveAttribute('data-cycling')
+    await page.clock.fastForward(HOLD_MS)
+    await expect(position(page)).toHaveText(at(1))
+    await list(page).getByRole('button', { name: 'Resume rotation' }).focus()
+    await page.keyboard.press('Enter')
+    await expect(list(page).getByRole('button', { name: 'Pause rotation' })).toBeFocused()
+    await focusAway(page)
+    await expect(list(page)).toHaveAttribute('data-cycling', '')
+    await page.clock.fastForward(4100)
+    await expect(position(page)).toHaveText(at(2))
+  })
+})
+
+test('reduced motion: nothing moves by itself, and the arrows swap pages without a fade', { tag: '@cross-browser' }, async ({ page }) => {
+  await installClock(page)
+  await page.goto('/')
+  await list(page).scrollIntoViewIfNeeded()
+  await expect(list(page)).toHaveAttribute('data-in-view', '', { timeout: 20_000 })
+  const { at } = paging(await allRows(page).count())
+  await page.clock.fastForward(HOLD_MS * 2)
+  await expect(position(page)).toHaveText(at(1))
+  await expect(list(page)).not.toHaveAttribute('data-cycling')
+  await expect(list(page).locator('[data-progress]')).toHaveCount(0)
+  await list(page).getByRole('button', { name: 'Next updates' }).click()
+  await expect(position(page)).toHaveText(at(2))
+  // No fade of its own (the site's reduced-motion rule turns every CSS
+  // transition into an instant one, which WebKit still lists, so those are skipped).
+  expect(
+    await list(page).evaluate((el) => [...el.querySelectorAll('li')].flatMap((li) => li.getAnimations().filter((a) => !(a instanceof CSSTransition))).length),
+  ).toBe(0)
 })
 
 /**
@@ -445,7 +632,7 @@ for (const width of [1280, 820, 390]) {
         await card.evaluate((el) => ({
           month: el.querySelector('[data-month]')!.textContent!,
           card: el.getBoundingClientRect().height,
-          rows: [...el.querySelectorAll('ul[aria-label^="Latest"] > li')].map((li) => li.getBoundingClientRect().height),
+          rows: [...el.querySelectorAll('li[data-shown]')].map((li) => li.getBoundingClientRect().height),
           // Two lines of text under the mono line in every row, the detail line kept when empty.
           text: [...el.querySelectorAll('[data-row-text]')].map((t) => t.children.length),
         })),
@@ -458,9 +645,9 @@ for (const width of [1280, 820, 390]) {
     const rows = seen.flatMap((m) => m.rows)
     expect(Math.max(...rows) - Math.min(...rows)).toBeLessThan(0.5)
     expect(seen.flatMap((m) => m.text).every((n) => n === 2)).toBe(true)
-    // Stepping through a month's changes keeps it too.
+    // Paging through a month's changes keeps it too.
     const before = await card.evaluate((el) => el.getBoundingClientRect().height)
-    for (let i = 0; i < 4; i++) await strip(page).getByRole('button', { name: 'Next update' }).click()
+    for (let i = 0; i < 4; i++) await strip(page).getByRole('button', { name: 'Next updates' }).click()
     expect(Math.abs((await card.evaluate((el) => el.getBoundingClientRect().height)) - before)).toBeLessThan(0.5)
   })
 }
@@ -491,7 +678,7 @@ test('no box for a click or a tap on the card, a ring for the keyboard, and the 
   await expect(figure).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
   await figure.dblclick()
   expect(await page.evaluate(() => String(getSelection()))).toBe('')
-  for (const control of [figure, dots(page).first(), strip(page).getByRole('button', { name: 'Next update' })]) {
+  for (const control of [figure, dots(page).first(), strip(page).getByRole('button', { name: 'Next updates' })]) {
     await expect(control).toHaveCSS('user-select', 'none')
   }
   // The keyboard: Enter on a month arrow changes the month and leaves focus on the arrow, with its ring.
