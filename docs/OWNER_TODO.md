@@ -100,3 +100,14 @@ The build repos don't yet, so the build log still shows filtered commits for mos
 ## Decided
 
 Settled decisions moved to [DECISIONS.md](DECISIONS.md).
+
+## Keys
+
+Checked 2026-11-09 against the secret names on the Worker and in GitHub Actions (names only, no values).
+New values go into the owner's pass-env store and are sent with `pass-env pipe <entry> -- <command>`; never commit or paste a value.
+
+- [ ] `GITHUB_TOKEN` (PAT "n8builds-web build log"): needs a new value. Make a new fine-grained PAT, `pass-env pipe n8builds-web/GITHUB_TOKEN -- npx wrangler secret put GITHUB_TOKEN --name n8builds-web`, then delete the old PAT.
+- [ ] `SANITY_VIEWER_TOKEN`, `SANITY_WEBHOOK_SECRET` (missing): blog draft preview and publish webhook.
+- [ ] Gmail app password: no longer used; revoke it at myaccount.google.com/apppasswords.
+- [ ] `TWITCH_CLIENT_SECRET`, `YOUTUBE_API_KEY`: the code reads them but the Worker does not have them; set them or remove the code.
+- [x] `TURNSTILE_SECRET_KEY`; Actions `CLOUDFLARE_API_TOKEN`, `RELEASE_TRAIN_KEY`, `SANITY_BACKUP_TOKEN`: set.
