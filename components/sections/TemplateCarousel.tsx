@@ -214,10 +214,10 @@ export default function TemplateCarousel({ slides, phone }: { slides: TemplateSl
 
       {/* The picker (owner, 2026-11-08): one labelled chip per trade, so each
           one is clear, then the caption. From 640px they sit under the window's
-          right side, beside the phone's foot; on phones, where that is too
-          narrow for one row, under the phone. */}
+          right side, beside the phone's foot; on phones, where one row doesn't
+          fit, two by two under the phone. */}
       <div className="relative mt-3 sm:mt-[calc(0.75rem-7%)] sm:pl-[23%]">
-        <div className="flex flex-wrap justify-center gap-1 sm:justify-end sm:gap-2 lg:gap-1.5">
+        <div className="mx-auto grid max-w-xs grid-cols-2 gap-1.5 sm:mx-0 sm:flex sm:max-w-none sm:flex-wrap sm:justify-end sm:gap-2 lg:gap-1.5">
           {slides.map((slide, i) => {
             const Icon = ICONS[slide.kind]
             const current = i === index
@@ -228,13 +228,13 @@ export default function TemplateCarousel({ slides, phone }: { slides: TemplateSl
                 aria-label={`Show the ${slide.label}`}
                 aria-current={current}
                 onClick={() => pick(i)}
-                className={`inline-flex h-7 items-center gap-1 rounded-full border px-2 text-[11px] font-semibold sm:gap-1.5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-cyan-300 sm:h-8 sm:px-3 sm:text-[13px] lg:h-7 lg:px-2.5 lg:text-xs ${
+                className={`inline-flex h-8 items-center justify-center gap-1.5 rounded-full border px-2.5 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-cyan-300 sm:px-3 sm:text-[13px] lg:h-7 lg:px-2.5 lg:text-xs ${
                   current
                     ? 'border-cyan-300/45 bg-cyan-400/15 text-cyan-100'
                     : 'border-white/12 bg-white/4 text-slate-300 hover:border-white/20 hover:bg-white/8 hover:text-slate-100'
                 }`}
               >
-                <Icon aria-hidden="true" className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5" />
+                <Icon aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
                 {slide.name}
               </button>
             )

@@ -47,9 +47,9 @@ export default async function ScribeToolRow() {
               className="h-10 w-10 shrink-0 rounded-xl ring-1 ring-white/10 sm:h-11 sm:w-11"
             />
             <div className="min-w-0">
-              <h4 id="scribe-title" className="text-2xl font-bold tracking-tight text-slate-50 sm:text-3xl">
+              <h5 id="scribe-title" className="text-2xl font-bold tracking-tight text-slate-50 sm:text-3xl">
                 Scribe
-              </h4>
+              </h5>
               <p className="text-sm font-semibold text-blue-300">Speech-to-text for Windows</p>
             </div>
           </div>
