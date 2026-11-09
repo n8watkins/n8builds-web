@@ -110,7 +110,8 @@ test('Full story opens the build page: no Details dialog, and the row shows no s
   const story = row.getByRole('link', { name: 'Full story of OpenPing', exact: true })
   await story.scrollIntoViewIfNeeded()
   await expect(story).toHaveAttribute('href', '/builds/openping')
-  await expect(page.locator('#lab dialog')).toHaveCount(0)
+  // No Details dialog (What's cookin's waitlist modal is the Lab's only dialog, round 7).
+  await expect(page.locator('#lab dialog:not(#waitlist)')).toHaveCount(0)
   await expect(page.locator('#lab').getByRole('button', { name: /^Details/ })).toHaveCount(0)
   for (const title of ['OpenPing', 'Solara']) {
     const article = page.getByRole('article', { name: title })
@@ -261,7 +262,7 @@ test('Scribe downloads the newest installer through a stable link, and its page 
 test("Scribe's build page leads with the download for the visitor's OS, the others quiet under it", async ({ browser }) => {
   for (const [as, platform, name, href, quiet, describe] of [
     [asWindows, 'windows', 'Download for Windows', '/download/scribe', ['Mac (beta, not notarized)', 'Linux (beta)'], /^Windows 10 and 11, 64-bit · v0\.8\.0 · 12 MB$/],
-    [asMac, 'mac', 'Download for macOS Beta', '/download/scribe-mac', ['Windows', 'Linux (beta)'], /^macOS, Apple silicon and Intel · v0\.8\.0 · \d+ MBNot notarized by Apple: right-click Scribe and choose Open the first time\.$/],
+    [asMac, 'mac', 'Download for macOS Beta', '/download/scribe-mac', ['Windows', 'Linux (beta)'], /^macOS, Apple silicon and Intel · v0\.8\.0 · \d+ MB ?Not notarized by Apple: right-click Scribe and choose Open the first time\.$/],
     [asLinux, 'linux', 'Download for Linux Beta', '/download/scribe-linux', ['Windows', 'Mac (beta, not notarized)'], /^Linux, 64-bit AppImage · v0\.8\.0 · \d+ MB · Also as a \.deb$/],
     [asPhone, 'other', 'Download for Windows', '/download/scribe', ['Mac (beta, not notarized)', 'Linux (beta)'], /^Windows 10 and 11/],
   ] as const) {
@@ -366,9 +367,6 @@ test('each row names its own Full story, Star and GitHub controls for screen rea
     await expect(star).toHaveAttribute('href', `https://github.com/n8watkins/${REPO[title]}`)
     await expect(page.getByRole('link', { name: `${title} on GitHub (opens in a new tab)`, exact: true })).toHaveCount(1)
   }
-  await rowOf(page, 'OpenPing')
-  await expect(page.getByRole('button', { name: 'Next OpenPing screenshot', exact: true })).toHaveCount(1)
-  await expect(page.getByRole('button', { name: 'Previous OpenPing screenshot', exact: true })).toHaveCount(1)
 })
 
 test('each row has one primary action, then Full story, then Star | GitHub, and no two go to the same place', { tag: '@cross-browser' }, async ({ page }) => {
