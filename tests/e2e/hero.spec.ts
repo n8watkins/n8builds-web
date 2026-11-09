@@ -104,12 +104,15 @@ test.describe('the hero text column', () => {
     await expect(hero.getByText(/See what I.m building/)).toHaveCount(0)
   })
 
-  test('shows "Hiring? Check out my dev portfolio" above the social links', { tag: '@smoke' }, async ({ page }) => {
+  test('shows "Check out my portfolio" with a briefcase above the social links', { tag: '@smoke' }, async ({ page }) => {
     await page.goto('/')
     const hero = page.locator('#home')
-    const link = hero.getByRole('link', { name: 'Check out my dev portfolio (opens in a new tab)' })
+    const link = hero.getByRole('link', { name: 'Check out my portfolio (opens in a new tab)' })
     // A direct route to the developer portfolio for someone hiring: counted, in a new tab, like every Portfolio link.
+    // Just the link and its briefcase since 2026-11-09, no "Hiring?" before it.
     await expect(link).toBeVisible()
+    await expect(link.locator('svg')).toHaveCount(1)
+    await expect(hero.getByText('Hiring?')).toHaveCount(0)
     await expect(link).toHaveAttribute('href', '/portfolio?from=hero')
     await expect(link).toHaveAttribute('target', '_blank')
     const hiring = await link.boundingBox()

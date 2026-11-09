@@ -411,6 +411,9 @@ Where these conflict with an older entry above, these win; the older entries are
   Its release-kit column says what it does: Conventional Commits in; versions, release notes and this log out; one command adds it to any repo.
   /builds: each build card is the feed's filter (lift, brighter border and pointer on hover; picked, it is ringed and says "Showing"; a second click or "All" clears it), with "Full story" on the card for its page. The chips stay as the compact filter.
 
+- **Round 6 of the trim (owner, 2026-11-09):**
+  The hero's portfolio link is just "Check out my portfolio" behind a briefcase (no "Hiring?"), still counted and in a new tab.
+
 ## Publishing and releases (2026-10-25)
 
 - **Articles are always site first.** Every article is written and published on n8builds.dev (N8's Notions, in Sanity); posting or reposting it on X is a separate, later step, never the primary copy.

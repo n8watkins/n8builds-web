@@ -1,6 +1,6 @@
 import React from 'react'
 import Image from 'next/image'
-import { FiGithub } from 'react-icons/fi'
+import { FiBriefcase, FiGithub } from 'react-icons/fi'
 import { CiLinkedin } from 'react-icons/ci'
 import { FaXTwitter } from 'react-icons/fa6'
 import WhoamiTerminal from '@/components/features/WhoamiTerminal'
@@ -148,17 +148,20 @@ const Hero = () => {
               </svg>
             </FadeIn>
 
-            {/* The direct route for someone hiring: the developer portfolio. */}
-            <FadeIn as="p" effect="in" delay={0.55} className="text-sm text-slate-400">
-              Hiring?{' '}
+            {/* The direct route for someone hiring: the developer portfolio, behind a
+                briefcase (owner, 2026-11-09: no "Hiring?" lead-in). */}
+            <FadeIn as="p" effect="in" delay={0.55} className="text-sm">
               {/* Counted and in a new tab, like every Portfolio link (2026-11-08). */}
               <a
                 href={refHref('portfolio', 'hero')}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-semibold text-cyan-300 underline decoration-cyan-300/40 underline-offset-4 transition-colors hover:text-cyan-200 hover:decoration-cyan-200"
+                className="group inline-flex items-center gap-2 font-semibold text-cyan-300 transition-colors hover:text-cyan-200"
               >
-                Check out my dev portfolio
+                <FiBriefcase className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span className="underline decoration-cyan-300/40 underline-offset-4 transition-colors group-hover:decoration-cyan-200">
+                  Check out my portfolio
+                </span>
                 <span className="sr-only"> (opens in a new tab)</span>
               </a>
             </FadeIn>
