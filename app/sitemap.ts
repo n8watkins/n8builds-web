@@ -44,5 +44,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     })),
     { url: `${SITE_URL}/privacy`, changeFrequency: 'yearly', priority: 0.2 },
+    { url: `${SITE_URL}/privacy/voicedock`, changeFrequency: 'yearly', priority: 0.2 },
   ]
 }
