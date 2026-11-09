@@ -1,5 +1,5 @@
-import Image from 'next/image'
 import { FiArrowUpRight } from 'react-icons/fi'
+import { ProjectTour, type ProjectTourVideo } from '@/components/sections/FeaturedProjectIslands'
 
 /**
  * An ad for the developer portfolio, right after the Lab: someone who liked
@@ -7,6 +7,14 @@ import { FiArrowUpRight } from 'react-icons/fi'
  * runs the mirror image: a card selling how n8builds is built.)
  */
 const PORTFOLIO = 'https://portfolio.n8builds.dev'
+
+/** Recorded from the live portfolio with Playwright, like the build pages' clips (scripts/product-clips/). */
+const PORTFOLIO_CLIP: ProjectTourVideo = {
+  webm: '/ads/dev-portfolio-clip.webm',
+  mp4: '/ads/dev-portfolio-clip.mp4',
+  poster: '/ads/dev-portfolio-clip-poster.webp',
+  alt: "A short clip of the developer portfolio's homepage: the hero with its portrait and terminal, the cards for n8builds.dev and Tech for Pros under the pointer, then a scroll through About me to the tech stack",
+}
 
 const PortfolioAd = () => (
   <section aria-labelledby="portfolio-ad-heading" className="py-10">
@@ -42,22 +50,17 @@ const PortfolioAd = () => (
           </a>
         </div>
       </div>
-      <a
-        href={PORTFOLIO}
-        target="_blank"
-        rel="noopener noreferrer"
-        tabIndex={-1}
-        aria-hidden="true"
-        className="relative block aspect-[1280/620] overflow-hidden rounded-xl border border-white/10 shadow-2xl shadow-black/40 transition-transform duration-300 hover:scale-[1.01]"
-      >
-        <Image
-          src="/ads/dev-portfolio.webp"
-          alt=""
-          fill
-          sizes="(min-width: 768px) 540px, 100vw"
-          className="object-cover"
-        />
-      </a>
+      {/* The portfolio in use, a short muted loop (owner, 2026-11-09: a clip, not a still): its
+          hero and About scrolled and hovered on the live site. It plays only on screen, stays
+          on its poster under reduced motion, and has a pause button (ProjectTour). */}
+      <ProjectTour
+        title="portfolio"
+        noun="clip"
+        tour={PORTFOLIO_CLIP}
+        className="w-full shadow-2xl shadow-black/40"
+        frameClassName="rounded-xl border border-white/10"
+        sizes="(min-width: 1152px) 520px, (min-width: 768px) 45vw, 100vw"
+      />
     </div>
   </section>
 )

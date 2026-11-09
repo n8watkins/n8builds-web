@@ -17,8 +17,16 @@ const names = Object.fromEntries(allBuilds.map((b) => [b.slug, b.name]))
 export default function LogRow({
   entry,
   showBuild = true,
+  twoLines = false,
 }: {
   entry: LogEntry
+  /**
+   * Exactly two lines under the mono line, whatever the entry (the homepage's
+   * latest updates, owner 2026-11-09), so rows that move on keep one height:
+   * the title and one line of what's in it, or a title alone over both lines
+   * (a short one keeps the second line empty).
+   */
+  twoLines?: boolean
   /**
    * The strip names the build and links the row to its part of the full log.
    * Off on a build's own page: the name would repeat on every row, so the
@@ -72,17 +80,23 @@ export default function LogRow({
             </span>
           )}
         </p>
-        <p className="line-clamp-1 text-base leading-snug font-semibold text-slate-100 transition-colors group-hover:text-cyan-100">
-          {version ? (
-            <>
-              Shipped <span className="font-mono text-[0.92em] text-cyan-300">{version}</span>
-            </>
-          ) : (
-            entry.title
+        <div className={twoLines ? 'h-11 overflow-hidden' : undefined}>
+          <p
+            className={`${twoLines && !more ? 'line-clamp-2' : 'line-clamp-1'} text-base leading-snug font-semibold text-slate-100 transition-colors group-hover:text-cyan-100`}
+          >
+            {version ? (
+              <>
+                Shipped <span className="font-mono text-[0.92em] text-cyan-300">{version}</span>
+              </>
+            ) : (
+              entry.title
+            )}
+            {external && <span className="sr-only"> (opens in a new tab)</span>}
+          </p>
+          {more && (
+            <p className={`mt-0.5 ${twoLines ? 'line-clamp-1' : 'line-clamp-2'} text-sm leading-snug text-[#9cadc5]`}>{more}</p>
           )}
-          {external && <span className="sr-only"> (opens in a new tab)</span>}
-        </p>
-        {more && <p className="mt-0.5 line-clamp-2 text-sm leading-snug text-[#9cadc5]">{more}</p>}
+        </div>
       </div>
       {showBuild ? (
         <time

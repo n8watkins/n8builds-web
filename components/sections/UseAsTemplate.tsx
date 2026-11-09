@@ -2,7 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { refHref } from '@/lib/referrals'
 import type { IconType } from 'react-icons'
-import { FiBriefcase, FiCheck, FiFileText } from 'react-icons/fi'
+import { FiBriefcase, FiFileText } from 'react-icons/fi'
 import LabSubheader from '@/components/sections/LabSubheader'
 import RepoButtons from '@/components/ui/RepoButtons'
 import Reveal from '@/components/ui/Reveal'
@@ -32,12 +32,6 @@ interface Template {
   repoName: string
   repo: string
 }
-
-/**
- * Under the heading. Both repos are MIT-licensed, and both run lint, types and
- * Playwright in GitHub Actions on every pull request.
- */
-const POINTS = ['Open source', 'MIT-licensed', 'Tested on every pull request']
 
 const TEMPLATES: Template[] = [
   {
@@ -127,30 +121,18 @@ const UseAsTemplate = () => (
     className="lab-accent-template lab-part-wash py-12"
   >
     {/* The Lab doesn't reveal itself, so its parts do. */}
-    <Reveal className="mx-auto max-w-6xl px-5 sm:px-8">
+    <Reveal className="mx-auto max-w-site px-5 sm:px-8">
       <LabSubheader
         title={
           <>
-            {/* One line (owner, 2026-11-02); on a phone the answer wraps whole, under the question. */}
+            {/* Tight (owner, 2026-11-09: "Use mine as a template!" before); the Lab's checks
+                above say they are open source and tested, so it has none of its own. */}
             Don&apos;t have a site?{' '}
             {/* Same size, the tagline's gradient. Underlined in cyan: the gradient clips the text, so the line needs its own colour. */}
             <span className="inline-block bg-linear-to-r from-cyan-400 via-blue-400 to-blue-600 bg-clip-text pb-1 whitespace-nowrap text-transparent underline decoration-cyan-400/70 decoration-2 underline-offset-[6px]">
-              Use mine as a template!
+              Use mine!
             </span>
           </>
-        }
-        blurb={
-          <span className="mt-1 flex flex-wrap gap-x-5 gap-y-1.5">
-            {POINTS.map((point) => (
-              <span
-                key={point}
-                className="flex items-center gap-1.5 text-sm font-semibold text-slate-200"
-              >
-                <FiCheck className="h-3.5 w-3.5 shrink-0 text-cyan-300" aria-hidden="true" />
-                {point}
-              </span>
-            ))}
-          </span>
         }
       />
       <ul className="grid gap-5 md:grid-cols-2">

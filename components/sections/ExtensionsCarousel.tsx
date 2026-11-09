@@ -106,7 +106,7 @@ export default function ExtensionsCarousel({ cards, details }: { cards: Extensio
               }`}
             >
               <div className="flex items-center gap-3">
-                <Image src={ext.icon} alt="" width={32} height={32} className="shrink-0 rounded-lg" />
+                <Image src={ext.icon} alt="" width={32} height={32} unoptimized className="shrink-0 rounded-lg ring-1 ring-white/10" />
                 <div className="min-w-0">
                   <p className={`text-lg font-bold leading-snug transition-colors duration-300 ${isActive ? 'text-white' : 'text-slate-200'}`}>{ext.name}</p>
                   <p className={`text-sm leading-snug transition-colors duration-300 ${isActive ? 'text-slate-300' : 'text-slate-400'}`}>{ext.tagline}</p>

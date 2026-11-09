@@ -1,4 +1,5 @@
 import React from 'react'
+import { FiCheck } from 'react-icons/fi'
 import BubblingFlask from '@/components/ui/BubblingFlask'
 import Hero from '@/components/sections/Hero'
 import Navbar from '@/components/layout/Navbar'
@@ -21,6 +22,13 @@ import HomeLoadoutNav from '@/components/sections/HomeLoadoutNav'
 import HomePeople from '@/components/sections/HomePeople'
 import Footer from '@/components/layout/Footer'
 import type { Post } from '@/lib/sanity'
+
+/**
+ * Under "The Lab": true of its featured builds, extensions and templates (each
+ * repo is public, MIT-licensed and runs its checks on every pull request); the
+ * upcoming projects are plans, some with no public repo yet.
+ */
+const LAB_POINTS = ['Public on GitHub', 'MIT-licensed', 'Tested on every pull request', 'Star, fork or open an issue']
 
 /**
  * A full-width homepage band. Alternating tones and a hairline between bands
@@ -61,7 +69,7 @@ function Band({
     // edge right under the 69px navbar (as #lab), with no strip of the band above.
     <Tag id={id} className={`relative z-10 ${rail ? 'scroll-mt-[-11px]' : ''} ${background}`}>
       {rail}
-      <div className="mx-auto max-w-6xl px-5 py-6 sm:px-8">{reveal ? <Reveal>{children}</Reveal> : children}</div>
+      <div className="mx-auto max-w-site px-5 py-6 sm:px-8">{reveal ? <Reveal>{children}</Reveal> : children}</div>
     </Tag>
   )
 }
@@ -127,8 +135,8 @@ export default async function HomePage({ posts }: { posts: Post[] }) {
               aria-hidden
               className="pointer-events-none absolute top-1/2 left-1/2 -z-10 h-[20rem] w-[min(64rem,100%)] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(closest-side,rgb(34_211_238/0.075),rgb(34_211_238/0.03)_55%,transparent)]"
             />
-            {/* Just the flask and "The Lab" (owner, 2026-11-08: no eyebrow, subtitle, points or pills). */}
-            <Reveal className="relative mx-auto flex max-w-6xl flex-col items-center px-5 pt-14 pb-2 text-center sm:px-8 sm:pt-16">
+            {/* The flask and "The Lab" (owner, 2026-11-08: no eyebrow, subtitle or pills), and its checks (2026-11-09). */}
+            <Reveal className="relative mx-auto flex max-w-site flex-col items-center px-5 pt-14 pb-2 text-center sm:px-8 sm:pt-16">
               {/* The Lab's mark (the owner's pick, 2026-10-26): a flask in a chip like the rows' app icons. */}
               <div className="flex items-center gap-4 sm:gap-5">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-300/30 sm:h-16 sm:w-16">
@@ -136,6 +144,19 @@ export default async function HomePage({ posts }: { posts: Post[] }) {
                 </span>
                 <h2 className="text-5xl font-bold tracking-tight text-slate-50 sm:text-6xl lg:text-7xl">The Lab</h2>
               </div>
+              {/* What holds for everything in it, said once here (owner, 2026-11-09), not under
+                   Featured and again under the template offer: cyan checks, one line from 1024px. */}
+              <ul
+                aria-label="Open source"
+                className="mt-5 flex max-w-xl flex-wrap items-center justify-center gap-x-5 gap-y-1.5 sm:mt-6 lg:max-w-none lg:flex-nowrap"
+              >
+                {LAB_POINTS.map((point) => (
+                  <li key={point} className="flex items-center gap-1.5 text-sm font-semibold whitespace-nowrap text-slate-200">
+                    <FiCheck className="h-3.5 w-3.5 shrink-0 text-cyan-300" aria-hidden="true" />
+                    {point}
+                  </li>
+                ))}
+              </ul>
             </Reveal>
           </div>
 

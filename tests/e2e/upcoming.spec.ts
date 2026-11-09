@@ -32,7 +32,7 @@ test('shows each project with its own anchor, and is titled for the site', { tag
   await page.goto('/upcoming')
   await expect(page).toHaveTitle('Upcoming | n8builds')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('What’s cookin’')
-  await expect(page.locator('main article')).toHaveCount(6)
+  await expect(page.locator('main article')).toHaveCount(7)
   for (const [id, name, status] of [
     ['relink', 'Relink', 'Outlining'],
     ['strollz', 'Strollz', 'Outlining'],
@@ -40,6 +40,7 @@ test('shows each project with its own anchor, and is titled for the site', { tag
     ['keysready', 'KeysReady', 'Concept'],
     ['asset-arsenal', 'Asset Arsenal', 'Outlining'],
     ['feelium', 'Feelium', 'Concept'],
+    ['cutelyaskme', 'Cutely Ask Me', 'Concept'],
   ]) {
     const card = page.locator(`article#${id}`)
     await expect(card.getByRole('heading', { level: 2 })).toContainText(name)
@@ -47,7 +48,7 @@ test('shows each project with its own anchor, and is titled for the site', { tag
     await expect(card.getByRole('listitem')).toHaveCount(4)
   }
   await expect(page.locator('article#keysready')).toContainText('Stop answering “Is my car ready?”')
-  await expect(page.locator('#waitlist-projects').getByRole('checkbox')).toHaveCount(6)
+  await expect(page.locator('#waitlist-projects').getByRole('checkbox')).toHaveCount(7)
 })
 
 test('lays the cards out one to a row beside the waitlist on wide screens, two by two just below, one column on phones', { tag: '@cross-browser' }, async ({ page }) => {
@@ -227,6 +228,7 @@ const LANDING = {
   keysready: 'https://keysready.n8builds.dev',
   'asset-arsenal': 'https://assetarsenal.n8builds.dev',
   feelium: 'https://feelium.n8builds.dev',
+  cutelyaskme: 'https://cutelyaskme.n8builds.dev',
 }
 const NAMES: Record<string, string> = {
   relink: 'Relink',
@@ -235,6 +237,7 @@ const NAMES: Record<string, string> = {
   keysready: 'KeysReady',
   'asset-arsenal': 'Asset Arsenal',
   feelium: 'Feelium',
+  cutelyaskme: 'Cutely Ask Me',
 }
 
 /**
@@ -247,6 +250,7 @@ const CODE: Record<string, string | undefined> = {
   vibelog: 'https://github.com/n8watkins/vibelog',
   keysready: 'https://github.com/n8watkins/keysready',
   feelium: 'https://github.com/n8watkins/feelium',
+  cutelyaskme: 'https://github.com/n8watkins/cutelyaskme',
 }
 
 test('each card leads with its landing page, then Join, then its code where public (hrefs only: the sites may not be live yet)', async ({ page }) => {
@@ -279,10 +283,10 @@ test("the homepage Lab ends with a compact What's cookin' part: a row per projec
   await expect(band.getByRole('heading', { level: 3 })).toHaveText('What’s cookin’')
   await expect(band.locator('.part-icon-pot')).toHaveAttribute('aria-hidden', 'true')
   await expect(band.getByText('Upcoming', { exact: true })).toBeVisible()
-  // Feelium is on /upcoming and in the waitlist, but not in the homepage list (data/upcoming.ts `homepage`).
+  // Every upcoming project, Feelium and Cutely Ask Me included (owner, 2026-11-09: the list is compact now).
   const rows = band.locator('ul > li')
-  await expect(rows).toHaveCount(5)
-  for (const [i, [slug, href]] of Object.entries(LANDING).filter(([slug]) => slug !== 'feelium').entries()) {
+  await expect(rows).toHaveCount(Object.keys(LANDING).length)
+  for (const [i, [slug, href]] of Object.entries(LANDING).entries()) {
     const name = NAMES[slug]
     const row = rows.nth(i)
     await expect(row.getByRole('heading', { level: 4 })).toHaveText(name)
@@ -305,7 +309,7 @@ test("the homepage Lab ends with a compact What's cookin' part: a row per projec
   await join.click()
   await expect(join).toHaveAttribute('aria-expanded', 'true')
   await expect(form.getByRole('heading', { level: 4, name: 'Join the waitlist' })).toBeVisible()
-  await expect(form.getByRole('checkbox')).toHaveCount(6)
+  await expect(form.getByRole('checkbox')).toHaveCount(7)
   await expect(form.locator('textarea')).toHaveCount(0)
   await join.click()
   await expect(form).toBeHidden()

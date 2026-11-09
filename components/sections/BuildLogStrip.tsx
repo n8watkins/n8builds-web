@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { FiArrowUpRight, FiGithub } from 'react-icons/fi'
+import { FiArrowUpRight, FiGithub, FiStar } from 'react-icons/fi'
+import { formatStars, repoStars } from '@/lib/github-stars'
 import Reveal from '@/components/ui/Reveal'
 import LabSubheader from '@/components/sections/LabSubheader'
 import { ScrollIcon } from '@/components/ui/PartIcons'
@@ -57,46 +58,93 @@ function lastDayOf(month: string): string {
 const RELEASE_KIT = 'https://github.com/n8watkins/release-kit'
 
 /**
- * Beside the log, a compact pitch for what writes it (round 5 of 2026-11-02; a
- * column of the card since round 4 of 2026-11-08, saying more since round 5):
- * every project here runs release-kit, so its commits and releases become
- * this log on their own. "Get release-kit" carries GitHub's mark.
+ * Beside the log, an ad for what writes it (round 5 of 2026-11-02; a column of
+ * the card since round 4 of 2026-11-08; a product ad, not a note, since round 6
+ * of 2026-11-09): every project here runs release-kit, so its commits become
+ * versions, release notes and this log on their own. Its mark and name, a
+ * headline, In and Out as a commit turning into a release, and "Get
+ * release-kit" with its live star count beside it (lib/github-stars.ts, the
+ * same hourly count as the Lab's Star buttons; just the star while there is
+ * none). Stacked in the card's narrow third column from 1024px; across the
+ * card's foot below that, the pitch on the left and In and Out on the right.
  */
-function ReleaseKitNote() {
+async function ReleaseKitAd() {
+  const stars = await repoStars('n8watkins/release-kit')
   return (
     <aside
-      aria-labelledby="release-kit-ad"
-      className="flex h-full flex-col justify-center gap-3 bg-linear-to-b from-cyan-400/[0.05] to-transparent p-4 lg:px-5"
+      aria-labelledby="release-kit-name release-kit-ad"
+      className="relative flex h-full flex-col justify-center gap-3 overflow-hidden bg-linear-to-b from-cyan-400/[0.07] via-cyan-400/[0.025] to-transparent px-5 py-4 sm:py-5 md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,16rem)] md:items-center md:gap-x-8 lg:flex lg:items-stretch lg:px-5"
     >
-      <p id="release-kit-ad" className="flex items-center gap-2 text-sm font-semibold text-slate-100">
-        <Image src="/log/release-kit.svg" alt="" width={24} height={24} unoptimized className="h-6 w-6 shrink-0 rounded-md" />
-        <span>
-          This log writes itself with <span className="font-mono whitespace-nowrap text-cyan-300">release-kit</span>
-        </span>
-      </p>
-      <ul className="space-y-1 text-[13px] leading-snug text-[#9cadc5]">
-        <li>
-          <span className="text-slate-200">In:</span> Conventional Commits.
-        </li>
-        <li>
-          <span className="text-slate-200">Out:</span> versions, release notes and this log.
-        </li>
-        <li>One command adds it to any repo.</li>
-      </ul>
-      <a
-        href={RELEASE_KIT}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="group flex shrink-0 items-center justify-center gap-2 rounded-xl border border-white/12 bg-white/4 px-3.5 py-1.5 text-sm font-semibold text-slate-200 transition-all duration-200 hover:border-cyan-400/40 hover:bg-white/8 hover:text-cyan-200"
-      >
-        <FiGithub className="h-4 w-4" aria-hidden="true" />
-        Get release-kit
-        <FiArrowUpRight
-          className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-          aria-hidden="true"
-        />
-        <span className="sr-only"> on GitHub (opens in a new tab)</span>
-      </a>
+      {/* A soft glow behind the mark, so the column reads as its own little product. */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -top-16 -left-10 h-40 w-40 rounded-full bg-[radial-gradient(closest-side,rgb(34_211_238/0.16),transparent)]"
+      />
+      <div className="relative flex flex-col gap-2">
+        <p className="flex items-center gap-2.5">
+          <Image src="/log/release-kit.svg" alt="" width={32} height={32} unoptimized className="h-8 w-8 shrink-0 rounded-lg" />
+          <span className="min-w-0">
+            <span id="release-kit-name" className="block font-mono text-[0.95rem] leading-tight font-bold whitespace-nowrap text-cyan-300">
+              release-kit
+            </span>
+            <span className="block text-[0.68rem] font-semibold tracking-[0.12em] text-slate-400 uppercase">Open source · MIT</span>
+          </span>
+        </p>
+        <h4 id="release-kit-ad" className="text-[0.95rem] leading-snug font-bold text-balance text-slate-50">
+          Releases that{' '}
+          <span className="bg-linear-to-r from-cyan-300 to-emerald-300 bg-clip-text text-transparent">write themselves</span>
+        </h4>
+      </div>
+
+      {/* In and Out: a commit as it is written, and what it turns into. */}
+      <dl className="relative divide-y divide-white/8 overflow-hidden rounded-lg border border-white/10 bg-[#07101d]/80 text-xs md:row-span-2">
+        <div className="flex items-center gap-1.5 px-2 py-1.5">
+          <dt className="w-6 shrink-0 text-[0.62rem] font-bold tracking-[0.12em] text-slate-450 uppercase">In</dt>
+          <dd className="min-w-0 truncate font-mono text-slate-200">
+            <span className="text-emerald-300">feat:</span> dark mode
+          </dd>
+        </div>
+        <div className="flex items-center gap-1.5 bg-cyan-400/[0.06] px-2 py-1.5">
+          <dt className="w-6 shrink-0 text-[0.62rem] font-bold tracking-[0.12em] text-cyan-300/80 uppercase">Out</dt>
+          <dd className="flex min-w-0 items-center gap-1.5 text-slate-200">
+            <span className="rounded bg-cyan-300/15 px-1 font-mono text-[0.7rem] font-semibold text-cyan-200">v1.4.0</span>
+            <span className="truncate">notes, this log</span>
+          </dd>
+        </div>
+      </dl>
+
+      <div className="relative flex flex-col gap-2">
+        <p className="text-[13px] leading-snug text-[#9cadc5]">One command adds it to any repo.</p>
+        {/* Get it, then its stars: the get link first, so it follows the updates from the keyboard. */}
+        <div className="flex items-stretch md:w-fit lg:w-auto">
+          <a
+            href={RELEASE_KIT}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group btn-shimmer flex flex-1 items-center justify-center gap-1.5 rounded-l-xl bg-linear-to-r from-cyan-500 to-emerald-400 px-2.5 py-2 text-[13px] font-semibold whitespace-nowrap text-slate-950 transition-colors hover:from-cyan-400 hover:to-emerald-300 focus-visible:relative focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300"
+          >
+            <FiGithub className="h-4 w-4 shrink-0" aria-hidden="true" />
+            Get release-kit
+            <span className="sr-only"> on GitHub (opens in a new tab)</span>
+          </a>
+          <a
+            href={RELEASE_KIT}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group/star -ml-px flex items-center gap-1.5 rounded-r-xl border border-amber-300/35 bg-amber-300/[0.08] px-2.5 text-sm font-semibold text-amber-200 transition-colors hover:border-amber-300/55 hover:bg-amber-300/[0.15] focus-visible:relative focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300"
+          >
+            <FiStar className="h-3.5 w-3.5 shrink-0 transition-[fill] group-hover/star:fill-current" aria-hidden="true" />
+            {stars !== null && stars > 0 ? (
+              <span aria-hidden="true" className="tabular-nums" data-stars>
+                {formatStars(stars)}
+              </span>
+            ) : null}
+            <span className="sr-only">
+              Star release-kit on GitHub{stars ? `, ${stars} ${stars === 1 ? 'star' : 'stars'}` : ''} (opens in a new tab)
+            </span>
+          </a>
+        </div>
+      </div>
     </aside>
   )
 }
@@ -124,7 +172,7 @@ export async function getLogMonths(): Promise<LogMonth[] | null> {
   const isThisMonth = thisMonth.length >= MONTH_MIN
   const today = dayKey(asOf)
   const view = (rows: LogEntry[]) => ({
-    rows: rows.map((entry) => <LogRow key={entry.id} entry={entry} />),
+    rows: rows.map((entry) => <LogRow key={entry.id} entry={entry} twoLines />),
   })
 
   // The first view: this month, or in a quiet one the last 30 days (the latest from every build).
@@ -179,7 +227,7 @@ export default async function BuildLogStrip() {
         aria-labelledby="build-log-heading"
         className="lab-accent-buildlog lab-part-wash relative z-10 pt-2 pb-12 md:pt-4"
       >
-        <div className="mx-auto max-w-6xl px-5 sm:px-8">
+        <div className="mx-auto max-w-site px-5 sm:px-8">
           <Reveal>
             <div className="flex flex-wrap items-end justify-between gap-x-6">
               {/* "Build log" is the heading; the month is named once, on the card (round 4 of 2026-11-08). */}
@@ -194,7 +242,7 @@ export default async function BuildLogStrip() {
             </div>
 
             {/* Month card | its updates | release-kit, side by side from 1024px. */}
-            <BuildLogMonths months={months} aside={<ReleaseKitNote />} />
+            <BuildLogMonths months={months} aside={<ReleaseKitAd />} />
           </Reveal>
         </div>
       </section>

@@ -78,6 +78,16 @@ export const logOnlyBuilds: LogBuild[] = [
     href: '/upcoming#vibelog',
   },
   {
+    slug: 'cutelyaskme',
+    name: 'Cutely Ask Me',
+    tagline: 'Send a cute ask, they pick the vibe, you plan the date',
+    category: 'Upcoming',
+    color: 'from-pink-400/20 to-rose-600/20',
+    github: 'https://github.com/n8watkins/cutelyaskme',
+    repo: 'n8watkins/cutelyaskme',
+    href: '/upcoming#cutelyaskme',
+  },
+  {
     slug: 'release-kit',
     name: 'release-kit',
     tagline: 'Conventional Commits, SemVer tags and GitHub Releases on any repo',

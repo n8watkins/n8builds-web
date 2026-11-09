@@ -28,7 +28,7 @@ export default async function BlogIndexPage() {
           <div className="absolute right-[-10%] top-[28%] h-120 w-120 scale-[1.6] bg-radial from-blue-600/6 to-transparent to-70%" />
         </div>
 
-        <div className="relative mx-auto max-w-6xl px-5 pb-24 pt-28 sm:px-8 md:pt-36">
+        <div className="relative mx-auto max-w-site px-5 pb-24 pt-28 sm:px-8 md:pt-36">
           {/* Above the fold: a CSS fade, so the heading never waits on hydration. */}
           <FadeIn as="header">
             <p className="font-mono text-[0.7rem] font-bold uppercase tracking-[0.22em] text-cyan-400">
