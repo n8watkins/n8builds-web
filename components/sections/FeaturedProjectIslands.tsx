@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { FiChevronLeft, FiChevronRight, FiPause, FiPlay } from 'react-icons/fi'
 import { useHydrated } from '@/hooks/useHydrated'
@@ -162,6 +162,63 @@ export function ProjectGallery({
   )
 }
 
+/**
+ * Clips that take turns (owner, round 9 of 2026-11-09: Featured's OpenPing and
+ * Solara side by side, "only one video plays at a time"; two moving clips at
+ * once is too much): the one hovered or focused plays, else the one last
+ * picked with its play button, else the first. The others rest on their
+ * poster with a play button. `ClipTurns` holds whose turn it is; each
+ * `ClipSlot` is one card, and the ProjectTour inside it plays only on its turn.
+ */
+type Turns = { active: number; enter: (slot: number) => void; leave: (slot: number) => void; pick: (slot: number) => void }
+const TurnsContext = createContext<Turns | null>(null)
+const SlotContext = createContext<number | null>(null)
+
+export function ClipTurns({ children }: { children: React.ReactNode }) {
+  const [hovered, setHovered] = useState<number | null>(null)
+  const [picked, setPicked] = useState(0)
+  const active = hovered ?? picked
+  const turns: Turns = {
+    active,
+    enter: (slot) => setHovered(slot),
+    leave: (slot) => setHovered((h) => (h === slot ? null : h)),
+    pick: (slot) => {
+      setPicked(slot)
+      setHovered(null)
+    },
+  }
+  return <TurnsContext.Provider value={turns}>{children}</TurnsContext.Provider>
+}
+
+/**
+ * One card of a ClipTurns group: pointing at it or moving keyboard focus into
+ * it gives its clip the turn; leaving gives it back.
+ */
+export function ClipSlot({ slot, className, children }: { slot: number; className?: string; children: React.ReactNode }) {
+  const turns = useContext(TurnsContext)
+  return (
+    <SlotContext.Provider value={slot}>
+      <div
+        data-clip-slot={slot}
+        data-clip-turn={turns?.active === slot ? '' : undefined}
+        className={className}
+        onPointerEnter={(e) => {
+          if (e.pointerType === 'mouse') turns?.enter(slot)
+        }}
+        onPointerLeave={(e) => {
+          if (e.pointerType === 'mouse') turns?.leave(slot)
+        }}
+        onFocus={() => turns?.enter(slot)}
+        onBlur={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node | null)) turns?.leave(slot)
+        }}
+      >
+        {children}
+      </div>
+    </SlotContext.Provider>
+  )
+}
+
 /** A silent, looping tour of an app's own screens (Scribe's), in place of screenshots. */
 export interface ProjectTourVideo {
   /** VP9 WebM, first choice. */
@@ -218,6 +275,20 @@ export function ProjectTour({
   const reduced = usePrefersReducedMotion()
   const visible = usePageVisible()
   const hydrated = useHydrated()
+  // In a ClipTurns group, it plays only on its turn; on its own, always its turn.
+  const turns = useContext(TurnsContext)
+  const slot = useContext(SlotContext)
+  const myTurn = !turns || slot === null || turns.active === slot
+  // The play button gives way to the pause button once its clip has the turn (focusing the
+  // card is enough for that): focus moves to the pause button, so the keyboard keeps its place.
+  const pauseButton = useRef<HTMLButtonElement>(null)
+  const focusPause = useRef(false)
+  useEffect(() => {
+    if (myTurn && focusPause.current) {
+      focusPause.current = false
+      pauseButton.current?.focus({ preventScroll: true })
+    }
+  }, [myTurn])
 
   useEffect(() => {
     const video = ref.current
@@ -243,7 +314,11 @@ export function ProjectTour({
     }
   }, [])
 
-  const playing = inView && visible && !reduced && !paused && !hidden
+  const playing = inView && visible && !reduced && !paused && !hidden && myTurn
+  // Waiting for its turn: back to its first frame, so it starts from the top when its turn comes.
+  useEffect(() => {
+    if (!myTurn && ref.current && ref.current.currentTime > 0) ref.current.currentTime = 0
+  }, [myTurn])
   // The sources go in only once it first plays: with none, no browser fetches
   // anything (Safari ignores preload="none"), so an off-screen row or reduced
   // motion costs only the poster.
@@ -289,7 +364,8 @@ export function ProjectTour({
           // Not a stop for the keyboard: it has no controls (its button pauses it), and
           // Firefox would otherwise make the video itself a tab stop.
           tabIndex={-1}
-          className="absolute inset-0 h-full w-full object-cover"
+          // Off its turn the poster shows through, so a resting clip shows its poster frame.
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-200 motion-reduce:transition-none ${myTurn ? '' : 'opacity-0'}`}
         >
           {started && (
             <>
@@ -298,8 +374,28 @@ export function ProjectTour({
             </>
           )}
         </video>
-        {hydrated && !reduced && (
+        {/* Off its turn: a play button in the middle gives it the turn (a tap on a phone). */}
+        {hydrated && !reduced && !myTurn && (
           <button
+            type="button"
+            onFocus={() => (focusPause.current = true)}
+            onBlur={() => (focusPause.current = false)}
+            onClick={() => turns?.pick(slot ?? 0)}
+            aria-label={`Play the ${title} ${noun}`}
+            data-clip-play
+            className="group/play absolute inset-0 flex items-center justify-center bg-[#07101d]/15 transition-colors hover:bg-transparent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-cyan-300"
+          >
+            <span
+              aria-hidden="true"
+              className="flex size-14 items-center justify-center rounded-full border border-white/20 bg-[#07101d]/70 text-white shadow-xl shadow-black/40 backdrop-blur-sm transition-transform duration-200 group-hover/play:scale-110 motion-reduce:transition-none"
+            >
+              <FiPlay className="size-6 translate-x-0.5 fill-current" />
+            </span>
+          </button>
+        )}
+        {hydrated && !reduced && myTurn && (
+          <button
+            ref={pauseButton}
             type="button"
             onClick={() => setPaused((p) => !p)}
             aria-label={`${paused ? 'Play' : 'Pause'} the ${title} ${noun}`}

@@ -4,7 +4,7 @@ import { FiBookOpen, FiDownload, FiExternalLink } from 'react-icons/fi'
 import Reveal from '@/components/ui/Reveal'
 import RepoButtons from '@/components/ui/RepoButtons'
 import ActionLabel from '@/components/ui/ActionLabel'
-import { ProjectGallery, ProjectTour, type GalleryImage, type ProjectTourVideo } from '@/components/sections/FeaturedProjectIslands'
+import { ClipSlot, ClipTurns, ProjectGallery, ProjectTour, type GalleryImage, type ProjectTourVideo } from '@/components/sections/FeaturedProjectIslands'
 import { getBuild, type BuildAction } from '@/data/builds'
 import LabSubheader from '@/components/sections/LabSubheader'
 import { StarIcon } from '@/components/ui/PartIcons'
@@ -250,75 +250,80 @@ const ProjectRow = async ({ project, flipped }: { project: FeaturedProject; flip
 
 /**
  * A featured build (owner, round 8 of 2026-11-09: "Featured gets its own
- * bigger design", no left and right rows): its usage clip large, across the
- * Lab's full content width, like the portfolio's project cards, and under it
- * its icon, name and tagline, a sentence or two, and the same three buttons
- * as every row (the primary action, Full story, Star | GitHub), on the right
- * from 1024px. Each sits in a card in its product's colour, a glow behind its
- * centre, so Featured reads as the Lab's lead.
+ * bigger design"; round 9: the big cards were too big, so the two sit side by
+ * side from 1024px, stacked on phones and tablets): its usage clip across the
+ * card, and under it its icon, name and tagline, a sentence or two, and the
+ * same three buttons as every row (the primary action, Full story, Star |
+ * GitHub). Each card is in its product's colour, a glow behind it. The two
+ * clips take turns (ClipTurns): only the one hovered or focused plays, else
+ * the first; the other rests on its poster with a play button.
  */
-const FeaturedCard = ({ project }: { project: FeaturedProject }) => {
+const FeaturedCard = ({ project, slot }: { project: FeaturedProject; slot: number }) => {
   const build = getBuild(project.buildSlug)
   const action = build?.tryIt
   const clip = project.tour ?? build?.clip
   return (
-    <Reveal className="rounded-[1.75rem] border border-white/10 bg-[#081120]/70 p-2.5 shadow-2xl shadow-black/30 transition-colors duration-300 hover:border-[rgb(var(--lab-from)/0.35)] sm:p-3">
-      {clip ? (
-        <ProjectTour
-          title={project.title}
-          tour={clip}
-          noun="clip"
-          className="w-full"
-          frameClassName="rounded-[1.25rem] border border-white/8"
-          sizes="(min-width: 1152px) 1100px, 100vw"
+    <ClipSlot slot={slot} className="h-full">
+      <Reveal className="relative flex h-full flex-col rounded-[1.5rem] border border-white/10 bg-[#081120]/80 p-2.5 shadow-2xl shadow-black/30 transition-colors duration-300 hover:border-[rgb(var(--lab-from)/0.4)] sm:p-3">
+        {/* Its colour, a soft glow behind the card. */}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-6 top-0 -z-10 h-2/3 rounded-full bg-[radial-gradient(closest-side,rgb(var(--lab-from)/0.14),transparent)] blur-2xl"
         />
-      ) : (
-        <ProjectGallery
-          title={project.title}
-          images={project.images}
-          imageClassName={`object-cover ${project.imagePosition ?? 'object-top'}`}
-        />
-      )}
-      <div
-        data-featured-text
-        className="grid gap-5 px-2.5 pt-5 pb-3 sm:px-4 sm:pt-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,31rem)] lg:items-end lg:gap-10"
-      >
-        <div className="min-w-0">
-          <div className="flex items-center gap-3.5">
-            <Image
-              src={project.icon}
-              alt=""
-              width={52}
-              height={52}
-              unoptimized={project.icon.endsWith('.svg')}
-              className="h-11 w-11 shrink-0 rounded-xl ring-1 ring-white/10 sm:h-13 sm:w-13"
-            />
-            <div className="min-w-0">
-              <h3 id={`${slugOf(project)}-title`} className="text-[1.75rem] leading-tight font-bold tracking-tight text-slate-50 sm:text-4xl">
-                {project.title}
-              </h3>
-              <p className="text-sm font-semibold text-[rgb(var(--lab-from))] sm:text-base">{project.subtitle}</p>
+        {clip ? (
+          <ProjectTour
+            title={project.title}
+            tour={clip}
+            noun="clip"
+            className="w-full"
+            frameClassName="rounded-[1.1rem] border border-white/8"
+            sizes="(min-width: 1024px) 560px, 100vw"
+          />
+        ) : (
+          <ProjectGallery
+            title={project.title}
+            images={project.images}
+            imageClassName={`object-cover ${project.imagePosition ?? 'object-top'}`}
+          />
+        )}
+        <div data-featured-text className="flex flex-1 flex-col gap-5 px-2 pt-4 pb-2 sm:px-3 sm:pt-5">
+          <div className="min-w-0">
+            <div className="flex items-center gap-3">
+              <Image
+                src={project.icon}
+                alt=""
+                width={44}
+                height={44}
+                unoptimized={project.icon.endsWith('.svg')}
+                className="h-10 w-10 shrink-0 rounded-xl ring-1 ring-white/10 sm:h-11 sm:w-11"
+              />
+              <div className="min-w-0">
+                <h3 id={`${slugOf(project)}-title`} className="text-2xl leading-tight font-bold tracking-tight text-slate-50 sm:text-[1.75rem]">
+                  {project.title}
+                </h3>
+                <p className="text-sm font-semibold text-[rgb(var(--lab-from))]">{project.subtitle}</p>
+              </div>
+            </div>
+            <p className="mt-3 text-[0.95rem] leading-relaxed text-pretty text-[#9cadc5]">{project.description}</p>
+          </div>
+          {/* The same buttons as every row: one line where they fit, else the primary over the other two. */}
+          <div className="@container/lab-actions mt-auto w-full">
+            <div className="grid grid-cols-[repeat(2,minmax(max-content,1fr))] gap-2 @[31rem]/lab-actions:grid-cols-[minmax(max-content,1.25fr)_repeat(2,minmax(max-content,1fr))]">
+              {action ? (
+                <div className="col-span-2 grid @[31rem]/lab-actions:col-span-1">
+                  <PrimaryButton project={project} action={action} />
+                </div>
+              ) : null}
+              <Link href={`/builds/${project.buildSlug}`} className={`${buttonBase} ${tightButton} border ${outline}`}>
+                <FiBookOpen className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                Full story<span className="sr-only"> of {project.title}</span>
+              </Link>
+              {project.github && <RepoButtons href={project.github} name={project.title} halfClassName={tightButton} className="w-full" />}
             </div>
           </div>
-          <p className="mt-3 max-w-[38rem] text-[0.95rem] leading-relaxed text-pretty text-[#9cadc5] sm:text-base">{project.description}</p>
         </div>
-        {/* The same buttons as every row: one line where they fit, else the primary over the other two. */}
-        <div className="@container/lab-actions w-full">
-          <div className="grid grid-cols-[repeat(2,minmax(max-content,1fr))] gap-2 @[31rem]/lab-actions:grid-cols-[minmax(max-content,1.25fr)_repeat(2,minmax(max-content,1fr))]">
-            {action ? (
-              <div className="col-span-2 grid @[31rem]/lab-actions:col-span-1">
-                <PrimaryButton project={project} action={action} />
-              </div>
-            ) : null}
-            <Link href={`/builds/${project.buildSlug}`} className={`${buttonBase} ${tightButton} border ${outline}`}>
-              <FiBookOpen className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-              Full story<span className="sr-only"> of {project.title}</span>
-            </Link>
-            {project.github && <RepoButtons href={project.github} name={project.title} halfClassName={tightButton} className="w-full" />}
-          </div>
-        </div>
-      </div>
-    </Reveal>
+      </Reveal>
+    </ClipSlot>
   )
 }
 
@@ -367,22 +372,19 @@ const FeaturedProjects = () => {
             open-source checks sit once under "The Lab" now (components/HomePage.tsx). */}
         <LabSubheader title="Featured" icon={<StarIcon />} />
       </Reveal>
-      {/* One card under the other, OpenPing first, each in its own colour wash. */}
-      <div className="flex flex-col">
-        {featured
-          .filter((p) => p.group === 'featured')
-          .map((p) => (
-            <article
-              key={p.title}
-              aria-labelledby={`${slugOf(p)}-title`}
-              className={`lab-row-wash lab-accent-${p.accent} py-5 [--lab-x:50%] md:py-7`}
-            >
-              <div className={container}>
-                <FeaturedCard project={p} />
-              </div>
-            </article>
-          ))}
-      </div>
+      {/* Side by side from 1024px, OpenPing first (round 9 of 2026-11-09), stacked below that;
+          their clips take turns. */}
+      <ClipTurns>
+        <div className={`${container} grid gap-5 py-3 lg:grid-cols-2 lg:gap-6`}>
+          {featured
+            .filter((p) => p.group === 'featured')
+            .map((p, i) => (
+              <article key={p.title} aria-labelledby={`${slugOf(p)}-title`} className={`lab-accent-${p.accent} relative isolate`}>
+                <FeaturedCard project={p} slot={i} />
+              </article>
+            ))}
+        </div>
+      </ClipTurns>
     </section>
   )
 }

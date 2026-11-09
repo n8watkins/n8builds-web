@@ -4,7 +4,7 @@ import { test, expect, type Locator, type Page } from '@playwright/test'
  * The homepage Lab and its ends: the featured rows (OpenPing first), the hero
  * gives a hiring visitor a direct route to the portfolio, and the page closes
  * with "Use this as a template". Scribe's row is the same component, on
- * /loadout's "Tools I built and use" (2026-11-01), so the row tests cover it there.
+ * /loadout's "Tools I've built" (2026-11-01), so the row tests cover it there.
  *
  * Since 2026-11-08 a row only says what the build is and invites you to try it:
  * one primary button to the live thing, "Full story" (its build page) and the
@@ -81,7 +81,7 @@ test('the Lab leads with the featured builds, OpenPing first, each with its icon
 })
 
 for (const width of [1280, 390]) {
-  test(`Featured is a big card per build: the clip across the full width, the words and buttons under it, OpenPing first (${width}px)`, async ({ page }) => {
+  test(`Featured is a card per build: the clip across it, the words and buttons under it, OpenPing first, side by side on desktop (${width}px)`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 })
     await page.goto('/')
     const cards = page.locator('#featured article')
@@ -106,7 +106,15 @@ for (const width of [1280, 390]) {
         return { top: r.top + window.scrollY, bottom: r.bottom + window.scrollY }
       }))
     }
-    expect(boxes[1].top).toBeGreaterThanOrEqual(boxes[0].bottom)
+    if (width >= 1024) {
+      // Round 9 of 2026-11-09 (owner: the big cards were too big): side by side, the same height.
+      const [a, b] = await Promise.all(['OpenPing', 'Solara'].map((t) => page.getByRole('article', { name: t }).boundingBox()))
+      expect(Math.round(a!.y)).toBe(Math.round(b!.y))
+      expect(b!.x).toBeGreaterThan(a!.x + a!.width)
+      expect(Math.abs(a!.height - b!.height)).toBeLessThan(1)
+    } else {
+      expect(boxes[1].top).toBeGreaterThanOrEqual(boxes[0].bottom)
+    }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
   })
 }
@@ -123,9 +131,9 @@ test('the Lab has no tools part any more, in its own links, the navbar menu or t
   await expect(page.getByRole('link', { name: /^My tools/ })).toHaveCount(0)
 })
 
-test('Scribe\'s build page leads back to Tools I built and use on /loadout; OpenPing and Solara back to Featured', async ({ page }) => {
+test("Scribe's build page leads back to Tools I've built on /loadout; OpenPing and Solara back to Featured", async ({ page }) => {
   await page.goto('/builds/scribe')
-  await expect(page.getByRole('link', { name: 'Back to Tools I built and use' })).toHaveAttribute('href', '/loadout#tools-i-built')
+  await expect(page.getByRole('link', { name: "Back to Tools I've built" })).toHaveAttribute('href', '/loadout#tools-i-built')
   for (const slug of ['openping', 'solara']) {
     await page.goto(`/builds/${slug}`)
     await expect(page.getByRole('link', { name: 'Back to Featured' })).toHaveAttribute('href', '/#featured')
@@ -521,10 +529,63 @@ test.describe('featured clips, with motion', () => {
     const row = await rowOf(page, title)
     const video = row.locator('[data-tour] video')
     await video.scrollIntoViewIfNeeded()
+    // Featured's clips take turns (round 9): Solara's plays once it has the turn, here by hovering it.
+    if (title === 'Solara') await row.hover()
     await expect(row.getByRole('group', { name: `${title} screenshots` })).toHaveCount(0)
     await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.currentSrc), { message: title }).toContain(src)
     await expect.poll(() => video.evaluate((v: HTMLVideoElement) => !v.paused && v.currentTime > 0), { message: title }).toBe(true)
   }
+  })
+
+  /**
+   * Round 9 of 2026-11-09 (owner): two clips moving at once is too much. Only
+   * one of Featured's plays: the one hovered or focused, else the first (or the
+   * one last picked with its play button); the other rests on its poster frame
+   * with a play button.
+   */
+  test("Featured's clips take turns: the first plays, a hover or a focus or a play button moves the turn", { tag: '@cross-browser' }, async ({ page, isMobile }) => {
+    await page.setViewportSize(isMobile ? page.viewportSize()! : { width: 1280, height: 900 })
+    await page.goto('/')
+    const featured = page.locator('#featured')
+    await featured.evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
+    const openping = page.getByRole('article', { name: 'OpenPing' })
+    const solara = page.getByRole('article', { name: 'Solara' })
+    const playing = (card: typeof openping) => card.locator('[data-tour] video').evaluate((v: HTMLVideoElement) => !v.paused)
+    const resting = async (card: typeof openping) => {
+      // Paused, its video hidden so the poster frame shows, and a play button over it.
+      await expect.poll(() => playing(card)).toBe(false)
+      await expect(card.locator('[data-tour] video')).toHaveCSS('opacity', '0')
+      await expect(card.locator('[data-clip-play]')).toBeVisible()
+    }
+    const name = (title: string) => `Play the ${title} clip`
+    // The first plays; the second rests (on a phone, each checked once it is on screen).
+    if (!isMobile) await page.mouse.move(0, 0)
+    else await openping.locator('[data-tour]').evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
+    await expect.poll(() => playing(openping)).toBe(true)
+    if (isMobile) await solara.locator('[data-tour]').evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
+    await resting(solara)
+    await expect(solara.getByRole('button', { name: name('Solara') })).toBeVisible()
+    if (!isMobile) {
+      // Hover moves the turn, and leaving gives it back to the first.
+      await solara.hover()
+      await expect.poll(() => playing(solara)).toBe(true)
+      await resting(openping)
+      await page.mouse.move(0, 0)
+      await expect.poll(() => playing(openping)).toBe(true)
+      await resting(solara)
+      // So does keyboard focus, and its play button gives focus to its pause button.
+      await solara.getByRole('button', { name: name('Solara') }).focus()
+      await page.keyboard.press('Enter')
+      await expect(solara.getByRole('button', { name: 'Pause the Solara clip' })).toBeFocused()
+      await expect.poll(() => playing(solara)).toBe(true)
+      await resting(openping)
+    } else {
+      // A tap on the play button gives it the turn, and it keeps it.
+      await solara.getByRole('button', { name: name('Solara') }).tap()
+      await expect.poll(() => playing(solara)).toBe(true)
+      await openping.locator('[data-tour]').evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
+      await resting(openping)
+    }
   })
 })
 
