@@ -67,7 +67,7 @@ When the owner decides something new, add it here (with the date) in the same ch
   Since 2026-10-26: lit cells never touch (no shared edge or corner, even mid-fade), never sit behind the portrait, and fill the part of the grid on screen; a steady number is lit at every moment (at most a quarter dark or fading at once); they cycle at a pace between the original and a livelier one, fade on a soft ease in and out with no pop, and hold still while the hero is off screen. A dark wash over the grid keeps the hero text pronounced.
   Since 2026-10-26 (hero round 3): noticeably fewer lit cells (about one per 12 cells of the visible band, at most 36), spread across the grid's full width, and the grid fades out toward its left and right edges as well as top and bottom.
 - **Blog covers:** each post has its own topic illustration uploaded as its Sanity cover (2026-10-23); the generated "signal" cover is the fallback for posts without one.
-  Hero copy (2026-10-23, whoami reworked 2026-10-26, tagline changed 2026-11-01 and 2026-11-08): heading "n8builds", subheader "Think big. Ship fast." (2026-11-08; "Think bigger. Ship sooner." from 2026-11-01, "Spending tokens, shipping features." before; the same cyan-to-blue gradient runs across both sentences) (one line on every phone, down to 320px), and the whoami terminal titled "~/whoami :: Nathan 'N8' Watkins" with the body "AI-first software developer." then "I build apps and tools I wish existed." (no "in LA", no "AI agents doing the heavy lifting").
+  Hero copy (2026-10-23, whoami reworked 2026-10-26, tagline changed 2026-11-01 and 2026-11-08): heading "n8builds" ("n8builds.dev" since 2026-11-08), subheader "Think big. Ship fast." (2026-11-08; "Think bigger. Ship sooner." from 2026-11-01, "Spending tokens, shipping features." before; the same cyan-to-blue gradient runs across both sentences) (one line on every phone, down to 320px), and the whoami terminal titled "~/whoami :: Nathan 'N8' Watkins" with the body "AI-first software developer." then "I build apps and tools I wish existed." (no "in LA", no "AI agents doing the heavy lifting").
   The terminal's third line, "Shipping with Claude Opus 5.5." (added in round 13), was removed on 2026-11-01: the body is those two lines again, here and on /loadout. No pill above the heading.
   The body has no "$ whoami" line (the title bar says it); its two lines type out on load, terminal-style, then the prompt returns with a blinking cursor (2026-10-26). The typing is CSS only, the text is in the server HTML, and reduced motion shows it at once.
   Say "in public" sparingly; the owner felt the old hero overused it.
@@ -377,6 +377,15 @@ Where these conflict with an older entry above, these win; the older entries are
 - **Contact card copy:** "Shoot me a message." (the form's "Prefer email? contact@n8builds.dev" keeps the address in view), then "Need technical help with your business? Tech for Pros can help." (linked, not limited to service businesses).
   The "Everything I ship lands in the build log..." line is gone.
   The card clips with `overflow: clip`, not `hidden`, so nothing inside it can scroll it (a jump to its form scrolled it 53px and cut off the avatar and name).
+
+- **Round 2 of the trim (owner, 2026-11-08):**
+  The hero heading is "n8builds.dev" (was "n8builds"), on one line at every width (it scales on phones and steps down to 3rem on tablets, beside the portrait).
+  The whoami terminal's blinking cursor stays at the end of its last line once typing is done; the "$" prompt line is gone.
+  The Lab heading's glow is its own soft layer that fades out inside its edges, not a background on the short intro (that ended in hard edges between the build log and Featured builds).
+  Featured builds gets the three checked points back under its heading and subtitle, in the old Lab intro's style: "Public on GitHub", "MIT-licensed", "Star, fork or open an issue" (they are added in `components/sections/FeaturedProjects.tsx` with PR #162).
+  The scroll reveal is clearer: a 40px fade-up over 0.9s on a gentle ease-out (was 24px over 0.55s, which read as no animation).
+  Clickable cards and rows have hover states: What's cookin' rows, the template cards and the phone Notions rows lift or tint, and Scribe's row brightens its tour frame and title.
+  The flask, puzzle, star and pot icons stay.
 
 ## Publishing and releases (2026-10-25)
 
