@@ -3,8 +3,9 @@ import { test, expect, type Page } from '@playwright/test'
 /**
  * The Lab's template part (components/sections/UseAsTemplate.tsx): right after
  * the featured builds, a prompt ("Don't have a site? Use mine!", on one line;
- * "Use mine as a template!" until 2026-11-09) over two template cards, n8builds.dev and the
- * developer portfolio.
+ * "Use mine as a template!" until 2026-11-09) over one panel comparing the two
+ * templates side by side (round 10 of 2026-11-09; two cards before),
+ * n8builds.dev and the developer portfolio.
  */
 
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
@@ -46,18 +47,28 @@ test('asks "Don\'t have a site?" and answers "Use mine!" on the same line, with 
   await expect(template).not.toContainText('photos and write-ups')
 })
 
-test('two short cards: each links its site, says in one sentence what you get, and opens its repo', { tag: '@smoke' }, async ({ page }) => {
+test('one panel compares the two: each links its site, says what it is for and what you get, and opens its repo', { tag: '@smoke' }, async ({ page }) => {
   const template = await open(page)
-  const cards = template.locator('ul.grid > li')
+  // One full-width component, not two cards.
+  await expect(template.locator('[data-template-compare]')).toHaveCount(1)
+  const cards = template.locator('[data-template-compare] > li')
   await expect(cards).toHaveCount(2)
   const [site, portfolio] = await cards.all()
 
   await expect(site.getByRole('heading', { level: 4 })).toHaveText('My personal site')
   await expect(site.getByRole('link', { name: 'n8builds.dev', exact: true })).toHaveAttribute('href', '/')
-  // No stack pills (2026-11-08): one sentence on what you get, and the build page has the rest.
+  // No stack pills (2026-11-08): the build page has the stack.
   await expect(template.getByRole('list', { name: /is built with/ })).toHaveCount(0)
-  // One sentence: a full stop only at the end (a dot inside a word, as in Next.js, doesn't count).
-  for (const card of [site, portfolio]) await expect(card.locator('p')).toHaveText(/^(?:[^.]|\.(?=\w))+\.$/)
+  // Each says what it is for, and lists what you get.
+  await expect(site.locator('[data-template-for]')).toContainText('Building in public')
+  await expect(portfolio.locator('[data-template-for]')).toContainText('Getting hired')
+  for (const card of [site, portfolio]) {
+    await expect(card.getByRole('list', { name: /^What you get with/ }).getByRole('listitem')).toHaveCount(4)
+  }
+  // Side by side on a laptop, in the same panel.
+  await page.setViewportSize({ width: 1280, height: 800 })
+  const [a, b] = [(await site.boundingBox())!, (await portfolio.boundingBox())!]
+  expect(Math.round(a.y)).toBe(Math.round(b.y))
   // The N8 mark belongs to n8builds.dev.
   const icon = site.locator('img[src*="n8-icon"]')
   await expect(icon).toBeVisible()
@@ -115,24 +126,27 @@ test('the keyboard reaches every link in order, card by card', { tag: '@cross-br
 })
 
 test.describe('layout', () => {
-  test('on a laptop the cards sit side by side, lined up with the other Lab parts', async ({ page }) => {
+  test('on a laptop the two sit side by side in the panel, lined up with the other Lab parts', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
     const template = await open(page)
     const left = async (selector: string) => page.locator(selector).first().evaluate((el) => Math.round(el.getBoundingClientRect().left))
     // Each part's heading bar lines up (the heading text sits after an icon where a part has one).
     expect(await left('#template .lab-sub-bar')).toBe(await left('#featured .lab-sub-bar'))
-    const [a, b] = await template.locator('ul.grid > li').evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON()))
+    const [a, b] = await template.locator('[data-template-compare] > li').evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON()))
     expect(Math.round(a.top)).toBe(Math.round(b.top))
     expect(Math.round(a.height)).toBe(Math.round(b.height))
-    expect(b.left).toBeGreaterThan(a.right)
+    // Side by side in one panel, a divider between them.
+    expect(b.left).toBeGreaterThanOrEqual(a.right - 0.5)
   })
 
   for (const width of [375, 320]) {
-    test(`at ${width}px the cards stack and nothing overflows`, { tag: width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
+    test(`at ${width}px the two stack in the panel and nothing overflows`, { tag: width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
       await page.setViewportSize({ width, height: 800 })
       const template = await open(page)
-      const [a, b] = await template.locator('ul.grid > li').evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON()))
-      expect(b.top).toBeGreaterThan(a.bottom)
+      const [a, b] = await template.locator('[data-template-compare] > li').evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON()))
+      // One under the other, a divider between them.
+      expect(b.top).toBeGreaterThanOrEqual(a.bottom - 0.5)
+      expect(Math.round(b.left)).toBe(Math.round(a.left))
       const overflow = await template.evaluate((el) =>
         [...el.querySelectorAll('*')].filter((child) => child.getBoundingClientRect().right > window.innerWidth + 0.5).length
       )
