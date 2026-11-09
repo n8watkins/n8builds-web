@@ -3,7 +3,6 @@ import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { SiTwitch } from 'react-icons/si'
 import { FiMenu, FiX, FiChevronDown, FiBriefcase } from 'react-icons/fi'
 import { useLiveStatus } from '@/components/live/liveStore'
 import NavLiveDot from '@/components/live/NavLiveDot'
@@ -161,7 +160,7 @@ const Navbar = () => {
       label: 'Twitch',
       href: twitchLive?.url ?? 'https://twitch.tv/n8watkins',
       live: Boolean(twitchLive),
-      icon: <SiTwitch className="w-3.5 h-3.5" />,
+      icon: <TwitchMark className="w-3.5 h-3.5" />,
       hoverColor: 'hover:text-purple-400',
     },
     // YouTube goes back here, after Twitch, once the channel is live (see HANDOFF).
@@ -438,3 +437,17 @@ const Navbar = () => {
 }
 
 export default Navbar
+
+/**
+ * Twitch's mark (Simple Icons' path), drawn inline rather than imported from
+ * react-icons/si: the navbar is on every page, and importing any icon from
+ * that module put every Simple Icons mark the site's client code uses (about
+ * 60, 31 KB gzipped) into every page's first load (2026-11-09).
+ */
+function TwitchMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={className}>
+      <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z" />
+    </svg>
+  )
+}
