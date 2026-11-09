@@ -250,8 +250,8 @@ const GROUPS: [string, string[]][] = [
 ]
 
 /**
- * Only public repositories get a "View the code" link: the first four are public since
- * 2026-11-02 (Relink's repo is still deadlink); Asset Arsenal's is not yet.
+ * Only public repositories get a "View the code" link on /upcoming and a GitHub button on
+ * the homepage (checked 2026-11-09: all public but Asset Arsenal; Relink's repo is still deadlink).
  */
 const CODE: Record<string, string | undefined> = {
   relink: 'https://github.com/n8watkins/deadlink',
@@ -305,13 +305,22 @@ test("the homepage Lab ends with a compact What's cookin' part: projects grouped
       const name = NAMES[slug]
       const row = rows.nth(i)
       // Just the name and a few words: no tagline paragraph, no summary.
-      await expect(row.locator('p')).toHaveCount(2)
-      await expect(row.locator('p').first()).toHaveText(name)
-      // One link: the landing page; the code and the full cards are on /upcoming.
-      await expect(row.getByRole('link')).toHaveCount(1)
-      const landing = row.getByRole('link', { name: `Landing page for ${name} (opens in a new tab)` })
+      await expect(row.locator('[data-upcoming-name]')).toContainText(name)
+      await expect(row.locator('p')).toHaveCount(1)
+      // The name is the landing page's link (round 8 of 2026-11-09: no "Landing page" button) ...
+      const landing = row.getByRole('link', { name: `${name} landing page (opens in a new tab)` })
       await expect(landing).toHaveAttribute('href', LANDING[slug])
       await expect(landing).toHaveAttribute('target', '_blank')
+      await expect(row.getByText('Landing page', { exact: true })).toHaveCount(0)
+      // ... and a GitHub button follows when the repo is public (not Asset Arsenal's).
+      const github = row.getByRole('link', { name: `${name} on GitHub (opens in a new tab)` })
+      if (CODE[slug]) {
+        await expect(github).toHaveAttribute('href', CODE[slug]!)
+        await expect(row.getByRole('link')).toHaveCount(2)
+      } else {
+        await expect(github).toHaveCount(0)
+        await expect(row.getByRole('link')).toHaveCount(1)
+      }
     }
   }
   await expect(band.getByText('Sends broken links to the right page')).toBeVisible()
@@ -364,7 +373,7 @@ for (const [width, height] of [
   [390, 844],
   [320, 640],
 ] as const) {
-  test(`What's cookin' fits its rows at ${width}px: one line each, the landing page on the row's right`, { tag: width === 1280 || width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
+  test(`What's cookin' fits its rows at ${width}px: one line each, its GitHub button on the row's right`, { tag: width === 1280 || width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
     await page.setViewportSize({ width, height })
     await page.goto('/')
     const band = page.locator('#lab section#upcoming')
@@ -374,8 +383,17 @@ for (const [width, height] of [
       list.map((li) => {
         const r = li.getBoundingClientRect()
         const a = li.querySelector('a')!
-        const b = a.getBoundingClientRect()
-        return { left: r.left, right: r.right, linkRight: b.right, fits: a.scrollWidth <= a.clientWidth }
+        const b = (li.querySelector('[data-upcoming-github]') ?? a).getBoundingClientRect()
+        const short = li.querySelector('[data-upcoming-short]')!
+        return {
+          left: r.left,
+          right: r.right,
+          height: r.height,
+          linkRight: b.right,
+          fits: a.scrollWidth <= a.clientWidth,
+          // The few words stay on one line (cut short with an ellipsis when they must).
+          oneLine: short.getBoundingClientRect().height < parseFloat(getComputedStyle(short).lineHeight) * 1.5,
+        }
       })
     )
     // Rows in one column, two from 1024px (the groups side by side), each link inside its row and its label on one line.
@@ -383,7 +401,10 @@ for (const [width, height] of [
     for (const b of boxes) {
       expect(b.linkRight).toBeLessThanOrEqual(b.right)
       expect(b.fits).toBe(true)
+      expect(b.oneLine).toBe(true)
     }
+    // Every row is the same tight height.
+    expect(Math.max(...boxes.map((b) => b.height)) - Math.min(...boxes.map((b) => b.height))).toBeLessThan(1)
     expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0)
     if (width >= 1024) {
       // Side by side, the two columns start and end level.
