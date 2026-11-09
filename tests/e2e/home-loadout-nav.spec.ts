@@ -96,8 +96,9 @@ test.describe('at 1440px', () => {
       .locator('#loadout-band')
       .evaluate((band) => band.getBoundingClientRect().bottom)
     expect(box.y + box.height).toBeLessThanOrEqual(bandBottom + 1)
-    // Past the band (the contact form) it is gone.
-    await page.locator('#contact').scrollIntoViewIfNeeded()
+    // Past the band (the foot of the page, under the contact form, which follows it
+    // directly since Work with me left on 2026-11-08) it is gone.
+    await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }))
     await expect(nav).not.toBeInViewport()
   })
 

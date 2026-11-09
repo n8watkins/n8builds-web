@@ -23,37 +23,14 @@ test('the logo goes home from any page', { tag: '@smoke' }, async ({ page }) => 
   await expect(page).toHaveURL(/\/$/)
 })
 
-/** The Ko-fi link (2026-10-26): left of Portfolio in the navbar, and in the mobile menu. */
+/** Ko-fi left the header (2026-11-08): neither the navbar nor the mobile menu has it; the footer does. */
 const KOFI = 'https://ko-fi.com/n8watkins'
 
-test.describe('the Ko-fi link', () => {
-  test('sits left of Portfolio in the navbar and opens Ko-fi in a new tab', { tag: '@smoke' }, async ({ page }) => {
-    await page.setViewportSize({ width: 1280, height: 800 })
-    await page.goto('/')
-    const nav = page.locator('nav[aria-label="Primary"]')
-    const kofi = nav.getByRole('link', { name: 'Ko-fi', exact: true })
-    await expect(kofi).toBeVisible()
-    await expect(kofi).toHaveAttribute('href', KOFI)
-    await expect(kofi).toHaveAttribute('target', '_blank')
-    await expect(kofi).toHaveAttribute('rel', /noopener/)
-    await expect(kofi.locator('svg')).toBeVisible()
-    const portfolio = (await nav.getByRole('link', { name: 'Portfolio', exact: true }).boundingBox())!
-    const box = (await kofi.boundingBox())!
-    expect(box.x + box.width, 'left of Portfolio').toBeLessThanOrEqual(portfolio.x)
-    // Same look as Portfolio: the same height and top.
-    expect(Math.abs(box.height - portfolio.height)).toBeLessThanOrEqual(1)
-    expect(Math.abs(box.y - portfolio.y)).toBeLessThanOrEqual(1)
-  })
-
-  test('is in the mobile menu', async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 })
-    await page.goto('/')
-    await openMenu(page)
-    const kofi = page.locator('#mobile-menu').getByRole('link', { name: /Ko-fi/ })
-    await expect(kofi).toBeVisible()
-    await expect(kofi).toHaveAttribute('href', KOFI)
-    await expect(kofi).toHaveAttribute('target', '_blank')
-  })
+test('Ko-fi is not in the header, only in the footer', { tag: '@smoke' }, async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 })
+  await page.goto('/')
+  await expect(page.locator(`nav[aria-label="Primary"] a[href="${KOFI}"], #mobile-menu a[href="${KOFI}"]`)).toHaveCount(0)
+  await expect(page.locator(`footer a[href="${KOFI}"]`).first()).toBeAttached()
 })
 
 /** "Contact" in the navbar and the mobile menu (2026-10-28): it jumps to the homepage's contact form. */
@@ -92,14 +69,14 @@ test.describe('the Contact link', () => {
 })
 
 /**
- * The navbar's Tech for Pros link (2026-11-01): a bordered pill like Ko-fi and
+ * The navbar's Tech for Pros link (2026-11-01): a bordered pill like
  * Portfolio, holding its icon and techforpros.com over a clean curved
  * underline (round 3 of 2026-11-02: one smooth arc, static, never animated).
  */
 const techForPros = (page: Page) => page.locator('nav[aria-label="Primary"]').getByRole('link', { name: /^techforpros\.com/ })
 const underline = (page: Page) => techForPros(page).locator('svg.tfp-underline path')
 
-test('the navbar links techforpros.com in a pill like Ko-fi and Portfolio, through the counted short link', async ({ page }) => {
+test('the navbar links techforpros.com in a pill like Portfolio, through the counted short link', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
   const link = techForPros(page)
@@ -107,12 +84,12 @@ test('the navbar links techforpros.com in a pill like Ko-fi and Portfolio, throu
   await expect(link).toHaveAttribute('target', '_blank')
   await expect(link.locator('img[src*="techforpros"]')).toBeVisible()
   // The same height, radius and border as the buttons beside it.
-  const kofi = page.locator('nav[aria-label="Primary"]').getByRole('link', { name: 'Ko-fi', exact: true })
+  const portfolio = page.locator('nav[aria-label="Primary"]').getByRole('link', { name: 'Portfolio', exact: true })
   const style = (el: HTMLElement | SVGElement) => {
     const s = getComputedStyle(el)
     return { radius: s.borderTopLeftRadius, border: s.borderTopWidth, style: s.borderTopStyle, height: el.getBoundingClientRect().height }
   }
-  expect(await link.evaluate(style)).toEqual(await kofi.evaluate(style))
+  expect(await link.evaluate(style)).toEqual(await portfolio.evaluate(style))
   // A curve under the text, not a straight text underline, and no gradient fill.
   await expect(link.getByText('techforpros.com', { exact: true })).not.toHaveCSS('text-decoration-line', 'underline')
   expect(await link.evaluate((el) => getComputedStyle(el).backgroundImage)).toBe('none')
@@ -177,10 +154,10 @@ test.describe('tablet width', () => {
     const box = await techForPros(page).boundingBox()
     expect(box!.x + box!.width).toBeLessThanOrEqual(810)
     await expect(menuButton(page)).toBeVisible()
-    // Ko-fi fits too, clear of the logo.
-    const kofi = (await page.locator('nav[aria-label="Primary"]').getByRole('link', { name: 'Ko-fi', exact: true }).boundingBox())!
+    // Portfolio fits too, clear of the logo.
+    const portfolio = (await page.locator('nav[aria-label="Primary"]').getByRole('link', { name: 'Portfolio', exact: true }).boundingBox())!
     const logo = (await page.getByRole('link', { name: 'n8builds.dev home' }).boundingBox())!
-    expect(kofi.x).toBeGreaterThan(logo.x + logo.width)
+    expect(portfolio.x).toBeGreaterThan(logo.x + logo.width)
   })
 })
 
@@ -238,7 +215,7 @@ test.describe('mobile menu on a landscape phone', () => {
     await page.goto('/')
     await openMenu(page)
     const menu = page.locator('#mobile-menu')
-    const last = menu.getByRole('link', { name: /Ko-fi/ })
+    const last = menu.getByRole('link').last()
 
     const panel = await menu.boundingBox()
     expect(panel!.y + panel!.height).toBeLessThanOrEqual(340)

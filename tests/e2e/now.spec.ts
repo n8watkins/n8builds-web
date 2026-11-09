@@ -5,22 +5,25 @@ import { test, expect, type Page } from '@playwright/test'
  * and techforpros.com. Since round 3 of 2026-11-02: "Websites built for pros",
  * copy about the service (never a list of trades) and no feature list; its
  * templates slide side to side in a browser window, with a timer line along
- * its bottom, a picker in its title bar, a phone in front and "Pick a
- * template, or we'll build one for your business." under it; "Get a quote" goes to the quote field in Work with me (the
- * booking page and the site get buttons once they exist). No What's new.
+ * its bottom, a phone in front, labelled chips per trade under the window
+ * and "Don't see yours? We'll build it." under them (2026-11-08). The quote
+ * request (an email field and "Get my quote") is on the card itself since
+ * 2026-11-08 (the booking page and the site get buttons once they exist).
+ * No What's new.
  */
 
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
 const now = (page: Page) => page.locator('#now')
-/** The ad's main button: a quote, through the quote field in Work with me (round 5 of 2026-11-02). */
-const quote = (page: Page) => now(page).getByRole('link', { name: /^Get a quote/ })
+/** The ad's quote request, right on the card (2026-11-08). */
+const quoteField = (page: Page) => now(page).getByRole('textbox', { name: 'Where should the quote go?' })
+const quoteButton = (page: Page) => now(page).getByRole('button', { name: 'Get my quote' })
 const carousel = (page: Page) => now(page).getByRole('group', { name: 'Tech for Pros templates' })
 const frame = (page: Page) => carousel(page).locator('[data-slide]').first().locator('xpath=..')
 const showing = (page: Page) => carousel(page).locator('[data-slide][aria-hidden="false"]')
 const TEMPLATES = ['Pool', 'HVAC', 'Landscaping', 'Roofing']
 
-test('the card reads like an ad: headline, the service, a quote button and the templates', async ({ page }) => {
+test('the card reads like an ad: headline, the service, the quote field and the templates', async ({ page }) => {
   await page.goto('/')
   const section = now(page)
   await section.scrollIntoViewIfNeeded()
@@ -34,14 +37,16 @@ test('the card reads like an ad: headline, the service, a quote button and the t
   await expect(section).not.toContainText(/Reminders|next up|A pro site/)
   await expect(section.getByRole('button', { name: /What's new/ })).toHaveCount(0)
   await expect(section.locator('dialog')).toHaveCount(0)
-  await expect(section.getByText("Pick a template, or we'll build one for your business.", { exact: true })).toBeVisible()
+  await expect(section.getByText("Don't see yours? We'll build it.", { exact: true })).toBeVisible()
   // Headed by its icon and address, with no badge.
   const title = section.getByRole('heading', { level: 3, name: 'techforpros.com' })
   await expect(title).toBeVisible()
   await expect(title.locator('xpath=..').locator('img[src*="techforpros"]')).toBeVisible()
   await expect(section).not.toContainText(/launching soon/i)
-  // A quote through the contact form; no booking page or site yet, so no buttons for them.
-  await expect(quote(page)).toHaveAttribute('href', '/#quote')
+  // The quote request in place; no booking page or site yet, so no buttons for them.
+  await expect(quoteField(page)).toHaveAttribute('type', 'email')
+  await expect(quoteButton(page)).toBeVisible()
+  await expect(section.getByRole('link', { name: /^Get a quote/ })).toHaveCount(0)
   await expect(section.getByRole('link', { name: /Book an intro call|Visit techforpros\.com/ })).toHaveCount(0)
   await expect(section.locator('a[href*="techforpros.com"], a[href*="appturnity"], a[href*="github.com"]')).toHaveCount(0)
   await expect(section).not.toContainText(/free website/i)
@@ -54,7 +59,10 @@ test('the card reads like an ad: headline, the service, a quote button and the t
   await expect(img).toHaveAttribute('width', '1200')
   await expect(img).toHaveAttribute('height', '750')
   await expect.poll(() => img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true)
-  await expect(carousel(page).getByRole('button', { name: /^Show the / })).toHaveCount(4)
+  // The picker: a labelled chip per trade (2026-11-08), under the window.
+  const chips = carousel(page).getByRole('button', { name: /^Show the / })
+  await expect(chips).toHaveText(TEMPLATES)
+  expect((await chips.first().boundingBox())!.y).toBeGreaterThan((await frame(page).boundingBox())!.y + (await frame(page).boundingBox())!.height)
   // A phone in front of the browser window, holding a full-length page.
   const phone = carousel(page).locator('img.now-phone-scroll')
   await expect(phone).toBeVisible()
@@ -117,15 +125,37 @@ test.describe('with motion', () => {
   })
 })
 
-test('Get a quote lands on the quote field in Work with me, ready to type', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
+test('/#quote lands on the quote field, ready to type', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
+  await page.goto('/#quote')
+  await expect(quoteButton(page)).toBeEnabled({ timeout: 20_000 })
+  await expect(quoteField(page)).toBeFocused()
+  await expect(quoteField(page)).toBeInViewport()
+})
+
+test('the quote field sends just the email, tagged as a Tech for Pros quote, and says so', async ({ page }) => {
   await page.goto('/')
-  await expect(quote(page)).toHaveAttribute('href', '/#quote')
-  await expect(page.getByRole('button', { name: 'Get my quote' })).toBeEnabled({ timeout: 20_000 })
-  await quote(page).click()
-  await expect(page).toHaveURL(/\/#quote$/)
-  const field = page.getByRole('textbox', { name: 'Where should the quote go?' })
+  const field = quoteField(page)
+  const send = quoteButton(page)
+  await field.scrollIntoViewIfNeeded()
+  await expect(send).toBeEnabled({ timeout: 20_000 })
+  // A bad address stays on the form, said out loud, and nothing is sent.
+  let posted: unknown = null
+  page.on('request', (r) => {
+    if (r.url().endsWith('/api/contact') && r.method() === 'POST') posted = r.postDataJSON()
+  })
+  await field.fill('not an email')
+  await send.click()
+  await expect(now(page).getByRole('alert')).toHaveText('Please enter a valid email address.')
   await expect(field).toBeFocused()
-  await expect(field).toBeInViewport()
+  expect(posted).toBeNull()
+
+  await field.fill('owner@pools.example.com')
+  await send.click()
+  const done = now(page).getByRole('status')
+  await expect(done).toContainText('Got it. Your quote is on its way.', { timeout: 15_000 })
+  await expect(done).toContainText('owner@pools.example.com')
+  expect(posted).toMatchObject({ kind: 'techforpros-quote', email: 'owner@pools.example.com', honeypot: '' })
+  expect(Object.keys(posted as object).sort()).toEqual(['email', 'honeypot', 'kind', 'turnstile'])
 })
 
 test('a link to the quote preset from elsewhere fills the form on arrival, then tidies the address', async ({ page }) => {
@@ -160,7 +190,7 @@ for (const width of [1280, 1440]) {
     await page.goto('/')
     const section = now(page)
     await section.scrollIntoViewIfNeeded()
-    const cta = (await quote(page).boundingBox())!
+    const cta = (await quoteButton(page).boundingBox())!
     const shot = (await frame(page).boundingBox())!
     // The templates sit beside the copy, not under it.
     expect(shot.x).toBeGreaterThan(cta.x + cta.width)
@@ -169,7 +199,7 @@ for (const width of [1280, 1440]) {
 }
 
 for (const width of [1024, 820, 390, 375, 320]) {
-  test(`at ${width}px nothing in the ad overflows, and and the picker keeps to one line`, { tag: width === 1024 || width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
+  test(`at ${width}px nothing in the ad overflows, and the picker's chips sit in tidy rows`, { tag: width === 1024 || width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
     await page.setViewportSize({ width, height: 800 })
     await page.goto('/')
     const section = now(page)
@@ -184,23 +214,27 @@ for (const width of [1024, 820, 390, 375, 320]) {
     })
     expect(overflow).toEqual([])
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width)
-    const tops = await carousel(page).getByRole('button', { name: /^Show the / }).evaluateAll((b) => b.map((x) => Math.round(x.getBoundingClientRect().top)))
-    expect(new Set(tops).size, 'picker rows').toBe(1)
+    // One row of chips from 640px; two by two on phones, where one row doesn't fit (2026-11-08).
+    const chips = await carousel(page).getByRole('button', { name: /^Show the / }).evaluateAll((b) => b.map((x) => x.getBoundingClientRect().toJSON() as DOMRect))
+    expect(new Set(chips.map((c) => Math.round(c.top))).size, 'picker rows').toBe(width < 640 ? 2 : 1)
+    if (width < 640) for (const c of chips) expect(Math.abs(c.width - chips[0].width)).toBeLessThan(1)
   })
 }
 
-// The caption under the window (round 5 of 2026-11-02, a longer line) never runs over the phone.
+// The caption under the window never runs over the phone.
 for (const width of [320, 390, 820, 1440]) {
-  test(`at ${width}px the template caption stays clear of the phone`, { tag: width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
+  test(`at ${width}px the template chips and caption stay clear of the phone`, { tag: width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 })
     await page.goto('/')
-    const caption = now(page).getByText("Pick a template, or we'll build one for your business.", { exact: true })
+    const caption = now(page).getByText("Don't see yours? We'll build it.", { exact: true })
     await caption.scrollIntoViewIfNeeded()
     const overlaps = await caption.evaluate((cap) => {
-      const phone = cap.parentElement!.querySelector('[class*="rotate-"]')!.getBoundingClientRect()
+      const phone = cap.closest('[role="group"]')!.querySelector('[class*="rotate-"]')!.getBoundingClientRect()
       const range = document.createRange()
       range.selectNodeContents(cap)
-      return [...range.getClientRects()].some((r) => !(r.right <= phone.left || r.left >= phone.right || r.bottom <= phone.top || r.top >= phone.bottom))
+      const hits = (r: DOMRect) => !(r.right <= phone.left || r.left >= phone.right || r.bottom <= phone.top || r.top >= phone.bottom)
+      const chips = [...cap.closest('[role="group"]')!.querySelectorAll('button')].map((b) => b.getBoundingClientRect())
+      return [...range.getClientRects()].some(hits) || chips.some(hits)
     })
     expect(overlaps).toBe(false)
   })

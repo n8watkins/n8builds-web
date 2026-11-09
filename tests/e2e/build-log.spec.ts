@@ -217,7 +217,7 @@ test('a build page shows its recent activity and links to its part of the log', 
 })
 
 test.describe('navigation to the build log', () => {
-  test("desktop: the Lab menu's first item scrolls to the Lab's build log, and the top bar has no Log link of its own", { tag: '@cross-browser' }, async ({ page, isMobile }) => {
+  test("desktop: the Lab menu's first item scrolls to the build log, and the top bar has no Log link of its own", { tag: '@cross-browser' }, async ({ page, isMobile }) => {
     test.skip(isMobile, 'the desktop navbar is hidden on phones')
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto('/loadout')
@@ -267,7 +267,7 @@ test.describe('navigation to the build log', () => {
   test.describe('mobile menu', () => {
     test.use({ viewport: { width: 390, height: 844 }, hasTouch: true })
 
-    test("the Build log link, the Lab's first, reaches the Lab's build log", { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
+    test("the Build log link, the Lab menu's first, reaches the build log", { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
       await page.goto('/loadout')
       const button = page.getByRole('button', { name: 'Menu' })
       await expect(async () => {

@@ -554,14 +554,43 @@ test.describe('Loadout tools and people', () => {
     })
   })
 
+  test("the homepage's Scribe row is short, and leads with Full story off Windows, the download on Windows", async ({ browser }) => {
+    for (const [userAgent, windows] of [
+      ['Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Safari/537.36', true],
+      ['Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15', false],
+      ['Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1', false],
+    ] as const) {
+      const context = await browser.newContext({ userAgent, viewport: { width: 1280, height: 800 }, reducedMotion: 'reduce' })
+      const page = await context.newPage()
+      await page.goto('/')
+      const row = page.locator('#tools-i-built').getByRole('article', { name: 'Scribe' })
+      await row.scrollIntoViewIfNeeded()
+      // No stack pills or feature checks here: the build page has them.
+      await expect(row.getByRole('list')).toHaveCount(0)
+      const actions = row.locator('[data-scribe-platform]')
+      await expect(actions).toHaveAttribute('data-scribe-platform', windows ? 'windows' : 'other')
+      const download = row.getByRole('link', { name: 'Download for Windows' })
+      const story = row.getByRole('link', { name: 'Full story of Scribe' })
+      await expect(download).toHaveAttribute('href', '/download/scribe')
+      await expect(story).toHaveAttribute('href', '/builds/scribe')
+      // The leading button comes first; both are the same size, so nothing shifts.
+      const [first] = await actions.getByRole('link').all()
+      await expect(first).toHaveAccessibleName(windows ? 'Download for Windows' : 'Full story of Scribe')
+      const [d, f] = [(await download.boundingBox())!, (await story.boundingBox())!]
+      expect(Math.abs(d.width - f.width)).toBeLessThan(1)
+      expect(Math.abs(d.height - f.height)).toBeLessThan(1)
+      await expect(row.locator('#scribe-download-note')).toHaveText(windows ? /^Windows 10 and 11, 64-bit/ : 'Windows app. Mac and Linux coming.')
+      await context.close()
+    }
+  })
+
   test('the homepage has Tools I built and use inside its Loadout, every tool with Scribe first', async ({ page }) => {
     await page.goto('/')
     const built = page.getByRole('region', { name: 'Tools I built and use' })
-    // As /loadout, a level down: Scribe's row (h3), the cards (h5) under the h4 subheading. No pr-post
-    // (round 5 of 2026-11-02): The Pull Request Post's card a section above is its one place.
-    await expect(built.getByRole('article').getByRole('heading', { level: 3 })).toHaveText(['Scribe'])
+    // As /loadout, a level down: Scribe's compact row (2026-11-08) and the cards (h5) under the h4 subheading.
+    // No pr-post (round 5 of 2026-11-02): The Pull Request Post's card a section above is its one place.
     await expect(built.getByRole('heading', { level: 4 })).toHaveText(['Dev tools I built'])
-    await expect(built.getByRole('article').getByRole('heading', { level: 5 })).toHaveText([/^pass-env/, /^release-kit/, /^devguard/])
+    await expect(built.getByRole('article').getByRole('heading', { level: 5 })).toHaveText(['Scribe', /^pass-env/, /^release-kit/, /^devguard/])
     await expect(built.locator('[data-credit]')).toContainText('Created by Phaedrus Raznikov at Misty Step')
     // A part of the Loadout (#loadout): after the default stack. The setup teaser leads the band (round 3 of 2026-11-02).
     const loadout = page.locator('#loadout')

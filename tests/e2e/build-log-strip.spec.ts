@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test'
 
 /**
- * The homepage's compact build log (#build-log), the Lab's first part: this
+ * The homepage's compact build log (#build-log), right under "What I'm working on" (2026-11-08): this
  * month's updates as rows, a page at a time (four at every width, the last
  * page filled up with the newest again) moving on by itself, a card cycling through the month's figures, and a link to
  * /builds. Against the recorded GitHub fixture (BUILD_LOG_FIXTURE=1), whose
@@ -49,23 +49,23 @@ function paging(_page: Page) {
 }
 const asText = (rows: number[]) => rows.map(String)
 
-test("is the Lab's first part, right after its intro, in the server-rendered HTML", async ({ page, request }) => {
+test("sits right under What I'm working on, above the Lab, in the server-rendered HTML", async ({ page, request }) => {
   const html = await (await request.get('/')).text()
   const at = (id: string) => html.indexOf(`id="${id}"`)
-  expect(at('build-log')).toBeGreaterThan(at('lab'))
-  for (const later of ['featured', 'extensions', 'upcoming']) expect(at('build-log')).toBeLessThan(at(later))
+  expect(at('build-log')).toBeGreaterThan(at('now'))
+  for (const later of ['lab', 'featured', 'extensions', 'upcoming']) expect(at('build-log')).toBeLessThan(at(later))
 
   await page.goto('/')
   await strip(page).scrollIntoViewIfNeeded()
-  // A Lab part: one level under the Lab's h2, with the part's coloured bar.
+  // Headed like a Lab part, with its coloured bar and animated scroll icon (2026-11-08).
   // "Build log" is the heading, with no eyebrow; the month is the line under it (round 5 of 2026-11-02).
   await expect(strip(page).getByRole('heading', { level: 3 })).toHaveText('Build log')
+  await expect(strip(page).locator('.part-icon-scroll')).toBeVisible()
+  await expect(strip(page)).not.toContainText('pulled from GitHub')
   await expect(strip(page)).toHaveAccessibleName('Build log')
   await expect(strip(page).locator('[data-month-line]')).toHaveText('Shipped this month')
   await expect(strip(page)).not.toContainText('every project')
   await expect(strip(page)).toHaveClass(/lab-accent-buildlog/)
-  // The Lab intro's first pill jumps here.
-  await expect(page.getByRole('navigation', { name: 'Lab sections' }).getByRole('link').first()).toHaveAttribute('href', '#build-log')
   expect(await page.locator('main').innerText()).not.toContain('—')
 })
 

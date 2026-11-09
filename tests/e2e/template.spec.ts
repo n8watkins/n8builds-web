@@ -47,22 +47,18 @@ test('asks "Don\'t have a site?", answers "Use mine as a template!" on the same 
   await expect(template).not.toContainText('photos and write-ups')
 })
 
-test('two cards: each links its site, says what it is built with, and opens its repo', { tag: '@smoke' }, async ({ page }) => {
+test('two short cards: each links its site, says in one sentence what you get, and opens its repo', { tag: '@smoke' }, async ({ page }) => {
   const template = await open(page)
   const cards = template.locator('ul.grid > li')
   await expect(cards).toHaveCount(2)
   const [site, portfolio] = await cards.all()
 
-  await expect(site.getByRole('heading', { level: 4 })).toHaveText('This site')
+  await expect(site.getByRole('heading', { level: 4 })).toHaveText('My personal site')
   await expect(site.getByRole('link', { name: 'n8builds.dev', exact: true })).toHaveAttribute('href', '/')
-  await expect(site.getByRole('list', { name: 'This site is built with' }).getByRole('listitem')).toHaveText([
-    'Next.js 16',
-    'Sanity',
-    'Tailwind CSS 4',
-    'Turnstile',
-    'Cloudflare D1',
-    'Cloudflare Workers',
-  ])
+  // No stack pills (2026-11-08): one sentence on what you get, and the build page has the rest.
+  await expect(template.getByRole('list', { name: /is built with/ })).toHaveCount(0)
+  // One sentence: a full stop only at the end (a dot inside a word, as in Next.js, doesn't count).
+  for (const card of [site, portfolio]) await expect(card.locator('p')).toHaveText(/^(?:[^.]|\.(?=\w))+\.$/)
   // The N8 mark belongs to n8builds.dev.
   const icon = site.locator('img[src*="n8-icon"]')
   await expect(icon).toBeVisible()
@@ -72,16 +68,7 @@ test('two cards: each links its site, says what it is built with, and opens its 
   const live = portfolio.getByRole('link', { name: /^portfolio\.n8builds\.dev/ })
   await expect(live).toHaveAttribute('href', 'https://portfolio.n8builds.dev')
   await expect(live).toHaveAttribute('target', '_blank')
-  await expect(portfolio.getByRole('list', { name: 'My developer portfolio is built with' }).getByRole('listitem')).toHaveText([
-    'Next.js 16',
-    'Tailwind CSS',
-    'Framer Motion',
-    'Vercel',
-  ])
   await expect(portfolio.locator('img[src*="n8-icon"]')).toHaveCount(0)
-
-  // Testing tools aren't pills: the checks under the heading say it once.
-  await expect(template.getByRole('listitem').filter({ hasText: /^(Playwright|Lighthouse|OpenPing status)$/ })).toHaveCount(0)
 
   for (const [card, name, repo] of [
     [site, 'n8builds-web', N8_REPO],
@@ -92,9 +79,9 @@ test('two cards: each links its site, says what it is built with, and opens its 
   }
 })
 
-test('only this site has "How it is built and tested", and it goes to its build page', async ({ page }) => {
+test('only my personal site has "Full story", and it goes to its build page', async ({ page }) => {
   const template = await open(page)
-  const links = template.getByRole('link', { name: 'How it is built and tested' })
+  const links = template.getByRole('link', { name: /^Full story/ })
   await expect(links).toHaveCount(1)
   await expect(links).toHaveAttribute('href', '/builds/n8builds')
   // The portfolio's repo is the GitHub half of its split button, not a second button.
@@ -119,7 +106,7 @@ test('the keyboard reaches every link in order, card by card', { tag: '@cross-br
   }
   expect(names).toEqual([
     'n8builds.dev',
-    'How it is built and tested',
+    'Full story of My personal site',
     expect.stringContaining('Star'),
     expect.stringContaining('GitHub'),
     'portfolio.n8builds.dev (opens in a new tab)',

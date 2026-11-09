@@ -20,8 +20,9 @@ for (const path of ['/loadout', '/']) {
       await page.goto(path)
       const row = page.locator('#tools-i-built').getByRole('article', { name: 'Scribe' })
       const video = tourOf(page, path)
-      // The row's own; the Details dialog holds a second copy, shown when it opens.
-      await expect(row.locator('[data-tour] video')).toHaveCount(2)
+      // The row's own; on /loadout the Details dialog holds a second copy, shown when it opens
+      // (the homepage's compact row has no Details since 2026-11-08).
+      await expect(row.locator('[data-tour] video')).toHaveCount(path === '/' ? 1 : 2)
       // Its first frame is a lazy image behind the video, not a poster fetched with the page.
       await expect(video).not.toHaveAttribute('poster')
       await expect(row.locator('[data-tour] img[data-tour-poster][src*="tour-poster.webp"]').first()).toHaveAttribute('loading', 'lazy')

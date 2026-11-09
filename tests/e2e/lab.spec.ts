@@ -55,7 +55,10 @@ test('the Lab leads with the featured builds, OpenPing first, each with its icon
 
 test('the Lab has no tools part any more, in its own links, the navbar menu or the footer', async ({ page }) => {
   await page.goto('/')
-  await expect(page.getByRole('navigation', { name: 'Lab sections' }).getByRole('link')).toHaveText(['Build log', 'Featured', 'Chrome Extensions', "What's cookin'"])
+  // The Lab's rail lists its parts (in the page at every width, shown on desktop once the Lab is on screen).
+  const parts = page.locator('nav[aria-label="Lab contents"] a')
+  await expect(parts).toHaveCount(3)
+  expect(await parts.evaluateAll((links) => links.map((a) => a.getAttribute('href')))).toEqual(['#featured', '#extensions', '#upcoming'])
   // Neither the old Tools grid nor My tools: nothing links to them.
   await expect(page.locator('a[href="/#tools"], a[href="#tools"], a[href="/#my-tools"], a[href="#my-tools"]')).toHaveCount(0)
   await expect(page.locator('#tools, #my-tools')).toHaveCount(0)
@@ -87,7 +90,7 @@ test('Details opens the stack and the build log in a dialog, and closes with Esc
   await expect(row.getByRole('button', { name: 'Frontend' }).filter({ visible: true })).toHaveCount(0)
 })
 
-test('the Lab says its builds are public and mostly open source', async ({ page }) => {
+test('the Lab is headed by its flask, and says its builds are open source once, under Featured', async ({ page }) => {
   await page.goto('/')
   // Its heading carries the Lab's flask mark (percolating), beside it in a chip.
   const heading = page.locator('#lab').getByRole('heading', { level: 2, name: 'The Lab' })
@@ -100,11 +103,6 @@ test('the Lab says its builds are public and mostly open source', async ({ page 
   await expect(mark.locator('.flask-escape')).toHaveCount(1)
   const [h, m] = await Promise.all([heading.boundingBox(), mark.boundingBox()])
   expect(Math.abs(h!.y + h!.height / 2 - (m!.y + m!.height / 2))).toBeLessThan(4)
-  // The intro: one line on what the Lab is, then three checked points.
-  await expect(page.locator('#lab')).toContainText("What I've built and still use: my favourite builds and Chrome extensions.")
-  for (const point of ['Public on GitHub', 'MIT-licensed', 'Star, fork or open an issue']) {
-    await expect(page.locator('#lab').getByRole('listitem').filter({ hasText: point }).first()).toBeVisible()
-  }
   // The claims every row shares sit once, under each part's heading, not in the rows.
   await expect(page.locator('#featured')).toContainText('Free to use and open source, with no sign-up to start.')
   for (const generic of ['No telemetry', 'No account to start', 'A vote takes five seconds', 'Free tools, no sign-up']) {
@@ -653,38 +651,16 @@ test.describe('the Lab rows on a 320px phone', () => {
 })
 
 /**
- * The Lab's eyebrow (2026-11-01): just "Check out", its letters spread so it
- * spans exactly the flask and "The Lab" under it, at every width. Since
- * 2026-11-02 the letters are larger and closer together (still spaced out),
- * and in round 5 a step further again (13cqw, about 0.3em between letters).
+ * The Lab's intro (2026-11-08): just the flask chip and "The Lab". No "Check
+ * out" eyebrow, subtitle, checked points or pill nav; the desktop rail lists
+ * the parts.
  */
-for (const width of [1440, 390, 320]) {
-  test(`at ${width}px "Check out" spans the flask and title`, { tag: width === 1440 || width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
-    await page.setViewportSize({ width, height: 900 })
-    await page.goto('/')
-    const eyebrow = page.locator('#lab .lab-eyebrow')
-    await expect(eyebrow).toHaveText('Check out')
-    const { text, row, lines } = await eyebrow.evaluate((p) => {
-      const span = p.firstElementChild!
-      // The glyphs' edges: the last letter's trailing spacing isn't ink.
-      const range = document.createRange()
-      range.selectNodeContents(span)
-      const rects = [...range.getClientRects()]
-      const spacing = parseFloat(getComputedStyle(span).letterSpacing)
-      const box = range.getBoundingClientRect()
-      const title = p.parentElement!.querySelector('h2')!.parentElement!.getBoundingClientRect()
-      return { text: [box.left, box.right - spacing], row: [title.left, title.right], lines: new Set(rects.map((r) => Math.round(r.top))).size }
-    })
-    expect(lines, 'one line').toBe(1)
-    expect(Math.abs(text[0] - row[0]), 'starts at the flask').toBeLessThan(2)
-    expect(Math.abs(text[1] - row[1]), 'ends at the title').toBeLessThan(2)
-    // Larger than round 2's ~40px / 28px, with spacing under its ~0.4em but still spaced out.
-    const { size, spacing } = await eyebrow.evaluate((p) => {
-      const style = getComputedStyle(p.firstElementChild!)
-      return { size: parseFloat(style.fontSize), spacing: parseFloat(style.letterSpacing) }
-    })
-    expect(size).toBeGreaterThanOrEqual(width >= 640 ? 42 : 30)
-    expect(spacing / size).toBeGreaterThan(0.15)
-    expect(spacing / size).toBeLessThan(0.38)
-  })
-}
+test('the Lab opens with just its flask and title', { tag: '@cross-browser' }, async ({ page }) => {
+  await page.goto('/')
+  const lab = page.locator('#lab')
+  await expect(lab.getByRole('heading', { level: 2 })).toHaveText('The Lab')
+  await expect(lab.getByRole('heading', { level: 2 }).locator('xpath=..').locator('.flask')).toBeVisible()
+  await expect(lab.getByText('Check out', { exact: true })).toHaveCount(0)
+  await expect(lab).not.toContainText("What I've built and still use")
+  await expect(page.getByRole('navigation', { name: 'Lab sections' })).toHaveCount(0)
+})

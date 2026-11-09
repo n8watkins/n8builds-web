@@ -34,28 +34,42 @@ test('the footer socials are on every page', async ({ page }) => {
   expect(await labels(footerSocials(page))).toEqual(SOCIALS.map((s) => s.label))
 })
 
-test('Follow the build links the build log and notions, and only the enabled streaming links', async ({ page }) => {
+test('the contact card says it briefly: a message, Tech for Pros, and only the enabled streaming links', async ({ page }) => {
   await page.goto('/')
-  const follow = page.locator('#contact p', { hasText: 'Everything I ship lands in the' })
-  await follow.scrollIntoViewIfNeeded()
-  await expect(follow.getByRole('link', { name: 'build log' })).toHaveAttribute('href', '/builds')
-  await expect(follow.getByRole('link', { name: "N8's Notions" })).toHaveAttribute('href', '/blog')
-  // No "follow along on GitHub and X" (owner, 2026-10-27); a streaming link only once streaming starts.
-  for (const name of ['GitHub', 'X']) {
-    await expect(follow.getByRole('link', { name: new RegExp(`^${name} \\(opens`) })).toHaveCount(0)
-  }
+  const card = page.locator('#contact')
+  await card.scrollIntoViewIfNeeded()
+  // Short since 2026-11-08: no "Hiring, have a project..." and no build log line.
+  await expect(card.getByText('Shoot me a message.', { exact: true })).toBeVisible()
+  await expect(card).not.toContainText('Hiring, have a project')
+  await expect(card).not.toContainText('Everything I ship lands in the')
+  // The address stays in view, at the form's foot.
+  await expect(card.getByRole('link', { name: 'contact@n8builds.dev' }).first()).toHaveAttribute('href', 'mailto:contact@n8builds.dev')
+  // A streaming link only once streaming starts.
   for (const s of ALL_SOCIALS.filter((x) => ['Twitch', 'YouTube'].includes(x.label))) {
-    // Named "YouTube (opens in a new tab)" and so on.
-    await expect(follow.getByRole('link', { name: new RegExp(`^${s.label} \\(opens`) })).toHaveCount(s.enabled ? 1 : 0)
+    await expect(card.locator('p').getByRole('link', { name: new RegExp(`^${s.label} \\(opens`) })).toHaveCount(s.enabled ? 1 : 0)
   }
   if (!ALL_SOCIALS.some((s) => ['Twitch', 'YouTube'].includes(s.label) && s.enabled)) {
-    await expect(follow).not.toContainText('watch me build live')
+    await expect(card).not.toContainText('Watch me build live')
   }
+})
 
-  const work = page.locator('#contact p', { hasText: 'Message me with' })
-  await expect(work).not.toContainText('I usually reply within a day')
-  await expect(work.getByRole('link', { name: 'the form' })).toHaveAttribute('href', '#contact-form')
-  await expect(work.getByRole('link', { name: 'contact@n8builds.dev' })).toHaveAttribute('href', 'mailto:contact@n8builds.dev')
+/**
+ * The contact card clips with overflow: clip (2026-11-08): with overflow: hidden it
+ * was a scroll container, and a jump to the form inside it scrolled the card by
+ * 53px, cutting off the avatar and name.
+ */
+test('nothing inside the contact card can scroll it', { tag: '@cross-browser' }, async ({ page }) => {
+  await page.setViewportSize({ width: 1254, height: 724 })
+  await page.goto('/')
+  const card = page.locator('#contact .rounded-3xl').first()
+  await card.scrollIntoViewIfNeeded()
+  await page.evaluate(() => {
+    window.location.hash = 'contact-form'
+  })
+  await page.getByRole('textbox', { name: 'Name' }).focus()
+  for (let i = 0; i < 6; i++) await page.keyboard.press('Tab')
+  expect(await card.evaluate((el) => el.scrollTop)).toBe(0)
+  await expect(card.getByText('Nathan "n8" Watkins')).toBeInViewport()
 })
 
 for (const width of [375, 320]) {

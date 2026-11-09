@@ -4,17 +4,17 @@ import { contentLeft, expectCleanJump, labelLines, railShape } from './section-r
 /**
  * The Lab's floating side nav (components/sections/LabSectionNav.tsx, on
  * components/ui/SectionRail.tsx): a desktop-only rail in the left gutter that
- * marks the Lab part on screen (Build log, Featured, Chrome Extensions, What's cookin')
- * and jumps to it. It appears once the first part's heading ("Shipped this
- * month") reaches the middle of the window (level with it, not beside the
+ * marks the Lab part on screen (Featured, Chrome Extensions, What's cookin')
+ * and jumps to it. It appears once the first part's heading ("Featured
+ * builds") reaches the middle of the window (level with it, not beside the
  * Lab's intro), then rides up to its centred spot and holds there
- * while the Lab scrolls by. My tools left the Lab for /loadout (2026-11-01).
+ * while the Lab scrolls by. My tools left the Lab for /loadout (2026-11-01);
+ * the build log moved above the Lab (2026-11-08).
  */
 
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
 const PARTS = [
-  { id: 'build-log', label: 'Build log' },
   { id: 'featured', label: 'Featured' },
   { id: 'extensions', label: 'Chrome Extensions' },
   { id: 'upcoming', label: "What's cookin'" },
@@ -155,7 +155,7 @@ test.describe('placement at 1440px', () => {
   /** Scroll so the first part's heading sits `top` px from the window's top. */
   async function headingAt(page: Page, top: number) {
     await page.evaluate((top) => {
-      const h = document.querySelector<HTMLElement>('#build-log :is(h2, h3)')!
+      const h = document.querySelector<HTMLElement>('#featured :is(h2, h3)')!
       window.scrollTo({
         top: h.getBoundingClientRect().top + window.scrollY - top,
         behavior: 'instant',
@@ -165,7 +165,7 @@ test.describe('placement at 1440px', () => {
   }
   const headingTop = (page: Page) =>
     page
-      .locator('#build-log')
+      .locator('#featured')
       .locator('h2, h3')
       .first()
       .evaluate((h) => h.getBoundingClientRect().top)
@@ -175,9 +175,9 @@ test.describe('placement at 1440px', () => {
   }) => {
     await openHome(page)
     const nav = rail(page)
-    // The intro on screen, the build log's heading still in the lower half: no rail.
+    // The intro on screen, Featured's heading still in the lower half: no rail.
     await headingAt(page, 650)
-    await expect(page.getByRole('navigation', { name: 'Lab sections' })).toBeInViewport()
+    await expect(page.locator('#lab').getByRole('heading', { level: 2, name: 'The Lab' })).toBeInViewport()
     await expect(nav).toBeHidden()
     // Just short of the middle of the window: still none.
     await headingAt(page, 470)
@@ -185,7 +185,7 @@ test.describe('placement at 1440px', () => {
     await expect(nav).toBeHidden()
 
     // The heading reaches the middle of the window (owner, 2026-11-02): the rail shows, level with it.
-    await expect(page.locator('#build-log :is(h2, h3)').first()).toHaveText('Build log')
+    await expect(page.locator('#featured :is(h2, h3)').first()).toHaveText('Featured builds')
     await headingAt(page, 448)
     await expect(nav).toBeVisible(SHOW)
     await expect(nav).toBeInViewport({ ratio: 1 })
@@ -270,8 +270,6 @@ test.describe('placement at 1440px', () => {
     const nav = rail(page)
     await expect(nav).toBeVisible(SHOW)
     await nav.getByRole('link').first().focus()
-    await expect(nav.getByRole('link', { name: 'Build log', exact: true })).toBeFocused()
-    await page.keyboard.press('Tab')
     await expect(nav.getByRole('link', { name: 'Featured', exact: true })).toBeFocused()
     await page.keyboard.press('Tab')
     const extensions = nav.getByRole('link', { name: 'Chrome Extensions', exact: true })
@@ -401,10 +399,8 @@ test('is absent on a phone', { tag: '@cross-browser' }, async ({ page }) => {
   await page.goto('/')
   await scrollToPart(page, 'featured')
   await expect(rail(page)).toBeHidden()
-  // The pill links under the Lab heading still lead to each part.
-  await expect(page.getByRole('navigation', { name: 'Lab sections' }).getByRole('link')).toHaveText(
-    PARTS.map((p) => p.label)
-  )
+  // No pill links under the Lab heading either (2026-11-08): the parts follow one another.
+  await expect(page.getByRole('navigation', { name: 'Lab sections' })).toHaveCount(0)
 })
 
 test.describe('with motion', () => {
@@ -415,7 +411,7 @@ test.describe('with motion', () => {
     await scrollToPart(page, 'upcoming')
     const nav = rail(page)
     await expect(nav).toBeVisible(SHOW)
-    // Build log, the first part, was the one that seemed to wait (the owner, round 5 of 2026-11-02).
-    await expectCleanJump(page, nav, 'Build log', 'build-log', { selector: '#lab', top: 69 })
+    // The first part was the one that seemed to wait (the owner, round 5 of 2026-11-02); it lands on the Lab's top.
+    await expectCleanJump(page, nav, 'Featured', 'featured', { selector: '#lab', top: 69 })
   })
 })
