@@ -21,6 +21,10 @@
 
   --color-darkBlue: #050812;
 
+  /* The site's content column (`max-w-site`): 72rem, a little wider on big
+     screens (owner's experiment, 2026-11-09), see below. */
+  --container-site: 72rem;
+
   /* Muted text tones for the dark UI. Stock slate-500 / slate-600 fall below
      WCAG AA (4.5:1) for small text on the site's near-black backgrounds;
      these keep the same hierarchy at >= 4.6:1. */
@@ -56,6 +60,18 @@
 @theme inline {
   --animate-marquee: marquee var(--duration) linear infinite;
   --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+}
+
+/* On big screens the content column grows (owner, 2026-11-09): from 1280px it
+   is the screen less a 24rem frame (the Lab's and the Loadout's side rails
+   need a 12rem gutter once they show their full labels, from 1536px),
+   between 72rem and 82rem. So up to 1536px it stays 72rem, it grows from
+   there, and from 1696px on it is 82rem (1312px). Phones and tablets never
+   change. */
+@media (width >= 80rem) {
+  :root {
+    --container-site: clamp(72rem, 100vw - 24rem, 82rem);
+  }
 }
 
 /* The load fade for content above the fold (components/ui/FadeIn.tsx). Pure
@@ -898,7 +914,7 @@
    a 24-unit drawing. By default each shows its finished drawing; it plays
    once when its part's scroll reveal shows it, or, in a side rail, when its
    part becomes the current one (the link's aria-current). Only the pot's
-   steam loops, softly. Under reduced motion nothing moves. */
+   steam and the scroll's lines loop, softly. Under reduced motion nothing moves. */
 .part-icon :is(.scroll-sheet, .star-body, .star-glint, .puzzle-piece, .puzzle-snap, .pot-lid, .pot-steam) {
   transform-box: fill-box;
   transform-origin: center;
@@ -929,11 +945,15 @@
   :is(.reveal[data-revealed], a[aria-current]) .part-icon .scroll-sheet {
     animation: part-scroll-unroll 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
+  /* Then, softly and for as long as it shows (owner, 2026-11-09), its lines are
+     written again now and then, one after the other, like the log filling in. */
   :is(.reveal[data-revealed], a[aria-current]) .part-icon .scroll-line {
-    animation: part-scroll-write 0.35s ease-out 0.5s both;
+    animation:
+      part-scroll-write 0.35s ease-out 0.5s both,
+      part-scroll-rewrite 5.2s ease-in-out 1.6s infinite;
   }
   :is(.reveal[data-revealed], a[aria-current]) .part-icon .scroll-line-2 {
-    animation-delay: 0.68s;
+    animation-delay: 0.68s, 1.95s;
   }
   :is(.reveal[data-revealed], a[aria-current]) .part-icon .star-body {
     animation: part-star-twinkle 0.9s cubic-bezier(0.34, 1.3, 0.64, 1) both;
@@ -976,6 +996,23 @@
     stroke-dashoffset: 1;
   }
   to {
+    stroke-dashoffset: 0;
+  }
+}
+/* Held most of the loop; the ink runs out along the line, then writes back in. */
+@keyframes part-scroll-rewrite {
+  0%,
+  62% {
+    stroke-dashoffset: 0;
+  }
+  72% {
+    stroke-dashoffset: -1;
+  }
+  72.01% {
+    stroke-dashoffset: 1;
+  }
+  86%,
+  100% {
     stroke-dashoffset: 0;
   }
 }
@@ -1184,7 +1221,7 @@
     position: absolute;
     top: 0;
     left: 50%;
-    width: min(72rem, calc(100% - 2.5rem));
+    width: min(var(--container-site), calc(100% - 2.5rem));
     height: 1px;
     transform: translateX(-50%);
     pointer-events: none;

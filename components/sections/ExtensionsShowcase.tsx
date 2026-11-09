@@ -7,11 +7,18 @@ import { getBuild } from '@/data/builds'
 import LabSubheader from '@/components/sections/LabSubheader'
 import { PuzzleIcon } from '@/components/ui/PartIcons'
 import ExtensionsCarousel from '@/components/sections/ExtensionsCarousel'
+import { ProjectTour, type ProjectTourVideo } from '@/components/sections/FeaturedProjectIslands'
 
 interface Ext {
   slug: string
   icon: string
   shot: string | null
+  /**
+   * A short muted loop of the extension in use (owner, 2026-11-09: clips, not
+   * stills), recorded with the real extension loaded unpacked; shown instead
+   * of the screenshot.
+   */
+  clip?: ProjectTourVideo
   oss: boolean
   blurb: string
 }
@@ -20,22 +27,34 @@ interface Ext {
 const exts: Ext[] = [
   {
     slug: 'voicedock',
-    icon: '/builds/voicedock/icon.png',
+    icon: '/builds/voicedock/icon.svg',
     shot: '/builds/voicedock/popup.png',
+    clip: {
+      webm: '/builds/voicedock/clip.webm',
+      mp4: '/builds/voicedock/clip.mp4',
+      poster: '/builds/voicedock/clip-poster.webp',
+      alt: 'A short clip of VoiceDock in use: two paragraphs of an n8builds.dev post selected, then VoiceDock reading them aloud with a local Piper voice, its player bar showing in the corner',
+    },
     oss: true,
     blurb: 'Highlight text on any page and hear it read aloud by Piper or Kokoro voices running on your own machine. No cloud, no keys.',
   },
   {
     slug: 'tubevault',
-    icon: '/builds/tubevault/icon.png',
+    icon: '/builds/tubevault/icon.svg',
     shot: '/builds/tubevault/tubevault-popup.png',
     oss: true,
     blurb: 'Save YouTube videos, playlists and channels to your own disk, with thumbnails and metadata. No remote servers.',
   },
   {
     slug: 'tldw',
-    icon: '/builds/tldw/icon.png',
+    icon: '/builds/tldw/icon.svg',
     shot: null,
+    clip: {
+      webm: '/builds/tldw/clip.webm',
+      mp4: '/builds/tldw/clip.mp4',
+      poster: '/builds/tldw/clip-poster.webp',
+      alt: "A short clip of TL;DW in use: on a YouTube video, a press on TL;DW under it, then the video's summary in a panel right on the page, with no key (Gemini answers in a tab of its own; the wait is cut)",
+    },
     oss: true,
     blurb: "Get a short summary of any YouTube video right on the page, from Gemini with your own free key, or open it in ChatGPT or Claude.",
   },
@@ -47,33 +66,42 @@ const Detail = ({ ext }: { ext: Ext }) => {
   return (
     // The screenshot takes the smaller share, so the copy leads (smaller since 2026-10-26).
     <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] md:items-center">
-      {/* Visual: opens the extension's own page (2026-11-08; GitHub, the same as
-          the Star | GitHub button, before). */}
-      <Link
-        href={`/builds/${build.slug}`}
-        aria-label={`${build.name}: full story`}
-        className="group/visual relative mx-auto block aspect-16/10 w-full max-w-60 overflow-hidden rounded-2xl border border-white/8 bg-[#07101d] md:max-w-none"
-      >
-        {ext.shot ? (
-          <Image
-            src={ext.shot}
-            alt={`${build.name} screenshot`}
-            fill
-            className="object-cover object-top transition-transform duration-500 group-hover/visual:scale-[1.03]"
-            sizes="(max-width: 768px) 240px, 30vw"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-[#0a1a33] to-[#081427]">
-            <Image src={ext.icon} alt={`${build.name} icon`} width={88} height={88} className="rounded-2xl" />
-          </div>
-        )}
-        <div className="absolute inset-0 bg-linear-to-t from-darkBlue/50 to-transparent" />
-      </Link>
+      {/* Visual: the extension in use, as a short muted loop where there is one (2026-11-09),
+          else a still that opens the extension's own page (2026-11-08). */}
+      {ext.clip ? (
+        <ProjectTour
+          title={build.name}
+          tour={ext.clip}
+          className="mx-auto w-full max-w-60 md:max-w-none"
+          sizes="(max-width: 768px) 240px, 30vw"
+        />
+      ) : (
+        <Link
+          href={`/builds/${build.slug}`}
+          aria-label={`${build.name}: full story`}
+          className="group/visual relative mx-auto block aspect-16/10 w-full max-w-60 overflow-hidden rounded-2xl border border-white/8 bg-[#07101d] md:max-w-none"
+        >
+          {ext.shot ? (
+            <Image
+              src={ext.shot}
+              alt={`${build.name} screenshot`}
+              fill
+              className="object-cover object-top transition-transform duration-500 group-hover/visual:scale-[1.03]"
+              sizes="(max-width: 768px) 240px, 30vw"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-[#0a1a33] to-[#081427]">
+              <Image src={ext.icon} alt={`${build.name} icon`} width={88} height={88} unoptimized className="rounded-2xl ring-1 ring-white/10" />
+            </div>
+          )}
+          <div className="absolute inset-0 bg-linear-to-t from-darkBlue/50 to-transparent" />
+        </Link>
+      )}
 
       {/* Text */}
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-3">
-          <Image src={ext.icon} alt="" width={36} height={36} className="rounded-xl" />
+          <Image src={ext.icon} alt="" width={36} height={36} unoptimized className="rounded-xl ring-1 ring-white/10" />
           <div>
             <h3 className="text-xl font-extrabold leading-tight text-slate-50">{build.name}</h3>
             <p className="text-sm text-slate-400">{build.tagline}</p>
@@ -110,7 +138,7 @@ const Detail = ({ ext }: { ext: Ext }) => {
 const ExtensionsShowcase = () => (
   // A full-bleed part of the Lab in its own indigo wash (`.lab-part-wash` in app/globals.css).
   <section id="extensions" aria-label="Chrome Extensions" className="lab-accent-extensions lab-part-wash py-12">
-    <div className="mx-auto max-w-6xl px-5 sm:px-8">
+    <div className="mx-auto max-w-site px-5 sm:px-8">
     <LabSubheader title="Chrome Extensions" icon={<PuzzleIcon />} />
 
     {/* ===== Desktop: 3 side-by-side + auto-cycle detail ===== */}

@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { FiChevronLeft, FiChevronRight, FiPause, FiPlay } from 'react-icons/fi'
 import { useHydrated } from '@/hooks/useHydrated'
-import { useOnWindows } from '@/hooks/useOnWindows'
 import { usePageVisible } from '@/hooks/usePageVisible'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import { latestEntry } from '@/lib/intersection'
@@ -285,23 +284,6 @@ export function ProjectTour({
           </button>
         )}
       </div>
-    </div>
-  )
-}
-
-/**
- * Marks its children with the visitor's platform (`data-platform`, "windows"
- * or "other", on a `group/platform` that takes no box of its own), so a row
- * whose app runs only on Windows can lead with its download there and with its
- * full story anywhere else (owner, 2026-11-08), by CSS alone: the server
- * renders the Windows version, the browser checks its platform once hydrated,
- * and only colours and words change, never sizes, so nothing moves.
- */
-export function PlatformGroup({ children }: { children: React.ReactNode }) {
-  const windows = useOnWindows()
-  return (
-    <div className="group/platform contents" data-platform={windows ? 'windows' : 'other'}>
-      {children}
     </div>
   )
 }

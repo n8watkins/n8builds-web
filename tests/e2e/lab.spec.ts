@@ -43,6 +43,8 @@ async function rowOf(page: Page, title: string) {
  */
 const asWindows = () => Object.defineProperty(navigator, 'userAgentData', { get: () => ({ platform: 'Windows' }) })
 const asMac = () => Object.defineProperty(navigator, 'userAgentData', { get: () => ({ platform: 'macOS' }) })
+const asLinux = () => Object.defineProperty(navigator, 'userAgentData', { get: () => ({ platform: 'Linux' }) })
+const asPhone = () => Object.defineProperty(navigator, 'userAgentData', { get: () => ({ platform: 'Android', mobile: true }) })
 
 /** A row's three controls: the primary action, Full story and the Star | GitHub group. */
 const controls = (row: Locator, title: string) => [
@@ -56,13 +58,16 @@ test('the Lab leads with the featured builds, OpenPing first, each with its icon
   const featured = page.locator('#featured')
   await featured.scrollIntoViewIfNeeded()
   // The part's own heading, then one per row.
-  await expect(featured.getByRole('heading', { level: 3 })).toHaveText(['Featured builds', 'OpenPing', 'Solara'])
+  await expect(featured.getByRole('heading', { level: 3 })).toHaveText(['Featured', 'OpenPing', 'Solara'])
+  // Just "Featured" since 2026-11-09, with no blurb and no checks of its own (they sit under "The Lab").
+  await expect(featured).not.toContainText('Free to use and open source')
+  await expect(featured.getByRole('list', { name: 'Open source' })).toHaveCount(0)
   // The Featured part comes first, right under the Lab's intro: no "My daily drivers" (Scribe moved to the Loadout).
   await expect(page.locator('#my-tools')).toHaveCount(0)
   await expect(page.locator('#lab').getByRole('article', { name: 'Scribe' })).toHaveCount(0)
   await expect(page.locator('#lab')).not.toContainText('My daily drivers')
-  // No redundant "Featured" eyebrow over "Featured builds", and no "The bench" over the Lab.
-  await expect(page.locator('#featured')).not.toContainText(/^Featured\s*Featured builds/)
+  // No redundant "Featured" eyebrow over the heading, and no "The bench" over the Lab.
+  await expect(page.locator('#featured')).not.toContainText(/^Featured\s*Featured/)
   await expect(page.locator('#lab')).not.toContainText('The bench')
   const lab = page.locator('#lab')
   for (const slug of ['openping', 'solara']) {
@@ -118,7 +123,7 @@ test('Full story opens the build page: no Details dialog, and the row shows no s
   await expect(page.getByRole('heading', { level: 1, name: 'OpenPing' })).toBeVisible()
 })
 
-test('the Lab is headed by its flask, and says its builds are open source once, under Featured', async ({ page }) => {
+test('the Lab is headed by its flask, and says its builds are open source once, under its heading', async ({ page }) => {
   await page.goto('/')
   // Its heading carries the Lab's flask mark (percolating), beside it in a chip.
   const heading = page.locator('#lab').getByRole('heading', { level: 2, name: 'The Lab' })
@@ -131,8 +136,18 @@ test('the Lab is headed by its flask, and says its builds are open source once, 
   await expect(mark.locator('.flask-escape')).toHaveCount(1)
   const [h, m] = await Promise.all([heading.boundingBox(), mark.boundingBox()])
   expect(Math.abs(h!.y + h!.height / 2 - (m!.y + m!.height / 2))).toBeLessThan(4)
-  // The claims every row shares sit once, under each part's heading, not in the rows.
-  await expect(page.locator('#featured')).toContainText('Free to use and open source, with no sign-up to start.')
+  // The claims every build shares sit once, under "The Lab" (owner, 2026-11-09), on one line from 1024px.
+  const checks = page.locator('#lab').getByRole('list', { name: 'Open source' })
+  await expect(checks).toHaveCount(1)
+  await expect(checks.getByRole('listitem')).toHaveText(['Public on GitHub', 'MIT-licensed', 'Tested on every pull request', 'Star, fork or open an issue'])
+  const [headingBox, checksBox] = await Promise.all([heading.boundingBox(), checks.boundingBox()])
+  expect(checksBox!.y).toBeGreaterThan(headingBox!.y + headingBox!.height)
+  expect(checksBox!.y).toBeLessThan((await page.locator('#featured').boundingBox())!.y)
+  if ((page.viewportSize()?.width ?? 0) >= 1024) {
+    const tops = await checks.getByRole('listitem').evaluateAll((items) => new Set(items.map((li) => Math.round(li.getBoundingClientRect().top))).size)
+    expect(tops).toBe(1)
+  }
+  await expect(page.locator('#template').getByText('MIT-licensed')).toHaveCount(0)
   for (const generic of ['No telemetry', 'No account to start', 'A vote takes five seconds', 'Free tools, no sign-up']) {
     await expect(page.locator('#lab').getByText(generic, { exact: true })).toHaveCount(0)
   }
@@ -207,12 +222,10 @@ test('Scribe downloads the newest installer through a stable link, and its page 
   await expect(download).not.toHaveAttribute('target', '_blank')
   // It says what you get, from the release itself (the fixture's v0.8.0 installer is 12,519,464 bytes).
   await expect(download).toHaveAccessibleDescription('Windows 10 and 11, 64-bit · v0.8.0 · 12 MB')
-  // A download mark at the start, and the Windows logo right by the word "Windows".
+  // A download mark at the start, and the Windows logo right before the word "Windows".
   await expect(download.locator('svg')).toHaveCount(2)
   const logo = download.locator('svg').nth(1)
-  const word = download.getByText('Windows', { exact: true })
-  const [l, w] = await Promise.all([logo.boundingBox(), word.boundingBox()])
-  expect(w!.x - (l!.x + l!.width)).toBeLessThan(8)
+  expect(await logo.evaluate((svg) => svg.nextSibling?.textContent?.trim())).toBe('Windows')
   // It holds still on hover: no scale.
   await download.hover()
   await expect(download).toHaveCSS('scale', 'none')
@@ -249,30 +262,43 @@ test('Scribe downloads the newest installer through a stable link, and its page 
 
 })
 
-test("Scribe's row leads with its download on Windows and with its full story anywhere else, without moving", { tag: '@cross-browser' }, async ({ browser }) => {
-  const look = async (windows: boolean) => {
+test("Scribe's row offers the download for the visitor's OS, and leads with its full story on a phone, without moving", { tag: '@cross-browser' }, async ({ browser }) => {
+  // Windows, and macOS and Linux in beta (owner, 2026-11-09).
+  const look = async (as: () => unknown, name: string) => {
     const context = await browser.newContext({ reducedMotion: 'reduce' })
     const page = await context.newPage()
-    await page.addInitScript(windows ? asWindows : asMac)
+    await page.addInitScript(as)
     const row = await rowOf(page, 'Scribe')
-    await expect(row.locator('[data-platform]')).toHaveAttribute('data-platform', windows ? 'windows' : 'other')
-    const [download, story] = controls(row, 'Scribe')
+    const download = row.getByRole('link', { name, exact: true })
+    const story = row.getByRole('link', { name: 'Full story of Scribe', exact: true })
     await download.scrollIntoViewIfNeeded()
     const solid = async (el: Locator) => el.evaluate((e) => getComputedStyle(e).backgroundImage !== 'none')
     const result = {
+      platform: await row.locator('[data-scribe-platform]').getAttribute('data-scribe-platform'),
+      href: await download.getAttribute('href'),
       download: await solid(download),
       story: await solid(story),
-      note: await row.getByText(windows ? 'Windows 10 and 11, 64-bit · v0.8.0 · 12 MB' : 'Windows app. Mac and Linux coming.').isVisible(),
-      boxes: await Promise.all([download, story].map((el) => el.boundingBox())),
+      note: (await row.locator('#scribe-download-note').innerText()).replace(/\s+/g, ' '),
+      boxes: await Promise.all([download, story].map(async (el) => {
+        const { width, height } = (await el.boundingBox())!
+        return { width: Math.round(width), height: Math.round(height) }
+      })),
     }
     await context.close()
     return result
   }
-  const [win, other] = [await look(true), await look(false)]
-  expect([win.download, win.story, win.note]).toEqual([true, false, true])
-  expect([other.download, other.story, other.note]).toEqual([false, true, true])
-  // Only colours and words change: both buttons keep their boxes.
-  expect(other.boxes).toEqual(win.boxes)
+  const win = await look(asWindows, 'Download for Windows')
+  expect(win).toMatchObject({ platform: 'windows', href: '/download/scribe', download: true, story: false, note: 'Windows 10 and 11, 64-bit · v0.8.0 · 12 MB' })
+  const mac = await look(asMac, 'Download for macOS Beta')
+  expect(mac).toMatchObject({ platform: 'mac', href: '/download/scribe-mac', download: true, story: false })
+  expect(mac.note).toMatch(/^macOS, Apple silicon and Intel · v0\.8\.0 · \d+ MB ?Not notarized by Apple: right-click Scribe and choose Open the first time\.$/)
+  const linux = await look(asLinux, 'Download for Linux Beta')
+  expect(linux).toMatchObject({ platform: 'linux', href: '/download/scribe-linux', download: true, story: false })
+  expect(linux.note).toMatch(/^Linux, 64-bit AppImage · v0\.8\.0 · \d+ MB · Also as a \.deb$/)
+  const phone = await look(asPhone, 'Download for Windows')
+  expect(phone).toMatchObject({ platform: 'other', download: false, story: true, note: 'Desktop app for Windows, with macOS and Linux in beta.' })
+  // Only colours and words change: the buttons keep their size.
+  for (const other of [mac, linux, phone]) expect(other.boxes).toEqual(win.boxes)
 })
 
 test("each row's primary action is in its product's colour", async ({ page }) => {
@@ -296,6 +322,12 @@ test('the homepage advertises the developer portfolio right after the Lab', asyn
   // Echo, Scout and GeminiGPT were retired on 2026-11-08: the ad names no project and links none.
   await expect(ad.locator('a[href*="/projects/"]')).toHaveCount(0)
   await expect(ad).not.toContainText(/voice agent|research agent|GeminiGPT/)
+  // The portfolio in use, a muted loop with a pause button, not a still (2026-11-09).
+  const clip = ad.locator('[data-tour] video')
+  await expect(clip).toHaveAttribute('aria-label', /developer portfolio's homepage/)
+  await expect(ad.locator('[data-tour] img[data-tour-poster]')).toHaveCount(1)
+  // No link around it: its pause button can't sit inside one.
+  await expect(ad.locator('a:has([data-tour])')).toHaveCount(0)
   const order = await page.evaluate(() => {
     const lab = document.getElementById('lab')!
     const adEl = document.getElementById('portfolio-ad-heading')!
@@ -331,7 +363,11 @@ test('each row has one primary action, then Full story, then Star | GitHub, and 
     expect(hrefs, title).toEqual([PRIMARY[title][1], `/builds/${SLUG[title]}`, `https://github.com/n8watkins/${REPO[title]}`, `https://github.com/n8watkins/${REPO[title]}`])
     // In that order on screen: one line, or the primary on its own line and the other two under it.
     const [p, f, r] = await Promise.all([primary, story, repo].map((el) => el.boundingBox()))
-    if (Math.round(p!.y) === Math.round(f!.y)) {
+    if (title === 'Scribe') {
+      // Scribe's download and Full story side by side (ScribeActions, 2026-11-09), Star | GitHub under them.
+      expect(p!.x < f!.x && Math.round(p!.y) === Math.round(f!.y), 'Scribe: download, then Full story').toBe(true)
+      expect(r!.y, 'Scribe: Star | GitHub under them').toBeGreaterThan(f!.y + f!.height - 1)
+    } else if (Math.round(p!.y) === Math.round(f!.y)) {
       expect(p!.x < f!.x && f!.x < r!.x, `${title}: primary, Full story, Star | GitHub`).toBe(true)
       expect(Math.round(f!.y), title).toBe(Math.round(r!.y))
     } else {
@@ -366,7 +402,8 @@ test("each row's buttons fit their column, with one-line labels, at every width"
       }
       // They keep an 8px gap and never touch.
       if (Math.round(p!.y) === Math.round(f!.y)) expect(f!.x - (p!.x + p!.width), at).toBeCloseTo(8, 0)
-      expect(r!.x - (f!.x + f!.width), at).toBeCloseTo(8, 0)
+      // Scribe's Star | GitHub has a line of its own under its two buttons (ScribeActions).
+      if (title !== 'Scribe') expect(r!.x - (f!.x + f!.width), at).toBeCloseTo(8, 0)
       // No label is cut off inside its button.
       const clipped = await Promise.all(
         [primary, story, repo.getByRole('link').first(), repo.getByRole('link').last()].map((el) => el.evaluate((e) => e.scrollWidth > e.clientWidth + 1)),
@@ -538,15 +575,23 @@ test("the row's stack and features moved to the build page", async ({ page }) =>
 test.describe('the Lab rows on a 320px phone', () => {
   test.use({ viewport: { width: 320, height: 700 } })
   test('nothing spills sideways: the primary takes its own line, Full story and Star | GitHub the next', { tag: '@cross-browser' }, async ({ page }) => {
-    // Scribe's row (on /loadout), the one with the longest primary and download caption.
+    // OpenPing's row: the primary on its own line, Full story and Star | GitHub sharing the next.
+    const open = await rowOf(page, 'OpenPing')
+    await open.scrollIntoViewIfNeeded()
+    const [p, f, r] = await Promise.all(controls(open, 'OpenPing').map((el) => el.boundingBox()))
+    expect(f!.y).toBeGreaterThan(p!.y + p!.height - 1)
+    expect(Math.round(f!.y)).toBe(Math.round(r!.y))
+    // Scribe's row (on /loadout), the one with the longest download caption: its two buttons
+    // stack (ScribeActions), Star | GitHub under them.
+    await page.addInitScript(asWindows)
     const row = await rowOf(page, 'Scribe')
     await row.scrollIntoViewIfNeeded()
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
-    const [p, f, r] = await Promise.all(controls(row, 'Scribe').map((el) => el.boundingBox()))
-    expect(f!.y).toBeGreaterThan(p!.y + p!.height - 1)
-    expect(Math.round(f!.y)).toBe(Math.round(r!.y))
-    // The download caption (or, away from Windows, the note) stays inside the column.
-    const caption = row.locator('#scribe-download-facts')
+    const [d, s, g] = await Promise.all(controls(row, 'Scribe').map((el) => el.boundingBox()))
+    expect(s!.y).toBeGreaterThan(d!.y + d!.height - 1)
+    expect(g!.y).toBeGreaterThan(s!.y + s!.height - 1)
+    // The download caption stays inside the column.
+    const caption = row.locator('#scribe-download-note')
     const box = (await caption.boundingBox())!
     expect(box.x + box.width).toBeLessThanOrEqual(320)
   })

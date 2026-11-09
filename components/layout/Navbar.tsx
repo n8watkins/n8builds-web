@@ -178,7 +178,7 @@ const Navbar = () => {
             : 'bg-transparent'
         }`}
       >
-        <div className="max-w-6xl mx-auto px-5 sm:px-8 h-[68px] flex items-center justify-between gap-6">
+        <div className="max-w-site mx-auto px-5 sm:px-8 h-[68px] flex items-center justify-between gap-6">
           {/* Brand */}
           <Link href="/" onClick={goHome} aria-label="n8builds.dev home" className="flex items-center gap-2.5 shrink-0 group">
             {/* The brand mark on its own (the tab icon puts it on a tile). */}

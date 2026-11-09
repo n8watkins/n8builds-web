@@ -554,11 +554,13 @@ test.describe('Loadout tools and people', () => {
     })
   })
 
-  test("the homepage's Scribe row is short, and leads with Full story off Windows, the download on Windows", async ({ browser }) => {
-    for (const [userAgent, windows] of [
-      ['Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Safari/537.36', true],
-      ['Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15', false],
-      ['Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1', false],
+  test("the homepage's Scribe row is short, and offers the download for the visitor's OS, Full story on a phone", async ({ browser }) => {
+    // Windows, and macOS and Linux in beta (owner, 2026-11-09).
+    for (const [userAgent, platform, name, href, note] of [
+      ['Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Safari/537.36', 'windows', 'Download for Windows', '/download/scribe', /^Windows 10 and 11, 64-bit · v0\.8\.0 · 12 MB$/],
+      ['Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15', 'mac', 'Download for macOS Beta', '/download/scribe-mac', /^macOS, Apple silicon and Intel · v0\.8\.0 · \d+ MBNot notarized by Apple: right-click Scribe and choose Open the first time\.$/],
+      ['Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Safari/537.36', 'linux', 'Download for Linux Beta', '/download/scribe-linux', /^Linux, 64-bit AppImage · v0\.8\.0 · \d+ MB · Also as a \.deb$/],
+      ['Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1', 'other', 'Download for Windows', '/download/scribe', 'Desktop app for Windows, with macOS and Linux in beta.'],
     ] as const) {
       const context = await browser.newContext({ userAgent, viewport: { width: 1280, height: 800 }, reducedMotion: 'reduce' })
       const page = await context.newPage()
@@ -568,18 +570,19 @@ test.describe('Loadout tools and people', () => {
       // No stack pills or feature checks here: the build page has them.
       await expect(row.getByRole('list')).toHaveCount(0)
       const actions = row.locator('[data-scribe-platform]')
-      await expect(actions).toHaveAttribute('data-scribe-platform', windows ? 'windows' : 'other')
-      const download = row.getByRole('link', { name: 'Download for Windows' })
+      await expect(actions).toHaveAttribute('data-scribe-platform', platform)
+      const download = row.getByRole('link', { name, exact: true })
       const story = row.getByRole('link', { name: 'Full story of Scribe' })
-      await expect(download).toHaveAttribute('href', '/download/scribe')
+      await expect(download).toHaveAttribute('href', href)
       await expect(story).toHaveAttribute('href', '/builds/scribe')
       // The leading button comes first; both are the same size, so nothing shifts.
       const [first] = await actions.getByRole('link').all()
-      await expect(first).toHaveAccessibleName(windows ? 'Download for Windows' : 'Full story of Scribe')
+      await expect(first).toHaveAccessibleName(platform === 'other' ? 'Full story of Scribe' : name)
       const [d, f] = [(await download.boundingBox())!, (await story.boundingBox())!]
       expect(Math.abs(d.width - f.width)).toBeLessThan(1)
       expect(Math.abs(d.height - f.height)).toBeLessThan(1)
-      await expect(row.locator('#scribe-download-note')).toHaveText(windows ? /^Windows 10 and 11, 64-bit/ : 'Windows app. Mac and Linux coming.')
+      await expect(row.locator('#scribe-download-note')).toHaveText(note)
+      if (platform === 'linux') await expect(row.getByRole('link', { name: 'Also as a .deb' })).toHaveAttribute('href', '/download/scribe-deb')
       await context.close()
     }
   })

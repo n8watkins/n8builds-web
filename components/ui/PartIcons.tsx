@@ -6,12 +6,13 @@ import { cn } from '@/lib/utils'
  * currentColor stroke with round ends, animated with CSS transforms, opacity
  * and stroke dashes only (`.part-icon` in app/globals.css), no motion library.
  *
- * - ScrollIcon (Build log): a scroll unrolls downwards, then its lines write in.
+ * - ScrollIcon (Build log): a scroll unrolls downwards, then its lines write in,
+ *   and now and then write again, one after the other, for as long as it shows.
  * - StarIcon (Featured): a star twinkles, with two glints beside it.
  * - PuzzleIcon (Chrome extensions): a puzzle piece snaps into place. The
  *   Chrome logo itself is never animated (brand rules), so this stands in.
  * - PotIcon (What's cookin'): a cooking pot whose lid jiggles; its steam keeps
- *   rising in a soft loop, the only one that loops.
+ *   rising in a soft loop.
  *
  * Each plays once, when it comes into view: inside a scroll reveal
  * (components/ui/Reveal.tsx) when that reveals, and in a side rail

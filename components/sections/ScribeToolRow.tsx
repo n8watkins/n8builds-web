@@ -4,7 +4,7 @@ import { ProjectTour, type ProjectTourVideo } from '@/components/sections/Featur
 import ScribeActions from '@/components/sections/ScribeActions'
 import RepoButtons from '@/components/ui/RepoButtons'
 import Reveal from '@/components/ui/Reveal'
-import { DOWNLOADS, formatSize, latestAsset } from '@/lib/downloads'
+import { scribeDownloads } from '@/lib/downloads'
 
 /** The tour of the app itself (scripts/scribe-tour/), the same one as the Lab's Scribe row. */
 const TOUR: ProjectTourVideo = {
@@ -17,22 +17,15 @@ const TOUR: ProjectTourVideo = {
 const quiet =
   'inline-flex h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/12 bg-white/4 px-3.5 text-sm font-semibold text-slate-200 transition-colors duration-200 hover:border-white/20 hover:bg-white/8 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300'
 
-/** What the download fetches, from the newest release; just the platform when GitHub can't say. */
-async function downloadFacts(): Promise<string> {
-  const asset = await latestAsset(DOWNLOADS.scribe)
-  // Scribe supports Windows 10 and 11, 64-bit only (its README).
-  return ['Windows 10 and 11, 64-bit', ...(asset ? [asset.version, formatSize(asset.size)] : [])].join(' · ')
-}
-
 /**
  * Scribe in the homepage's "Tools I built and use" (owner, 2026-11-08): the
  * tour of the app beside its name, tagline and one line on what it does, then
  * its buttons. No tech pills or feature checks here: its build page ("Full
- * story") has those. The download leads on Windows, the full story anywhere
- * else (ScribeActions). /loadout keeps the Lab's full Scribe row.
+ * story") has those. The download for the visitor's OS leads on a computer,
+ * the full story anywhere else (ScribeActions). /loadout keeps the Lab's full Scribe row.
  */
 export default async function ScribeToolRow() {
-  const facts = await downloadFacts()
+  const downloads = await scribeDownloads()
   return (
     <article aria-labelledby="scribe-title" className="group/scribe">
       <Reveal className="flex flex-col items-center gap-6 md:flex-row md:gap-12">
@@ -54,7 +47,7 @@ export default async function ScribeToolRow() {
               <h5 id="scribe-title" className="text-2xl font-bold tracking-tight text-slate-50 transition-colors duration-200 group-hover/scribe:text-sky-100 sm:text-3xl">
                 Scribe
               </h5>
-              <p className="text-sm font-semibold text-blue-300">Speech-to-text for Windows</p>
+              <p className="text-sm font-semibold text-blue-300">Speech-to-text for Windows, Mac and Linux</p>
             </div>
           </div>
           <p className="mt-3 text-sm leading-relaxed text-pretty text-[#9cadc5] sm:text-[0.95rem]">
@@ -62,7 +55,7 @@ export default async function ScribeToolRow() {
             never leaves your PC.
           </p>
           <div className="mt-5">
-            <ScribeActions download="/download/scribe" story="/builds/scribe" facts={facts} />
+            <ScribeActions downloads={downloads} story="/builds/scribe" />
           </div>
           {/* The landing page and the repo, in even halves under the main two where they fit. */}
           <div className="@container mt-3">
