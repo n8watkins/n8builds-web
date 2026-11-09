@@ -71,11 +71,20 @@ export default function BuildIndex({ activity }: { activity: BuildActivity[] }) 
                 <span className="font-mono text-xs uppercase tracking-wider text-slate-400">
                   {build.category}
                 </span>
-                {version && (
-                  <span className="rounded-full border border-cyan-400/25 bg-cyan-400/10 px-2 py-px font-mono text-[0.7rem] font-semibold text-cyan-300">
-                    {version}
-                  </span>
-                )}
+                <span className="flex items-center gap-2">
+                  {/* Picked: the feed below shows only this build. */}
+                  {selected && (
+                    <span className="flex items-center gap-1 rounded-full bg-cyan-400/15 px-2 py-px font-mono text-[0.68rem] font-semibold tracking-wide text-cyan-200 uppercase">
+                      <FiFilter className="h-3 w-3" aria-hidden="true" />
+                      Showing
+                    </span>
+                  )}
+                  {version && (
+                    <span className="rounded-full border border-cyan-400/25 bg-cyan-400/10 px-2 py-px font-mono text-[0.7rem] font-semibold text-cyan-300">
+                      {version}
+                    </span>
+                  )}
+                </span>
               </div>
 
               <div className="mt-3">
@@ -141,23 +150,15 @@ export default function BuildIndex({ activity }: { activity: BuildActivity[] }) 
                     'Nothing logged yet'
                   )}
                 </span>
-                <span className="flex items-center gap-3">
-                  {selected && (
-                    <span className="flex items-center gap-1 font-mono text-[0.68rem] font-semibold tracking-wide text-cyan-300 uppercase">
-                      <FiFilter className="h-3 w-3" aria-hidden="true" />
-                      Showing
-                    </span>
-                  )}
-                  {/* Above the card's stretched button: its own way to the build's page. */}
-                  <Link
-                    href={build.href}
-                    className="relative z-10 flex items-center gap-1 rounded font-mono text-xs text-slate-400 transition-colors hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
-                  >
-                    Full story
-                    <FiArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
-                    <span className="sr-only"> of {build.name}</span>
-                  </Link>
-                </span>
+                {/* Above the card's stretched button: its own way to the build's page. */}
+                <Link
+                  href={build.href}
+                  className="relative z-10 flex shrink-0 items-center gap-1 whitespace-nowrap rounded font-mono text-xs text-slate-400 transition-colors hover:text-cyan-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+                >
+                  Full story
+                  <FiArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span className="sr-only"> of {build.name}</span>
+                </Link>
               </div>
             </li>
           )
