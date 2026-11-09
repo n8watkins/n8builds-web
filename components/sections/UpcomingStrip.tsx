@@ -45,7 +45,7 @@ export default function UpcomingStrip() {
             <li
               key={p.slug}
               style={{ '--accent': p.accent } as CSSProperties}
-              className="relative flex items-center gap-3.5 py-3 pr-3 pl-4 sm:gap-4 sm:pr-4 sm:pl-5"
+              className="relative flex items-center gap-3.5 py-3 pr-3 pl-4 transition-colors duration-150 hover:bg-white/[0.035] sm:gap-4 sm:pr-4 sm:pl-5"
             >
               <span aria-hidden className="absolute inset-y-0 left-0 w-[3px] bg-(--accent)" />
               <Image src={p.icon} alt="" width={36} height={36} className="h-9 w-9 shrink-0 rounded-lg ring-1 ring-white/10" />

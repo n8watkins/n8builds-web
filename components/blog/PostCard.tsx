@@ -124,7 +124,7 @@ export function PostRow({ post }: { post: Post }) {
   return (
     <Link
       href={`/blog/${post.slug.current}`}
-      className="group flex items-start gap-3.5 rounded-xl border border-white/8 bg-white/2 p-3 transition-colors duration-200 hover:border-cyan-400/30 hover:bg-white/4"
+      className="group flex items-start gap-3.5 rounded-xl border border-white/8 bg-white/2 p-3 transition-[border-color,background-color,translate] duration-200 hover:-translate-y-0.5 hover:border-cyan-400/30 hover:bg-white/4 motion-reduce:hover:translate-y-0"
     >
       <CoverBanner
         coverUrl={post.coverUrl}

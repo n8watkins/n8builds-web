@@ -34,9 +34,13 @@ async function downloadFacts(): Promise<string> {
 export default async function ScribeToolRow() {
   const facts = await downloadFacts()
   return (
-    <article aria-labelledby="scribe-title">
+    <article aria-labelledby="scribe-title" className="group/scribe">
       <Reveal className="flex flex-col items-center gap-6 md:flex-row md:gap-12">
-        <ProjectTour title="Scribe" tour={TOUR} />
+        <ProjectTour
+          title="Scribe"
+          tour={TOUR}
+          frameClassName="rounded-2xl border border-white/8 transition-colors duration-200 group-hover/scribe:border-sky-300/30"
+        />
         <div className="flex w-full flex-col md:w-1/2">
           <div className="flex items-center gap-3">
             <Image
@@ -47,7 +51,7 @@ export default async function ScribeToolRow() {
               className="h-10 w-10 shrink-0 rounded-xl ring-1 ring-white/10 sm:h-11 sm:w-11"
             />
             <div className="min-w-0">
-              <h5 id="scribe-title" className="text-2xl font-bold tracking-tight text-slate-50 sm:text-3xl">
+              <h5 id="scribe-title" className="text-2xl font-bold tracking-tight text-slate-50 transition-colors duration-200 group-hover/scribe:text-sky-100 sm:text-3xl">
                 Scribe
               </h5>
               <p className="text-sm font-semibold text-blue-300">Speech-to-text for Windows</p>

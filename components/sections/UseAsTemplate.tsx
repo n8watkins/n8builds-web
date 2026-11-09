@@ -84,7 +84,7 @@ const Mark = ({ mark }: { mark: Template['mark'] }) =>
   )
 
 const TemplateCard = ({ t }: { t: Template }) => (
-  <li className="flex min-w-0 flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+  <li className="flex min-w-0 flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-[border-color,background-color,translate] duration-200 hover:-translate-y-0.5 hover:border-cyan-300/25 hover:bg-white/[0.045] motion-reduce:hover:translate-y-0 sm:p-6">
     <div className="flex items-center gap-3">
       <Mark mark={t.mark} />
       <div className="min-w-0">
