@@ -14,6 +14,54 @@ export interface Download {
 export const DOWNLOADS: Record<string, Download> = {
   // The NSIS installer: the smaller of Scribe's two Windows installers, and the one its site offers.
   scribe: { repo: 'n8watkins/scribe', asset: /_x64-setup\.exe$/ },
+  // macOS and Linux, in beta since 2026-11-09, matched by their file type so a
+  // renamed file still matches: one universal .dmg, an AppImage, and a .deb.
+  'scribe-mac': { repo: 'n8watkins/scribe', asset: /\.dmg$/i },
+  'scribe-linux': { repo: 'n8watkins/scribe', asset: /\.AppImage$/i },
+  'scribe-deb': { repo: 'n8watkins/scribe', asset: /\.deb$/i },
+}
+
+/** A desktop OS a build ships for. */
+export type DesktopOs = 'windows' | 'mac' | 'linux'
+
+/** One OS's download of a desktop app, as its download button and the line under it show it. */
+export interface PlatformDownload {
+  /** Its stable link, n8builds.dev/download/<app>. */
+  href: string
+  /** What it runs on, then the release and size when GitHub can say: "Windows 10 and 11, 64-bit · v0.8.0 · 12 MB". */
+  facts: string
+  /** A build still in beta (Scribe's Mac and Linux builds). */
+  beta: boolean
+  /** A sentence after the facts: the first-run step a Mac needs. */
+  note?: string
+  /** A second file for the same OS (Linux's .deb beside the AppImage). */
+  alt?: { href: string; label: string }
+}
+
+/** Scribe's downloads per OS (owner, 2026-11-09: Windows, and macOS and Linux in beta). */
+const SCRIBE: Record<DesktopOs, { app: string; runsOn: string; beta: boolean; note?: string; alt?: { app: string; label: string } }> = {
+  // Windows 10 and 11, 64-bit only (Scribe's README).
+  windows: { app: 'scribe', runsOn: 'Windows 10 and 11, 64-bit', beta: false },
+  mac: {
+    app: 'scribe-mac',
+    runsOn: 'macOS, Apple silicon and Intel',
+    beta: true,
+    note: 'Not notarized by Apple: right-click Scribe and choose Open the first time.',
+  },
+  linux: { app: 'scribe-linux', runsOn: 'Linux, 64-bit AppImage', beta: true, alt: { app: 'scribe-deb', label: '.deb' } },
+}
+
+/** Scribe's download for each OS, with the newest release's version and size where GitHub can say. */
+export async function scribeDownloads(): Promise<Record<DesktopOs, PlatformDownload>> {
+  const entries = await Promise.all(
+    (Object.keys(SCRIBE) as DesktopOs[]).map(async (os) => {
+      const { app, runsOn, beta, note, alt } = SCRIBE[os]
+      const asset = await latestAsset(DOWNLOADS[app])
+      const facts = [runsOn, ...(asset ? [asset.version, formatSize(asset.size)] : [])].join(' · ')
+      return [os, { href: `/download/${app}`, facts, beta, note, alt: alt && { href: `/download/${alt.app}`, label: alt.label } }] as const
+    }),
+  )
+  return Object.fromEntries(entries) as Record<DesktopOs, PlatformDownload>
 }
 
 interface Release {
@@ -35,6 +83,22 @@ const FIXTURE: Release = {
       name: 'Scribe_0.8.0_x64_en-US.msi',
       browser_download_url: 'https://github.com/n8watkins/scribe/releases/download/v0.8.0/Scribe_0.8.0_x64_en-US.msi',
       size: 30674944,
+    },
+    // The Mac and Linux betas (2026-11-09), under the stable names their release step gives them.
+    {
+      name: 'Scribe-macos-universal.dmg',
+      browser_download_url: 'https://github.com/n8watkins/scribe/releases/download/v0.8.0/Scribe-macos-universal.dmg',
+      size: 21495808,
+    },
+    {
+      name: 'Scribe-linux-x86_64.AppImage',
+      browser_download_url: 'https://github.com/n8watkins/scribe/releases/download/v0.8.0/Scribe-linux-x86_64.AppImage',
+      size: 88080384,
+    },
+    {
+      name: 'Scribe-linux-amd64.deb',
+      browser_download_url: 'https://github.com/n8watkins/scribe/releases/download/v0.8.0/Scribe-linux-amd64.deb',
+      size: 9437184,
     },
   ],
 }
