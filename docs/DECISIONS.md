@@ -396,6 +396,14 @@ Where these conflict with an older entry above, these win; the older entries are
   /builds shows the same month card beside its intro, and the page fades in on load a step at a time (CSS, still under reduced motion), its sections fading up as they scroll in.
   **Links behave the same everywhere** (link map review): every Portfolio link (navbar, phone menu, hero, template card, footer) goes through the counted `/portfolio?from=...` link in a new tab; each Chrome extension's screenshot opens its build page (`<name>: full story`), not GitHub a second time; the footer's link to /builds reads "Full build log"; LinkedIn is one URL everywhere, https://linkedin.com/in/n8watkins (`lib/links.ts`).
 
+- **Round 4 of the trim (owner, 2026-11-08):**
+  The Tech for Pros card: "Don't see yours? We'll build it." goes to Tech for Pros' templates (`/techforpros?from=hero&to=templates`, techforpros.com/#templates; new tab), and there is no "Visit techforpros.com" button (the logo and name link the site). The window has macOS traffic lights, it is a little smaller, the phone sits higher on it, and the quote form sits at the foot of the left column, level with the chips and "Don't see yours?" on the right.
+  The homepage build log names the month once, on the card, with its year ("October 2026"); no "Shipped in ..." line under the heading. The card is three columns from 1024px (month card, its updates, the release-kit note), stacked on phones. The updates show two at a time and move on one by one every 6.5 seconds while on screen (held while hovered or focused, still under reduced motion), with arrows to step.
+  The month arrows go round, here and on /builds: on from the newest month is the oldest, back from the oldest is the newest.
+  A cyan line with a soft glow under it cuts from the build log into the Lab.
+  Every build log entry (homepage, /builds, build pages) has the same icon frame; a release says so with a "Release" badge (it had a cyan ring before).
+  /builds: the feed is one continuous list (newest first, month headers sticking under the navbar), 30 entries at first and more as you scroll or with "Load more", no 12-month cut-off; its build chips show their counts. Plain entries light up under the pointer, cards brighten their border; the release-kit link carries GitHub's mark.
+
 ## Publishing and releases (2026-10-25)
 
 - **Articles are always site first.** Every article is written and published on n8builds.dev (N8's Notions, in Sanity); posting or reposting it on X is a separate, later step, never the primary copy.
