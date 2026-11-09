@@ -18,8 +18,8 @@ export interface ExtensionCard {
  * the cycle restarts), so it starts empty and stays in step with the cycle.
  * Under reduced motion there is no cycle, so it simply shows full.
  */
-function ProgressBar({ fast }: { fast: boolean }) {
-  const [duration] = useState(fast ? 0.3 : CYCLE_MS / 1000)
+function ProgressBar({ fast, ms }: { fast: boolean; ms: number }) {
+  const [duration] = useState(fast ? 0.3 : ms / 1000)
   return (
     <div
       data-progress
@@ -50,15 +50,25 @@ export default function ExtensionsCarousel({ cards, details }: { cards: Extensio
   const [progressKey, setProgressKey] = useState(0)
   const reduceMotion = usePrefersReducedMotion()
 
+  // How long the active tab holds: a tab with a clip holds for one whole loop of it
+  // (round 7 of 2026-11-09: at 5s a visitor only ever saw part of a clip), else CYCLE_MS.
+  const [holdMs, setHoldMs] = useState(CYCLE_MS)
+  useEffect(() => {
+    const clip = document.getElementById(`ext-panel-${cards[active].slug}`)?.querySelector<HTMLElement>('[data-clip-ms]')
+    // Read from the panel the server rendered: setting state from the DOM here is the point.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setHoldMs(Math.max(CYCLE_MS, Number(clip?.dataset.clipMs) || 0))
+  }, [active, cards])
+
   // auto-cycle (desktop). Pauses on hover and focus, and never runs under reduced motion.
   useEffect(() => {
     if (paused || reduceMotion) return
-    const timer = setInterval(() => {
+    const timer = setTimeout(() => {
       show((a) => (a + 1) % cards.length)
       setProgressKey((k) => k + 1)
-    }, CYCLE_MS)
-    return () => clearInterval(timer)
-  }, [paused, reduceMotion, cards.length])
+    }, holdMs)
+    return () => clearTimeout(timer)
+  }, [paused, reduceMotion, cards.length, holdMs, progressKey])
 
   const select = (i: number) => {
     show(() => i)
@@ -115,7 +125,7 @@ export default function ExtensionsCarousel({ cards, details }: { cards: Extensio
               {/* the cycle's timer, on the active tab */}
               <div className="mt-auto pt-4">
                 <div className="h-[3px] w-full overflow-hidden rounded-full bg-white/8">
-                  {isActive && <ProgressBar key={`${progressKey}-${paused}`} fast={paused} />}
+                  {isActive && <ProgressBar key={`${progressKey}-${paused}-${holdMs}`} fast={paused} ms={holdMs} />}
                 </div>
               </div>
             </button>
