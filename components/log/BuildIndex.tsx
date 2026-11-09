@@ -67,7 +67,9 @@ export default function BuildIndex({ activity }: { activity: BuildActivity[] }) 
                 className={`pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r ${build.color} opacity-90`}
               />
 
-              <div className="flex items-center justify-between gap-2">
+              {/* A fixed-height row, so a version or Showing badge never pushes the
+                  name lower than on cards without one. */}
+              <div className="flex h-5 items-center justify-between gap-2">
                 <span className="font-mono text-xs uppercase tracking-wider text-slate-400">
                   {build.category}
                 </span>
