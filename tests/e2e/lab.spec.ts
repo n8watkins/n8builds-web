@@ -241,24 +241,16 @@ test('Scribe downloads the newest installer through a stable link, and its page 
   expect(response.headers().location).toMatch(/^https:\/\/github\.com\/n8watkins\/scribe\/releases\/download\/v[\d.]+\/Scribe_[\d.]+_x64-setup\.exe$/)
   expect((await request.get('/download/nothing', { maxRedirects: 0 })).status()).toBe(404)
 
-  // The build page offers the same download, says what it fetches, and takes Mac and Linux requests.
+  // The build page offers the same download, says what it fetches, and links the Mac and Linux betas.
   await page.goto('/builds/scribe')
   const header = page.locator('main header')
   await expect(header.getByRole('link', { name: 'Download for Windows' })).toHaveAttribute('href', '/download/scribe')
   await expect(header.getByRole('link', { name: 'Download for Windows' })).toHaveAccessibleDescription('Windows 10 and 11, 64-bit · v0.8.0 · 12 MB')
   await expect(row.getByRole('link', { name: /Mac or Linux/ })).toHaveCount(0)
-  // Mac and Linux: the Apple and Tux marks sit by their words, under one continuous underline.
-  const ask = header.getByRole('link', { name: /Mac or Linux/ })
-  await expect(ask).toHaveAttribute('href', /^https:\/\/github\.com\/n8watkins\/scribe\/issues\/new\?title=Request/)
-  await expect(ask.locator('svg')).toHaveCount(2)
-  for (const [i, os] of [[0, 'Mac'], [1, 'Linux?']] as const) {
-    const [mark, text] = await Promise.all([ask.locator('svg').nth(i).boundingBox(), ask.getByText(os, { exact: true }).boundingBox()])
-    expect(text!.x - (mark!.x + mark!.width), os).toBeLessThan(8)
-  }
-  const label = ask.locator('span').first()
-  await expect(label).toHaveCSS('border-bottom-style', 'solid')
-  const [labelBox, askBox] = await Promise.all([label.boundingBox(), ask.boundingBox()])
-  expect(labelBox!.width).toBeGreaterThan(askBox!.width - 8)
+  // Mac and Linux ship as betas (2026-11-09): direct downloads, no request link.
+  await expect(header.getByRole('link', { name: /Mac or Linux/ })).toHaveCount(0)
+  await expect(header.getByRole('link', { name: 'macOS (beta, not notarized)' })).toHaveAttribute('href', '/download/scribe-mac')
+  await expect(header.getByRole('link', { name: 'Linux AppImage (beta)' })).toHaveAttribute('href', '/download/scribe-linux')
 
 })
 

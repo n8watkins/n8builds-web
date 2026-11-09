@@ -238,7 +238,7 @@ export const builds: Build[] = [
   {
     slug: 'scribe',
     name: 'Scribe',
-    tagline: 'Speech-to-text for Windows',
+    tagline: 'Speech-to-text for Windows, Mac and Linux',
     category: 'Desktop app',
     mine: true,
     tags: ['Tauri', 'Rust', 'Whisper'],
@@ -256,7 +256,7 @@ export const builds: Build[] = [
     solution:
       'Hold a hotkey, talk and let go: whisper.cpp transcribes on your PC and the words land at your cursor. History stays in a local database, and no audio leaves the machine.',
     stack: [
-      { name: 'Tauri 2 · Rust', layer: 'Backend', detail: 'The Windows app: tray menu, global hotkeys, audio capture, and text typed at your cursor with your clipboard put back', tech: ['tauri', 'rust'] },
+      { name: 'Tauri 2 · Rust', layer: 'Backend', detail: 'The desktop app (Windows, with macOS and Linux in beta): tray menu, global hotkeys, audio capture, and text typed at your cursor with your clipboard put back', tech: ['tauri', 'rust'] },
       { name: 'whisper.cpp', layer: 'Backend', detail: 'Speech to text on your PC: a warm server keeps the model loaded, on your graphics card (Vulkan) or the CPU', tech: ['whispercpp'] },
       { name: 'SQLite', layer: 'Backend', detail: 'History, notes and stats, kept for as long as you choose', tech: ['sqlite'] },
       { name: 'React · TypeScript · Vite', layer: 'Frontend', detail: 'The dashboard (history, notes, stats, models, hotkeys, themes), shown in WebView2', tech: ['react', 'typescript', 'vite', 'webview2'] },
@@ -265,7 +265,7 @@ export const builds: Build[] = [
     process: [
       'The warm-transcriber design is the speed trick: whisper-server holds the model in memory so transcription starts instantly, with whisper-cli as the fallback path.',
       'Live transcription runs phrase-by-phrase in the background while you talk, so text is ready the moment you release the hotkey.',
-      'Deliberately Windows x64 only - written into the README as a non-goal rather than over-building for platforms nobody asked for.',
+      'Windows came first; macOS and Linux followed as betas once people asked, built and smoke-tested in CI on every release.',
       'Privacy is mechanical, not a promise: speech is transcribed on your PC and audio never leaves it. Recordings stay on the PC for playback until their transcript is cleared (or right away, with saving clips turned off), and the only network calls are update checks, the model you choose to download, and the optional GitHub backup and AI tools.',
     ],
     // The app's own screens (captured from its UI by scripts/scribe-tour/), not its landing page (round 4 of 2026-11-02).
@@ -276,13 +276,10 @@ export const builds: Build[] = [
       { src: '/builds/scribe/app-appearance-emerald.webp', alt: 'Scribe appearance: seven color themes, here switched to Emerald' },
     ],
     tryIt: { label: 'Download for Windows', href: '/download/scribe', download: 'scribe' },
+    // macOS and Linux builds ship as betas since 2026-11-09 (owner); the Mac app is not notarized.
     moreActions: [
-      {
-        // Non-breaking spaces keep "Ask for it" together on the narrowest phones.
-        label: 'Want it on Mac or Linux? Ask\u00a0for\u00a0it',
-        href: 'https://github.com/n8watkins/scribe/issues/new?title=Request%3A%20Scribe%20for%20macOS%20or%20Linux&body=Which%20platform%20would%20you%20use%20Scribe%20on%20(macOS%20or%20Linux%2C%20and%20which%20version)%3F%0A%0AWhat%20would%20you%20use%20it%20for%3F',
-        quiet: true,
-      },
+      { label: 'macOS (beta, not notarized)', href: '/download/scribe-mac', quiet: true },
+      { label: 'Linux AppImage (beta)', href: '/download/scribe-linux', quiet: true },
     ],
     github: 'https://github.com/n8watkins/scribe',
     liveSite: 'https://scribe.n8builds.dev',

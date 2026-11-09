@@ -15,7 +15,7 @@ test.describe('a build page', () => {
     await page.goto('/builds/scribe')
     const header = page.locator('main header').first()
     await expect(header.getByRole('heading', { level: 1, name: 'Scribe' })).toBeVisible()
-    await expect(header.getByText('Speech-to-text for Windows')).toBeVisible()
+    await expect(header.getByText('Speech-to-text for Windows, Mac and Linux')).toBeVisible()
 
     // A quiet header (owner, 2026-11-08): the kind is one small line over the
     // name, and the tech pills moved down to Stack & choices.

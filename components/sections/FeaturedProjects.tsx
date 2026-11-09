@@ -78,7 +78,7 @@ const featured: FeaturedProject[] = [
     title: 'Scribe',
     icon: '/builds/scribe/app-icon.png',
     group: 'daily',
-    subtitle: 'Speech-to-text for Windows',
+    subtitle: 'Speech-to-text for Windows, Mac and Linux',
     description:
       'I dictate with Scribe every day: hold a hotkey, talk and let go, and your words land at the cursor. Your audio never leaves your PC.',
     // The app itself, not its landing page (round 4 of 2026-11-02): since
