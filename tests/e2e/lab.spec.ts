@@ -256,7 +256,8 @@ test('the homepage advertises the developer portfolio right after the Lab', asyn
   const clip = ad.locator('[data-tour] video')
   await expect(clip).toHaveAttribute('aria-label', /developer portfolio's homepage/)
   await expect(ad.locator('[data-tour] img[data-tour-poster]')).toHaveCount(1)
-  await expect(ad.getByRole('link', { name: '' })).toHaveCount(0)
+  // No link around it: its pause button can't sit inside one.
+  await expect(ad.locator('a:has([data-tour])')).toHaveCount(0)
   const order = await page.evaluate(() => {
     const lab = document.getElementById('lab')!
     const adEl = document.getElementById('portfolio-ad-heading')!

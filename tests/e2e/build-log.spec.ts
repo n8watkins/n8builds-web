@@ -163,7 +163,9 @@ test('the feed is one continuous list: month headers, more loading as you scroll
   expect(first).toBe(30)
   const more = feed(page).getByRole('button', { name: /^Load more/ })
   await expect(more).toBeVisible()
-  await more.click()
+  // Clicked where it is: scrolling it into view first would reach the feed's foot, which
+  // loads more by itself and moves the button away mid-click (a flake, 2026-11-09).
+  await more.dispatchEvent('click')
   await expect.poll(() => feedEntries(page).count()).toBeGreaterThan(first)
   // The month headers stay under the navbar as their months scroll by.
   const header = feed(page).locator('section h3').first()
