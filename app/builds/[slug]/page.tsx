@@ -23,7 +23,6 @@ import { BUILD_ICONS } from '@/lib/build-meta'
 import { TechGlyph, type TechKey } from '@/lib/tech-icons'
 import ProductStage from '@/components/builds/ProductStage'
 import BuildSidebar, { BuildFactsPanel, type BuildFacts, type PagePart } from '@/components/builds/BuildSidebar'
-import { canFrame } from '@/lib/embeddable'
 import { repoFacts, repoFromUrl } from '@/lib/github-stars'
 import { LOG_TIME_ZONE, type LogEntry } from '@/lib/build-log'
 
@@ -75,10 +74,6 @@ export default async function BuildPage({ params }: BuildPageProps) {
   )
   const icon = BUILD_ICONS[build.slug]
   const caption = build.tryIt?.download ? await downloadCaption(build.tryIt.download) : undefined
-  // The live product's pages that let this site frame them (lib/embeddable.ts).
-  const views = build.demo
-    ? (await Promise.all(build.demo.views.map(async (v) => ((await canFrame(v.url)) ? v : null)))).filter((v) => v !== null)
-    : []
   const facts = await buildFacts(build, activity)
 
   // This site's own page is its own layout: a case study for developers
@@ -144,11 +139,11 @@ export default async function BuildPage({ params }: BuildPageProps) {
               </FadeIn>
             </header>
 
-            {/* The product, full width: its clip and the live product (ProductStage),
+            {/* The product, full width: its clip and Try it live (ProductStage),
                 or for a build without them its first screenshot, large. */}
-            {build.clip || views.length > 0 ? (
+            {build.clip ? (
               <FadeIn delay={0.12} className="mt-10 md:mt-12" data-build-picture="">
-                <ProductStage name={build.name} clip={build.clip} views={views} note={build.demo?.note} />
+                <ProductStage name={build.name} clip={build.clip} tryLive={build.tryLive} />
               </FadeIn>
             ) : build.images.length > 0 ? (
               <FadeIn delay={0.12} className="mt-10 md:mt-12" data-build-picture="">
@@ -171,7 +166,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
 
             {/* The story, beside the sidebar from 1024px (owner, 2026-11-09). */}
             <div className="lg:mt-16 lg:grid lg:grid-cols-[13.5rem_minmax(0,1fr)] lg:gap-12 xl:grid-cols-[15rem_minmax(0,1fr)] xl:gap-16">
-              <BuildSidebar facts={facts} parts={pageParts(build, views.length > 0, features.length > 0, layers.length > 0, activity.length > 0)} />
+              <BuildSidebar facts={facts} parts={pageParts(build, features.length > 0, layers.length > 0, activity.length > 0)} />
               <div className="min-w-0">
                 {/* What it does: each feature beside its own screenshot (owner, 2026-11-08) */}
                 {features.length > 0 && (
@@ -390,9 +385,9 @@ function StoryParts({ build, layers }: { build: Build; layers: ('Frontend' | 'Ba
 }
 
 /** The sidebar's links: the parts this build's page has, in order. */
-function pageParts(build: Build, live: boolean, features: boolean, layers: boolean, log: boolean): PagePart[] {
+function pageParts(build: Build, features: boolean, layers: boolean, log: boolean): PagePart[] {
   return [
-    build.clip || live ? { id: 'demo', label: live ? 'Try it live' : 'See it in use' } : null,
+    build.clip ? { id: 'demo', label: 'See it in use' } : null,
     features ? { id: 'features', label: 'What it does' } : null,
     build.problem ? { id: 'story', label: 'Problem and build' } : null,
     layers ? { id: 'built', label: "How it's built" } : null,

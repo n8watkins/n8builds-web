@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildContentSecurityPolicy, DEMO_FRAMES, securityHeaders, sentryCspReportUri } from '@/lib/security/headers.mjs'
-import { builds } from '@/data/builds'
+import { buildContentSecurityPolicy, securityHeaders, sentryCspReportUri } from '@/lib/security/headers.mjs'
 
 function directive(csp: string, name: string): string | undefined {
   return csp.split(';').map((d) => d.trim()).find((d) => d === name || d.startsWith(`${name} `))
@@ -49,13 +48,6 @@ describe('buildContentSecurityPolicy', () => {
     // GA4's /g/collect hits on www.google.com (Sentry N8BUILDS-3, 2026-10-28).
     expect(directive(csp, 'connect-src')).toContain('https://www.google.com')
     expect(directive(csp, 'img-src')).toContain('https://cdn.sanity.io')
-  })
-
-  it("frames every build's live demo, and only from the products' own origins", () => {
-    const frames = directive(buildContentSecurityPolicy(), 'frame-src')
-    const origins = new Set(builds.flatMap((b) => b.demo?.views.map((v) => new URL(v.url).origin) ?? []))
-    expect([...origins].sort()).toEqual([...DEMO_FRAMES].sort())
-    for (const origin of origins) expect(frames).toContain(origin)
   })
 
   it('allows the live players as frames, and nothing else from Twitch or YouTube', () => {

@@ -71,16 +71,10 @@ export interface Build {
    */
   clip?: BuildClip & { phone?: BuildClip }
   /**
-   * The live product, to use right on its build page (owner, 2026-11-09):
-   * its public pages that need no sign-up, a tab each, in a sandboxed frame.
-   * A page shows only while its site lets n8builds.dev frame it
-   * (lib/embeddable.ts); otherwise the clip stands in.
+   * Where "Try it live" beside the clip goes (owner, 2026-11-09): the real
+   * product, in a new tab, on a page that needs no sign-up. Never embedded.
    */
-  demo?: {
-    views: { label: string; url: string }[]
-    /** One line under the live demo: what it is and what to try. */
-    note: string
-  }
+  tryLive?: string
   /** People and projects the build stands on, credited with links on its page. */
   credits?: { name: string; href: string; note: string }[]
   /**
@@ -348,14 +342,8 @@ images: [
         alt: 'The same on a phone: OpenPing\'s status page, adding a check for n8builds.dev from the phone layout, and the status page showing it operational',
       },
     },
-    demo: {
-      views: [
-        { label: 'Is it down?', url: 'https://openping.n8builds.dev/tools/is-it-down' },
-        { label: 'Free tools', url: 'https://openping.n8builds.dev/tools' },
-        { label: 'Status page', url: 'https://openping.n8builds.dev/status' },
-      ],
-      note: "The real OpenPing, live: check any site from Cloudflare's edge, or try its free tools. No sign-up.",
-    },
+    // Try it live: the free Is it down? tool, a real check with no sign-up.
+    tryLive: 'https://openping.n8builds.dev/tools/is-it-down',
     // The landing page is the product's front door (owner, 2026-11-08).
     tryIt: { label: 'Check it out', href: 'https://openping.n8builds.dev' },
     moreActions: [
@@ -419,10 +407,8 @@ images: [
         alt: "The same on a phone: picking Sydney and a skin type, then adding a run and getting its lower-UV window",
       },
     },
-    demo: {
-      views: [{ label: 'Planner', url: 'https://solara-uv.web.app/app/' }],
-      note: 'The real Solara, live, as a guest: pick a city and your skin type, then add an activity. Your plan stays in this browser.',
-    },
+    // Try it live: the planner as a guest.
+    tryLive: 'https://solara-uv.web.app/app/',
     // Straight into the planner.
     tryIt: { label: 'Find your sun window', href: 'https://solara-uv.web.app/app/' },
     github: 'https://github.com/n8watkins/solara',

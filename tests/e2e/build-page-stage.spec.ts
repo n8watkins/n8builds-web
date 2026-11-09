@@ -1,103 +1,54 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 /**
  * A build page's product stage and sidebar (owner, 2026-11-09): the product
- * full width under the header, its clip or the live product (a sandboxed
- * frame of its public pages), on a desktop or a phone; and from 1024px a
- * sidebar with the build's basics and links to each part of the page.
- *
- * The suite runs with EMBED_FIXTURE=allow (every demo page counts as
- * framable); the framed pages themselves are stubbed here, so no test talks
- * to the live products.
+ * full width under the header, its clip on a desktop or a phone, and Try it
+ * live, a plain link to the real product in a new tab (never embedded); and
+ * from 1024px a sidebar with the build's basics and links to each part.
  */
-async function stubProducts(page: Page) {
-  const framed: string[] = []
-  await page.route(/^https:\/\/(openping\.n8builds\.dev|solara-uv\.web\.app)\//, (route) => {
-    framed.push(route.request().url())
-    return route.fulfill({
-      contentType: 'text/html',
-      body: `<!doctype html><meta name=viewport content="width=device-width"><title>stub</title><body style="margin:0;background:#111;color:#eee"><p id=w></p><script>w.textContent='width '+innerWidth</script>`,
-    })
-  })
-  return framed
+const LIVE = {
+  openping: 'https://openping.n8builds.dev/tools/is-it-down',
+  solara: 'https://solara-uv.web.app/app/',
 }
 
 test.describe('the product stage on a desktop', () => {
   test.use({ viewport: { width: 1280, height: 900 } })
 
-  test('plays the clip first and loads nothing from the product until asked', async ({ page }) => {
-    const framed = await stubProducts(page)
-    await page.goto('/builds/openping')
-    const stage = page.getByTestId('product-stage')
-    await expect(stage.getByRole('button', { name: 'Watch it in use' })).toHaveAttribute('aria-pressed', 'true')
-    await expect(stage.locator('[data-tour] video').filter({ visible: true })).toHaveCount(1)
-    await expect(page.locator('iframe')).toHaveCount(0)
-    expect(framed).toEqual([])
+  test('plays the clip, embeds nothing, and Try it live opens the real product in a new tab', async ({ page }) => {
+    for (const slug of ['openping', 'solara'] as const) {
+      await page.goto(`/builds/${slug}`)
+      const stage = page.getByTestId('product-stage')
+      await expect(stage.locator('[data-tour] video').filter({ visible: true }), slug).toHaveCount(1)
+      await expect(page.locator('iframe'), slug).toHaveCount(0)
+      const live = stage.getByRole('link', { name: /^Try it live/ })
+      await expect(live, slug).toHaveAttribute('href', LIVE[slug])
+      await expect(live, slug).toHaveAttribute('target', '_blank')
+      await expect(live, slug).toHaveAttribute('rel', 'noopener noreferrer')
+      await expect(live, slug).toHaveAccessibleName(/opens in a new tab/)
+      // Never the public status page.
+      await expect(page.locator('main a[href*="/status"]'), slug).toHaveCount(0)
+    }
   })
 
-  test('Try it live shows the real pages in a sandboxed frame, a tab each', async ({ page }) => {
-    const framed = await stubProducts(page)
+  test('the Phone switch shows the phone take in a phone, and Desktop brings the desktop take back', async ({ page }) => {
     await page.goto('/builds/openping')
     const stage = page.getByTestId('product-stage')
-    await stage.getByRole('button', { name: 'Try it live' }).click()
-    const frame = stage.locator('iframe').filter({ visible: true })
-    await expect(frame).toHaveAttribute('src', 'https://openping.n8builds.dev/tools/is-it-down')
-    await expect(frame).toHaveAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox')
-    await expect(frame).toHaveAccessibleName('OpenPing, live: Is it down?')
-    await expect(stage.getByTestId('stage-address')).toHaveText('openping.n8builds.dev/tools/is-it-down')
-    await expect(stage.getByRole('link', { name: 'Open OpenPing in a new tab' })).toHaveAttribute('href', 'https://openping.n8builds.dev/tools/is-it-down')
-
-    const tabs = stage.getByRole('tablist', { name: 'OpenPing pages' }).getByRole('tab')
-    await expect(tabs).toHaveText(['Is it down?', 'Free tools', 'Status page'])
-    await tabs.nth(2).click()
-    await expect(tabs.nth(2)).toHaveAttribute('aria-selected', 'true')
-    await expect(stage.locator('iframe').filter({ visible: true })).toHaveAttribute('src', 'https://openping.n8builds.dev/status')
-    // The arrow keys move between pages too.
-    await page.keyboard.press('ArrowLeft')
-    await expect(tabs.nth(1)).toBeFocused()
-    await expect(stage.locator('iframe').filter({ visible: true })).toHaveAttribute('src', 'https://openping.n8builds.dev/tools')
-    // Pages already opened stay loaded: switching back loads nothing again.
-    const before = framed.length
-    await tabs.nth(0).click()
-    await expect(stage.locator('iframe').filter({ visible: true })).toHaveAttribute('src', /is-it-down$/)
-    expect(framed.length).toBe(before)
-  })
-
-  test('the Phone switch shows the live product at a phone width, without reloading it', async ({ page }) => {
-    const framed = await stubProducts(page)
-    await page.goto('/builds/openping')
-    const stage = page.getByTestId('product-stage')
-    await stage.getByRole('button', { name: 'Try it live' }).click()
-    const frame = stage.locator('iframe').filter({ visible: true })
-    await expect(frame.contentFrame().locator('#w')).toHaveText(/width \d{4}/)
-    const loads = framed.length
+    const video = stage.locator('[data-tour] video').filter({ visible: true })
+    await expect(stage.getByRole('button', { name: 'Desktop' })).toHaveAttribute('aria-pressed', 'true')
+    await expect(video).toHaveAttribute('aria-label', /^A short clip of OpenPing/)
 
     await stage.getByRole('button', { name: 'Phone' }).click()
     await expect(stage.getByRole('button', { name: 'Phone' })).toHaveAttribute('aria-pressed', 'true')
     await expect(stage.locator('[data-device="phone"]')).toBeVisible()
-    await expect.poll(async () => (await frame.boundingBox())!.width).toBe(390)
-    // The same frame, resized: the product lays itself out again, nothing reloads.
-    await expect(frame.contentFrame().locator('#w')).toHaveText(/width \d{4}/)
-    expect(framed.length).toBe(loads)
-
-    // The clip switches to its phone take.
-    await stage.getByRole('button', { name: 'Watch it in use' }).click()
-    const video = stage.locator('[data-tour] video').filter({ visible: true })
     await expect(video).toHaveAttribute('aria-label', /^The same on a phone/)
+    expect(Math.round((await video.boundingBox())!.width)).toBe(390)
+
     await stage.getByRole('button', { name: 'Desktop' }).click()
-    await expect(stage.locator('[data-tour] video').filter({ visible: true })).toHaveAttribute('aria-label', /^A short clip of OpenPing/)
+    await expect(stage.locator('[data-device="desktop"]')).toBeVisible()
+    await expect(video).toHaveAttribute('aria-label', /^A short clip of OpenPing/)
   })
 
-  test('a build with one live page shows no page tabs', async ({ page }) => {
-    await stubProducts(page)
-    await page.goto('/builds/solara')
-    const stage = page.getByTestId('product-stage')
-    await stage.getByRole('button', { name: 'Try it live' }).click()
-    await expect(stage.getByRole('tablist')).toHaveCount(0)
-    await expect(stage.locator('iframe')).toHaveAttribute('src', 'https://solara-uv.web.app/app/')
-  })
-
-  test('a build without a clip or a demo keeps its screenshot', async ({ page }) => {
+  test('a build without a clip keeps its screenshot', async ({ page }) => {
     await page.goto('/builds/scribe')
     await expect(page.locator('#demo')).toHaveCount(0)
     await expect(page.locator('[data-build-picture]').getByRole('button', { name: /^Open screenshot/ })).toBeVisible()
@@ -107,27 +58,17 @@ test.describe('the product stage on a desktop', () => {
 test.describe('the product stage on a phone', () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true })
 
-  test('shows the phone take with no switches, and Try it live opens the product full screen', { tag: '@cross-browser' }, async ({ page }) => {
-    await stubProducts(page)
+  test('plays the phone take with no switch, and Try it live opens the real product in a new tab', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/builds/openping')
     await expect(page.getByTestId('product-stage')).toBeHidden()
     const compact = page.getByTestId('product-stage-compact')
     await expect(compact.locator('[data-tour] video').filter({ visible: true })).toHaveAttribute('aria-label', /^The same on a phone/)
     await expect(compact.getByRole('button', { name: 'Phone' })).toHaveCount(0)
-
-    const opener = compact.getByRole('button', { name: 'Try it live' })
-    await opener.click()
-    const sheet = page.getByRole('dialog', { name: 'OpenPing, live' })
-    await expect(sheet).toBeVisible()
-    const frame = sheet.locator('iframe').filter({ visible: true })
-    await expect(frame).toHaveAttribute('src', 'https://openping.n8builds.dev/tools/is-it-down')
-    // Full screen: the product gets the phone's own width.
-    expect((await frame.boundingBox())!.width).toBe(390)
-    await sheet.getByRole('tab', { name: 'Status page' }).click()
-    await expect(sheet.locator('iframe').filter({ visible: true })).toHaveAttribute('src', 'https://openping.n8builds.dev/status')
-    await sheet.getByRole('button', { name: 'Close' }).click()
-    await expect(sheet).toBeHidden()
-    await expect(opener).toBeFocused()
+    const live = compact.getByRole('link', { name: /^Try it live/ })
+    await expect(live).toBeVisible()
+    await expect(live).toHaveAttribute('href', LIVE.openping)
+    await expect(live).toHaveAttribute('target', '_blank')
+    await expect(page.locator('iframe')).toHaveCount(0)
   })
 })
 
@@ -144,7 +85,7 @@ test.describe('the sidebar', () => {
     await expect(sidebar.getByRole('link', { name: /n8watkins\/open-ping/ })).toHaveAttribute('href', 'https://github.com/n8watkins/open-ping')
 
     const nav = sidebar.getByRole('navigation', { name: 'On this page' })
-    await expect(nav.getByRole('link')).toHaveText(['Try it live', 'What it does', 'Problem and build', "How it's built", 'Process notes', 'Build log', 'More builds'])
+    await expect(nav.getByRole('link')).toHaveText(['See it in use', 'What it does', 'Problem and build', "How it's built", 'Process notes', 'Build log', 'More builds'])
 
     // It stays in view while you read.
     await nav.getByRole('link', { name: 'Process notes' }).click()
