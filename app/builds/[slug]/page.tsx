@@ -58,8 +58,6 @@ export default async function BuildPage({ params }: BuildPageProps) {
   const techs = [...new Set(build.stack.flatMap((item) => item.tech ?? []))] as TechKey[]
   // The "how it's built" explainer (data/projects.tsx).
   const technologies = projects.find((p) => p.title === build.name)?.technologies
-  // Every build page's explainer, so each is as tall as the tallest (owner, 2026-11-08).
-  const explainers = builds.flatMap((b) => projects.find((p) => p.title === b.name)?.technologies ?? [])
   const icon = BUILD_ICONS[build.slug]
   const caption = build.tryIt?.download ? await downloadCaption(build.tryIt.download) : undefined
 
@@ -254,7 +252,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
                   <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">built</span>
                 </h2>
                 <div className="mt-5 rounded-2xl border border-white/8 bg-linear-to-br from-blue-500/[0.06] to-cyan-500/[0.04] p-5 sm:p-6">
-                  <TechStackCycle technologies={technologies} sizers={explainers} />
+                  <TechStackCycle technologies={technologies} />
                 </div>
               </section>
             </Reveal>

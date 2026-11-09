@@ -475,7 +475,7 @@ export const techNameMapping = {
   'drizzle.png': 'Drizzle ORM',
   'turso.svg': 'Turso',
   'gemini.svg': 'Gemini',
-  'cloudflare.svg': 'Cloudflare R2',
+  'cloudflare.svg': 'Cloudflare',
   'cf-workers.svg': 'Cloudflare Workers + D1',
   'tauri.svg': 'Tauri',
   'rust.svg': 'Rust',

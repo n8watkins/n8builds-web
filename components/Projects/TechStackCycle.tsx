@@ -10,11 +10,10 @@ import { latestEntry } from '@/lib/intersection'
 interface TechStackCycleProps {
   technologies: Technologies
   /**
-   * Every build's technologies, this one's included: each of their categories
-   * is laid out invisibly in the same grid cell as the one on show, so the
-   * explainer is as tall as the tallest of them at any width, the same on
-   * every build page, and never changes height as it cycles (owner,
-   * 2026-11-08).
+   * The technologies whose categories size the explainer (this build's own by
+   * default): each category is laid out invisibly in the same grid cell as the
+   * one on show, so the explainer is as tall as its tallest category at any
+   * width and never changes height as it cycles (owner, 2026-11-08).
    */
   sizers?: Technologies[]
 }
