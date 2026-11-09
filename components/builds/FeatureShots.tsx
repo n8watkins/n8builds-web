@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { FiCheck } from 'react-icons/fi'
 import { LightboxThumb, type LightboxImage } from '@/components/builds/Lightbox'
@@ -23,6 +23,22 @@ export default function FeatureShots({ features, images }: { features: Feature[]
   const first = features.find((f) => f.shot !== undefined)?.shot
   const [shown, setShown] = useState(first)
   const hasShots = first !== undefined
+  // Only the pointer moving picks a screenshot. Scrolling slides features
+  // under a still pointer, and the browser then reports a hover with the
+  // pointer where it was: that leaves the panel as it is, so reading down the
+  // list, or scrolling to the panel to open it, never swaps its screenshot.
+  const pointer = useRef({ x: -1, y: -1 })
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      pointer.current = { x: e.clientX, y: e.clientY }
+    }
+    window.addEventListener('mousemove', onMove, { passive: true })
+    return () => window.removeEventListener('mousemove', onMove)
+  }, [])
+  const hover = (shot: number, e: React.MouseEvent) => {
+    const moved = e.clientX !== pointer.current.x || e.clientY !== pointer.current.y
+    if (moved && shot !== shown) setShown(shot)
+  }
 
   const check = <FiCheck aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
   return (
@@ -45,7 +61,7 @@ export default function FeatureShots({ features, images }: { features: Feature[]
               <button
                 type="button"
                 aria-pressed={active}
-                onMouseEnter={() => setShown(shot)}
+                onMouseMove={(e) => hover(shot, e)}
                 onFocus={() => setShown(shot)}
                 onClick={() => setShown(shot)}
                 className={`hidden w-full items-start gap-2.5 rounded-xl border px-3 py-2.5 text-left text-[0.95rem] leading-snug transition-colors duration-200 lg:flex ${
