@@ -6,7 +6,7 @@ import { FaXTwitter } from 'react-icons/fa6'
 import WhoamiTerminal from '@/components/features/WhoamiTerminal'
 import FadeIn from '@/components/ui/FadeIn'
 import HeroGrid from '@/components/sections/HeroGrid'
-import HeroChain from '@/components/sections/HeroChain'
+import HeroChainMeter from '@/components/sections/HeroChainMeter'
 import HeroPortraitSwap from '@/components/sections/HeroPortraitSwap'
 
 /** The portrait's rendered width at each breakpoint (its w-* classes below). */
@@ -85,11 +85,65 @@ const Hero = () => {
             <FadeIn
               effect="in"
               delay={0.45}
-              className="relative z-20 w-fit font-mono text-[0.6rem] min-[360px]:text-[0.72rem] sm:text-[0.85rem] select-none [--n8wire:280px] sm:[--n8wire:335px]"
+              className="relative w-fit font-mono text-[0.6rem] min-[360px]:text-[0.72rem] sm:text-[0.85rem] select-none [--n8wire:280px] sm:[--n8wire:335px]"
             >
-              {/* The chain and its step popovers (components/sections/HeroChain.tsx);
-                  its styles live in app/globals.css (.n8-cnode and friends). */}
-              <HeroChain />
+              {/* The chain's styles live in app/globals.css (.n8-cnode and friends). */}
+              <HeroChainMeter />
+              <div className="flex items-center gap-1 min-[360px]:gap-1.5">
+                {['prompt', 'build', 'ship', 'repeat'].map((w, i, arr) => (
+                  <React.Fragment key={w}>
+                    <span
+                      className={`n8-cnode rounded-md border px-1.5 min-[360px]:px-2 py-1 sm:px-3 sm:py-1.5 lowercase tracking-wide${
+                        i === 0 ? ' n8-first' : i < arr.length - 1 ? ' n8-split' : ''
+                      }`}
+                      style={{
+                        // 9.2s loop, 1.8s chip spacing, phase-shifted -8.2s so the page loads
+                        // pulse-mid-wire; the first chip (prompt) fires ~0.53s early so it
+                        // lights as the wire lands.
+                        ['--n8delay' as string]: `${(i === 0 ? -0.53 : i * 1.8) - 8.2}s`,
+                        // prompt starts bottom-left (~8 o'clock), where the wire lands, and repeat
+                        // at 9 o'clock; the split chips ignore --n8start (they sweep from
+                        // 270deg +/- the angle).
+                        ['--n8start' as string]:
+                          i === 0 ? '153deg' : i === arr.length - 1 ? '172deg' : '0deg',
+                        // prompt: sweep 207deg (ends at 3 o'clock) and a short tail;
+                        // HeroChainMeter refines the start and sweep to the measured wire.
+                        ...(i === 0 ? { ['--n8k' as string]: 0.92, ['--n8tail' as string]: '21.5%', ['--n8mid' as string]: '23.5%' } : {}),
+                      }}
+                    >
+                      {w}
+                    </span>
+                    {/* middle chips (build/ship) carry a second light via
+                        ::after, so the two halves meet at the 3 o'clock arrow */}
+                    {i < arr.length - 1 && (
+                      // arrow lights at the hand-off as the comet leaves chip i
+                      <span className="n8-carrow" style={{ animationDelay: `${(i === 0 ? 0.43 : i * 1.8 + 0.88) - 8.2}s` }}>→</span>
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+              {/* loop-back circuit line: repeat (right) -> down -> under the chain ->
+                  up into prompt (left). preserveAspectRatio=none stretches it to the
+                  chain width; non-scaling-stroke keeps the line crisp. */}
+              <svg className="n8-loop" viewBox="0 0 100 16" preserveAspectRatio="none" aria-hidden="true">
+                <path
+                  className="n8-loop-base"
+                  d="M98,0 L98,9 Q98,14 93,14 L7,14 Q2,14 2,9 L2,0"
+                  fill="none"
+                  strokeWidth="1.25"
+                  vectorEffect="non-scaling-stroke"
+                />
+                <path
+                  className="n8-loop-comet"
+                  d="M98,0 L98,9 Q98,14 93,14 L7,14 Q2,14 2,9 L2,0"
+                  fill="none"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  pathLength={100}
+                  strokeDasharray="16 999"
+                  vectorEffect="non-scaling-stroke"
+                />
+              </svg>
             </FadeIn>
 
             {/* The direct route for someone hiring: the developer portfolio. */}
