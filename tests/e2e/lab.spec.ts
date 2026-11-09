@@ -244,6 +244,7 @@ test('Scribe downloads the newest installer through a stable link, and its page 
   // The build page offers the same download, says what it fetches, and links the Mac and Linux betas.
   await page.goto('/builds/scribe')
   const header = page.locator('main header')
+  await expect(header.locator('[data-build-platform="windows"]')).toHaveCount(1)
   await expect(header.getByRole('link', { name: 'Download for Windows' })).toHaveAttribute('href', '/download/scribe')
   await expect(header.getByRole('link', { name: 'Download for Windows' })).toHaveAccessibleDescription('Windows 10 and 11, 64-bit · v0.8.0 · 12 MB')
   await expect(row.getByRole('link', { name: /Mac or Linux/ })).toHaveCount(0)
@@ -251,6 +252,31 @@ test('Scribe downloads the newest installer through a stable link, and its page 
   await expect(header.getByRole('link', { name: /Mac or Linux/ })).toHaveCount(0)
   await expect(header.getByRole('link', { name: 'Mac (beta, not notarized)' })).toHaveAttribute('href', '/download/scribe-mac')
   await expect(header.getByRole('link', { name: 'Linux (beta)' })).toHaveAttribute('href', '/download/scribe-linux')
+})
+
+/**
+ * Round 7 of 2026-11-09 (owner): Scribe's build page leads with the download
+ * for the visitor's OS, like its homepage row, the other two quiet under it.
+ */
+test("Scribe's build page leads with the download for the visitor's OS, the others quiet under it", async ({ browser }) => {
+  for (const [as, platform, name, href, quiet, describe] of [
+    [asWindows, 'windows', 'Download for Windows', '/download/scribe', ['Mac (beta, not notarized)', 'Linux (beta)'], /^Windows 10 and 11, 64-bit · v0\.8\.0 · 12 MB$/],
+    [asMac, 'mac', 'Download for macOS Beta', '/download/scribe-mac', ['Windows', 'Linux (beta)'], /^macOS, Apple silicon and Intel · v0\.8\.0 · \d+ MBNot notarized by Apple: right-click Scribe and choose Open the first time\.$/],
+    [asLinux, 'linux', 'Download for Linux Beta', '/download/scribe-linux', ['Windows', 'Mac (beta, not notarized)'], /^Linux, 64-bit AppImage · v0\.8\.0 · \d+ MB · Also as a \.deb$/],
+    [asPhone, 'other', 'Download for Windows', '/download/scribe', ['Mac (beta, not notarized)', 'Linux (beta)'], /^Windows 10 and 11/],
+  ] as const) {
+    const context = await browser.newContext()
+    const page = await context.newPage()
+    await page.addInitScript(as)
+    await page.goto('/builds/scribe')
+    const header = page.locator('main header')
+    await expect(header.locator(`[data-build-platform="${platform}"]`)).toHaveCount(1)
+    const main = header.getByRole('link', { name, exact: true })
+    await expect(main).toHaveAttribute('href', href)
+    await expect(main).toHaveAccessibleDescription(describe)
+    await expect(header.locator('[data-other-platforms] a')).toHaveText([...quiet])
+    await context.close()
+  }
 
 })
 
@@ -436,114 +462,28 @@ test('the rows and the extensions share one Star | GitHub control, its star show
   await expect(piper.getByRole('link').first()).not.toHaveText(/\d/)
 })
 
-test.describe('the Lab gallery', () => {
-  const dots = (gallery: import('@playwright/test').Locator) => gallery.locator('[data-dot]')
-  const activeDot = async (gallery: import('@playwright/test').Locator) =>
-    dots(gallery).evaluateAll((els) => els.findIndex((el) => el.hasAttribute('data-active')))
+/**
+ * Round 7 of 2026-11-09 (owner): every featured row shows its product in use, a
+ * short muted clip (Scribe's tour; OpenPing's and Solara's usage clips from
+ * scripts/product-clips/), not screenshots.
+ */
+test.describe('featured clips, with motion', () => {
+  test.use({ contextOptions: { reducedMotion: 'no-preference' } })
 
-  test('steps through the screenshots by clicking the sides of the image, with no thumbnails under it', { tag: ['@cross-browser', '@smoke'] }, async ({ page, hasTouch }) => {
-    await page.goto('/')
-    const gallery = page.getByRole('group', { name: 'OpenPing screenshots' })
-    await gallery.scrollIntoViewIfNeeded()
-    await expect(dots(gallery)).toHaveCount(3)
-    await expect.poll(() => activeDot(gallery)).toBe(0)
-    await expect(gallery.getByRole('img')).toHaveAccessibleName(/runs entirely in your own cloud/)
-    // The dots sit under the image, clear of the screenshot itself.
-    const image = (await gallery.getByRole('img').boundingBox())!
-    for (const dot of await dots(gallery).all()) expect((await dot.boundingBox())!.y).toBeGreaterThanOrEqual(image.y + image.height)
-    // The thumbnail strip is gone.
-    await expect(page.getByRole('button', { name: /OpenPing image \d/ })).toHaveCount(0)
-
-    const box = (await gallery.boundingBox())!
-    // The right half steps forward; its arrow shows on hover (a pointer that
-    // can hover: touch screens have none, and step by tapping or swiping).
-    const next = gallery.getByRole('button', { name: 'Next OpenPing screenshot' })
-    if (!hasTouch) {
-      await page.mouse.move(box.x + box.width - 30, box.y + box.height / 2)
-      await expect(next.locator('span')).toHaveCSS('opacity', '1')
-    }
-    await page.mouse.click(box.x + box.width * 0.75, box.y + box.height / 2)
-    await expect.poll(() => activeDot(gallery)).toBe(1)
-    await expect(gallery.getByRole('img', { name: /status page/ })).toBeVisible()
-    await expect(gallery.getByText('Screenshot 2 of 3')).toBeAttached()
-    // The left half steps back, and wraps around from the first to the last.
-    await page.mouse.click(box.x + box.width * 0.25, box.y + box.height / 2)
-    await expect.poll(() => activeDot(gallery)).toBe(0)
-    await page.mouse.click(box.x + box.width * 0.25, box.y + box.height / 2)
-    await expect.poll(() => activeDot(gallery)).toBe(2)
-    await expect(gallery.getByRole('img', { name: /free tools/ })).toBeVisible()
-  })
-
-  test('works from the keyboard: Tab to a side, Enter or the arrow keys step, and the arrow shows on focus', { tag: '@cross-browser' }, async ({ page }) => {
-    await page.goto('/')
-    const gallery = page.getByRole('group', { name: 'OpenPing screenshots' })
-    await gallery.scrollIntoViewIfNeeded()
-    const prev = gallery.getByRole('button', { name: 'Previous OpenPing screenshot' })
-    const next = gallery.getByRole('button', { name: 'Next OpenPing screenshot' })
-    await expect(next).toBeEnabled()
-    await prev.focus()
-    await page.keyboard.press('Tab')
-    await expect(next).toBeFocused()
-    await expect(next.locator('span')).toHaveCSS('opacity', '1')
-    await page.keyboard.press('Enter')
-    await expect.poll(() => activeDot(gallery)).toBe(1)
-    await page.keyboard.press('ArrowRight')
-    await expect.poll(() => activeDot(gallery)).toBe(2)
-    await page.keyboard.press('ArrowLeft')
-    await expect.poll(() => activeDot(gallery)).toBe(1)
-    await expect(gallery.getByRole('img').filter({ visible: true })).toHaveAccessibleName(/status page/)
-  })
-
-  test('rows with one screenshot have no gallery controls', async ({ page }) => {
-    await page.goto('/')
-    await expect(page.getByRole('group', { name: 'Solara screenshots' })).toHaveCount(0)
-    await expect(page.getByRole('button', { name: /(Next|Previous) Solara screenshot/ })).toHaveCount(0)
-  })
-})
-
-test.describe('the Lab gallery on touch', () => {
-  test.use({ hasTouch: true, viewport: { width: 375, height: 800 } })
-
-  test('a swipe steps through the screenshots, and a tap on a side does too', { tag: '@cross-browser' }, async ({ page }) => {
-    await page.goto('/')
-    const gallery = page.getByRole('group', { name: 'OpenPing screenshots' })
-    await gallery.scrollIntoViewIfNeeded()
-    await expect(gallery.getByRole('button', { name: 'Next OpenPing screenshot' })).toBeEnabled()
-    const active = () => gallery.locator('[data-dot]').evaluateAll((els) => els.findIndex((el) => el.hasAttribute('data-active')))
-    const swipe = (from: number, to: number) =>
-      gallery.evaluate(
-        (el, [x0, x1]) => {
-          const rect = el.getBoundingClientRect()
-          const y = rect.top + rect.height / 2
-          // WebKit (Safari) can't construct Touch or TouchEvent from script, so
-          // there the events are plain Events carrying the same touch lists; the
-          // gallery reads only touches[0] and changedTouches[0].clientX.
-          const fire = (type: string, touches: { clientX: number; clientY: number }[], changed: { clientX: number; clientY: number }[]) => {
-            try {
-              const make = (t: { clientX: number; clientY: number }) => new Touch({ identifier: 1, target: el, ...t })
-              el.dispatchEvent(new TouchEvent(type, { bubbles: true, touches: touches.map(make), changedTouches: changed.map(make) }))
-            } catch {
-              const event = new Event(type, { bubbles: true })
-              Object.defineProperties(event, { touches: { value: touches }, changedTouches: { value: changed } })
-              el.dispatchEvent(event)
-            }
-          }
-          const at = (x: number) => ({ clientX: rect.left + x, clientY: y })
-          fire('touchstart', [at(x0)], [at(x0)])
-          fire('touchend', [], [at(x1)])
-        },
-        [from, to],
-      )
-    await swipe(250, 100) // right to left: forward
-    await expect.poll(() => active()).toBe(1)
-    await swipe(100, 250) // left to right: back
-    await expect.poll(() => active()).toBe(0)
-    // A tiny drag is not a swipe.
-    await swipe(150, 140)
-    await expect.poll(() => active()).toBe(0)
-    const box = (await gallery.boundingBox())!
-    await page.touchscreen.tap(box.x + box.width * 0.8, box.y + box.height / 2)
-    await expect.poll(() => active()).toBe(1)
+  test('each featured row plays a clip of its product in use, not screenshots', async ({ page }) => {
+  await page.goto('/')
+  for (const [title, src] of [
+    ['Scribe', '/builds/scribe/tour'],
+    ['OpenPing', '/builds/openping/clip'],
+    ['Solara', '/builds/solara/clip'],
+  ] as const) {
+    const row = await rowOf(page, title)
+    const video = row.locator('[data-tour] video')
+    await video.scrollIntoViewIfNeeded()
+    await expect(row.getByRole('group', { name: `${title} screenshots` })).toHaveCount(0)
+    await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.currentSrc), { message: title }).toContain(src)
+    await expect.poll(() => video.evaluate((v: HTMLVideoElement) => !v.paused && v.currentTime > 0), { message: title }).toBe(true)
+  }
   })
 })
 

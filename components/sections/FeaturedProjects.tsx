@@ -183,10 +183,13 @@ const ProjectRow = async ({ project, flipped }: { project: FeaturedProject; flip
       </Link>
     </>
   )
+  // Its own tour (Scribe's), else its build's usage clip (OpenPing's and Solara's,
+  // scripts/product-clips/; owner, round 7 of 2026-11-09), else its screenshots.
+  const tour = project.tour ?? getBuild(project.buildSlug)?.clip
   return (
     <Reveal className={`flex flex-col ${flipped ? 'md:flex-row-reverse' : 'md:flex-row'} items-center gap-6 md:gap-12`}>
-      {project.tour ? (
-        <ProjectTour title={project.title} tour={project.tour} />
+      {tour ? (
+        <ProjectTour title={project.title} tour={tour} />
       ) : (
         <ProjectGallery
           title={project.title}
