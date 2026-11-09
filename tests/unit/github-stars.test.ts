@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { formatStars, repoFromUrl, repoStars } from '@/lib/github-stars'
+import { formatStars, repoFacts, repoFromUrl, repoStars } from '@/lib/github-stars'
 
 describe('repoFromUrl', () => {
   it('reads owner/name from a GitHub repo URL', () => {
@@ -55,5 +55,33 @@ describe('repoStars', () => {
     await expect(repoStars('n8watkins/scribe')).resolves.toBe(1234)
     await expect(repoStars('n8watkins/open-ping')).resolves.toBeNull()
     expect(fetchMock).not.toHaveBeenCalled()
+  })
+})
+
+describe('repoFacts', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.unstubAllEnvs()
+  })
+
+  it("reads the stars and the license's SPDX id from the one response", async () => {
+    vi.stubEnv('BUILD_LOG_FIXTURE', '')
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ stargazers_count: 3, license: { spdx_id: 'MIT' } }))))
+    await expect(repoFacts('n8watkins/open-ping')).resolves.toEqual({ stars: 3, license: 'MIT' })
+  })
+
+  it("leaves out a license GitHub can't name, or none", async () => {
+    vi.stubEnv('BUILD_LOG_FIXTURE', '')
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ stargazers_count: 3, license: { spdx_id: 'NOASSERTION' } }))))
+    await expect(repoFacts('n8watkins/open-ping')).resolves.toEqual({ stars: 3, license: null })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ stargazers_count: 3, license: null }))))
+    await expect(repoFacts('n8watkins/open-ping')).resolves.toEqual({ stars: 3, license: null })
+  })
+
+  it('reads the fixture under E2E', async () => {
+    vi.stubEnv('BUILD_LOG_FIXTURE', '1')
+    vi.stubGlobal('fetch', vi.fn())
+    await expect(repoFacts('n8watkins/open-ping')).resolves.toEqual({ stars: null, license: 'MIT' })
+    await expect(repoFacts('n8watkins/scribe')).resolves.toEqual({ stars: 1234, license: null })
   })
 })

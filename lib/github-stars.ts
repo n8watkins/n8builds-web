@@ -1,15 +1,20 @@
 /**
- * A public repo's star count, for the Star half of RepoButtons. Fetched on the
+ * A public repo's facts from GitHub: its star count (the Star half of
+ * RepoButtons) and its license (a build page's sidebar). Fetched on the
  * server and cached for an hour (like the build log and the downloads), so it
- * costs no client JS and at most one GitHub call per repo an hour. Null when
- * GitHub can't say: the button then shows just the star. The E2E suite
- * (BUILD_LOG_FIXTURE=1) never calls GitHub; it reads FIXTURE_STARS, where one
- * repo has a count and the rest have none, so both looks are covered.
+ * costs no client JS and at most one GitHub call per repo an hour: both read
+ * the same response. Null when GitHub can't say: the button then shows just
+ * the star, the sidebar no license. The E2E suite (BUILD_LOG_FIXTURE=1) never
+ * calls GitHub; it reads the fixtures below, where some repos have a value and
+ * the rest have none, so both looks are covered.
  */
 export const FIXTURE_STARS: Record<string, number> = { 'n8watkins/scribe': 1234 }
+export const FIXTURE_LICENSES: Record<string, string> = { 'n8watkins/open-ping': 'MIT', 'n8watkins/solara': 'MIT' }
 
-export async function repoStars(repo: string): Promise<number | null> {
-  if (process.env.BUILD_LOG_FIXTURE === '1') return FIXTURE_STARS[repo] ?? null
+export type RepoFacts = { stars: number | null; license: string | null }
+
+export async function repoFacts(repo: string): Promise<RepoFacts> {
+  if (process.env.BUILD_LOG_FIXTURE === '1') return { stars: FIXTURE_STARS[repo] ?? null, license: FIXTURE_LICENSES[repo] ?? null }
   try {
     const token = process.env.GITHUB_TOKEN
     const res = await fetch(`https://api.github.com/repos/${repo}`, {
@@ -22,12 +27,21 @@ export async function repoStars(repo: string): Promise<number | null> {
       next: { revalidate: 3600 },
       signal: AbortSignal.timeout(5000),
     })
-    if (!res.ok) return null
-    const { stargazers_count } = (await res.json()) as { stargazers_count?: unknown }
-    return typeof stargazers_count === 'number' ? stargazers_count : null
+    if (!res.ok) return { stars: null, license: null }
+    const { stargazers_count, license } = (await res.json()) as { stargazers_count?: unknown; license?: { spdx_id?: unknown } | null }
+    const spdx = license?.spdx_id
+    return {
+      stars: typeof stargazers_count === 'number' ? stargazers_count : null,
+      // GitHub says NOASSERTION for a license it can't name.
+      license: typeof spdx === 'string' && spdx !== 'NOASSERTION' ? spdx : null,
+    }
   } catch {
-    return null
+    return { stars: null, license: null }
   }
+}
+
+export async function repoStars(repo: string): Promise<number | null> {
+  return (await repoFacts(repo)).stars
 }
 
 /** `owner/name` from a GitHub repo URL, or null when it isn't one. */
