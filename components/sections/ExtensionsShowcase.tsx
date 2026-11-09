@@ -49,6 +49,12 @@ const exts: Ext[] = [
     slug: 'tldw',
     icon: '/builds/tldw/icon.svg',
     shot: null,
+    clip: {
+      webm: '/builds/tldw/clip.webm',
+      mp4: '/builds/tldw/clip.mp4',
+      poster: '/builds/tldw/clip-poster.webp',
+      alt: "A short clip of TL;DW in use: on a YouTube video, a press on TL;DW under it, then the video's summary in a panel right on the page, with no key (Gemini answers in a tab of its own; the wait is cut)",
+    },
     oss: true,
     blurb: "Get a short summary of any YouTube video right on the page, from Gemini with your own free key, or open it in ChatGPT or Claude.",
   },

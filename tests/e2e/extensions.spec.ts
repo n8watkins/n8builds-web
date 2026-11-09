@@ -165,7 +165,7 @@ test("each extension's screenshot opens its own page, not GitHub a second time",
   const shots = section.getByRole('link', { name: /: full story$/ })
   // The desktop showcase's detail and the phones' stacked copies are both in the page.
   await expect(shots.first()).toHaveAttribute('href', /^\/builds\//)
-  for (const name of NAMES.filter((n) => n !== 'VoiceDock')) {
+  for (const name of NAMES.filter((n) => n === 'TubeVault')) {
     // By attribute: the showcase shows one extension at a time, so the others are out of the role tree.
     const link = section.locator(`a[aria-label="${name}: full story"]`).first()
     await expect(link).toBeAttached()
@@ -174,12 +174,14 @@ test("each extension's screenshot opens its own page, not GitHub a second time",
   await expect(section.locator('a[href^="https://github.com"]:has(img)')).toHaveCount(0)
 })
 
-test('VoiceDock shows a short muted clip of itself in use, not a still (2026-11-09)', async ({ page }) => {
+test('VoiceDock and TL;DW show a short muted clip of themselves in use, not a still (2026-11-09)', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 })
   await page.goto('/')
   const section = page.locator('#extensions')
-  const clip = section.locator('[data-tour] video[aria-label^="A short clip of VoiceDock in use"]')
-  await expect(clip.first()).toBeAttached()
-  await expect(clip.first()).toHaveAttribute('loop', '')
-  await expect(section.locator('a[aria-label="VoiceDock: full story"]')).toHaveCount(0)
+  for (const name of ['VoiceDock', 'TL;DW']) {
+    const clip = section.locator(`[data-tour] video[aria-label^="A short clip of ${name} in use"]`)
+    await expect(clip.first()).toBeAttached()
+    await expect(clip.first()).toHaveAttribute('loop', '')
+    await expect(section.locator(`a[aria-label="${name}: full story"]`)).toHaveCount(0)
+  }
 })
