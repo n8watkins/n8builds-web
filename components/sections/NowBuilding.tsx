@@ -82,11 +82,9 @@ const Card = ({ now, turnstileSiteKey }: { now: NowState; turnstileSiteKey: stri
                 }
               >
                 {cta.label}
+                {/* ContactPresetLink says "(opens in a new tab)" itself. */}
                 {away ? (
-                  <>
-                    <FiArrowUpRight className="h-4 w-4" aria-hidden />
-                    <span className="sr-only"> (opens in a new tab)</span>
-                  </>
+                  <FiArrowUpRight className="h-4 w-4" aria-hidden />
                 ) : (
                   <FiArrowRight className="h-4 w-4" aria-hidden />
                 )}

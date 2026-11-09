@@ -225,7 +225,7 @@ describe('waitlist emails', () => {
     expect(projectList(['relink'])).toBe('Relink')
     expect(projectList(['relink', 'strollz'])).toBe('Relink and Strollz')
     expect(projectList(['vibelog', 'relink', 'strollz'])).toBe('Relink, Strollz and VibeLog')
-    expect(projectList(['keysready', 'vibelog', 'relink', 'strollz'])).toBe('Relink, Strollz, VibeLog and KeysReady')
+    expect(projectList(['keysready', 'vibelog', 'relink', 'strollz'])).toBe('Relink, KeysReady, Strollz and VibeLog')
     expect(createConfirmText({ ...entry, requested: ['keysready'] }, links)).toContain('waitlist for KeysReady on n8builds.dev')
     expect(createConfirmHtml({ ...entry, requested: ['feelium'] }, links)).toContain('Feelium')
     expect(createConfirmHtml(entry, links)).toContain('Relink and Strollz')

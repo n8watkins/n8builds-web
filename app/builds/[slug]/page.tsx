@@ -217,6 +217,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
             >
               <FiGithub className="w-4 h-4" />
               github.com/n8watkins
+              <span className="sr-only"> (opens in a new tab)</span>
             </a>
           </footer>
         </div>
@@ -301,6 +302,7 @@ function StoryParts({ build, layers }: { build: Build; layers: ('Frontend' | 'Ba
                       className="font-semibold text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 hover:text-cyan-200"
                     >
                       {credit.name}
+                      <span className="sr-only"> (opens in a new tab)</span>
                     </a>
                     : {credit.note}
                   </li>
@@ -485,14 +487,14 @@ async function BuildActions({ build, caption }: { build: Build; caption?: string
           <a key={action.href} href={action.href} {...away(action.href)} className={outline}>
             {action.label}
             <FiArrowUpRight aria-hidden className="h-4 w-4" />
-            <span className="sr-only"> (opens in a new tab)</span>
+            {/^https?:/.test(action.href) && <span className="sr-only"> (opens in a new tab)</span>}
           </a>
         ))}
         {live ? (
           <a href={live} {...away(live)} className={outline}>
             {build.liveSiteIsLanding ? 'Visit the landing page' : 'Visit live site'}
             <FiArrowUpRight aria-hidden className="h-4 w-4" />
-            <span className="sr-only"> (opens in a new tab)</span>
+            {/^https?:/.test(live) && <span className="sr-only"> (opens in a new tab)</span>}
           </a>
         ) : null}
         {build.github ? (

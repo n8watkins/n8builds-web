@@ -1,5 +1,8 @@
 import { test, expect, type Locator } from '@playwright/test'
-import { ALL_SOCIALS, SOCIALS } from '../../data/socials'
+import { ALL_SOCIALS, SOCIALS, isExternal } from '../../data/socials'
+
+/** A social's accessible name: an outside one also says it opens a new tab (round 7, 2026-11-09). */
+const named = (s: { label: string; href: string }) => (isExternal(s.href) ? `${s.label} (opens in a new tab)` : s.label)
 
 /**
  * The social links (data/socials.ts) in the homepage contact card and the
@@ -15,23 +18,23 @@ const labels = (nav: Locator) => nav.getByRole('link').evaluateAll((as) => as.ma
 
 test('the contact card and the footer list the enabled socials in order', { tag: '@smoke' }, async ({ page }) => {
   await page.goto('/')
-  const expected = SOCIALS.map((s) => s.label)
+  const expected = SOCIALS.map(named)
   for (const nav of [contactSocials(page), footerSocials(page)]) {
     await nav.scrollIntoViewIfNeeded()
     expect(await labels(nav)).toEqual(expected)
     for (const s of SOCIALS) {
-      await expect(nav.getByRole('link', { name: s.label, exact: true })).toHaveAttribute('href', s.href)
+      await expect(nav.getByRole('link', { name: named(s), exact: true })).toHaveAttribute('href', s.href)
     }
     // Hidden links (enabled: false) are nowhere in the row.
     for (const s of ALL_SOCIALS.filter((x) => !x.enabled)) {
-      await expect(nav.getByRole('link', { name: s.label, exact: true })).toHaveCount(0)
+      await expect(nav.getByRole('link', { name: named(s), exact: true })).toHaveCount(0)
     }
   }
 })
 
 test('the footer socials are on every page', async ({ page }) => {
   await page.goto('/privacy')
-  expect(await labels(footerSocials(page))).toEqual(SOCIALS.map((s) => s.label))
+  expect(await labels(footerSocials(page))).toEqual(SOCIALS.map(named))
 })
 
 test('the contact card says it briefly: a message, Tech for Pros, and only the enabled streaming links', async ({ page }) => {

@@ -8,7 +8,7 @@ import { isOutbound } from '@/lib/referrals'
  * `/?inquiry=<id>#contact`: a real link, so it works before hydration and from
  * any page; on a page that has the form, it fills the form in place and
  * scrolls to it instead of reloading. Any other href is an ordinary link
- * (a new tab when it leaves the site).
+ * (a new tab when it leaves the site, and it says so to screen readers).
  */
 export default function ContactPresetLink({ href, className, children }: { href: string; className?: string; children: ReactNode }) {
   const url = new URL(href, 'https://n8builds.dev')
@@ -32,6 +32,7 @@ export default function ContactPresetLink({ href, className, children }: { href:
       }}
     >
       {children}
+      {!internal && <span className="sr-only"> (opens in a new tab)</span>}
     </a>
   )
 }

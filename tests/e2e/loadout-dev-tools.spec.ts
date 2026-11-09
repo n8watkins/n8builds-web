@@ -22,7 +22,8 @@ test.describe('Loadout tools and people', () => {
     await expect(built.getByRole('heading', { name: 'Other things I built' })).toHaveCount(0)
     await expect(built.getByText('Your AI coding agents use your API keys without ever seeing them.')).toBeVisible()
     await expect(built.locator('[data-credit]')).toHaveText(
-      'Created by Phaedrus Raznikov at Misty Step; my fork adds import, generate, doctor and more.',
+      // Each name links out, and says so to screen readers.
+      'Created by Phaedrus Raznikov (opens in a new tab) at Misty Step (opens in a new tab); my fork adds import, generate, doctor and more.',
     )
     await expect(built.getByRole('link', { name: 'Phaedrus Raznikov' })).toHaveAttribute('href', 'https://github.com/moomooskycow')
     await expect(built.getByRole('link', { name: 'Misty Step' })).toHaveAttribute('href', 'https://github.com/misty-step')
@@ -594,7 +595,7 @@ test.describe('Loadout tools and people', () => {
     // No pr-post (round 5 of 2026-11-02): The Pull Request Post's card a section above is its one place.
     await expect(built.getByRole('heading', { level: 4 })).toHaveText(['Dev tools I built'])
     await expect(built.getByRole('article').getByRole('heading', { level: 5 })).toHaveText(['Scribe', /^pass-env/, /^release-kit/, /^devguard/])
-    await expect(built.locator('[data-credit]')).toContainText('Created by Phaedrus Raznikov at Misty Step')
+    await expect(built.locator('[data-credit]')).toContainText('Created by Phaedrus Raznikov (opens in a new tab) at Misty Step')
     // A part of the Loadout (#loadout): after the default stack. The setup teaser leads the band (round 3 of 2026-11-02).
     const loadout = page.locator('#loadout')
     await expect(loadout.locator('#tools-i-built')).toHaveCount(1)

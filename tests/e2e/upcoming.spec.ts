@@ -32,23 +32,19 @@ test('shows each project with its own anchor, and is titled for the site', { tag
   await page.goto('/upcoming')
   await expect(page).toHaveTitle('Upcoming | n8builds')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('What’s cookin’')
-  await expect(page.locator('main article')).toHaveCount(7)
-  for (const [id, name, status] of [
-    ['relink', 'Relink', 'Outlining'],
-    ['strollz', 'Strollz', 'Outlining'],
-    ['vibelog', 'VibeLog', 'Outlining'],
-    ['keysready', 'KeysReady', 'Concept'],
-    ['asset-arsenal', 'Asset Arsenal', 'Outlining'],
-    ['feelium', 'Feelium', 'Concept'],
-    ['cutelyaskme', 'Cutely Ask Me', 'Concept'],
-  ]) {
+  // In group order: for businesses, for everyday life, for developers and creators (round 7, 2026-11-09).
+  const articles = page.locator('main article')
+  await expect(articles).toHaveCount(Object.keys(NAMES).length)
+  expect(await articles.evaluateAll((list) => list.map((a) => a.id))).toEqual(Object.keys(NAMES))
+  for (const [id, name] of Object.entries(NAMES)) {
     const card = page.locator(`article#${id}`)
     await expect(card.getByRole('heading', { level: 2 })).toContainText(name)
-    await expect(card.getByText(`Status: ${status}`)).toBeVisible()
     await expect(card.getByRole('listitem')).toHaveCount(4)
   }
+  // No status labels (owner, round 7 of 2026-11-09): every project has a live landing page.
+  await expect(page.locator('main').getByText('Status:')).toHaveCount(0)
   await expect(page.locator('article#keysready')).toContainText('Stop answering “Is my car ready?”')
-  await expect(page.locator('#waitlist-projects').getByRole('checkbox')).toHaveCount(7)
+  await expect(page.locator('#waitlist-projects').getByRole('checkbox')).toHaveCount(Object.keys(NAMES).length)
 })
 
 test('lays the cards out one to a row beside the waitlist on wide screens, two by two just below, one column on phones', { tag: '@cross-browser' }, async ({ page }) => {
@@ -67,7 +63,7 @@ test('lays the cards out one to a row beside the waitlist on wide screens, two b
     expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0)
     // Tablets and phones: the waitlist comes after the cards.
     if (width < 1000) {
-      const last = (await page.locator('#keysready').boundingBox())!
+      const last = (await page.locator('#asset-arsenal').boundingBox())!
       const form = (await page.locator('#waitlist').boundingBox())!
       expect(form.y, `the waitlist after the cards at ${width}px`).toBeGreaterThan(last.y + last.height)
     }
@@ -221,24 +217,37 @@ test('is linked from the footer, and the privacy page explains the waitlist', as
   await expect(page.getByRole('navigation', { name: 'Primary' }).locator('a[href="/#upcoming"]').first()).toBeAttached()
 })
 
-const LANDING = {
+/** Every project, in group order, and its landing page. */
+const LANDING: Record<string, string> = {
   relink: 'https://relink.n8builds.dev',
-  strollz: 'https://strollz.n8builds.dev',
-  vibelog: 'https://vibelogs.dev',
   keysready: 'https://keysready.n8builds.dev',
-  'asset-arsenal': 'https://assetarsenal.n8builds.dev',
+  strollz: 'https://strollz.n8builds.dev',
   feelium: 'https://feelium.n8builds.dev',
   cutelyaskme: 'https://cutelyaskme.n8builds.dev',
+  fitflow7: 'https://fitflow7.n8builds.dev',
+  pivot: 'https://pivot.n8builds.dev/welcome',
+  whoami: 'https://whoami.n8builds.dev',
+  vibelog: 'https://vibelogs.dev',
+  'asset-arsenal': 'https://assetarsenal.n8builds.dev',
 }
 const NAMES: Record<string, string> = {
   relink: 'Relink',
-  strollz: 'Strollz',
-  vibelog: 'VibeLog',
   keysready: 'KeysReady',
-  'asset-arsenal': 'Asset Arsenal',
+  strollz: 'Strollz',
   feelium: 'Feelium',
   cutelyaskme: 'Cutely Ask Me',
+  fitflow7: 'FitFlow 7',
+  pivot: 'Pivot',
+  whoami: 'Who Am I?',
+  vibelog: 'VibeLog',
+  'asset-arsenal': 'Asset Arsenal',
 }
+/** The homepage's groups (data/upcoming.ts), in order, with their projects. */
+const GROUPS: [string, string[]][] = [
+  ['For businesses', ['relink', 'keysready']],
+  ['For everyday life', ['strollz', 'feelium', 'cutelyaskme', 'fitflow7', 'pivot', 'whoami']],
+  ['For developers & creators', ['vibelog', 'asset-arsenal']],
+]
 
 /**
  * Only public repositories get a "View the code" link: the first four are public since
@@ -251,6 +260,9 @@ const CODE: Record<string, string | undefined> = {
   keysready: 'https://github.com/n8watkins/keysready',
   feelium: 'https://github.com/n8watkins/feelium',
   cutelyaskme: 'https://github.com/n8watkins/cutelyaskme',
+  fitflow7: 'https://github.com/n8watkins/fitflow7',
+  pivot: 'https://github.com/n8watkins/pivot',
+  whoami: 'https://github.com/n8watkins/who-am-i',
 }
 
 test('each card leads with its landing page, then Join, then its code where public (hrefs only: the sites may not be live yet)', async ({ page }) => {
@@ -276,43 +288,62 @@ test("Relink's card says plainly what it does", async ({ page }) => {
   await expect(page.locator('article#relink')).toContainText('Turns broken links into the right page')
 })
 
-test("the homepage Lab ends with a compact What's cookin' part: a row per project with its landing page, and the waitlist behind a button", async ({ page }) => {
+test("the homepage Lab ends with a compact What's cookin' part: projects grouped by who they are for, and the waitlist in a modal", async ({ page }) => {
   await page.goto('/')
   const band = page.locator('#lab section#upcoming')
   // An animated pot in a chip beside the heading (2026-11-08; the 🍲 before), for the eye only.
   await expect(band.getByRole('heading', { level: 3 })).toHaveText('What’s cookin’')
   await expect(band.locator('.part-icon-pot')).toHaveAttribute('aria-hidden', 'true')
   await expect(band.getByText('Upcoming', { exact: true })).toBeVisible()
-  // Every upcoming project, Feelium and Cutely Ask Me included (owner, 2026-11-09: the list is compact now).
-  const rows = band.locator('ul > li')
-  await expect(rows).toHaveCount(Object.keys(LANDING).length)
-  for (const [i, [slug, href]] of Object.entries(LANDING).entries()) {
-    const name = NAMES[slug]
-    const row = rows.nth(i)
-    await expect(row.getByRole('heading', { level: 4 })).toHaveText(name)
-    // One line: the tagline, no summary paragraph.
-    await expect(row.locator('p')).toHaveCount(1)
-    // One link: the landing page; the code and the full cards are on /upcoming.
-    await expect(row.getByRole('link')).toHaveCount(1)
-    const landing = row.getByRole('link', { name: `Landing page for ${name} (opens in a new tab)` })
-    await expect(landing).toHaveAttribute('href', href)
+  // Grouped by who each is for (owner, round 7 of 2026-11-09), every project once.
+  await expect(band.getByRole('heading', { level: 4 })).toHaveText(GROUPS.map(([label]) => label))
+  await expect(band.locator('section[data-group] li')).toHaveCount(Object.keys(LANDING).length)
+  for (const [label, slugs] of GROUPS) {
+    const rows = band.getByRole('region', { name: label }).getByRole('listitem')
+    await expect(rows).toHaveCount(slugs.length)
+    for (const [i, slug] of slugs.entries()) {
+      const name = NAMES[slug]
+      const row = rows.nth(i)
+      // Just the name and a few words: no tagline paragraph, no summary.
+      await expect(row.locator('p')).toHaveCount(2)
+      await expect(row.locator('p').first()).toHaveText(name)
+      // One link: the landing page; the code and the full cards are on /upcoming.
+      await expect(row.getByRole('link')).toHaveCount(1)
+      const landing = row.getByRole('link', { name: `Landing page for ${name} (opens in a new tab)` })
+      await expect(landing).toHaveAttribute('href', LANDING[slug])
+      await expect(landing).toHaveAttribute('target', '_blank')
+    }
   }
-  await expect(rows.first()).toContainText('Turns broken links into the right page')
+  await expect(band.getByText('Sends broken links to the right page')).toBeVisible()
+  // No status labels: every project has a live landing page.
   await expect(band.getByText('Status:')).toHaveCount(0)
 
-  // The waitlist: the same form as /upcoming, opened by one button.
-  const join = band.locator('button[aria-controls="waitlist"]')
-  await expect(join).toHaveAccessibleName('Join the waitlist')
-  const form = band.locator('#waitlist')
-  await expect(join).toHaveAttribute('aria-expanded', 'false')
-  await expect(form).toBeHidden()
+  // The waitlist: the same form as /upcoming, in a modal opened by one button.
+  const join = band.getByRole('button', { name: 'Join the waitlist' })
+  await expect(join).toHaveAttribute('aria-haspopup', 'dialog')
+  const dialog = page.getByRole('dialog', { name: 'Join the waitlist' })
+  await expect(dialog).toBeHidden()
   await join.click()
-  await expect(join).toHaveAttribute('aria-expanded', 'true')
-  await expect(form.getByRole('heading', { level: 4, name: 'Join the waitlist' })).toBeVisible()
-  await expect(form.getByRole('checkbox')).toHaveCount(7)
-  await expect(form.locator('textarea')).toHaveCount(0)
+  await expect(dialog).toBeVisible()
+  await expect(dialog.getByRole('heading', { level: 2, name: 'Join the waitlist' })).toBeVisible()
+  await expect(dialog.getByRole('checkbox')).toHaveCount(Object.keys(LANDING).length)
+  await expect(dialog.locator('textarea')).toHaveCount(0)
+  // Focus moves into it, and the page behind doesn't scroll.
+  await expect(dialog.locator(':focus')).toHaveCount(1)
+  await expect(page.locator('html')).toHaveCSS('overflow-y', 'hidden')
+  // What was typed survives closing it: Escape, then the close button, then the backdrop.
+  await dialog.getByRole('textbox', { name: 'Email' }).fill('keep@example.com')
+  await page.keyboard.press('Escape')
+  await expect(dialog).toBeHidden()
+  await expect(join).toBeFocused()
+  await expect(page.locator('html')).not.toHaveCSS('overflow-y', 'hidden')
   await join.click()
-  await expect(form).toBeHidden()
+  await expect(dialog.getByRole('textbox', { name: 'Email' })).toHaveValue('keep@example.com')
+  await dialog.getByRole('button', { name: 'Close the waitlist' }).click()
+  await expect(dialog).toBeHidden()
+  await join.click()
+  await page.mouse.click(5, 5)
+  await expect(dialog).toBeHidden()
 
   await band.getByRole('link', { name: 'See all upcoming' }).click()
   await expect(page).toHaveURL(/\/upcoming$/)
@@ -320,7 +351,7 @@ test("the homepage Lab ends with a compact What's cookin' part: a row per projec
 
 test('a landing page link to the homepage opens the waitlist there and ticks its project', async ({ page }) => {
   await page.goto('/?interest=strollz#waitlist')
-  const form = page.locator('#lab section#upcoming #waitlist')
+  const form = page.getByRole('dialog', { name: 'Join the waitlist' })
   await expect(form).toBeVisible()
   await expect(form).toBeInViewport()
   await expect(form.locator('input[value="strollz"]')).toBeChecked()
@@ -333,11 +364,11 @@ for (const [width, height] of [
   [390, 844],
   [320, 640],
 ] as const) {
-  test(`What's cookin' fits its rows at ${width}px: one row each, the landing page on the row's right`, { tag: width === 1280 || width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
+  test(`What's cookin' fits its rows at ${width}px: one line each, the landing page on the row's right`, { tag: width === 1280 || width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
     await page.setViewportSize({ width, height })
     await page.goto('/')
     const band = page.locator('#lab section#upcoming')
-    const rows = band.locator('ul > li')
+    const rows = band.locator('section[data-group] li')
     await rows.first().scrollIntoViewIfNeeded()
     const boxes = await rows.evaluateAll((list) =>
       list.map((li) => {
@@ -347,13 +378,20 @@ for (const [width, height] of [
         return { left: r.left, right: r.right, linkRight: b.right, fits: a.scrollWidth <= a.clientWidth }
       })
     )
-    // Stacked rows, all the same width, each link inside its row and its label on one line.
-    expect(new Set(boxes.map((b) => Math.round(b.left))).size).toBe(1)
+    // Rows in one column, two from 1024px (the groups side by side), each link inside its row and its label on one line.
+    expect(new Set(boxes.map((b) => Math.round(b.left))).size).toBe(width >= 1024 ? 2 : 1)
     for (const b of boxes) {
       expect(b.linkRight).toBeLessThanOrEqual(b.right)
       expect(b.fits).toBe(true)
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0)
+    if (width >= 1024) {
+      // Side by side, the two columns start and end level.
+      const box = async (id: string) => (await band.locator(`section[data-group="${id}"]`).boundingBox())!
+      const [business, life, creators] = [await box('business'), await box('life'), await box('creators')]
+      expect(Math.abs(business.y - life.y)).toBeLessThan(1)
+      expect(Math.abs(creators.y + creators.height - (life.y + life.height))).toBeLessThan(1)
+    }
   })
 }
 
@@ -372,11 +410,11 @@ test('on a wide screen the waitlist stays beside the cards as you read, and Join
   const form = (await waitlist.boundingBox())!
   expect(form.x, 'beside the cards').toBeGreaterThan(cards.x + cards.width)
   // Still in view far down the page.
-  await page.locator('#keysready').scrollIntoViewIfNeeded()
+  await page.locator('#asset-arsenal').scrollIntoViewIfNeeded()
   await expect(waitlist).toBeInViewport()
   const y = await page.evaluate(() => window.scrollY)
-  await page.locator('#keysready').getByRole('link', { name: /Join the waitlist/ }).click()
-  await expect(waitlist.getByRole('checkbox', { name: /KeysReady/ })).toBeChecked()
+  await page.locator('#asset-arsenal').getByRole('link', { name: /Join the waitlist/ }).click()
+  await expect(waitlist.getByRole('checkbox', { name: /Asset Arsenal/ })).toBeChecked()
   // Ticked where it is, with a glow, not a jump.
   await expect(waitlist).toHaveAttribute('data-flash', '')
   expect(Math.abs((await page.evaluate(() => window.scrollY)) - y)).toBeLessThan(2)

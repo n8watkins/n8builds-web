@@ -172,6 +172,11 @@ export interface ProjectTourVideo {
   poster: string
   /** What the tour shows, for screen readers. */
   alt: string
+  /**
+   * One loop's length, in ms: a carousel holds the clip's tab this long, so the
+   * whole clip is seen (the Lab's extensions, round 7 of 2026-11-09).
+   */
+  durationMs?: number
 }
 
 /**
@@ -208,6 +213,8 @@ export function ProjectTour({
   const ref = useRef<HTMLVideoElement>(null)
   const [inView, setInView] = useState(false)
   const [paused, setPaused] = useState(false)
+  // Inside a carousel's hidden panel (an inert ancestor): paused, and from the start when shown again.
+  const [hidden, setHidden] = useState(false)
   const reduced = usePrefersReducedMotion()
   const visible = usePageVisible()
   const hydrated = useHydrated()
@@ -217,10 +224,26 @@ export function ProjectTour({
     if (!video) return
     const observer = new IntersectionObserver((entries) => setInView(latestEntry(entries).isIntersecting), { threshold: 0.2 })
     observer.observe(video)
-    return () => observer.disconnect()
+    // An inert panel (ExtensionsCarousel's hidden ones) still intersects: watch the attribute too.
+    const panel = video.closest('[role="tabpanel"]')
+    const watch = new MutationObserver(() => {
+      const now = !!video.closest('[inert]')
+      setHidden((was) => {
+        if (was && !now) video.currentTime = 0
+        return now
+      })
+    })
+    if (panel) {
+      watch.observe(panel, { attributes: true, attributeFilter: ['inert'] })
+      setHidden(!!video.closest('[inert]'))
+    }
+    return () => {
+      observer.disconnect()
+      watch.disconnect()
+    }
   }, [])
 
-  const playing = inView && visible && !reduced && !paused
+  const playing = inView && visible && !reduced && !paused && !hidden
   // The sources go in only once it first plays: with none, no browser fetches
   // anything (Safari ignores preload="none"), so an off-screen row or reduced
   // motion costs only the poster.
@@ -245,7 +268,7 @@ export function ProjectTour({
   }, [playing, started])
 
   return (
-    <div data-tour className={className}>
+    <div data-tour data-clip-ms={tour.durationMs} className={className}>
       <div className={`relative ${aspect} overflow-hidden bg-[#07101d] ${frameClassName}`}>
         {/* The poster is an image behind the video, not its poster attribute: that way
             it loads lazily, at the size it shows (a poster attribute is fetched with the

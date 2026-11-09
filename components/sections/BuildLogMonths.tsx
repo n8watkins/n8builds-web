@@ -1,5 +1,5 @@
 'use client'
-import React, { createContext, useContext, useState } from 'react'
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import ShippedStats from '@/components/sections/ShippedStats'
 import LatestUpdates from '@/components/sections/LatestUpdates'
@@ -38,7 +38,7 @@ export function LogMonthProvider({ children }: { children: React.ReactNode }) {
 }
 
 const arrowClass =
-  'flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/4 text-slate-400 transition-colors enabled:hover:border-cyan-400/30 enabled:hover:bg-white/8 enabled:hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 disabled:cursor-default disabled:opacity-35'
+  'flex h-7 w-7 shrink-0 select-none items-center justify-center rounded-lg border border-white/10 bg-white/4 text-slate-400 transition-colors enabled:hover:border-cyan-400/30 enabled:hover:bg-white/8 enabled:hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 disabled:cursor-default disabled:opacity-35'
 
 /**
  * The homepage build log's month switcher (round 5 of 2026-11-02: "let
@@ -69,6 +69,12 @@ export default function BuildLogMonths({
 }) {
   const { index, setIndex } = useContext(MonthContext)
   const [announce, setAnnounce] = useState('')
+  // Whether the visitor has switched months: from then on a month's bars fill in as it shows.
+  const [switched, setSwitched] = useState(false)
+  // The arrow to give focus back to: a month's card remounts with its arrows, so the
+  // one just used would otherwise drop focus to the page.
+  const refocus = useRef<'older' | 'newer' | null>(null)
+  const root = useRef<HTMLDivElement>(null)
   const month = months[index]
   // The arrows go round (owner, round 4 of 2026-11-08): back from the oldest month is the
   // newest, and on from the newest is the oldest. Each month shows its year, so a wrap is plain.
@@ -78,10 +84,18 @@ export default function BuildLogMonths({
   const older = months[olderIndex]
   const newer = months[newerIndex]
 
-  const go = (to: number) => {
+  const go = (to: number, arrow: 'older' | 'newer') => {
+    refocus.current = document.activeElement?.closest('[data-month-arrow]') ? arrow : null
     setIndex(to)
+    setSwitched(true)
     setAnnounce(`Showing ${months[to].name}`)
   }
+
+  useEffect(() => {
+    const arrow = refocus.current
+    refocus.current = null
+    if (arrow) root.current?.querySelector<HTMLButtonElement>(`[data-month-arrow="${arrow}"]`)?.focus({ preventScroll: true })
+  }, [index])
 
   const header = (
     <div className="flex items-center justify-between gap-3">
@@ -99,7 +113,8 @@ export default function BuildLogMonths({
         <div className="flex items-center gap-1.5" role="group" aria-label="Months">
           <button
             type="button"
-            onClick={() => go(olderIndex)}
+            onClick={() => go(olderIndex, 'older')}
+            data-month-arrow="older"
             aria-label={`Previous month: ${older.name}`}
             title={older?.name}
             className={arrowClass}
@@ -108,7 +123,8 @@ export default function BuildLogMonths({
           </button>
           <button
             type="button"
-            onClick={() => go(newerIndex)}
+            onClick={() => go(newerIndex, 'newer')}
+            data-month-arrow="newer"
             aria-label={`Next month: ${newer.name}`}
             title={newer?.name}
             className={arrowClass}
@@ -121,9 +137,13 @@ export default function BuildLogMonths({
   )
 
   return (
+    // No tap highlight on its controls (round 7 of 2026-11-09: a white box flashed on a tap);
+    // each keeps a ring for the keyboard. The release-kit column is as wide as the month's,
+    // so the card is symmetric (round 7).
     <div
-      className={`grid grid-cols-1 overflow-hidden rounded-2xl border border-white/8 bg-[#0a1526]/70 ${
-        rows ? `md:grid-cols-[17rem_minmax(0,1fr)] ${aside ? 'lg:grid-cols-[17rem_minmax(0,1fr)_14rem]' : ''}` : ''
+      ref={root}
+      className={`grid grid-cols-1 overflow-hidden rounded-2xl border border-white/8 bg-[#0a1526]/70 [-webkit-tap-highlight-color:transparent] ${
+        rows ? `md:grid-cols-[17rem_minmax(0,1fr)] ${aside ? 'lg:grid-cols-[17rem_minmax(0,1fr)_17rem]' : ''}` : ''
       }`}
       data-log-months={months.length}
     >
@@ -133,7 +153,7 @@ export default function BuildLogMonths({
         className={`flex flex-col px-5 py-4 md:px-6 md:py-5 ${rows ? 'border-b border-white/8 md:border-r md:border-b-0' : ''} ${index ? 'log-month-in' : ''}`}
       >
         {/* The month is named once, here; each row carries its own day. */}
-        <ShippedStats stats={month.stats} days={month.days} period={month.name} header={header} />
+        <ShippedStats stats={month.stats} days={month.days} period={month.name} header={header} fill={switched} />
       </div>
       {rows && (
         // The month's updates, three at a time, moving on one by one (LatestUpdates).

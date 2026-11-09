@@ -13,9 +13,9 @@ import { pageMetadata } from '@/lib/seo'
 export const metadata = pageMetadata({
   title: 'Upcoming | n8builds',
   description:
-    "Projects I'm outlining in public: Relink, which turns broken links into the right page; Strollz, walking loops through streets you've never walked; VibeLog, live telemetry for coding streams; KeysReady, booking, live repair status and pay-by-phone for small auto shops; and Asset Arsenal, skins for your web pages. Join a waitlist to hear when there is something to try.",
+    "What I'm building in public: Relink and KeysReady for small businesses; Strollz, Feelium, Cutely Ask Me, FitFlow 7, Pivot and Who Am I? for everyday life; VibeLog and Asset Arsenal for developers and creators. Each has a landing page; join a waitlist to hear what's next.",
   shareDescription:
-    "What I'm outlining next: Relink, Strollz, VibeLog, KeysReady and Asset Arsenal. Join a waitlist to hear when there is something to try.",
+    "What I'm building in public, from walking loops and a 7-minute workout timer to tools for auto shops and coding streams. Join a waitlist to hear what's next.",
   path: '/upcoming',
 })
 
@@ -56,15 +56,8 @@ function ProjectCard({ project, index }: { project: UpcomingProject; index: numb
           </div>
         </header>
 
-        <p className="relative mt-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/30 bg-amber-300/10 px-2.5 py-1 font-semibold text-amber-200">
-            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-amber-300" />
-            Status: {project.status}
-          </span>
-          <span className="text-slate-400">{project.stage}</span>
-        </p>
-
-        <p className="relative mt-4 leading-relaxed text-pretty text-slate-200">{project.what}</p>
+        {/* No status line (owner, round 7 of 2026-11-09): every project has a live landing page. */}
+        <p className="relative mt-5 leading-relaxed text-pretty text-slate-200">{project.what}</p>
 
         <p className="relative mt-4 text-sm leading-relaxed text-pretty text-slate-300">
           <span className="font-semibold text-slate-100">Who it&rsquo;s for: </span>
@@ -118,8 +111,8 @@ export default function UpcomingPage() {
               <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">cookin&rsquo;</span>
             </h1>
             <p className="mt-4 max-w-[640px] text-base leading-relaxed text-[#9cadc5] sm:text-lg/7">
-              Things I am outlining in public: plans and landing pages, nothing you can use yet. Join a waitlist and I will email
-              you when there is something to try.
+              Things I&rsquo;m building in public, each with its own landing page: some are plans, some you can already try.
+              Join a waitlist and I&rsquo;ll email you when there&rsquo;s news.
             </p>
           </FadeIn>
 
