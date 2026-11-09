@@ -249,8 +249,8 @@ test('Scribe downloads the newest installer through a stable link, and its page 
   await expect(row.getByRole('link', { name: /Mac or Linux/ })).toHaveCount(0)
   // Mac and Linux ship as betas (2026-11-09): direct downloads, no request link.
   await expect(header.getByRole('link', { name: /Mac or Linux/ })).toHaveCount(0)
-  await expect(header.getByRole('link', { name: 'macOS (beta, not notarized)' })).toHaveAttribute('href', '/download/scribe-mac')
-  await expect(header.getByRole('link', { name: 'Linux AppImage (beta)' })).toHaveAttribute('href', '/download/scribe-linux')
+  await expect(header.getByRole('link', { name: 'Mac (beta, not notarized)' })).toHaveAttribute('href', '/download/scribe-mac')
+  await expect(header.getByRole('link', { name: 'Linux (beta)' })).toHaveAttribute('href', '/download/scribe-linux')
 
 })
 

@@ -494,21 +494,26 @@ async function BuildActions({ build, caption }: { build: Build; caption?: string
           <RepoButtons href={build.github} name={build.name} className="[&>a]:py-2.5" />
         ) : null}
       </div>
-      {quiet.map((action) => (
-        <a
-          key={action.href}
-          href={action.href}
-          {...away(action.href)}
-          className="mt-3 inline-flex items-center gap-1.5 py-1 text-sm font-semibold text-slate-300 transition-colors hover:text-cyan-200"
-        >
-          {/* One underline under the whole label, marks included (a bottom border:
-              a text underline would break at each mark). */}
-          <span className="border-b border-white/30 pb-px">
-            <ActionLabel label={action.label} />
-          </span>
-          <span className="sr-only"> (opens in a new tab)</span>
-        </a>
-      ))}
+      {quiet.length > 0 && (
+        // The quiet links share one line (Scribe's Mac and Linux betas), wrapping on phones.
+        <div className="mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-1">
+          {quiet.map((action) => (
+            <a
+              key={action.href}
+              href={action.href}
+              {...away(action.href)}
+              className="inline-flex items-center gap-1.5 py-1 text-sm font-semibold text-slate-300 transition-colors hover:text-cyan-200"
+            >
+              {/* One underline under the whole label, marks included (a bottom border:
+                  a text underline would break at each mark). */}
+              <span className="border-b border-white/30 pb-px">
+                <ActionLabel label={action.label} />
+              </span>
+              {/^https?:/.test(action.href) && <span className="sr-only"> (opens in a new tab)</span>}
+            </a>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

@@ -278,8 +278,8 @@ export const builds: Build[] = [
     tryIt: { label: 'Download for Windows', href: '/download/scribe', download: 'scribe' },
     // macOS and Linux builds ship as betas since 2026-11-09 (owner); the Mac app is not notarized.
     moreActions: [
-      { label: 'macOS (beta, not notarized)', href: '/download/scribe-mac', quiet: true },
-      { label: 'Linux AppImage (beta)', href: '/download/scribe-linux', quiet: true },
+      { label: 'Mac (beta, not notarized)', href: '/download/scribe-mac', quiet: true },
+      { label: 'Linux (beta)', href: '/download/scribe-linux', quiet: true },
     ],
     github: 'https://github.com/n8watkins/scribe',
     liveSite: 'https://scribe.n8builds.dev',
