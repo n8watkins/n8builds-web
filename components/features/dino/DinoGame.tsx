@@ -41,16 +41,16 @@ const H = DINO_ROWS * PX
 const SPEED = 140
 const GRAVITY = 1800 // px/s²
 const STEP_EVERY = 12 // px walked per leg swap
-const STILL = 2 // px/s: a row moving slower than this is still
-// How long, and for how many frames, a row must stay still to count as paused.
-// On a starved machine the marquee (a compositor animation) can report the
-// same place for a frame or two, or across one long frame, while it runs on;
-// a visitor's pause holds far longer.
-// 0.15s and 4 frames still let a loaded CI runner's stalls through (2026-11-09: the
-// dino fell off a running row in a different test each run); a hover holds for seconds.
-const PAUSED_AFTER = 0.4 // s
-const PAUSED_FRAMES = 8
+// Whether the visitor has paused a row comes from the row itself (Marquee sets
+// data-paused while it is hovered, focused or tapped), not from watching it
+// stand still: on a starved machine the marquee (a compositor animation) can
+// report the same place for many frames while it runs on, and the dino fell off
+// a running row (2026-11-09, again at 0.4s and 8 frames).
 const LANDING = 20 // px past the far edge of a gap that a hop lands
+// How far off a tile a walking dino is put back on it: a few pixels in practice (a
+// row's travel over a frame it couldn't ride), and under half a gap (2.5rem), so it
+// never lands on the tile across the gap.
+const SNAP = 16
 // Faster than any marquee row ever scrolls, px/s. A row "moving" faster than
 // this in a frame has been laid out again (the window was resized, a font
 // loaded): its tiles jumped, they didn't travel, so the dino doesn't ride the
@@ -90,9 +90,7 @@ interface Row {
   /** How far the row moved this frame, px (measured, so exact at any frame rate). */
   delta: number
   velocity: number
-  /** How long it has been still, s, and for how many frames (a pause counts after PAUSED_AFTER and PAUSED_FRAMES). */
-  stillFor: number
-  stillFrames: number
+  /** The visitor holds it still (its data-paused, from Marquee). */
   paused: boolean
 }
 
@@ -342,7 +340,7 @@ export default function DinoGame() {
         })
         const top = figures[0].getBoundingClientRect().top - box.top
         const trackTop = first.getBoundingClientRect().top - box.top
-        return [{ el, tracks, tiles, top, trackTop, lastLeft: null, lastPeriod: null, delta: 0, velocity: 0, stillFor: 0, stillFrames: 0, paused: false }]
+        return [{ el, tracks, tiles, top, trackTop, lastLeft: null, lastPeriod: null, delta: 0, velocity: 0, paused: rows.find((row) => row.el === el)?.paused ?? el.hasAttribute('data-paused') }]
       })
       levels = rows.map((row) => ({ y: row.top, row }))
       // One row: a ground line under it is the second level.
@@ -392,7 +390,6 @@ export default function DinoGame() {
     let walked = 0
     let missPending = false
     let frame: DinoFrame = 'fall'
-    let settled = 0 // frames measured so far (pauses count once rows are known)
     // Just came back in at the other end of a level: walk on (in the edge
     // fade) until there is a tile underfoot, rather than dropping straight in.
     let reentering = false
@@ -601,6 +598,18 @@ export default function DinoGame() {
     const support = (foot: number, spans: [number, number][]) =>
       spans.find(([a, b]) => foot >= a && foot <= b)
 
+    // The tile nearest its feet, if one is within `reach`: the shift that puts its
+    // feet 2px inside that tile's near edge, as a landing does.
+    const nearestTile = (foot: number, spans: [number, number][], reach: number) => {
+      let best: { shift: number; span: [number, number] } | null = null
+      for (const span of spans) {
+        const [a, b] = span
+        const shift = foot < a ? a + 2 - foot : foot > b ? b - 2 - foot : 0
+        if (Math.abs(shift) <= reach && (!best || Math.abs(shift) < Math.abs(best.shift))) best = { shift, span }
+      }
+      return best
+    }
+
     // Turning round, it stays on the tile it stood on. It looks for a tile's
     // edge from where it stood before this frame's step, and on a slow frame
     // that step can carry its feet just past the edge: turned round there, it
@@ -731,22 +740,17 @@ export default function DinoGame() {
           } else {
             row.delta = delta
             row.velocity = delta / realDt
-            // Pauses count once the rows have been measured a while: one
-            // seen sooner (the row held from the start) counts then.
-            const still = Math.abs(row.velocity) < STILL
-            row.stillFor = still ? row.stillFor + realDt : 0
-            row.stillFrames = still ? row.stillFrames + 1 : 0
-            if (settled > 10) {
-              const paused = row.stillFor >= PAUSED_AFTER && row.stillFrames >= PAUSED_FRAMES
-              if (paused && !row.paused && row === onRow) missPending = true
-              row.paused = paused
-            }
           }
         }
+        // Paused just now (by the visitor, as the row reports it) under the dino's feet:
+        // it misses its next jump. A row already paused when it lands or drops in
+        // trips it too (missPending where it lands).
+        const paused = row.el.hasAttribute('data-paused')
+        if (paused && !row.paused && row === onRow) missPending = true
+        row.paused = paused
         row.lastLeft = left
         row.lastPeriod = period
       }
-      settled++
       if (relaidOut) remeasure()
       const current = levels[level]
 
@@ -795,7 +799,23 @@ export default function DinoGame() {
           turned = true
         }
         if (spans) {
-          const under = support(foot, spans)
+          // Where its feet are on the row this frame (before this frame's step).
+          let at = foot
+          let under = support(at, spans)
+          // Just off a tile while walking along a row: never a real step into a gap
+          // (it hops at every edge), but the row moving on a frame it could not
+          // ride (the rows measured again, or one long frame right after it
+          // landed a couple of pixels from an edge). It stays on that tile
+          // rather than fall (2026-11-09: it fell off a running row on a busy
+          // machine, in a different test each CI run).
+          if (!under && !reentering) {
+            const snap = nearestTile(at, spans, SNAP)
+            if (snap) {
+              x += snap.shift
+              at += snap.shift
+              under = snap.span
+            }
+          }
           if (under) reentering = false
           if (under && turned) stayOn(under)
           if (!under && reentering) {
@@ -805,7 +825,7 @@ export default function DinoGame() {
             carry = rowSpeed(current.row)
           } else {
             const edge = dir > 0 ? under[1] : under[0]
-            const ahead = (edge - foot) * dir
+            const ahead = (edge - at) * dir
             // Within one frame's step of the edge (relative to the tile).
             if (ahead >= 0 && ahead < Math.max(5, (SPEED + 40) * dt + 1)) {
               // The next tile's near edge, to size the jump.
@@ -830,7 +850,7 @@ export default function DinoGame() {
                 // (relative to the row, which carries it along meanwhile).
                 const T = 0.24
                 const target = edge + dir * gap * 0.5
-                hop = { t: 0, T, h: 6, floor: current.y, vx: (target - foot) / T }
+                hop = { t: 0, T, h: 6, floor: current.y, vx: (target - at) / T }
                 mode = 'miss'
                 carry = rowSpeed(current.row)
                 missPending = false
@@ -846,7 +866,7 @@ export default function DinoGame() {
                   // On purpose: a little hop that comes down in the gap.
                   const T = 0.24
                   const target = edge + dir * gap * 0.5
-                  hop = { t: 0, T, h: 10, floor: current.y, vx: (target - foot) / T }
+                  hop = { t: 0, T, h: 10, floor: current.y, vx: (target - at) / T }
                   mode = 'drop'
                   carry = rowSpeed(current.row)
                 } else if (choice === 'turn') {

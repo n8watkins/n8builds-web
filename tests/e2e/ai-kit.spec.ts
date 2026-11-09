@@ -861,6 +861,31 @@ test.describe('dino easter egg (motion allowed)', () => {
   // About 20 frames a second, where each of its capped steps is most of the
   // way it looks ahead for a tile's edge: a step often takes its feet just
   // past the edge it then turns round or chooses at.
+  // 2026-11-09: on a busy CI runner it fell off a running row with nothing paused, in a
+  // different test each run. It had landed 2px from a tile's edge, and on the next frame,
+  // a long one, the rows were measured again, so it didn't ride the row's travel and its
+  // feet were off the tile. A walking dino now stays on its tile. Here the rows are
+  // measured again and again (the window keeps changing width) while frames come slowly.
+  test('with nothing paused it keeps to its row, even when frames come slowly and the rows are measured again', async ({
+    page,
+    browserName,
+  }) => {
+    test.skip(browserName !== 'chromium', 'game logic, checked in Chromium (slow CI frames elsewhere)')
+    test.setTimeout(60_000)
+    await slowFrames(page, 90)
+    await dinoTiming(page, { firstLineAfter: 999 })
+    await page.setViewportSize({ width: 1280, height: 900 })
+    await onTopRow(page)
+    await recordDino(page)
+    for (let i = 0; i < 16; i++) {
+      await page.setViewportSize({ width: i % 2 ? 1280 : 1272, height: 900 })
+      await page.waitForTimeout(400)
+    }
+    const log = await dinoLog(page)
+    expect(log.filter((entry) => !entry.endsWith('@0')), 'stayed on the top row').toEqual([])
+    expect(log.filter((entry) => entry.startsWith('hop')).length, 'kept hopping').toBeGreaterThan(0)
+  })
+
   test('turning round at the end of a tile, it stays on it, even when frames come slowly', async ({
     page,
     browserName,
