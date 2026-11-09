@@ -33,7 +33,8 @@ export default function LabSubheader({
       {eyebrow && <p className={`mb-1.5 text-[0.68rem] font-bold uppercase tracking-[0.16em] ${eyebrowClass ?? ''}`}>{eyebrow}</p>}
       {icon ? (
         <div className="flex items-center gap-3">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[rgb(var(--lab-from,34_211_238)/0.1)] text-[rgb(var(--lab-from,34_211_238))] ring-1 ring-[rgb(var(--lab-from,34_211_238)/0.3)] sm:size-10 [&_svg]:size-5 sm:[&_svg]:size-[1.375rem]">
+          {/* data-part-icon: the side rail lights this part as this icon passes the middle of the window. */}
+          <span data-part-icon className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[rgb(var(--lab-from,34_211_238)/0.1)] text-[rgb(var(--lab-from,34_211_238))] ring-1 ring-[rgb(var(--lab-from,34_211_238)/0.3)] sm:size-10 [&_svg]:size-5 sm:[&_svg]:size-[1.375rem]">
             {icon}
           </span>
           <h3 id={id} className="text-2xl font-bold tracking-tight text-slate-50 sm:text-[1.75rem]">{title}</h3>

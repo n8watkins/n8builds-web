@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
-import { contentLeft, expectCleanJump, labelLines, railShape } from './section-rail'
+import { contentLeft, expectCleanJump, labelLines, railShape, placeIcon } from './section-rail'
 
 /**
  * The Loadout's floating side nav (components/sections/LoadoutSectionNav.tsx,
@@ -95,13 +95,14 @@ test.describe('at 1440px', () => {
     }
   })
 
-  test('a part takes over once its top passes the middle of the window', async ({ page }) => {
+  // Round 10 of 2026-11-09: once its heading icon passes the middle line (its top before), as on the homepage.
+  test("a part takes over once its heading icon passes the middle of the window", async ({ page }) => {
     await openLoadout(page)
     const current = rail(page).locator('[aria-current]')
-    await place(page, 'tools-i-use', 500)
+    await placeIcon(page, 'tools-i-use', 12)
     await expect(rail(page)).toBeVisible(SHOW)
     await expect(current).toHaveAccessibleName("Tools I've built")
-    await place(page, 'tools-i-use', 400)
+    await placeIcon(page, 'tools-i-use', -12)
     await expect(current).toHaveAccessibleName('Tools I use')
   })
 

@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
-import { contentLeft, expectCleanJump, labelLines, railShape } from './section-rail'
+import { contentLeft, expectCleanJump, expectSwitchAtIconMidline, labelLines, placeIcon, railShape } from './section-rail'
 
 /**
  * The homepage Loadout's floating side nav (components/sections/HomeLoadoutNav.tsx,
@@ -80,6 +80,39 @@ test.describe('at 1440px', () => {
     await expect.poll(async () => (await beats()).length).toBe(2)
     const [a, b] = await beats()
     expect(Math.abs(a - b)).toBeLessThan(50)
+    await context.close()
+  })
+
+  test("a part's rail item lights as its heading icon crosses the middle of the window", { tag: '@cross-browser' }, async ({ page }) => {
+    await openHome(page)
+    await placeIcon(page, PARTS[0].id, -12)
+    await expect(rail(page)).toBeVisible(SHOW)
+    await expectSwitchAtIconMidline(page, rail(page), PARTS)
+  })
+
+  // The heading's hammer starts as it comes into view, not with the band's reveal long before,
+  // and the rail's hammer joins it, in step, as its icon crosses the middle line.
+  test("the heading's hammer starts as it comes into view, and the rail's joins it at the middle line", async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'no-preference' })
+    const page = await context.newPage()
+    await openHome(page)
+    const heading = page.locator('#tools-i-built [data-part-icon] .part-icon-hammer')
+    const railHammer = rail(page).locator('.part-icon-hammer')
+    const swinging = (icon: typeof heading) =>
+      icon.locator('.hammer-head').evaluate((g) => g.getAnimations().some((a) => a.playState === 'running'))
+    // Below the window: still.
+    await placeIcon(page, 'tools-i-built', 520)
+    await expect(heading).not.toHaveAttribute('data-seen', '')
+    expect(await swinging(heading)).toBe(false)
+    // In view, under the middle line: the heading's swings, the rail's waits.
+    await placeIcon(page, 'tools-i-built', 300)
+    await expect(heading).toHaveAttribute('data-seen', '')
+    await expect.poll(() => swinging(heading)).toBe(true)
+    expect(await swinging(railHammer)).toBe(false)
+    // Over the line: both swing.
+    await placeIcon(page, 'tools-i-built', -12)
+    await expect(rail(page).locator('[aria-current]')).toHaveAccessibleName("Tools I've built")
+    await expect.poll(() => swinging(railHammer)).toBe(true)
     await context.close()
   })
 

@@ -60,8 +60,8 @@ type SectionRailProps = {
  * label showing as a tooltip on hover or keyboard focus.
  *
  * Script: one scroll listener, throttled to a frame and idle while the
- * container is off screen, that finds the current part (the one whose top has
- * passed the middle of the viewport) and snaps the wire's fill to its row
+ * container is off screen, that finds the current part (the one whose heading
+ * icon, or else its top, has passed the middle of the viewport) and snaps the wire's fill to its row
  * through a CSS variable (no re-render per frame). Animation is CSS
  * transitions plus Tailwind's spin; under reduced motion nothing moves (the
  * halo jumps, the comet is a still arc).
@@ -107,6 +107,8 @@ export default function SectionRail({
     )
     const present = found.map((x) => x.s)
     const els = found.map((x) => x.el)
+    // Each part's heading icon, where it has one (LoadoutPartHeading, LabSubheader).
+    const marks = els.map((el) => el.querySelector<HTMLElement>('[data-part-icon]'))
     const container = document.getElementById(containerId)
     const column = columnRef.current
     if (!container || !column || !els.length) return
@@ -155,12 +157,18 @@ export default function SectionRail({
         setShown(false)
         return
       }
-      // A part becomes current once its top reaches the rail's level, the
-      // viewport's middle, and stays current until the next one gets there.
+      // A part becomes current once it reaches the rail's level, the viewport's
+      // middle, and stays current until the next one gets there. Where its
+      // heading has an icon (data-part-icon), that is once the icon's middle is
+      // halfway up the window (owner, round 10 of 2026-11-09), so the rail's
+      // icon lights as the heading's own plays beside it; otherwise its top.
       const line = window.innerHeight * 0.5
       let index = -1
       for (let i = 0; i < els.length; i++) {
-        if (els[i].getBoundingClientRect().top > line) break
+        const mark = marks[i]
+        const box = mark?.getBoundingClientRect()
+        const y = box ? box.top + box.height / 2 : els[i].getBoundingClientRect().top
+        if (y > line) break
         index = i
       }
       // A jump (a rail link, a pill, a #hash) lands a part's top at its landing

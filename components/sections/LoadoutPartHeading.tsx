@@ -38,8 +38,10 @@ export default function LoadoutPartHeading({
   return (
     <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3" style={{ '--part': accent } as CSSProperties} data-part-heading>
       <div className="flex min-w-0 items-start gap-3">
+        {/* data-part-icon: the side rail lights this part as this icon passes the middle of the window. */}
         <span
           aria-hidden="true"
+          data-part-icon
           className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl bg-[rgb(var(--part)/0.1)] text-[rgb(var(--part))] ring-1 ring-[rgb(var(--part)/0.3)] sm:size-10 [&_svg]:size-5 sm:[&_svg]:size-[1.375rem]"
         >
           {icon}

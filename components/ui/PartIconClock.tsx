@@ -1,5 +1,6 @@
 'use client'
 import { useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 
 /**
  * One clock for the part icons that keep moving (components/ui/PartIcons.tsx):
@@ -13,6 +14,30 @@ import { useEffect } from 'react'
  * whenever it began. Under reduced motion there is nothing to align.
  */
 export default function PartIconClock() {
+  // Each heading's icon plays once it is in view itself (owner, round 10 of 2026-11-09:
+  // the hammer starts as it comes into view; a whole band's scroll reveal started it
+  // long before). data-seen starts its CSS animation (.part-icon in app/globals.css). The
+  // side rails' copies play while their part is current instead, so they are left out.
+  const pathname = usePathname()
+  useEffect(() => {
+    const icons = [...document.querySelectorAll<SVGElement>('.part-icon:not([data-seen])')].filter(
+      (icon) => !icon.closest('[data-section-rail]')
+    )
+    if (!icons.length) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue
+          entry.target.setAttribute('data-seen', '')
+          observer.unobserve(entry.target)
+        }
+      },
+      { threshold: 1 }
+    )
+    icons.forEach((icon) => observer.observe(icon))
+    return () => observer.disconnect()
+  }, [pathname])
+
   useEffect(() => {
     if (typeof document.getAnimations !== 'function' || typeof CSSAnimation === 'undefined') return
     const alignAll = (animations: Animation[], name?: string) => {
