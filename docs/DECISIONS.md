@@ -394,6 +394,7 @@ Where these conflict with an older entry above, these win; the older entries are
   The quote field shows no label or privacy note (the label stays for screen readers); "Don't see yours? We'll build it." is larger, a small call to action of its own that goes to the quote field.
   The homepage build log shows the month's two latest updates beside the month card (no paging); the card's figures move on every 7 seconds (was 4); the release-kit ad is one line, and "Get release-kit" carries GitHub's mark. It sits close under "What I'm working on", with no hairline between them.
   /builds shows the same month card beside its intro, and the page fades in on load a step at a time (CSS, still under reduced motion), its sections fading up as they scroll in.
+  **Links behave the same everywhere** (link map review): every Portfolio link (navbar, phone menu, hero, template card, footer) goes through the counted `/portfolio?from=...` link in a new tab; each Chrome extension's screenshot opens its build page (`<name>: full story`), not GitHub a second time; the footer's link to /builds reads "Full build log"; LinkedIn is one URL everywhere, https://linkedin.com/in/n8watkins (`lib/links.ts`).
 
 ## Publishing and releases (2026-10-25)
 

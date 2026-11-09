@@ -5,6 +5,8 @@ import { CiLinkedin } from 'react-icons/ci'
 import { FaXTwitter } from 'react-icons/fa6'
 import WhoamiTerminal from '@/components/features/WhoamiTerminal'
 import FadeIn from '@/components/ui/FadeIn'
+import { LINKEDIN_URL } from '@/lib/links'
+import { refHref } from '@/lib/referrals'
 import HeroGrid from '@/components/sections/HeroGrid'
 import HeroChainMeter from '@/components/sections/HeroChainMeter'
 import HeroPortraitSwap from '@/components/sections/HeroPortraitSwap'
@@ -149,11 +151,15 @@ const Hero = () => {
             {/* The direct route for someone hiring: the developer portfolio. */}
             <FadeIn as="p" effect="in" delay={0.55} className="text-sm text-slate-400">
               Hiring?{' '}
+              {/* Counted and in a new tab, like every Portfolio link (2026-11-08). */}
               <a
-                href="https://portfolio.n8builds.dev"
+                href={refHref('portfolio', 'hero')}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="font-semibold text-cyan-300 underline decoration-cyan-300/40 underline-offset-4 transition-colors hover:text-cyan-200 hover:decoration-cyan-200"
               >
                 Check out my dev portfolio
+                <span className="sr-only"> (opens in a new tab)</span>
               </a>
             </FadeIn>
 
@@ -161,7 +167,7 @@ const Hero = () => {
             <FadeIn effect="in" delay={0.65} as="nav" aria-label="Social links" className="flex items-center gap-0.5 -ml-2">
               {[
                 { href: 'https://github.com/n8watkins', label: 'GitHub', icon: <FiGithub className="w-[1.6rem] h-[1.6rem]" /> },
-                { href: 'https://linkedin.com/in/n8watkins', label: 'LinkedIn', icon: <CiLinkedin className="w-8 h-8" /> },
+                { href: LINKEDIN_URL, label: 'LinkedIn', icon: <CiLinkedin className="w-8 h-8" /> },
                 { href: 'https://x.com/n8watkins', label: 'X', icon: <FaXTwitter className="w-[1.4rem] h-[1.4rem]" /> },
               ].map(s => (
                 <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label}

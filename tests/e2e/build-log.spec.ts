@@ -259,7 +259,7 @@ test.describe('navigation to the build log', () => {
     await page.goto('/loadout')
     const sitemap = page.getByRole('navigation', { name: 'Sitemap' })
     await sitemap.scrollIntoViewIfNeeded()
-    await sitemap.getByRole('link', { name: 'Build log' }).click()
+    await sitemap.getByRole('link', { name: 'Full build log' }).click()
     await expect(page).toHaveURL(/\/builds$/)
     await expect(page.getByRole('heading', { level: 1, name: 'The build log' })).toBeVisible()
   })

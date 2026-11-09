@@ -29,7 +29,8 @@ const SITEMAP: { heading: string; links: { label: string; href: string; mark?: R
     heading: 'Read and watch',
     links: [
       // Not a Lab part since 2026-11-08: it sits above the Lab, under "What I'm working on".
-      { label: 'Build log', href: '/builds' },
+      // "Full build log": it opens /builds, unlike the navbar's Build log, which scrolls to the homepage's (2026-11-08).
+      { label: 'Full build log', href: '/builds' },
       { label: 'Notions', href: '/blog' },
       { label: 'Live', href: '/live' },
       { label: 'People I follow', href: '/#people' },
@@ -39,7 +40,8 @@ const SITEMAP: { heading: string; links: { label: string; href: string; mark?: R
   {
     heading: 'Work with me',
     links: [
-      { label: 'Developer portfolio', href: 'https://portfolio.n8builds.dev' },
+      // Counted, like the navbar's (lib/referrals.ts).
+      { label: 'Developer portfolio', href: refHref('portfolio', 'footer') },
       // Counted, like the navbar's (lib/referrals.ts).
       { label: TECH_FOR_PROS.domain, href: refHref('techforpros', 'footer'), mark: <TechForProsMark className="h-[18px] w-[18px] shadow-none" sizes="18px" /> },
       { label: 'Contact form', href: '/#contact' },

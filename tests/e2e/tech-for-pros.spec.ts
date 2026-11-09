@@ -56,7 +56,7 @@ test('the footer has a sitemap and the public contact address', { tag: '@smoke' 
   await expect(footer).not.toContainText('The Consulting Studio')
   await expect(footer.locator('#apt-grad')).toHaveCount(0)
   const sitemap = footer.getByRole('navigation', { name: 'Sitemap' })
-  for (const name of ['Featured builds', 'Build log', 'Notions', 'Developer portfolio', 'Privacy']) {
+  for (const name of ['Featured builds', 'Full build log', 'Notions', 'Developer portfolio', 'Privacy']) {
     await expect(sitemap.getByRole('link', { name: new RegExp(name) }), name).toBeAttached()
   }
   await expect(sitemap.getByRole('link', { name: /Appturnity/ })).toHaveCount(0)

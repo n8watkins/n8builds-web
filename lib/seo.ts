@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { TECH_FOR_PROS } from '@/lib/techForPros'
+import { LINKEDIN_URL } from '@/lib/links'
 
 /**
  * Per-page search and share metadata.
@@ -124,7 +125,7 @@ export const siteJsonLd = {
       sameAs: [
         'https://github.com/n8watkins',
         'https://x.com/n8watkins',
-        'https://www.linkedin.com/in/n8watkins',
+        LINKEDIN_URL,
         'https://twitch.tv/n8watkins',
         'https://portfolio.n8builds.dev',
         TECH_FOR_PROS.url,

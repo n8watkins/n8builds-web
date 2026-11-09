@@ -285,7 +285,8 @@ const Navbar = () => {
           {/* Right actions */}
           <div className="flex items-center gap-2">
             <a
-              href="https://portfolio.n8builds.dev"
+              // Every Portfolio link goes through the counted short link, in a new tab (2026-11-08).
+              href={refHref('portfolio', 'navbar')}
               target="_blank"
               rel="noopener noreferrer"
               className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-semibold text-slate-200 hover:text-white border border-white/15 rounded-lg hover:border-white/20 hover:bg-white/5 transition-all duration-150"
@@ -415,7 +416,7 @@ const Navbar = () => {
         ))}
         <hr className="border-white/8 my-1" />
         <a
-          href="https://portfolio.n8builds.dev"
+          href={refHref('portfolio', 'navbar')}
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => setMobileOpen(false)}

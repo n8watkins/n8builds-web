@@ -3,6 +3,7 @@ import { FaTwitch, FaXTwitter, FaYoutube } from 'react-icons/fa6'
 import { FiGithub, FiMail } from 'react-icons/fi'
 import { CiLinkedin } from 'react-icons/ci'
 import { SiKofi } from 'react-icons/si'
+import { LINKEDIN_URL } from '@/lib/links'
 
 /**
  * The owner's social links: one list for the contact card and the site
@@ -24,7 +25,7 @@ export interface Social {
 
 export const ALL_SOCIALS: Social[] = [
   { label: 'GitHub', href: 'https://github.com/n8watkins', Icon: FiGithub, enabled: true, size: 'md' },
-  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/n8watkins/', Icon: CiLinkedin, enabled: true, size: 'lg' },
+  { label: 'LinkedIn', href: LINKEDIN_URL, Icon: CiLinkedin, enabled: true, size: 'lg' },
   { label: 'Email', href: 'mailto:contact@n8builds.dev', Icon: FiMail, enabled: true, size: 'md' },
   { label: 'X (Twitter)', href: 'https://x.com/n8watkins', Icon: FaXTwitter, enabled: true, size: 'sm' },
   { label: 'Twitch', href: 'https://twitch.tv/n8watkins', Icon: FaTwitch, enabled: false, size: 'sm' },

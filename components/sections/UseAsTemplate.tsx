@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { refHref } from '@/lib/referrals'
 import type { IconType } from 'react-icons'
 import { FiBriefcase, FiCheck, FiFileText } from 'react-icons/fi'
 import LabSubheader from '@/components/sections/LabSubheader'
@@ -51,7 +52,7 @@ const TEMPLATES: Template[] = [
   },
   {
     title: 'My developer portfolio',
-    site: { label: 'portfolio.n8builds.dev', href: 'https://portfolio.n8builds.dev' },
+    site: { label: 'portfolio.n8builds.dev', href: refHref('portfolio', 'lab') },
     mark: { icon: FiBriefcase },
     description:
       'A Next.js 16 portfolio with a page per project and live demo status: a clean start for a portfolio of your own.',

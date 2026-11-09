@@ -66,7 +66,7 @@ test('two short cards: each links its site, says in one sentence what you get, a
 
   await expect(portfolio.getByRole('heading', { level: 4 })).toHaveText('My developer portfolio')
   const live = portfolio.getByRole('link', { name: /^portfolio\.n8builds\.dev/ })
-  await expect(live).toHaveAttribute('href', 'https://portfolio.n8builds.dev')
+  await expect(live).toHaveAttribute('href', '/portfolio?from=lab')
   await expect(live).toHaveAttribute('target', '_blank')
   await expect(portfolio.locator('img[src*="n8-icon"]')).toHaveCount(0)
 

@@ -47,11 +47,11 @@ const Detail = ({ ext }: { ext: Ext }) => {
   return (
     // The screenshot takes the smaller share, so the copy leads (smaller since 2026-10-26).
     <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] md:items-center">
-      {/* Visual */}
-      <a
-        href={build.github}
-        target="_blank"
-        rel="noopener noreferrer"
+      {/* Visual: opens the extension's own page (2026-11-08; GitHub, the same as
+          the Star | GitHub button, before). */}
+      <Link
+        href={`/builds/${build.slug}`}
+        aria-label={`${build.name}: full story`}
         className="group/visual relative mx-auto block aspect-16/10 w-full max-w-60 overflow-hidden rounded-2xl border border-white/8 bg-[#07101d] md:max-w-none"
       >
         {ext.shot ? (
@@ -68,7 +68,7 @@ const Detail = ({ ext }: { ext: Ext }) => {
           </div>
         )}
         <div className="absolute inset-0 bg-linear-to-t from-darkBlue/50 to-transparent" />
-      </a>
+      </Link>
 
       {/* Text */}
       <div className="flex flex-col gap-3">

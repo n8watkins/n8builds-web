@@ -240,3 +240,25 @@ test('moving between pages logs no console errors', { tag: ['@cross-browser', '@
   await page.waitForTimeout(1000)
   expect(errors.filter((e) => /script tag|hydrat/i.test(e))).toEqual([])
 })
+
+/**
+ * Link consistency (2026-11-08): every Portfolio link on the homepage goes
+ * through the counted /portfolio short link, tagged by where it sits, in a
+ * new tab; and LinkedIn is one URL everywhere.
+ */
+test('every Portfolio link is counted and opens in a new tab; LinkedIn is one URL', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 })
+  await page.goto('/')
+  for (const [where, from] of [
+    ['nav[aria-label="Primary"]', 'navbar'],
+    ['#home', 'hero'],
+    ['#template', 'lab'],
+    ['nav[aria-label="Sitemap"]', 'footer'],
+  ] as const) {
+    const link = page.locator(`${where} a[href="/portfolio?from=${from}"]`).first()
+    await expect(link, where).toBeAttached()
+    await expect(link, where).toHaveAttribute('target', '_blank')
+  }
+  const linkedIn = await page.locator('a[href*="linkedin.com"]').evaluateAll((as) => [...new Set(as.map((a) => a.getAttribute('href')))])
+  expect(linkedIn).toEqual(['https://linkedin.com/in/n8watkins'])
+})

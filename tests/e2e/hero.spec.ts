@@ -107,10 +107,11 @@ test.describe('the hero text column', () => {
   test('shows "Hiring? Check out my dev portfolio" above the social links', { tag: '@smoke' }, async ({ page }) => {
     await page.goto('/')
     const hero = page.locator('#home')
-    const link = hero.getByRole('link', { name: 'Check out my dev portfolio' })
-    // A direct route to the developer portfolio for someone hiring.
+    const link = hero.getByRole('link', { name: 'Check out my dev portfolio (opens in a new tab)' })
+    // A direct route to the developer portfolio for someone hiring: counted, in a new tab, like every Portfolio link.
     await expect(link).toBeVisible()
-    await expect(link).toHaveAttribute('href', 'https://portfolio.n8builds.dev')
+    await expect(link).toHaveAttribute('href', '/portfolio?from=hero')
+    await expect(link).toHaveAttribute('target', '_blank')
     const hiring = await link.boundingBox()
     const socials = await hero.getByRole('navigation', { name: 'Social links' }).boundingBox()
     expect(hiring!.y + hiring!.height).toBeLessThanOrEqual(socials!.y)
