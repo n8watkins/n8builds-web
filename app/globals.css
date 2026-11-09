@@ -63,13 +63,14 @@
 }
 
 /* On big screens the content column grows (owner, 2026-11-09): from 1280px it
-   is the screen less an 18rem frame (the Lab's and the Loadout's side rails
-   need a 9rem gutter, 2rem of it the column's padding), between 72rem and
-   82rem. So up to 1440px it stays 72rem, and at 1920px it is 82rem. Phones
-   and tablets never change. */
+   is the screen less a 24rem frame (the Lab's and the Loadout's side rails
+   need a 12rem gutter once they show their full labels, from 1536px),
+   between 72rem and 82rem. So up to 1536px it stays 72rem, it grows from
+   there, and from 1696px on it is 82rem (1312px). Phones and tablets never
+   change. */
 @media (width >= 80rem) {
   :root {
-    --container-site: clamp(72rem, 100vw - 18rem, 82rem);
+    --container-site: clamp(72rem, 100vw - 24rem, 82rem);
   }
 }
 
