@@ -24,8 +24,9 @@ import Footer from '@/components/layout/Footer'
 import type { Post } from '@/lib/sanity'
 
 /**
- * Under "The Lab": true of every build in it (each repo is public, MIT-licensed
- * and runs its checks on every pull request).
+ * Under "The Lab": true of its featured builds, extensions and templates (each
+ * repo is public, MIT-licensed and runs its checks on every pull request); the
+ * upcoming projects are plans, some with no public repo yet.
  */
 const LAB_POINTS = ['Public on GitHub', 'MIT-licensed', 'Tested on every pull request', 'Star, fork or open an issue']
 

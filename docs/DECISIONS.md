@@ -418,6 +418,7 @@ Where these conflict with an older entry above, these win; the older entries are
   The build log's scroll icon keeps a subtle loop after it unrolls: now and then its two lines are written again, one after the other (CSS only, nothing under reduced motion).
   The Lab's open-source checks sit once, centred under "The Lab": Public on GitHub, MIT-licensed, Tested on every pull request (true of every Lab repo: each is MIT and runs CI on pull requests), Star, fork or open an issue; one line from 1024px. Not under Featured, and the template part has no checks of its own any more.
   The template part's heading is "Don't have a site? Use mine!" (was "Use mine as a template!"), one line on phones too.
+  What's cookin' lists every upcoming project: Feelium is back in the homepage list (it was left off when the list was a five-card grid), and **Cutely Ask Me joins the upcoming projects** (owner, 2026-11-09): a two-sided date invite ("Send a cute ask, they pick the vibe, you plan the date"), status "Concept" (a working app at https://cutelyaskme.n8builds.dev, not open to sign-ups yet), accent `#ff7aaa` (its theme pink), a heart mark (`public/upcoming/cutelyaskme.svg`), repo n8watkins/cutelyaskme, interest value `cutelyaskme` (a public contract like the others), on /upcoming, in both waitlist forms and in the build log's Upcoming filter.
 
 ## Publishing and releases (2026-10-25)
 
