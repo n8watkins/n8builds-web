@@ -80,6 +80,34 @@ test('the Lab leads with the featured builds, OpenPing first, each with its icon
   }
 })
 
+for (const width of [1280, 390]) {
+  test(`Featured is a big card per build: the clip across the full width, the words and buttons under it, OpenPing first (${width}px)`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto('/')
+    const cards = page.locator('#featured article')
+    await expect(cards).toHaveCount(2)
+    const boxes = []
+    for (const title of ['OpenPing', 'Solara']) {
+      const card = page.getByRole('article', { name: title })
+      await card.scrollIntoViewIfNeeded()
+      const [article, clip, heading, primary] = await Promise.all([
+        card.locator('.reveal').first().boundingBox(),
+        card.locator('[data-tour]').boundingBox(),
+        card.getByRole('heading', { level: 3 }).boundingBox(),
+        card.getByRole('link', { name: PRIMARY[title][0] }).boundingBox(),
+      ])
+      // Round 8 of 2026-11-09: no left and right rows. The clip spans the card...
+      expect(clip!.width, title).toBeGreaterThan(article!.width - 40)
+      // ... and the name and buttons sit under it.
+      expect(heading!.y, title).toBeGreaterThan(clip!.y + clip!.height)
+      expect(primary!.y, title).toBeGreaterThan(clip!.y + clip!.height)
+      boxes.push(article!)
+    }
+    expect(boxes[1].y).toBeGreaterThan(boxes[0].y + boxes[0].height)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  })
+}
+
 test('the Lab has no tools part any more, in its own links, the navbar menu or the footer', async ({ page }) => {
   await page.goto('/')
   // The Lab's rail lists its parts (in the page at every width, shown on desktop once the Lab is on screen).
@@ -408,7 +436,7 @@ test("each row's buttons fit their column, with one-line labels, at every width"
       await page.setViewportSize({ width, height: 900 })
       const [primary, story, repo] = controls(row, title)
       await primary.scrollIntoViewIfNeeded()
-      const text = row.getByRole('heading', { level: 3 }).locator('xpath=ancestor::div[contains(@class,"md:w-1/2")][1]')
+      const text = row.getByRole('heading', { level: 3 }).locator('xpath=ancestor::div[contains(@class,"md:w-1/2") or @data-featured-text][1]')
       const [p, f, r, t] = await Promise.all([primary, story, repo, text].map((el) => el.boundingBox()))
       const at = `${title} at ${width}px`
       for (const [name, box] of [['primary', p], ['Full story', f], ['Star | GitHub', r]] as const) {
