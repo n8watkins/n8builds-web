@@ -11,7 +11,7 @@ const DIRECT_EMAIL = 'contact@n8builds.dev'
 const FALLBACK_ERROR = `Something went wrong. Please try again, or email me at ${DIRECT_EMAIL}.`
 const VERIFY_ERROR = `We couldn't verify your browser (an ad or privacy blocker can cause this). Please refresh and try again, or email me at ${DIRECT_EMAIL}.`
 
-/** The anchor the top section's "Get a quote" button lands on (data/now.tsx). */
+/** The quote field's anchor: /#quote lands on it, ready to type. */
 export const QUOTE_ANCHOR = 'quote'
 
 type State =
@@ -21,13 +21,13 @@ type State =
   | { kind: 'done'; email: string }
 
 /**
- * The Tech for Pros card's quote request (round 5 of 2026-11-02): an email
+ * The Tech for Pros ad's quote request (round 5 of 2026-11-02; in "What I'm
+ * working on" since 2026-11-08, components/sections/NowBuilding.tsx): an email
  * field and "Get my quote". It posts to the contact backend (/api/contact,
  * `kind: 'techforpros-quote'`: Turnstile, honeypot, rate limits, test mode),
  * which emails the owner a quote request with the visitor's address; nothing
  * is stored. Invisible Turnstile and a hidden honeypot, as the waitlist and the
- * contact form. Arriving at #quote (the top section's "Get a quote") focuses
- * the field. A clear success state replaces the form.
+ * contact form. Arriving at #quote focuses the field. A clear success state replaces the form.
  */
 export default function QuoteForm({ turnstileSiteKey }: { turnstileSiteKey: string }) {
   const hydrated = useHydrated()
@@ -44,7 +44,7 @@ export default function QuoteForm({ turnstileSiteKey }: { turnstileSiteKey: stri
   const [widget, setWidget] = useState(0)
   const tokenWaiter = useRef<((token: string | null) => void) | null>(null)
 
-  // "Get a quote" at the top of the page (or a link to /#quote) lands here, ready to type.
+  // A link to /#quote lands here, ready to type.
   useEffect(() => {
     const focus = () => {
       if (window.location.hash === `#${QUOTE_ANCHOR}`) input.current?.focus({ preventScroll: true })

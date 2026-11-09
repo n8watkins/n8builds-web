@@ -4,13 +4,16 @@ import { nowItems, type NowState } from '@/data/now'
 import NowCarousel from '@/components/sections/NowCarousel'
 import TemplateCarousel from '@/components/sections/TemplateCarousel'
 import ContactPresetLink from '@/components/ui/ContactPresetLink'
+import QuoteForm from '@/components/sections/QuoteForm'
 
 /**
  * One now-item as an ad (round 3 of 2026-11-02, the original layout): brand,
- * headline, pitch and buttons on the left; its templates in a browser window,
- * one after another, with a phone in front, on the right.
+ * headline, pitch, then the quote request (QuoteForm: an email field and "Get
+ * my quote", owner, 2026-11-08; a "Get a quote" button down to it before) and
+ * any other buttons on the left; its templates in a browser window, one after
+ * another, with a phone in front, on the right.
  */
-const Card = ({ now }: { now: NowState }) => (
+const Card = ({ now, turnstileSiteKey }: { now: NowState; turnstileSiteKey: string }) => (
   // One grid: from lg up the copy sits in the left column from the top (so the
   // first screen's sneak peek shows the title row), the picture beside it,
   // centred; below lg the picture comes between the copy and the buttons.
@@ -38,32 +41,37 @@ const Card = ({ now }: { now: NowState }) => (
       <TemplateCarousel slides={now.templates} phone={now.phone} />
     </div>
 
-    {/* The buttons: under the copy from lg up, under the picture below that. */}
-    <div className="grid gap-3 sm:flex sm:flex-wrap sm:items-center lg:col-start-1 lg:row-start-3 lg:mt-2">
-      {now.ctas.map((cta, i) => {
-        const away = !cta.href.startsWith('/')
-        return (
-          <ContactPresetLink
-            key={cta.href}
-            href={cta.href}
-            className={
-              i === 0
-                ? 'flex items-center justify-center gap-2 rounded-xl border border-transparent bg-origin-border bg-linear-to-r from-blue-600 to-cyan-500 px-4 sm:px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-cyan-950/50 transition-all duration-200 hover:scale-[1.02] hover:from-blue-500 hover:to-cyan-400 motion-reduce:hover:scale-100'
-                : 'flex items-center justify-center gap-2 rounded-xl border border-white/12 bg-white/4 px-5 py-2.5 text-sm font-semibold text-slate-200 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8 motion-reduce:hover:scale-100'
-            }
-          >
-            {cta.label}
-            {away ? (
-              <>
-                <FiArrowUpRight className="h-4 w-4" aria-hidden />
-                <span className="sr-only"> (opens in a new tab)</span>
-              </>
-            ) : (
-              <FiArrowRight className="h-4 w-4" aria-hidden />
-            )}
-          </ContactPresetLink>
-        )
-      })}
+    {/* The quote request and any buttons: under the copy from lg up, under the picture below that. */}
+    <div className="lg:col-start-1 lg:row-start-3 lg:mt-2">
+      {now.quote && <QuoteForm turnstileSiteKey={turnstileSiteKey} />}
+      {now.ctas.length > 0 && (
+        <div className={`grid gap-3 sm:flex sm:flex-wrap sm:items-center ${now.quote ? 'mt-4' : ''}`}>
+          {now.ctas.map((cta, i) => {
+            const away = !cta.href.startsWith('/')
+            return (
+              <ContactPresetLink
+                key={cta.href}
+                href={cta.href}
+                className={
+                  i === 0
+                    ? 'flex items-center justify-center gap-2 rounded-xl border border-transparent bg-origin-border bg-linear-to-r from-blue-600 to-cyan-500 px-4 sm:px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-cyan-950/50 transition-all duration-200 hover:scale-[1.02] hover:from-blue-500 hover:to-cyan-400 motion-reduce:hover:scale-100'
+                    : 'flex items-center justify-center gap-2 rounded-xl border border-white/12 bg-white/4 px-5 py-2.5 text-sm font-semibold text-slate-200 transition-all duration-200 hover:scale-[1.02] hover:bg-white/8 motion-reduce:hover:scale-100'
+                }
+              >
+                {cta.label}
+                {away ? (
+                  <>
+                    <FiArrowUpRight className="h-4 w-4" aria-hidden />
+                    <span className="sr-only"> (opens in a new tab)</span>
+                  </>
+                ) : (
+                  <FiArrowRight className="h-4 w-4" aria-hidden />
+                )}
+              </ContactPresetLink>
+            )
+          })}
+        </div>
+      )}
     </div>
   </div>
 )
@@ -72,27 +80,32 @@ const Card = ({ now }: { now: NowState }) => (
  * "What I'm working on", rendered on the server; the cards rotate in a small
  * client carousel (NowCarousel), which gets them already rendered.
  */
-const NowBuilding = () => (
-  <section id="now" aria-label="What I'm working on" className="pt-14 pb-14 md:pt-4 md:pb-16">
-    <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <p className="mb-2 flex items-center gap-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-cyan-400">
-          <MdRadioButtonChecked className="h-3 w-3 animate-pulse text-green-400" /> Currently
-          building
-        </p>
-        <h2 className="text-[2rem] font-extrabold tracking-tight text-balance text-slate-50 sm:text-[2.6rem]/tight">
-          What I&apos;m working on
-        </h2>
+const NowBuilding = () => {
+  // As the contact form and the waitlist: no widget in development (the server lets it through there).
+  const turnstileSiteKey =
+    process.env.NODE_ENV === 'development' ? '' : process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''
+  return (
+    <section id="now" aria-label="What I'm working on" className="pt-14 pb-14 md:pt-4 md:pb-16">
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="mb-2 flex items-center gap-2 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-cyan-400">
+            <MdRadioButtonChecked className="h-3 w-3 animate-pulse text-green-400" /> Currently
+            building
+          </p>
+          <h2 className="text-[2rem] font-extrabold tracking-tight text-balance text-slate-50 sm:text-[2.6rem]/tight">
+            What I&apos;m working on
+          </h2>
+        </div>
       </div>
-    </div>
 
-    <NowCarousel
-      labels={nowItems.map((item) => item.project)}
-      cards={nowItems.map((item) => (
-        <Card key={item.project} now={item} />
-      ))}
-    />
-  </section>
-)
+      <NowCarousel
+        labels={nowItems.map((item) => item.project)}
+        cards={nowItems.map((item) => (
+          <Card key={item.project} now={item} turnstileSiteKey={turnstileSiteKey} />
+        ))}
+      />
+    </section>
+  )
+}
 
 export default NowBuilding
