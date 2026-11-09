@@ -63,6 +63,26 @@ async function place(page: Page, id: string, top = 80) {
 test.describe('at 1440px', () => {
   test.use({ viewport: { width: 1440, height: 900 } })
 
+  // Round 9 of 2026-11-09 (owner): the heading's hammer and the rail's swing together.
+  test("the rail's hammer swings in time with the heading's", async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'no-preference' })
+    const page = await context.newPage()
+    await openHome(page)
+    await place(page, 'tools-i-built', 400)
+    await expect(rail(page).locator('[aria-current]')).toHaveAccessibleName("Tools I've built")
+    const beats = () =>
+      page.evaluate(() =>
+        [...document.querySelectorAll('.part-icon-hammer .hammer-head')]
+          .flatMap((g) => g.getAnimations())
+          .filter((a) => a.playState === 'running')
+          .map((a) => Math.round(Number(a.currentTime) % 2400)),
+      )
+    await expect.poll(async () => (await beats()).length).toBe(2)
+    const [a, b] = await beats()
+    expect(Math.abs(a - b)).toBeLessThan(50)
+    await context.close()
+  })
+
   test('shows only in the Loadout band, never with the Lab rail, and marks the part being read', { tag: '@cross-browser' }, async ({
     page,
   }) => {

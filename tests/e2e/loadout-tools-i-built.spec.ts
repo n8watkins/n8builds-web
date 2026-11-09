@@ -148,9 +148,10 @@ for (const reducedMotion of ['no-preference', 'reduce'] as const) {
       expect(await head.evaluate((g) => getComputedStyle(g).animationName)).toBe('none')
     } else {
       await expect.poll(() => head.evaluate((g) => getComputedStyle(g).animationName)).toBe('part-hammer')
-      // It really swings: the head's rotation changes over time.
+      // It really swings: the head's rotation changes over a whole 2.4s cycle (it rests for
+      // about half of each, so a shorter look can land in the rest).
       const angles = new Set<string>()
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < 22; i++) {
         angles.add(await head.evaluate((g) => getComputedStyle(g).transform))
         await page.waitForTimeout(120)
       }

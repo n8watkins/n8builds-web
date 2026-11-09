@@ -573,9 +573,9 @@ test.describe('featured clips, with motion', () => {
       await page.mouse.move(0, 0)
       await expect.poll(() => playing(openping)).toBe(true)
       await resting(solara)
-      // So does keyboard focus, and its play button gives focus to its pause button.
+      // So does keyboard focus: reaching its play button gives it the turn, and focus moves on
+      // to its pause button, which takes the play button's place.
       await solara.getByRole('button', { name: name('Solara') }).focus()
-      await page.keyboard.press('Enter')
       await expect(solara.getByRole('button', { name: 'Pause the Solara clip' })).toBeFocused()
       await expect.poll(() => playing(solara)).toBe(true)
       await resting(openping)

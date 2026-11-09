@@ -364,7 +364,7 @@ test.describe('Loadout tools and people', () => {
       'Codex',
     ])
     // Every piece carries its mark.
-    await expect(setup.locator('li :is(svg, img)')).toHaveCount(10)
+    await expect(setup.getByRole('list', { name: 'My dev setup at a glance' }).locator('li :is(svg, img)')).toHaveCount(10)
     await expect(setup.getByRole('link', { name: /^Watch Kun Chen build his from scratch/ })).toHaveAttribute(
       'href',
       'https://www.youtube.com/watch?v=5N-okeDdIuI',
