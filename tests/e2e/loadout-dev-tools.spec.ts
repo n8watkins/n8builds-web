@@ -155,22 +155,24 @@ test.describe('Loadout tools and people', () => {
       'Nate Herk',
     ])
     await expect(creators.getByText('Former L8 principal engineer at Meta, Microsoft and Atlassian.')).toBeVisible()
+    // A profile shows its platform's icon and the @handle (round 10 of 2026-11-09:
+    // "X" beside the X icon read as two X's); the platform is still in its name.
     const links: Record<string, Record<string, string>> = {
       'Kun Chen': {
-        YouTube: 'https://www.youtube.com/channel/UCb69t9ZkE5z1KvCmfJoaifA',
-        X: 'https://x.com/kunchenguid',
-        Substack: 'https://kunchenguid.substack.com',
-        GitHub: 'https://github.com/kunchenguid',
+        'YouTube @kunchenguid': 'https://www.youtube.com/@kunchenguid',
+        'X @kunchenguid': 'https://x.com/kunchenguid',
+        'Substack @kunchenguid': 'https://kunchenguid.substack.com',
+        'GitHub @kunchenguid': 'https://github.com/kunchenguid',
       },
       'Nate Herk': {
-        YouTube: 'https://www.youtube.com/@nateherk',
-        X: 'https://x.com/nateherk',
+        'YouTube @nateherk': 'https://www.youtube.com/@nateherk',
+        'X @nateherk': 'https://x.com/nateherk',
         'nateherk.com': 'https://nateherk.com',
         'AI Automation Society': 'https://www.skool.com/ai-automation-society/about',
       },
       'Phaedrus Raznikov': {
-        X: 'https://x.com/moomooskycow',
-        GitHub: 'https://github.com/moomooskycow',
+        'X @moomooskycow': 'https://x.com/moomooskycow',
+        'GitHub @moomooskycow': 'https://github.com/moomooskycow',
         'Misty Step': 'https://www.mistystep.io/',
       },
     }
@@ -185,6 +187,14 @@ test.describe('Loadout tools and people', () => {
         await expect(link).toHaveAttribute('href', href)
       }
     }
+    // On screen, a profile is its icon and @handle: never the platform's name beside its icon.
+    const x = creators.getByRole('list', { name: 'Kun Chen online' }).getByRole('link', { name: /^X @kunchenguid/ })
+    const seen = await x.evaluate((a) => {
+      const copy = a.cloneNode(true) as HTMLElement
+      copy.querySelectorAll('.sr-only').forEach((el) => el.remove())
+      return copy.textContent?.trim()
+    })
+    expect(seen).toBe('@kunchenguid')
   })
 
   for (const width of [1440, 1024, 390, 320]) {

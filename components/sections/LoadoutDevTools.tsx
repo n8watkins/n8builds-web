@@ -10,6 +10,7 @@ import {
   loadoutPart,
   loadoutParts,
   people,
+  personHandle,
   toolsIBuilt,
   toolsIUse,
   type BuiltTool,
@@ -576,6 +577,7 @@ export const PersonCard = ({ person }: { person: Person }) => (
     >
       {person.links.map((link) => {
         const { label, icon } = LINKS[link.kind]
+        const handle = personHandle(link)
         return (
           <li key={link.href} className="flex min-w-0">
             <a
@@ -587,7 +589,15 @@ export const PersonCard = ({ person }: { person: Person }) => (
               <span aria-hidden="true" className="shrink-0">
                 {icon}
               </span>
-              <span className="min-w-0 text-balance">{link.label ?? label}</span>
+              {handle ? (
+                <span className="min-w-0 truncate">
+                  {/* The icon says which platform; a screen reader hears it said. */}
+                  <span className="sr-only">{label} </span>
+                  {handle}
+                </span>
+              ) : (
+                <span className="min-w-0 text-balance">{link.label ?? label}</span>
+              )}
               <span className="sr-only"> ({person.name}, opens in a new tab)</span>
             </a>
           </li>
