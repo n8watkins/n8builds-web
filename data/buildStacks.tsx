@@ -90,7 +90,7 @@ export interface BuildStack {
    * Cloudflare): each service by name with what it does there, in plain
    * words, for the homepage's "My tech stacks" (round 9 of 2026-11-09).
    */
-  services?: { provider: string; items: { name: string; purpose: string }[] }
+  services?: { provider: string; summary: string; items: { name: string; purpose: string }[] }
   accent: 'cyan' | 'blue' | 'sky' | 'teal' | 'orange'
 }
 
@@ -117,8 +117,11 @@ export const buildStacks: BuildStack[] = [
     // (the send_email binding, in n8builds.dev and Wren); OpenPing's alerts go through Resend.
     services: {
       provider: 'Cloudflare',
+      // Round 10 of 2026-11-09 (owner): the card reads as "Cloudflare", everything on it,
+      // Next.js included; no line about the code under the services.
+      summary: 'everything runs here, Next.js included',
       items: [
-        { name: 'Workers', purpose: 'runs the app: Next.js, through OpenNext' },
+        { name: 'Workers', purpose: 'runs Next.js, through OpenNext' },
         { name: 'D1', purpose: 'the database (SQLite)' },
         { name: 'R2', purpose: 'stores files and the page cache' },
         { name: 'Durable Objects', purpose: 'per-user state and live counters' },

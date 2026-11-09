@@ -66,16 +66,19 @@ test.describe('AI kit content', () => {
     await expect(quick).not.toContainText('Firebase')
     // The Production stack is the Cloudflare stack: each service with what it does, then its code.
     const production = stacks.getByRole('article', { name: 'Production stack' })
-    await expect(production.locator('[data-stack-provider]')).toHaveText('All on Cloudflare')
+    // It reads as Cloudflare (round 10 of 2026-11-09): everything on it, Next.js included.
+    await expect(production.locator('[data-stack-provider]')).toHaveText(/^Cloudflare\s*everything runs here, Next\.js included$/)
     await expect(production.locator('[data-default-tool]')).toHaveText([
-      /^Workers\s*runs the app: Next\.js, through OpenNext$/,
+      /^Workers\s*runs Next\.js, through OpenNext$/,
       /^D1\s*the database \(SQLite\)$/,
       /^R2\s*stores files and the page cache$/,
       /^Durable Objects\s*per-user state and live counters$/,
       /^Images\s*resizes images$/,
       /^Email Service\s*sends the email$/,
     ])
-    await expect(production.locator('[data-stack-code]')).toHaveText('The code: Next.js, TypeScript, OpenNext and Hono.')
+    // No footnote about the code under the services.
+    await expect(production.locator('[data-stack-code]')).toHaveCount(0)
+    await expect(production).not.toContainText('The code:')
     await expect(page.getByText('TL;DR')).toHaveCount(0)
   })
 
