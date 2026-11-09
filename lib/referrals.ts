@@ -27,6 +27,8 @@ export const DESTINATIONS = {
   },
   techforpros: {
     home: 'https://techforpros.com/',
+    // Its templates (round 4 of 2026-11-08: the ad's "Don't see yours? We'll build it.").
+    templates: 'https://techforpros.com/#templates',
   },
 } as const
 

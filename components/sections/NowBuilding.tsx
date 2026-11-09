@@ -16,9 +16,11 @@ import { isOutbound } from '@/lib/referrals'
  */
 const Card = ({ now, turnstileSiteKey }: { now: NowState; turnstileSiteKey: string }) => (
   // One grid: from lg up the copy sits in the left column from the top (so the
-  // first screen's sneak peek shows the title row), the picture beside it,
-  // centred; below lg the picture comes between the copy and the buttons.
-  <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] lg:grid-rows-[auto_auto_auto_1fr] lg:gap-x-12">
+  // first screen's sneak peek shows the title row) and the quote form at its
+  // foot, level with the foot of the picture beside it (its chips and "Don't
+  // see yours?", round 4 of 2026-11-08); below lg the picture comes between
+  // the copy and the form.
+  <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] lg:grid-rows-[auto_auto_1fr] lg:gap-x-12">
     <div className="flex flex-wrap items-center gap-3 lg:col-start-1 lg:row-start-1">
       {now.href ? (
         // The mark and name link the site, in a new tab (owner, round 3 of 2026-11-08).
@@ -57,12 +59,12 @@ const Card = ({ now, turnstileSiteKey }: { now: NowState; turnstileSiteKey: stri
       </p>
     </div>
 
-    <div className="my-2 lg:col-start-2 lg:row-span-4 lg:row-start-1 lg:my-0 lg:self-center">
+    <div className="my-2 lg:col-start-2 lg:row-span-3 lg:row-start-1 lg:my-0 lg:self-end">
       <TemplateCarousel slides={now.templates} phone={now.phone} />
     </div>
 
     {/* The quote request and any buttons: under the copy from lg up, under the picture below that. */}
-    <div className="lg:col-start-1 lg:row-start-3 lg:mt-2">
+    <div className="lg:col-start-1 lg:row-start-3 lg:mt-2 lg:self-end">
       {now.quote && <QuoteForm turnstileSiteKey={turnstileSiteKey} />}
       {now.ctas.length > 0 && (
         <div className={`grid gap-3 sm:flex sm:flex-wrap sm:items-center ${now.quote ? 'mt-4' : ''}`}>

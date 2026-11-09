@@ -2,7 +2,8 @@
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import type { IconType } from 'react-icons'
-import { FiArrowRight } from 'react-icons/fi'
+import { FiArrowUpRight } from 'react-icons/fi'
+import { refHref } from '@/lib/referrals'
 import { LuFan, LuHouse, LuTrees, LuWaves } from 'react-icons/lu'
 import type { NowShot } from '@/data/now'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
@@ -32,7 +33,7 @@ export const TEMPLATE_EVERY_MS = 5000
  * in a browser window, sliding side to side without end, a full-length page
  * scrolling on a phone in front of it, and under the window's right side one
  * labelled chip per trade, then "Don't see yours? We'll build it." as a
- * link to the card's quote field (owner, 2026-11-08). A thin line along the window's bottom fills up until the next template:
+ * link to Tech for Pros' templates (owner, 2026-11-08). A thin line along the window's bottom fills up until the next template:
  * the slide moves on when that line's CSS animation ends, so pausing the line
  * pauses the carousel exactly where it is. It runs only while on screen and
  * the tab is shown, and holds while hovered or focused (WCAG 2.2.2); under
@@ -117,13 +118,15 @@ export default function TemplateCarousel({ slides, phone }: { slides: TemplateSl
       <div aria-hidden className="pointer-events-none absolute -inset-[10%] bg-[radial-gradient(closest-side,rgba(34,211,238,0.13),transparent)]" />
 
       {/* The window, with the phone in front of its foot. */}
-      <div className="relative pb-[7%] pl-[13%]">
+      {/* A little smaller since round 4 of 2026-11-08 (13% inset, the phone 7% below it, before). */}
+      <div className="relative pb-[3%] pl-[16%]">
         {/* Browser window */}
         <div className="relative overflow-hidden rounded-xl border border-white/12 bg-[#0b1424] shadow-2xl shadow-black/50 ring-1 ring-black/40">
           <div className="flex h-8 items-center gap-1.5 border-b border-white/8 bg-[#0e192c] pr-1 pl-3">
-            <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-white/15" />
-            <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-white/15" />
-            <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-white/15" />
+            {/* macOS traffic lights (round 4 of 2026-11-08). */}
+            <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#ff5f57]" />
+            <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#febc2e]" />
+            <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#28c840]" />
             <span
               className="ml-2 hidden min-w-0 truncate rounded-md bg-white/6 px-2 py-0.5 text-[0.62rem] font-medium text-slate-400 min-[360px]:block"
             >
@@ -183,7 +186,7 @@ export default function TemplateCarousel({ slides, phone }: { slides: TemplateSl
             a pause, back up). CSS only (now-phone-scroll in app/globals.css);
             it pauses while the card is off screen (NowCarousel) and holds
             still under reduced motion. */}
-        <div aria-hidden className="absolute bottom-0 left-0 w-[21%] rotate-[-4deg]">
+        <div aria-hidden className="absolute bottom-0 left-0 w-[20%] rotate-[-4deg]">
           <div className="overflow-hidden rounded-[1.1rem] border-[5px] border-[#0b1220] bg-[#0b1220] shadow-2xl shadow-black/60 ring-1 ring-white/12">
             <div
               className="relative overflow-hidden rounded-[0.7rem] [transform:translateZ(0)]"
@@ -214,10 +217,9 @@ export default function TemplateCarousel({ slides, phone }: { slides: TemplateSl
       </div>
 
       {/* The picker (owner, 2026-11-08): one labelled chip per trade, so each
-          one is clear, then the caption. From 640px they sit under the window's
-          right side, beside the phone's foot; on phones, where one row doesn't
-          fit, two by two under the phone. */}
-      <div className="relative mt-3 sm:mt-[calc(0.75rem-7%)] sm:pl-[23%]">
+          one is clear, then the caption, under the window: on its right from
+          640px, two by two on phones, where one row doesn't fit. */}
+      <div className="relative mt-3">
         <div className="mx-auto grid max-w-xs grid-cols-2 gap-1.5 sm:mx-0 sm:flex sm:max-w-none sm:flex-wrap sm:justify-end sm:gap-2 lg:gap-1">
           {slides.map((slide, i) => {
             const Icon = ICONS[slide.kind]
@@ -241,15 +243,18 @@ export default function TemplateCarousel({ slides, phone }: { slides: TemplateSl
             )
           })}
         </div>
-        {/* A small ad of its own (owner, round 3 of 2026-11-08): it goes to the quote
-            field on this card (QuoteForm focuses it on arrival at #quote). */}
+        {/* A small ad of its own (owner, round 3 of 2026-11-08): Tech for Pros' templates,
+            through the counted short link, in a new tab (round 4). */}
         <p className="mt-3 text-center sm:text-right">
           <a
-            href="#quote"
+            href={refHref('techforpros', 'hero', 'templates')}
+            target="_blank"
+            rel="noopener noreferrer"
             className="group/cta inline-flex items-center gap-1.5 rounded-md text-sm font-bold text-cyan-200 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 sm:text-[15px]"
           >
             Don&apos;t see yours? We&apos;ll build it.
-            <FiArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover/cta:translate-x-0.5 motion-reduce:transition-none" />
+            <FiArrowUpRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover/cta:-translate-y-0.5 group-hover/cta:translate-x-0.5 motion-reduce:transition-none" />
+            <span className="sr-only"> (opens in a new tab)</span>
           </a>
         </p>
       </div>

@@ -77,11 +77,9 @@ export const nowItems: NowState[] = [
     phone: { src: '/now/hvac-phone-full.webp', width: 280, height: 7685, frameHeight: 700, label: 'HVAC template' },
     // The quote request right on the card (owner, 2026-11-08; it was a "Get a quote"
     // button down to a quote field lower on the page), then a booking page once
-    // there is one, and the site.
+    // there is one. The site is linked from the heading (no "Visit" button since
+    // round 4 of 2026-11-08).
     quote: true,
-    ctas: [
-      ...(TECH_FOR_PROS_LINKS.booking ? [{ label: 'Book an intro call', href: TECH_FOR_PROS_LINKS.booking }] : []),
-      { label: `Visit ${TECH_FOR_PROS.domain}`, href: refHref('techforpros', 'hero') },
-    ],
+    ctas: [...(TECH_FOR_PROS_LINKS.booking ? [{ label: 'Book an intro call', href: TECH_FOR_PROS_LINKS.booking }] : [])],
   },
 ]

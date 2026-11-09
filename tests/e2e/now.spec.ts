@@ -37,7 +37,7 @@ test('the card reads like an ad: headline, the service, the quote field and the 
   await expect(section).not.toContainText(/Reminders|next up|A pro site/)
   await expect(section.getByRole('button', { name: /What's new/ })).toHaveCount(0)
   await expect(section.locator('dialog')).toHaveCount(0)
-  await expect(section.getByText("Don't see yours? We'll build it.", { exact: true })).toBeVisible()
+  await expect(section.getByText("Don't see yours? We'll build it.")).toBeVisible()
   // Headed by its icon and address, with no badge.
   const title = section.getByRole('heading', { level: 3, name: 'techforpros.com' })
   await expect(title).toBeVisible()
@@ -50,15 +50,16 @@ test('the card reads like an ad: headline, the service, the quote field and the 
   await expect(section.getByText('Where should the quote go?')).toHaveClass(/sr-only/)
   await expect(section).not.toContainText("this site doesn't store or share it")
   await expect(section.getByRole('link', { name: /^Get a quote/ })).toHaveCount(0)
-  // The site, twice: its name and mark at the top, and "Visit techforpros.com", both in a new
-  // tab through the counted short link. No booking page yet.
-  for (const link of [section.getByRole('link', { name: /^techforpros\.com/ }), section.getByRole('link', { name: /^Visit techforpros\.com/ })]) {
-    await expect(link).toHaveAttribute('href', '/techforpros?from=hero')
-    await expect(link).toHaveAttribute('target', '_blank')
-  }
-  await expect(section.getByRole('link', { name: /Book an intro call/ })).toHaveCount(0)
-  // "Don't see yours? We'll build it." is a small ad of its own: it goes to the quote field.
-  await expect(section.getByRole('link', { name: "Don't see yours? We'll build it." })).toHaveAttribute('href', '#quote')
+  // The site from its name and mark at the top, in a new tab through the counted short link;
+  // no "Visit" button (round 4 of 2026-11-08) and no booking page yet.
+  const site = section.getByRole('link', { name: /^techforpros\.com/ })
+  await expect(site).toHaveAttribute('href', '/techforpros?from=hero')
+  await expect(site).toHaveAttribute('target', '_blank')
+  await expect(section.getByRole('link', { name: /Visit techforpros\.com|Book an intro call/ })).toHaveCount(0)
+  // "Don't see yours? We'll build it." goes to Tech for Pros' templates, counted, in a new tab.
+  const cta = section.getByRole('link', { name: "Don't see yours? We'll build it. (opens in a new tab)" })
+  await expect(cta).toHaveAttribute('href', '/techforpros?from=hero&to=templates')
+  await expect(cta).toHaveAttribute('target', '_blank')
   await expect(section.locator('a[href*="techforpros.com"], a[href*="appturnity"], a[href*="github.com"]')).toHaveCount(0)
   await expect(section).not.toContainText(/free website/i)
 
@@ -237,7 +238,7 @@ for (const width of [320, 390, 820, 1440]) {
   test(`at ${width}px the template chips and caption stay clear of the phone`, { tag: width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 })
     await page.goto('/')
-    const caption = now(page).getByText("Don't see yours? We'll build it.", { exact: true })
+    const caption = now(page).getByText("Don't see yours? We'll build it.").first()
     await caption.scrollIntoViewIfNeeded()
     const overlaps = await caption.evaluate((cap) => {
       const phone = cap.closest('[role="group"]')!.querySelector('[class*="rotate-"]')!.getBoundingClientRect()

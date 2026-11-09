@@ -19,7 +19,7 @@ test("Tech for Pros' buttons take Appturnity's place, and nothing links to Apptu
   )
   // Every link to it is counted: none goes straight to techforpros.com.
   await expect(page.locator('a[href*="techforpros.com"]')).toHaveCount(0)
-  // The navbar, the ad (its heading and "Visit techforpros.com"), the contact card and the footer.
+  // The navbar, the ad (its heading and "Don't see yours?", to its templates), the contact card and the footer.
   expect(await page.locator('a[href^="/techforpros"]').count()).toBeGreaterThanOrEqual(5)
   await expect(page.locator('a[href*="appturnity"]')).toHaveCount(0)
   // Live: nothing says it is on its way (only more templates are, round 3 of 2026-11-02).
