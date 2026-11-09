@@ -1,7 +1,9 @@
 /**
  * What I'm building in public ("What's cookin'"), shown on /upcoming and the
  * homepage with a waitlist. Each one has a live landing page; some are plans,
- * some working apps (owner, round 7 of 2026-11-09: no per-project status).
+ * some working apps. Round 11 of 2026-11-09 (owner): /upcoming is a teaser,
+ * each card the landing page's picture, the name, one line and its status
+ * (round 7 had dropped statuses; they are back, read off each landing page).
  *
  * The slugs are a public contract: the projects' landing pages link to
  * `https://n8builds.dev/upcoming?interest=<slug>#<slug>`, so never rename one;
@@ -39,6 +41,15 @@ export const UPCOMING_GROUPS: { id: UpcomingGroup; label: string }[] = [
   { id: 'creators', label: 'For developers & creators' },
 ]
 
+export type UpcomingStatus = 'try-it' | 'early-access' | 'in-development' | 'concept'
+
+export const STATUS_LABEL: Record<UpcomingStatus, string> = {
+  'try-it': 'Try it now',
+  'early-access': 'Early access',
+  'in-development': 'In development',
+  concept: 'Concept',
+}
+
 export type UpcomingProject = {
   slug: UpcomingSlug
   name: string
@@ -58,6 +69,13 @@ export type UpcomingProject = {
   icon: string
   /** The project's landing page. */
   landing: string
+  /**
+   * Where it stands, as its landing page says (checked 2026-11-09): a working app
+   * you can try now, early access, in development, or a concept.
+   */
+  status: UpcomingStatus
+  /** A picture of its landing page (public/upcoming/shots, from scripts/upcoming-shots.mjs). */
+  shot: string
   /** Its GitHub repository, only once the repository is public ("owner/name"). */
   repo?: string
   /** The project's own accent, for its checks and its card's edge (its shade for dark backgrounds). */
@@ -87,6 +105,8 @@ export const UPCOMING: UpcomingProject[] = [
       'When a visitor follows a broken link to your website, it sends them to the page they meant instead of an error page.',
     icon: '/upcoming/relink.svg',
     landing: 'https://relink.n8builds.dev',
+    status: 'in-development',
+    shot: '/upcoming/shots/relink.webp',
     repo: 'n8watkins/deadlink',
     accent: '#ff8a4c',
     what: "A Cloudflare edge Worker catches broken links the moment a visitor hits them, matches each one to the right page using your site's own content, and turns the fix into a permanent redirect with one click.",
@@ -109,6 +129,8 @@ export const UPCOMING: UpcomingProject[] = [
       'For small auto repair shops: customers book online, follow their repair live, and approve and pay from their phone.',
     icon: '/upcoming/keysready.svg',
     landing: 'https://keysready.n8builds.dev',
+    status: 'in-development',
+    shot: '/upcoming/shots/keysready.webp',
     repo: 'n8watkins/keysready',
     // Signal red: #c81e1e on light backgrounds, #ff5a4e on dark ones (this site); its icon adds a ready-green, #43d095.
     accent: '#ff5a4e',
@@ -132,6 +154,8 @@ export const UPCOMING: UpcomingProject[] = [
       'Tell it how long you have, and it plans a walking loop from your door through streets you have not walked yet.',
     icon: '/upcoming/strollz.svg',
     landing: 'https://strollz.n8builds.dev',
+    status: 'in-development',
+    shot: '/upcoming/shots/strollz.webp',
     repo: 'n8watkins/strollz',
     accent: '#5cc49b',
     what: 'Tell it how long you have, and it plans a walking loop from your door through streets you have never walked, with a few short notes about what you pass, each linked to its source.',
@@ -154,6 +178,8 @@ export const UPCOMING: UpcomingProject[] = [
       'A small daily tracker: log a few habits, check in on how you feel, and see which days went with which.',
     icon: '/upcoming/feelium.svg',
     landing: 'https://feelium.n8builds.dev',
+    status: 'try-it',
+    shot: '/upcoming/shots/feelium.webp',
     repo: 'n8watkins/feelium',
     // Feelium's brand is black and white; its light grey keeps the card edge visible on this dark site.
     accent: '#a3a3a3',
@@ -176,6 +202,8 @@ export const UPCOMING: UpcomingProject[] = [
       'Ask someone on a date with a cute invite: they say yes and pick the vibe, then you plan the stops and share the plan.',
     icon: '/upcoming/cutelyaskme.svg',
     landing: 'https://cutelyaskme.n8builds.dev',
+    status: 'try-it',
+    shot: '/upcoming/shots/cutelyaskme.webp',
     repo: 'n8watkins/cutelyaskme',
     // Its brand pink (the app's theme colour).
     accent: '#ff7aaa',
@@ -197,6 +225,8 @@ export const UPCOMING: UpcomingProject[] = [
     summary: 'Pick a routine, hit start and follow along, with audio cues on every move. No account, no ads, no subscription.',
     icon: '/upcoming/fitflow7.svg',
     landing: 'https://fitflow7.n8builds.dev',
+    status: 'try-it',
+    shot: '/upcoming/shots/fitflow7.webp',
     repo: 'n8watkins/fitflow7',
     // Its electric cyan.
     accent: '#22d3ee',
@@ -219,6 +249,8 @@ export const UPCOMING: UpcomingProject[] = [
     icon: '/upcoming/pivot.svg',
     // Its landing page; the app itself is at the site's root.
     landing: 'https://pivot.n8builds.dev/welcome',
+    status: 'try-it',
+    shot: '/upcoming/shots/pivot.webp',
     repo: 'n8watkins/pivot',
     // Its sage green, lightened for this dark site.
     accent: '#8fbf9f',
@@ -240,6 +272,8 @@ export const UPCOMING: UpcomingProject[] = [
     summary: 'Each of you gets a secret identity; you see theirs, never your own. Ask yes or no questions until you work it out.',
     icon: '/upcoming/whoami.svg',
     landing: 'https://whoami.n8builds.dev',
+    status: 'try-it',
+    shot: '/upcoming/shots/whoami.webp',
     repo: 'n8watkins/who-am-i',
     // Its violet, lightened for this dark site.
     accent: '#9d8cff',
@@ -262,6 +296,8 @@ export const UPCOMING: UpcomingProject[] = [
       'For people who stream themselves coding with AI: it shows your commits, code changes and AI usage on screen, live.',
     icon: '/upcoming/vibelog.svg',
     landing: 'https://vibelogs.dev',
+    status: 'early-access',
+    shot: '/upcoming/shots/vibelog.webp',
     repo: 'n8watkins/vibelog',
     accent: '#f472b6',
     what: 'One local process tracks your git activity, Claude token spend, stream time and channel growth, and turns them into a live OBS overlay, a private dashboard, a public live page and shareable stat cards.',
@@ -283,6 +319,8 @@ export const UPCOMING: UpcomingProject[] = [
       'For builders: it redraws your page in your brand or any style you name, then cuts it into assets you can ship.',
     icon: '/upcoming/asset-arsenal.svg',
     landing: 'https://assetarsenal.n8builds.dev',
+    status: 'concept',
+    shot: '/upcoming/shots/asset-arsenal.webp',
     accent: '#f3b73f',
     what: 'It reimagines your page in your brand or in any style you name, then breaks that picture into real assets you can ship: backgrounds, frames, buttons, icons and illustrations, each cut out and ready to drop in.',
     forWho:

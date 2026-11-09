@@ -20,7 +20,7 @@ export default function JoinButton({
   slug: UpcomingSlug
   name: string
   accent: string
-  /** /upcoming's cards: "Join the waitlist", the name read out but not shown. */
+  /** /upcoming's cards: "Waitlist", read out as "Join the waitlist for <name>". */
   compact?: boolean
 }) {
   return (
@@ -45,11 +45,13 @@ export default function JoinButton({
         window.history.replaceState(null, '', '#waitlist')
       }}
       style={{ '--accent': accent } as CSSProperties}
-      className={`inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-(--accent)/45 bg-(--accent)/10 px-5 text-sm font-semibold text-slate-50 transition-colors duration-150 hover:border-(--accent)/70 hover:bg-(--accent)/18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--accent) ${compact ? 'w-full' : ''}`}
+      className={`inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-(--accent)/45 bg-(--accent)/10 text-sm font-semibold text-slate-50 transition-colors duration-150 hover:border-(--accent)/70 hover:bg-(--accent)/18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--accent) ${compact ? 'w-full px-3 whitespace-nowrap' : 'px-5'}`}
     >
       {compact ? (
         <>
-          Join the waitlist<span className="sr-only"> for {name}</span>
+          {/* Short, beside "Check it out" on a teaser card (round 11 of 2026-11-09); read out in full. */}
+          <span aria-hidden="true">Waitlist</span>
+          <span className="sr-only">Join the waitlist for {name}</span>
         </>
       ) : (
         <>Join the {name} waitlist</>
