@@ -1260,3 +1260,42 @@
 html.modal-open {
   overflow: hidden;
 }
+
+/* The header's hovers (round 8 of 2026-11-09), CSS only.
+   techforpros.com's curved underline (components/layout/Navbar.tsx) shows
+   nothing at rest and draws in from the left on hover or keyboard focus (its
+   path is pathLength 100, so the dash is the whole curve); under reduced
+   motion it just appears. The Portfolio button's briefcase gives a small
+   shake on hover or focus, and holds still under reduced motion. */
+.tfp-underline path {
+  stroke-dasharray: 100 102;
+  stroke-dashoffset: 101;
+  opacity: 0;
+  transition:
+    stroke-dashoffset 380ms cubic-bezier(0.3, 0.7, 0.2, 1),
+    opacity 120ms linear;
+}
+.group\/tfp:hover .tfp-underline path,
+.group\/tfp:focus-visible .tfp-underline path {
+  stroke-dashoffset: 0;
+  opacity: 1;
+}
+@keyframes nav-briefcase-shake {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(-12deg); }
+  40% { transform: rotate(10deg); }
+  60% { transform: rotate(-6deg); }
+  80% { transform: rotate(3deg); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .group\/pf:hover .nav-briefcase,
+  .group\/pf:focus-visible .nav-briefcase {
+    transform-origin: 50% 20%;
+    animation: nav-briefcase-shake 480ms ease-in-out;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tfp-underline path {
+    transition: none;
+  }
+}

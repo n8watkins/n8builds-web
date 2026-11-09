@@ -290,9 +290,10 @@ const Navbar = () => {
               href={refHref('portfolio', 'navbar')}
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-semibold text-slate-200 hover:text-white border border-white/15 rounded-lg hover:border-white/20 hover:bg-white/5 transition-all duration-150"
+              // The briefcase gives a small shake on hover or focus (round 8 of 2026-11-09; `.nav-briefcase`, app/globals.css).
+              className="group/pf hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-semibold text-slate-200 hover:text-white border border-white/15 rounded-lg hover:border-white/20 hover:bg-white/5 transition-all duration-150"
             >
-              <FiBriefcase className="w-4 h-4" aria-hidden />
+              <FiBriefcase className="nav-briefcase w-4 h-4" aria-hidden />
               Portfolio
               <span className="sr-only"> (opens in a new tab)</span>
             </a>
@@ -300,8 +301,8 @@ const Navbar = () => {
                 like Portfolio (same height, radius and border, with a
                 faint brand tint), holding its icon and techforpros.com over a
                 clean curved underline, the style of the old Appturnity hero's
-                (round 3 of 2026-11-02: one smooth arc, no hand-drawn wobble, no
-                draw-in; it brightens on hover or focus). Shown at every width; on a 320px phone it still
+                (round 3 of 2026-11-02: one smooth arc, no hand-drawn wobble),
+                shown only on hover or focus, drawing in (round 8 of 2026-11-09). Shown at every width; on a 320px phone it still
                 fits between the logo and the menu button
                 (tests/e2e/navigation.spec.ts). */}
             <a
@@ -316,7 +317,7 @@ const Navbar = () => {
                 {TECH_FOR_PROS.domain}
                 <svg
                   aria-hidden="true"
-                  className="tfp-underline pointer-events-none absolute -bottom-[4px] left-0 h-[6px] w-full overflow-visible opacity-80 transition-opacity duration-200 group-hover/tfp:opacity-100 group-focus-visible/tfp:opacity-100"
+                  className="tfp-underline pointer-events-none absolute -bottom-[4px] left-0 h-[6px] w-full overflow-visible"
                   viewBox="0 0 116 6"
                   preserveAspectRatio="none"
                 >
@@ -333,9 +334,12 @@ const Navbar = () => {
                       pixel to its peak under the label's centre, close under
                       the letters (2px higher than first, the owner's ask). The viewBox is
                       the text's own size (about 116 by 6 px), so the stretch is
-                      near 1:1 and the stroke stays even. */}
+                      near 1:1 and the stroke stays even. Nothing at rest: it draws
+                      in from the left on hover or keyboard focus (round 8 of
+                      2026-11-09; `.tfp-underline`, app/globals.css). */}
                   <path
                     d="M4 4.2 Q 58 1.8, 112 4.2"
+                    pathLength={100}
                     fill="none"
                     stroke="url(#tfp-underline-gradient)"
                     strokeWidth="1.75"
