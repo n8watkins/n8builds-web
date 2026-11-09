@@ -56,13 +56,16 @@ test('the Lab leads with the featured builds, OpenPing first, each with its icon
   const featured = page.locator('#featured')
   await featured.scrollIntoViewIfNeeded()
   // The part's own heading, then one per row.
-  await expect(featured.getByRole('heading', { level: 3 })).toHaveText(['Featured builds', 'OpenPing', 'Solara'])
+  await expect(featured.getByRole('heading', { level: 3 })).toHaveText(['Featured', 'OpenPing', 'Solara'])
+  // Just "Featured" since 2026-11-09, with no blurb and no checks of its own (they sit under "The Lab").
+  await expect(featured).not.toContainText('Free to use and open source')
+  await expect(featured.getByRole('list', { name: 'Open source' })).toHaveCount(0)
   // The Featured part comes first, right under the Lab's intro: no "My daily drivers" (Scribe moved to the Loadout).
   await expect(page.locator('#my-tools')).toHaveCount(0)
   await expect(page.locator('#lab').getByRole('article', { name: 'Scribe' })).toHaveCount(0)
   await expect(page.locator('#lab')).not.toContainText('My daily drivers')
-  // No redundant "Featured" eyebrow over "Featured builds", and no "The bench" over the Lab.
-  await expect(page.locator('#featured')).not.toContainText(/^Featured\s*Featured builds/)
+  // No redundant "Featured" eyebrow over the heading, and no "The bench" over the Lab.
+  await expect(page.locator('#featured')).not.toContainText(/^Featured\s*Featured/)
   await expect(page.locator('#lab')).not.toContainText('The bench')
   const lab = page.locator('#lab')
   for (const slug of ['openping', 'solara']) {

@@ -185,7 +185,7 @@ test.describe('placement at 1440px', () => {
     await expect(nav).toBeHidden()
 
     // The heading reaches the middle of the window (owner, 2026-11-02): the rail shows, level with it.
-    await expect(page.locator('#featured :is(h2, h3)').first()).toHaveText('Featured builds')
+    await expect(page.locator('#featured :is(h2, h3)').first()).toHaveText('Featured')
     await headingAt(page, 448)
     await expect(nav).toBeVisible(SHOW)
     await expect(nav).toBeInViewport({ ratio: 1 })
