@@ -53,21 +53,29 @@ test.describe('AI kit content', () => {
     await expect(page.locator('#loadout')).toContainText('The AI kit and stack I build with, and the tools I built for myself, all in daily use.')
   })
 
-  test('the default stacks are the Quick stack and the Production stack, each piece with what it does', async ({ page }) => {
+  test('My tech stacks are the Quick stack and the Production stack, all on Cloudflare, each piece with what it does', async ({ page }) => {
     await page.goto('/')
-    const stacks = page.getByRole('group', { name: 'My default stacks' })
+    const stacks = page.getByRole('group', { name: 'My tech stacks' })
     await expect(stacks.getByRole('heading', { level: 4 })).toHaveText(['Quick stack', 'Production stack'])
+    // What the quick apps really use (round 9 of 2026-11-09): no Firebase Auth.
     const quick = stacks.getByRole('article', { name: 'Quick stack' })
-    for (const tool of ['Next.js', 'TypeScript', 'Firebase Auth', 'Vercel', 'Firestore']) {
+    for (const tool of ['Next.js', 'TypeScript', 'Tailwind CSS', 'Auth.js', 'Vercel', 'Turso']) {
       await expect(quick.getByText(tool, { exact: true })).toBeVisible()
     }
+    await expect(quick.getByText('GitHub sign-in')).toBeVisible()
+    await expect(quick).not.toContainText('Firebase')
+    // The Production stack is the Cloudflare stack: each service with what it does, then its code.
     const production = stacks.getByRole('article', { name: 'Production stack' })
-    for (const tool of ['OpenNext', 'Workers', 'D1', 'R2', 'Durable Objects']) {
-      await expect(production.getByText(tool, { exact: true })).toBeVisible()
-    }
-    await expect(production.getByText('Next.js on Workers')).toBeVisible()
-    // No Turso stack (round 8 of 2026-11-09), and no paragraph under either.
-    await expect(stacks).not.toContainText('Turso')
+    await expect(production.locator('[data-stack-provider]')).toHaveText('All on Cloudflare')
+    await expect(production.locator('[data-default-tool]')).toHaveText([
+      /^Workers\s*runs the app: Next\.js, through OpenNext$/,
+      /^D1\s*the database \(SQLite\)$/,
+      /^R2\s*stores files and the page cache$/,
+      /^Durable Objects\s*per-user state and live counters$/,
+      /^Images\s*resizes images$/,
+      /^Email Service\s*sends the email$/,
+    ])
+    await expect(production.locator('[data-stack-code]')).toHaveText('The code: Next.js, TypeScript, OpenNext and Hono.')
     await expect(page.getByText('TL;DR')).toHaveCount(0)
   })
 

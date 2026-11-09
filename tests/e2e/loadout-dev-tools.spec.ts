@@ -5,7 +5,7 @@ import { test, expect } from '@playwright/test'
  * row, then the CLIs, with the fork's credit and the Star | GitHub button),
  * then the tools I use (each credited to its maker), plus the header pills;
  * and the homepage's People I follow (moved from /loadout), The Pull Request
- * Post under it, and Tools I built and use in its Loadout.
+ * Post under it, and Tools I've built in its Loadout.
  */
 
 test.describe('Loadout tools and people', () => {
@@ -13,7 +13,7 @@ test.describe('Loadout tools and people', () => {
 
   test('lists the tools I built and use, Scribe first, credits the pass-env fork and links each repo', async ({ page }) => {
     await page.goto('/loadout')
-    const built = page.getByRole('region', { name: 'Tools I built and use' })
+    const built = page.getByRole('region', { name: "Tools I've built" })
     await expect(built.getByRole('heading', { name: /^pass-env\b/ })).toBeVisible()
     // Scribe's row (h3), then the cards (h4, under their groups' h3 subheadings).
     await expect(built.getByRole('article').getByRole('heading', { level: 3 })).toHaveText(['Scribe'])
@@ -349,7 +349,8 @@ test.describe('Loadout tools and people', () => {
 
   test('the homepage shows my setup at a glance, with marks, and links to it and to Kun Chen\'s setup video', { tag: '@smoke' }, async ({ page }) => {
     await page.goto('/')
-    const setup = page.getByRole('group', { name: 'My dev setup' })
+    // Headed "Dev setup" like the Loadout's other parts (round 9 of 2026-11-09).
+    const setup = page.getByRole('group', { name: 'Dev setup' })
     await expect(setup.getByRole('list', { name: 'My dev setup at a glance' }).getByRole('listitem')).toHaveText([
       'Windows 11',
       'WSL2 Ubuntu',
@@ -386,7 +387,7 @@ test.describe('Loadout tools and people', () => {
   test('the header pills jump to every part of the page', { tag: '@smoke' }, async ({ page }) => {
     await page.goto('/loadout')
     const pills = page.getByRole('navigation', { name: 'Loadout sections' }).getByRole('link')
-    await expect(pills).toHaveText(['Dev setup', 'How I work', 'Inside my apps', 'Stacks I build with', 'Tools I built and use', 'Tools I use', 'The gear'])
+    await expect(pills).toHaveText(['Dev setup', 'How I work', 'Inside my apps', 'Stacks I build with', "Tools I've built", 'Tools I use', 'The gear'])
     const hrefs = await pills.evaluateAll((els) => els.map((el) => el.getAttribute('href')!))
     for (const href of hrefs) await expect(page.locator(href)).toHaveCount(1)
     // In page order: Inside the apps I build right after How I work with AI (2026-11-02).
@@ -490,8 +491,8 @@ test.describe('Loadout tools and people', () => {
     for (const role of ['Framework', 'Database', 'Hosting']) await expect(stacks).not.toContainText(role)
     const toolsOf = (name: string) => stacks.getByRole('list', { name: `${name} tools` }).locator('[data-stack-tool]')
     const runsOn = (name: string) => stacks.getByRole('list', { name: `${name} hosting` }).locator('[data-stack-tool]')
-    await expect(toolsOf('Quick stack')).toHaveText(['Next.js', 'TypeScript', 'Tailwind CSS', 'Firebase Auth'])
-    await expect(runsOn('Quick stack')).toHaveText(['Vercel', 'Firestore'])
+    await expect(toolsOf('Quick stack')).toHaveText(['Next.js', 'TypeScript', 'Tailwind CSS', 'Auth.js'])
+    await expect(runsOn('Quick stack')).toHaveText(['Vercel', 'Turso'])
     await expect(toolsOf('Production stack')).toHaveText(['Next.js', 'TypeScript', 'OpenNext', 'Hono'])
     await expect(runsOn('Production stack')).toHaveText(['Workers', 'D1', 'R2', 'Durable Objects', 'Images', 'Email Service'])
     await expect(runsOn('Local-first stack')).toHaveText(['Your PC', 'GitHub Releases'])
@@ -526,7 +527,7 @@ test.describe('Loadout tools and people', () => {
     await page.goto('/loadout#stream')
     const gear = page.getByRole('region', { name: 'The gear' })
     await expect(gear.getByRole('heading', { name: 'The gear', level: 2 })).toBeInViewport()
-    // Round 3 of 2026-11-02: no Stream kit (Scribe is in Tools I built and use).
+    // Round 3 of 2026-11-02: no Stream kit (Scribe is in Tools I've built).
     await expect(gear.getByRole('heading', { level: 3 })).toHaveText(['Rig', 'Desk'])
     await expect(gear).not.toContainText('OBS Studio')
     for (const size of await gear.locator('[data-gear-icon] svg').evaluateAll((icons) => icons.map((svg) => svg.getBoundingClientRect().height)))
@@ -619,9 +620,9 @@ test.describe('Loadout tools and people', () => {
     }
   })
 
-  test('the homepage has Tools I built and use inside its Loadout, every tool with Scribe first', async ({ page }) => {
+  test("the homepage has Tools I've built inside its Loadout, every tool with Scribe first", async ({ page }) => {
     await page.goto('/')
-    const built = page.getByRole('region', { name: 'Tools I built and use' })
+    const built = page.getByRole('region', { name: "Tools I've built" })
     // As /loadout, a level down: Scribe's compact row (2026-11-08) and the cards (h5) under the h4 subheading.
     // No pr-post (round 5 of 2026-11-02): The Pull Request Post's card a section above is its one place.
     await expect(built.getByRole('heading', { level: 4 })).toHaveText(['Dev tools I built'])
@@ -643,7 +644,7 @@ test.describe('Loadout tools and people', () => {
     const people = (await page.locator('#people').boundingBox())!
     expect((await built.boundingBox())!.y).toBeGreaterThan(people.y)
     const sitemap = page.getByRole('navigation', { name: 'Sitemap' })
-    await expect(sitemap.getByRole('link', { name: 'Tools I built and use' })).toHaveAttribute('href', '/#tools-i-built')
+    await expect(sitemap.getByRole('link', { name: "Tools I've built" })).toHaveAttribute('href', '/#tools-i-built')
     await expect(sitemap.getByRole('link', { name: 'People I follow' })).toHaveAttribute('href', '/#people')
   })
 })

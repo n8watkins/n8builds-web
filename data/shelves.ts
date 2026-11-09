@@ -18,7 +18,7 @@ export interface ShelfMeta {
 }
 
 export const shelfMeta: Record<Shelf, ShelfMeta> = {
-  mine: { id: 'mine', href: '/loadout#tools-i-built', label: 'Tools I built and use' },
+  mine: { id: 'mine', href: '/loadout#tools-i-built', label: "Tools I've built" },
   featured: { id: 'featured', href: '/#featured', label: 'Featured' },
   extension: { id: 'extension', href: '/#extensions', label: 'Extensions' },
   // A build that isn't on the homepage (Portfolio Rank): the /builds index lists it.

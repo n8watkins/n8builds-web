@@ -6,7 +6,7 @@ import { contentLeft, expectCleanJump, labelLines, railShape } from './section-r
  * on components/ui/SectionRail.tsx, the same rail as the Lab's; the owner's
  * ask, 2026-11-02): a desktop-only rail in the left gutter of the Loadout band
  * (after People I follow) that marks the part on screen (Dev setup, AI kit,
- * Default stack, Tools I built and use; the dev setup line leads since round 3
+ * Default stack, Tools I've built; the dev setup line leads since round 3
  * of 2026-11-02) and jumps to it. It lives in its
  * own band, several bands below the Lab, so it never shows with the Lab's.
  */
@@ -16,8 +16,8 @@ test.use({ contextOptions: { reducedMotion: 'reduce' } })
 const PARTS = [
   { id: 'my-setup', label: 'Dev setup' },
   { id: 'ai-kit', label: 'AI kit' },
-  { id: 'default-stack', label: 'Default stacks' },
-  { id: 'tools-i-built', label: 'Tools I built and use' },
+  { id: 'default-stack', label: 'Tech stacks' },
+  { id: 'tools-i-built', label: "Tools I've built" },
 ] as const
 
 const rail = (page: Page) => page.getByRole('navigation', { name: 'Loadout contents' })
@@ -87,10 +87,10 @@ test.describe('at 1440px', () => {
     }
     for (const [i, part] of PARTS.entries())
       await expect(nav.getByRole('link').nth(i)).toHaveAccessibleName(part.label)
-    // Tools I built and use closes the band: scrolled to it, it is the part
+    // Tools I've built closes the band: scrolled to it, it is the part
     // marked, the rail riding out with the band's foot, never below it.
     await place(page, 'tools-i-built', 400)
-    await expect(nav.locator('[aria-current]')).toHaveAccessibleName('Tools I built and use')
+    await expect(nav.locator('[aria-current]')).toHaveAccessibleName("Tools I've built")
     const box = (await nav.boundingBox())!
     const bandBottom = await page
       .locator('#loadout-band')

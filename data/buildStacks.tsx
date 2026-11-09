@@ -4,7 +4,12 @@
 // runs (round 8 of 2026-11-09: no paragraph under each stack).
 // Shown on /loadout (components/sections/BuildStacks.tsx); the homepage's
 // Loadout shows the first two, the Quick stack and the Production stack, as
-// "My default stacks".
+// "My tech stacks".
+//
+// Round 9 (owner, 2026-11-09): the homepage calls them "My tech stacks"; the
+// Quick stack lists what the quick apps really use (no Firebase Auth), and the
+// Production stack reads as the Cloudflare stack it is, each service with
+// what it does.
 //
 // Round 8 (owner, 2026-11-09): two defaults instead of the Turso, Cloudflare
 // and Firebase stacks. The owner hardly uses Vercel now, and wants no Turso
@@ -80,6 +85,12 @@ export interface BuildStack {
    * explicitly): the hosts, the database and file storage, by name.
    */
   hosting: string[]
+  /**
+   * A stack that runs on one provider's products (the Production stack, all
+   * Cloudflare): each service by name with what it does there, in plain
+   * words, for the homepage's "My tech stacks" (round 9 of 2026-11-09).
+   */
+  services?: { provider: string; items: { name: string; purpose: string }[] }
   accent: 'cyan' | 'blue' | 'sky' | 'teal' | 'orange'
 }
 
@@ -88,8 +99,11 @@ export const buildStacks: BuildStack[] = [
     id: 'quick',
     name: 'Quick stack',
     tagline: 'Get something up fast',
-    tools: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Firebase Auth'],
-    hosting: ['Vercel', 'Firestore'],
+    // What the quick apps really use (round 9 of 2026-11-09, from their repos: Pivot, Feelium,
+    // Portfolio Rank and Net Trailers): Auth.js with GitHub sign-in and a Turso database, on
+    // Vercel. No Firebase Auth (the owner doesn't use it here).
+    tools: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Auth.js'],
+    hosting: ['Vercel', 'Turso'],
     accent: 'blue',
   },
   {
@@ -98,6 +112,20 @@ export const buildStacks: BuildStack[] = [
     tagline: 'What my live apps run on',
     tools: ['Next.js', 'TypeScript', 'OpenNext', 'Hono'],
     hosting: ['Workers', 'D1', 'R2', 'Durable Objects', 'Images', 'Email Service'],
+    // Every service is Cloudflare's (round 9 of 2026-11-09), from the wrangler configs of
+    // n8builds.dev, Wren, OpenPing and Portfolio Rank. The email is Cloudflare Email Service
+    // (the send_email binding, in n8builds.dev and Wren); OpenPing's alerts go through Resend.
+    services: {
+      provider: 'Cloudflare',
+      items: [
+        { name: 'Workers', purpose: 'runs the app: Next.js, through OpenNext' },
+        { name: 'D1', purpose: 'the database (SQLite)' },
+        { name: 'R2', purpose: 'stores files and the page cache' },
+        { name: 'Durable Objects', purpose: 'per-user state and live counters' },
+        { name: 'Images', purpose: 'resizes images' },
+        { name: 'Email Service', purpose: 'sends the email' },
+      ],
+    },
     accent: 'orange',
   },
   {
@@ -127,9 +155,9 @@ export const stackRoles: Record<string, string> = {
   'Next.js': 'the framework',
   TypeScript: 'strict, everywhere',
   'Tailwind CSS': 'styling',
-  'Firebase Auth': 'sign-in',
+  'Auth.js': 'GitHub sign-in',
   Vercel: 'a push ships it',
-  Firestore: 'data, no migrations',
+  Turso: 'SQLite database',
   OpenNext: 'Next.js on Workers',
   Hono: 'small APIs',
   Workers: 'hosting, at the edge',

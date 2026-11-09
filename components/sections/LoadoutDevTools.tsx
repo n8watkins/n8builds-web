@@ -232,7 +232,7 @@ export const BuiltToolsGrid = ({
  * these cards, on /loadout and in the homepage's Loadout. Everything in it is
  * MIT-licensed (Scribe included).
  */
-export const TOOLS_I_BUILT_TITLE = 'Tools I built and use'
+export const TOOLS_I_BUILT_TITLE = "Tools I've built"
 export const TOOLS_I_BUILT_BLURB = 'Tools I made for myself and use every day. All open source and MIT-licensed.'
 
 const makerLink = 'font-medium whitespace-nowrap text-slate-300 underline decoration-white/20 underline-offset-4 transition-colors hover:text-cyan-200'
