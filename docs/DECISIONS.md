@@ -413,6 +413,7 @@ Where these conflict with an older entry above, these win; the older entries are
 
 - **Round 6 of the trim (owner, 2026-11-09):**
   The hero's portfolio link is just "Check out my portfolio" behind a briefcase (no "Hiring?"), still counted and in a new tab.
+  Each of the build log's three latest updates is exactly two lines under its build's name, so every entry is the same height and the column never jumps: the title and one line of what's in it, or a title alone over both lines (a short one leaves the second empty).
 
 ## Publishing and releases (2026-10-25)
 

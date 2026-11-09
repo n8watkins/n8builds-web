@@ -107,21 +107,25 @@ function Row({ entry }: { entry: LogEntry }) {
             / <span className="text-slate-450">{entry.dayLabel}</span>
           </span>
         </p>
-        <p
-          id={`${id}-title`}
-          className="line-clamp-1 text-base font-semibold leading-snug text-slate-100 transition-colors group-hover:text-cyan-100"
-        >
-          {version ? (
-            <>
-              Shipped <span className="font-mono text-[0.92em] text-cyan-300">{version}</span>
-            </>
-          ) : (
-            entry.title
-          )}
-        </p>
-        {/* A line of what's in it (round 5 of 2026-11-08): the release's note or the day's other
-            changes, at most two lines. */}
-        {more && <p className="mt-0.5 line-clamp-2 text-sm leading-snug text-[#9cadc5]">{more}</p>}
+        {/* Always exactly two lines under the name (owner, 2026-11-09), so the three entries
+            are the same height and the column never jumps as they move on: the title and a
+            line of what's in it (a release's note or the day's other changes), or a title
+            alone over both lines, with a short one keeping the second line empty. */}
+        <div className="h-11 overflow-hidden">
+          <p
+            id={`${id}-title`}
+            className={`${more ? 'line-clamp-1' : 'line-clamp-2'} text-base font-semibold leading-snug text-slate-100 transition-colors group-hover:text-cyan-100`}
+          >
+            {version ? (
+              <>
+                Shipped <span className="font-mono text-[0.92em] text-cyan-300">{version}</span>
+              </>
+            ) : (
+              entry.title
+            )}
+          </p>
+          {more && <p className="mt-0.5 line-clamp-1 text-sm leading-snug text-[#9cadc5]">{more}</p>}
+        </div>
       </div>
       <time
         dateTime={entry.date}

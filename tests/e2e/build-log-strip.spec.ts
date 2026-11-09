@@ -57,10 +57,13 @@ test("shows three of the month's updates at a time, newest first, each with a li
   // One icon frame for every row; a release says so with a badge (round 4 of 2026-11-08).
   const frames = await rows(page).locator('img').evaluateAll((imgs) => imgs.map((i) => getComputedStyle(i).boxShadow))
   expect(new Set(frames).size).toBe(1)
-  // A release's note shows under its title, at most two lines.
+  // A release's note shows under its title, on one line.
   const note = rows(page).filter({ hasText: /Shipped v1\.1\.1/ }).locator('p').last()
   await expect(note).toContainText('The portrait fades in with the hero')
-  await expect(note).toHaveCSS('-webkit-line-clamp', '2')
+  await expect(note).toHaveCSS('-webkit-line-clamp', '1')
+  // Every entry is two lines under its name, note or not, so all three are the same height (owner, 2026-11-09).
+  const heights = await rows(page).evaluateAll((items) => items.map((li) => Math.round(li.getBoundingClientRect().height)))
+  expect(new Set(heights).size, heights.join(', ')).toBe(1)
   // No step arrows: under reduced motion it holds still, with no timer line.
   await expect(strip(page).getByRole('button', { name: /update/i })).toHaveCount(0)
   await expect(strip(page).locator('[data-latest-timer]')).toHaveCount(0)
