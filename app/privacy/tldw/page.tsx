@@ -23,6 +23,7 @@ function Ext({ href, children }: { href: string; children: ReactNode }) {
   return (
     <a href={href} target="_blank" rel="noopener noreferrer" className={link}>
       {children}
+      <span className="sr-only"> (opens in a new tab)</span>
     </a>
   )
 }
