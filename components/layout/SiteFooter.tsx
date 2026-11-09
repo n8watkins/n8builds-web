@@ -20,7 +20,6 @@ const SITEMAP: { heading: string; links: { label: string; href: string; mark?: R
     links: [
       { label: 'Featured builds', href: '/#featured' },
       { label: 'Chrome extensions', href: '/#extensions' },
-      { label: 'Build log', href: '/builds' },
       { label: 'Upcoming', href: '/upcoming' },
       { label: 'Use as a template', href: '/#template' },
       { label: 'Tools I built and use', href: '/#tools-i-built' },
@@ -29,6 +28,9 @@ const SITEMAP: { heading: string; links: { label: string; href: string; mark?: R
   {
     heading: 'Read and watch',
     links: [
+      // Not a Lab part since 2026-11-08: it sits above the Lab, under "What I'm working on".
+      // "Full build log": it opens /builds, unlike the navbar's Build log, which scrolls to the homepage's (2026-11-08).
+      { label: 'Full build log', href: '/builds' },
       { label: 'Notions', href: '/blog' },
       { label: 'Live', href: '/live' },
       { label: 'People I follow', href: '/#people' },
@@ -38,7 +40,8 @@ const SITEMAP: { heading: string; links: { label: string; href: string; mark?: R
   {
     heading: 'Work with me',
     links: [
-      { label: 'Developer portfolio', href: 'https://portfolio.n8builds.dev' },
+      // Counted, like the navbar's (lib/referrals.ts).
+      { label: 'Developer portfolio', href: refHref('portfolio', 'footer') },
       // Counted, like the navbar's (lib/referrals.ts).
       { label: TECH_FOR_PROS.domain, href: refHref('techforpros', 'footer'), mark: <TechForProsMark className="h-[18px] w-[18px] shadow-none" sizes="18px" /> },
       { label: 'Contact form', href: '/#contact' },
@@ -60,7 +63,7 @@ const ICON_SIZE: Record<Social['size'], string> = { sm: 'h-4.5 w-4.5', md: 'h-5 
 const SiteFooter = () => (
   <footer className="relative z-10 border-t border-white/8 bg-darkBlue">
     {/* Fades up as it scrolls into view, like the sections above it. */}
-    <Reveal className="mx-auto max-w-6xl px-5 pb-10 pt-12 sm:px-8">
+    <Reveal className="mx-auto max-w-site px-5 pb-10 pt-12 sm:px-8">
       <nav aria-label="Sitemap" className="grid grid-cols-2 gap-8 sm:grid-cols-4">
         {SITEMAP.map((group) => (
           <div key={group.heading}>
@@ -117,7 +120,7 @@ const SiteFooter = () => (
               key={label}
               href={href}
               {...(isExternal(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-              aria-label={label}
+              aria-label={isExternal(href) ? `${label} (opens in a new tab)` : label}
               title={label}
               className="flex h-11 w-11 items-center justify-center rounded-full text-slate-400 transition-colors duration-200 hover:bg-white/10 hover:text-slate-200"
             >

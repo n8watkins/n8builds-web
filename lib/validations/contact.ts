@@ -47,7 +47,7 @@ export type ContactFormData = z.infer<typeof contactFormSchema>
 
 /**
  * A Tech for Pros quote request (round 5 of 2026-11-02): just the visitor's
- * email, from the Work with me card's quote field, posted to /api/contact
+ * email, from the quote field on the homepage's Tech for Pros ad, posted to /api/contact
  * with `kind` set, through the same Turnstile, honeypot and rate limits.
  */
 export const QUOTE_KIND = 'techforpros-quote'

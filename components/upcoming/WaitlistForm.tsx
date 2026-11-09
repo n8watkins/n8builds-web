@@ -32,10 +32,15 @@ export default function WaitlistForm({
   layout = 'page',
 }: {
   turnstileSiteKey: string
-  /** "side": beside the homepage cards from 1024px, so one column of picks there. */
-  layout?: 'page' | 'side'
+  /**
+   * "side": beside /upcoming's cards from 1024px, so one column of picks there.
+   * "modal": the homepage's waitlist modal, where a pick is its mark and name
+   * only (two to a row from 640px), so ten projects fit without much scrolling.
+   */
+  layout?: 'page' | 'side' | 'modal'
 }) {
   const side = layout === 'side'
+  const modal = layout === 'modal'
   const hydrated = useHydrated()
   // Turnstile loads once the form is near the screen, not with the page (useNearViewport).
   const [formRef, near] = useNearViewport<HTMLFormElement>()
@@ -157,7 +162,7 @@ export default function WaitlistForm({
         e.preventDefault()
         if (hydrated && !busy) submit()
       }}
-      className={side ? 'space-y-6 lg:space-y-4' : 'space-y-6'}
+      className={side ? 'space-y-6 lg:space-y-4' : modal ? 'space-y-5' : 'space-y-6'}
       // The scroll-to-top button steps aside instead of covering a field (components/ui/ScrollToTop.tsx).
       data-scroll-top-avoid
       aria-describedby={state.kind === 'error' ? 'waitlist-error' : undefined}
@@ -201,14 +206,16 @@ export default function WaitlistForm({
             only: the card beside it has the tagline. One column, then two by two
             from 1280px, so the cards and the panel fit a 1280x800 screen. An odd
             last pick spans both columns, so it never sits alone in half a row. */}
-        <div className={`mt-2 grid gap-2.5 sm:grid-cols-2 ${side ? 'lg:grid-cols-1 lg:gap-2 xl:grid-cols-2' : ''}`}>
+        <div
+          className={`mt-2 grid sm:grid-cols-2 ${modal ? 'gap-2' : 'gap-2.5'} ${side ? 'lg:grid-cols-1 lg:gap-2 xl:grid-cols-2' : ''}`}
+        >
           {UPCOMING.map((p) => {
             const checked = projects.includes(p.slug)
             return (
               <label
                 key={p.slug}
                 style={{ '--accent': p.accent } as CSSProperties}
-                className={`group relative flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 sm:odd:last:col-span-2 ${side ? 'lg:gap-2.5 lg:px-3 lg:py-2 lg:odd:last:col-span-1 xl:odd:last:col-span-2' : ''} transition-colors duration-150 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-(--accent) ${
+                className={`group relative flex cursor-pointer items-center rounded-xl border ${modal ? 'gap-2.5 px-3 py-2 sm:odd:last:col-span-2' : 'gap-3 px-4 py-3 sm:odd:last:col-span-2'} ${side ? 'lg:gap-2.5 lg:px-3 lg:py-2 lg:odd:last:col-span-1 xl:odd:last:col-span-2' : ''} transition-colors duration-150 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-(--accent) ${
                   checked ? 'border-(--accent)/60 bg-(--accent)/10' : 'border-slate-600 bg-slate-800/60 hover:border-slate-500'
                 }`}
               >
@@ -226,11 +233,13 @@ export default function WaitlistForm({
                   alt=""
                   width={32}
                   height={32}
-                  className={`h-8 w-8 shrink-0 rounded-lg ring-1 ring-white/10 ${side ? 'lg:h-7 lg:w-7' : ''}`}
+                  className={`shrink-0 rounded-lg ring-1 ring-white/10 ${modal ? 'h-7 w-7' : 'h-8 w-8'} ${side ? 'lg:h-7 lg:w-7' : ''}`}
                 />
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-semibold text-slate-100">{p.name}</span>
-                  <span className={`block text-xs text-pretty text-slate-400 ${side ? 'lg:hidden' : ''}`}>{p.tagline}</span>
+                  {!modal && (
+                    <span className={`block text-xs text-pretty text-slate-400 ${side ? 'lg:hidden' : ''}`}>{p.tagline}</span>
+                  )}
                 </span>
                 <span
                   aria-hidden="true"

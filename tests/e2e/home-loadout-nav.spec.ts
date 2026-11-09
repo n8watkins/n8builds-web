@@ -16,7 +16,7 @@ test.use({ contextOptions: { reducedMotion: 'reduce' } })
 const PARTS = [
   { id: 'my-setup', label: 'Dev setup' },
   { id: 'ai-kit', label: 'AI kit' },
-  { id: 'default-stack', label: 'Default stack' },
+  { id: 'default-stack', label: 'Default stacks' },
   { id: 'tools-i-built', label: 'Tools I built and use' },
 ] as const
 
@@ -96,26 +96,28 @@ test.describe('at 1440px', () => {
       .locator('#loadout-band')
       .evaluate((band) => band.getBoundingClientRect().bottom)
     expect(box.y + box.height).toBeLessThanOrEqual(bandBottom + 1)
-    // Past the band (the contact form) it is gone.
-    await page.locator('#contact').scrollIntoViewIfNeeded()
+    // Past the band (the foot of the page, under the contact form, which follows it
+    // directly since Work with me left on 2026-11-08) it is gone.
+    await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }))
     await expect(nav).not.toBeInViewport()
   })
 
   test('appears once the Loadout reaches the middle of the window, level with its first part', { tag: '@cross-browser' }, async ({ page }) => {
     await openHome(page)
     const nav = rail(page)
-    // The band's heading on screen, the dev setup line still in the lower half: no rail.
-    await place(page, 'my-setup', 620)
+    // The band's heading on screen, the dev setup's heading still in the lower half: no rail.
+    // (Since round 8 of 2026-11-09 the setup is a card with its own heading, which the rail lines up with.)
+    await place(page, 'my-setup-title', 620)
     await page.waitForTimeout(300)
     await expect(nav).toBeHidden()
-    await place(page, 'my-setup', 470)
+    await place(page, 'my-setup-title', 470)
     await page.waitForTimeout(300)
     await expect(nav).toBeHidden()
     // The first part reaches the middle of the window (owner, 2026-11-02): the rail shows, level with it, whole.
-    await place(page, 'my-setup', 448)
+    await place(page, 'my-setup-title', 448)
     await expect(nav).toBeVisible(SHOW)
     await expect(nav).toBeInViewport({ ratio: 1 })
-    const kitTop = await page.locator('#my-setup').evaluate((el) => el.getBoundingClientRect().top)
+    const kitTop = await page.locator('#my-setup-title').evaluate((el) => el.getBoundingClientRect().top)
     expect(Math.abs((await nav.boundingBox())!.y - kitTop)).toBeLessThanOrEqual(3)
   })
 

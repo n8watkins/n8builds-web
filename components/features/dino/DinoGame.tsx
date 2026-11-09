@@ -41,7 +41,15 @@ const H = DINO_ROWS * PX
 const SPEED = 140
 const GRAVITY = 1800 // px/s²
 const STEP_EVERY = 12 // px walked per leg swap
-const STILL = 2 // px/s: a row moving slower than this is paused
+const STILL = 2 // px/s: a row moving slower than this is still
+// How long, and for how many frames, a row must stay still to count as paused.
+// On a starved machine the marquee (a compositor animation) can report the
+// same place for a frame or two, or across one long frame, while it runs on;
+// a visitor's pause holds far longer.
+// 0.15s and 4 frames still let a loaded CI runner's stalls through (2026-11-09: the
+// dino fell off a running row in a different test each run); a hover holds for seconds.
+const PAUSED_AFTER = 0.4 // s
+const PAUSED_FRAMES = 8
 const LANDING = 20 // px past the far edge of a gap that a hop lands
 // Faster than any marquee row ever scrolls, px/s. A row "moving" faster than
 // this in a frame has been laid out again (the window was resized, a font
@@ -82,6 +90,9 @@ interface Row {
   /** How far the row moved this frame, px (measured, so exact at any frame rate). */
   delta: number
   velocity: number
+  /** How long it has been still, s, and for how many frames (a pause counts after PAUSED_AFTER and PAUSED_FRAMES). */
+  stillFor: number
+  stillFrames: number
   paused: boolean
 }
 
@@ -331,7 +342,7 @@ export default function DinoGame() {
         })
         const top = figures[0].getBoundingClientRect().top - box.top
         const trackTop = first.getBoundingClientRect().top - box.top
-        return [{ el, tracks, tiles, top, trackTop, lastLeft: null, lastPeriod: null, delta: 0, velocity: 0, paused: false }]
+        return [{ el, tracks, tiles, top, trackTop, lastLeft: null, lastPeriod: null, delta: 0, velocity: 0, stillFor: 0, stillFrames: 0, paused: false }]
       })
       levels = rows.map((row) => ({ y: row.top, row }))
       // One row: a ground line under it is the second level.
@@ -722,8 +733,11 @@ export default function DinoGame() {
             row.velocity = delta / realDt
             // Pauses count once the rows have been measured a while: one
             // seen sooner (the row held from the start) counts then.
+            const still = Math.abs(row.velocity) < STILL
+            row.stillFor = still ? row.stillFor + realDt : 0
+            row.stillFrames = still ? row.stillFrames + 1 : 0
             if (settled > 10) {
-              const paused = Math.abs(row.velocity) < STILL
+              const paused = row.stillFor >= PAUSED_AFTER && row.stillFrames >= PAUSED_FRAMES
               if (paused && !row.paused && row === onRow) missPending = true
               row.paused = paused
             }

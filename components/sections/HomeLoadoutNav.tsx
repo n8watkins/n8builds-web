@@ -1,6 +1,7 @@
 'use client'
 
-import { LuBackpack, LuHammer, LuLayers, LuSparkles, LuSquareTerminal } from 'react-icons/lu'
+import { LuBackpack, LuLayers, LuSparkles, LuSquareTerminal } from 'react-icons/lu'
+import { HammerIcon } from '@/components/ui/PartIcons'
 import SectionRail, { type RailPart } from '@/components/ui/SectionRail'
 
 /**
@@ -12,8 +13,8 @@ import SectionRail, { type RailPart } from '@/components/ui/SectionRail'
 const SECTIONS: readonly RailPart[] = [
   { id: 'my-setup', label: 'Dev setup', icon: LuSquareTerminal },
   { id: 'ai-kit', label: 'AI kit', icon: LuSparkles },
-  { id: 'default-stack', label: 'Default stack', icon: LuLayers },
-  { id: 'tools-i-built', label: 'Tools I built and use', short: 'My tools', icon: LuHammer },
+  { id: 'default-stack', label: 'Default stacks', icon: LuLayers },
+  { id: 'tools-i-built', label: 'Tools I built and use', short: 'My tools', icon: HammerIcon },
 ]
 
 const HEADING = { icon: <LuBackpack className="size-7 text-cyan-300" aria-hidden="true" />, title: 'Loadout' }

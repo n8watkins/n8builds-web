@@ -59,7 +59,7 @@ export function createQuoteEmailHtml(email: string, { receivedAt = new Date(), c
           <tr>
             <td align="center" style="padding:18px 8px 0;font-family:${FONT};font-size:12px;line-height:19px;color:${C.faint};">
               No auto-reply was sent.<br>
-              From the Tech for Pros card on <a href="${EMAIL_CONFIG.siteUrl}/#work-with-me" style="color:${C.muted};text-decoration:underline;">${EMAIL_CONFIG.siteDomain}</a>
+              From the Tech for Pros card on <a href="${EMAIL_CONFIG.siteUrl}/#now" style="color:${C.muted};text-decoration:underline;">${EMAIL_CONFIG.siteDomain}</a>
             </td>
           </tr>`
   return shell({ title: 'A Tech for Pros quote request', preheader: `🔧 Tech for Pros quote from ${address}`, body })

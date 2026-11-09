@@ -33,7 +33,7 @@ test('the build log leads with the builds, most recently active first', { tag: '
   const cards = page.getByRole('list', { name: 'Builds by latest activity' }).locator(':scope > li')
   // The builds, then the projects without a build page the log follows since round 5 of
   // 2026-11-02 (data/logBuilds.ts); in the fixture those have nothing yet, so they come last.
-  await expect(cards).toHaveCount(17)
+  await expect(cards).toHaveCount(21)
   expect(await cards.evaluateAll((els) => els.map((el) => el.getAttribute('data-build')))).toEqual([
     'n8builds',
     'solara',
@@ -48,6 +48,10 @@ test('the build log leads with the builds, most recently active first', { tag: '
     'keysready',
     'feelium',
     'vibelog',
+    'cutelyaskme',
+    'fitflow7',
+    'pivot',
+    'whoami',
     'release-kit',
     'pass-env',
     'devguard',
@@ -56,16 +60,38 @@ test('the build log leads with the builds, most recently active first', { tag: '
   // A project with nothing logged yet is a quiet card that links where the site shows it.
   const relink = cards.and(page.locator('[data-build="relink"]'))
   await expect(relink).toContainText('Nothing logged yet')
-  await expect(relink.getByRole('link', { name: 'Relink' })).toHaveAttribute('href', '/upcoming#relink')
-  await expect(cards.and(page.locator('[data-build="pr-post"]')).getByRole('link', { name: 'PR Post' })).toHaveAttribute('href', '/#pr-post-edition')
+  await expect(relink.getByRole('link', { name: 'Full story of Relink' })).toHaveAttribute('href', '/upcoming#relink')
+  await expect(cards.and(page.locator('[data-build="pr-post"]')).getByRole('link', { name: 'Full story of PR Post' })).toHaveAttribute('href', '/#pr-post-edition')
   await expect(cards.first()).toContainText('Last shipped Oct 2026')
   // Quiet builds read as finished, not abandoned.
   await expect(page.getByRole('list', { name: 'Builds by latest activity' })).not.toContainText(/\bago\b/)
 
-  // A card opens its build page.
+  // A card's "Full story" opens its build page.
   // Found by its build, not its position, so a new build doesn't move it.
-  await cards.and(page.locator('[data-build="scribe"]')).getByRole('link', { name: 'Scribe' }).click()
+  await cards.and(page.locator('[data-build="scribe"]')).getByRole('link', { name: 'Full story of Scribe' }).click()
   await expect(page).toHaveURL(/\/builds\/scribe$/)
+})
+
+test('a build card filters the activity below to that build, shows it is picked, and a second click clears it', { tag: '@cross-browser' }, async ({ page }) => {
+  await page.goto('/builds')
+  const card = page.getByRole('list', { name: 'Builds by latest activity' }).locator('[data-build="openping"]')
+  const button = card.getByRole('button', { name: /^OpenPing/ })
+  await expect(button).toHaveAttribute('aria-pressed', 'false')
+  // Retried: a click before hydration does nothing.
+  await expect(async () => {
+    await button.click()
+    await expect(page).toHaveURL(/\/builds\?build=openping$/, { timeout: 2000 })
+  }).toPass({ timeout: 20_000 })
+  await expect(button).toHaveAttribute('aria-pressed', 'true')
+  await expect(card).toHaveAttribute('data-selected', '')
+  const builds = await feedEntries(page).evaluateAll((els) => [...new Set(els.map((el) => el.getAttribute('data-build')))])
+  expect(builds).toEqual(['openping'])
+  // The chip below agrees.
+  await expect(chip(page, 'OpenPing')).toHaveAttribute('aria-pressed', 'true')
+  await button.click()
+  await expect(page).toHaveURL(/\/builds$/)
+  await expect(button).toHaveAttribute('aria-pressed', 'false')
+  await expect(card).not.toHaveAttribute('data-selected')
 })
 
 test('the feed groups entries by month, with highlights pinned and releases shown as versions', async ({ page }) => {
@@ -120,7 +146,9 @@ test('the kind filter narrows the feed and its build chips, and lives in the URL
   expect(builds.every((b) => ['tldw', 'tubevault', 'voicedock'].includes(b!))).toBe(true)
   // Only that kind's builds are offered, each with its icon.
   const offered = feed(page).getByRole('group', { name: 'Filter by build' }).getByRole('button')
-  expect(await offered.allInnerTexts()).toEqual(['TL;DW', 'TubeVault', 'VoiceDock'])
+  // Each with its count of updates (round 4 of 2026-11-08).
+  expect((await offered.allInnerTexts()).map((t) => t.replace(/\s*\d+\s*updates?$/, '').trim())).toEqual(['TL;DW', 'TubeVault', 'VoiceDock'])
+  expect((await offered.allInnerTexts()).every((t) => /\d+\s*updates?$/.test(t.trim()))).toBe(true)
   expect(await offered.evaluateAll((els) => els.every((el) => !!el.querySelector('img')))).toBe(true)
 
   // A build within the kind narrows further; unpicking it goes back to the kind.
@@ -128,6 +156,39 @@ test('the kind filter narrows the feed and its build chips, and lives in the URL
   await expect(page).toHaveURL(/\/builds\?kind=extensions&build=tubevault$/)
   await chip(page, 'TubeVault').click()
   await expect(page).toHaveURL(/\/builds\?kind=extensions$/)
+})
+
+test('the feed is one continuous list: month headers, more loading as you scroll and with Load more', async ({ page }) => {
+  await page.goto('/builds')
+  // No box scrolling on its own (round 4 of 2026-11-08): the page scrolls.
+  await expect(feed(page).locator('[data-log-scroll]')).toHaveCount(0)
+  const first = await feedEntries(page).count()
+  expect(first).toBe(30)
+  const more = feed(page).getByRole('button', { name: /^Load more/ })
+  await expect(more).toBeVisible()
+  // Pressed where it is, without scrolling to it: scrolling the foot into view
+  // loads more on its own, which could replace the button mid-click (a flaky
+  // timeout, 2026-11-08). The scrolling is checked below.
+  await more.evaluate((button: HTMLButtonElement) => button.click())
+  await expect.poll(() => feedEntries(page).count()).toBeGreaterThan(first)
+  // The month headers stay under the navbar as their months scroll by.
+  const header = feed(page).locator('section h3').first()
+  expect(await header.evaluate((h) => getComputedStyle(h).position)).toBe('sticky')
+  // Reaching the foot loads the rest.
+  for (let i = 0; i < 10 && (await more.count()); i++) {
+    await feed(page).locator('[data-log-list] > div').last().evaluate((el) => el.scrollIntoView({ block: 'end', behavior: 'instant' }))
+    await page.waitForTimeout(200)
+  }
+  await expect(more).toHaveCount(0)
+})
+
+test('every entry has the same icon frame, and a release says so with a badge', async ({ page }) => {
+  await page.goto('/builds')
+  const frames = await feedEntries(page).locator('img').evaluateAll((imgs) => [...new Set(imgs.map((i) => getComputedStyle(i).boxShadow))])
+  expect(frames).toHaveLength(1)
+  const release = feedEntries(page).filter({ hasText: /Shipped v\d/ }).first()
+  await expect(release.getByText('Release', { exact: true })).toBeVisible()
+  await expect(feedEntries(page).filter({ hasNotText: /Shipped v\d/ }).first().getByText('Release', { exact: true })).toHaveCount(0)
 })
 
 test('each entry carries its build icon on the timeline', async ({ page }) => {
@@ -202,22 +263,34 @@ test('the feed is in the HTML, visible before any JavaScript, and hydrated in pl
   expect(await owned()).toBe(true)
 })
 
-test('a build page shows its recent activity and links to its part of the log', async ({ page }) => {
+test("a build page shows its whole build log by month, in the homepage strip's rows", async ({ page }) => {
   await page.goto('/builds/tubevault')
-  const section = page.getByRole('region', { name: 'Recent activity' })
+  const section = page.getByRole('region', { name: 'Build log' })
   await expect(section).toBeVisible()
-  const entries = section.locator('li[data-kind]')
-  await expect(entries).toHaveCount(5)
+  // All of the build's entries (owner, 2026-11-08): the fixture's seven for TubeVault, newest first.
+  const entries = section.locator('[data-kind]')
+  await expect(entries).toHaveCount(7)
   await expect(entries.first()).toContainText('Shipped v0.3.80')
   await expect(entries.first()).toContainText('Cross-platform native-host setup (macOS/Linux), no hardcoded user')
-
-  await section.getByRole('link', { name: 'Full log for TubeVault' }).click()
-  await expect(page).toHaveURL(/\/builds\?build=tubevault#activity$/)
-  await expect(chip(page, 'TubeVault')).toHaveAttribute('aria-pressed', 'true')
+  const days = await entries.locator('time').evaluateAll((els) => els.map((el) => el.getAttribute('datetime')!))
+  expect([...days].sort().reverse()).toEqual(days)
+  // Each row opens its entry on GitHub (the whole row is the link).
+  await expect(entries.first()).toHaveAttribute('href', /^https:\/\/github\.com\/n8watkins\/tube-vault\//)
+  // By month: the two newest open, the rest under "Earlier".
+  const months = section.getByRole('heading', { level: 3 })
+  expect(await months.count()).toBeGreaterThan(0)
+  const earlier = section.locator('details')
+  if (await earlier.count()) {
+    await expect(earlier.locator('[data-kind]').first()).toBeHidden()
+    await earlier.locator('summary').click()
+    await expect(earlier.locator('[data-kind]').first()).toBeVisible()
+  }
+  await section.getByRole('link', { name: 'See the log for every build' }).click()
+  await expect(page).toHaveURL(/\/builds#activity$/)
 })
 
 test.describe('navigation to the build log', () => {
-  test("desktop: the Lab menu's first item scrolls to the Lab's build log, and the top bar has no Log link of its own", { tag: '@cross-browser' }, async ({ page, isMobile }) => {
+  test("desktop: the Lab menu's first item scrolls to the build log, and the top bar has no Log link of its own", { tag: '@cross-browser' }, async ({ page, isMobile }) => {
     test.skip(isMobile, 'the desktop navbar is hidden on phones')
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto('/loadout')
@@ -259,7 +332,7 @@ test.describe('navigation to the build log', () => {
     await page.goto('/loadout')
     const sitemap = page.getByRole('navigation', { name: 'Sitemap' })
     await sitemap.scrollIntoViewIfNeeded()
-    await sitemap.getByRole('link', { name: 'Build log' }).click()
+    await sitemap.getByRole('link', { name: 'Full build log' }).click()
     await expect(page).toHaveURL(/\/builds$/)
     await expect(page.getByRole('heading', { level: 1, name: 'The build log' })).toBeVisible()
   })
@@ -267,7 +340,7 @@ test.describe('navigation to the build log', () => {
   test.describe('mobile menu', () => {
     test.use({ viewport: { width: 390, height: 844 }, hasTouch: true })
 
-    test("the Build log link, the Lab's first, reaches the Lab's build log", { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
+    test("the Build log link, the Lab menu's first, reaches the build log", { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
       await page.goto('/loadout')
       const button = page.getByRole('button', { name: 'Menu' })
       await expect(async () => {

@@ -1,10 +1,12 @@
 import React from 'react'
 import Image from 'next/image'
-import { FiGithub } from 'react-icons/fi'
+import { FiBriefcase, FiGithub } from 'react-icons/fi'
 import { CiLinkedin } from 'react-icons/ci'
 import { FaXTwitter } from 'react-icons/fa6'
 import WhoamiTerminal from '@/components/features/WhoamiTerminal'
 import FadeIn from '@/components/ui/FadeIn'
+import { LINKEDIN_URL } from '@/lib/links'
+import { refHref } from '@/lib/referrals'
 import HeroGrid from '@/components/sections/HeroGrid'
 import HeroChainMeter from '@/components/sections/HeroChainMeter'
 import HeroPortraitSwap from '@/components/sections/HeroPortraitSwap'
@@ -42,7 +44,7 @@ const Hero = () => {
           the hero's height is (1000px), so a very tall screen doesn't get an
           empty hero. tests/e2e/hero.spec.ts checks the laptop and tablet
           sizes. */}
-      <div className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 w-full flex flex-col items-center pt-24 md:pt-[clamp(5.5rem,calc(60svh-363px),24rem)] pb-16 md:pb-0">
+      <div className="relative z-10 max-w-site mx-auto px-5 sm:px-8 w-full flex flex-col items-center pt-24 md:pt-[clamp(5.5rem,calc(60svh-363px),24rem)] pb-16 md:pb-0">
 
 
         {/* On phones the portrait comes first (order-first), above the
@@ -56,20 +58,23 @@ const Hero = () => {
               <FadeIn
                 as="h1"
                 delay={0.08}
-                className="text-[3.2rem] sm:text-6xl/none lg:text-7xl/none xl:text-[5rem] font-extrabold leading-none tracking-tight text-slate-50"
+                // "n8builds.dev" since 2026-11-08 (owner). On phones it scales with the
+                // screen so it stays on one line, at most 3.2rem; on tablets (md), where
+                // it shares the row with the portrait, it steps down to 3rem.
+                className="whitespace-nowrap text-[min(3.2rem,calc((100vw-2.5rem)/6.6))] sm:text-6xl/none md:text-5xl/none lg:text-7xl/none xl:text-[5rem] font-extrabold leading-none tracking-tight text-slate-50"
               >
-                n8builds
+                n8builds.dev
               </FadeIn>
               <FadeIn
                 as="p"
                 delay={0.16}
                 // One line on every phone: the font scales with the screen
-                // (the line is ~12.1em wide; 100vw less the 2.5rem gutter),
+                // (the line is ~9.7em wide; 100vw less the 2.5rem gutter),
                 // up to the usual 1.5rem. On tablets (md) the text column
                 // shares the row with the portrait, so it drops to 1.5rem there.
-                className="mt-3 whitespace-nowrap text-[min(1.5rem,calc((100vw-2.5rem)/12.75))] sm:text-3xl md:text-2xl lg:text-3xl font-bold tracking-tight bg-linear-to-r from-cyan-400 via-blue-400 to-blue-600 bg-clip-text text-transparent"
+                className="mt-3 whitespace-nowrap text-[min(1.5rem,calc((100vw-2.5rem)/10.25))] sm:text-3xl md:text-2xl lg:text-3xl font-bold tracking-tight bg-linear-to-r from-cyan-400 via-blue-400 to-blue-600 bg-clip-text text-transparent"
               >
-                Think bigger. Ship sooner.
+                Think big. Ship fast.
               </FadeIn>
             </div>
 
@@ -143,14 +148,23 @@ const Hero = () => {
               </svg>
             </FadeIn>
 
-            {/* The direct route for someone hiring: the developer portfolio. */}
-            <FadeIn as="p" effect="in" delay={0.55} className="text-sm text-slate-400">
-              Hiring?{' '}
+            {/* The direct route for someone hiring: "Hiring? Check out my portfolio",
+                the briefcase leading the link so it marks what to click (owner,
+                round 7, 2026-11-09). */}
+            <FadeIn as="p" effect="in" delay={0.55} className="flex flex-wrap items-center gap-x-2 text-sm text-slate-400">
+              <span>Hiring?</span>
+              {/* Counted and in a new tab, like every Portfolio link (2026-11-08). */}
               <a
-                href="https://portfolio.n8builds.dev"
-                className="font-semibold text-cyan-300 underline decoration-cyan-300/40 underline-offset-4 transition-colors hover:text-cyan-200 hover:decoration-cyan-200"
+                href={refHref('portfolio', 'hero')}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-1.5 font-semibold text-cyan-300 transition-colors hover:text-cyan-200"
               >
-                Check out my dev portfolio
+                <FiBriefcase className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span className="underline decoration-cyan-300/40 underline-offset-4 transition-colors group-hover:decoration-cyan-200">
+                  Check out my portfolio
+                </span>
+                <span className="sr-only"> (opens in a new tab)</span>
               </a>
             </FadeIn>
 
@@ -158,10 +172,10 @@ const Hero = () => {
             <FadeIn effect="in" delay={0.65} as="nav" aria-label="Social links" className="flex items-center gap-0.5 -ml-2">
               {[
                 { href: 'https://github.com/n8watkins', label: 'GitHub', icon: <FiGithub className="w-[1.6rem] h-[1.6rem]" /> },
-                { href: 'https://linkedin.com/in/n8watkins', label: 'LinkedIn', icon: <CiLinkedin className="w-8 h-8" /> },
+                { href: LINKEDIN_URL, label: 'LinkedIn', icon: <CiLinkedin className="w-8 h-8" /> },
                 { href: 'https://x.com/n8watkins', label: 'X', icon: <FaXTwitter className="w-[1.4rem] h-[1.4rem]" /> },
               ].map(s => (
-                <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label}
+                <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={`${s.label} (opens in a new tab)`}
                   className="w-12 h-12 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/8 transition-all duration-150">
                   {s.icon}
                 </a>

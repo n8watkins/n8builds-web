@@ -108,9 +108,11 @@ test.describe('with reduced motion', () => {
   test('every link on the case study is reachable with the keyboard, with a visible focus ring', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto(PATH)
     // Number the links, so the two identical Star | GitHub pairs count apart.
+    // Only the links on screen: the build log's older months wait, folded, under "Earlier".
     const linkCount = await page.locator('main a[href]').evaluateAll((links) => {
-      links.forEach((el, i) => el.setAttribute('data-k', String(i)))
-      return links.length
+      const shown = links.filter((el) => el.checkVisibility())
+      shown.forEach((el, i) => el.setAttribute('data-k', String(i)))
+      return shown.length
     })
     const reached = new Set<string>()
     for (let i = 0; i < 120 && reached.size < linkCount; i++) {
@@ -131,7 +133,8 @@ test.describe('with reduced motion', () => {
   test('the homepage points to the case study from the Lab template part, not a featured row', async ({ page }) => {
     await page.goto('/')
     await expect(page.locator('#featured').locator(`a[href="${PATH}"]`)).toHaveCount(0)
-    const link = page.locator('#template').getByRole('link', { name: 'How it is built and tested' })
+    // "Full story" since 2026-11-08 ("How it is built and tested" before).
+    const link = page.locator('#template').getByRole('link', { name: /^Full story/ })
     await link.scrollIntoViewIfNeeded()
     await link.click()
     await expect(page).toHaveURL(new RegExp(`${PATH}$`))

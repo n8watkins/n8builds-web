@@ -1,0 +1,24 @@
+{
+  "_source": "A real Gemini answer for Stanford's upload of Steve Jobs' 2005 commencement address (youtube.com/watch?v=UF8uR6Z6KLc), captured 2026-11-09 from one run of TL;DW's no-key path (Gemini in its own tab) and read from TL;DW's summary cache; put back in the ---TLDW--- block TL;DW asks for, in the shape of a Gemini generateContent response. Played back by record-extensions.mjs so the take never calls Google.",
+  "videoId": "UF8uR6Z6KLc",
+  "model": {
+    "name": "models/gemini-3.5-flash-lite",
+    "displayName": "Gemini 3.5 Flash-Lite"
+  },
+  "generateContent": {
+    "candidates": [
+      {
+        "content": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "---TLDW---\nSUMMARY: Trust your intuition and follow your passions through uncertainty, embrace failures and mortality as catalysts for growth, and refuse to live according to other people's expectations.\nDETAILS: Life experiences only make sense in retrospect, requiring trust that current choices will eventually connect in the future. Facing major setbacks like professional rejection or mortality strips away external fears and expectations, leaving only what is truly important. Finding work you love and maintaining the curiosity of a beginner are essential to living an authentic and fulfilling life.\n---END TLDW---"
+            }
+          ]
+        },
+        "finishReason": "STOP",
+        "index": 0
+      }
+    ]
+  }
+}

@@ -1,3 +1,4 @@
+import { LINKEDIN_URL } from '@/lib/links'
 // Public-facing address shown in emails and used as the From identity. It
 // sends through Cloudflare Email Service (lib/email/send.ts), which signs mail
 // for n8builds.dev; receiving needs the Cloudflare Email Routing rule
@@ -14,7 +15,7 @@ export const EMAIL_CONFIG = {
   from: publicEmail,
   siteUrl: process.env.SITE_URL || 'https://n8builds.dev',
   siteDomain: process.env.SITE_DOMAIN || 'n8builds.dev',
-  linkedinUrl: process.env.LINKEDIN_URL || 'https://www.linkedin.com/in/n8watkins/',
+  linkedinUrl: process.env.LINKEDIN_URL || LINKEDIN_URL,
   githubUrl: process.env.GITHUB_URL || 'https://github.com/n8watkins',
   xUrl: process.env.X_URL || 'https://x.com/n8watkins',
   calUrl: process.env.CAL_URL || 'https://cal.com/n8watkins/intro',

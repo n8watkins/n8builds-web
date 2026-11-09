@@ -1,31 +1,91 @@
-import Image from 'next/image'
+import type { CSSProperties } from 'react'
 import Link from 'next/link'
 import { FiArrowUpRight } from 'react-icons/fi'
 import { LuBackpack } from 'react-icons/lu'
 import SectionMark from '@/components/ui/SectionMark'
 import AITechStack from '@/components/features/AITechStack'
-import { buildStacks } from '@/data/buildStacks'
+import { buildStacks, stackRoles, stackToolIcons, type BuildStack } from '@/data/buildStacks'
+import { devSetup, devSetupVideo } from '@/data/loadout'
+import { SiYoutube } from 'react-icons/si'
 import HomeToolsIBuilt from '@/components/sections/HomeToolsIBuilt'
 
-// Homepage "stack" section, the homepage's Loadout: first the one-line teaser
-// for my dev setup on /loadout (at the top since round 3 of 2026-11-02), then
-// the AI kit, the default build stack with one line on why each piece is in
-// it, then the tools I built and use (2026-11-01). The full generic
-// tech marquee lives on /loadout.
+// Homepage "stack" section, the homepage's Loadout: first a condensed version
+// of my dev setup on /loadout, with each piece's mark (round 8 of 2026-11-09;
+// a one-line teaser before), then the AI kit, my two default stacks with what
+// each piece does, then the tools I built and use (2026-11-01). The full
+// generic tech marquee lives on /loadout.
 
-// Why each tool is in the default stack. Keep these true to the loadout
-// (data/loadout.tsx) and the builds that use them (data/builds.tsx).
-const WHY: Record<string, { icon: string; reason: string }> = {
-  'Next.js': { icon: 'next.svg', reason: 'Every web app I make starts here: server components, and Vercel ships it.' },
-  TypeScript: { icon: 'ts.svg', reason: 'Strict mode everywhere. If it compiles, half my bugs never happened.' },
-  Turso: { icon: 'turso.svg', reason: 'SQLite at the edge, with a generous free tier: one small database that scales globally.' },
-  Drizzle: { icon: 'drizzle.png', reason: 'A type-safe ORM, so queries are checked against the schema.' },
-  'Cloudflare R2': { icon: 'cloudflare.svg', reason: 'File storage with no egress fees (where Portfolio Rank keeps its screenshots).' },
-  Vercel: { icon: 'vercel.png', reason: 'It gets new Next.js releases first, and a push to main ships itself.' },
+/**
+ * The dev setup at a glance: the pieces I touch all day, by their name in My
+ * dev setup (data/loadout.tsx, which gives each its mark), with a shorter
+ * label where the full one is long. Keep these in that list.
+ */
+const SETUP_AT_A_GLANCE: { name: string; label?: string }[] = [
+  { name: 'Windows 11 Pro', label: 'Windows 11' },
+  { name: 'Ubuntu 24.04', label: 'WSL2 Ubuntu' },
+  { name: 'Windows Terminal' },
+  { name: 'zsh + oh-my-zsh', label: 'zsh' },
+  { name: 'tmux' },
+  { name: 'herdr' },
+  { name: 'Neovim' },
+  { name: 'VS Code' },
+  { name: 'Claude Code' },
+  { name: 'Codex' },
+]
+
+const setupItems = devSetup.flatMap((tile) => tile.groups.flatMap((group) => group.items))
+const atAGlance = SETUP_AT_A_GLANCE.map(({ name, label }) => {
+  const item = setupItems.find((i) => i.name === name)
+  if (!item) throw new Error(`${name} is not in My dev setup (data/loadout.tsx)`)
+  return { name: label ?? name, icon: item.icon }
+})
+
+/** The Quick stack and the Production stack (data/buildStacks.tsx). */
+const defaults = buildStacks.filter((s) => s.id === 'quick' || s.id === 'production')
+
+const ACCENT: Record<BuildStack['accent'], string> = {
+  cyan: '#22d3ee',
+  blue: '#60a5fa',
+  sky: '#38bdf8',
+  teal: '#2dd4bf',
+  orange: '#fb923c',
 }
-export default function HomeStack() {
-  const turso = buildStacks.find((s) => s.name === 'The Turso Stack') ?? buildStacks[0]
 
+/** One default stack: its name and what it is for, then each piece with its mark and what it does there. */
+function DefaultStack({ stack }: { stack: BuildStack }) {
+  return (
+    <article
+      aria-labelledby={`default-${stack.id}-title`}
+      className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/8 bg-linear-to-b from-white/[0.04] to-white/[0.01] p-5 sm:p-6"
+      style={{ '--accent': ACCENT[stack.accent] } as CSSProperties}
+    >
+      {/* Its colour along the top edge, as on /loadout's stack cards. */}
+      <span aria-hidden="true" className="absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-(--accent)/0 via-(--accent)/70 to-(--accent)/0" />
+      <h4 id={`default-${stack.id}-title`} className="text-xl font-bold tracking-tight text-slate-50">
+        {stack.name}
+      </h4>
+      <p className="mt-0.5 text-sm font-semibold text-(--accent)">{stack.tagline}</p>
+      <ul className="mt-4 grid grid-cols-2 gap-x-3 gap-y-2.5 sm:gap-x-5" aria-label={`${stack.name}: what it is made of`}>
+        {[...stack.tools, ...stack.hosting].map((tool) => (
+          <li key={tool} className="flex min-w-0 items-center gap-2 text-sm sm:gap-2.5" data-default-tool>
+            <span
+              aria-hidden="true"
+              className="flex size-7 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-[#0a1428] sm:size-8 [&_img]:size-4 [&_svg]:size-4"
+            >
+              {stackToolIcons[tool]}
+            </span>
+            <span className="min-w-0 leading-tight">
+              <span className="block font-semibold text-slate-100">{tool}</span>
+              {stackRoles[tool] && <span className="block text-[0.8rem] text-[#9cadc5]">{stackRoles[tool]}</span>}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </article>
+  )
+}
+
+export default function HomeStack() {
   return (
     <section id="loadout" aria-label="My stack" className="py-16">
       <SectionMark
@@ -45,82 +105,72 @@ export default function HomeStack() {
       </SectionMark>
 
       {/* Each part's id is a rail stop (components/sections/HomeLoadoutNav.tsx). */}
-      {/* My dev setup first (round 3 of 2026-11-02): a one-line teaser for it on /loadout, in a quiet bar. */}
-      <p
+      {/* My dev setup first (round 3 of 2026-11-02), condensed with its marks (round 8 of 2026-11-09). */}
+      <div
         id="my-setup"
-        className="mb-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 rounded-2xl border border-white/8 bg-white/[0.02] px-4 py-3.5 text-center text-sm text-[#9cadc5]"
+        role="group"
+        aria-labelledby="my-setup-title"
+        className="mb-6 rounded-2xl border border-white/8 bg-white/[0.02] p-4 sm:p-5"
         data-setup-teaser
       >
-        <span className="font-mono text-[0.68rem] font-bold tracking-[0.16em] text-cyan-400 uppercase">My dev setup</span>
-        {/* Each pair stays on one line; the dots between them are where it wraps. */}
-        <span>
-          {['Windows 11 + WSL2', 'Claude Code + Codex', 'herdr + T-Hub'].map((pair, i) => (
-            <span key={pair}>
-              {i > 0 && ' · '}
-              <span className="whitespace-nowrap">{pair}</span>
-            </span>
+        <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+          <h3 id="my-setup-title" className="font-mono text-[0.72rem] font-bold tracking-[0.16em] text-cyan-400 uppercase">
+            My dev setup
+          </h3>
+          <Link
+            href="/loadout#dev-setup"
+            className="group inline-flex items-center gap-1 text-sm font-semibold text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 transition-colors hover:text-cyan-200"
+          >
+            See my dev setup
+            <FiArrowUpRight aria-hidden="true" className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </Link>
+        </div>
+        <p className="mt-1.5 text-sm text-[#9cadc5]">Windows 11 with WSL2, and Claude Code and Codex running side by side in herdr.</p>
+        <ul className="mt-3.5 flex flex-wrap gap-2" aria-label="My dev setup at a glance">
+          {atAGlance.map((item) => (
+            <li
+              key={item.name}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1 text-sm font-semibold text-slate-100"
+            >
+              <span aria-hidden="true" className="flex h-5 min-w-4 items-center justify-center text-slate-300 [&_img]:size-4 [&_img]:rounded-[3px] [&_svg]:size-4">
+                {item.icon}
+              </span>
+              <span className="whitespace-nowrap">{item.name}</span>
+            </li>
           ))}
-        </span>
-        <Link
-          href="/loadout#dev-setup"
-          className="group inline-flex items-center gap-1 font-semibold text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 transition-colors hover:text-cyan-200"
-        >
-          See my dev setup
-          <FiArrowUpRight aria-hidden="true" className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-        </Link>
-      </p>
+        </ul>
+        {/* The video I recommend for setting up your own (round 8 of 2026-11-09), also under /loadout's setup. */}
+        <p className="mt-3.5 border-t border-white/6 pt-3 text-sm text-[#9cadc5]">
+          Setting up your own?{' '}
+          <a
+            href={devSetupVideo.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 font-semibold text-slate-200 underline decoration-white/20 underline-offset-4 transition-colors hover:text-cyan-200"
+          >
+            <SiYoutube aria-hidden="true" className="size-3.5 shrink-0 text-[#ff4d6d]" />
+            Watch Kun Chen build his from scratch
+            <span className="sr-only"> (a video, opens in a new tab)</span>
+          </a>
+        </p>
+      </div>
 
       <div id="ai-kit">
         <AITechStack dino />
       </div>
 
-      {/* My default stack, and why each piece is in it. */}
-      <div
-        id="default-stack"
-        role="group"
-        aria-labelledby="default-stack-title"
-        className="mt-6 rounded-2xl border border-white/8 bg-linear-to-br from-cyan-500/6 via-white/2 to-transparent p-4 sm:p-6"
-      >
-        <div className="border-l-2 border-cyan-400/40 pl-4">
-          <p className="mb-1.5 text-[0.68rem] font-bold uppercase tracking-[0.16em] text-cyan-400">My default stack</p>
-          <h3 id="default-stack-title" className="text-2xl font-bold tracking-tight text-slate-50">
-            {turso.name}
-          </h3>
-          <p className="mt-0.5 text-sm font-semibold text-blue-300">My first pick for new web apps</p>
+      {/* My two default stacks (round 8 of 2026-11-09): what each piece does in it. */}
+      <div id="default-stack" role="group" aria-labelledby="default-stack-title" className="mt-6">
+        <h3 id="default-stack-title" className="mb-4 font-mono text-[0.72rem] font-bold tracking-[0.16em] text-cyan-400 uppercase">
+          My default stacks
+        </h3>
+        <div className="grid gap-4 md:grid-cols-2">
+          {defaults.map((stack) => (
+            <DefaultStack key={stack.id} stack={stack} />
+          ))}
         </div>
-        <ul className="mt-5 grid gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
-          {/* The code and where it runs: hosting is part of the stack (round 5 of 2026-11-02). */}
-          {[...turso.tools, ...turso.hosting].map((tool) => {
-            const why = WHY[tool]
-            return (
-              // A light hover on each piece: its icon grows a touch and lights up, its name turns cyan.
-              <li key={tool} className="group -m-2 flex items-start gap-3 rounded-xl p-2 transition-colors duration-200 hover:bg-white/[0.03]">
-                <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-[#0a1428] p-2 transition-all duration-200 group-hover:scale-110 group-hover:border-cyan-300/40 group-hover:shadow-[0_0_14px_-2px_rgba(34,211,238,0.35)]">
-                  {why && (
-                    <span className="relative h-full w-full">
-                      <Image
-                        src={`/projectIcons/${why.icon}`}
-                        alt=""
-                        fill
-                        sizes="40px"
-                        // The image optimizer doesn't take SVGs: serve those as they are.
-                        unoptimized={why.icon.endsWith('.svg')}
-                        style={{ objectFit: 'contain' }}
-                      />
-                    </span>
-                  )}
-                </span>
-                <div className="min-w-0">
-                  <p className="font-semibold text-slate-100 transition-colors duration-200 group-hover:text-cyan-200">{tool}</p>
-                  {why && <p className="mt-0.5 text-sm leading-snug text-[#9cadc5]">{why.reason}</p>}
-                </div>
-              </li>
-            )
-          })}
-        </ul>
       </div>
       <HomeToolsIBuilt />
-
     </section>
   )
 }

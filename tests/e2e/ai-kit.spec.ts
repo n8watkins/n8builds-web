@@ -53,14 +53,21 @@ test.describe('AI kit content', () => {
     await expect(page.locator('#loadout')).toContainText('The AI kit and stack I build with, and the tools I built for myself, all in daily use.')
   })
 
-  test('the default stack says why each piece is in it', async ({ page }) => {
+  test('the default stacks are the Quick stack and the Production stack, each piece with what it does', async ({ page }) => {
     await page.goto('/')
-    const stack = page.getByRole('group', { name: 'The Turso Stack' })
-    await expect(stack.getByText('My default stack')).toBeVisible()
-    for (const tool of ['Next.js', 'TypeScript', 'Turso', 'Drizzle', 'Cloudflare R2', 'Vercel']) {
-      await expect(stack.getByText(tool, { exact: true })).toBeVisible()
+    const stacks = page.getByRole('group', { name: 'My default stacks' })
+    await expect(stacks.getByRole('heading', { level: 4 })).toHaveText(['Quick stack', 'Production stack'])
+    const quick = stacks.getByRole('article', { name: 'Quick stack' })
+    for (const tool of ['Next.js', 'TypeScript', 'Firebase Auth', 'Vercel', 'Firestore']) {
+      await expect(quick.getByText(tool, { exact: true })).toBeVisible()
     }
-    await expect(stack.getByText(/no egress fees/)).toBeVisible()
+    const production = stacks.getByRole('article', { name: 'Production stack' })
+    for (const tool of ['OpenNext', 'Workers', 'D1', 'R2', 'Durable Objects']) {
+      await expect(production.getByText(tool, { exact: true })).toBeVisible()
+    }
+    await expect(production.getByText('Next.js on Workers')).toBeVisible()
+    // No Turso stack (round 8 of 2026-11-09), and no paragraph under either.
+    await expect(stacks).not.toContainText('Turso')
     await expect(page.getByText('TL;DR')).toHaveCount(0)
   })
 

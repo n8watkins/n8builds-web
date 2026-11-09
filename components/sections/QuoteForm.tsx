@@ -11,7 +11,7 @@ const DIRECT_EMAIL = 'contact@n8builds.dev'
 const FALLBACK_ERROR = `Something went wrong. Please try again, or email me at ${DIRECT_EMAIL}.`
 const VERIFY_ERROR = `We couldn't verify your browser (an ad or privacy blocker can cause this). Please refresh and try again, or email me at ${DIRECT_EMAIL}.`
 
-/** The anchor the top section's "Get a quote" button lands on (data/now.tsx). */
+/** The quote field's anchor: /#quote lands on it, ready to type. */
 export const QUOTE_ANCHOR = 'quote'
 
 type State =
@@ -21,13 +21,13 @@ type State =
   | { kind: 'done'; email: string }
 
 /**
- * The Tech for Pros card's quote request (round 5 of 2026-11-02): an email
+ * The Tech for Pros ad's quote request (round 5 of 2026-11-02; in "What I'm
+ * working on" since 2026-11-08, components/sections/NowBuilding.tsx): an email
  * field and "Get my quote". It posts to the contact backend (/api/contact,
  * `kind: 'techforpros-quote'`: Turnstile, honeypot, rate limits, test mode),
  * which emails the owner a quote request with the visitor's address; nothing
  * is stored. Invisible Turnstile and a hidden honeypot, as the waitlist and the
- * contact form. Arriving at #quote (the top section's "Get a quote") focuses
- * the field. A clear success state replaces the form.
+ * contact form. Arriving at #quote focuses the field. A clear success state replaces the form.
  */
 export default function QuoteForm({ turnstileSiteKey }: { turnstileSiteKey: string }) {
   const hydrated = useHydrated()
@@ -44,7 +44,7 @@ export default function QuoteForm({ turnstileSiteKey }: { turnstileSiteKey: stri
   const [widget, setWidget] = useState(0)
   const tokenWaiter = useRef<((token: string | null) => void) | null>(null)
 
-  // "Get a quote" at the top of the page (or a link to /#quote) lands here, ready to type.
+  // A link to /#quote lands here, ready to type.
   useEffect(() => {
     const focus = () => {
       if (window.location.hash === `#${QUOTE_ANCHOR}`) input.current?.focus({ preventScroll: true })
@@ -133,7 +133,7 @@ export default function QuoteForm({ turnstileSiteKey }: { turnstileSiteKey: stri
       ref={formRef}
       id={QUOTE_ANCHOR}
       noValidate
-      className="scroll-mt-28"
+      className="@container scroll-mt-28"
       aria-label="Get a Tech for Pros quote"
       data-scroll-top-avoid
       onSubmit={(e) => {
@@ -153,13 +153,14 @@ export default function QuoteForm({ turnstileSiteKey }: { turnstileSiteKey: stri
           aria-hidden="true"
         />
       </div>
-      <label
-        htmlFor="quote-email"
-        className="text-[0.7rem] font-bold tracking-[0.1em] text-slate-450 uppercase min-[400px]:tracking-[0.16em]"
-      >
+      {/* Named for screen readers only: the placeholder and the button say it (owner, round 3 of 2026-11-08). */}
+      <label htmlFor="quote-email" className="sr-only">
         Where should the quote go?
       </label>
-      <div className="mt-2 flex flex-col gap-2.5 sm:flex-row">
+      {/* The field and the button side by side where the form has room (a container
+          query, 24rem: the copy column is narrow from 1024px), stacked where it hasn't, so
+          the placeholder always has room (2026-11-08). */}
+      <div className="flex flex-col gap-2.5 @sm:flex-row @sm:gap-2">
         <input
           ref={input}
           id="quote-email"
@@ -177,7 +178,7 @@ export default function QuoteForm({ turnstileSiteKey }: { turnstileSiteKey: stri
             setEmail(e.target.value)
             setInvalid(false)
           }}
-          className={`h-11 w-full min-w-0 rounded-xl sm:w-auto sm:flex-1 border bg-[#081120] px-3.5 text-[15px] text-slate-100 placeholder:text-slate-450 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60 disabled:opacity-60 ${
+          className={`h-11 w-full min-w-0 rounded-xl @sm:w-auto @sm:flex-1 border bg-[#081120] px-3 text-[15px] text-slate-100 placeholder:text-slate-450 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60 disabled:opacity-60 ${
             invalid
               ? 'border-rose-400/70'
               : 'border-white/12 hover:border-white/20 focus:border-sky-400/60'
@@ -186,7 +187,7 @@ export default function QuoteForm({ turnstileSiteKey }: { turnstileSiteKey: stri
         <button
           type="submit"
           disabled={!hydrated || busy}
-          className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#1066f4] px-5 text-sm font-bold text-white transition-all duration-200 hover:bg-[#3b82f6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400 disabled:cursor-not-allowed disabled:opacity-70"
+          className="inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-[#1066f4] px-4 text-sm font-bold text-white transition-all duration-200 hover:bg-[#3b82f6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {busy ? 'Sending...' : 'Get my quote'}
           {!busy && <FiArrowRight aria-hidden="true" className="h-4 w-4" />}
@@ -202,9 +203,6 @@ export default function QuoteForm({ turnstileSiteKey }: { turnstileSiteKey: stri
           {state.message}
         </p>
       )}
-      <p className="mt-2 text-xs leading-relaxed text-slate-450">
-        Just your email. It comes straight to me, and this site doesn&apos;t store or share it.
-      </p>
       {/* Invisible unless Cloudflare needs a challenge; see the contact form. */}
       {turnstileSiteKey && near && (
         <Turnstile

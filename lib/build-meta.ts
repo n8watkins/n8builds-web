@@ -6,9 +6,9 @@ import type { Build } from '@/data/builds'
 
 /** The builds' own app icons, by slug. */
 export const BUILD_ICONS: Record<string, string> = {
-  voicedock: '/builds/voicedock/icon.png',
-  tldw: '/builds/tldw/icon.png',
-  tubevault: '/builds/tubevault/icon.png',
+  voicedock: '/builds/voicedock/icon.svg',
+  tldw: '/builds/tldw/icon.svg',
+  tubevault: '/builds/tubevault/icon.svg',
   scribe: '/builds/scribe/app-icon.png',
   openping: '/builds/openping/icon.svg',
   solara: '/builds/solara/icon.png',
@@ -21,6 +21,10 @@ export const BUILD_ICONS: Record<string, string> = {
   keysready: '/upcoming/keysready.svg',
   feelium: '/upcoming/feelium.svg',
   vibelog: '/upcoming/vibelog.svg',
+  cutelyaskme: '/upcoming/cutelyaskme.svg',
+  fitflow7: '/upcoming/fitflow7.svg',
+  pivot: '/upcoming/pivot.svg',
+  whoami: '/upcoming/whoami.svg',
   'release-kit': '/log/release-kit.svg',
   'pass-env': '/log/pass-env.svg',
   devguard: '/log/devguard.svg',

@@ -115,7 +115,8 @@ export default async function LivePage() {
                     PT
                   </time>
                 </span>
-                <FiExternalLink className="size-4 shrink-0 text-slate-450 group-hover:text-cyan-200" />
+                <FiExternalLink aria-hidden className="size-4 shrink-0 text-slate-450 group-hover:text-cyan-200" />
+                <span className="sr-only"> (opens in a new tab)</span>
               </a>
             </FadeIn>
           )}

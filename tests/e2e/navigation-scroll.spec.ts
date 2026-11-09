@@ -9,7 +9,8 @@ import { test, expect } from '@playwright/test'
 test('a post opened from the homepage starts at its top, without scrolling up to it', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
   await page.goto('/')
   const strip = page.locator('#notions')
-  const link = strip.locator('a[href^="/blog/"]').first()
+  // The first link showing: phones list the notes as compact rows, wider screens as cards.
+  const link = strip.locator('a[href^="/blog/"]:visible').first()
   // Centre the link itself, as a visitor would see it before tapping. Scrolling
   // only the strip into view can leave the link's middle under the sticky
   // navbar on phones; the click then scrolls the page first (Playwright's

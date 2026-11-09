@@ -1,11 +1,12 @@
 import type { CSSProperties, ReactNode } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { FiGitPullRequest, FiPackage, FiPlusSquare } from 'react-icons/fi'
+import { FiGitPullRequest, FiPackage, FiPlay, FiPlusSquare } from 'react-icons/fi'
 import { LuExternalLink, LuGlobe, LuUsers } from 'react-icons/lu'
 import { SiGithub, SiSubstack, SiX, SiYoutube } from 'react-icons/si'
 import {
   devSetup,
+  devSetupVideo,
   loadoutPart,
   loadoutParts,
   people,
@@ -93,6 +94,7 @@ const textLink =
 const External = ({ link }: { link: NamedLink }) => (
   <a href={link.href} target="_blank" rel="noopener noreferrer" className={textLink}>
     {link.name}
+    <span className="sr-only"> (opens in a new tab)</span>
   </a>
 )
 
@@ -202,10 +204,10 @@ export const BuiltToolsGrid = ({
             <div className={column}>
               <Sub
                 id={`built-${group.id}-title`}
-                className="mb-5 flex items-center gap-3 font-mono text-xs font-bold tracking-[0.16em] text-cyan-300 uppercase"
+                // No rule after it (round 8 of 2026-11-09: it read as an underline under the blurb above).
+                className="mb-5 font-mono text-xs font-bold tracking-[0.16em] text-cyan-300 uppercase"
               >
                 {group.title}
-                <span aria-hidden="true" className="h-px flex-1 bg-linear-to-r from-cyan-300/25 to-transparent" />
               </Sub>
             </div>
             {group.id === 'dev' && lead && <div className="mb-8 md:mb-10">{lead}</div>}
@@ -277,6 +279,7 @@ const ToolItem = ({ tool }: { tool: UsedTool }) => {
               , by{' '}
               <a href={tool.maker.href} target="_blank" rel="noopener noreferrer" className={makerLink}>
                 {tool.maker.name}
+                <span className="sr-only"> (opens in a new tab)</span>
               </a>
             </>
           )}
@@ -372,7 +375,7 @@ const SetupChip = ({ entry }: { entry: SetupEntry }) => {
 export const DevSetup = () => (
   <section aria-labelledby="dev-setup-title">
     <SectionHead id="dev-setup-title" part="dev-setup" path="~/loadout/dev-setup" title="My dev setup">
-      Windows 11 with WSL2, Claude Code and Codex, and the tools around them.
+      Windows 11 with WSL2, and Claude Code and Codex in herdr.
     </SectionHead>
     <ul id="setup-tiles" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {devSetup.map((tile, i) => {
@@ -418,8 +421,51 @@ export const DevSetup = () => (
       })}
     </ul>
     <SetupTilesMotion gridId="setup-tiles" />
+    <SetupVideo />
   </section>
 )
+
+/**
+ * Under the setup (owner, round 8 of 2026-11-09): the video I recommend for
+ * setting up your own, Kun Chen building his from scratch, as a card with its
+ * thumbnail (the whole card is the link, to YouTube in a new tab).
+ */
+const SetupVideo = () => {
+  const by = people.find((p) => p.id === devSetupVideo.by)!
+  return (
+    <a
+      href={devSetupVideo.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      data-setup-video
+      className="group mt-6 grid items-center gap-4 rounded-2xl border border-white/8 bg-linear-to-r from-cyan-400/[0.06] via-white/[0.02] to-transparent p-4 transition-colors duration-200 hover:border-cyan-300/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 sm:grid-cols-[minmax(0,16rem)_minmax(0,1fr)] sm:gap-6 sm:p-5"
+    >
+      <span className="relative block aspect-video overflow-hidden rounded-xl ring-1 ring-white/10">
+        <Image src={devSetupVideo.thumbnail} alt="" fill sizes="(min-width: 640px) 256px, 100vw" className="object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none" />
+        {/* A small play mark in the corner, clear of the thumbnail's own words and face. */}
+        <span aria-hidden="true" className="absolute bottom-2 left-2 flex">
+          <span className="flex h-7 w-10 items-center justify-center rounded-lg bg-[#ff0033] text-white shadow-lg shadow-black/40 transition-transform group-hover:scale-110 motion-reduce:transition-none [&_svg]:size-3.5">
+            <FiPlay className="fill-current" />
+          </span>
+        </span>
+      </span>
+      <span className="min-w-0">
+        <span className="block font-mono text-xs font-bold tracking-[0.16em] text-cyan-300 uppercase">Setting up your own?</span>
+        <span className="mt-1.5 block text-lg leading-snug font-bold text-slate-50 group-hover:text-cyan-100">
+          Watch {by.name} build his agentic dev environment from scratch
+        </span>
+        <span className="mt-1.5 block text-sm leading-relaxed text-pretty text-[#9cadc5]">
+          The video I point people to: {devSetupVideo.covers.slice(0, -1).join(', ')} and {devSetupVideo.covers.at(-1)}, step by step, all reproducible.
+        </span>
+        <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 group-hover:text-cyan-200">
+          {devSetupVideo.title}, on YouTube
+          <LuExternalLink aria-hidden="true" className="size-3.5" />
+        </span>
+        <span className="sr-only"> (a video by {by.name}, opens in a new tab)</span>
+      </span>
+    </a>
+  )
+}
 
 const LINKS: Record<PersonLink['kind'], { label: string; icon: ReactNode }> = {
   youtube: { label: 'YouTube', icon: <SiYoutube /> },
@@ -459,6 +505,7 @@ const RecentActivity = ({ person }: { person: Person }) => {
               <span className="ml-1.5 font-mono text-xs text-slate-450">
                 {item.repo} · <time dateTime={item.date}>{activityDate(item.date)}</time>
               </span>
+              <span className="sr-only"> (opens in a new tab)</span>
             </a>
           </li>
         ))}
@@ -496,9 +543,18 @@ export const PersonCard = ({ person }: { person: Person }) => (
         <p className="mt-0.5 text-sm leading-snug text-slate-300">{person.role}</p>
       </div>
     </div>
-    <p className="text-[15px] leading-relaxed text-pretty text-[#9cadc5]">{person.note}</p>
+    {/* The same shape on every card (round 8 of 2026-11-09): a short note, then a
+        second short paragraph a line apart, four or five lines in all with the role. */}
+    <p className="text-[15px] leading-relaxed text-pretty text-[#9cadc5]" data-person-note>
+      {person.note}
+    </p>
+    {person.more && (
+      <p className="-mt-1 text-sm leading-relaxed text-pretty text-slate-400" data-person-more>
+        {person.more}
+      </p>
+    )}
     {person.howTheyWork && (
-      <p className="-mt-1 text-sm leading-relaxed text-slate-400">
+      <p className="-mt-1 text-sm leading-relaxed text-slate-400" data-person-more>
         <a href={person.howTheyWork.href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-semibold whitespace-nowrap text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 hover:text-cyan-200">
           <span aria-hidden="true" className="[&_svg]:h-3.5 [&_svg]:w-3.5">
             <SiYoutube />
@@ -506,7 +562,7 @@ export const PersonCard = ({ person }: { person: Person }) => (
           Check out how he works
           <span className="sr-only"> (a video, opens in a new tab)</span>
         </a>{' '}
-        for more on his setup.
+        for more on his{'\u00a0'}setup.
       </p>
     )}
     <RecentActivity person={person} />

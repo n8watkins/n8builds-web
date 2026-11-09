@@ -2,8 +2,8 @@ import { test, expect } from '@playwright/test'
 
 /**
  * Tech for Pros (the owner's SaaS for service businesses) took over from
- * Appturnity on 2026-11-01: "What I'm working on" is its ad, the work-with-me
- * card and the contact card name it. The site links to it everywhere
+ * Appturnity on 2026-11-01: "What I'm working on" is its ad (with the quote
+ * request since 2026-11-08) and the contact card names it. The site links to it everywhere
  * (2026-11-01): the navbar, the cards, the contact card and the footer, each
  * through the counted n8builds.dev/techforpros short link, and nothing links
  * to Appturnity any more (n8builds.dev/appturnity still redirects).
@@ -19,12 +19,11 @@ test("Tech for Pros' buttons take Appturnity's place, and nothing links to Apptu
   )
   // Every link to it is counted: none goes straight to techforpros.com.
   await expect(page.locator('a[href*="techforpros.com"]')).toHaveCount(0)
-  // The navbar, the contact card and the footer; the Work with me card links out only once
-  // techforpros.com is live (TECH_FOR_PROS_LINKS.siteLive, round 5 of 2026-11-02).
-  expect(await page.locator('a[href^="/techforpros"]').count()).toBeGreaterThanOrEqual(3)
+  // The navbar, the ad (its heading and "Don't see yours?", to its templates), the contact card and the footer.
+  expect(await page.locator('a[href^="/techforpros"]').count()).toBeGreaterThanOrEqual(5)
   await expect(page.locator('a[href*="appturnity"]')).toHaveCount(0)
   // Live: nothing says it is on its way (only more templates are, round 3 of 2026-11-02).
-  for (const part of ['#now', '#work-with-me', '#contact'])
+  for (const part of ['#now', '#contact'])
     await expect(page.locator(part), part).not.toContainText(/(?<!templates )coming soon|launching soon|will soon/i)
 })
 
@@ -38,22 +37,15 @@ test('"What I\'m working on" advertises Tech for Pros for service businesses', a
   await expect(page.getByRole('link', { name: 'Check out the lab' })).toHaveCount(0)
 })
 
-test('the project-work card is Tech for Pros, with its quote request', async ({ page }) => {
+test('the Work with me section is gone, and the contact card offers Tech for Pros to any business', async ({ page }) => {
   await page.goto('/')
-  // Its links, layout and quote form are in work-with-me.spec.ts.
-  const card = page.locator('#work-with-me').getByRole('article', { name: /Run a service business\? Websites built for pros\./ })
-  await card.scrollIntoViewIfNeeded()
-  await expect(card.getByRole('button', { name: /Get my quote/ })).toBeVisible()
-  await expect(card).not.toContainText(/free website/i)
-})
-
-test('the contact card names Tech for Pros for service businesses, not consulting', async ({ page }) => {
-  await page.goto('/')
+  await expect(page.locator('#work-with-me')).toHaveCount(0)
+  await expect(page.getByText('Two ways to put me to work')).toHaveCount(0)
   // The card's intro, next to the contact form (whose Topic menu is separate).
-  const intro = page.locator('#contact p', { hasText: 'Run a service business?' })
+  const intro = page.locator('#contact p', { hasText: 'Need technical help with your business?' })
   await intro.scrollIntoViewIfNeeded()
-  await expect(intro).not.toContainText(/consulting/i)
-  await expect(intro).toContainText(/Tech for Pros( \(opens in a new tab\))? puts your business online/)
+  await expect(intro).not.toContainText(/consulting|service business/i)
+  await expect(intro).toContainText(/Tech for Pros( \(opens in a new tab\))? can help\./)
   await expect(intro.getByRole('link', { name: /Tech for Pros/ })).toHaveAttribute('href', '/techforpros?from=footer')
 })
 
@@ -64,7 +56,7 @@ test('the footer has a sitemap and the public contact address', { tag: '@smoke' 
   await expect(footer).not.toContainText('The Consulting Studio')
   await expect(footer.locator('#apt-grad')).toHaveCount(0)
   const sitemap = footer.getByRole('navigation', { name: 'Sitemap' })
-  for (const name of ['Featured builds', 'Build log', 'Notions', 'Developer portfolio', 'Privacy']) {
+  for (const name of ['Featured builds', 'Full build log', 'Notions', 'Developer portfolio', 'Privacy']) {
     await expect(sitemap.getByRole('link', { name: new RegExp(name) }), name).toBeAttached()
   }
   await expect(sitemap.getByRole('link', { name: /Appturnity/ })).toHaveCount(0)

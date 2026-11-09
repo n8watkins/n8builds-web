@@ -1,29 +1,26 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { FiArrowUpRight } from 'react-icons/fi'
+import { FiArrowUpRight, FiCheck, FiGithub, FiStar } from 'react-icons/fi'
+import { formatStars, repoStars } from '@/lib/github-stars'
 import Reveal from '@/components/ui/Reveal'
 import LabSubheader from '@/components/sections/LabSubheader'
-import BuildLogMonths, {
-  LogMonthLine,
-  LogMonthProvider,
-  type LogMonth,
-} from '@/components/sections/BuildLogMonths'
+import { ScrollIcon } from '@/components/ui/PartIcons'
+import BuildLogMonths, { LogMonthProvider, type LogMonth } from '@/components/sections/BuildLogMonths'
+import LogRow from '@/components/log/LogRow'
 import { allBuilds, dayKey, getBuildLog, monthLabel, type LogEntry } from '@/lib/build-log'
-import { BUILD_ICONS } from '@/lib/build-meta'
 import { dailyCounts, shippedStats } from '@/lib/log-stats'
 
 // The homepage's compact build log: the newest month of /builds at a glance.
-// The month's updates as rows, a page of them at a time, moving on every few
-// seconds (BuildLogPages), and a card that cycles through the month's figures
-// (ShippedStats), with arrows back to the months before (BuildLogMonths, round 5
-// of 2026-11-02). Rendered on the server from the same hourly-cached GitHub log
+// Its updates two at a time, moving on one by one through the month
+// (LatestUpdates, round 4 of 2026-11-08), a card that cycles through the month's figures (ShippedStats),
+// with arrows back to the months before (BuildLogMonths, round 5 of 2026-11-02;
+// /builds shows the same card). Rendered on the server from the same hourly-cached GitHub log
 // as /builds (lib/build-log.ts), so the page stays static; only the pages' and
 // the figures' timers run in the browser. If the log can't be read at all, the
 // strip is left out; it never breaks the page.
 //
-// It is the Lab's first part (the owner's ask, 2026-11-02: "Build log should be
-// at the top of the lab"), in its own green wash, right under the Lab's intro.
-// It reads as a log (mono dates, the feed's timeline dots), not an ad.
+// It sits right under "What I'm working on" (2026-11-08), in its own green wash.
+// It reads as a log (mono dates, build icons), not an ad.
 
 /** A quiet month's card covers this many days back instead. */
 const QUIET_DAYS = 30
@@ -45,11 +42,6 @@ function pickRows(entries: LogEntry[], latestOnly = false): LogEntry[] {
   return rows
 }
 
-/** The words a row is announced by when someone pages to it: build, then title. */
-function rowLabel(entry: LogEntry): string {
-  return `${names[entry.build] ?? entry.build}, ${entry.title}`
-}
-
 /** `YYYY-MM-DD`, `days` days before `day`. */
 function daysBefore(day: string, days: number): string {
   const d = new Date(`${day}T12:00:00Z`)
@@ -63,122 +55,119 @@ function lastDayOf(month: string): string {
   return new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10)
 }
 
-function Row({ entry }: { entry: LogEntry }) {
-  const name = names[entry.build] ?? entry.build
-  const icon = BUILD_ICONS[entry.build]
-  const version = entry.kind === 'release' ? /^Shipped (v\S+)$/.exec(entry.title)?.[1] : undefined
-  // The row's link is named by the build and the entry ("Solara: Setup: centered steps..."), not the build alone.
-  const id = `strip-${entry.id.replace(/[^\w-]/g, '-')}`
-  return (
-    <div className="group relative flex items-start gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-white/[0.04] sm:items-center sm:gap-3.5">
-      {icon ? (
-        <Image
-          src={icon}
-          alt=""
-          width={32}
-          height={32}
-          unoptimized={icon.endsWith('.svg')}
-          className="mt-0.5 h-8 w-8 shrink-0 rounded-lg sm:mt-0"
-        />
-      ) : (
-        <span
-          aria-hidden
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/6 font-mono text-xs text-slate-300"
-        >
-          {name.charAt(0)}
-        </span>
-      )}
-      <div className="min-w-0 flex-1">
-        <p className="font-mono text-[0.7rem] font-semibold uppercase tracking-wider text-slate-400">
-          {/* Stretched over the row: it opens this build's part of the full log. */}
-          <Link
-            href={`/builds?build=${entry.build}`}
-            aria-labelledby={`${id}-build ${id}-title`}
-            className="after:absolute after:inset-0 after:rounded-xl after:content-[''] focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-cyan-400/60"
-          >
-            <span id={`${id}-build`}>{name}</span>
-          </Link>
-          {/* Phones: the date rides on this line, so the title gets the width. */}
-          <span className="font-normal text-slate-475 sm:hidden">
-            {' '}
-            / <span className="text-slate-450">{entry.dayLabel}</span>
-          </span>
-        </p>
-        <p
-          id={`${id}-title`}
-          className="line-clamp-2 text-[0.95rem] sm:line-clamp-none sm:truncate font-semibold leading-snug text-slate-100 transition-colors group-hover:text-cyan-100"
-        >
-          {version ? (
-            <>
-              Shipped <span className="font-mono text-[0.92em] text-cyan-300">{version}</span>
-              {entry.detail && (
-                <span className="font-normal text-[#9cadc5]"> - {entry.detail}</span>
-              )}
-            </>
-          ) : (
-            entry.title
-          )}
-        </p>
-      </div>
-      <time
-        dateTime={entry.date}
-        className="hidden shrink-0 self-start pt-0.5 font-mono sm:block text-[0.7rem] uppercase tracking-wider text-slate-450"
-      >
-        {entry.dayLabel}
-      </time>
-    </div>
-  )
-}
-
 const RELEASE_KIT = 'https://github.com/n8watkins/release-kit'
 
+/** What release-kit sets up, in a few words each (its README, 2026-11-09). */
+const RELEASE_KIT_POINTS = [
+  'Checks every commit message',
+  'Picks each version for you',
+  'Writes the notes, and this log',
+  'Briefs your coding agents too',
+]
+
+/** Its one-command install, as its README gives it (npm 12 needs --allow-git). */
+const RELEASE_KIT_INSTALL = 'npx --allow-git=root github:n8watkins/release-kit .'
+
 /**
- * Under the log, a small ad for what writes it (round 5 of 2026-11-02): every
- * project here runs release-kit, so its Conventional Commits and releases
- * become this log on their own. One line of pitch and a link to the repo.
+ * Beside the log, an ad for what writes it (round 5 of 2026-11-02; a column of
+ * the card since round 4 of 2026-11-08; a product ad, not a note, since round 6
+ * of 2026-11-09): every project here runs release-kit, so its commits become
+ * versions, release notes and this log on their own. Round 8 of 2026-11-09
+ * (owner: "more information about what it does, so people want to try it"):
+ * its mark and name, the headline, what it sets up as four checks, the
+ * one-command install, and "Get release-kit" with its live star count beside
+ * it (lib/github-stars.ts, the same hourly count as the Lab's Star buttons;
+ * just the star while there is none). Stacked in the card's third column from
+ * 1024px; across the card's foot below that, in two columns from 768px.
  */
-function ReleaseKitAd() {
+async function ReleaseKitAd() {
+  const stars = await repoStars('n8watkins/release-kit')
   return (
     <aside
-      aria-labelledby="release-kit-ad"
-      className="mt-4 flex flex-col gap-3 rounded-2xl border border-white/8 bg-linear-to-r from-cyan-400/[0.06] via-white/[0.02] to-transparent px-4 py-3.5 sm:flex-row sm:items-center sm:gap-4 sm:px-5"
+      aria-labelledby="release-kit-name release-kit-ad"
+      className="relative flex h-full flex-col justify-center gap-3 overflow-hidden bg-linear-to-b from-cyan-400/[0.07] via-cyan-400/[0.025] to-transparent px-5 py-4 sm:py-5 md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,18rem)] md:items-center md:gap-x-8 lg:flex lg:items-stretch lg:px-5"
     >
-      <div className="flex min-w-0 flex-1 items-start gap-3 sm:items-center">
-        <Image
-          src="/log/release-kit.svg"
-          alt=""
-          width={36}
-          height={36}
-          unoptimized
-          className="h-9 w-9 shrink-0 rounded-lg"
-        />
-        <p className="min-w-0 text-sm leading-snug text-[#9cadc5]">
-          <span id="release-kit-ad" className="font-semibold text-slate-100">
-            This log writes itself, with{' '}
-            <span className="font-mono whitespace-nowrap text-cyan-300">release-kit</span>.
-          </span>{' '}
-          Write Conventional Commits and it cuts the versions, release notes and every update above.
-          No changelog to keep by hand: one command adds it to any repo.
+      {/* A soft glow behind the mark, so the column reads as its own little product. */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -top-16 -left-10 h-40 w-40 rounded-full bg-[radial-gradient(closest-side,rgb(34_211_238/0.16),transparent)]"
+      />
+      <div className="relative flex flex-col gap-2 md:row-span-2 lg:row-span-1">
+        <p className="flex items-center gap-2.5">
+          <Image src="/log/release-kit.svg" alt="" width={32} height={32} unoptimized className="h-8 w-8 shrink-0 rounded-lg" />
+          <span className="min-w-0">
+            <span id="release-kit-name" className="block font-mono text-[0.95rem] leading-tight font-bold whitespace-nowrap text-cyan-300">
+              release-kit
+            </span>
+            <span className="block text-[0.68rem] font-semibold tracking-[0.12em] text-slate-400 uppercase">Open source · MIT</span>
+          </span>
         </p>
+        <h4 id="release-kit-ad" className="text-[0.95rem] leading-snug font-bold text-balance text-slate-50">
+          Releases that{' '}
+          <span className="bg-linear-to-r from-cyan-300 to-emerald-300 bg-clip-text text-transparent">write themselves</span>
+        </h4>
+        <ul className="mt-0.5 flex flex-col gap-1" aria-label="What release-kit sets up">
+          {RELEASE_KIT_POINTS.map((point) => (
+            <li key={point} className="flex items-start gap-1.5 text-[13px] leading-snug text-slate-200">
+              <FiCheck aria-hidden="true" className="mt-[3px] h-3.5 w-3.5 shrink-0 text-emerald-300" />
+              {point}
+            </li>
+          ))}
+        </ul>
       </div>
-      <a
-        href={RELEASE_KIT}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="group flex shrink-0 items-center justify-center gap-2 self-stretch rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-200 transition-all duration-200 hover:border-cyan-400/40 hover:bg-white/8 hover:text-cyan-200 sm:self-auto"
-      >
-        Get release-kit
-        <FiArrowUpRight
-          className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-          aria-hidden="true"
-        />
-        <span className="sr-only"> on GitHub (opens in a new tab)</span>
-      </a>
+
+      <div className="relative flex flex-col gap-2">
+        <p className="text-[13px] leading-snug text-[#9cadc5]">Set it up with one command:</p>
+        {/* The install itself, selectable as one line where it fits, broken at its spaces where it doesn't. */}
+        <pre
+          className="overflow-hidden rounded-lg border border-white/10 bg-[#07101d]/80 px-2.5 py-1.5 font-mono text-[0.7rem] leading-relaxed whitespace-pre-wrap text-slate-200"
+          aria-label="Install it with one command"
+          data-release-kit-install
+        >
+          <span aria-hidden="true" className="text-emerald-300 select-none">$ </span>
+          {RELEASE_KIT_INSTALL}
+        </pre>
+        {/* Get it, then its stars: the get link first, so it follows the updates from the keyboard. */}
+        <div className="flex items-stretch md:w-full lg:w-auto">
+          <a
+            href={RELEASE_KIT}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group btn-shimmer flex flex-1 items-center justify-center gap-1.5 rounded-l-xl bg-linear-to-r from-cyan-500 to-emerald-400 px-2.5 py-2 text-[13px] font-semibold whitespace-nowrap text-slate-950 transition-colors hover:from-cyan-400 hover:to-emerald-300 focus-visible:relative focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300"
+          >
+            <FiGithub className="h-4 w-4 shrink-0" aria-hidden="true" />
+            Get release-kit
+            <span className="sr-only"> on GitHub (opens in a new tab)</span>
+          </a>
+          <a
+            href={RELEASE_KIT}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group/star -ml-px flex items-center gap-1.5 rounded-r-xl border border-amber-300/35 bg-amber-300/[0.08] px-2.5 text-sm font-semibold text-amber-200 transition-colors hover:border-amber-300/55 hover:bg-amber-300/[0.15] focus-visible:relative focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300"
+          >
+            <FiStar className="h-3.5 w-3.5 shrink-0 transition-[fill] group-hover/star:fill-current" aria-hidden="true" />
+            {stars !== null && stars > 0 ? (
+              <span aria-hidden="true" className="tabular-nums" data-stars>
+                {formatStars(stars)}
+              </span>
+            ) : null}
+            <span className="sr-only">
+              Star release-kit on GitHub{stars ? `, ${stars} ${stars === 1 ? 'star' : 'stars'}` : ''} (opens in a new tab)
+            </span>
+          </a>
+        </div>
+      </div>
     </aside>
   )
 }
 
-export default async function BuildLogStrip() {
+/**
+ * The build log's months for the card (and the homepage's latest rows): this
+ * month (or a quiet month's last 30 days), then each month before it with
+ * something shipped, back to the feed's 12-month window. Null when the log
+ * can't be read or is empty. Shared with /builds, which shows the same card.
+ */
+export async function getLogMonths(): Promise<LogMonth[] | null> {
   let entries: LogEntry[]
   let asOf: string
   let recentFrom: string | null
@@ -194,12 +183,8 @@ export default async function BuildLogStrip() {
   const thisMonth = entries.filter((e) => e.month === current)
   const isThisMonth = thisMonth.length >= MONTH_MIN
   const today = dayKey(asOf)
-  const year = current.slice(0, 4)
-  // "October", or "December 2025" for another year.
-  const shortName = (month: string) => monthLabel(month).replace(` ${year}`, '')
   const view = (rows: LogEntry[]) => ({
-    rows: rows.map((entry) => <Row key={entry.id} entry={entry} />),
-    labels: rows.map(rowLabel),
+    rows: rows.map((entry) => <LogRow key={entry.id} entry={entry} twoLines />),
   })
 
   // The first view: this month, or in a quiet one the last 30 days (the latest from every build).
@@ -207,7 +192,8 @@ export default async function BuildLogStrip() {
   const firstPeriod = isThisMonth ? thisMonth : entries.filter((e) => e.day >= cutoff)
   const first: LogMonth = {
     id: isThisMonth ? current : 'recent',
-    period: isThisMonth ? shortName(current) : `Last ${QUIET_DAYS} days`,
+    // With its year, so the arrows' wrap from the oldest month to the newest is plain (round 4 of 2026-11-08).
+    period: isThisMonth ? monthLabel(current) : `Last ${QUIET_DAYS} days`,
     name: isThisMonth ? monthLabel(current) : `the last ${QUIET_DAYS} days`,
     stats: shippedStats(firstPeriod, entries, asOf, names),
     // Every day of the month (the days still to come as empty slots), or a quiet month's last 30 days.
@@ -215,8 +201,7 @@ export default async function BuildLogStrip() {
       ? dailyCounts(firstPeriod, `${current}-01`, lastDayOf(current), today)
       : dailyCounts(firstPeriod, cutoff, today, today),
     ...view(isThisMonth ? pickRows(thisMonth) : pickRows(entries, true)),
-    listLabel: isThisMonth ? 'Updates this month' : 'Recent updates',
-    line: isThisMonth ? 'Shipped this month' : `Shipped in the last ${QUIET_DAYS} days`,
+    listLabel: isThisMonth ? 'Latest this month' : 'Latest updates',
   }
   // Then each month before it with something shipped, back to the /builds feed's 12-month window
   // (round 5 of 2026-11-02): the same card and rows, for that whole month.
@@ -227,39 +212,38 @@ export default async function BuildLogStrip() {
       const period = entries.filter((e) => e.month === m)
       return {
         id: m,
-        period: shortName(m),
+        period: monthLabel(m),
         name: monthLabel(m),
         stats: shippedStats(period, entries, asOf, names, { streak: false }),
         days: dailyCounts(period, `${m}-01`, lastDayOf(m), today),
         ...view(pickRows(period)),
-        listLabel: `Updates in ${monthLabel(m)}`,
-        line: `Shipped in ${shortName(m)}`,
+        listLabel: `Latest in ${monthLabel(m)}`,
       }
     })
 
-  const months = [first, ...earlier]
+  return [first, ...earlier]
+}
+
+export default async function BuildLogStrip() {
+  const months = await getLogMonths()
+  if (!months) return null
 
   return (
-    // A full-bleed part of the Lab in its own green wash (`.lab-accent-buildlog` in
-    // app/globals.css), owned here so that a missing log leaves no empty part behind.
-    // The provider shares the month the card shows with the line under the heading.
-    <LogMonthProvider lines={months.map((m) => m.line)}>
+    // A full-bleed band under "What I'm working on" (owner, 2026-11-08) in its own green
+    // wash (`.lab-accent-buildlog` in app/globals.css), close under it with no hairline
+    // (round 3: the gap read as a big break); owned here so that a missing log leaves no
+    // empty band behind.
+    <LogMonthProvider>
       <section
         id="build-log"
         aria-labelledby="build-log-heading"
-        className="lab-accent-buildlog lab-part-wash py-12"
+        className="lab-accent-buildlog lab-part-wash relative z-10 pt-2 pb-12 md:pt-4"
       >
-        <div className="mx-auto max-w-6xl px-5 sm:px-8">
+        <div className="mx-auto max-w-site px-5 sm:px-8">
           <Reveal>
             <div className="flex flex-wrap items-end justify-between gap-x-6">
-              {/* "Build log" is the heading (round 5 of 2026-11-02, no eyebrow); the
-                 line under it names the month the card shows and follows its arrows. */}
-              <LabSubheader
-                id="build-log-heading"
-                title="Build log"
-                kicker={<LogMonthLine className="text-emerald-300" />}
-                blurb="What changed across my builds lately, pulled from GitHub."
-              />
+              {/* "Build log" is the heading; the month is named once, on the card (round 4 of 2026-11-08). */}
+              <LabSubheader id="build-log-heading" title="Build log" icon={<ScrollIcon />} />
               <Link
                 href="/builds"
                 className="group mb-8 -mt-3 flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:border-cyan-400/40 hover:bg-white/8 hover:text-cyan-200 sm:mt-0"
@@ -269,8 +253,8 @@ export default async function BuildLogStrip() {
               </Link>
             </div>
 
-            <BuildLogMonths months={months} />
-            <ReleaseKitAd />
+            {/* Month card | its updates | release-kit, side by side from 1024px. */}
+            <BuildLogMonths months={months} aside={<ReleaseKitAd />} />
           </Reveal>
         </div>
       </section>

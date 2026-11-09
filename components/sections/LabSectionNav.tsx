@@ -1,8 +1,7 @@
 'use client'
 
-import { LuCookingPot, LuScrollText, LuStar } from 'react-icons/lu'
-import { SiGooglechrome } from 'react-icons/si'
 import BubblingFlask from '@/components/ui/BubblingFlask'
+import { PotIcon, PuzzleIcon, StarIcon } from '@/components/ui/PartIcons'
 import SectionRail, { type RailPart } from '@/components/ui/SectionRail'
 
 /**
@@ -13,27 +12,27 @@ import SectionRail, { type RailPart } from '@/components/ui/SectionRail'
  * the middle of the window.
  */
 const SECTIONS: readonly RailPart[] = [
-  // The build log (components/sections/BuildLogStrip.tsx); left out when the log can't load.
-  { id: 'build-log', label: 'Build log', icon: LuScrollText },
-  { id: 'featured', label: 'Featured', icon: LuStar },
+  // Each part's animated icon (components/ui/PartIcons.tsx), which plays as its
+  // part becomes the current one. The build log sits above the Lab since
+  // 2026-11-08, so it is not a part here.
+  { id: 'featured', label: 'Featured', icon: StarIcon },
   // Shortened to "Extensions" on screen where the gutter is too narrow for
   // the full label on one line (1440-1535px); its accessible name stays whole.
   {
     id: 'extensions',
     label: 'Chrome Extensions',
     short: 'Extensions',
-    icon: SiGooglechrome,
-    iconSize: 'size-3 min-[110rem]:size-3.5',
+    icon: PuzzleIcon,
   },
   // What's next (components/sections/UpcomingStrip.tsx); "Upcoming" where the gutter is narrow.
-  { id: 'upcoming', label: "What's cookin'", short: 'Upcoming', icon: LuCookingPot },
+  { id: 'upcoming', label: "What's cookin'", short: 'Upcoming', icon: PotIcon },
 ]
 
 const HEADING = { icon: <BubblingFlask className="size-7 text-cyan-300" />, title: 'The Lab' }
 
 /**
  * The Lab's floating side nav (components/ui/SectionRail.tsx): "The Lab",
- * with the Lab's flask, over Build log, Featured, Chrome Extensions and What's cookin'. Desktop
+ * with the Lab's flask, over Featured, Chrome Extensions and What's cookin'. Desktop
  * only (from 1280px), in the left gutter beside the Lab's content column.
  */
 export default function LabSectionNav() {

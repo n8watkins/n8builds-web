@@ -1,17 +1,19 @@
 'use client'
 import type { ReactNode } from 'react'
 import { CONTACT_PRESET_EVENT, isContactPresetId } from '@/lib/contactPresets'
+import { isOutbound } from '@/lib/referrals'
 
 /**
  * A link that may lead into the contact form with a preset (lib/contactPresets.ts),
  * `/?inquiry=<id>#contact`: a real link, so it works before hydration and from
  * any page; on a page that has the form, it fills the form in place and
  * scrolls to it instead of reloading. Any other href is an ordinary link
- * (a new tab when it leaves the site).
+ * (a new tab when it leaves the site, and it says so to screen readers).
  */
 export default function ContactPresetLink({ href, className, children }: { href: string; className?: string; children: ReactNode }) {
   const url = new URL(href, 'https://n8builds.dev')
-  const internal = href.startsWith('/')
+  // A counted short link (/techforpros?from=...) leaves the site too.
+  const internal = href.startsWith('/') && !isOutbound(href)
   const preset = internal ? url.searchParams.get('inquiry') : null
   return (
     <a
@@ -30,6 +32,7 @@ export default function ContactPresetLink({ href, className, children }: { href:
       }}
     >
       {children}
+      {!internal && <span className="sr-only"> (opens in a new tab)</span>}
     </a>
   )
 }

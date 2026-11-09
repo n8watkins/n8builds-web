@@ -161,7 +161,6 @@ describe('one icon per tool of mine, everywhere', () => {
       ['pass-env', 'pass-env'],
       ['release-kit', 'release-kit'],
       ['N8 Tray', 'n8-tray'],
-      ['T-Hub', 't-hub'],
     ] as const) {
       const chip = setupItems.find((i) => i.name === name)
       expect(chip, name).toBeDefined()
@@ -170,7 +169,7 @@ describe('one icon per tool of mine, everywhere', () => {
   })
 
   it('never lends one of those marks to anything else', () => {
-    const own = new Set(['devguard', 'pass-env', 'release-kit', 'N8 Tray', 'T-Hub', 'pr-post'])
+    const own = new Set(['devguard', 'pass-env', 'release-kit', 'N8 Tray', 'pr-post'])
     const others = [
       ...setupItems.filter((i) => !own.has(i.name)).map((i) => [i.name, i.icon] as const),
       ...loadout.flatMap((g) => g.items).map((i) => [i.name, i.icon] as const),

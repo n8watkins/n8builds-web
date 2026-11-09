@@ -5,8 +5,8 @@ import { getRecentPosts, type Post } from '@/lib/sanity'
 
 export const metadata = pageMetadata({
   title: 'n8builds | Public Builder Lab',
-  description: 'Think bigger. Ship sooner. Apps, AI tools, Chrome extensions, local utilities, and the build logs behind them.',
-  shareDescription: 'Think bigger. Ship sooner. Apps, tools, experiments, and build logs.',
+  description: 'Think big. Ship fast. Apps, AI tools, Chrome extensions, local utilities, and the build logs behind them.',
+  shareDescription: 'Think big. Ship fast. Apps, tools, experiments, and build logs.',
   path: '/',
 })
 

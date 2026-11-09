@@ -1,6 +1,5 @@
 import React from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
 import ContactForm from '@/components/ContactForm'
 import { ContactFormErrorBoundary } from '@/components/ContactFormErrorBoundary'
 import Reveal from '@/components/ui/Reveal'
@@ -51,7 +50,10 @@ const Footer = () => {
         {/* Contact card - branded panel + form, with decorative artifacts.
             The site's scroll reveal; under reduced motion it simply shows. */}
         <Reveal className="w-full max-w-[68rem] mx-auto mb-12 sm:px-4">
-          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-linear-to-br from-[#08152a] via-[#0a1a33] to-[#07101f] shadow-2xl">
+          {/* overflow-clip, not overflow-hidden: a hidden box is still a scroll
+              container, so a jump to an anchor inside it (or focusing the form)
+              scrolled the card itself and cut off the avatar and name (2026-11-08). */}
+          <div className="relative overflow-clip rounded-3xl border border-white/10 bg-linear-to-br from-[#08152a] via-[#0a1a33] to-[#07101f] shadow-2xl">
             {/* decorative glows + grid */}
             <div aria-hidden className="pointer-events-none absolute inset-0">
               <div className="absolute -top-20 -left-16 h-72 w-72 rounded-full bg-cyan-500/15 blur-3xl" />
@@ -61,9 +63,10 @@ const Footer = () => {
             {/* top accent line */}
             <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-cyan-400 via-blue-500 to-cyan-400" />
 
-            <div className="relative grid grid-cols-[minmax(0,1fr)] gap-6 p-5 sm:p-7 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] md:gap-8 md:p-8">
+            <div className="relative grid grid-cols-[minmax(0,1fr)] gap-6 p-5 sm:p-7 xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] xl:gap-8 xl:p-8">
               {/* Left - branded panel */}
-              <div className="flex flex-col gap-5">
+              {/* Side by side from 1280px (stacked below it, where the form was too narrow for its Topic choices); centred against the form, so the shorter copy and the socials read as one block (2026-11-08). */}
+              <div className="flex flex-col gap-5 xl:justify-center">
                 <div className="flex items-center gap-4">
                   <div className="relative h-16 w-16 shrink-0">
                     <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-cyan-500/30 to-blue-600/30 blur-lg" />
@@ -88,38 +91,31 @@ const Footer = () => {
                   </span>
                 </h2>
                 <div className="flex flex-col gap-5 text-[15px] leading-relaxed text-[#9cadc5]">
+                  {/* The form's foot carries the email address ("Prefer email?"). */}
+                  <p>Shoot me a message.</p>
                   <p>
-                    Hiring, have a project, or a question about something I built? Message me with{' '}
-                    <a href="#contact-form" className={LINK}>the form</a>, or email me at{' '}
-                    <a href="mailto:contact@n8builds.dev" className={LINK}>contact@n8builds.dev</a>.
-                  </p>
-                  <p>
-                    Run a service business?{' '}
+                    Need technical help with your business?{' '}
                     <a href={refHref('techforpros', 'footer')} target="_blank" rel="noopener noreferrer" className={LINK}>
                       {TECH_FOR_PROS.name}
                       <span className="sr-only"> (opens in a new tab)</span>
                     </a>{' '}
-                    puts your business online and takes the follow-up off your plate.
+                    can help.
                   </p>
-                  <p>
-                    Everything I ship lands in the <Link href="/builds" className={LINK}>build log</Link>, and the
-                    bigger lessons become <Link href="/blog" className={LINK}>N8&apos;s Notions</Link>.
-                    {stream.length > 0 && (
-                      <>
-                        {' '}Watch me build live on <SocialLinks links={stream} />.
-                      </>
-                    )}
-                  </p>
+                  {stream.length > 0 && (
+                    <p>
+                      Watch me build live on <SocialLinks links={stream} />.
+                    </p>
+                  )}
                 </div>
 
                 {/* socials */}
-                <nav aria-label="Contact social media links" className="mt-auto flex items-center justify-between gap-1 sm:justify-start sm:gap-2">
+                <nav aria-label="Contact social media links" className="flex items-center justify-between gap-1 sm:justify-start sm:gap-2">
                   {SOCIALS.map(({ label, href, Icon, size, color }) => (
                     <a
                       key={label}
                       href={href}
                       {...(isExternal(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                      aria-label={label}
+                      aria-label={isExternal(href) ? `${label} (opens in a new tab)` : label}
                       title={label}
                       className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 sm:h-10 sm:w-10 bg-white/4 text-slate-400 transition-all duration-200 hover:scale-[1.05] hover:border-cyan-400/30 hover:text-cyan-300"
                     >

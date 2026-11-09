@@ -8,8 +8,8 @@ import { latestEntry } from '@/lib/intersection'
  *
  * The fade is a CSS transition (`.reveal` in app/globals.css) started by an
  * IntersectionObserver, not motion: Reveal wraps most of the site, and this
- * way no page loads the animation library for it. It rises 24px over 0.55s on
- * the hero's easing, once the block is 80px inside the viewport. Reduced
+ * way no page loads the animation library for it. It rises 40px over 0.9s on
+ * a gentle ease-out (2026-11-08), once the block is 80px inside the viewport. Reduced
  * motion shows it at once.
  */
 /** Whether the browser gets the Safari-only scroll-anchoring rule for rising blocks (app/globals.css). */
@@ -41,7 +41,7 @@ export default function Reveal({
     let settle: ReturnType<typeof setTimeout> | undefined
     const reveal = () => {
       el.setAttribute('data-revealed', '')
-      if (SKIPS_RISING_ANCHORS) settle = setTimeout(() => el.setAttribute('data-settled', ''), (delay + 0.6) * 1000)
+      if (SKIPS_RISING_ANCHORS) settle = setTimeout(() => el.setAttribute('data-settled', ''), (delay + 0.95) * 1000)
     }
     if (typeof IntersectionObserver === 'undefined') {
       reveal()

@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
-import { FiChevronLeft, FiChevronRight, FiLayers, FiPause, FiPlay, FiX } from 'react-icons/fi'
+import { FiChevronLeft, FiChevronRight, FiPause, FiPlay } from 'react-icons/fi'
 import { useHydrated } from '@/hooks/useHydrated'
 import { usePageVisible } from '@/hooks/usePageVisible'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
@@ -27,22 +27,15 @@ const SWIPE = 40
  * Dots at the bottom show where you are. Only the first image loads up front;
  * the rest load once the visitor shows interest (hover, focus or touch), so
  * the homepage downloads no extra screenshots for rows nobody browses.
- * The Details dialog uses it too, at its own width (`className`, `sizes`).
  */
 export function ProjectGallery({
   title,
   images,
   imageClassName,
-  className = 'w-full shrink-0 md:w-1/2',
-  sizes = '(max-width: 768px) 100vw, 50vw',
 }: {
   title: string
   images: GalleryImage[]
   imageClassName: string
-  /** The gallery's own box: half the row by default. */
-  className?: string
-  /** The images' `sizes`, for that box. */
-  sizes?: string
 }) {
   const [active, setActive] = useState(0)
   const [warm, setWarm] = useState(false)
@@ -96,7 +89,7 @@ export function ProjectGallery({
               }
             : undefined
         }
-        className={`touch-pan-y ${className}`}
+        className="w-full shrink-0 touch-pan-y md:w-1/2"
       >
       <div className="group relative aspect-16/10 overflow-hidden rounded-2xl border border-white/8 bg-[#07101d]">
         {images.map((image, i) =>
@@ -107,7 +100,7 @@ export function ProjectGallery({
               alt={i === active ? image.alt : ''}
               aria-hidden={i === active ? undefined : true}
               fill
-              sizes={sizes}
+              sizes="(max-width: 768px) 100vw, 50vw"
               className={`${imageClassName} transition-opacity duration-300 motion-reduce:transition-none ${i === active ? 'opacity-100' : 'opacity-0'}`}
             />
           ) : null,
@@ -179,6 +172,11 @@ export interface ProjectTourVideo {
   poster: string
   /** What the tour shows, for screen readers. */
   alt: string
+  /**
+   * One loop's length, in ms: a carousel holds the clip's tab this long, so the
+   * whole clip is seen (the Lab's extensions, round 7 of 2026-11-09).
+   */
+  durationMs?: number
 }
 
 /**
@@ -196,6 +194,8 @@ export function ProjectTour({
   className = 'w-full shrink-0 md:w-1/2',
   frameClassName = 'rounded-2xl border border-white/8',
   sizes = '(min-width: 1152px) 576px, (min-width: 768px) 50vw, 100vw',
+  noun = 'tour',
+  aspect = 'aspect-16/10',
 }: {
   title: string
   tour: ProjectTourVideo
@@ -205,10 +205,16 @@ export function ProjectTour({
   frameClassName?: string
   /** The poster's rendered width, for its image sizes (half the row by default). */
   sizes?: string
+  /** What its pause button calls it: "Pause the Scribe tour", "Pause the OpenPing clip". */
+  noun?: string
+  /** The frame's shape, the video's own: 16:10 by default, a phone's for a phone take. */
+  aspect?: string
 }) {
   const ref = useRef<HTMLVideoElement>(null)
   const [inView, setInView] = useState(false)
   const [paused, setPaused] = useState(false)
+  // Inside a carousel's hidden panel (an inert ancestor): paused, and from the start when shown again.
+  const [hidden, setHidden] = useState(false)
   const reduced = usePrefersReducedMotion()
   const visible = usePageVisible()
   const hydrated = useHydrated()
@@ -218,10 +224,26 @@ export function ProjectTour({
     if (!video) return
     const observer = new IntersectionObserver((entries) => setInView(latestEntry(entries).isIntersecting), { threshold: 0.2 })
     observer.observe(video)
-    return () => observer.disconnect()
+    // An inert panel (ExtensionsCarousel's hidden ones) still intersects: watch the attribute too.
+    const panel = video.closest('[role="tabpanel"]')
+    const watch = new MutationObserver(() => {
+      const now = !!video.closest('[inert]')
+      setHidden((was) => {
+        if (was && !now) video.currentTime = 0
+        return now
+      })
+    })
+    if (panel) {
+      watch.observe(panel, { attributes: true, attributeFilter: ['inert'] })
+      setHidden(!!video.closest('[inert]'))
+    }
+    return () => {
+      observer.disconnect()
+      watch.disconnect()
+    }
   }, [])
 
-  const playing = inView && visible && !reduced && !paused
+  const playing = inView && visible && !reduced && !paused && !hidden
   // The sources go in only once it first plays: with none, no browser fetches
   // anything (Safari ignores preload="none"), so an off-screen row or reduced
   // motion costs only the poster.
@@ -246,8 +268,8 @@ export function ProjectTour({
   }, [playing, started])
 
   return (
-    <div data-tour className={className}>
-      <div className={`relative aspect-16/10 overflow-hidden bg-[#07101d] ${frameClassName}`}>
+    <div data-tour data-clip-ms={tour.durationMs} className={className}>
+      <div className={`relative ${aspect} overflow-hidden bg-[#07101d] ${frameClassName}`}>
         {/* The poster is an image behind the video, not its poster attribute: that way
             it loads lazily, at the size it shows (a poster attribute is fetched with the
             page, which slowed the homepage's first paint on phones, 2026-11-02). The
@@ -264,6 +286,9 @@ export function ProjectTour({
           preload="none"
           disablePictureInPicture
           disableRemotePlayback
+          // Not a stop for the keyboard: it has no controls (its button pauses it), and
+          // Firefox would otherwise make the video itself a tab stop.
+          tabIndex={-1}
           className="absolute inset-0 h-full w-full object-cover"
         >
           {started && (
@@ -277,7 +302,7 @@ export function ProjectTour({
           <button
             type="button"
             onClick={() => setPaused((p) => !p)}
-            aria-label={`${paused ? 'Play' : 'Pause'} the ${title} tour`}
+            aria-label={`${paused ? 'Play' : 'Pause'} the ${title} ${noun}`}
             aria-pressed={paused}
             className="absolute right-2.5 bottom-2.5 flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-[#07101d]/75 text-slate-100 shadow-lg shadow-black/40 backdrop-blur-sm transition-colors hover:bg-[#07101d]/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300"
           >
@@ -286,86 +311,5 @@ export function ProjectTour({
         )}
       </div>
     </div>
-  )
-}
-
-/**
- * The Details button and its native <dialog>. The dialog's content (`header`,
- * beside the close button, and `children`) arrives rendered on the server.
- */
-export function ProjectDetails({
-  title,
-  labelledBy,
-  header,
-  media,
-  buttonClassName = '',
-  children,
-}: {
-  /** The build's name, so each row's button has its own accessible name. */
-  title: string
-  /** Added to the Details button's classes (the Lab row's tightening). */
-  buttonClassName?: string
-  labelledBy: string
-  header: React.ReactNode
-  /** The project's picture, on the dialog's left from md up (hidden on phones, to keep it short). */
-  media?: React.ReactNode
-  children: React.ReactNode
-}) {
-  const [open, setOpen] = useState(false)
-  const hydrated = useHydrated()
-  const ref = useRef<HTMLDialogElement>(null)
-  useEffect(() => {
-    const dialog = ref.current
-    if (!dialog) return
-    if (open && !dialog.open) dialog.showModal()
-    if (!open && dialog.open) dialog.close()
-  }, [open])
-  const close = () => setOpen(false)
-  return (
-    <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-haspopup="dialog"
-        // Server-rendered: a click before hydration would be lost, so it stays
-        // disabled until its handler exists (as Copy link and the contact form's Send).
-        disabled={!hydrated}
-        className={`flex items-center justify-center gap-2 whitespace-nowrap px-4 py-2 rounded-xl border border-white/12 bg-white/4 hover:bg-white/8 text-slate-300 font-semibold text-sm transition-colors duration-200 disabled:cursor-wait ${buttonClassName}`}>
-        <FiLayers className="w-3.5 h-3.5" />
-        Details<span className="sr-only"> about {title}</span>
-      </button>
-      <dialog
-        ref={ref}
-        aria-labelledby={labelledBy}
-        onClose={close}
-        // A click on the backdrop (the dialog element itself) closes it.
-        onClick={(e) => {
-          if (e.target === e.currentTarget) close()
-        }}
-        className="m-auto w-[min(42rem,calc(100vw-2rem))] md:w-[min(66rem,calc(100vw-4rem))] max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl border border-white/10 bg-[#0a1220] p-0 text-slate-200 shadow-2xl shadow-black/60 opacity-0 transition-[opacity,translate,display,overlay] duration-200 transition-discrete translate-y-2 open:translate-y-0 open:opacity-100 starting:open:translate-y-2 starting:open:opacity-0 backdrop:bg-black/70 backdrop:backdrop-blur-sm motion-reduce:transition-none"
-      >
-        <div className={media ? 'md:grid md:grid-cols-[minmax(0,10fr)_minmax(0,11fr)]' : undefined}>
-          {media ? (
-            <div className="hidden items-center border-r border-white/8 bg-[#07101d] p-6 md:flex lg:p-8">{media}</div>
-          ) : null}
-        <div className="p-6 sm:p-8 lg:p-10">
-          <div className="flex items-center gap-4">
-            {header}
-            <button
-              type="button"
-              onClick={close}
-              aria-label="Close details"
-              className="-mr-2 flex h-10 w-10 shrink-0 self-start items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-white/8 hover:text-slate-100"
-            >
-              <FiX className="h-5 w-5" />
-            </button>
-          </div>
-          {/* Always in the HTML, even closed: it holds the row's link to its
-              build page, which crawlers follow from the homepage. */}
-          {children}
-        </div>
-        </div>
-      </dialog>
-    </>
   )
 }

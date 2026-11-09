@@ -1,3 +1,4 @@
+import { usesFixtures } from '@/lib/fixtures'
 import { cache } from 'react'
 import { builds, type Build } from '@/data/builds'
 import { logOnlyBuilds, type LogBuild } from '@/data/logBuilds'
@@ -57,7 +58,7 @@ const NOTE_SECTIONS: [RegExp, ReleaseSection][] = [
  * under its New / Fixed / Faster / Safer (or Features / Fixes / Performance /
  * Security) headings, as plain text. Anything else (GitHub's generated "What's
  * Changed" list, a "Full Changelog" link) is left out, so an older release
- * simply shows no notes.
+ * simply shows no notes. So is a note with an internal code or code jargon.
  */
 export function parseReleaseNotes(body: string | null | undefined): ReleaseNote[] {
   if (!body) return []
@@ -80,7 +81,8 @@ export function parseReleaseNotes(body: string | null | undefined): ReleaseNote[
       .replace(/^\*\*[^*]+:\*\*\s*/, '') // **scope:**
       .replace(/\*\*|__|`/g, '')
       .trim()
-    if (text) notes.push({ section, text: text.charAt(0).toUpperCase() + text.slice(1) })
+    // Internal codes and code jargon stay out of the notes, as out of the commits.
+    if (text && !INTERNAL.test(text) && !CODE.test(text)) notes.push({ section, text: text.charAt(0).toUpperCase() + text.slice(1) })
   }
   return notes
 }
@@ -219,10 +221,15 @@ const NOISE =
 
 /**
  * Internal work that reads as process, not news: sprints, audits, batches,
- * coverage numbers and phase codes ("V2 P7a: ..."). Checked after the noise
- * filter, on the cleaned title.
+ * coverage numbers, phase and review codes ("V2 P7a: ...", "(Phase 4a)",
+ * "(REVIEW4 M2 M3)", "Review fix: ...", "the G4 front door"). Checked after
+ * the noise filter, on the cleaned title.
  */
-const INTERNAL = /\b(sprints?|audits?|batch(?:es)?|coverage|compliance|backlog|tickets?|P\d+[a-z]?)\b/i
+const INTERNAL =
+  /\b(sprints?|audits?|batch(?:es)?|coverage|compliance|backlog|tickets?|P\d+[a-z]?|phase \d+[a-z]?|review ?\d+|review fix(?:es)?|G\d+)\b/i
+
+/** Code in a title: a function call ("now()") or a snake_case name ("last_stop", "research_person.py"). */
+const CODE = /\w\(\)|\b[a-z]+_[a-z][a-z_]*\b/
 
 /** Three or more separate numbers ("1692 live, 44 dead, 43 error") read as an operations log. */
 const NUMBER_HEAVY = (text: string) => (text.match(/\b\d+\b/g) ?? []).length >= 3
@@ -283,7 +290,7 @@ export function classifyCommit(commit: Pick<SnapshotCommit, 'message' | 'author'
   if (NOISE.test(subject)) return { kind: 'drop', reason: 'upkeep' }
   const title = cleanTitle(subject)
   // On the cleaned title, so stripped work codes ("(W4-A)", "(#67)") don't count.
-  if (INTERNAL.test(title) || NUMBER_HEAVY(title)) return { kind: 'drop', reason: 'internal' }
+  if (INTERNAL.test(title) || CODE.test(title) || NUMBER_HEAVY(title)) return { kind: 'drop', reason: 'internal' }
   if (title.length < 8) return { kind: 'drop', reason: 'too short' }
   return { kind: 'change', title, score }
 }
@@ -333,13 +340,20 @@ export function entriesForBuild(build: Pick<Build, 'slug' | 'log' | 'github' | '
   if (mode === 'off') return []
   // Builds without a public GitHub link (a private repo) get no links into it.
   const link = (url: string) => (build.github ? url : undefined)
-  // The owner's escape hatch: hide any entry whose title contains one of these.
+  // The owner's escape hatch: hide any change whose title contains one of these, and
+  // any release note that does (the release itself still shows).
   const hide = (build.logHide ?? []).map((h) => h.toLowerCase())
   const hidden = (title: string) => hide.some((h) => title.toLowerCase().includes(h))
 
   const versions: Version[] = snapshot.releases
     .filter((r) => !r.draft && !r.prerelease)
-    .map((r) => ({ version: r.tag.startsWith('v') ? r.tag : `v${r.tag}`, date: r.publishedAt, url: r.url, patchNotes: r.notes }))
+    .map((r) => ({
+      version: r.tag.startsWith('v') ? r.tag : `v${r.tag}`,
+      date: r.publishedAt,
+      url: r.url,
+      // A release still shows, but without a note that names something hidden.
+      patchNotes: r.notes?.filter((note) => !hidden(note.text)),
+    }))
   const released = new Set(versions.map((v) => v.version))
 
   const changes: Change[] = []
@@ -347,7 +361,10 @@ export function entriesForBuild(build: Pick<Build, 'slug' | 'log' | 'github' | '
     const verdict = classifyCommit(commit)
     if (verdict.kind === 'version') {
       // A repo with GitHub Releases also has a release commit per tag; count it once.
-      if (!released.has(verdict.version)) versions.push({ version: verdict.version, date: commit.date, url: commit.url, notes: verdict.notes })
+      if (!released.has(verdict.version)) {
+        const notes = verdict.notes && !hidden(verdict.notes) ? verdict.notes : undefined
+        versions.push({ version: verdict.version, date: commit.date, url: commit.url, notes })
+      }
     } else if (verdict.kind === 'change' && mode === 'commits' && !hidden(verdict.title)) {
       changes.push({ title: verdict.title, score: verdict.score, date: commit.date, url: commit.url })
     }
@@ -666,7 +683,7 @@ const loadFixture = async (): Promise<Fixture> =>
 
 /** The fetchers, swapped for the recorded fixture under BUILD_LOG_FIXTURE=1. */
 function fetchers() {
-  if (process.env.BUILD_LOG_FIXTURE === '1') {
+  if (usesFixtures()) {
     return {
       snapshot: async (repo: string) => {
         const found = (await loadFixture()).snapshots.find((s) => s.repo === repo)

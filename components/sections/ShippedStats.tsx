@@ -1,6 +1,6 @@
 'use client'
 import Image from 'next/image'
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import { BUILD_ICONS } from '@/lib/build-meta'
 import type { DayCount, ShippedStat } from '@/lib/log-stats'
@@ -21,8 +21,9 @@ import { latestEntry } from '@/lib/intersection'
 // 2.2.2) and hold the first figure under reduced motion; the dots pick one.
 // Screen readers hear a figure only when someone picks it, never on the timer.
 
-const EVERY_MS = 4000
-const COUNT_MS = 1100
+// Slower since round 3 of 2026-11-08 (was 4s a figure and a 1.1s count).
+const EVERY_MS = 7000
+const COUNT_MS = 1600
 
 /** The other figures, the most telling first: the headline number is `changes`. */
 const ORDER: ShippedStat['id'][] = ['busiest', 'streak', 'releases', 'builds', 'days']
@@ -35,19 +36,28 @@ export default function ShippedStats({
   days,
   period,
   header,
+  fill = false,
 }: {
   stats: ShippedStat[]
   days: DayCount[]
   period: string
   /** Shown at the top in place of the period's name (the month switcher, BuildLogMonths.tsx). */
   header?: ReactNode
+  /**
+   * The bars fill in from left to right, day by day (round 7 of 2026-11-09): set
+   * when the visitor switched to this month. CSS (`.log-bar-fill`), and not
+   * under reduced motion.
+   */
+  fill?: boolean
 }) {
   const headline = stats.find((s) => s.id === 'changes')
   const facts = ORDER.map((id) => stats.find((s) => s.id === id)).filter((s): s is ShippedStat => !!s)
   const total = Number(headline?.value ?? 0)
 
   const [index, setIndex] = useState(0)
-  const [held, setHeld] = useState(false)
+  const [hovered, setHovered] = useState(false)
+  const [focused, setFocused] = useState(false)
+  const held = hovered || focused
   const [inView, setInView] = useState(false)
   const [announce, setAnnounce] = useState('')
   // 'idle': as rendered on the server. 'armed': off screen when hydrated, so
@@ -56,6 +66,7 @@ export default function ShippedStats({
   const [shown, setShown] = useState(total)
   const reduceMotion = usePrefersReducedMotion()
   const ref = useRef<HTMLDivElement>(null)
+  const countRef = useRef<HTMLSpanElement>(null)
 
   useEffect(() => {
     const el = ref.current
@@ -75,20 +86,27 @@ export default function ShippedStats({
         return
       }
       if (entry.isIntersecting) setEntrance((e) => (e === 'armed' ? 'played' : e))
-    })
+      // The same margin as the scroll reveal (components/ui/Reveal.tsx) around it, so the
+      // number and bars start as the card fades up into view, not unseen before it.
+    }, { rootMargin: '-80px' })
     observer.observe(el)
     return () => observer.disconnect()
   }, [total])
 
-  // The count-up: eased out, so it settles on the final number.
+  // The count-up: eased out, so it settles on the final number. Each frame writes the
+  // number straight into its span (round 7 of 2026-11-09), not through a React render
+  // of the whole card, so it stays smooth while the section fades up.
   useEffect(() => {
     if (entrance !== 'played') return
     let frame = 0
     const start = performance.now()
     const tick = (now: number) => {
       const t = Math.min(1, (now - start) / COUNT_MS)
-      setShown(Math.round(total * (1 - (1 - t) ** 3)))
+      // React's own text node, so its later renders still find it.
+      const text = countRef.current?.firstChild
+      if (text) text.nodeValue = String(Math.round(total * (1 - (1 - t) ** 3)))
       if (t < 1) frame = requestAnimationFrame(tick)
+      else setShown(total)
     }
     frame = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frame)
@@ -132,10 +150,13 @@ export default function ShippedStats({
       data-in-view={inView ? '' : undefined}
       data-entrance={entrance}
       className="flex h-full flex-col"
-      onMouseEnter={() => setHeld(true)}
-      onMouseLeave={() => setHeld(false)}
-      onFocus={() => setHeld(true)}
-      onBlur={() => setHeld(false)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      // Keyboard focus holds it; a click on a dot doesn't keep it held once the pointer leaves.
+      onFocus={(e) => setFocused(e.target.matches(':focus-visible'))}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocused(false)
+      }}
     >
       {header ?? <p className="text-2xl font-bold tracking-tight text-cyan-300">{period}</p>}
 
@@ -145,7 +166,7 @@ export default function ShippedStats({
           <span className="sr-only">
             {headline.value} {headline.label}
           </span>
-          <span aria-hidden="true" className="text-5xl font-bold tracking-tight text-slate-50 tabular-nums" data-count>
+          <span ref={countRef} aria-hidden="true" className="text-5xl font-bold tracking-tight text-slate-50 tabular-nums" data-count>
             {shown}
           </span>
           <span aria-hidden="true" className="text-sm text-[#9cadc5]">
@@ -165,11 +186,12 @@ export default function ShippedStats({
                 data-day={d.day}
                 className={`min-w-0 flex-1 origin-bottom rounded-[2px] transition-transform duration-700 ease-out motion-reduce:transition-none ${
                   d.future ? 'bg-white/[0.05]' : d.count > 0 ? 'bg-linear-to-t from-emerald-400/70 to-cyan-300' : 'bg-white/10'
-                }`}
+                } ${fill ? 'log-bar-fill' : ''}`}
                 style={{
                   height: d.count > 0 ? `${Math.max(18, (d.count / peak) * 100)}%` : '3px',
                   transform: risen ? 'scaleY(1)' : 'scaleY(0)',
                   transitionDelay: entrance === 'played' ? `${i * 18}ms` : '0ms',
+                  ...(fill ? ({ '--i': i } as CSSProperties) : {}),
                 }}
               />
             ))}
@@ -191,7 +213,9 @@ export default function ShippedStats({
             onClick={() => pick((index + 1) % facts.length)}
             disabled={facts.length < 2}
             title={facts.length > 1 ? 'Next figure' : undefined}
-            className="group -mx-2 grid min-h-[3.25rem] items-center rounded-xl px-2 py-1 text-left transition-colors enabled:cursor-pointer enabled:hover:bg-white/[0.04] focus-visible:outline-2 focus-visible:outline-cyan-400"
+            // No box behind it on hover or click (round 7 of 2026-11-09: it read as a white
+            // box): the label turns cyan instead. A ring for the keyboard only.
+            className="group -mx-2 grid min-h-[3.25rem] select-none items-center rounded-xl px-2 py-1 text-left enabled:cursor-pointer focus-visible:outline-2 focus-visible:outline-cyan-400"
           >
             {facts.map((stat, i) => {
               const current = i === index
@@ -232,7 +256,7 @@ export default function ShippedStats({
                   aria-current={i === index}
                   onClick={() => pick(i)}
                   // A 24px target (WCAG 2.5.8) around a small bar.
-                  className="group flex h-6 items-center rounded-full px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
+                  className="group flex h-6 select-none items-center rounded-full px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
                 >
                   <span
                     className={`block h-1 rounded-full transition-all duration-300 ${

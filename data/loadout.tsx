@@ -9,13 +9,11 @@ import {
   LuCircuitBoard,
   LuCpu,
   LuGlobe,
-  LuHammer,
   LuHardDrive,
   LuHeadphones,
   LuKeyRound,
   LuKeyboard,
   LuLayers,
-  LuLayoutDashboard,
   LuMemoryStick,
   LuMic,
   LuNetwork,
@@ -57,6 +55,7 @@ import {
 import { VscVscode } from 'react-icons/vsc'
 import { GgmlMark } from '@/data/stack'
 import type { RailPart } from '@/components/ui/SectionRail'
+import { HammerIcon } from '@/components/ui/PartIcons'
 
 // The Loadout - "who I am" without a resume. You ARE your loadout.
 // Each item: what it is + what I use it for + my one-line take.
@@ -83,7 +82,7 @@ export const loadoutParts: readonly LoadoutPart[] = [
   { id: 'workflow', label: 'How I work', icon: LuWorkflow, accent: '251 146 60' },
   { id: 'in-apps', label: 'Inside my apps', icon: LuBot, accent: '96 165 250' },
   { id: 'stacks', label: 'Stacks I build with', short: 'Stacks', icon: LuLayers, accent: '52 211 153' },
-  { id: 'tools-i-built', label: 'Tools I built and use', short: 'My tools', icon: LuHammer, accent: '251 191 36' },
+  { id: 'tools-i-built', label: 'Tools I built and use', short: 'My tools', icon: HammerIcon, accent: '251 191 36' },
   { id: 'tools-i-use', label: 'Tools I use', icon: LuWrench, accent: '129 140 248' },
   { id: 'gear', label: 'The gear', icon: LuHeadphones, accent: '244 114 182' },
 ]
@@ -187,7 +186,7 @@ export const inApps: { name: string; icon: ReactElement; color: string; whatFor:
     name: 'Gemini API',
     icon: <SiGooglegemini className="h-full w-full" />,
     color: '#4285F4',
-    whatFor: 'Long-context chat, research and analysis: GeminiGPT, Scout, Echo and Net-Trailer run on it.',
+    whatFor: 'Long-context chat, research and analysis: Net-Trailer runs on it.',
   },
   {
     name: 'OpenAI API',
@@ -218,7 +217,6 @@ export const OWN_TOOL_ICONS = {
   'release-kit': LuTag,
   'pr-post': LuNewspaper,
   'n8-tray': LuPanelBottom,
-  't-hub': LuLayoutDashboard,
 } as const satisfies Record<string, IconType>
 
 export type OwnTool = keyof typeof OWN_TOOL_ICONS
@@ -345,8 +343,17 @@ export interface Person {
   avatar?: string
   /** Who they are, in one sentence. */
   role: string
-  /** What they are working on in public, in one or two plain sentences. */
+  /**
+   * What they are working on in public, in one short sentence (two lines on
+   * a card at most; owner, round 8 of 2026-11-09: every card's description is
+   * about the same length, four or five lines in all with the role).
+   */
   note: string
+  /**
+   * A second short paragraph, a line or so (a blank line apart, as on Kun's
+   * card, whose second is the link to how he works).
+   */
+  more?: string
   /** Their own links only (from their channels or profiles); never a guessed one. */
   links: PersonLink[]
   /** Where they show how they work and their setup (a video). */
@@ -383,7 +390,7 @@ export const people: Person[] = [
     // Non-breaking spaces keep the last words together (no one-word last line).
     role: 'Former L8 principal engineer at Meta, Microsoft and\u00a0Atlassian.',
     // A non-breaking hyphen (U+2011) keeps "no-mistakes" from splitting across lines.
-    note: 'Building agent tools in the open: no\u2011mistakes, firstmate, gnhf, treehouse and the AXI\u00a0interfaces.',
+    note: 'Building agent tools in the open: no\u2011mistakes, gnhf and treehouse.',
     howTheyWork: { href: 'https://youtu.be/iQyg-KypKAA' },
     links: [
       { kind: 'youtube', href: 'https://www.youtube.com/channel/UCb69t9ZkE5z1KvCmfJoaifA' },
@@ -399,7 +406,8 @@ export const people: Person[] = [
     avatar: '/people/phaedrus.webp',
     role: 'Runs Misty Step, an AI-native software agency.',
     // From mistystack's README and mistystep.io (2026-11-01).
-    note: 'Building what amounts to a software factory: mistystack, one method his agents load as skills across Claude Code, Codex and more, with builds and tests run on a fleet of workers. Misty Step ships its own games on it, and he created pass-env.',
+    note: 'Building a software factory: mistystack, one method all his agents\u00a0share.',
+    more: 'Misty Step ships its own games on it, and he created\u00a0pass-env.',
     links: [
       { kind: 'x', href: 'https://x.com/moomooskycow' },
       { kind: 'github', href: 'https://github.com/moomooskycow' },
@@ -412,7 +420,9 @@ export const people: Person[] = [
     initials: 'NH',
     avatar: '/people/nate-herk.webp',
     role: 'AI automation educator.',
-    note: 'Teaching AI automation on YouTube and running the AI Automation Society community.',
+    // From his YouTube channel's about page (2026-11-09).
+    note: 'Teaching AI automation on YouTube, after leaving Goldman\u00a0Sachs.',
+    more: 'He founded the AI Automation Society\u00a0community.',
     links: [
       { kind: 'youtube', href: 'https://www.youtube.com/@nateherk' },
       { kind: 'x', href: 'https://x.com/nateherk' },
@@ -703,9 +713,8 @@ export const devSetup: DevSetupTile[] = [
         title: 'My own tools, in daily use',
         items: [
           // My own tools' marks come from OWN_TOOL_ICONS, the same as their cards in Tools I built and use.
-          { name: 'T-Hub', note: 'supervises my Claude Code sessions', icon: ownToolIcon('t-hub') },
           // The site presents Scribe through its build page, not its site's repo.
-          { name: 'Scribe', note: 'local dictation for Windows', href: '/builds/scribe', icon: appIcon('/builds/scribe/app-icon.png') },
+          { name: 'Scribe', note: 'local dictation for Windows, Mac and Linux', href: '/builds/scribe', icon: appIcon('/builds/scribe/app-icon.png') },
           { name: 'devguard', href: '#devguard', icon: ownToolIcon('devguard') },
           { name: 'pass-env', href: '#pass-env', icon: ownToolIcon('pass-env') },
           { name: 'release-kit', href: '#release-kit', icon: ownToolIcon('release-kit') },
@@ -778,12 +787,28 @@ export const devSetup: DevSetupTile[] = [
       {
         id: 'shipping',
         title: 'Shipping',
+        // Cloudflare first (round 8 of 2026-11-09): the live apps run there; Vercel is for quick ones.
         items: [
-          { name: 'Vercel', icon: mark(SiVercel, LIGHT) },
           { name: 'Cloudflare', note: 'Wrangler', icon: mark(SiCloudflare, '#f38020') },
           { name: 'Turso', icon: mark(SiTurso, '#4ff8d2') },
+          { name: 'Vercel', note: 'for quick ones', icon: mark(SiVercel, LIGHT) },
         ],
       },
     ],
   },
 ]
+
+/**
+ * The video I point people to for setting up their own (owner, round 8 of
+ * 2026-11-09): Kun Chen builds his agentic dev environment from scratch
+ * (his channel, 2026-07-05; the chapters: Nix and nix-darwin, a dotfiles repo,
+ * home-manager, zsh and Starship, WezTerm, Neovim, herdr and a global
+ * AGENTS.md). Its thumbnail is self-hosted, like the people's avatars.
+ */
+export const devSetupVideo = {
+  title: "Kun's Agentic Dev Environment From Scratch",
+  by: 'kun-chen',
+  href: 'https://www.youtube.com/watch?v=5N-okeDdIuI',
+  thumbnail: '/loadout/kun-dev-environment.webp',
+  covers: ['Nix', 'dotfiles', 'zsh', 'WezTerm', 'Neovim', 'herdr', 'a global AGENTS.md'],
+}

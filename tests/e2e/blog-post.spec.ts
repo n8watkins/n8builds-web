@@ -32,3 +32,15 @@ test('body images reserve their space, so the end of a post does not move as the
   const after = await bar.evaluate((el) => el.getBoundingClientRect().top + window.scrollY)
   expect(Math.abs(after - before)).toBeLessThan(1)
 })
+
+test("N8's Notions offers its RSS feed as a button you can't miss", async ({ page }) => {
+  await page.goto('/blog')
+  const rss = page.getByRole('link', { name: 'Subscribe with RSS' })
+  await expect(rss).toBeVisible()
+  await expect(rss).toHaveAttribute('href', '/blog/rss.xml')
+  // Round 8 of 2026-11-09: a bordered button, above the fold, not a small grey mono link.
+  await expect(rss).toBeInViewport()
+  expect(await rss.evaluate((el) => getComputedStyle(el).borderTopWidth)).toBe('1px')
+  // Feed readers find it too.
+  await expect(page.locator('link[rel="alternate"][type="application/rss+xml"]')).toHaveAttribute('href', /\/blog\/rss\.xml$/)
+})

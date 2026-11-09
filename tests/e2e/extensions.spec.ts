@@ -105,10 +105,15 @@ test.describe('desktop', () => {
     test.use({ contextOptions: { reducedMotion: 'no-preference' } })
 
     test('it auto-advances, and hovering a tab picks it and holds the cycle', { tag: '@cross-browser' }, async ({ page }) => {
-      test.setTimeout(60_000)
-      const { tabs } = await openShowcase(page)
+      test.setTimeout(90_000)
+      const { section, tabs } = await openShowcase(page)
+      // A tab with a clip holds for one loop of it (round 7 of 2026-11-09), at least CYCLE_MS.
+      const hold = async (i: number) => {
+        const clip = section.locator(`#${await tabs.nth(i).getAttribute('aria-controls')} [data-clip-ms]`)
+        return Math.max(CYCLE_MS, (await clip.count()) ? Number(await clip.getAttribute('data-clip-ms')) : 0)
+      }
       await page.mouse.move(0, 0)
-      await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true', { timeout: CYCLE_MS + 2000 })
+      await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true', { timeout: (await hold(0)) + 2000 })
       await expect(activePanelHeading(page)).toHaveText('TubeVault')
 
       await tabs.nth(2).hover()
@@ -123,7 +128,29 @@ test.describe('desktop', () => {
 
       // Leaving the showcase resumes the cycle.
       await page.mouse.move(0, 0)
-      await expect(tabs.nth(0)).toHaveAttribute('aria-selected', 'true', { timeout: CYCLE_MS + 2000 })
+      await expect(tabs.nth(0)).toHaveAttribute('aria-selected', 'true', { timeout: (await hold(2)) + 2000 })
+    })
+
+    test("a clip's tab holds for the whole clip, only the shown clip plays, and it starts over when shown again", async ({ page }) => {
+      test.setTimeout(60_000)
+      const { section, tabs } = await openShowcase(page)
+      await page.mouse.move(0, 0)
+      const clipMs = Number(await section.locator('#ext-panel-voicedock [data-clip-ms]').getAttribute('data-clip-ms'))
+      expect(clipMs).toBeGreaterThan(CYCLE_MS)
+      const video = (slug: string) => section.locator(`#ext-panel-${slug} video`)
+      await expect.poll(() => video('voicedock').evaluate((v: HTMLVideoElement) => !v.paused && v.currentTime > 0)).toBe(true)
+      // Still on VoiceDock after the old 5s cycle.
+      await page.waitForTimeout(CYCLE_MS + 1000)
+      await expect(tabs.nth(0)).toHaveAttribute('aria-selected', 'true')
+      // TL;DW's hidden clip waits, paused.
+      expect(await video('tldw').evaluate((v: HTMLVideoElement) => v.paused)).toBe(true)
+      // Shown, it plays from the start; VoiceDock's pauses.
+      await tabs.nth(2).hover()
+      await expect.poll(() => video('tldw').evaluate((v: HTMLVideoElement) => !v.paused)).toBe(true)
+      expect(await video('tldw').evaluate((v: HTMLVideoElement) => v.currentTime)).toBeLessThan(2)
+      await expect.poll(() => video('voicedock').evaluate((v: HTMLVideoElement) => v.paused)).toBe(true)
+      await tabs.nth(0).hover()
+      await expect.poll(() => video('voicedock').evaluate((v: HTMLVideoElement) => !v.paused && v.currentTime < 2)).toBe(true)
     })
 
     test('focus anywhere in the showcase holds the cycle, so a focused link never disappears', { tag: '@cross-browser' }, async ({ page }) => {
@@ -131,7 +158,8 @@ test.describe('desktop', () => {
       await page.mouse.move(0, 0)
       await tabs.nth(0).focus()
       await page.keyboard.press('Tab')
-      const link = page.locator('#extensions [role="tabpanel"]:not([aria-hidden="true"]) a').first()
+      // The panel's first control: VoiceDock's clip has its pause button first (2026-11-09).
+      const link = page.locator('#extensions [role="tabpanel"]:not([aria-hidden="true"]) :is(a, button)').first()
       await expect(link).toBeFocused()
       await page.waitForTimeout(CYCLE_MS + 1000)
       await expect(tabs.nth(0)).toHaveAttribute('aria-selected', 'true')
@@ -156,4 +184,31 @@ test.describe('phones', () => {
     // Nothing spills sideways.
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
   })
+})
+
+test("an extension's screenshot opens its own page, not GitHub a second time", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 })
+  await page.goto('/')
+  const section = page.locator('#extensions')
+  // Only TubeVault still has a screenshot (VoiceDock and TL;DW have clips since 2026-11-09).
+  for (const name of NAMES.filter((n) => n === 'TubeVault')) {
+    // By attribute: the showcase shows one extension at a time, so the others are out of the role tree.
+    const link = section.locator(`a[aria-label="${name}: full story"]`).first()
+    await expect(link).toBeAttached()
+    await expect(link).toHaveAttribute('href', /^\/builds\//)
+    await expect(link).not.toHaveAttribute('target', '_blank')
+  }
+  await expect(section.locator('a[href^="https://github.com"]:has(img)')).toHaveCount(0)
+})
+
+test('VoiceDock and TL;DW show a short muted clip of themselves in use, not a still (2026-11-09)', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 })
+  await page.goto('/')
+  const section = page.locator('#extensions')
+  for (const name of ['VoiceDock', 'TL;DW']) {
+    const clip = section.locator(`[data-tour] video[aria-label^="A short clip of ${name} in use"]`)
+    await expect(clip.first()).toBeAttached()
+    await expect(clip.first()).toHaveAttribute('loop', '')
+    await expect(section.locator(`a[aria-label="${name}: full story"]`)).toHaveCount(0)
+  }
 })

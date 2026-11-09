@@ -25,7 +25,8 @@ import type { Build } from '@/data/builds'
 import type { LogEntry } from '@/lib/build-log'
 import Reveal from '@/components/ui/Reveal'
 import RepoButtons from '@/components/ui/RepoButtons'
-import LogEntryItem, { Timeline } from '@/components/log/LogEntryItem'
+import BuildPageLog from '@/components/log/BuildPageLog'
+import MoreBuilds from '@/components/builds/MoreBuilds'
 import { E2E_PROJECTS, FEATURES, SPEED, SPEED_MORE, STACK, WORKFLOW, type FeatureIcon, type SpeedResult } from './content'
 import styles from './CaseStudy.module.css'
 
@@ -526,34 +527,15 @@ export default function CaseStudy({ build, activity }: { build: Build; activity:
           </Reveal>
         </section>
 
-        {/* Recent activity, from the build log */}
-        {activity.length > 0 && (
-          <section className="mt-24" aria-labelledby="activity-heading">
-            <Reveal>
-              <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
-                <h2 id="activity-heading" className="text-2xl font-bold tracking-tight">
-                  Recent <Accent>activity</Accent>
-                </h2>
-                <Link
-                  href={`/builds?build=${build.slug}#activity`}
-                  className="-my-2.5 inline-flex items-center gap-1.5 py-2.5 text-sm font-semibold text-slate-400 transition-colors hover:text-cyan-300"
-                >
-                  Full log for {build.name}
-                  <FiArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-              <Timeline className="mt-6 max-w-4xl">
-                {activity.map((entry) => (
-                  <LogEntryItem key={entry.id} entry={entry} buildName={build.name} showBuild={false} />
-                ))}
-              </Timeline>
-            </Reveal>
-          </section>
-        )}
+        {/* Its build log: the newest entries, and the way to the full log */}
+        <BuildPageLog name={build.name} entries={activity} className="mt-24" />
+
+        {/* The next builds to look at */}
+        <MoreBuilds current={build.slug} className="mt-24" />
 
         <footer className="mt-16 flex flex-wrap items-center justify-between gap-4 border-t border-white/8 pt-8">
           <Link
-            href="/#lab"
+            href="/builds"
             className="-my-2.5 inline-flex items-center gap-2 py-2.5 text-sm font-semibold text-slate-400 transition-colors hover:text-cyan-300"
           >
             <FiArrowLeft className="h-4 w-4" />
@@ -567,6 +549,7 @@ export default function CaseStudy({ build, activity }: { build: Build; activity:
           >
             <FiGithub className="h-4 w-4" />
             github.com/n8watkins
+            <span className="sr-only"> (opens in a new tab)</span>
           </a>
         </footer>
       </div>

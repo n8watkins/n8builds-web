@@ -67,7 +67,7 @@
           { from: "new line", to: "\n" },
           { from: "my email", to: "me@example.com" },
           { from: "scribe app", to: "Scribe" },
-          { from: "t hub", to: "T-Hub" },
+          { from: "n eight builds", to: "n8builds" },
         ]
       : [],
     outputMode: "auto_paste",

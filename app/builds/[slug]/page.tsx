@@ -2,19 +2,30 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { FiArrowLeft, FiArrowRight, FiArrowUpRight, FiCheck, FiDownload, FiGithub } from 'react-icons/fi'
+import { FiArrowLeft, FiArrowUpRight, FiCheck, FiDownload, FiGithub } from 'react-icons/fi'
 import Navbar from '@/components/layout/Navbar'
-import { builds, getBuild } from '@/data/builds'
+import { builds, getBuild, type Build } from '@/data/builds'
 import { shelfMeta, getShelf } from '@/data/shelves'
 import { pageMetadata, summarize } from '@/lib/seo'
 import Reveal from '@/components/ui/Reveal'
-import LogEntryItem, { Timeline } from '@/components/log/LogEntryItem'
+import BuildPageLog from '@/components/log/BuildPageLog'
+import RepoButtons from '@/components/ui/RepoButtons'
+import ActionLabel from '@/components/ui/ActionLabel'
+import { downloadCaption, scribeDownloads } from '@/lib/downloads'
+import PlatformDownload from '@/components/builds/PlatformDownload'
 import { getRecentActivity } from '@/lib/build-log'
 import N8buildsCaseStudy from '@/components/builds/n8builds/CaseStudy'
-import TechStackCycle from '@/components/Projects/TechStackCycle'
-import { projects } from '@/data/projects'
+import { LightboxGallery, LightboxThumb } from '@/components/builds/Lightbox'
+import MoreBuilds from '@/components/builds/MoreBuilds'
+import FadeIn from '@/components/ui/FadeIn'
+import FeatureShots, { type Feature } from '@/components/builds/FeatureShots'
+import StackTabs from '@/components/builds/StackTabs'
 import { BUILD_ICONS } from '@/lib/build-meta'
-import { TECH, TechGlyph, type TechKey } from '@/lib/tech-icons'
+import { TechGlyph, type TechKey } from '@/lib/tech-icons'
+import ProductStage from '@/components/builds/ProductStage'
+import BuildSidebar, { BuildFactsPanel, type BuildFacts, type PagePart } from '@/components/builds/BuildSidebar'
+import { repoFacts, repoFromUrl } from '@/lib/github-stars'
+import { LOG_TIME_ZONE, type LogEntry } from '@/lib/build-log'
 
 interface BuildPageProps {
   params: Promise<{ slug: string }>
@@ -27,7 +38,7 @@ export const dynamicParams = false
 export const revalidate = 3600
 
 export function generateStaticParams() {
-  return builds.map(b => ({ slug: b.slug }))
+  return builds.map((b) => ({ slug: b.slug }))
 }
 
 export async function generateMetadata({ params }: BuildPageProps): Promise<Metadata> {
@@ -40,7 +51,12 @@ export async function generateMetadata({ params }: BuildPageProps): Promise<Meta
     description: summarize(build.solution),
     shareDescription: build.tagline,
     path: `/builds/${slug}`,
-    image: { url: `/builds/${slug}/og.png`, width: 1200, height: 630, alt: `${build.name}: ${build.tagline}` },
+    image: {
+      url: `/builds/${slug}/og.png`,
+      width: 1200,
+      height: 630,
+      alt: `${build.name}: ${build.tagline}`,
+    },
   })
 }
 
@@ -50,13 +66,16 @@ export default async function BuildPage({ params }: BuildPageProps) {
   if (!build) notFound()
 
   const shelf = shelfMeta[getShelf(build)]
-  const activity = await getRecentActivity(slug)
-  // The tech pills: every technology on the Stack cards, in order, once.
-  const techs = [...new Set(build.stack.flatMap((item) => item.tech ?? []))] as TechKey[]
-  // The same "how it's built" explainer as the Lab's Details dialog (data/projects.tsx).
-  const technologies = projects.find((p) => p.title === build.name)?.technologies
+  const activity = await getRecentActivity(slug, Infinity)
+  // How it's built: the layers this build has, in order.
+  const layers = (['Frontend', 'Backend', 'Cloud'] as const).filter((layer) => build.stack.some((item) => item.layer === layer))
+  // Its features, each with the index of its screenshot, if it has one.
+  const features: Feature[] = (build.highlights ?? []).map((h) =>
+    typeof h === 'string' ? { text: h } : { text: h.text, shot: build.images.findIndex((i) => i.src === h.shot) },
+  )
   const icon = BUILD_ICONS[build.slug]
-  const download = build.cta?.href.startsWith('/download/') ? build.cta : undefined
+  const caption = build.tryIt?.download ? await downloadCaption(build.tryIt.download) : undefined
+  const facts = await buildFacts(build, activity)
 
   // This site's own page is its own layout: a case study for developers
   // deciding whether to fork it (linked from the homepage's "Use as a template").
@@ -72,8 +91,12 @@ export default async function BuildPage({ params }: BuildPageProps) {
   return (
     <>
       <Navbar />
-      <main id="main-content" tabIndex={-1} className="relative min-h-screen bg-darkBlue text-slate-100 focus:outline-none">
-        <div className="max-w-5xl mx-auto px-5 sm:px-8 pt-28 pb-10 md:pt-32 md:pb-16">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="relative min-h-screen bg-darkBlue text-slate-100 focus:outline-none"
+      >
+        <div className="mx-auto max-w-6xl px-5 pt-28 pb-10 sm:px-8 md:pt-32 md:pb-16">
           {/* Top nav */}
           <Link
             href={shelf.href}
@@ -83,294 +106,104 @@ export default async function BuildPage({ params }: BuildPageProps) {
             Back to {shelf.label}
           </Link>
 
-          {/* Header: who it is on the left, the build itself on the right */}
-          <header className={`mt-8 grid items-center gap-8 ${build.images.length > 0 ? 'lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]' : ''}`}>
-            <div>
-              <div className="flex items-center gap-4">
-                {icon && (
-                  <Image
-                    src={icon}
-                    alt=""
-                    width={64}
-                    height={64}
-                    unoptimized={icon.endsWith('.svg')}
-                    className="h-14 w-14 shrink-0 rounded-2xl ring-1 ring-white/10 sm:h-16 sm:w-16"
-                  />
-                )}
-                <div className="min-w-0">
+          <LightboxGallery images={build.images} title={build.name}>
+            {/* Header (owner, 2026-11-09): one column with everything about the
+                build (the kind, the name and tagline, the actions, Star |
+                GitHub), and the product itself full width under it. Above the
+                fold, so it fades in with CSS on load (FadeIn), never Reveal. */}
+            <header className="mt-8 text-center md:mt-10">
+              <FadeIn>
+                <p className="font-mono text-xs font-semibold tracking-[0.16em] text-cyan-300/90 uppercase">
+                  {build.category}
+                  {build.status ? <span className="text-slate-450"> · {build.status}</span> : null}
+                </p>
+                <div className="mt-4 flex items-center justify-center gap-4">
+                  {icon && (
+                    <Image
+                      src={icon}
+                      alt=""
+                      width={64}
+                      height={64}
+                      unoptimized={icon.endsWith('.svg')}
+                      className="h-12 w-12 shrink-0 rounded-2xl ring-1 ring-white/10 sm:h-14 sm:w-14"
+                    />
+                  )}
                   <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
-                    <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">{build.name}</span>
+                    <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                      {build.name}
+                    </span>
                   </h1>
-                  <p className="mt-1.5 text-lg text-slate-300">{build.tagline}</p>
                 </div>
-              </div>
+                <p className="mx-auto mt-3 max-w-2xl text-lg text-slate-300 md:text-xl">{build.tagline}</p>
 
-              <div className="mt-5 flex flex-wrap items-center gap-2 text-xs font-semibold">
-                <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2.5 py-1 text-cyan-300">{build.category}</span>
-                {build.status && (
-                  <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-slate-400">{build.status}</span>
-                )}
-              </div>
+                <BuildActions build={build} caption={caption} />
+              </FadeIn>
+            </header>
 
-              {techs.length > 0 && (
-                <ul aria-label={`${build.name} is built with`} className="mt-3 flex flex-wrap gap-1.5">
-                  {techs.map((t) => (
-                    <li
-                      key={t}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-white/8 bg-white/4 px-2.5 py-1 text-xs font-semibold text-slate-300"
-                    >
-                      <TechGlyph tech={t} className="h-3.5 w-3.5" />
-                      {TECH[t].label}
-                    </li>
-                  ))}
-                </ul>
-              )}
+            {/* The product, full width: its clip and Try it live (ProductStage),
+                or for a build without them its first screenshot, large. */}
+            {build.clip ? (
+              <FadeIn delay={0.12} className="mt-10 md:mt-12" data-build-picture="">
+                <ProductStage name={build.name} clip={build.clip} tryLive={build.tryLive} />
+              </FadeIn>
+            ) : build.images.length > 0 ? (
+              <FadeIn delay={0.12} className="mt-10 md:mt-12" data-build-picture="">
+                <LightboxThumb index={0} label={build.images[0].alt} className={`mx-auto w-full max-w-4xl rounded-2xl border border-white/8 bg-linear-to-br ${build.color}`}>
+                  <span className="relative block aspect-video">
+                    <Image
+                      src={build.images[0].src}
+                      alt={build.images[0].alt}
+                      fill
+                      priority
+                      sizes="(max-width: 1024px) 100vw, 896px"
+                      className="object-contain p-3 transition-transform duration-500 group-hover/shot:scale-[1.02] motion-reduce:transition-none md:p-4"
+                    />
+                  </span>
+                </LightboxThumb>
+              </FadeIn>
+            ) : null}
 
-              <div className="mt-6 flex flex-wrap items-center gap-3">
-                {download && (
-                  <a
-                    href={download.href}
-                    className="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:scale-[1.02] hover:from-blue-500 hover:to-cyan-400"
-                  >
-                    <FiDownload className="h-4 w-4" />
-                    {download.label}
-                  </a>
+            <BuildFactsPanel facts={facts} />
+
+            {/* The story, beside the sidebar from 1024px (owner, 2026-11-09). */}
+            <div className="lg:mt-16 lg:grid lg:grid-cols-[13.5rem_minmax(0,1fr)] lg:gap-12 xl:grid-cols-[15rem_minmax(0,1fr)] xl:gap-16">
+              <BuildSidebar facts={facts} parts={pageParts(build, features.length > 0, layers.length > 0, activity.length > 0)} />
+              <div className="min-w-0">
+                {/* What it does: each feature beside its own screenshot (owner, 2026-11-08) */}
+                {features.length > 0 && (
+                  <Reveal>
+                    <section id="features" aria-labelledby="highlights-heading" className="mt-14 scroll-mt-24 lg:mt-0">
+                      <h2 id="highlights-heading" className="text-center text-3xl font-bold tracking-tight">
+                        <span className="sr-only">What {build.name} does</span>
+                        <span aria-hidden>
+                          What it{' '}
+                          <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">does</span>
+                        </span>
+                      </h2>
+                      <div className="mt-6">
+                        <FeatureShots features={features} images={build.images} />
+                      </div>
+                    </section>
+                  </Reveal>
                 )}
-                {/* The live site goes with the other actions, never on the screenshot,
-                    where it covered the app's own controls (round 5 of 2026-11-02). */}
-                {build.liveSite && <LiveSite href={build.liveSite} landing={build.liveSiteIsLanding} primary={!download} />}
-                {build.github && (
-                  <a
-                    href={build.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-slate-200 transition-all duration-200 hover:scale-[1.02] hover:bg-white/10"
-                  >
-                    <FiGithub className="h-4 w-4" />
-                    View source
-                    <span className="sr-only"> (opens in a new tab)</span>
-                  </a>
-                )}
+                <StoryParts build={build} layers={layers} />
+                {/* Its whole build log, by month */}
+                <div id="log" className="scroll-mt-24">
+                  <BuildPageLog name={build.name} entries={activity} className="mt-16" />
+                </div>
               </div>
             </div>
+          </LightboxGallery>
 
-            {build.images.length > 0 && (
-              <div className={`relative overflow-hidden rounded-2xl border border-white/8 bg-linear-to-br ${build.color}`}>
-                <div className="relative aspect-video">
-                  <Image
-                    src={build.images[0].src}
-                    alt={build.images[0].alt}
-                    fill
-                    priority
-                    sizes="(max-width: 1024px) 100vw, 560px"
-                    className="object-contain p-3 md:p-4"
-                  />
-                </div>
-              </div>
-            )}
-          </header>
-
-          {/* What it does, as a checklist */}
-          {build.highlights && build.highlights.length > 0 && (
-            <section aria-labelledby="highlights-heading" className="mt-10">
-              <h2 id="highlights-heading" className="sr-only">
-                What {build.name} does
-              </h2>
-              <ul className="grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
-                {build.highlights.map((item) => (
-                  <li key={item} className="flex items-start gap-2.5 text-[0.95rem] leading-snug text-slate-200">
-                    <FiCheck aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          {/* The other screenshots */}
-          {build.images.length > 1 && (
-            // A single extra shot shows large and centred, not alone in a three-column row.
-            <section
-              className={`mt-10 grid gap-4 ${build.images.length === 2 ? 'mx-auto max-w-3xl grid-cols-1' : 'grid-cols-2 md:grid-cols-3'}`}
-              aria-label="More screenshots"
-            >
-              {build.images.slice(1).map((img) => (
-                <div key={img.src} className="relative aspect-video overflow-hidden rounded-xl border border-white/8 bg-white/3">
-                  <Image src={img.src} alt={img.alt} fill sizes="(max-width: 768px) 100vw, 768px" className="object-contain p-2" />
-                </div>
-              ))}
-            </section>
-          )}
-
-          {/* Problem / Solution */}
-          <Reveal>
-            <section className="mt-12 grid md:grid-cols-2 gap-5" aria-label="Problem and solution">
-              <div className="rounded-2xl border border-white/8 bg-white/3 p-6">
-                <h2 className="text-sm font-bold uppercase tracking-widest text-slate-450">The problem</h2>
-                <p className="mt-3 text-slate-300 leading-relaxed">{build.problem}</p>
-              </div>
-              <div className="rounded-2xl border border-cyan-400/15 bg-linear-to-br from-cyan-500/[0.07] to-blue-600/[0.07] p-6">
-                <h2 className="text-sm font-bold uppercase tracking-widest text-cyan-400">The build</h2>
-                <p className="mt-3 text-slate-300 leading-relaxed">{build.solution}</p>
-              </div>
-            </section>
-          </Reveal>
-
-          {/* An invitation to the visitor, when the build has one (a download is already up top) */}
-          {build.cta && !download && (
-            <Reveal>
-              <section
-                aria-labelledby="cta-heading"
-                className="mt-6 flex flex-col gap-4 rounded-2xl border border-cyan-400/25 bg-cyan-400/[0.06] p-6 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div>
-                  <h2 id="cta-heading" className="text-lg font-bold text-slate-50">{build.cta.heading}</h2>
-                  <p className="mt-1 text-slate-300">{build.cta.body}</p>
-                </div>
-                <a
-                  href={build.cta.href}
-                  // An outside site opens in a new tab; a download (/download/...) starts here.
-                  {...(build.cta.href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                  className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:scale-[1.02] hover:from-blue-500 hover:to-cyan-400"
-                >
-                  {build.cta.label}
-                  {build.cta.href.startsWith('http') ? (
-                    <>
-                      <FiArrowUpRight className="h-4 w-4" />
-                      <span className="sr-only"> (opens in a new tab)</span>
-                    </>
-                  ) : (
-                    <FiDownload className="h-4 w-4" />
-                  )}
-                </a>
-              </section>
-            </Reveal>
-          )}
-
-          {/* Who the build stands on */}
-          {build.credits && build.credits.length > 0 && (
-            <Reveal>
-              <section className="mt-6 rounded-2xl border border-white/8 bg-white/3 p-6" aria-labelledby="credits-heading">
-                <h2 id="credits-heading" className="text-sm font-bold uppercase tracking-widest text-slate-450">Credits</h2>
-                <ul className="mt-3 space-y-2">
-                  {build.credits.map((credit) => (
-                    <li key={credit.href} className="text-slate-300 leading-relaxed">
-                      <a
-                        href={credit.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-semibold text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 hover:text-cyan-200"
-                      >
-                        {credit.name}
-                      </a>
-                      : {credit.note}
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            </Reveal>
-          )}
-
-          {/* How it's built: the Details dialog's explainer, front to back */}
-          {technologies && (
-            <Reveal>
-              <section className="mt-12" aria-labelledby="how-built-heading">
-                <h2 id="how-built-heading" className="text-2xl font-bold tracking-tight">
-                  How it&apos;s{' '}
-                  <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">built</span>
-                </h2>
-                <div className="mt-5 rounded-2xl border border-white/8 bg-linear-to-br from-blue-500/[0.06] to-cyan-500/[0.04] p-5 sm:p-6">
-                  <TechStackCycle technologies={technologies} />
-                </div>
-              </section>
-            </Reveal>
-          )}
-
-          {/* Stack */}
-          <Reveal>
-            <section className="mt-12" aria-label="Tech stack">
-              <h2 className="text-2xl font-bold tracking-tight">
-                Stack{' '}
-                <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                  &amp; choices
-                </span>
-              </h2>
-              <ul className="mt-5 grid sm:grid-cols-2 gap-3">
-                {build.stack.map(item => (
-                  <li key={item.name} className="flex gap-3.5 rounded-xl border border-white/8 bg-white/3 p-4 transition-colors hover:border-white/15 hover:bg-white/5">
-                    {item.tech && item.tech.length > 0 && (
-                      <span aria-hidden className="flex shrink-0 -space-x-1.5 pt-0.5">
-                        {item.tech.slice(0, 3).map((t) => (
-                          <span key={t} className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-[#0a1428]">
-                            <TechGlyph tech={t} className="h-[18px] w-[18px]" />
-                          </span>
-                        ))}
-                      </span>
-                    )}
-                    <span className="min-w-0">
-                      <span className="block text-sm font-bold text-slate-100">{item.name}</span>
-                      <span className="mt-1 block text-sm leading-relaxed text-slate-400">{item.detail}</span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          </Reveal>
-
-          {/* Process notes */}
-          <Reveal>
-            <section className="mt-12" aria-label="Process notes">
-              <h2 className="text-2xl font-bold tracking-tight">
-                Process{' '}
-                <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                  notes
-                </span>
-              </h2>
-              <ol className="mt-5 space-y-4">
-                {build.process.map((note, i) => (
-                  <li key={i} className="flex gap-4">
-                    <span className="shrink-0 flex items-center justify-center w-7 h-7 rounded-full border border-cyan-400/20 bg-cyan-400/10 text-cyan-300 text-xs font-bold mt-0.5">
-                      {i + 1}
-                    </span>
-                    <p className="text-slate-300 leading-relaxed">{note}</p>
-                  </li>
-                ))}
-              </ol>
-            </section>
-          </Reveal>
-
-          {/* Recent activity, from the build log */}
-          {activity.length > 0 && (
-            <Reveal>
-              <section className="mt-12" aria-labelledby="activity-heading">
-                <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
-                  <h2 id="activity-heading" className="text-2xl font-bold tracking-tight">
-                    Recent{' '}
-                    <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                      activity
-                    </span>
-                  </h2>
-                  <Link
-                    href={`/builds?build=${build.slug}#activity`}
-                    className="-my-2.5 inline-flex items-center gap-1.5 py-2.5 text-sm font-semibold text-slate-400 transition-colors hover:text-cyan-300"
-                  >
-                    Full log for {build.name}
-                    <FiArrowRight className="h-4 w-4" />
-                  </Link>
-                </div>
-                <Timeline className="mt-6">
-                  {activity.map((entry) => (
-                    <LogEntryItem key={entry.id} entry={entry} buildName={build.name} showBuild={false} />
-                  ))}
-                </Timeline>
-              </section>
-            </Reveal>
-          )}
+          {/* The next builds to look at */}
+          <div id="more" className="scroll-mt-24">
+            <MoreBuilds current={build.slug} />
+          </div>
 
           {/* Footer nav */}
           <footer className="mt-16 pt-8 border-t border-white/8 flex flex-wrap items-center justify-between gap-4">
             <Link
-              href="/#lab"
+              href="/builds"
               className="-my-2.5 inline-flex items-center gap-2 py-2.5 text-sm font-semibold text-slate-400 hover:text-cyan-300 transition-colors"
             >
               <FiArrowLeft className="w-4 h-4" />
@@ -384,6 +217,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
             >
               <FiGithub className="w-4 h-4" />
               github.com/n8watkins
+              <span className="sr-only"> (opens in a new tab)</span>
             </a>
           </footer>
         </div>
@@ -393,24 +227,300 @@ export default async function BuildPage({ params }: BuildPageProps) {
 }
 
 /**
- * "Visit live site" ("Visit the landing page" when it is one), opening in a new
- * tab: the main action (solid) unless a download is, then beside it in outline.
+ * The build's story under what it does: the problem and the build, any
+ * invitation and credits, how it's built (a tab per layer) and the process
+ * notes. Ids for the sidebar's links (pageParts).
  */
-function LiveSite({ href, landing = false, primary }: { href: string; landing?: boolean; primary: boolean }) {
+function StoryParts({ build, layers }: { build: Build; layers: ('Frontend' | 'Backend' | 'Cloud')[] }) {
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 hover:scale-[1.02] ${
-        primary
-          ? 'bg-linear-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-400 hover:to-blue-500'
-          : 'border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10'
-      }`}
-    >
-      {landing ? 'Visit the landing page' : 'Visit live site'}
-      <FiArrowUpRight className="h-4 w-4" />
-      <span className="sr-only"> (opens in a new tab)</span>
-    </a>
+    <>
+        {/* Problem / Solution */}
+        <Reveal>
+          <section id="story" className="mt-16 grid scroll-mt-24 gap-5 md:grid-cols-2" aria-label="Problem and solution">
+            <div className="rounded-2xl border border-white/8 bg-white/3 p-6">
+              <h2 className="text-sm font-bold uppercase tracking-widest text-slate-450">
+                The problem
+              </h2>
+              <p className="mt-3 text-slate-300 leading-relaxed">{build.problem}</p>
+            </div>
+            <div className="rounded-2xl border border-cyan-400/15 bg-linear-to-br from-cyan-500/[0.07] to-blue-600/[0.07] p-6">
+              <h2 className="text-sm font-bold uppercase tracking-widest text-cyan-400">
+                The build
+              </h2>
+              <p className="mt-3 text-slate-300 leading-relaxed">{build.solution}</p>
+            </div>
+          </section>
+        </Reveal>
+
+        {/* An invitation to the visitor, for a door the header doesn't already open */}
+        {build.cta && (
+          <Reveal>
+            <section
+              aria-labelledby="cta-heading"
+              className="mt-6 flex flex-col gap-4 rounded-2xl border border-cyan-400/25 bg-cyan-400/[0.06] p-6 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div>
+                <h2 id="cta-heading" className="text-lg font-bold text-slate-50">
+                  {build.cta.heading}
+                </h2>
+                <p className="mt-1 text-slate-300">{build.cta.body}</p>
+              </div>
+              <a
+                href={build.cta.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:scale-[1.02] hover:from-blue-500 hover:to-cyan-400"
+              >
+                {build.cta.label}
+                <FiArrowUpRight className="h-4 w-4" />
+                <span className="sr-only"> (opens in a new tab)</span>
+              </a>
+            </section>
+          </Reveal>
+        )}
+
+        {/* Who the build stands on */}
+        {build.credits && build.credits.length > 0 && (
+          <Reveal>
+            <section
+              className="mt-6 rounded-2xl border border-white/8 bg-white/3 p-6"
+              aria-labelledby="credits-heading"
+            >
+              <h2
+                id="credits-heading"
+                className="text-sm font-bold uppercase tracking-widest text-slate-450"
+              >
+                Credits
+              </h2>
+              <ul className="mt-3 space-y-2">
+                {build.credits.map((credit) => (
+                  <li key={credit.href} className="text-slate-300 leading-relaxed">
+                    <a
+                      href={credit.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-semibold text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 hover:text-cyan-200"
+                    >
+                      {credit.name}
+                      <span className="sr-only"> (opens in a new tab)</span>
+                    </a>
+                    : {credit.note}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </Reveal>
+        )}
+
+        {/* How it's built: one section, a tab per layer, each with its stack
+            cards and the one-line choice behind each (owner, 2026-11-08) */}
+        {layers.length > 0 && (
+          <Reveal>
+            <section id="built" className="mt-16 scroll-mt-24" aria-labelledby="how-built-heading">
+              <h2 id="how-built-heading" className="text-center text-3xl font-bold tracking-tight">
+                How it&apos;s{' '}
+                <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">built</span>
+              </h2>
+              <div className="mt-6">
+                <StackTabs
+                  tabs={layers.map((layer) => ({
+                    label: layer,
+                    panel: (
+                      // A lone card sits centred, not alone in a two-column grid.
+                      <ul
+                        aria-label={`${build.name}: ${layer}`}
+                        className={`grid gap-3 ${build.stack.filter((item) => item.layer === layer).length > 1 ? 'sm:grid-cols-2' : 'mx-auto max-w-xl'}`}
+                      >
+                        {build.stack
+                          .filter((item) => item.layer === layer)
+                          .map((item) => (
+                            <li
+                              key={item.name}
+                              className="flex gap-3.5 rounded-xl border border-white/8 bg-white/3 p-4 transition-[border-color,background-color,translate] duration-200 hover:-translate-y-0.5 hover:border-white/15 hover:bg-white/5 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                            >
+                              {item.tech && item.tech.length > 0 && (
+                                <span aria-hidden className="flex shrink-0 -space-x-1.5 pt-0.5">
+                                  {item.tech.slice(0, 3).map((t) => (
+                                    <span key={t} className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-[#0a1428]">
+                                      <TechGlyph tech={t} className="h-[18px] w-[18px]" />
+                                    </span>
+                                  ))}
+                                </span>
+                              )}
+                              <span className="min-w-0">
+                                <span className="block text-sm font-bold text-slate-100">{item.name}</span>
+                                <span className="mt-1 block text-sm leading-relaxed text-slate-400">{item.detail}</span>
+                              </span>
+                            </li>
+                          ))}
+                      </ul>
+                    ),
+                  }))}
+                />
+              </div>
+            </section>
+          </Reveal>
+        )}
+
+        {/* Process notes */}
+        <Reveal>
+          <section id="process" className="mt-16 scroll-mt-24" aria-label="Process notes">
+            <h2 className="text-center text-3xl font-bold tracking-tight">
+              Process{' '}
+              <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                notes
+              </span>
+            </h2>
+            <ol className="mx-auto mt-6 max-w-3xl space-y-4">
+              {build.process.map((note, i) => (
+                <li key={i} className="flex gap-4">
+                  <span className="shrink-0 flex items-center justify-center w-7 h-7 rounded-full border border-cyan-400/20 bg-cyan-400/10 text-cyan-300 text-xs font-bold mt-0.5">
+                    {i + 1}
+                  </span>
+                  <p className="text-slate-300 leading-relaxed">{note}</p>
+                </li>
+              ))}
+            </ol>
+          </section>
+        </Reveal>
+    </>
+  )
+}
+
+/** The sidebar's links: the parts this build's page has, in order. */
+function pageParts(build: Build, features: boolean, layers: boolean, log: boolean): PagePart[] {
+  return [
+    build.clip ? { id: 'demo', label: 'See it in use' } : null,
+    features ? { id: 'features', label: 'What it does' } : null,
+    build.problem ? { id: 'story', label: 'Problem and build' } : null,
+    layers ? { id: 'built', label: "How it's built" } : null,
+    build.process.length > 0 ? { id: 'process', label: 'Process notes' } : null,
+    log ? { id: 'log', label: 'Build log' } : null,
+    { id: 'more', label: 'More builds' },
+  ].filter((p) => p !== null)
+}
+
+const shippedFormat = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: LOG_TIME_ZONE })
+
+/**
+ * The sidebar's basics: what it is, where it is live, its stack's marks (each
+ * once, in the stack's order), its license (GitHub's), its newest release and
+ * when it last shipped anything (its build log).
+ */
+async function buildFacts(build: Build, activity: LogEntry[]): Promise<BuildFacts> {
+  const repo = build.github ? repoFromUrl(build.github) : null
+  const { license } = repo ? await repoFacts(repo) : { license: null }
+  const release = activity.find((e) => e.kind === 'release')
+  const version = release ? /v\d+(?:\.\d+)*\S*/.exec(release.title)?.[0] : undefined
+  const newest = activity[0]
+  const live = build.liveSite ?? (build.tryIt && /^https?:/.test(build.tryIt.href) ? build.tryIt.href : undefined)
+  return {
+    name: build.name,
+    category: build.category,
+    status: build.status,
+    live: live ? { href: live, label: new URL(live).host } : undefined,
+    tech: [...new Set(build.stack.flatMap((item) => item.tech ?? []))] as TechKey[],
+    license: license ?? undefined,
+    version,
+    lastShipped: newest ? shippedFormat.format(new Date(newest.date)) : undefined,
+    repo: build.github && repo ? { href: build.github, label: repo } : undefined,
+  }
+}
+
+const outline =
+  'inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-slate-200 transition-colors duration-200 hover:bg-white/10'
+
+/** Opens in a new tab when it leaves the site. */
+const away = (href: string) =>
+  /^https?:/.test(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {}
+
+/**
+ * The page's actions (owner, 2026-11-08): the build's one main action to the
+ * live thing (the same as its Lab row's), then every other way in that the row
+ * leaves out (OpenPing's free tools and install guide, the landing page beside
+ * an app or a download), then the Star | GitHub split button. The live site
+ * sits with them, never on the screenshot, where it covered the app's own
+ * controls (round 5 of 2026-11-02), and never twice. The main action is on
+ * a line of its own, larger; the rest share the next line, quieter. All
+ * centred under the tagline since the header became one column (2026-11-09).
+ */
+async function BuildActions({ build, caption }: { build: Build; caption?: string }) {
+  const main = build.tryIt
+  const quiet = (build.moreActions ?? []).filter((a) => a.quiet)
+  const more = (build.moreActions ?? []).filter((a) => !a.quiet)
+  const sameAs = (a: string, b: string) => a.replace(/\/$/, '') === b.replace(/\/$/, '')
+  const live =
+    build.liveSite && !(main && sameAs(main.href, build.liveSite)) ? build.liveSite : undefined
+  // A desktop app with a build per OS (Scribe) leads with the visitor's OS, the others quiet under it.
+  const perOs = main?.download === 'scribe' ? await scribeDownloads() : null
+  return (
+    <div className="mt-8 flex flex-col items-center">
+      {perOs ? (
+        <PlatformDownload downloads={perOs} />
+      ) : main ? (
+        // A download carries what it fetches close under it.
+        <div className="flex max-w-full flex-col items-center gap-1.5">
+          <a
+            href={main.href}
+            {...away(main.href)}
+            {...(caption ? { 'aria-describedby': 'build-download-facts' } : {})}
+            className="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-700 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-blue-900/30 transition-colors duration-200 hover:from-blue-700 hover:to-cyan-800"
+          >
+            {main.download ? <FiDownload aria-hidden className="h-4 w-4" /> : null}
+            <ActionLabel label={main.label} />
+            {/^https?:/.test(main.href) ? (
+              <>
+                <FiArrowUpRight aria-hidden className="h-4 w-4" />
+                <span className="sr-only"> (opens in a new tab)</span>
+              </>
+            ) : null}
+          </a>
+          {caption ? (
+            <p id="build-download-facts" className="text-xs text-slate-400">
+              {caption}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+      <div className={`flex flex-wrap items-center justify-center gap-2.5 ${main ? 'mt-4' : ''}`}>
+        {more.map((action) => (
+          <a key={action.href} href={action.href} {...away(action.href)} className={outline}>
+            {action.label}
+            <FiArrowUpRight aria-hidden className="h-4 w-4" />
+            {/^https?:/.test(action.href) && <span className="sr-only"> (opens in a new tab)</span>}
+          </a>
+        ))}
+        {live ? (
+          <a href={live} {...away(live)} className={outline}>
+            {build.liveSiteIsLanding ? 'Visit the landing page' : 'Visit live site'}
+            <FiArrowUpRight aria-hidden className="h-4 w-4" />
+            {/^https?:/.test(live) && <span className="sr-only"> (opens in a new tab)</span>}
+          </a>
+        ) : null}
+        {build.github ? (
+          <RepoButtons href={build.github} name={build.name} className="[&>a]:py-2.5" />
+        ) : null}
+      </div>
+      {quiet.length > 0 && (
+        // The quiet links share one line (Scribe's Mac and Linux betas), wrapping on phones.
+        <div className="mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-1">
+          {quiet.map((action) => (
+            <a
+              key={action.href}
+              href={action.href}
+              {...away(action.href)}
+              className="inline-flex items-center gap-1.5 py-1 text-sm font-semibold text-slate-300 transition-colors hover:text-cyan-200"
+            >
+              {/* One underline under the whole label, marks included (a bottom border:
+                  a text underline would break at each mark). */}
+              <span className="border-b border-white/30 pb-px">
+                <ActionLabel label={action.label} />
+              </span>
+              {/^https?:/.test(action.href) && <span className="sr-only"> (opens in a new tab)</span>}
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }

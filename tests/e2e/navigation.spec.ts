@@ -23,37 +23,14 @@ test('the logo goes home from any page', { tag: '@smoke' }, async ({ page }) => 
   await expect(page).toHaveURL(/\/$/)
 })
 
-/** The Ko-fi link (2026-10-26): left of Portfolio in the navbar, and in the mobile menu. */
+/** Ko-fi left the header (2026-11-08): neither the navbar nor the mobile menu has it; the footer does. */
 const KOFI = 'https://ko-fi.com/n8watkins'
 
-test.describe('the Ko-fi link', () => {
-  test('sits left of Portfolio in the navbar and opens Ko-fi in a new tab', { tag: '@smoke' }, async ({ page }) => {
-    await page.setViewportSize({ width: 1280, height: 800 })
-    await page.goto('/')
-    const nav = page.locator('nav[aria-label="Primary"]')
-    const kofi = nav.getByRole('link', { name: 'Ko-fi', exact: true })
-    await expect(kofi).toBeVisible()
-    await expect(kofi).toHaveAttribute('href', KOFI)
-    await expect(kofi).toHaveAttribute('target', '_blank')
-    await expect(kofi).toHaveAttribute('rel', /noopener/)
-    await expect(kofi.locator('svg')).toBeVisible()
-    const portfolio = (await nav.getByRole('link', { name: 'Portfolio', exact: true }).boundingBox())!
-    const box = (await kofi.boundingBox())!
-    expect(box.x + box.width, 'left of Portfolio').toBeLessThanOrEqual(portfolio.x)
-    // Same look as Portfolio: the same height and top.
-    expect(Math.abs(box.height - portfolio.height)).toBeLessThanOrEqual(1)
-    expect(Math.abs(box.y - portfolio.y)).toBeLessThanOrEqual(1)
-  })
-
-  test('is in the mobile menu', async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 })
-    await page.goto('/')
-    await openMenu(page)
-    const kofi = page.locator('#mobile-menu').getByRole('link', { name: /Ko-fi/ })
-    await expect(kofi).toBeVisible()
-    await expect(kofi).toHaveAttribute('href', KOFI)
-    await expect(kofi).toHaveAttribute('target', '_blank')
-  })
+test('Ko-fi is not in the header, only in the footer', { tag: '@smoke' }, async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 })
+  await page.goto('/')
+  await expect(page.locator(`nav[aria-label="Primary"] a[href="${KOFI}"], #mobile-menu a[href="${KOFI}"]`)).toHaveCount(0)
+  await expect(page.locator(`footer a[href="${KOFI}"]`).first()).toBeAttached()
 })
 
 /** "Contact" in the navbar and the mobile menu (2026-10-28): it jumps to the homepage's contact form. */
@@ -85,21 +62,24 @@ test.describe('the Contact link', () => {
     await expect(form(page)).toBeInViewport()
     // Under the navbar at the page's scroll-padding-top, not 80px lower: WebKit
     // counted the padding twice while the open menu held the body's overflow.
+    // Within a few pixels: WebKit's smooth scroll on CI's Linux runner settles
+    // 5px past the mark (75, 2026-11-09), which no one sees; the bug was 80px.
     await expect
-      .poll(() => page.locator('#contact').evaluate((el) => Math.round(el.getBoundingClientRect().top)), { timeout: 10_000 })
-      .toBe(80)
+      .poll(() => page.locator('#contact').evaluate((el) => Math.abs(Math.round(el.getBoundingClientRect().top) - 80)), { timeout: 10_000 })
+      .toBeLessThanOrEqual(8)
   })
 })
 
 /**
- * The navbar's Tech for Pros link (2026-11-01): a bordered pill like Ko-fi and
+ * The navbar's Tech for Pros link (2026-11-01): a bordered pill like
  * Portfolio, holding its icon and techforpros.com over a clean curved
- * underline (round 3 of 2026-11-02: one smooth arc, static, never animated).
+ * underline (round 3 of 2026-11-02: one smooth arc; since round 8 of
+ * 2026-11-09 nothing at rest, drawn in on hover or focus).
  */
 const techForPros = (page: Page) => page.locator('nav[aria-label="Primary"]').getByRole('link', { name: /^techforpros\.com/ })
 const underline = (page: Page) => techForPros(page).locator('svg.tfp-underline path')
 
-test('the navbar links techforpros.com in a pill like Ko-fi and Portfolio, through the counted short link', async ({ page }) => {
+test('the navbar links techforpros.com in a pill like Portfolio, through the counted short link', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
   const link = techForPros(page)
@@ -107,12 +87,12 @@ test('the navbar links techforpros.com in a pill like Ko-fi and Portfolio, throu
   await expect(link).toHaveAttribute('target', '_blank')
   await expect(link.locator('img[src*="techforpros"]')).toBeVisible()
   // The same height, radius and border as the buttons beside it.
-  const kofi = page.locator('nav[aria-label="Primary"]').getByRole('link', { name: 'Ko-fi', exact: true })
+  const portfolio = page.locator('nav[aria-label="Primary"]').getByRole('link', { name: 'Portfolio (opens in a new tab)', exact: true })
   const style = (el: HTMLElement | SVGElement) => {
     const s = getComputedStyle(el)
     return { radius: s.borderTopLeftRadius, border: s.borderTopWidth, style: s.borderTopStyle, height: el.getBoundingClientRect().height }
   }
-  expect(await link.evaluate(style)).toEqual(await kofi.evaluate(style))
+  expect(await link.evaluate(style)).toEqual(await portfolio.evaluate(style))
   // A curve under the text, not a straight text underline, and no gradient fill.
   await expect(link.getByText('techforpros.com', { exact: true })).not.toHaveCSS('text-decoration-line', 'underline')
   expect(await link.evaluate((el) => getComputedStyle(el).backgroundImage)).toBe('none')
@@ -127,12 +107,13 @@ test('the navbar links techforpros.com in a pill like Ko-fi and Portfolio, throu
   expect(curve.width).toBeGreaterThan(text.width * 0.85)
 })
 
-test('the techforpros.com underline is one shallow, symmetric arch that never animates', { tag: '@cross-browser' }, async ({ page, isMobile }) => {
+test('the techforpros.com underline is one shallow, symmetric arch, drawn whole on hover', { tag: '@cross-browser' }, async ({ page, isMobile }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
   const path = underline(page)
   await expect(path).toHaveCSS('animation-name', 'none')
-  await expect(path).toHaveCSS('stroke-dasharray', 'none')
+  // Round 8 of 2026-11-09: nothing at rest; it draws in on hover (tests/e2e/header-hovers.spec.ts).
+  await expect(path).toHaveCSS('opacity', '0')
   // One cubic segment: no S or second C joining wobbles together.
   expect((await path.getAttribute('d'))!.match(/[CSQ]/gi)).toHaveLength(1)
   // Round 5 of 2026-11-02: symmetric, centred under the label, and a gentle arch: the
@@ -149,8 +130,8 @@ test('the techforpros.com underline is one shallow, symmetric arch that never an
   expect(shape.start[1] - shape.middle[1]).toBeLessThan(2)
   await techForPros(page).hover()
   await expect(techForPros(page).locator('svg.tfp-underline')).toHaveCSS('animation-name', 'none')
-  // It brightens on hover (a touch screen has none).
-  if (!isMobile) await expect(techForPros(page).locator('svg.tfp-underline')).toHaveCSS('opacity', '1')
+  // It shows on hover (a touch screen has none).
+  if (!isMobile) await expect(path).toHaveCSS('opacity', '1')
 })
 
 // On phones the link sits between the logo and the menu button, on one line.
@@ -177,10 +158,10 @@ test.describe('tablet width', () => {
     const box = await techForPros(page).boundingBox()
     expect(box!.x + box!.width).toBeLessThanOrEqual(810)
     await expect(menuButton(page)).toBeVisible()
-    // Ko-fi fits too, clear of the logo.
-    const kofi = (await page.locator('nav[aria-label="Primary"]').getByRole('link', { name: 'Ko-fi', exact: true }).boundingBox())!
+    // Portfolio fits too, clear of the logo.
+    const portfolio = (await page.locator('nav[aria-label="Primary"]').getByRole('link', { name: 'Portfolio (opens in a new tab)', exact: true }).boundingBox())!
     const logo = (await page.getByRole('link', { name: 'n8builds.dev home' }).boundingBox())!
-    expect(kofi.x).toBeGreaterThan(logo.x + logo.width)
+    expect(portfolio.x).toBeGreaterThan(logo.x + logo.width)
   })
 })
 
@@ -238,7 +219,7 @@ test.describe('mobile menu on a landscape phone', () => {
     await page.goto('/')
     await openMenu(page)
     const menu = page.locator('#mobile-menu')
-    const last = menu.getByRole('link', { name: /Ko-fi/ })
+    const last = menu.getByRole('link').last()
 
     const panel = await menu.boundingBox()
     expect(panel!.y + panel!.height).toBeLessThanOrEqual(340)
@@ -262,4 +243,26 @@ test('moving between pages logs no console errors', { tag: ['@cross-browser', '@
   await expect(page.locator('#lab')).toBeAttached()
   await page.waitForTimeout(1000)
   expect(errors.filter((e) => /script tag|hydrat/i.test(e))).toEqual([])
+})
+
+/**
+ * Link consistency (2026-11-08): every Portfolio link on the homepage goes
+ * through the counted /portfolio short link, tagged by where it sits, in a
+ * new tab; and LinkedIn is one URL everywhere.
+ */
+test('every Portfolio link is counted and opens in a new tab; LinkedIn is one URL', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 })
+  await page.goto('/')
+  for (const [where, from] of [
+    ['nav[aria-label="Primary"]', 'navbar'],
+    ['#home', 'hero'],
+    ['#template', 'lab'],
+    ['nav[aria-label="Sitemap"]', 'footer'],
+  ] as const) {
+    const link = page.locator(`${where} a[href="/portfolio?from=${from}"]`).first()
+    await expect(link, where).toBeAttached()
+    await expect(link, where).toHaveAttribute('target', '_blank')
+  }
+  const linkedIn = await page.locator('a[href*="linkedin.com"]').evaluateAll((as) => [...new Set(as.map((a) => a.getAttribute('href')))])
+  expect(linkedIn).toEqual(['https://linkedin.com/in/n8watkins'])
 })

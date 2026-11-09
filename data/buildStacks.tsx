@@ -1,14 +1,38 @@
 // "Stacks I build with" - named combos, not a flat tool list. Each stack is a
 // recipe of tools that go together for a kind of project, shown as plain
-// chips with their marks, and a short paragraph on the logic of it: why these
-// pieces fit together and when I pick it (round 3 of 2026-11-02, in the
-// owner's reasons; no per-tool roles or notes). Edit freely.
-// Shown on /loadout (components/sections/BuildStacks.tsx, back on 2026-11-02);
-// the homepage's Loadout shows the Turso stack as "My default stack".
+// chips with their marks: its name, what it is for, the tools and where it
+// runs (round 8 of 2026-11-09: no paragraph under each stack).
+// Shown on /loadout (components/sections/BuildStacks.tsx); the homepage's
+// Loadout shows the first two, the Quick stack and the Production stack, as
+// "My default stacks".
+//
+// Round 8 (owner, 2026-11-09): two defaults instead of the Turso, Cloudflare
+// and Firebase stacks. The owner hardly uses Vercel now, and wants no Turso
+// stack (Supabase is acquiring Turso, announced 2026-10-02, and he avoids
+// Supabase). The Quick stack gets something up fast on Vercel, with Firebase
+// for sign-in and data (one console, a free plan, no schema or migrations; what
+// Solara runs on). The Production stack is what his live apps run on: Next.js
+// on Cloudflare Workers through OpenNext, D1, R2, Durable Objects, Images and
+// Email Service (n8builds.dev, the portfolio, Portfolio Rank, OpenPing, Pivot
+// and Feelium's wrangler configs).
 import type { ReactElement } from 'react'
 import Image from 'next/image'
 import type { IconType } from 'react-icons'
-import { LuAccessibility, LuAudioWaveform, LuKeyRound, LuLaptop, LuMail, LuShieldCheck, LuSparkles, LuTag } from 'react-icons/lu'
+import {
+  LuAccessibility,
+  LuArchive,
+  LuAudioWaveform,
+  LuBox,
+  LuDatabase,
+  LuImage,
+  LuKeyRound,
+  LuLaptop,
+  LuLayers,
+  LuMail,
+  LuShieldCheck,
+  LuSparkles,
+  LuTag,
+} from 'react-icons/lu'
 import {
   SiCloudflare,
   SiCloudflareworkers,
@@ -45,6 +69,8 @@ import {
 import { GgmlMark, PiperMark } from '@/data/stack'
 
 export interface BuildStack {
+  /** Its id, for its card's heading. */
+  id: string
   name: string
   tagline: string
   /** The tools it is built with, by name (each one's mark is in stackToolIcons). */
@@ -54,60 +80,65 @@ export interface BuildStack {
    * explicitly): the hosts, the database and file storage, by name.
    */
   hosting: string[]
-  /** Two to four plain sentences: why these pieces fit together, and when I pick it. */
-  about: string
   accent: 'cyan' | 'blue' | 'sky' | 'teal' | 'orange'
 }
 
 export const buildStacks: BuildStack[] = [
   {
-    name: 'The Turso Stack',
-    tagline: 'My default for new web apps',
-    tools: ['Next.js', 'TypeScript', 'Drizzle'],
-    hosting: ['Turso', 'Cloudflare R2', 'Vercel'],
-    about:
-      "Where a new web app starts. Turso is SQLite at the edge, and its free tier is generous enough that a small project costs nothing while it finds its feet. Drizzle keeps every query typed against the schema, and R2 holds the files. I host on Vercel because it gets new Next.js releases first.",
-    accent: 'cyan',
-  },
-  {
-    name: 'The Cloudflare Stack',
-    tagline: 'Edge apps and landing pages',
-    tools: ['Next.js', 'Hono'],
-    hosting: ['Workers', 'D1'],
-    // vinext: Cloudflare's reimplementation of the Next.js API on Vite, deployed to Workers (github.com/cloudflare/vinext).
-    about:
-      'For things that should run on the edge. Cloudflare rebuilt Next.js on Vite as vinext so it runs on Workers, which lets me keep the framework I know and stay on Cloudflare end to end, with Hono for the API and D1 for the data. OpenPing and the landing pages for my upcoming projects live here.',
-    accent: 'orange',
-  },
-  {
-    name: 'The Firebase Stack',
-    tagline: 'When I want batteries included',
-    tools: ['Next.js', 'Firebase Auth'],
-    hosting: ['Firestore', 'Vercel'],
-    about:
-      'For a project that already lives in Google Cloud and uses Google APIs: sign-in and the database come from the same place as everything else it touches. Next.js on Vercel stays the front end. I prefer Firebase here - I avoid\u00a0Supabase.',
+    id: 'quick',
+    name: 'Quick stack',
+    tagline: 'Get something up fast',
+    tools: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Firebase Auth'],
+    hosting: ['Vercel', 'Firestore'],
     accent: 'blue',
   },
   {
-    name: 'The Local-First Stack',
+    id: 'production',
+    name: 'Production stack',
+    tagline: 'What my live apps run on',
+    tools: ['Next.js', 'TypeScript', 'OpenNext', 'Hono'],
+    hosting: ['Workers', 'D1', 'R2', 'Durable Objects', 'Images', 'Email Service'],
+    accent: 'orange',
+  },
+  {
+    id: 'local-first',
+    name: 'Local-first stack',
     tagline: 'Desktop apps and local AI',
     tools: ['Tauri', 'Rust', 'SQLite', 'whisper.cpp', 'Piper', 'Kokoro'],
     // A desktop app runs on the user's own PC; Scribe's installer ships as a GitHub release (lib/downloads.ts).
     hosting: ['Your PC', 'GitHub Releases'],
-    about:
-      'For small desktop apps that should feel native and keep everything on the machine. Tauri and Rust keep them tiny and fast, with SQLite for storage. The speech models run on my own PC too: whisper.cpp for Scribe, Piper and Kokoro for the voices in VoiceDock and T-Hub.',
     accent: 'teal',
   },
   {
-    name: 'The Extension Stack',
+    id: 'extension',
+    name: 'Extension stack',
     tagline: 'Chrome extensions',
     tools: ['Chrome MV3', 'React', 'TypeScript', 'Vite + CRXJS', 'esbuild'],
     hosting: ['Your browser'],
-    about:
-      'Plain Manifest V3 with no extension framework on top, and React and TypeScript for the UI. Vite with CRXJS builds TL;DW, and esbuild builds VoiceDock and TubeVault.',
     accent: 'sky',
   },
 ]
+
+/**
+ * What each piece of the two default stacks is doing there, in a few words:
+ * the homepage's "My default stacks" shows it beside the tool.
+ */
+export const stackRoles: Record<string, string> = {
+  'Next.js': 'the framework',
+  TypeScript: 'strict, everywhere',
+  'Tailwind CSS': 'styling',
+  'Firebase Auth': 'sign-in',
+  Vercel: 'a push ships it',
+  Firestore: 'data, no migrations',
+  OpenNext: 'Next.js on Workers',
+  Hono: 'small APIs',
+  Workers: 'hosting, at the edge',
+  D1: 'SQLite database',
+  R2: 'files and cache',
+  'Durable Objects': 'counters and queues',
+  Images: 'resizing',
+  'Email Service': 'sending email',
+}
 
 /** A brand mark in its own colour. */
 const mark = (Icon: IconType, color: string) => <Icon style={{ color }} />
@@ -126,9 +157,16 @@ export const stackToolIcons: Record<string, ReactElement> = {
   Turso: mark(SiTurso, '#4ff8d2'),
   Drizzle: mark(SiDrizzle, '#c5f74f'),
   'Cloudflare R2': mark(SiCloudflare, '#f38020'),
-  // Cloudflare's own products, named as they are inside the Cloudflare stack.
+  // Cloudflare's own products, named as they are inside the Production stack, each with
+  // its own glyph in Cloudflare's orange (Simple Icons has a mark for Workers only).
   Workers: mark(SiCloudflareworkers, '#f38020'),
-  D1: mark(SiCloudflare, '#f38020'),
+  D1: mark(LuDatabase, '#f38020'),
+  R2: mark(LuArchive, '#f38020'),
+  'Durable Objects': mark(LuBox, '#f38020'),
+  Images: mark(LuImage, '#f38020'),
+  'Email Service': mark(LuMail, '#f38020'),
+  // OpenNext has no mark in Simple Icons: a plain glyph for the adapter layer.
+  OpenNext: mark(LuLayers, '#e6edf6'),
   Hono: mark(SiHono, '#ff5b11'),
   Vercel: mark(SiVercel, LIGHT),
   'Firebase Auth': mark(SiFirebase, '#ffca28'),
@@ -177,17 +215,18 @@ export const stackToolIcons: Record<string, ReactElement> = {
 
 /**
  * Where my projects run (round 5 of 2026-11-02, the owner's ask: hosting is
- * part of the loadout): every host in real use, each with what lives there.
+ * part of the loadout; brought up to date in round 8 of 2026-11-09): every
+ * host in real use, each with what lives there.
  * Found from the projects' own config (vercel.json, wrangler.jsonc,
- * firebase.json, render.yaml) and their database and cache clients; no
+ * firebase.json) and their database and cache clients; no
  * Railway (nothing deploys there). See docs/DECISIONS.md, round 5.
  */
 export const hosts: { name: string; what: string }[] = [
-  { name: 'Vercel', what: 'my portfolio, Portfolio Rank and Scribe’s site' },
-  { name: 'Cloudflare Workers', what: 'n8builds.dev (its data in D1), OpenPing, PR Post, Strollz and the upcoming projects’ landing pages' },
+  // Everything that was on Vercel moved to Workers by 2026-11-09 (each site answers from
+  // Cloudflare, the Next.js ones through OpenNext): Vercel is the Quick stack's host only.
+  { name: 'Cloudflare Workers', what: 'n8builds.dev (its data in D1), my portfolio, Portfolio Rank, OpenPing, PR Post, Scribe’s site and the upcoming projects’ landing pages' },
   { name: 'Firebase', what: 'Solara: its hosting, functions and Firestore' },
-  { name: 'Render', what: 'the AI demos on my portfolio: Echo, Scout and GeminiGPT' },
-  { name: 'Turso', what: 'SQLite databases, for Portfolio Rank and the portfolio’s demos' },
+  { name: 'Turso', what: 'SQLite databases, for Portfolio Rank, Net Trailers and a few upcoming apps' },
   { name: 'GitHub Pages', what: 'The Pull Request Post’s editions' },
 ]
 

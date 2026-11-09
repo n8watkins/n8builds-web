@@ -6,14 +6,13 @@ import { buildStacks, hosts, layers, stackToolIcons, type BuildStack } from '@/d
  * "Stacks I build with" on /loadout: the named stacks (data/buildStacks.tsx),
  * removed in #61 (2026-10-27) and back on 2026-11-02 at the owner's ask, in
  * the page's card style (How I work with AI's steps): each stack's name and
- * what it is for, a paragraph on the logic of it (why these pieces fit
- * together and when I pick it), and its tools as plain chips with their own
- * marks (round 3 of 2026-11-02: no roles, no per-tool notes). A server
- * component; out of the app's IconContext, so every icon is aria-hidden by hand.
+ * what it is for, and its tools as plain chips with their own marks (round 3
+ * of 2026-11-02: no roles, no per-tool notes; round 8 of 2026-11-09: no
+ * paragraph either). A server component; out of the app's IconContext, so
+ * every icon is aria-hidden by hand.
  *
- * Five stacks: the two with the most tools (Turso, Cloudflare) share the
- * first row from 1024px, the other three the second; two to a row on
- * tablets, with the last one across both; one column on phones.
+ * Four stacks, two to a row from 768px (the two defaults, Quick and
+ * Production, first), one column on phones.
  */
 
 // Each stack's accent, for its tagline, its glow and its hover border.
@@ -52,7 +51,7 @@ const Chips = ({ label, tools }: { label: string; tools: string[] }) => (
 
 const StackCard = ({ stack }: { stack: BuildStack }) => (
   <article
-    aria-labelledby={`stack-${stack.accent}-title`}
+    aria-labelledby={`stack-${stack.id}-title`}
     className="group relative flex h-full flex-col gap-5 overflow-hidden rounded-3xl border border-white/8 bg-linear-to-b from-white/[0.045] to-white/[0.01] p-6 transition-[border-color,translate] duration-300 hover:-translate-y-1 hover:border-(--accent)/35 motion-reduce:hover:translate-y-0"
     style={{ '--accent': ACCENT[stack.accent] } as CSSProperties}
   >
@@ -67,21 +66,19 @@ const StackCard = ({ stack }: { stack: BuildStack }) => (
     />
     <div className="relative">
       <h3
-        id={`stack-${stack.accent}-title`}
+        id={`stack-${stack.id}-title`}
         className="text-xl font-extrabold tracking-tight text-slate-50"
       >
         {stack.name}
       </h3>
       <p className="mt-0.5 text-sm font-semibold text-(--accent)">{stack.tagline}</p>
     </div>
-    <p className="relative text-[15px] leading-relaxed text-pretty text-[#b4c2d6]" data-stack-about>
-      {stack.about}
-    </p>
     {/* The combo: each tool as a chip with its own mark, then where it runs, at the card's foot. */}
     <div className="relative mt-auto space-y-3 border-t border-white/6 pt-4">
       <Chips label={`${stack.name} tools`} tools={stack.tools} />
-      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2">
-        <span className="font-mono text-[0.68rem] font-bold tracking-[0.14em] text-(--accent) uppercase">
+      {/* "Runs on" over its chips on every card, so a long list (the Production stack's) reads the same. */}
+      <div className="space-y-2">
+        <span className="block font-mono text-[0.68rem] font-bold tracking-[0.14em] text-(--accent) uppercase">
           Runs on
         </span>
         <Chips label={`${stack.name} hosting`} tools={stack.hosting} />
@@ -153,25 +150,16 @@ function AcrossStacks() {
 
 /** The stacks, each rising in a beat after the one before, then what runs them and what they share. */
 export default function BuildStacks() {
-  const odd = buildStacks.length % 2 === 1
   return (
     <>
-      <ul className="grid gap-5 md:grid-cols-2 lg:grid-cols-6">
-        {buildStacks.map((stack, i) => {
-          // The first two are the widest stacks; on tablets an odd last card spans the row.
-          const wide = i < 2
-          const spansTablet = odd && i === buildStacks.length - 1
-          return (
-            <li
-              key={stack.name}
-              className={`${wide ? 'lg:col-span-3' : 'lg:col-span-2'} ${spansTablet ? 'md:col-span-2 lg:col-span-2' : ''}`}
-            >
-              <Reveal delay={Math.min(i * 0.08, 0.24)} className="h-full">
-                <StackCard stack={stack} />
-              </Reveal>
-            </li>
-          )
-        })}
+      <ul className="grid gap-5 md:grid-cols-2">
+        {buildStacks.map((stack, i) => (
+          <li key={stack.id}>
+            <Reveal delay={Math.min(i * 0.08, 0.24)} className="h-full">
+              <StackCard stack={stack} />
+            </Reveal>
+          </li>
+        ))}
       </ul>
       <AcrossStacks />
     </>

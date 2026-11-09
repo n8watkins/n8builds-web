@@ -103,6 +103,8 @@ export default function LogEntryItem({
             {HIGHLIGHT_LABEL[entry.highlightKind ?? 'shipped']}
           </span>
         )}
+        {/* A release says so in words, not with a different icon frame (round 4 of 2026-11-08). */}
+        {entry.kind === 'release' && <ReleaseBadge />}
         {showBuild && (
           <>
             <Link
@@ -145,16 +147,17 @@ export default function LogEntryItem({
     // `log-in` (globals.css) eases the entry in as it scrolls into view.
     <li className={`log-in relative pb-6 last:pb-0 ${icon ? 'pl-8' : 'pl-6'}`} data-kind={entry.kind} data-build={entry.build}>
       {icon ? (
-        // The build's icon on the line: releases and highlights get a cyan ring, a day's changes don't.
+        // The build's icon on the line, the same frame for every entry (round 4 of 2026-11-08: a
+        // release had a cyan ring and a day's changes didn't; the badge says which it is now).
         <Image
           src={icon}
           alt=""
           width={24}
           height={24}
           unoptimized={icon.endsWith('.svg')}
-          className={`absolute left-0 h-6 w-6 -translate-x-1/2 -translate-y-[0.2rem] rounded-md bg-darkBlue ${
+          className={`absolute left-0 h-6 w-6 -translate-x-1/2 -translate-y-[0.2rem] rounded-md bg-darkBlue ring-1 ring-white/10 ${
             card ? 'top-[1.35rem] sm:top-[1.6rem]' : 'top-0'
-          } ${entry.kind === 'change' ? 'ring-1 ring-white/10' : 'ring-2 ring-cyan-400/70 shadow-[0_0_10px_rgba(34,211,238,0.45)]'}`}
+          }`}
         />
       ) : (
         // The timeline dot: releases and highlights glow, a day's changes don't.
@@ -169,7 +172,7 @@ export default function LogEntryItem({
       )}
       {card ? (
         <div
-          className={`rounded-2xl border p-4 sm:p-5 ${
+          className={`rounded-2xl border p-4 transition-colors duration-150 hover:border-cyan-400/30 sm:p-5 ${
             highlight
               ? 'border-cyan-400/20 bg-linear-to-br from-cyan-500/[0.07] to-blue-600/[0.07]'
               : 'border-white/8 bg-linear-to-br from-white/[0.035] to-cyan-500/[0.03]'
@@ -178,9 +181,19 @@ export default function LogEntryItem({
           {body}
         </div>
       ) : (
-        body
+        // A plain entry lights up under the pointer, like the cards (round 4 of 2026-11-08).
+        <div className="-mx-2 -my-1 rounded-xl px-2 py-1 transition-colors duration-150 hover:bg-white/[0.035]">{body}</div>
       )}
     </li>
+  )
+}
+
+/** "Release", beside a release's build and date: the same small badge on /builds, build pages and the homepage. */
+export function ReleaseBadge() {
+  return (
+    <span className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-1.5 py-px font-mono text-[0.6rem] font-bold tracking-wider text-cyan-300 uppercase">
+      Release
+    </span>
   )
 }
 

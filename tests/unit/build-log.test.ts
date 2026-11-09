@@ -250,6 +250,12 @@ describe('entries for a build', () => {
       'fix: apply pre-submission hardenings from the compliance audit',
       'V2 P7a: client-side ICS export',
       'Wire P7b live calendar-feed client side',
+      'feat: harden imported events: bounded parsing, per-account caps (REVIEW4 M2 M3 M4 L1-L3)',
+      'Review fix: report slot-occupancy UV, not window UV; dedupe now()',
+      'feat: add outbound notification pipeline (Phase 4a)',
+      'feat: add embed-code generator to /share (the G4 front door)',
+      'feat: mark requested stops in last_stop',
+      'feat: add research_person.py to draft a profile for someone new',
     ]) {
       expect(classifyCommit({ message, author: 'n8watkins', parents: 1 }), message).toMatchObject({ kind: 'drop', reason: 'internal' })
     }
@@ -265,6 +271,17 @@ describe('entries for a build', () => {
     const filtered = entriesForBuild({ ...build('tldw'), logHide: [hiddenTitle.toUpperCase()] }, snapshot('tl-dw'))
     expect(filtered.some((e) => e.title.includes(hiddenTitle))).toBe(false)
     expect(filtered.length).toBeGreaterThan(0)
+  })
+
+  it('keeps a release but drops a note that names something in logHide (round 8: T-Hub)', () => {
+    const repo = repoOf([commit('v0.6.1: on-disk dictation status file for T-Hub', '2026-07-06T18:00:00Z')])
+    const open = entriesForBuild(testBuild(), repo)
+    expect(open).toMatchObject([{ title: 'Shipped v0.6.1', detail: expect.stringContaining('T-Hub') }])
+    const hidden = entriesForBuild(testBuild({ logHide: ['t-hub'] }), repo)
+    expect(hidden).toMatchObject([{ title: 'Shipped v0.6.1' }])
+    expect(JSON.stringify(hidden)).not.toContain('T-Hub')
+    // Scribe hides it on the live site.
+    expect(build('scribe').logHide).toContain('T-Hub')
   })
 
   it('never links into a repo the build has no public GitHub link for', () => {
@@ -576,6 +593,11 @@ describe('parseReleaseNotes', () => {
       { section: 'fixed', text: 'Dino drops its walk-in target once it turns' },
       { section: 'faster', text: 'Lazy Sentry loading' },
     ])
+  })
+
+  it('leaves out notes with internal codes or code jargon', () => {
+    const body = ['### New', '- Add embed-code generator to /share (the G4 front door)', '- Mark requested stops in last_stop', '- A share card for every page'].join('\n')
+    expect(parseReleaseNotes(body)).toEqual([{ section: 'new', text: 'A share card for every page' }])
   })
 
   it("leaves out GitHub's generated lists, so an older release shows no notes", () => {

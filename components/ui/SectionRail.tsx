@@ -22,7 +22,7 @@ type SectionRailProps = {
   parts: readonly RailPart[]
   /**
    * The id of the element the rail lives in and tracks: positioned, as wide
-   * as the page, and centring a 72rem (max-w-6xl) content column with 2rem
+   * as the page, and centring the site's content column (max-w-site) with 2rem
    * side padding. The rail shows only while it is on screen and rides out
    * with its foot.
    */
@@ -291,7 +291,7 @@ export default function SectionRail({
   return (
     <div
       ref={columnRef}
-      className="pointer-events-none absolute top-0 bottom-0 left-0 z-20 hidden w-[calc((100%-72rem)/2+2rem)] xl:block"
+      className="pointer-events-none absolute top-0 bottom-0 left-0 z-20 hidden w-[calc((100%-var(--container-site))/2+2rem)] xl:block"
       data-testid={testId}
       data-section-rail=""
     >

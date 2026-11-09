@@ -22,6 +22,8 @@ export default function CoverBanner({
   topic,
   priority = false,
   className = 'aspect-video',
+  bare = false,
+  sizes = '(max-width: 768px) 100vw, 800px',
 }: {
   coverUrl?: string
   coverAlt?: string
@@ -29,28 +31,31 @@ export default function CoverBanner({
   topic?: string
   priority?: boolean
   className?: string
+  /** A small thumbnail (the homepage's compact rows): the picture only, no topic chip or path. */
+  bare?: boolean
+  sizes?: string
 }) {
   const accent = coverAccent(topic, seed)
 
   if (coverUrl) {
     return (
-      <div className={`relative w-full overflow-hidden ${className}`}>
+      <div className={`relative overflow-hidden ${bare ? '' : 'w-full'} ${className}`}>
         <Image
           src={coverUrl}
           alt={coverAlt || ''}
           fill
           priority={priority}
-          sizes="(max-width: 768px) 100vw, 800px"
+          sizes={sizes}
           className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
         />
-        <div className="absolute inset-0 bg-linear-to-t from-darkBlue/80 via-darkBlue/10 to-transparent" />
-        {topic && <TopicChip topic={topic} accent={accent} />}
+        {!bare && <div className="absolute inset-0 bg-linear-to-t from-darkBlue/80 via-darkBlue/10 to-transparent" />}
+        {topic && !bare && <TopicChip topic={topic} accent={accent} />}
       </div>
     )
   }
 
   return (
-    <div className={`relative w-full overflow-hidden bg-darkBlue ${className}`} aria-hidden>
+    <div className={`relative overflow-hidden bg-darkBlue ${bare ? '' : 'w-full'} ${className}`} aria-hidden>
       {/* Slightly oversized so the hover drift never reveals an edge. The SVG is
           already final art, so it skips the image optimizer. */}
       <Image
@@ -61,12 +66,16 @@ export default function CoverBanner({
         priority={priority}
         className="scale-[1.04] object-cover transition-transform duration-700 ease-out group-hover:-translate-x-3"
       />
-      {/* Fade only the strip behind the topic chip into the card. */}
-      <div className="absolute inset-x-0 bottom-0 h-2/5 bg-linear-to-t from-darkBlue to-transparent" />
-      <span className="absolute left-4 top-3 max-w-[85%] truncate font-mono text-[0.62rem] tracking-wider text-slate-300/70">
-        ~/notions/{seed}.md
-      </span>
-      {topic && <TopicChip topic={topic} accent={accent} />}
+      {!bare && (
+        <>
+          {/* Fade only the strip behind the topic chip into the card. */}
+          <div className="absolute inset-x-0 bottom-0 h-2/5 bg-linear-to-t from-darkBlue to-transparent" />
+          <span className="absolute left-4 top-3 max-w-[85%] truncate font-mono text-[0.62rem] tracking-wider text-slate-300/70">
+            ~/notions/{seed}.md
+          </span>
+          {topic && <TopicChip topic={topic} accent={accent} />}
+        </>
+      )}
     </div>
   )
 }

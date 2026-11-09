@@ -22,7 +22,8 @@ test.describe('Loadout tools and people', () => {
     await expect(built.getByRole('heading', { name: 'Other things I built' })).toHaveCount(0)
     await expect(built.getByText('Your AI coding agents use your API keys without ever seeing them.')).toBeVisible()
     await expect(built.locator('[data-credit]')).toHaveText(
-      'Created by Phaedrus Raznikov at Misty Step; my fork adds import, generate, doctor and more.',
+      // Each name links out, and says so to screen readers.
+      'Created by Phaedrus Raznikov (opens in a new tab) at Misty Step (opens in a new tab); my fork adds import, generate, doctor and more.',
     )
     await expect(built.getByRole('link', { name: 'Phaedrus Raznikov' })).toHaveAttribute('href', 'https://github.com/moomooskycow')
     await expect(built.getByRole('link', { name: 'Misty Step' })).toHaveAttribute('href', 'https://github.com/misty-step')
@@ -270,11 +271,10 @@ test.describe('Loadout tools and people', () => {
     await expect(page.locator('#dev-setup')).not.toContainText('gnhf')
     await expect(setup.getByRole('link', { name: /^Scribe/ })).toHaveAttribute('href', '/builds/scribe')
     await expect(setup.getByRole('link', { name: /^herdr/ })).toHaveAttribute('href', '#herdr')
-    // T-Hub has no public page and N8 Tray is private: neither is a link.
-    for (const name of ['T-Hub', 'N8 Tray']) {
-      await expect(setup.getByText(name, { exact: true })).toBeVisible()
-      await expect(setup.getByRole('link', { name: new RegExp(`^${name}`) })).toHaveCount(0)
-    }
+    // N8 Tray is private: not a link. T-Hub is gone (owner, round 8 of 2026-11-09: no longer used).
+    await expect(setup.getByText('N8 Tray', { exact: true })).toBeVisible()
+    await expect(setup.getByRole('link', { name: /^N8 Tray/ })).toHaveCount(0)
+    await expect(page.locator('main')).not.toContainText('T-Hub')
   })
 
   test('the old honorable mentions credit their makers in Tools I use, and gnhf stays out', { tag: '@cross-browser' }, async ({ page }) => {
@@ -314,6 +314,31 @@ test.describe('Loadout tools and people', () => {
     await expect(card.getByRole('link', { name: 'Check out how he works (a video, opens in a new tab)' })).toHaveAttribute('href', 'https://youtu.be/iQyg-KypKAA')
   })
 
+  for (const width of [1280, 390]) {
+    test(`every People I follow card has the same shape: a short note and a second line, 4 or 5 lines in all (${width}px)`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 })
+      await page.goto('/#people')
+      const lines = await page.locator('#people li > article').evaluateAll((cards) =>
+        cards.map((card) => {
+          const count = (el: Element | null) => (el ? Math.round(el.getBoundingClientRect().height / parseFloat(getComputedStyle(el).lineHeight)) : 0)
+          return {
+            id: card.id,
+            note: count(card.querySelector('[data-person-note]')),
+            more: count(card.querySelector('[data-person-more]')),
+          }
+        }),
+      )
+      expect(lines).toHaveLength(3)
+      for (const card of lines) {
+        expect(card.note, card.id).toBeLessThanOrEqual(3)
+        expect(card.more, card.id).toBeGreaterThanOrEqual(1)
+        expect(card.note + card.more, card.id).toBeLessThanOrEqual(width < 640 ? 5 : 4)
+      }
+      const totals = lines.map((c) => c.note + c.more)
+      expect(Math.max(...totals) - Math.min(...totals)).toBeLessThanOrEqual(1)
+    })
+  }
+
   test('Phaedrus\'s card describes the software factory he is building', async ({ page }) => {
     await page.goto('/')
     const card = page.locator('#phaedrus')
@@ -322,13 +347,40 @@ test.describe('Loadout tools and people', () => {
     await expect(card).toContainText('he created pass-env')
   })
 
-  test('the homepage teases my setup and links to it', { tag: '@smoke' }, async ({ page }) => {
+  test('the homepage shows my setup at a glance, with marks, and links to it and to Kun Chen\'s setup video', { tag: '@smoke' }, async ({ page }) => {
     await page.goto('/')
-    const teaser = page.locator('[data-setup-teaser]')
-    await expect(teaser).toContainText('Windows 11 + WSL2 · Claude Code + Codex · herdr + T-Hub')
-    await teaser.getByRole('link', { name: 'See my dev setup' }).click()
+    const setup = page.getByRole('group', { name: 'My dev setup' })
+    await expect(setup.getByRole('list', { name: 'My dev setup at a glance' }).getByRole('listitem')).toHaveText([
+      'Windows 11',
+      'WSL2 Ubuntu',
+      'Windows Terminal',
+      'zsh',
+      'tmux',
+      'herdr',
+      'Neovim',
+      'VS Code',
+      'Claude Code',
+      'Codex',
+    ])
+    // Every piece carries its mark.
+    await expect(setup.locator('li :is(svg, img)')).toHaveCount(10)
+    await expect(setup.getByRole('link', { name: /^Watch Kun Chen build his from scratch/ })).toHaveAttribute(
+      'href',
+      'https://www.youtube.com/watch?v=5N-okeDdIuI',
+    )
+    await setup.getByRole('link', { name: 'See my dev setup' }).click()
     await expect(page).toHaveURL(/\/loadout#dev-setup$/)
     await expect(page.getByRole('heading', { name: 'My dev setup' })).toBeVisible()
+  })
+
+  test('/loadout recommends Kun Chen\'s dev environment video under the setup', async ({ page }) => {
+    await page.goto('/loadout')
+    const video = page.locator('#dev-setup [data-setup-video]')
+    await expect(video).toHaveAttribute('href', 'https://www.youtube.com/watch?v=5N-okeDdIuI')
+    await expect(video).toHaveAttribute('target', '_blank')
+    await expect(video).toContainText('Watch Kun Chen build his agentic dev environment from scratch')
+    await video.locator('img').scrollIntoViewIfNeeded()
+    await expect.poll(() => video.locator('img').evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0)
   })
 
   test('the header pills jump to every part of the page', { tag: '@smoke' }, async ({ page }) => {
@@ -399,8 +451,9 @@ test.describe('Loadout tools and people', () => {
     const stacks = page.getByRole('region', { name: 'Stacks I build with' })
     // Every host in real use, each with what lives there; nothing deploys to Railway.
     const hosts = stacks.getByRole('region', { name: 'Where it runs' }).locator('[data-host]')
-    await expect(hosts).toHaveCount(6)
-    for (const host of ['Vercel', 'Cloudflare Workers', 'Firebase', 'Render', 'Turso', 'GitHub Pages']) {
+    // Nothing runs on Vercel any more (round 8 of 2026-11-09): it is only the Quick stack's host.
+    await expect(hosts).toHaveCount(4)
+    for (const host of ['Cloudflare Workers', 'Firebase', 'Turso', 'GitHub Pages']) {
       await expect(hosts.filter({ hasText: new RegExp(`^${host} - `) })).toHaveCount(1)
     }
     await expect(stacks).not.toContainText('Railway')
@@ -415,62 +468,41 @@ test.describe('Loadout tools and people', () => {
       expect(height).toBeLessThan(24)
   })
 
-  test('Stacks I build with names each stack, explains its logic in a paragraph, and shows its tools as chips', async ({ page }) => {
+  test('Stacks I build with names each stack and shows its tools as chips, with no paragraph', async ({ page }) => {
     await page.goto('/loadout')
     const stacks = page.getByRole('region', { name: 'Stacks I build with' })
     // How I build, right after Inside the apps I build (2026-11-02).
     const order = await page.locator('main h2').allTextContents()
     expect(order.indexOf('Stacks I build with')).toBe(order.indexOf('Inside the apps I build') + 1)
+    // Round 8 of 2026-11-09: the Quick and Production stacks replace the Turso, Cloudflare and Firebase ones.
     await expect(stacks.getByRole('heading', { level: 3 })).toHaveText([
-      'The Turso Stack',
-      'The Cloudflare Stack',
-      'The Firebase Stack',
-      'The Local-First Stack',
-      'The Extension Stack',
+      'Quick stack',
+      'Production stack',
+      'Local-first stack',
+      'Extension stack',
       // Under the stacks (round 5 of 2026-11-02).
       'Where it runs',
       'Across every stack',
     ])
-    // Round 3 of 2026-11-02: no roles or per-tool notes, just the tools as chips.
-    await expect(stacks.locator('[data-stack-role]')).toHaveCount(0)
+    await expect(stacks).not.toContainText('Turso Stack')
+    // No roles, no per-tool notes (round 3 of 2026-11-02), and no paragraph under each stack (round 8).
+    await expect(stacks.locator('[data-stack-role], [data-stack-about]')).toHaveCount(0)
     for (const role of ['Framework', 'Database', 'Hosting']) await expect(stacks).not.toContainText(role)
-    const turso = stacks.getByRole('list', { name: 'The Turso Stack tools' })
-    await expect(turso.locator('[data-stack-tool]')).toHaveText(['Next.js', 'TypeScript', 'Drizzle'])
-    // Where each stack runs, shown on its card (round 5 of 2026-11-02: hosting is part of the stack).
+    const toolsOf = (name: string) => stacks.getByRole('list', { name: `${name} tools` }).locator('[data-stack-tool]')
     const runsOn = (name: string) => stacks.getByRole('list', { name: `${name} hosting` }).locator('[data-stack-tool]')
-    await expect(runsOn('The Turso Stack')).toHaveText(['Turso', 'Cloudflare R2', 'Vercel'])
-    await expect(runsOn('The Cloudflare Stack')).toHaveText(['Workers', 'D1'])
-    await expect(runsOn('The Firebase Stack')).toHaveText(['Firestore', 'Vercel'])
-    await expect(runsOn('The Local-First Stack')).toHaveText(['Your PC', 'GitHub Releases'])
-    await expect(runsOn('The Extension Stack')).toHaveText(['Your browser'])
+    await expect(toolsOf('Quick stack')).toHaveText(['Next.js', 'TypeScript', 'Tailwind CSS', 'Firebase Auth'])
+    await expect(runsOn('Quick stack')).toHaveText(['Vercel', 'Firestore'])
+    await expect(toolsOf('Production stack')).toHaveText(['Next.js', 'TypeScript', 'OpenNext', 'Hono'])
+    await expect(runsOn('Production stack')).toHaveText(['Workers', 'D1', 'R2', 'Durable Objects', 'Images', 'Email Service'])
+    await expect(runsOn('Local-first stack')).toHaveText(['Your PC', 'GitHub Releases'])
+    await expect(runsOn('Extension stack')).toHaveText(['Your browser'])
     await expect(stacks).not.toContainText('+TypeScript')
     // The extensions really built with: no WXT.
-    await expect(stacks.getByRole('list', { name: 'The Extension Stack tools' }).locator('[data-stack-tool]')).toHaveText([
-      'Chrome MV3',
-      'React',
-      'TypeScript',
-      'Vite + CRXJS',
-      'esbuild',
-    ])
+    await expect(toolsOf('Extension stack')).toHaveText(['Chrome MV3', 'React', 'TypeScript', 'Vite + CRXJS', 'esbuild'])
     await expect(stacks).not.toContainText('WXT')
-    // A paragraph per stack on its logic (two to four sentences), in the owner's reasons.
-    for (const about of await stacks.locator('[data-stack-about]').allInnerTexts()) {
-      const sentences = about.split(/(?<=[.:])\s+(?=[A-Z])/).length
-      expect(sentences, about).toBeGreaterThanOrEqual(2)
-      expect(about.match(/\. /g)?.length ?? 0, about).toBeLessThanOrEqual(3)
-    }
-    const about = stacks.locator('[data-stack-about]')
-    await expect(about.nth(0)).toContainText('free tier is generous')
-    await expect(about.nth(0)).toContainText('Vercel because it gets new Next.js releases first')
-    await expect(about.nth(1)).toContainText('vinext')
-    await expect(about.nth(1)).toContainText('OpenPing')
-    await expect(about.nth(2)).toContainText('Google Cloud')
-    await expect(about.nth(2)).toContainText(/I prefer Firebase here - I avoid\sSupabase\./)
-    await expect(about.nth(3)).toContainText('whisper.cpp')
-    await expect(about.nth(4)).toContainText('esbuild')
     // Every tool carries its mark, 16px.
     const icons = stacks.getByRole('article').locator('[data-stack-icon] svg')
-    await expect(icons).toHaveCount(28)
+    await expect(icons).toHaveCount(30)
     for (const height of await icons.evaluateAll((svgs) => svgs.map((svg) => Math.round(svg.getBoundingClientRect().height)))) expect(height).toBe(16)
     // Every tool name stays on one line, and the cards in a row are the same height.
     for (const height of await stacks.locator('[data-stack-tool]').evaluateAll((els) => els.map((el) => el.getBoundingClientRect().height)))
@@ -554,20 +586,52 @@ test.describe('Loadout tools and people', () => {
     })
   })
 
+  test("the homepage's Scribe row is short, and offers the download for the visitor's OS, Full story on a phone", async ({ browser }) => {
+    // Windows, and macOS and Linux in beta (owner, 2026-11-09).
+    for (const [userAgent, platform, name, href, note] of [
+      ['Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Safari/537.36', 'windows', 'Download for Windows', '/download/scribe', /^Windows 10 and 11, 64-bit · v0\.8\.0 · 12 MB$/],
+      ['Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15', 'mac', 'Download for macOS Beta', '/download/scribe-mac', /^macOS, Apple silicon and Intel · v0\.8\.0 · \d+ MBNot notarized by Apple: open it once, then allow it in System Settings > Privacy & Security > Open Anyway\.$/],
+      ['Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Safari/537.36', 'linux', 'Download for Linux Beta', '/download/scribe-linux', /^Linux, 64-bit AppImage · v0\.8\.0 · \d+ MB · Also as a \.deb$/],
+      ['Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1', 'other', 'Download for Windows', '/download/scribe', 'Desktop app for Windows, with macOS and Linux in beta.'],
+    ] as const) {
+      const context = await browser.newContext({ userAgent, viewport: { width: 1280, height: 800 }, reducedMotion: 'reduce' })
+      const page = await context.newPage()
+      await page.goto('/')
+      const row = page.locator('#tools-i-built').getByRole('article', { name: 'Scribe' })
+      await row.scrollIntoViewIfNeeded()
+      // No stack pills or feature checks here: the build page has them.
+      await expect(row.getByRole('list')).toHaveCount(0)
+      const actions = row.locator('[data-scribe-platform]')
+      await expect(actions).toHaveAttribute('data-scribe-platform', platform)
+      const download = row.getByRole('link', { name, exact: true })
+      const story = row.getByRole('link', { name: 'Full story of Scribe' })
+      await expect(download).toHaveAttribute('href', href)
+      await expect(story).toHaveAttribute('href', '/builds/scribe')
+      // The leading button comes first; both are the same size, so nothing shifts.
+      const [first] = await actions.getByRole('link').all()
+      await expect(first).toHaveAccessibleName(platform === 'other' ? 'Full story of Scribe' : name)
+      const [d, f] = [(await download.boundingBox())!, (await story.boundingBox())!]
+      expect(Math.abs(d.width - f.width)).toBeLessThan(1)
+      expect(Math.abs(d.height - f.height)).toBeLessThan(1)
+      await expect(row.locator('#scribe-download-note')).toHaveText(note)
+      if (platform === 'linux') await expect(row.getByRole('link', { name: 'Also as a .deb' })).toHaveAttribute('href', '/download/scribe-deb')
+      await context.close()
+    }
+  })
+
   test('the homepage has Tools I built and use inside its Loadout, every tool with Scribe first', async ({ page }) => {
     await page.goto('/')
     const built = page.getByRole('region', { name: 'Tools I built and use' })
-    // As /loadout, a level down: Scribe's row (h3), the cards (h5) under the h4 subheading. No pr-post
-    // (round 5 of 2026-11-02): The Pull Request Post's card a section above is its one place.
-    await expect(built.getByRole('article').getByRole('heading', { level: 3 })).toHaveText(['Scribe'])
+    // As /loadout, a level down: Scribe's compact row (2026-11-08) and the cards (h5) under the h4 subheading.
+    // No pr-post (round 5 of 2026-11-02): The Pull Request Post's card a section above is its one place.
     await expect(built.getByRole('heading', { level: 4 })).toHaveText(['Dev tools I built'])
-    await expect(built.getByRole('article').getByRole('heading', { level: 5 })).toHaveText([/^pass-env/, /^release-kit/, /^devguard/])
-    await expect(built.locator('[data-credit]')).toContainText('Created by Phaedrus Raznikov at Misty Step')
+    await expect(built.getByRole('article').getByRole('heading', { level: 5 })).toHaveText(['Scribe', /^pass-env/, /^release-kit/, /^devguard/])
+    await expect(built.locator('[data-credit]')).toContainText('Created by Phaedrus Raznikov (opens in a new tab) at Misty Step')
     // A part of the Loadout (#loadout): after the default stack. The setup teaser leads the band (round 3 of 2026-11-02).
     const loadout = page.locator('#loadout')
     await expect(loadout.locator('#tools-i-built')).toHaveCount(1)
     const [stack, tools, teaser, kit] = await Promise.all(
-      [loadout.getByRole('heading', { name: 'The Turso Stack' }), built, loadout.locator('[data-setup-teaser]'), loadout.locator('#ai-kit')].map((el) =>
+      [loadout.getByRole('heading', { name: 'Production stack' }), built, loadout.locator('[data-setup-teaser]'), loadout.locator('#ai-kit')].map((el) =>
         el.boundingBox(),
       ),
     )

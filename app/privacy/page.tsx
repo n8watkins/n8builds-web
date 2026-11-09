@@ -139,6 +139,7 @@ export default function PrivacyPolicy() {
                       className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
                     >
                       Cloudflare Turnstile Privacy Addendum
+                      <span className="sr-only"> (opens in a new tab)</span>
                     </a>
                     .
                   </li>
@@ -152,6 +153,7 @@ export default function PrivacyPolicy() {
                       className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
                     >
                       Google Privacy Policy
+                      <span className="sr-only"> (opens in a new tab)</span>
                     </a>
                     .
                   </li>
@@ -165,6 +167,7 @@ export default function PrivacyPolicy() {
                       className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
                     >
                       Sentry Privacy Policy
+                      <span className="sr-only"> (opens in a new tab)</span>
                     </a>
                     .
                   </li>
@@ -217,6 +220,7 @@ export default function PrivacyPolicy() {
                       className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
                     >
                       Global Privacy Control
+                      <span className="sr-only"> (opens in a new tab)</span>
                     </a>{' '}
                     signal, wherever you are, I treat it as a decline: Google Analytics isn&rsquo;t loaded unless
                     you turn it on yourself in the cookie settings.
@@ -256,6 +260,7 @@ export default function PrivacyPolicy() {
                     className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
                   >
                     Twitch Privacy Notice
+                    <span className="sr-only"> (opens in a new tab)</span>
                   </a>{' '}
                   and the{' '}
                   <a
@@ -265,6 +270,7 @@ export default function PrivacyPolicy() {
                     className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
                   >
                     Google Privacy Policy
+                    <span className="sr-only"> (opens in a new tab)</span>
                   </a>
                   . YouTube streams use YouTube&rsquo;s privacy-enhanced (no-cookie) player. X
                   streams are only linked, never embedded. Closing or minimizing the player is

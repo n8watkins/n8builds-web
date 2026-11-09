@@ -15,8 +15,8 @@ test('the heading, subheader and prompt -> repeat chips all fit on a 320px scree
   await expect(hero.locator('.n8-cnode')).toHaveText(['prompt', 'build', 'ship', 'repeat'])
   await expect(hero.getByText('idea', { exact: true })).toHaveCount(0)
   const targets = [
-    hero.getByRole('heading', { level: 1, name: 'n8builds' }),
-    hero.getByText('Think bigger. Ship sooner.'),
+    hero.getByRole('heading', { level: 1, name: 'n8builds.dev' }),
+    hero.getByText('Think big. Ship fast.'),
     hero.getByText('prompt', { exact: true }),
     hero.getByText('repeat', { exact: true }),
   ]
@@ -100,17 +100,21 @@ test.describe('the hero text column', () => {
   test('has no "See what I\'m building" button', async ({ page }) => {
     await page.goto('/')
     const hero = page.locator('#home')
-    await expect(hero.getByRole('heading', { level: 1, name: 'n8builds' })).toBeVisible()
+    await expect(hero.getByRole('heading', { level: 1, name: 'n8builds.dev' })).toBeVisible()
     await expect(hero.getByText(/See what I.m building/)).toHaveCount(0)
   })
 
-  test('shows "Hiring? Check out my dev portfolio" above the social links', { tag: '@smoke' }, async ({ page }) => {
+  test('shows "Hiring? Check out my portfolio" with a briefcase above the social links', { tag: '@smoke' }, async ({ page }) => {
     await page.goto('/')
     const hero = page.locator('#home')
-    const link = hero.getByRole('link', { name: 'Check out my dev portfolio' })
-    // A direct route to the developer portfolio for someone hiring.
+    const link = hero.getByRole('link', { name: 'Check out my portfolio (opens in a new tab)' })
+    // A direct route to the developer portfolio for someone hiring: counted, in a new tab, like every Portfolio link.
+    // "Hiring?" leads in, the briefcase sits inside the link before its words (round 7, 2026-11-09).
     await expect(link).toBeVisible()
-    await expect(link).toHaveAttribute('href', 'https://portfolio.n8builds.dev')
+    await expect(link.locator('svg')).toHaveCount(1)
+    await expect(hero.getByText('Hiring?', { exact: true })).toBeVisible()
+    await expect(link).toHaveAttribute('href', '/portfolio?from=hero')
+    await expect(link).toHaveAttribute('target', '_blank')
     const hiring = await link.boundingBox()
     const socials = await hero.getByRole('navigation', { name: 'Social links' }).boundingBox()
     expect(hiring!.y + hiring!.height).toBeLessThanOrEqual(socials!.y)
@@ -333,7 +337,7 @@ for (const [width, height] of [
       await page.goto('/')
       const hero = page.locator('#home')
       const portrait = (await hero.getByRole('img', { name: /^Nathan Watkins/ }).boundingBox())!
-      const heading = (await hero.getByRole('heading', { level: 1, name: 'n8builds' }).boundingBox())!
+      const heading = (await hero.getByRole('heading', { level: 1, name: 'n8builds.dev' }).boundingBox())!
       expect(portrait.width, 'portrait size').toBeGreaterThanOrEqual(140)
       expect(portrait.y, 'portrait clears the navbar').toBeGreaterThanOrEqual(68)
       expect(portrait.y + portrait.height, 'portrait on the first screen').toBeLessThanOrEqual(height)
@@ -341,9 +345,9 @@ for (const [width, height] of [
       expect(heading.y, 'heading on the first screen').toBeLessThan(height)
     })
 
-    test('keeps "Think bigger. Ship sooner." on one line', { tag: width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
+    test('keeps "Think big. Ship fast." on one line', { tag: width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
       await page.goto('/')
-      const tagline = page.locator('#home').getByText('Think bigger. Ship sooner.')
+      const tagline = page.locator('#home').getByText('Think big. Ship fast.')
       const { lines, right } = await tagline.evaluate((el) => {
         const range = document.createRange()
         range.selectNodeContents(el)
@@ -499,6 +503,9 @@ test.describe('the whoami typing', () => {
       await page.context().route('**/*.js', (route) => route.abort())
       await page.goto('/')
       await expect(lines(page)).toHaveText(['AI-first software developer.', 'I build apps and tools I wish existed.'])
+      // The cursor ends the last line, not a prompt line of its own (2026-11-08).
+      await expect(page.locator('#home [data-terminal] p').filter({ has: page.locator('.whoami-prompt') })).toContainText('I build apps and tools I wish existed.')
+      await expect(prompt(page)).not.toContainText('$')
       // Pause every animation early on: line 1 part typed, line 2 and the prompt not yet.
       await page.evaluate(() => {
         // Time-based animations only: the Lab's scroll-driven washes run on scroll progress.
@@ -614,7 +621,7 @@ for (const width of [768, 900, 1023, 1024]) {
     // styled scrollbar out of its media queries.
     const gutter = await page.evaluate(() => window.innerWidth - document.documentElement.clientWidth)
     if (gutter > 0) await page.setViewportSize({ width: width + gutter, height: 1024 })
-    const sub = (await page.locator('#home').getByText('Think bigger. Ship sooner.').boundingBox())!
+    const sub = (await page.locator('#home').getByText('Think big. Ship fast.').boundingBox())!
     const portrait = (await page.locator('#home .hero-portrait-in').boundingBox())!
     expect(sub.height, 'one line').toBeLessThan(50)
     // Beside the portrait, from md up.
