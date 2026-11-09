@@ -8,17 +8,23 @@ import { isWaitlistOpen } from '@/lib/waitlist/store'
  * the caller wraps it in the section the cards' Join buttons scroll to.
  * `layout="side"` is /upcoming's: beside its cards from 1024px up, so it
  * tightens there (picks without taglines, less padding), and centres its
- * content when the cards beside it are the taller. The homepage shows it
- * behind a "Join the waitlist" button (WaitlistDisclosure, 2026-11-08).
+ * content when the cards beside it are the taller. `layout="modal"` is the
+ * homepage's: its "Join the waitlist" button opens it in a modal
+ * (WaitlistDialog, round 7 of 2026-11-09), which draws the frame, so the
+ * panel drops its own and leaves room for the close button.
  */
 export default async function WaitlistPanel({
   heading: Heading = 'h2',
+  headingId,
   layout = 'page',
 }: {
   heading?: 'h2' | 'h4'
-  layout?: 'page' | 'side'
+  /** The heading's id, for the modal that is labelled by it. */
+  headingId?: string
+  layout?: 'page' | 'side' | 'modal'
 }) {
   const side = layout === 'side'
+  const modal = layout === 'modal'
   // Decided when the page is prerendered: the build sees the D1 binding through wrangler's local simulation.
   const open = await isWaitlistOpen()
   // As the contact form: under `next dev` the server skips Turnstile.
@@ -26,18 +32,24 @@ export default async function WaitlistPanel({
 
   return (
     <div
-      className={`h-full rounded-2xl border border-white/8 bg-linear-to-br from-cyan-500/[0.06] to-blue-600/[0.03] p-5 sm:p-8 ${side ? 'lg:flex lg:flex-col lg:justify-center lg:p-5 xl:p-6' : ''}`}
+      className={
+        modal
+          ? 'bg-linear-to-br from-cyan-500/[0.06] to-blue-600/[0.03] p-5 sm:p-7'
+          : `h-full rounded-2xl border border-white/8 bg-linear-to-br from-cyan-500/[0.06] to-blue-600/[0.03] p-5 sm:p-8 ${side ? 'lg:flex lg:flex-col lg:justify-center lg:p-5 xl:p-6' : ''}`
+      }
     >
-      {/* h4 on the homepage, under the Lab's h3 "What's cookin'". */}
-      <Heading className={`text-2xl font-bold tracking-tight text-slate-50 sm:text-3xl ${side ? 'lg:text-[1.75rem]' : ''}`}>
+      <Heading
+        id={headingId}
+        className={`text-2xl font-bold tracking-tight text-slate-50 sm:text-3xl ${side ? 'lg:text-[1.75rem]' : ''} ${modal ? 'pr-12' : ''}`}
+      >
         Join the <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">waitlist</span>
       </Heading>
       {open ? (
         <>
-          <p className={`mt-2 text-sm leading-relaxed text-slate-300 sm:text-base ${side ? 'lg:text-sm' : ''}`}>
+          <p className={`mt-2 text-sm leading-relaxed text-slate-300 sm:text-base ${side ? 'lg:text-sm' : ''} ${modal ? 'pr-8' : ''}`}>
             Pick the projects you want to hear about. I&rsquo;ll email a link to confirm, so nobody can sign you up but you.
           </p>
-          <div className={side ? 'mt-6 lg:mt-4' : 'mt-6'}>
+          <div className={side ? 'mt-6 lg:mt-4' : modal ? 'mt-5' : 'mt-6'}>
             <WaitlistForm turnstileSiteKey={turnstileSiteKey} layout={layout} />
           </div>
         </>

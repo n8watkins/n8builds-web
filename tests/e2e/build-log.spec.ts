@@ -33,7 +33,7 @@ test('the build log leads with the builds, most recently active first', { tag: '
   const cards = page.getByRole('list', { name: 'Builds by latest activity' }).locator(':scope > li')
   // The builds, then the projects without a build page the log follows since round 5 of
   // 2026-11-02 (data/logBuilds.ts); in the fixture those have nothing yet, so they come last.
-  await expect(cards).toHaveCount(18)
+  await expect(cards).toHaveCount(21)
   expect(await cards.evaluateAll((els) => els.map((el) => el.getAttribute('data-build')))).toEqual([
     'n8builds',
     'solara',
@@ -49,6 +49,9 @@ test('the build log leads with the builds, most recently active first', { tag: '
     'feelium',
     'vibelog',
     'cutelyaskme',
+    'fitflow7',
+    'pivot',
+    'whoami',
     'release-kit',
     'pass-env',
     'devguard',

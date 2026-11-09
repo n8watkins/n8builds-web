@@ -1114,6 +1114,25 @@
   }
 }
 
+/* A month's day bars fill in from left to right, day by day, when the visitor
+   switches months (components/sections/ShippedStats.tsx, round 7 of
+   2026-11-09): each rises from the baseline, 16ms after the day before, so a
+   31-day month fills in about 0.8s. Transform only; nothing under reduced motion. */
+@keyframes log-bar-fill {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .log-bar-fill {
+    animation: log-bar-fill 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(var(--i, 0) * 16ms);
+  }
+}
+
 /* The waitlist glows once when a card's Join ticks a project in it while it
    is already in view (components/upcoming/JoinButton.tsx): a ring that fades. */
 @keyframes waitlist-flash {
@@ -1242,4 +1261,10 @@
     height: 48px;
     background: radial-gradient(50% 100% at 50% 0, rgb(var(--lo) / 0.16), transparent);
   }
+}
+
+/* The waitlist modal (components/upcoming/WaitlistDialog.tsx): the page behind
+   it doesn't scroll; `scrollbar-gutter: stable` on html keeps its width. */
+html.modal-open {
+  overflow: hidden;
 }
