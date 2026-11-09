@@ -388,6 +388,13 @@ Where these conflict with an older entry above, these win; the older entries are
   The flask, puzzle, star and pot icons stay.
   **The hero's prompt, build, ship, repeat chain stays a decorative animation** (owner, round 3 of 2026-11-08: "there definitely shouldn't be a hover, a chip effect... this is just a cool little animation"): no buttons, popovers or copy on the chips; a short-lived version with step popovers was reverted.
 
+- **Round 3 of the trim (owner, 2026-11-08):**
+  The whoami cursor is a block one character wide and cap height, on the last line's baseline right after the text (the typing caret is the same block).
+  The Tech for Pros card links techforpros.com twice: its mark and name at the top, and a "Visit techforpros.com" button under the quote field (both new tab, through `/techforpros?from=hero`).
+  The quote field shows no label or privacy note (the label stays for screen readers); "Don't see yours? We'll build it." is larger, a small call to action of its own that goes to the quote field.
+  The homepage build log shows the month's two latest updates beside the month card (no paging); the card's figures move on every 7 seconds (was 4); the release-kit ad is one line, and "Get release-kit" carries GitHub's mark. It sits close under "What I'm working on", with no hairline between them.
+  /builds shows the same month card beside its intro, and the page fades in on load a step at a time (CSS, still under reduced motion), its sections fading up as they scroll in.
+
 ## Publishing and releases (2026-10-25)
 
 - **Articles are always site first.** Every article is written and published on n8builds.dev (N8's Notions, in Sanity); posting or reposting it on X is a separate, later step, never the primary copy.
