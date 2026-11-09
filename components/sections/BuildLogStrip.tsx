@@ -310,7 +310,7 @@ export default async function BuildLogStrip() {
         aria-labelledby="build-log-heading"
         className="lab-accent-buildlog lab-part-wash relative z-10 pt-2 pb-12 md:pt-4"
       >
-        <div className="mx-auto max-w-6xl px-5 sm:px-8">
+        <div className="mx-auto max-w-site px-5 sm:px-8">
           <Reveal>
             <div className="flex flex-wrap items-end justify-between gap-x-6">
               {/* "Build log" is the heading; the month is named once, on the card (round 4 of 2026-11-08). */}

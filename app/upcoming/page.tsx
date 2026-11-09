@@ -110,7 +110,7 @@ export default function UpcomingPage() {
           <div className="absolute right-[-10%] top-[60rem] h-120 w-120 scale-[1.6] bg-radial from-blue-600/6 to-transparent to-70%" />
         </div>
 
-        <div className="relative mx-auto max-w-6xl px-5 pb-24 pt-28 sm:px-8 md:pt-36">
+        <div className="relative mx-auto max-w-site px-5 pb-24 pt-28 sm:px-8 md:pt-36">
           <FadeIn as="header">
             <p className="font-mono text-[0.7rem] font-bold uppercase tracking-[0.22em] text-cyan-400">Upcoming</p>
             <h1 className="mt-3 text-[2.6rem] font-extrabold leading-[1.03] tracking-tight text-slate-50 sm:text-6xl/none">

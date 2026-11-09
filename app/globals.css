@@ -23,6 +23,10 @@
 
   --color-darkBlue: #050812;
 
+  /* The site's content column (`max-w-site`): 72rem, a little wider on big
+     screens (owner's experiment, 2026-11-09), see below. */
+  --container-site: 72rem;
+
   /* Muted text tones for the dark UI. Stock slate-500 / slate-600 fall below
      WCAG AA (4.5:1) for small text on the site's near-black backgrounds;
      these keep the same hierarchy at >= 4.6:1. */
@@ -58,6 +62,17 @@
 @theme inline {
   --animate-marquee: marquee var(--duration) linear infinite;
   --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+}
+
+/* On big screens the content column grows (owner, 2026-11-09): from 1280px it
+   is the screen less an 18rem frame (the Lab's and the Loadout's side rails
+   need a 9rem gutter, 2rem of it the column's padding), between 72rem and
+   82rem. So up to 1440px it stays 72rem, and at 1920px it is 82rem. Phones
+   and tablets never change. */
+@media (width >= 80rem) {
+  :root {
+    --container-site: clamp(72rem, 100vw - 18rem, 82rem);
+  }
 }
 
 /* The load fade for content above the fold (components/ui/FadeIn.tsx). Pure
@@ -1213,7 +1228,7 @@
     position: absolute;
     top: 0;
     left: 50%;
-    width: min(72rem, calc(100% - 2.5rem));
+    width: min(var(--container-site), calc(100% - 2.5rem));
     height: 1px;
     transform: translateX(-50%);
     pointer-events: none;

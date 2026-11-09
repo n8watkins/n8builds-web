@@ -63,7 +63,7 @@ const ICON_SIZE: Record<Social['size'], string> = { sm: 'h-4.5 w-4.5', md: 'h-5 
 const SiteFooter = () => (
   <footer className="relative z-10 border-t border-white/8 bg-darkBlue">
     {/* Fades up as it scrolls into view, like the sections above it. */}
-    <Reveal className="mx-auto max-w-6xl px-5 pb-10 pt-12 sm:px-8">
+    <Reveal className="mx-auto max-w-site px-5 pb-10 pt-12 sm:px-8">
       <nav aria-label="Sitemap" className="grid grid-cols-2 gap-8 sm:grid-cols-4">
         {SITEMAP.map((group) => (
           <div key={group.heading}>

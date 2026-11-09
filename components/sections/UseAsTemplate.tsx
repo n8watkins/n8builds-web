@@ -121,7 +121,7 @@ const UseAsTemplate = () => (
     className="lab-accent-template lab-part-wash py-12"
   >
     {/* The Lab doesn't reveal itself, so its parts do. */}
-    <Reveal className="mx-auto max-w-6xl px-5 sm:px-8">
+    <Reveal className="mx-auto max-w-site px-5 sm:px-8">
       <LabSubheader
         title={
           <>

@@ -110,7 +110,7 @@ const Detail = ({ ext }: { ext: Ext }) => {
 const ExtensionsShowcase = () => (
   // A full-bleed part of the Lab in its own indigo wash (`.lab-part-wash` in app/globals.css).
   <section id="extensions" aria-label="Chrome Extensions" className="lab-accent-extensions lab-part-wash py-12">
-    <div className="mx-auto max-w-6xl px-5 sm:px-8">
+    <div className="mx-auto max-w-site px-5 sm:px-8">
     <LabSubheader title="Chrome Extensions" icon={<PuzzleIcon />} />
 
     {/* ===== Desktop: 3 side-by-side + auto-cycle detail ===== */}

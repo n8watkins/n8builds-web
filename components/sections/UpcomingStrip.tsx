@@ -21,7 +21,7 @@ export default function UpcomingStrip() {
   return (
     // The Lab's last part, in its own warm wash (`.lab-accent-upcoming` in app/globals.css).
     <section id="upcoming" aria-label="What's cookin': upcoming projects" className="lab-accent-upcoming lab-part-wash py-10">
-      <div className="mx-auto max-w-6xl px-5 sm:px-8">
+      <div className="mx-auto max-w-site px-5 sm:px-8">
         <div className="flex flex-wrap items-end justify-between gap-x-6">
           <LabSubheader
             eyebrow="Upcoming"

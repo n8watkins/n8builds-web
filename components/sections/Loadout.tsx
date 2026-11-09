@@ -36,7 +36,7 @@ import BuildStacks from '@/components/sections/BuildStacks'
  */
 
 /** The page's content column (Scribe's row runs full-bleed, out of it, in Tools I built and use). */
-const column = 'relative mx-auto max-w-6xl px-5 sm:px-8'
+const column = 'relative mx-auto max-w-site px-5 sm:px-8'
 
 // The page's parts (loadoutParts) are the pills under the header (like the
 // Lab's), in page order: the same list as the side rail's. Each part's id sits

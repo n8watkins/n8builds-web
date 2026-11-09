@@ -76,7 +76,7 @@ export default async function BuildLogPage() {
           <div className="absolute right-[-10%] top-[120rem] h-120 w-120 scale-[1.6] bg-radial from-blue-600/6 to-transparent to-70% md:top-[99rem] lg:top-[93rem]" />
         </div>
 
-        <div className="relative mx-auto max-w-6xl px-5 pb-24 pt-28 sm:px-8 md:pt-36">
+        <div className="relative mx-auto max-w-site px-5 pb-24 pt-28 sm:px-8 md:pt-36">
           {/* It fades in on load, a step at a time (owner, round 3 of 2026-11-08: "the
               build log should have animations on load"): CSS only, so nothing waits on
               JavaScript, and reduced motion shows it all at once. Below the fold the

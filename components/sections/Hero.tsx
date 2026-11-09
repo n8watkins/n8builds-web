@@ -44,7 +44,7 @@ const Hero = () => {
           the hero's height is (1000px), so a very tall screen doesn't get an
           empty hero. tests/e2e/hero.spec.ts checks the laptop and tablet
           sizes. */}
-      <div className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 w-full flex flex-col items-center pt-24 md:pt-[clamp(5.5rem,calc(60svh-363px),24rem)] pb-16 md:pb-0">
+      <div className="relative z-10 max-w-site mx-auto px-5 sm:px-8 w-full flex flex-col items-center pt-24 md:pt-[clamp(5.5rem,calc(60svh-363px),24rem)] pb-16 md:pb-0">
 
 
         {/* On phones the portrait comes first (order-first), above the

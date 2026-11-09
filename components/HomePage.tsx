@@ -69,7 +69,7 @@ function Band({
     // edge right under the 69px navbar (as #lab), with no strip of the band above.
     <Tag id={id} className={`relative z-10 ${rail ? 'scroll-mt-[-11px]' : ''} ${background}`}>
       {rail}
-      <div className="mx-auto max-w-6xl px-5 py-6 sm:px-8">{reveal ? <Reveal>{children}</Reveal> : children}</div>
+      <div className="mx-auto max-w-site px-5 py-6 sm:px-8">{reveal ? <Reveal>{children}</Reveal> : children}</div>
     </Tag>
   )
 }
@@ -136,7 +136,7 @@ export default async function HomePage({ posts }: { posts: Post[] }) {
               className="pointer-events-none absolute top-1/2 left-1/2 -z-10 h-[20rem] w-[min(64rem,100%)] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(closest-side,rgb(34_211_238/0.075),rgb(34_211_238/0.03)_55%,transparent)]"
             />
             {/* The flask and "The Lab" (owner, 2026-11-08: no eyebrow, subtitle or pills), and its checks (2026-11-09). */}
-            <Reveal className="relative mx-auto flex max-w-6xl flex-col items-center px-5 pt-14 pb-2 text-center sm:px-8 sm:pt-16">
+            <Reveal className="relative mx-auto flex max-w-site flex-col items-center px-5 pt-14 pb-2 text-center sm:px-8 sm:pt-16">
               {/* The Lab's mark (the owner's pick, 2026-10-26): a flask in a chip like the rows' app icons. */}
               <div className="flex items-center gap-4 sm:gap-5">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-300/30 sm:h-16 sm:w-16">
