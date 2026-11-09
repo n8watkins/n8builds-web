@@ -76,8 +76,9 @@ const StackCard = ({ stack }: { stack: BuildStack }) => (
     {/* The combo: each tool as a chip with its own mark, then where it runs, at the card's foot. */}
     <div className="relative mt-auto space-y-3 border-t border-white/6 pt-4">
       <Chips label={`${stack.name} tools`} tools={stack.tools} />
-      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2">
-        <span className="font-mono text-[0.68rem] font-bold tracking-[0.14em] text-(--accent) uppercase">
+      {/* "Runs on" over its chips on every card, so a long list (the Production stack's) reads the same. */}
+      <div className="space-y-2">
+        <span className="block font-mono text-[0.68rem] font-bold tracking-[0.14em] text-(--accent) uppercase">
           Runs on
         </span>
         <Chips label={`${stack.name} hosting`} tools={stack.hosting} />

@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { FiGitPullRequest, FiPackage, FiPlusSquare } from 'react-icons/fi'
+import { FiGitPullRequest, FiPackage, FiPlay, FiPlusSquare } from 'react-icons/fi'
 import { LuExternalLink, LuGlobe, LuUsers } from 'react-icons/lu'
 import { SiGithub, SiSubstack, SiX, SiYoutube } from 'react-icons/si'
 import {
@@ -375,7 +375,7 @@ const SetupChip = ({ entry }: { entry: SetupEntry }) => {
 export const DevSetup = () => (
   <section aria-labelledby="dev-setup-title">
     <SectionHead id="dev-setup-title" part="dev-setup" path="~/loadout/dev-setup" title="My dev setup">
-      One Windows 11 PC doing Linux work in WSL2, with Claude Code and Codex running side by side in herdr. Every piece, grouped:
+      One Windows 11 PC doing Linux work in WSL2, with Claude Code and Codex running side by side in herdr. Every piece, grouped.
     </SectionHead>
     <ul id="setup-tiles" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {devSetup.map((tile, i) => {
@@ -442,9 +442,10 @@ const SetupVideo = () => {
     >
       <span className="relative block aspect-video overflow-hidden rounded-xl ring-1 ring-white/10">
         <Image src={devSetupVideo.thumbnail} alt="" fill sizes="(min-width: 640px) 256px, 100vw" className="object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none" />
-        <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center bg-black/10 transition-colors group-hover:bg-black/0">
-          <span className="flex size-11 items-center justify-center rounded-full bg-[#ff0033] text-white shadow-lg shadow-black/40 [&_svg]:size-5">
-            <SiYoutube />
+        {/* A small play mark in the corner, clear of the thumbnail's own words and face. */}
+        <span aria-hidden="true" className="absolute bottom-2 left-2 flex">
+          <span className="flex h-7 w-10 items-center justify-center rounded-lg bg-[#ff0033] text-white shadow-lg shadow-black/40 transition-transform group-hover:scale-110 motion-reduce:transition-none [&_svg]:size-3.5">
+            <FiPlay className="fill-current" />
           </span>
         </span>
       </span>
