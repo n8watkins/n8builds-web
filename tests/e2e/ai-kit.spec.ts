@@ -89,6 +89,11 @@ const showKit = (page: Page, selector: string) =>
   expect
     .poll(() =>
       page.locator(selector).evaluate((el) => {
+        // Not while its scroll reveal still moves it (dino-music.spec.ts's flake on phones).
+        const moving = document
+          .getAnimations()
+          .some((a) => a.playState === 'running' && a.effect instanceof KeyframeEffect && a.effect.target instanceof Element && a.effect.target.contains(el))
+        if (moving) return false
         const box = el.getBoundingClientRect()
         // Near the middle with its top below the sticky header, or, if it is
         // taller than the window, its top just in view: a reload's restored

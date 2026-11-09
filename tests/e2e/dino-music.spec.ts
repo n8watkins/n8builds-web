@@ -105,11 +105,17 @@ const remember = (page: Page, value: '1' | '0') =>
 const stored = (page: Page) => page.evaluate(() => localStorage.getItem('n8-dino-music'))
 
 // Bring the panel on screen without a smooth scroll still on its way (the
-// same helper as ai-kit.spec.ts).
+// same helper as ai-kit.spec.ts), and only once its scroll reveal has settled:
+// the reveal lifts it about 10px, which on a phone left the music toggle under
+// the navbar, so WebKit scrolled to show it when it was pressed (a flake).
 const showKit = (page: Page) =>
   expect
     .poll(() =>
       page.locator(PANEL).evaluate((el) => {
+        const moving = document
+          .getAnimations()
+          .some((a) => a.playState === 'running' && a.effect instanceof KeyframeEffect && a.effect.target instanceof Element && a.effect.target.contains(el))
+        if (moving) return false
         const box = el.getBoundingClientRect()
         const centred = Math.abs((box.top + box.bottom) / 2 - innerHeight / 2) <= 100 && box.top >= 72
         const tall = box.height > innerHeight - 80
