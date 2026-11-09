@@ -404,6 +404,13 @@ Where these conflict with an older entry above, these win; the older entries are
   Every build log entry (homepage, /builds, build pages) has the same icon frame; a release says so with a "Release" badge (it had a cyan ring before).
   /builds: the feed is one continuous list (newest first, month headers sticking under the navbar), 30 entries at first and more as you scroll or with "Load more", no 12-month cut-off; its build chips show their counts. Plain entries light up under the pointer, cards brighten their border; the release-kit link carries GitHub's mark.
 
+- **Round 5 of the trim (owner, 2026-11-08):**
+  The Tech for Pros card is balanced: from 1024px its window is narrower (at most 28rem) and shows the top of each template a little wider than the shot, the phone sits higher, and the headline keeps its two lines, so the quote form sits close under the copy and level with the chips and "Don't see yours?".
+  No lines between "What I'm working on", the build log and the Lab: each band's tone fades in and out, and the cyan line into the Lab is gone.
+  The build log's middle column is "Some of the latest changes I've made": three updates at a time, each with a line of what's in it (a release's note, or the day's other changes; two lines at most), moving on one by one with a thin line along the foot filling up to the next step (no step arrows).
+  Its release-kit column says what it does: Conventional Commits in; versions, release notes and this log out; one command adds it to any repo.
+  /builds: each build card is the feed's filter (lift, brighter border and pointer on hover; picked, it is ringed and says "Showing"; a second click or "All" clears it), with "Full story" on the card for its page. The chips stay as the compact filter.
+
 ## Publishing and releases (2026-10-25)
 
 - **Articles are always site first.** Every article is written and published on n8builds.dev (N8's Notions, in Sanity); posting or reposting it on X is a separate, later step, never the primary copy.
