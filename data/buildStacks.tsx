@@ -95,7 +95,7 @@ export const buildStacks: BuildStack[] = [
     // A desktop app runs on the user's own PC; Scribe's installer ships as a GitHub release (lib/downloads.ts).
     hosting: ['Your PC', 'GitHub Releases'],
     about:
-      'For small desktop apps that should feel native and keep everything on the machine. Tauri and Rust keep them tiny and fast, with SQLite for storage. The speech models run on my own PC too: whisper.cpp for Scribe, Piper and Kokoro for the voices in VoiceDock and T-Hub.',
+      'For small desktop apps that should feel native and keep everything on the machine. Tauri and Rust keep them tiny and fast, with SQLite for storage. The speech models run on my own PC too: whisper.cpp for Scribe, Piper and Kokoro for the voices in VoiceDock.',
     accent: 'teal',
   },
   {

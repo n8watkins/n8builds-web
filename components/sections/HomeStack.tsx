@@ -54,7 +54,7 @@ export default function HomeStack() {
         <span className="font-mono text-[0.68rem] font-bold tracking-[0.16em] text-cyan-400 uppercase">My dev setup</span>
         {/* Each pair stays on one line; the dots between them are where it wraps. */}
         <span>
-          {['Windows 11 + WSL2', 'Claude Code + Codex', 'herdr + T-Hub'].map((pair, i) => (
+          {['Windows 11 + WSL2', 'Claude Code + Codex', 'herdr + tmux'].map((pair, i) => (
             <span key={pair}>
               {i > 0 && ' · '}
               <span className="whitespace-nowrap">{pair}</span>

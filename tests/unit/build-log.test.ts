@@ -273,6 +273,17 @@ describe('entries for a build', () => {
     expect(filtered.length).toBeGreaterThan(0)
   })
 
+  it('keeps a release but drops a note that names something in logHide (round 8: T-Hub)', () => {
+    const repo = repoOf([commit('v0.6.1: on-disk dictation status file for T-Hub', '2026-07-06T18:00:00Z')])
+    const open = entriesForBuild(testBuild(), repo)
+    expect(open).toMatchObject([{ title: 'Shipped v0.6.1', detail: expect.stringContaining('T-Hub') }])
+    const hidden = entriesForBuild(testBuild({ logHide: ['t-hub'] }), repo)
+    expect(hidden).toMatchObject([{ title: 'Shipped v0.6.1' }])
+    expect(JSON.stringify(hidden)).not.toContain('T-Hub')
+    // Scribe hides it on the live site.
+    expect(build('scribe').logHide).toContain('T-Hub')
+  })
+
   it('never links into a repo the build has no public GitHub link for', () => {
     const privateRepo = { ...build('solara'), github: undefined }
     expect(entriesForBuild(privateRepo, snapshot('solara')).every((e) => e.url === undefined)).toBe(true)

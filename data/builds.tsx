@@ -116,7 +116,8 @@ export interface Build {
   log?: 'releases' | 'commits' | 'off'
   /**
    * Log entries to hide: any commit-based entry whose title contains one of
-   * these (case-insensitive). The escape hatch for a commit the filters let
+   * these (case-insensitive), and any release note that does (the release
+   * still shows, without it). The escape hatch for a commit the filters let
    * through that shouldn't be public.
    */
   logHide?: string[]
@@ -238,6 +239,8 @@ export const builds: Build[] = [
   {
     slug: 'scribe',
     name: 'Scribe',
+    // T-Hub is no longer used (owner, round 8 of 2026-11-09): nothing on the site names it.
+    logHide: ['T-Hub'],
     tagline: 'Speech-to-text for Windows, Mac and Linux',
     category: 'Desktop app',
     mine: true,

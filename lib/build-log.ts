@@ -340,13 +340,20 @@ export function entriesForBuild(build: Pick<Build, 'slug' | 'log' | 'github' | '
   if (mode === 'off') return []
   // Builds without a public GitHub link (a private repo) get no links into it.
   const link = (url: string) => (build.github ? url : undefined)
-  // The owner's escape hatch: hide any entry whose title contains one of these.
+  // The owner's escape hatch: hide any change whose title contains one of these, and
+  // any release note that does (the release itself still shows).
   const hide = (build.logHide ?? []).map((h) => h.toLowerCase())
   const hidden = (title: string) => hide.some((h) => title.toLowerCase().includes(h))
 
   const versions: Version[] = snapshot.releases
     .filter((r) => !r.draft && !r.prerelease)
-    .map((r) => ({ version: r.tag.startsWith('v') ? r.tag : `v${r.tag}`, date: r.publishedAt, url: r.url, patchNotes: r.notes }))
+    .map((r) => ({
+      version: r.tag.startsWith('v') ? r.tag : `v${r.tag}`,
+      date: r.publishedAt,
+      url: r.url,
+      // A release still shows, but without a note that names something hidden.
+      patchNotes: r.notes?.filter((note) => !hidden(note.text)),
+    }))
   const released = new Set(versions.map((v) => v.version))
 
   const changes: Change[] = []
@@ -354,7 +361,10 @@ export function entriesForBuild(build: Pick<Build, 'slug' | 'log' | 'github' | '
     const verdict = classifyCommit(commit)
     if (verdict.kind === 'version') {
       // A repo with GitHub Releases also has a release commit per tag; count it once.
-      if (!released.has(verdict.version)) versions.push({ version: verdict.version, date: commit.date, url: commit.url, notes: verdict.notes })
+      if (!released.has(verdict.version)) {
+        const notes = verdict.notes && !hidden(verdict.notes) ? verdict.notes : undefined
+        versions.push({ version: verdict.version, date: commit.date, url: commit.url, notes })
+      }
     } else if (verdict.kind === 'change' && mode === 'commits' && !hidden(verdict.title)) {
       changes.push({ title: verdict.title, score: verdict.score, date: commit.date, url: commit.url })
     }

@@ -15,7 +15,6 @@ import {
   LuKeyRound,
   LuKeyboard,
   LuLayers,
-  LuLayoutDashboard,
   LuMemoryStick,
   LuMic,
   LuNetwork,
@@ -218,7 +217,6 @@ export const OWN_TOOL_ICONS = {
   'release-kit': LuTag,
   'pr-post': LuNewspaper,
   'n8-tray': LuPanelBottom,
-  't-hub': LuLayoutDashboard,
 } as const satisfies Record<string, IconType>
 
 export type OwnTool = keyof typeof OWN_TOOL_ICONS
@@ -703,7 +701,6 @@ export const devSetup: DevSetupTile[] = [
         title: 'My own tools, in daily use',
         items: [
           // My own tools' marks come from OWN_TOOL_ICONS, the same as their cards in Tools I built and use.
-          { name: 'T-Hub', note: 'supervises my Claude Code sessions', icon: ownToolIcon('t-hub') },
           // The site presents Scribe through its build page, not its site's repo.
           { name: 'Scribe', note: 'local dictation for Windows, Mac and Linux', href: '/builds/scribe', icon: appIcon('/builds/scribe/app-icon.png') },
           { name: 'devguard', href: '#devguard', icon: ownToolIcon('devguard') },

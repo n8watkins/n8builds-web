@@ -271,11 +271,10 @@ test.describe('Loadout tools and people', () => {
     await expect(page.locator('#dev-setup')).not.toContainText('gnhf')
     await expect(setup.getByRole('link', { name: /^Scribe/ })).toHaveAttribute('href', '/builds/scribe')
     await expect(setup.getByRole('link', { name: /^herdr/ })).toHaveAttribute('href', '#herdr')
-    // T-Hub has no public page and N8 Tray is private: neither is a link.
-    for (const name of ['T-Hub', 'N8 Tray']) {
-      await expect(setup.getByText(name, { exact: true })).toBeVisible()
-      await expect(setup.getByRole('link', { name: new RegExp(`^${name}`) })).toHaveCount(0)
-    }
+    // N8 Tray is private: not a link. T-Hub is gone (owner, round 8 of 2026-11-09: no longer used).
+    await expect(setup.getByText('N8 Tray', { exact: true })).toBeVisible()
+    await expect(setup.getByRole('link', { name: /^N8 Tray/ })).toHaveCount(0)
+    await expect(page.locator('main')).not.toContainText('T-Hub')
   })
 
   test('the old honorable mentions credit their makers in Tools I use, and gnhf stays out', { tag: '@cross-browser' }, async ({ page }) => {
@@ -326,7 +325,7 @@ test.describe('Loadout tools and people', () => {
   test('the homepage teases my setup and links to it', { tag: '@smoke' }, async ({ page }) => {
     await page.goto('/')
     const teaser = page.locator('[data-setup-teaser]')
-    await expect(teaser).toContainText('Windows 11 + WSL2 · Claude Code + Codex · herdr + T-Hub')
+    await expect(teaser).toContainText('Windows 11 + WSL2 · Claude Code + Codex · herdr + tmux')
     await teaser.getByRole('link', { name: 'See my dev setup' }).click()
     await expect(page).toHaveURL(/\/loadout#dev-setup$/)
     await expect(page.getByRole('heading', { name: 'My dev setup' })).toBeVisible()

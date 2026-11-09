@@ -481,6 +481,9 @@ Where these conflict with an older entry above, these win; the older entries are
   OpenPing's and Solara's featured rows on the homepage show their usage clips (`clip` in `data/builds.tsx`, the same as their build pages) instead of screenshots, so every featured row now shows its product in use.
   **The live site never shows the test fixtures' values** (the 3102 preview showed Scribe with 1.2k stars from the fixture's made-up 1,234; it has 1): `BUILD_LOG_FIXTURE=1` is honoured only through `usesFixtures()` (`lib/fixtures.ts`), which ignores it on any deployed site (APP_ENV on Workers, VERCEL_ENV on Vercel), like CONTACT_TEST_MODE. Owner previews are built with real data (no BUILD_LOG_FIXTURE, a GitHub token).
 
+- **Round 8 (owner, 2026-11-09):** These supersede the rounds above where they differ.
+  **T-Hub is gone everywhere** (the owner no longer uses it): no chip in My dev setup, no mark in `OWN_TOOL_ICONS`, no word in the stacks or the homepage's setup line. Scribe's build log hides it too (`logHide: ['T-Hub']` in `data/builds.tsx`; `logHide` now also drops a release's note that names a hidden word, while the release itself still shows).
+
 ## Publishing and releases (2026-10-25)
 
 - **Articles are always site first.** Every article is written and published on n8builds.dev (N8's Notions, in Sanity); posting or reposting it on X is a separate, later step, never the primary copy.
