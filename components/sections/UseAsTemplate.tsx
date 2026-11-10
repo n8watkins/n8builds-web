@@ -28,10 +28,7 @@ interface Template {
   forWhat: string
   /** What you get if you fork it: a few things, each with its icon. */
   gets: { icon: IconType; label: string }[]
-  /**
-   * Its full story: a build page on this site. The portfolio has none, and its
-   * repo is already the GitHub half of RepoButtons.
-   */
+  /** Its full story: a build page on this site (the portfolio's since round 12 of 2026-11-09). */
   story?: string
   repoName: string
   repo: string
@@ -64,6 +61,7 @@ const TEMPLATES: Template[] = [
       { icon: LuUserRound, label: 'About, experience, contact' },
       { icon: LuCloud, label: 'Runs on Cloudflare' },
     ],
+    story: '/builds/dev-portfolio',
     repoName: 'dev-portfolio',
     repo: 'https://github.com/n8watkins/dev-portfolio',
   },
