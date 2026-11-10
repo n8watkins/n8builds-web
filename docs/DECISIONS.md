@@ -553,6 +553,8 @@ Where these conflict with an older entry above, these win; the older entries are
   The waitlist is apart from the counters for its own point-in-time restore, export, deletion and retention, and because it serves the products (Feelium, KeysReady and those after them), not just this site.
   Link tokens are stored hashed, a confirm link works once, and leaving deletes everything at once.
   The reasoning and the tables: `docs/DATABASE.md`.
+- **Actions minutes: early warning, not billing** (owner, 2026-11-09): the private repos' Actions allowance (GitHub Free, 2,000 Linux minutes a month) ran out, and billing stays off.
+  The daily Actions minutes workflow here (this repo is public, so it costs nothing) emails the owner through an issue assigned to him when the month runs ahead of pace, a week beats its budget, or the total crosses 50/75/90/100%; `docs/ACTIONS_USAGE.md`.
 - **Daily cap:** stays at the default 50 verified submissions/day (100 emails). Change with `CONTACT_DAILY_LIMIT` (a `wrangler.jsonc` var) if ever needed.
 - **HSTS preload:** not adding it. The site sends `max-age=63072000` (as Vercel did), from `lib/security/headers.mjs` and `public/_headers`; preload would force HTTPS on every subdomain and is slow to undo.
 - **Branch protection:** reversed (with #20): `main` now requires CI through pull requests (see HANDOFF, "Branch protection on `main`"). Docs-only changes skip the browser suite.

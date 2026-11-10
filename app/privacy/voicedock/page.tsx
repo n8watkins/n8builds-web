@@ -100,9 +100,9 @@ export default function VoiceDockPrivacyPolicy() {
               <List>
                 <li>
                   <strong className="text-slate-100">Piper or Kokoro (local voices).</strong> The
-                  text is sent to a speech server running on your own computer, at{' '}
-                  <code className={code}>http://127.0.0.1:7477</code> (Piper) or{' '}
-                  <code className={code}>http://127.0.0.1:7478</code> (Kokoro).{' '}
+                  text is sent to VoiceDock&rsquo;s local server on your own computer, at{' '}
+                  <code className={code}>http://127.0.0.1:7477</code>, which reads it with Piper or
+                  passes it to Kokoro on the same computer.{' '}
                   <code className={code}>127.0.0.1</code> is your computer&rsquo;s loopback address:
                   the request never leaves the machine. You install and run these servers yourself;
                   they are open source, in the same repository as the extension. They turn the text
@@ -215,9 +215,15 @@ export default function VoiceDockPrivacyPolicy() {
                   <code className={code}>storage</code>: the settings listed above.
                 </li>
                 <li>
-                  <code className={code}>http://127.0.0.1:7477/*</code> and{' '}
-                  <code className={code}>http://127.0.0.1:7478/*</code>: the Piper and Kokoro
-                  servers on your own computer.
+                  <code className={code}>alarms</code>: a check-in with VoiceDock&rsquo;s local
+                  server once a minute while Chrome runs, so it can stop the voice engines soon after
+                  Chrome closes. Only sent when a profile uses Piper or Kokoro; it carries the
+                  extension&rsquo;s version, which engine the active profile uses and whether it is
+                  reading, never any text.
+                </li>
+                <li>
+                  <code className={code}>http://127.0.0.1:7477/*</code>: VoiceDock&rsquo;s local
+                  server on your own computer, which runs Piper and Kokoro.
                 </li>
               </List>
             </Section>
