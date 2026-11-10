@@ -33,7 +33,10 @@ export default function JoinButton({
         window.dispatchEvent(new CustomEvent(PICK_EVENT, { detail: slug }))
         const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
         const box = form.getBoundingClientRect()
-        if (box.top >= 0 && box.bottom <= window.innerHeight) {
+        // Mostly in view counts: near the page's end the sticky column rides up with its row
+        // and its top can sit just above the window (round 11's shorter teaser cards).
+        const seen = Math.min(box.bottom, window.innerHeight) - Math.max(box.top, 0)
+        if (seen >= Math.min(box.height, window.innerHeight) * 0.6) {
           // Already in view (the sticky column on /upcoming's wide screens): a glow
           // round it says where the pick went, instead of a scroll.
           form.removeAttribute('data-flash')
