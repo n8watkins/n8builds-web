@@ -90,9 +90,10 @@ test.describe('at 1440px', () => {
     await expectSwitchAtIconMidline(page, rail(page), PARTS)
   })
 
-  // The heading's hammer starts as it comes into view, not with the band's reveal long before,
-  // and the rail's hammer joins it, in step, as its icon crosses the middle line.
-  test("the heading's hammer starts as it comes into view, and the rail's joins it at the middle line", async ({ browser }) => {
+  // Round 12 of 2026-11-09 (owner): the heading's hammer and the rail's run together and stop
+  // together: both while the rail marks Tools I've built, which it does once the heading's
+  // icon reaches the middle of the window.
+  test("the heading's hammer runs only while the rail marks Tools I've built, together with the rail's", async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'no-preference' })
     const page = await context.newPage()
     await openHome(page)
@@ -100,19 +101,22 @@ test.describe('at 1440px', () => {
     const railHammer = rail(page).locator('.part-icon-hammer')
     const swinging = (icon: typeof heading) =>
       icon.locator('.hammer-head').evaluate((g) => g.getAnimations().some((a) => a.playState === 'running'))
-    // Below the window: still.
-    await placeIcon(page, 'tools-i-built', 520)
-    await expect(heading).not.toHaveAttribute('data-seen', '')
-    expect(await swinging(heading)).toBe(false)
-    // In view, under the middle line: the heading's swings, the rail's waits.
+    // In view but under the middle line: the rail marks Tech stacks, so neither hammer swings.
     await placeIcon(page, 'tools-i-built', 300)
-    await expect(heading).toHaveAttribute('data-seen', '')
-    await expect.poll(() => swinging(heading)).toBe(true)
+    await expect(rail(page).locator('[aria-current]')).toHaveAccessibleName('Tech stacks')
+    await page.waitForTimeout(300)
+    expect(await swinging(heading)).toBe(false)
     expect(await swinging(railHammer)).toBe(false)
-    // Over the line: both swing.
+    // Over the line: the rail marks it, and both swing.
     await placeIcon(page, 'tools-i-built', -12)
     await expect(rail(page).locator('[aria-current]')).toHaveAccessibleName("Tools I've built")
+    await expect.poll(() => swinging(heading)).toBe(true)
     await expect.poll(() => swinging(railHammer)).toBe(true)
+    // Back under it: both stop.
+    await placeIcon(page, 'tools-i-built', 120)
+    await expect(rail(page).locator('[aria-current]')).toHaveAccessibleName('Tech stacks')
+    await expect.poll(() => swinging(heading)).toBe(false)
+    await expect.poll(() => swinging(railHammer)).toBe(false)
     await context.close()
   })
 

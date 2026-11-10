@@ -485,10 +485,11 @@ test.describe('Loadout tools and people', () => {
     // How I build, right after Inside the apps I build (2026-11-02).
     const order = await page.locator('main h2').allTextContents()
     expect(order.indexOf('Stacks I build with')).toBe(order.indexOf('Inside the apps I build') + 1)
-    // Round 8 of 2026-11-09: the Quick and Production stacks replace the Turso, Cloudflare and Firebase ones.
+    // Round 8 of 2026-11-09: the Quick and Production stacks replace the Turso, Cloudflare and Firebase ones;
+    // round 11 calls the Production one the Cloudflare stack.
     await expect(stacks.getByRole('heading', { level: 3 })).toHaveText([
       'Quick stack',
-      'Production stack',
+      'Cloudflare stack',
       'Local-first stack',
       'Extension stack',
       // Under the stacks (round 5 of 2026-11-02).
@@ -501,10 +502,11 @@ test.describe('Loadout tools and people', () => {
     for (const role of ['Framework', 'Database', 'Hosting']) await expect(stacks).not.toContainText(role)
     const toolsOf = (name: string) => stacks.getByRole('list', { name: `${name} tools` }).locator('[data-stack-tool]')
     const runsOn = (name: string) => stacks.getByRole('list', { name: `${name} hosting` }).locator('[data-stack-tool]')
-    await expect(toolsOf('Quick stack')).toHaveText(['Next.js', 'TypeScript', 'Tailwind CSS', 'Auth.js'])
+    // Both sign in with Better Auth (round 11 of 2026-11-09).
+    await expect(toolsOf('Quick stack')).toHaveText(['Next.js', 'TypeScript', 'Tailwind CSS', 'Better Auth'])
     await expect(runsOn('Quick stack')).toHaveText(['Vercel', 'Turso'])
-    await expect(toolsOf('Production stack')).toHaveText(['Next.js', 'TypeScript', 'OpenNext', 'Hono'])
-    await expect(runsOn('Production stack')).toHaveText(['Workers', 'D1', 'R2', 'Durable Objects', 'Images', 'Email Service'])
+    await expect(toolsOf('Cloudflare stack')).toHaveText(['Next.js', 'TypeScript', 'Tailwind CSS', 'Better Auth'])
+    await expect(runsOn('Cloudflare stack')).toHaveText(['Workers', 'D1', 'R2', 'Durable Objects'])
     await expect(runsOn('Local-first stack')).toHaveText(['Your PC', 'GitHub Releases'])
     await expect(runsOn('Extension stack')).toHaveText(['Your browser'])
     await expect(stacks).not.toContainText('+TypeScript')
@@ -513,7 +515,8 @@ test.describe('Loadout tools and people', () => {
     await expect(stacks).not.toContainText('WXT')
     // Every tool carries its mark, 16px.
     const icons = stacks.getByRole('article').locator('[data-stack-icon] svg')
-    await expect(icons).toHaveCount(30)
+    // 28 since round 11 of 2026-11-09: the Cloudflare stack lists eight pieces (it had ten).
+    await expect(icons).toHaveCount(28)
     for (const height of await icons.evaluateAll((svgs) => svgs.map((svg) => Math.round(svg.getBoundingClientRect().height)))) expect(height).toBe(16)
     // Every tool name stays on one line, and the cards in a row are the same height.
     for (const height of await stacks.locator('[data-stack-tool]').evaluateAll((els) => els.map((el) => el.getBoundingClientRect().height)))
@@ -642,7 +645,7 @@ test.describe('Loadout tools and people', () => {
     const loadout = page.locator('#loadout')
     await expect(loadout.locator('#tools-i-built')).toHaveCount(1)
     const [stack, tools, teaser, kit] = await Promise.all(
-      [loadout.getByRole('heading', { name: 'Production stack' }), built, loadout.locator('[data-setup-teaser]'), loadout.locator('#ai-kit')].map((el) =>
+      [loadout.getByRole('heading', { name: 'Cloudflare stack' }), built, loadout.locator('[data-setup-teaser]'), loadout.locator('#ai-kit')].map((el) =>
         el.boundingBox(),
       ),
     )

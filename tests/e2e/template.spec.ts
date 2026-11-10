@@ -47,9 +47,9 @@ test('asks "Don\'t have a site?" and answers "Use mine!" on the same line, with 
   await expect(template).not.toContainText('photos and write-ups')
 })
 
-test('one panel compares the two: each links its site, says what it is for and what you get, and opens its repo', { tag: '@smoke' }, async ({ page }) => {
+test('two cards side by side: each links its site, says who it is for and what you get, and opens its repo', { tag: '@smoke' }, async ({ page }) => {
   const template = await open(page)
-  // One full-width component, not two cards.
+  // Two tight cards in one list (round 11 of 2026-11-09), no divider between them.
   await expect(template.locator('[data-template-compare]')).toHaveCount(1)
   const cards = template.locator('[data-template-compare] > li')
   await expect(cards).toHaveCount(2)
@@ -60,11 +60,15 @@ test('one panel compares the two: each links its site, says what it is for and w
   // No stack pills (2026-11-08): the build page has the stack.
   await expect(template.getByRole('list', { name: /is built with/ })).toHaveCount(0)
   // Each says what it is for, and lists what you get.
-  await expect(site.locator('[data-template-for]')).toContainText('Building in public')
-  await expect(portfolio.locator('[data-template-for]')).toContainText('Getting hired')
+  await expect(site.locator('[data-template-for]')).toContainText('building in public')
+  await expect(portfolio.locator('[data-template-for]')).toContainText('getting hired')
+  // What you get: four short items, each with its own icon (no checkmarks).
   for (const card of [site, portfolio]) {
-    await expect(card.getByRole('list', { name: /^What you get with/ }).getByRole('listitem')).toHaveCount(4)
+    const gets = card.getByRole('list', { name: /^What you get with/ }).getByRole('listitem')
+    await expect(gets).toHaveCount(4)
+    await expect(gets.locator('svg')).toHaveCount(4)
   }
+  await expect(site.getByRole('list', { name: /^What you get with/ })).toContainText('A blog you write in Sanity')
   // Side by side on a laptop, in the same panel.
   await page.setViewportSize({ width: 1280, height: 800 })
   const [a, b] = [(await site.boundingBox())!, (await portfolio.boundingBox())!]
@@ -89,11 +93,11 @@ test('one panel compares the two: each links its site, says what it is for and w
   }
 })
 
-test('only my personal site has "Full story", and it goes to its build page', async ({ page }) => {
+test('each template has its "Full story", its own build page', async ({ page }) => {
   const template = await open(page)
-  const links = template.getByRole('link', { name: /^Full story/ })
-  await expect(links).toHaveCount(1)
-  await expect(links).toHaveAttribute('href', '/builds/n8builds')
+  // The portfolio got its own page in round 12 of 2026-11-09.
+  await expect(template.getByRole('link', { name: 'Full story of My personal site' })).toHaveAttribute('href', '/builds/n8builds')
+  await expect(template.getByRole('link', { name: 'Full story of My developer portfolio' })).toHaveAttribute('href', '/builds/dev-portfolio')
   // The portfolio's repo is the GitHub half of its split button, not a second button.
   await expect(template.locator(`a[href^="${PORTFOLIO_REPO}#"], a[href^="${PORTFOLIO_REPO}/"]`)).toHaveCount(0)
 })
@@ -103,7 +107,7 @@ test('the keyboard reaches every link in order, card by card', { tag: '@cross-br
   const first = template.getByRole('link', { name: 'n8builds.dev', exact: true })
   await first.focus()
   const names: string[] = []
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < 8; i++) {
     // Whitespace collapsed: browsers lay out the visually hidden "(opens in a new
     // tab)" differently in innerText (Chromium a line break, WebKit a space).
     names.push(
@@ -120,6 +124,7 @@ test('the keyboard reaches every link in order, card by card', { tag: '@cross-br
     expect.stringContaining('Star'),
     expect.stringContaining('GitHub'),
     'portfolio.n8builds.dev (opens in a new tab)',
+    'Full story of My developer portfolio',
     expect.stringContaining('Star'),
     expect.stringContaining('GitHub'),
   ])

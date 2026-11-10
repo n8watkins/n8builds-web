@@ -53,32 +53,33 @@ test.describe('AI kit content', () => {
     await expect(page.locator('#loadout')).toContainText('The AI kit and stack I build with, and the tools I built for myself, all in daily use.')
   })
 
-  test('My tech stacks are the Quick stack and the Production stack, all on Cloudflare, each piece with what it does', async ({ page }) => {
+  test('My tech stacks: the code first, then what runs it under Vercel or Cloudflare, each piece with what it does', async ({ page }) => {
     await page.goto('/')
     const stacks = page.getByRole('group', { name: 'My tech stacks' })
-    await expect(stacks.getByRole('heading', { level: 4 })).toHaveText(['Quick stack', 'Production stack'])
-    // What the quick apps really use (round 9 of 2026-11-09): no Firebase Auth.
-    const quick = stacks.getByRole('article', { name: 'Quick stack' })
-    for (const tool of ['Next.js', 'TypeScript', 'Tailwind CSS', 'Auth.js', 'Vercel', 'Turso']) {
-      await expect(quick.getByText(tool, { exact: true })).toBeVisible()
+    await expect(stacks.getByRole('heading', { level: 4 })).toHaveText(['Quick stack', 'Cloudflare stack'])
+    // Round 12 of 2026-11-09: the shared code, then a small header over the host's pieces.
+    // Both sign in with Better Auth (Wren's, on Cloudflare); no Firebase, no Docker.
+    for (const [name, tagline, host, hosted] of [
+      ['Quick stack', 'Push it to Vercel', 'Vercel', [/^Vercel\s*a push ships it$/, /^Turso\s*SQLite database$/]],
+      [
+        'Cloudflare stack',
+        'Next.js on Cloudflare Workers, through OpenNext',
+        'Cloudflare',
+        [/^Workers\s*runs the app$/, /^D1\s*SQLite database$/, /^R2\s*files and the page cache$/, /^Durable Objects\s*per-user state, live counters$/],
+      ],
+    ] as const) {
+      const card = stacks.getByRole('article', { name })
+      await expect(card).toContainText(tagline)
+      await expect(card.getByRole('list', { name: `${name}: the code` }).locator('[data-default-tool]')).toHaveText([
+        /^Next\.js\s*the framework$/,
+        /^TypeScript\s*strict, everywhere$/,
+        /^Tailwind CSS\s*styling$/,
+        /^Better Auth\s*sign-in$/,
+      ])
+      await expect(card.locator('[data-stack-host]')).toHaveText(host)
+      await expect(card.getByRole('list', { name: `${name}: ${host}` }).locator('[data-default-tool]')).toHaveText([...hosted])
+      for (const gone of ['Firebase', 'Auth.js', 'Docker', 'via OpenNext', 'The code:']) await expect(card).not.toContainText(gone)
     }
-    await expect(quick.getByText('GitHub sign-in')).toBeVisible()
-    await expect(quick).not.toContainText('Firebase')
-    // The Production stack is the Cloudflare stack: each service with what it does, then its code.
-    const production = stacks.getByRole('article', { name: 'Production stack' })
-    // It reads as Cloudflare (round 10 of 2026-11-09): everything on it, Next.js included.
-    await expect(production.locator('[data-stack-provider]')).toHaveText(/^Cloudflare\s*everything runs here, Next\.js included$/)
-    await expect(production.locator('[data-default-tool]')).toHaveText([
-      /^Workers\s*runs Next\.js, through OpenNext$/,
-      /^D1\s*the database \(SQLite\)$/,
-      /^R2\s*stores files and the page cache$/,
-      /^Durable Objects\s*per-user state and live counters$/,
-      /^Images\s*resizes images$/,
-      /^Email Service\s*sends the email$/,
-    ])
-    // No footnote about the code under the services.
-    await expect(production.locator('[data-stack-code]')).toHaveCount(0)
-    await expect(production).not.toContainText('The code:')
     await expect(page.getByText('TL;DR')).toHaveCount(0)
   })
 
@@ -163,6 +164,7 @@ interface DinoTiming {
   roam?: boolean
   reactions?: ('flip' | 'fall' | 'leap' | 'dash')[]
   round?: number
+  rainbow?: number
   choices?: ('change' | 'turn' | 'exit')[]
   entries?: ('drop' | 'left' | 'right')[]
 }
@@ -590,6 +592,28 @@ test.describe('dino easter egg (motion allowed)', () => {
     await expect.poll(async () => seen.add(await twinkle()).size, { message: 'a sparkle twinkles' }).toBeGreaterThan(2)
     const flow = dino(page).locator('linearGradient animateTransform')
     await expect(flow).toHaveAttribute('type', 'translate')
+  })
+
+  // Round 11 of 2026-11-09 (owner): rainbow mode doesn't last forever. While it lasts the dino
+  // runs faster and, in a round, a catch counts three; then it takes a colour again.
+  test('rainbow mode wears off, and in a round a rainbow catch counts three', async ({ page }) => {
+    // Rainbow for 1.5s here (6s on the site), the 5th click turning it rainbow as always.
+    await dinoTiming(page, { reactions: ['dash'], rainbow: 1.5 })
+    await onTopRow(page)
+    for (let i = 0; i < 5; i++) {
+      await pokeWalking(page)
+      await expect(dino(page)).toHaveAttribute('data-roars', String(i + 1))
+    }
+    await expect(dino(page)).toHaveAttribute('data-rainbow', 'true')
+    // The 5th click started a round with 1 catch at its first; a click while rainbow adds three.
+    const before = Number(await dino(page).getAttribute('data-catches'))
+    await pokeDino(page)
+    await expect(dino(page)).toHaveAttribute('data-catches', String(before + 3))
+    await expect(dino(page)).toHaveAttribute('data-bonus', '3')
+    // It wears off and takes a colour again, its sparkles gone.
+    await expect(dino(page)).not.toHaveAttribute('data-rainbow', 'true', { timeout: 10_000 })
+    await expect(dino(page).locator('[data-dino-sparkles]')).toBeHidden()
+    expect(await dino(page).evaluate((el) => getComputedStyle(el).getPropertyValue('--dino-body').trim())).toMatch(/^hsl\(/)
   })
 
   test('once back in from a side, it walks well into the panel before turning or leaving', async ({ page, browserName }) => {

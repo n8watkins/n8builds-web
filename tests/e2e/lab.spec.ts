@@ -538,12 +538,14 @@ test.describe('featured clips, with motion', () => {
   })
 
   /**
-   * Round 9 of 2026-11-09 (owner): two clips moving at once is too much. Only
-   * one of Featured's plays: the one hovered or focused, else the first (or the
-   * one last picked with its play button); the other rests on its poster frame
-   * with a play button.
+   * Round 9 of 2026-11-09 (owner): two clips moving at once is too much, so only
+   * one of Featured's plays. Round 12: they alternate by themselves, forever: one
+   * plays through, then the other, a bar under the playing one filling as it
+   * plays. Pointing at (or focusing, or tapping the play button of) a card makes
+   * its clip the playing one, and the round goes on from there.
    */
-  test("Featured's clips take turns: the first plays, a hover or a focus or a play button moves the turn", { tag: '@cross-browser' }, async ({ page, isMobile }) => {
+  test("Featured's clips alternate by themselves, a bar under the playing one; pointing at one makes it play", { tag: '@cross-browser' }, async ({ page, isMobile }) => {
+    test.setTimeout(60_000)
     await page.setViewportSize(isMobile ? page.viewportSize()! : { width: 1280, height: 900 })
     await page.goto('/')
     const featured = page.locator('#featured')
@@ -557,28 +559,45 @@ test.describe('featured clips, with motion', () => {
       await expect(card.locator('[data-tour] video')).toHaveCSS('opacity', '0')
       await expect(card.locator('[data-clip-play]')).toBeVisible()
     }
+    const filled = (card: typeof openping) =>
+      card.locator('[data-clip-progress] span').evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).a)
+    // Skip to the clip's last moment, so it ends now rather than in many seconds.
+    const nearEnd = (card: typeof openping) =>
+      card.locator('[data-tour] video').evaluate((v: HTMLVideoElement) => {
+        v.currentTime = Math.max(0, v.duration - 0.3)
+      })
     const name = (title: string) => `Play the ${title} clip`
     // The first plays; the second rests (on a phone, each checked once it is on screen).
     if (!isMobile) await page.mouse.move(0, 0)
     else await openping.locator('[data-tour]').evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
     await expect.poll(() => playing(openping)).toBe(true)
+    // Its bar fills as it plays; the other's stays empty.
+    await expect.poll(() => filled(openping)).toBeGreaterThan(0)
+    expect(await filled(solara)).toBe(0)
     if (isMobile) await solara.locator('[data-tour]').evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
     await resting(solara)
     await expect(solara.getByRole('button', { name: name('Solara') })).toBeVisible()
     if (!isMobile) {
-      // Hover moves the turn, and leaving gives it back to the first.
+      // When OpenPing's clip ends, Solara's plays; when that ends, OpenPing's again.
+      await nearEnd(openping)
+      await expect.poll(() => playing(solara), { timeout: 10_000 }).toBe(true)
+      await resting(openping)
+      await nearEnd(solara)
+      await expect.poll(() => playing(openping), { timeout: 10_000 }).toBe(true)
+      await resting(solara)
+      // Pointing at Solara makes it the playing one, and it stays so when the pointer leaves.
       await solara.hover()
       await expect.poll(() => playing(solara)).toBe(true)
       await resting(openping)
       await page.mouse.move(0, 0)
+      await page.waitForTimeout(500)
+      expect(await playing(solara)).toBe(true)
+      // Keyboard focus too: reaching its play button gives it the turn, and focus moves on
+      // to its pause button, which takes the play button's place.
+      await openping.getByRole('button', { name: name('OpenPing') }).focus()
+      await expect(openping.getByRole('button', { name: 'Pause the OpenPing clip' })).toBeFocused()
       await expect.poll(() => playing(openping)).toBe(true)
       await resting(solara)
-      // So does keyboard focus: reaching its play button gives it the turn, and focus moves on
-      // to its pause button, which takes the play button's place.
-      await solara.getByRole('button', { name: name('Solara') }).focus()
-      await expect(solara.getByRole('button', { name: 'Pause the Solara clip' })).toBeFocused()
-      await expect.poll(() => playing(solara)).toBe(true)
-      await resting(openping)
     } else {
       // A tap on the play button gives it the turn, and it keeps it.
       await solara.getByRole('button', { name: name('Solara') }).tap()
