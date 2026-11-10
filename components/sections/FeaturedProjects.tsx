@@ -255,8 +255,9 @@ const ProjectRow = async ({ project, flipped }: { project: FeaturedProject; flip
  * card, and under it its icon, name and tagline, a sentence or two, and the
  * same three buttons as every row (the primary action, Full story, Star |
  * GitHub). Each card is in its product's colour, a glow behind it. The two
- * clips take turns (ClipTurns): only the one hovered or focused plays, else
- * the first; the other rests on its poster with a play button.
+ * clips take turns (ClipTurns): one plays through, then the other, round and
+ * round; pointing at one makes it the one playing. The other rests on its
+ * poster with a play button.
  */
 const FeaturedCard = ({ project, slot }: { project: FeaturedProject; slot: number }) => {
   const build = getBuild(project.buildSlug)
@@ -374,7 +375,7 @@ const FeaturedProjects = () => {
       </Reveal>
       {/* Side by side from 1024px, OpenPing first (round 9 of 2026-11-09), stacked below that;
           their clips take turns. */}
-      <ClipTurns>
+      <ClipTurns count={featured.filter((p) => p.group === 'featured').length}>
         <div className={`${container} grid gap-5 py-3 lg:grid-cols-2 lg:gap-6`}>
           {featured
             .filter((p) => p.group === 'featured')

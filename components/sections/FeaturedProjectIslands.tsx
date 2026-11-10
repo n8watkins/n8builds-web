@@ -164,28 +164,28 @@ export function ProjectGallery({
 
 /**
  * Clips that take turns (owner, round 9 of 2026-11-09: Featured's OpenPing and
- * Solara side by side, "only one video plays at a time"; two moving clips at
- * once is too much): the one hovered or focused plays, else the one last
- * picked with its play button, else the first. The others rest on their
- * poster with a play button. `ClipTurns` holds whose turn it is; each
- * `ClipSlot` is one card, and the ProjectTour inside it plays only on its turn.
+ * Solara side by side, "only one video plays at a time"; round 12: they
+ * alternate by themselves, forever). The active clip plays once through, then
+ * the next one takes over, and so on round. Pointing at a card (or focusing
+ * it, or pressing its play button) makes its clip the active one, from its
+ * start, and the round goes on from there when it ends. A bar under the
+ * active clip fills as it plays, so you see which one is on and when the
+ * other comes. `ClipTurns` holds whose turn it is; each `ClipSlot` is one
+ * card, and the ProjectTour inside it plays only on its turn. Off screen or in
+ * a hidden tab nothing plays, so the round waits; under reduced motion nothing
+ * plays at all (each card shows its still).
  */
-type Turns = { active: number; enter: (slot: number) => void; leave: (slot: number) => void; pick: (slot: number) => void }
+type Turns = { active: number; pick: (slot: number) => void; ended: (slot: number) => void }
 const TurnsContext = createContext<Turns | null>(null)
 const SlotContext = createContext<number | null>(null)
 
-export function ClipTurns({ children }: { children: React.ReactNode }) {
-  const [hovered, setHovered] = useState<number | null>(null)
-  const [picked, setPicked] = useState(0)
-  const active = hovered ?? picked
+export function ClipTurns({ count, children }: { count: number; children: React.ReactNode }) {
+  const [active, setActive] = useState(0)
   const turns: Turns = {
     active,
-    enter: (slot) => setHovered(slot),
-    leave: (slot) => setHovered((h) => (h === slot ? null : h)),
-    pick: (slot) => {
-      setPicked(slot)
-      setHovered(null)
-    },
+    pick: (slot) => setActive(slot),
+    // Only the active clip's end moves the turn on.
+    ended: (slot) => setActive((a) => (a === slot ? (slot + 1) % count : a)),
   }
   return <TurnsContext.Provider value={turns}>{children}</TurnsContext.Provider>
 }
@@ -195,7 +195,7 @@ const canHover = () => typeof window !== 'undefined' && window.matchMedia('(any-
 
 /**
  * One card of a ClipTurns group: pointing at it or moving keyboard focus into
- * it gives its clip the turn; leaving gives it back.
+ * it gives its clip the turn, and the round goes on from there.
  */
 export function ClipSlot({ slot, className, children }: { slot: number; className?: string; children: React.ReactNode }) {
   const turns = useContext(TurnsContext)
@@ -206,17 +206,13 @@ export function ClipSlot({ slot, className, children }: { slot: number; classNam
         data-clip-turn={turns?.active === slot ? '' : undefined}
         className={className}
         // A mouse on a device that can hover. A phone (no hover) never takes a turn
-        // this way: WebKit sends it mouse enters and leaves under a resting finger
-        // as the page scrolls, which handed the turn back to the other clip.
+        // this way: WebKit sends it mouse enters under a resting finger as the page
+        // scrolls, which would hand the turn round on its own.
         onPointerEnter={(e) => {
-          if (e.pointerType === 'mouse' && canHover()) turns?.enter(slot)
+          if (e.pointerType === 'mouse' && canHover() && turns?.active !== slot) turns?.pick(slot)
         }}
-        onPointerLeave={(e) => {
-          if (e.pointerType === 'mouse' && canHover()) turns?.leave(slot)
-        }}
-        onFocus={() => turns?.enter(slot)}
-        onBlur={(e) => {
-          if (!e.currentTarget.contains(e.relatedTarget as Node | null)) turns?.leave(slot)
+        onFocus={() => {
+          if (turns?.active !== slot) turns?.pick(slot)
         }}
       >
         {children}
@@ -348,6 +344,28 @@ export function ProjectTour({
     }
   }, [playing, started])
 
+  // In a ClipTurns group: the bar under the active clip fills as it plays, read
+  // from the video each frame while it plays (empty off its turn).
+  const inTurns = !!turns && slot !== null
+  const bar = useRef<HTMLSpanElement>(null)
+  useEffect(() => {
+    const video = ref.current
+    const fill = bar.current
+    if (!inTurns || !video || !fill) return
+    if (!myTurn) {
+      fill.style.transform = 'scaleX(0)'
+      return
+    }
+    let frame = 0
+    const draw = () => {
+      const d = video.duration
+      fill.style.transform = `scaleX(${d > 0 ? Math.min(video.currentTime / d, 1) : 0})`
+      frame = requestAnimationFrame(draw)
+    }
+    if (playing) frame = requestAnimationFrame(draw)
+    return () => cancelAnimationFrame(frame)
+  }, [inTurns, myTurn, playing, hydrated])
+
   return (
     <div data-tour data-clip-ms={tour.durationMs} className={className}>
       <div className={`relative ${aspect} overflow-hidden bg-[#07101d] ${frameClassName}`}>
@@ -362,7 +380,11 @@ export function ProjectTour({
           // Muted, inline and looping, like a GIF; played from script, so
           // reduced motion and off-screen rows never start it.
           muted
-          loop
+          // On its own it loops; in a ClipTurns group it plays once, then hands over.
+          loop={!inTurns}
+          onEnded={() => {
+            if (inTurns) turns?.ended(slot ?? 0)
+          }}
           playsInline
           preload="none"
           disablePictureInPicture
@@ -417,6 +439,12 @@ export function ProjectTour({
           </button>
         )}
       </div>
+      {/* How far the active clip has played: the cue for which one is on and when the next comes. */}
+      {inTurns && hydrated && !reduced && (
+        <div aria-hidden="true" className="mt-2.5 h-1 overflow-hidden rounded-full bg-white/8" data-clip-progress>
+          <span ref={bar} className="block h-full origin-left rounded-full bg-[rgb(var(--lab-from,34_211_238))]" style={{ transform: 'scaleX(0)' }} />
+        </div>
+      )}
     </div>
   )
 }
