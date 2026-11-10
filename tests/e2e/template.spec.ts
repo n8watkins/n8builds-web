@@ -71,8 +71,16 @@ test('two cards side by side: each links its site, says who it is for and what y
   await expect(site.getByRole('list', { name: /^What you get with/ })).toContainText('A blog you write in Sanity')
   // Side by side on a laptop, in the same panel.
   await page.setViewportSize({ width: 1280, height: 800 })
-  const [a, b] = [(await site.boundingBox())!, (await portfolio.boundingBox())!]
-  expect(Math.round(a.y)).toBe(Math.round(b.y))
+  // Both read in one frame: two separate reads straight after the resize could land on
+  // either side of a scroll or layout shift (CI on PR #181: 357 against 316).
+  await expect
+    .poll(() =>
+      cards.evaluateAll((els) => {
+        const [a, b] = els.map((el) => Math.round(el.getBoundingClientRect().top))
+        return a === b
+      }),
+    )
+    .toBe(true)
   // The N8 mark belongs to n8builds.dev.
   const icon = site.locator('img[src*="n8-icon"]')
   await expect(icon).toBeVisible()
