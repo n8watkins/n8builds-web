@@ -27,7 +27,7 @@ import Reveal from '@/components/ui/Reveal'
 import RepoButtons from '@/components/ui/RepoButtons'
 import BuildPageLog from '@/components/log/BuildPageLog'
 import MoreBuilds from '@/components/builds/MoreBuilds'
-import { E2E_PROJECTS, FEATURES, SPEED, SPEED_MORE, STACK, UNDER_THE_HOOD, WORKFLOW, type FeatureIcon, type SpeedResult } from './content'
+import { E2E_PROJECTS, FEATURES, SPEED, SPEED_MORE, STACK, UNDER_THE_HOOD, WORKFLOW, type Feature, type FeatureIcon, type SpeedResult } from './content'
 import styles from './CaseStudy.module.css'
 
 /**
@@ -240,6 +240,43 @@ function SpeedCard({ result, delay }: { result: SpeedResult; delay: number }) {
 /* Page                                                                */
 /* ------------------------------------------------------------------ */
 
+/**
+ * A feature's pictures: one large; two as a pair, the second over the first's
+ * corner; three (the share cards) side by side, each labelled.
+ */
+function Previews({ previews }: { previews: NonNullable<Feature['previews']> }) {
+  const frame = 'overflow-hidden rounded-xl border border-white/10 bg-[#070b16] shadow-2xl shadow-black/40'
+  if (previews.length >= 3) {
+    return (
+      <ul className="grid gap-3 sm:grid-cols-3">
+        {previews.map((p) => (
+          <li key={p.src}>
+            <figure>
+              <div className={frame}>
+                <Image src={p.src} alt={p.alt} width={p.width ?? 960} height={p.height ?? 600} sizes="(min-width: 1024px) 220px, (min-width: 640px) 33vw, 100vw" className="h-auto w-full" />
+              </div>
+              {p.label && <figcaption className="mt-2 text-center text-xs font-semibold text-slate-400">{p.label}</figcaption>}
+            </figure>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+  const [main, second] = previews
+  return (
+    <div className={second ? 'relative pb-[18%] sm:pr-[14%]' : ''}>
+      <figure className={frame}>
+        <Image src={main.src} alt={main.alt} width={main.width ?? 960} height={main.height ?? 600} sizes="(min-width: 1024px) 640px, 100vw" className="h-auto w-full" />
+      </figure>
+      {second && (
+        <figure className={`${frame} absolute right-0 bottom-0 w-[58%] ring-1 ring-black/40`}>
+          <Image src={second.src} alt={second.alt} width={second.width ?? 960} height={second.height ?? 600} sizes="(min-width: 1024px) 380px, 58vw" className="h-auto w-full" />
+        </figure>
+      )}
+    </div>
+  )
+}
+
 export default function CaseStudy({ build, activity }: { build: Build; activity: LogEntry[] }) {
   const repo = build.github ?? 'https://github.com/n8watkins/n8builds-web'
   // Matched by name prefix: a retaken screenshot gets a new dated file name,
@@ -336,34 +373,43 @@ export default function CaseStudy({ build, activity }: { build: Build; activity:
               lead="Not a starter with placeholders: the site that runs n8builds.dev, with everything below already wired and tested."
             />
           </Reveal>
-          {/* Each feature with a picture of it on this site (owner, round 11 of 2026-11-09). */}
-          <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" data-features>
+          {/* Each feature in depth (owner, round 12 of 2026-11-09): pictures of it on this
+              site and how it works, the pictures on alternating sides from 1024px. */}
+          <ol className="mt-10 space-y-14 md:space-y-20" data-features>
             {FEATURES.map((f, k) => {
               const Icon = ICONS[f.icon]
+              const flip = k % 2 === 1
               return (
-                <li key={f.title}>
-                  <Reveal delay={(k % 3) * 0.07} className="h-full">
-                    <figure className={`${styles.card} flex h-full flex-col overflow-hidden rounded-2xl border border-white/8 bg-white/[0.03]`}>
-                      {f.shot && (
-                        <div className="relative aspect-16/10 overflow-hidden border-b border-white/8 bg-[#070b16]">
-                          <Image src={f.shot.src} alt={f.shot.alt} fill sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw" className="object-cover object-top" />
-                        </div>
+                <li key={f.title} data-feature={f.title}>
+                  <Reveal className="grid items-center gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-10">
+                    <div className={flip ? 'lg:order-2' : ''}>
+                      <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-cyan-400/20 bg-cyan-400/10">
+                        <Icon className="h-4.5 w-4.5 text-cyan-300" aria-hidden="true" />
+                      </span>
+                      <h3 className="mt-4 text-2xl font-bold tracking-tight text-slate-50">{f.title}</h3>
+                      <p className="mt-2 leading-relaxed text-slate-300">{f.body}</p>
+                      {f.how && (
+                        <>
+                          <p className="mt-5 font-mono text-[0.68rem] font-bold tracking-[0.16em] text-cyan-400/90 uppercase">How it works</p>
+                          <ol className="mt-2 space-y-2">
+                            {f.how.map((step, n) => (
+                              <li key={step} className="flex gap-3 text-sm leading-relaxed text-slate-400">
+                                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-cyan-400/25 font-mono text-[0.65rem] font-bold text-cyan-300">
+                                  {n + 1}
+                                </span>
+                                {step}
+                              </li>
+                            ))}
+                          </ol>
+                        </>
                       )}
-                      <figcaption className="flex gap-3 p-4 sm:p-5">
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-cyan-400/20 bg-cyan-400/10">
-                          <Icon className="h-4 w-4 text-cyan-300" aria-hidden="true" />
-                        </span>
-                        <span>
-                          <span className="block font-bold text-slate-50">{f.title}</span>
-                          <span className="mt-1 block text-sm leading-relaxed text-slate-400">{f.body}</span>
-                        </span>
-                      </figcaption>
-                    </figure>
+                    </div>
+                    {f.previews && <Previews previews={f.previews} />}
                   </Reveal>
                 </li>
               )
             })}
-          </ul>
+          </ol>
           {/* Nothing to look at, so a line each. */}
           <Reveal>
             <ul className="mt-5 grid gap-3 rounded-2xl border border-white/8 bg-white/[0.02] p-4 sm:grid-cols-2 sm:p-5" aria-label="Also under the hood">
