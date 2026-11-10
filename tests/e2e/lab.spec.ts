@@ -552,15 +552,32 @@ test.describe('featured clips, with motion', () => {
     await featured.evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
     const openping = page.getByRole('article', { name: 'OpenPing' })
     const solara = page.getByRole('article', { name: 'Solara' })
-    const playing = (card: typeof openping) => card.locator('[data-tour] video').evaluate((v: HTMLVideoElement) => !v.paused)
-    const resting = async (card: typeof openping) => {
-      // Paused, its video hidden so the poster frame shows, and a play button over it.
-      await expect.poll(() => playing(card)).toBe(false)
-      await expect(card.locator('[data-tour] video')).toHaveCSS('opacity', '0')
-      await expect(card.locator('[data-clip-play]')).toBeVisible()
-    }
+    const video = (card: typeof openping) => card.locator('[data-tour] video')
+    // What the visitor sees: its picture moving. `!paused` alone is not that: WebKit
+    // reports a clip unpaused as soon as play() is called, before it has a frame.
+    const moving = (card: typeof openping) =>
+      video(card).evaluate(async (v: HTMLVideoElement) => {
+        const from = v.currentTime
+        await new Promise((r) => setTimeout(r, 250))
+        return !v.paused && v.currentTime !== from
+      })
     const filled = (card: typeof openping) =>
       card.locator('[data-clip-progress] span').evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).a)
+    const plays = async (card: typeof openping) => {
+      // Its picture moves, it shows over the poster, and its bar fills. Up to 15s: a clip's
+      // first turn loads it first, which on a busy machine took WebKit over 5s to start.
+      await expect.poll(() => moving(card), { timeout: 15_000 }).toBe(true)
+      await expect(video(card)).toHaveCSS('opacity', '1')
+      await expect.poll(() => filled(card)).toBeGreaterThan(0)
+    }
+    const resting = async (card: typeof openping) => {
+      // Still, its video hidden so the poster frame shows, and a play button over it.
+      await expect.poll(() => moving(card)).toBe(false)
+      await expect(video(card)).toHaveCSS('opacity', '0')
+      await expect(card.locator('[data-clip-play]')).toBeVisible()
+      // And it stays still: only one clip plays at a time.
+      expect(await moving(card)).toBe(false)
+    }
     // Skip to the clip's last moment, so it ends now rather than in many seconds.
     const nearEnd = (card: typeof openping) =>
       card.locator('[data-tour] video').evaluate((v: HTMLVideoElement) => {
@@ -570,9 +587,7 @@ test.describe('featured clips, with motion', () => {
     // The first plays; the second rests (on a phone, each checked once it is on screen).
     if (!isMobile) await page.mouse.move(0, 0)
     else await openping.locator('[data-tour]').evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
-    await expect.poll(() => playing(openping)).toBe(true)
-    // Its bar fills as it plays; the other's stays empty.
-    await expect.poll(() => filled(openping)).toBeGreaterThan(0)
+    await plays(openping)
     expect(await filled(solara)).toBe(0)
     if (isMobile) await solara.locator('[data-tour]').evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
     await resting(solara)
@@ -580,28 +595,28 @@ test.describe('featured clips, with motion', () => {
     if (!isMobile) {
       // When OpenPing's clip ends, Solara's plays; when that ends, OpenPing's again.
       await nearEnd(openping)
-      await expect.poll(() => playing(solara), { timeout: 10_000 }).toBe(true)
+      await plays(solara)
       await resting(openping)
       await nearEnd(solara)
-      await expect.poll(() => playing(openping), { timeout: 10_000 }).toBe(true)
+      await plays(openping)
       await resting(solara)
       // Pointing at Solara makes it the playing one, and it stays so when the pointer leaves.
       await solara.hover()
-      await expect.poll(() => playing(solara)).toBe(true)
+      await plays(solara)
       await resting(openping)
       await page.mouse.move(0, 0)
       await page.waitForTimeout(500)
-      expect(await playing(solara)).toBe(true)
+      expect(await moving(solara)).toBe(true)
       // Keyboard focus too: reaching its play button gives it the turn, and focus moves on
       // to its pause button, which takes the play button's place.
       await openping.getByRole('button', { name: name('OpenPing') }).focus()
       await expect(openping.getByRole('button', { name: 'Pause the OpenPing clip' })).toBeFocused()
-      await expect.poll(() => playing(openping)).toBe(true)
+      await plays(openping)
       await resting(solara)
     } else {
       // A tap on the play button gives it the turn, and it keeps it.
       await solara.getByRole('button', { name: name('Solara') }).tap()
-      await expect.poll(() => playing(solara)).toBe(true)
+      await plays(solara)
       await openping.locator('[data-tour]').evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
       await resting(openping)
     }

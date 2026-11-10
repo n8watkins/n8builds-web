@@ -317,10 +317,8 @@ export function ProjectTour({
   }, [])
 
   const playing = inView && visible && !reduced && !paused && !hidden && myTurn
-  // Waiting for its turn: back to its first frame, so it starts from the top when its turn comes.
-  useEffect(() => {
-    if (!myTurn && ref.current && ref.current.currentTime > 0) ref.current.currentTime = 0
-  }, [myTurn])
+  // Whether it should be playing right now, for the play guard on the video below.
+  const shouldPlay = useRef(false)
   // The sources go in only once it first plays: with none, no browser fetches
   // anything (Safari ignores preload="none"), so an off-screen row or reduced
   // motion costs only the poster.
@@ -329,6 +327,7 @@ export function ProjectTour({
   const loaded = useRef(false)
   useEffect(() => {
     const video = ref.current
+    shouldPlay.current = playing
     if (!video || !started) return
     if (!loaded.current) {
       loaded.current = true
@@ -341,8 +340,12 @@ export function ProjectTour({
       video.play().catch(() => {})
     } else {
       video.pause()
+      // Waiting for its turn: back to its first frame, so it starts from the top when its
+      // turn comes. Only once paused: WebKit, seeking a clip that still plays and pausing it
+      // straight after, could let it play on out of turn (CI on PR #180, 2026-11-10).
+      if (!myTurn && video.currentTime > 0) video.currentTime = 0
     }
-  }, [playing, started])
+  }, [playing, started, myTurn])
 
   // In a ClipTurns group: the bar under the active clip fills as it plays, read
   // from the video each frame while it plays (empty off its turn).
@@ -382,6 +385,12 @@ export function ProjectTour({
           muted
           // On its own it loops; in a ClipTurns group it plays once, then hands over.
           loop={!inTurns}
+          // Only this component starts it. Should the browser resume it on its own (out of
+          // its turn, off screen, paused by the visitor), it is paused again at once, so
+          // only one clip of a group ever plays.
+          onPlay={(e) => {
+            if (!shouldPlay.current) e.currentTarget.pause()
+          }}
           onEnded={() => {
             if (inTurns) turns?.ended(slot ?? 0)
           }}
