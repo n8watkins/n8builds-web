@@ -47,7 +47,7 @@ test.describe('a build page', () => {
   // Start button and window controls. Since 2026-11-09 the product sits full
   // width under the header: every action is above it, at any width.
   for (const width of [1440, 1024, 820, 390, 320]) {
-    for (const slug of ['scribe', 'openping', 'solara']) {
+    for (const slug of ['scribe', 'openping', 'solara', 'wren']) {
       test(`${slug}'s actions sit above its product, never over it, at ${width}px`, { tag: width === 1024 || width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
         await page.setViewportSize({ width, height: 900 })
         await page.goto(`/builds/${slug}`)
@@ -92,8 +92,8 @@ test.describe('a build page', () => {
     await expect(page.getByRole('region', { name: "How it's built" }).getByRole('tab')).toHaveText(['Frontend', 'Backend'])
   })
 
-  test('OpenPing and Solara show a short clip of the product in use, loaded lazily, with a phone take', async ({ page }) => {
-    for (const slug of ['openping', 'solara']) {
+  test('OpenPing, Solara and Wren show a short clip of the product in use, loaded lazily, with a phone take', async ({ page }) => {
+    for (const slug of ['openping', 'solara', 'wren']) {
       await page.goto(`/builds/${slug}`)
       const video = page.locator('#demo [data-tour] video').filter({ visible: true })
       await expect(video, slug).toHaveCount(1)
@@ -178,10 +178,11 @@ test.describe('build page screenshots', () => {
 
 test('every build page ends with More builds: three others, the featured ones first, never itself', async ({ page }) => {
   for (const [slug, expected] of [
-    ['openping', ['Solara', 'Scribe', 'Portfolio Rank']],
-    ['solara', ['OpenPing', 'Scribe', 'Portfolio Rank']],
-    ['tubevault', ['OpenPing', 'Solara', 'Scribe']],
-    ['n8builds', ['OpenPing', 'Solara', 'Scribe']],
+    ['openping', ['Solara', 'Wren', 'Scribe']],
+    ['solara', ['OpenPing', 'Wren', 'Scribe']],
+    ['wren', ['OpenPing', 'Solara', 'Scribe']],
+    ['tubevault', ['OpenPing', 'Solara', 'Wren']],
+    ['n8builds', ['OpenPing', 'Solara', 'Wren']],
   ] as const) {
     await page.goto(`/builds/${slug}`)
     const more = page.getByRole('region', { name: 'More builds' })

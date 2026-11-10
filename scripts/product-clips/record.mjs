@@ -3,9 +3,13 @@
 // through a storyboard and saves the take; encode.sh trims, scales and
 // compresses it into public/builds/<slug>/clip.{webm,mp4} (or clip-phone.* for
 // the phone take) and its poster.
-//   node scripts/product-clips/record.mjs <openping|solara> <outDir> [--phone]
+//   node scripts/product-clips/record.mjs <openping|solara|wren> <outDir> [--phone]
 //
 // Solara: its live app as a guest (no sign-in, nothing saved anywhere).
+//
+// Wren: its live app as a guest, asking one question; the answer is a genuine
+// one of Wren's, replayed, since a recording must not get around the guest's
+// Turnstile check (wren-replay.mjs).
 //
 // OpenPing: the real product in use, signed in, adding a check and watching
 // its status page pick it up. That needs an admin, so it runs against a local,
@@ -19,9 +23,10 @@ import { execFileSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, renameSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { replayWren, WREN, wrenAnswer } from './wren-replay.mjs'
 
 const [slug, outDir, flag] = process.argv.slice(2)
-if (!slug || !outDir) throw new Error('usage: record.mjs <openping|solara> <outDir> [--phone]')
+if (!slug || !outDir) throw new Error('usage: record.mjs <openping|solara|wren> <outDir> [--phone]')
 const phone = flag === '--phone'
 mkdirSync(outDir, { recursive: true })
 
@@ -189,6 +194,26 @@ const storyboards = {
       await pause(page, 2600)
     },
   },
+  // A guest asks a question and reads the answer as Wren writes it.
+  wren: {
+    origin: WREN,
+    warm: [`${WREN}/`],
+    prepare: replayWren,
+    async play(page) {
+      const answer = wrenAnswer()
+      await page.goto(`${WREN}/`, { waitUntil: 'networkidle' })
+      await pause(page, 1200)
+      // The desktop and the phone layouts each have their own message box.
+      const box = page.locator('textarea:visible').first()
+      await box.click()
+      await typeSlowly(box, answer.prompt)
+      await pause(page, 400)
+      // The send button, not Enter: on a phone Enter starts a new line.
+      await page.locator('[aria-label="Send message"]:visible').click()
+      await page.waitForFunction(() => [...document.querySelectorAll('[data-testid="answer"]')].at(-1)?.getAttribute('data-status') === 'done')
+      await pause(page, 2600)
+    },
+  },
 }
 
 const board = storyboards[slug]
@@ -199,6 +224,7 @@ const device = phone
 await board.seed?.()
 const browser = await chromium.launch()
 const signedIn = async (context) => {
+  await board.prepare?.(context)
   if (slug !== 'openping') return
   // The local OpenPing's seeded admin session.
   await context.addCookies([{ name: 'op_session', value: SESSION, url: OPENPING, secure: true, httpOnly: true }])

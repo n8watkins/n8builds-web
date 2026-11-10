@@ -300,13 +300,14 @@ describe('entries for a build', () => {
 describe('merging, sorting and the builds index', () => {
   // The Lab's builds: release-kit's page (round 9 of 2026-11-09) is a build too, but the
   // recorded fixture captured its repo with nothing logged, so it stays out of these.
-  // The developer portfolio's page (round 12 of 2026-11-09) has none in the fixture either.
-  const inFixture = builds.filter((b) => b.slug !== 'release-kit' && b.slug !== 'portfolio')
+  // The developer portfolio's page (round 12 of 2026-11-09) has none in the fixture either,
+  // and nor has Wren's (2026-11-10), added to it empty after it was recorded.
+  const inFixture = builds.filter((b) => !['release-kit', 'portfolio', 'wren'].includes(b.slug))
   const log = assembleLog(inFixture, snapshots, highlights)
 
   it('tracks the visible builds with a repo, and none of the hidden ones', () => {
     const tracked = builds.filter((b) => b.repo)
-    expect(tracked.map((b) => b.slug)).toEqual(['voicedock', 'tldw', 'tubevault', 'scribe', 'openping', 'solara', 'portfolio-rank', 'release-kit', 'portfolio', 'n8builds'])
+    expect(tracked.map((b) => b.slug)).toEqual(['voicedock', 'tldw', 'tubevault', 'scribe', 'openping', 'solara', 'wren', 'portfolio-rank', 'release-kit', 'portfolio', 'n8builds'])
     expect(tracked.every((b) => /^n8watkins\/[\w-]+$/.test(b.repo!))).toBe(true)
     expect(hiddenBuilds.every((b) => !b.repo)).toBe(true)
     expect(new Set(log.entries.map((e) => e.build))).toEqual(new Set(inFixture.filter((b) => b.repo).map((b) => b.slug)))

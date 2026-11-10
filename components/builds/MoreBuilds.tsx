@@ -13,6 +13,7 @@ import { BUILD_ICONS } from '@/lib/build-meta'
 const ORDER = [
   'openping',
   'solara',
+  'wren',
   'scribe',
   'portfolio-rank',
   'voicedock',

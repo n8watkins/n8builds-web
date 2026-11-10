@@ -14,7 +14,7 @@ import ScribeActions from '@/components/sections/ScribeActions'
 /**
  * Each row's main action takes its product's colour, so the rows don't read as
  * one repeated block: Scribe's sky blue, OpenPing's uptime green, Solara's sun
- * orange. Every pairing passes WCAG AA: white on blue-600 or darker (5.2:1 and
+ * orange, Wren's ember. Every pairing passes WCAG AA: white on blue-600 or darker (5.2:1 and
  * up), dark text on the light fills.
  */
 const accents = {
@@ -28,6 +28,10 @@ const accents = {
   solara: {
     // Mostly solid orange with a slight warm shift; orange into amber was too loud.
     primary: 'bg-linear-to-r from-orange-500 to-orange-400 text-slate-950 hover:from-orange-400 hover:to-orange-300',
+  },
+  wren: {
+    // Wren's own ember and the ink it puts on it in its dark theme (8.6:1).
+    primary: 'bg-[#ff7d4d] text-[#1b0e08] hover:bg-[#ff9670]',
   },
 } satisfies Record<string, { primary: string }>
 
@@ -124,6 +128,19 @@ const featured: FeaturedProject[] = [
     github: 'https://github.com/n8watkins/solara',
     buildSlug: 'solara',
     accent: 'solara',
+  },
+  {
+    title: 'Wren',
+    icon: '/builds/wren/icon.svg',
+    group: 'featured',
+    subtitle: 'An AI assistant you can type or talk to',
+    description:
+      "Ask by typing or talking, and Wren researches the web and remembers what you save. It's a free demo: bring your own Gemini key for real use.",
+    // Its usage clip (data/builds.tsx) shows on the card; this is the fallback.
+    images: [{ src: '/builds/wren/chat.webp', alt: 'Wren answering a question as it writes' }],
+    github: 'https://github.com/n8watkins/wren',
+    buildSlug: 'wren',
+    accent: 'wren',
   },
 ]
 
@@ -374,13 +391,18 @@ const FeaturedProjects = () => {
         <LabSubheader title="Featured" icon={<StarIcon />} />
       </Reveal>
       {/* Side by side from 1024px, OpenPing first (round 9 of 2026-11-09), stacked below that;
-          their clips take turns. */}
+          their clips take turns. An odd one out (Wren, since 2026-11-10) sits centred under
+          the pair at the same width. */}
       <ClipTurns count={featured.filter((p) => p.group === 'featured').length}>
         <div className={`${container} grid gap-5 py-3 lg:grid-cols-2 lg:gap-6`}>
           {featured
             .filter((p) => p.group === 'featured')
             .map((p, i) => (
-              <article key={p.title} aria-labelledby={`${slugOf(p)}-title`} className={`lab-accent-${p.accent} relative isolate`}>
+              <article
+                key={p.title}
+                aria-labelledby={`${slugOf(p)}-title`}
+                className={`lab-accent-${p.accent} relative isolate lg:odd:last:col-span-2 lg:odd:last:mx-auto lg:odd:last:w-[calc(50%-0.75rem)]`}
+              >
                 <FeaturedCard project={p} slot={i} />
               </article>
             ))}
