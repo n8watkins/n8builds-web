@@ -527,18 +527,18 @@ images: [
     // different thing from this site, so it gets its own full story). From its README
     // and package.json (n8watkins/dev-portfolio, checked 2026-11-09); the pictures are of
     // portfolio.n8builds.dev, retaken 2026-11-09.
-    slug: 'dev-portfolio',
+    slug: 'portfolio',
     name: 'Developer portfolio',
     homepage: false,
     tagline: 'A portfolio that gets you hired',
     category: 'Website',
     tags: ['Next.js', 'Cloudflare Workers', 'Open source'],
     highlights: [
-      { text: 'A first screen that says who you are: a whoami terminal, your portrait and links to your other sites', shot: '/builds/dev-portfolio/home-2026-11.webp' },
-      { text: 'About you, with where you are on a map and the stack you build with', shot: '/builds/dev-portfolio/about-2026-11.webp' },
-      { text: 'Your experience as a timeline: each role and what you shipped in it', shot: '/builds/dev-portfolio/experience-2026-11.webp' },
-      { text: 'Your own sites and side projects, each with a picture and a link', shot: '/builds/dev-portfolio/workshop-2026-11.webp' },
-      { text: 'A contact block and a footer that has everything in one place', shot: '/builds/dev-portfolio/contact-2026-11.webp' },
+      { text: 'A first screen that says who you are: a whoami terminal, your portrait and links to your other sites', shot: '/builds/portfolio/home-2026-11.webp' },
+      { text: 'About you, with where you are on a map and the stack you build with', shot: '/builds/portfolio/about-2026-11.webp' },
+      { text: 'Your experience as a timeline: each role and what you shipped in it', shot: '/builds/portfolio/experience-2026-11.webp' },
+      { text: 'Your own sites and side projects, each with a picture and a link', shot: '/builds/portfolio/workshop-2026-11.webp' },
+      { text: 'A contact block and a footer that has everything in one place', shot: '/builds/portfolio/contact-2026-11.webp' },
     ],
     color: 'from-teal-500/20 to-cyan-600/20',
     problem:
@@ -559,11 +559,11 @@ images: [
       'Ship it: every push to main deploys to Cloudflare Workers (DEPLOY.md), and release-kit writes the release notes from the commits.',
     ],
     images: [
-      { src: '/builds/dev-portfolio/home-2026-11.webp', alt: "The developer portfolio's first screen: Hi, I'm Nathan, a whoami terminal, the portrait and cards for n8builds.dev and techforpros.com" },
-      { src: '/builds/dev-portfolio/about-2026-11.webp', alt: 'About me: a few paragraphs, a portrait, a map of Los Angeles and the stack I build with' },
-      { src: '/builds/dev-portfolio/experience-2026-11.webp', alt: "Where I've built: a timeline of roles, each with what I shipped" },
-      { src: '/builds/dev-portfolio/workshop-2026-11.webp', alt: 'My workshop: techforpros.com and n8builds.dev, each with a picture and what it is' },
-      { src: '/builds/dev-portfolio/contact-2026-11.webp', alt: "Let's build something together: the email button, social links and the footer" },
+      { src: '/builds/portfolio/home-2026-11.webp', alt: "The developer portfolio's first screen: Hi, I'm Nathan, a whoami terminal, the portrait and cards for n8builds.dev and techforpros.com" },
+      { src: '/builds/portfolio/about-2026-11.webp', alt: 'About me: a few paragraphs, a portrait, a map of Los Angeles and the stack I build with' },
+      { src: '/builds/portfolio/experience-2026-11.webp', alt: "Where I've built: a timeline of roles, each with what I shipped" },
+      { src: '/builds/portfolio/workshop-2026-11.webp', alt: 'My workshop: techforpros.com and n8builds.dev, each with a picture and what it is' },
+      { src: '/builds/portfolio/contact-2026-11.webp', alt: "Let's build something together: the email button, social links and the footer" },
     ],
     tryIt: { label: 'Visit the portfolio', href: 'https://portfolio.n8builds.dev' },
     liveSite: 'https://portfolio.n8builds.dev',

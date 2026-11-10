@@ -46,7 +46,7 @@ test('the build log leads with the builds, most recently active first', { tag: '
     // release-kit's page (round 9 of 2026-11-09): the fixture has nothing logged for it yet.
     'release-kit',
     // The developer portfolio's page (round 12 of 2026-11-09): nothing logged in the fixture either.
-    'dev-portfolio',
+    'portfolio',
     'relink',
     'strollz',
     'keysready',

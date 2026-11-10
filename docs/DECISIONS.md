@@ -534,6 +534,7 @@ Where these conflict with an older entry above, these win; the older entries are
   **Each tech stack lists its code first** (Next.js, TypeScript, Tailwind CSS, Better Auth), then a small header with its host's pieces: Vercel (Vercel, Turso) or Cloudflare (Workers, D1, R2, Durable Objects). Better Auth is what Wren, the Cloudflare app with accounts, uses (checked 2026-11-09: n8builds-admin has its own GitHub OAuth, OpenPing its own sessions and passkeys, Solara Firebase). No Docker for Vercel.
   **Featured's clips alternate by themselves, forever:** OpenPing plays once through, then Solara, and round again. A bar under the playing clip fills as it plays. Pointing at or focusing a card makes it the playing one, and the round goes on from there. Nothing plays under reduced motion, off screen or in a hidden tab.
   **Review rounds run tests locally only;** the branch is pushed, and the CI the change needs runs, once, at the merge.
+- **The developer portfolio's page is `/builds/portfolio`** (owner, 2026-11-10; was `/builds/dev-portfolio`, which now redirects there permanently); its repo keeps the name `n8watkins/dev-portfolio`.
 
 ## Publishing and releases (2026-10-25)
 

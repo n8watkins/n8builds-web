@@ -97,7 +97,7 @@ test('each template has its "Full story", its own build page', async ({ page }) 
   const template = await open(page)
   // The portfolio got its own page in round 12 of 2026-11-09.
   await expect(template.getByRole('link', { name: 'Full story of My personal site' })).toHaveAttribute('href', '/builds/n8builds')
-  await expect(template.getByRole('link', { name: 'Full story of My developer portfolio' })).toHaveAttribute('href', '/builds/dev-portfolio')
+  await expect(template.getByRole('link', { name: 'Full story of My developer portfolio' })).toHaveAttribute('href', '/builds/portfolio')
   // The portfolio's repo is the GitHub half of its split button, not a second button.
   await expect(template.locator(`a[href^="${PORTFOLIO_REPO}#"], a[href^="${PORTFOLIO_REPO}/"]`)).toHaveCount(0)
 })
