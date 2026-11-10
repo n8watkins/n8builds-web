@@ -319,7 +319,7 @@ const FeaturedCard = ({ project, slot }: { project: FeaturedProject; slot: numbe
                 <h3 id={`${slugOf(project)}-title`} className="text-2xl leading-tight font-bold tracking-tight text-slate-50 sm:text-[1.75rem]">
                   {project.title}
                 </h3>
-                <p className="text-sm font-semibold text-[rgb(var(--lab-from))]">{project.subtitle}</p>
+                <p className="text-sm font-semibold text-balance text-[rgb(var(--lab-from))]">{project.subtitle}</p>
               </div>
             </div>
             <p className="mt-3 text-[0.95rem] leading-relaxed text-pretty text-[#9cadc5]">{project.description}</p>
