@@ -1,6 +1,9 @@
 'use client'
 import { useEffect, useState, type ReactNode } from 'react'
+import type { IconType } from 'react-icons'
 import { FiArrowUpRight, FiGithub } from 'react-icons/fi'
+import { LuBookOpen, LuLayers, LuLayoutGrid, LuNotebookPen, LuPlay, LuScrollText, LuSparkles } from 'react-icons/lu'
+import RailRows from '@/components/ui/RailRows'
 import { TechGlyph, TECH, type TechKey } from '@/lib/tech-icons'
 
 /** What the sidebar says about a build: computed on the server (app/builds/[slug]/page.tsx). */
@@ -17,8 +20,20 @@ export type BuildFacts = {
   repo?: { href: string; label: string }
 }
 
+/** Each part's icon in the sidebar's rail, by name (the page is a server component, so it names them). */
+const PART_ICONS = {
+  demo: LuPlay,
+  features: LuSparkles,
+  story: LuBookOpen,
+  built: LuLayers,
+  process: LuNotebookPen,
+  log: LuScrollText,
+  more: LuLayoutGrid,
+} satisfies Record<string, IconType>
+export type PartIcon = keyof typeof PART_ICONS
+
 /** The page's parts, in order: the ones found on the page are listed. */
-export type PagePart = { id: string; label: string }
+export type PagePart = { id: string; label: string; icon: PartIcon }
 
 /**
  * A build page's sidebar (owner, 2026-11-09), in the spirit of the homepage
@@ -31,30 +46,16 @@ export type PagePart = { id: string; label: string }
  */
 export default function BuildSidebar({ facts, parts }: { facts: BuildFacts; parts: PagePart[] }) {
   const active = useCurrentPart(parts)
+  const railParts = parts.map((p) => ({ id: p.id, label: p.label, icon: PART_ICONS[p.icon], iconSize: 'size-3.5' }))
   return (
     <aside aria-label={`${facts.name} at a glance`} className="sticky top-24 hidden max-h-[calc(100vh-7rem)] overflow-y-auto pb-6 lg:block" data-testid="build-sidebar">
       <FactList facts={facts} />
       {parts.length > 1 ? (
-        <nav aria-label="On this page" className="mt-7 border-t border-white/[0.07] pt-5">
-          <p className="font-mono text-[0.7rem] font-semibold tracking-[0.16em] text-slate-450 uppercase">On this page</p>
-          <ul className="relative mt-3 space-y-0.5 border-l border-white/[0.08]">
-            {parts.map((part) => {
-              const current = part.id === active
-              return (
-                <li key={part.id}>
-                  <a
-                    href={`#${part.id}`}
-                    aria-current={current ? 'location' : undefined}
-                    className={`-ml-px block border-l-2 py-1.5 pl-3.5 text-sm transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-cyan-300 ${
-                      current ? 'border-cyan-300 font-semibold text-cyan-200' : 'border-transparent text-slate-400 hover:border-white/25 hover:text-slate-200'
-                    }`}
-                  >
-                    {part.label}
-                  </a>
-                </li>
-              )
-            })}
-          </ul>
+        // The homepage rails' pattern (round 12 of 2026-11-09): an icon per part on a wire
+        // that fills to the part being read, the current one lit and circled.
+        <nav aria-label="On this page" className="mt-7 border-t border-white/[0.07] pt-5 [--chip:1.625rem] [--row:2.625rem]">
+          <p className="mb-2 font-mono text-[0.7rem] font-semibold tracking-[0.16em] text-slate-450 uppercase">On this page</p>
+          <RailRows parts={railParts} active={parts.findIndex((p) => p.id === active)} labels="inline" />
         </nav>
       ) : null}
     </aside>

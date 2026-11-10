@@ -390,13 +390,13 @@ function StoryParts({ build, layers }: { build: Build; layers: ('Frontend' | 'Ba
 /** The sidebar's links: the parts this build's page has, in order. */
 function pageParts(build: Build, features: boolean, layers: boolean, log: boolean): PagePart[] {
   return [
-    build.clip ? { id: 'demo', label: 'See it in use' } : null,
-    features ? { id: 'features', label: 'What it does' } : null,
-    build.problem ? { id: 'story', label: 'Problem and build' } : null,
-    layers ? { id: 'built', label: "How it's built" } : null,
-    build.process.length > 0 ? { id: 'process', label: 'Process notes' } : null,
-    log ? { id: 'log', label: 'Build log' } : null,
-    { id: 'more', label: 'More builds' },
+    build.clip ? ({ id: 'demo', label: 'See it in use', icon: 'demo' } as const) : null,
+    features ? ({ id: 'features', label: 'What it does', icon: 'features' } as const) : null,
+    build.problem ? ({ id: 'story', label: 'Problem and build', icon: 'story' } as const) : null,
+    layers ? ({ id: 'built', label: "How it's built", icon: 'built' } as const) : null,
+    build.process.length > 0 ? ({ id: 'process', label: 'Process notes', icon: 'process' } as const) : null,
+    log ? ({ id: 'log', label: 'Build log', icon: 'log' } as const) : null,
+    { id: 'more', label: 'More builds', icon: 'more' } as const,
   ].filter((p) => p !== null)
 }
 
