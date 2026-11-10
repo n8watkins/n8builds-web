@@ -563,9 +563,10 @@ test.describe('featured clips, with motion', () => {
       })
     const filled = (card: typeof openping) =>
       card.locator('[data-clip-progress] span').evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).a)
-    const plays = async (card: typeof openping, timeout?: number) => {
-      // Its picture moves, it shows over the poster, and its bar fills.
-      await expect.poll(() => moving(card), { timeout }).toBe(true)
+    const plays = async (card: typeof openping) => {
+      // Its picture moves, it shows over the poster, and its bar fills. Up to 15s: a clip's
+      // first turn loads it first, which on a busy machine took WebKit over 5s to start.
+      await expect.poll(() => moving(card), { timeout: 15_000 }).toBe(true)
       await expect(video(card)).toHaveCSS('opacity', '1')
       await expect.poll(() => filled(card)).toBeGreaterThan(0)
     }
@@ -594,10 +595,10 @@ test.describe('featured clips, with motion', () => {
     if (!isMobile) {
       // When OpenPing's clip ends, Solara's plays; when that ends, OpenPing's again.
       await nearEnd(openping)
-      await plays(solara, 10_000)
+      await plays(solara)
       await resting(openping)
       await nearEnd(solara)
-      await plays(openping, 10_000)
+      await plays(openping)
       await resting(solara)
       // Pointing at Solara makes it the playing one, and it stays so when the pointer leaves.
       await solara.hover()
