@@ -90,8 +90,17 @@ function TechStack({ stack }: { stack: BuildStack }) {
         {stack.name}
       </h4>
       <p className="mt-0.5 text-sm font-semibold text-(--accent)">{stack.tagline}</p>
-      <ul className="mt-4 grid grid-cols-2 gap-x-3 gap-y-2.5 sm:gap-x-5" aria-label={`${stack.name}: what it is made of`}>
-        {[...stack.tools, ...stack.hosting].map((tool) => (
+      <ul className="mt-4 grid grid-cols-2 gap-x-3 gap-y-2.5 sm:gap-x-5" aria-label={`${stack.name}: the code`}>
+        {stack.tools.map((tool) => (
+          <StackPiece key={tool} name={tool} role={stack.roles?.[tool] ?? stackRoles[tool]} icon={stackToolIcons[tool]} />
+        ))}
+      </ul>
+      {/* What runs it, under its provider's name (round 12 of 2026-11-09). */}
+      <h5 className="mt-5 border-t border-white/8 pt-3 font-mono text-[0.68rem] font-bold tracking-[0.16em] text-(--accent) uppercase" data-stack-host>
+        {stack.host ?? 'Runs on'}
+      </h5>
+      <ul className="mt-2.5 grid grid-cols-2 gap-x-3 gap-y-2.5 sm:gap-x-5" aria-label={`${stack.name}: ${stack.host ?? 'where it runs'}`}>
+        {stack.hosting.map((tool) => (
           <StackPiece key={tool} name={tool} role={stack.roles?.[tool] ?? stackRoles[tool]} icon={stackToolIcons[tool]} />
         ))}
       </ul>
