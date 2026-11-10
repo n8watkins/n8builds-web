@@ -50,3 +50,28 @@ test('the build log is server-rendered: the index and the feed are in the HTML',
   expect(html).toContain('TL;DW 1.0 is packaged for the Chrome Web Store')
   expect(html).not.toContain('sync portfolios from upstream')
 })
+
+test('the build log months are public JSON: the card figures and day bars, newest month first', async ({ request }) => {
+  const response = await request.get('/builds/months.json')
+  expect(response.status()).toBe(200)
+  expect(response.headers()['content-type']).toContain('application/json')
+  // Read by the owner's portfolio from another origin.
+  expect(response.headers()['access-control-allow-origin']).toBe('*')
+  const body = (await response.json()) as {
+    version: number
+    url: string
+    months: { id: string; title: string; changes: number; days: { day: string; count: number; future?: boolean }[] }[]
+  }
+  expect(body.version).toBe(1)
+  expect(body.url).toBe('https://n8builds.dev/builds')
+  expect(body.months.length).toBeGreaterThan(1)
+  for (const month of body.months) {
+    expect(month.title).toMatch(/^([A-Z][a-z]+ \d{4}|Last 30 days)$/)
+    // The headline is the bars' total, as on the card.
+    expect(month.changes).toBe(month.days.reduce((n, d) => n + d.count, 0))
+    expect(month.days.length).toBeGreaterThanOrEqual(28)
+  }
+  // Newest first: each later month is an earlier `YYYY-MM`.
+  const ids = body.months.slice(1).map((m) => m.id)
+  expect(ids).toEqual([...ids].sort().reverse())
+})
