@@ -23,7 +23,7 @@ test('the build log describes its builds as an ItemList, most recently active fi
   // The builds (the developer portfolio's page since round 12 of 2026-11-09), then the projects the log follows without a build page (round 5 of
   // 2026-11-02, data/logBuilds.ts; Who Am I?, Pivot and FitFlow 7 joined in round 7), each
   // linking where the site shows it.
-  expect(items.map((i) => i.position)).toEqual(Array.from({ length: 22 }, (_, i) => i + 1))
+  expect(items.map((i) => i.position)).toEqual(Array.from({ length: 23 }, (_, i) => i + 1))
   for (const slug of ['whoami', 'pivot', 'fitflow7']) expect(items.map((i) => i.url)).toContain(`https://n8builds.dev/upcoming#${slug}`)
   expect(items.map((i) => i.url)).toContain('https://n8builds.dev/upcoming#relink')
   expect(items[0]).toMatchObject({ name: 'n8builds.dev', url: 'https://n8builds.dev/builds/n8builds' })

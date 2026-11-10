@@ -535,6 +535,11 @@ Where these conflict with an older entry above, these win; the older entries are
   **Featured's clips alternate by themselves, forever:** OpenPing plays once through, then Solara, and round again. A bar under the playing clip fills as it plays. Pointing at or focusing a card makes it the playing one, and the round goes on from there. Nothing plays under reduced motion, off screen or in a hidden tab.
   **Review rounds run tests locally only;** the branch is pushed, and the CI the change needs runs, once, at the merge.
 - **The developer portfolio's page is `/builds/portfolio`** (owner, 2026-11-10; was `/builds/dev-portfolio`, which now redirects there permanently); its repo keeps the name `n8watkins/dev-portfolio`.
+- **Wren joins Featured** (owner, 2026-11-10, its launch; the placement is the agent's, keeping OpenPing first and the cards two across, for the owner to confirm): a third featured card after OpenPing and Solara, centred under the pair from 1024px at the same width, in Wren's ember (#ff7d4d, its dark theme's), with "Ask Wren" to the app (its first screen; guests chat with no sign-up), and a build page at `/builds/wren`.
+  Its page says plainly that it is a free demo on Gemini's free tier: don't share anything private with it, and bring your own Gemini key for real use (the owner's AI policy of 2026-11-10).
+  Its clip and chat screenshot use one genuine answer of Wren's, replayed (`scripts/product-clips/wren-replay.mjs`, the demo-kit's fixture): a guest's first message runs a Turnstile human check, which a recording must not get around. The rest are fresh captures of the live app as a guest (`shots.mjs wren`).
+  Featured's clips now take turns in three: OpenPing, Solara, Wren, and round again.
+  Public copy presents Wren as its own product.
 
 ## Publishing and releases (2026-10-25)
 

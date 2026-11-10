@@ -1,12 +1,14 @@
 // Captures the screenshots a build page pairs with its features (owner,
 // 2026-11-08), from the live product's public pages, at 1280x800, as WebP in
 // public/builds/<slug>/. Public pages only: no sign-in, nothing saved.
-//   node scripts/product-clips/shots.mjs <openping|solara>
+//   node scripts/product-clips/shots.mjs <openping|solara|wren>
+// Wren's chat shot asks its one recorded question, replayed (wren-replay.mjs).
 import { chromium } from '@playwright/test'
 import { execFileSync } from 'node:child_process'
 import { mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { replayWren, WREN, wrenAnswer } from './wren-replay.mjs'
 
 const slug = process.argv[2]
 const OUT = join(import.meta.dirname, '../../public/builds', slug)
@@ -25,7 +27,10 @@ async function shoot(page, name, locator, offset = 0) {
 }
 
 const browser = await chromium.launch()
-const page = await browser.newPage({ viewport: { width: 1280, height: 800 }, colorScheme: 'dark' })
+const context = await browser.newContext({ viewport: { width: 1280, height: 800 }, colorScheme: 'dark' })
+// Wren as a first-time guest, so the welcome dialog and the free-demo notice show.
+if (slug === 'wren') await replayWren(context, { returning: false })
+const page = await context.newPage()
 
 if (slug === 'openping') {
   await page.goto('https://openping.n8builds.dev/', { waitUntil: 'networkidle' })
@@ -61,5 +66,25 @@ if (slug === 'openping') {
   await shoot(page, 'app-vitamin-d')
   await page.goto('https://solara-uv.web.app/es/', { waitUntil: 'networkidle' })
   await shoot(page, 'landing-es')
+} else if (slug === 'wren') {
+  // A first visit as a guest: "How Wren works", then the free-demo notice over the composer.
+  await page.goto(`${WREN}/`, { waitUntil: 'networkidle' })
+  await page.waitForTimeout(800)
+  await shoot(page, 'how-it-works')
+  await page.getByRole('button', { name: 'Start chatting' }).click()
+  await page.waitForTimeout(600)
+  await shoot(page, 'demo-notice')
+  await page.locator('[data-testid="demo-dismiss"]:visible').click()
+  // The recorded question, its answer read from the top once it is all in.
+  await page.locator('textarea:visible').first().fill(wrenAnswer().prompt)
+  await page.locator('[aria-label="Send message"]:visible').click()
+  await page.waitForFunction(() => [...document.querySelectorAll('[data-testid="answer"]')].at(-1)?.getAttribute('data-status') === 'done')
+  await page.getByTestId('thread').evaluate((el) => el.scrollTo(0, 0))
+  await page.waitForTimeout(600)
+  await shoot(page, 'chat')
+  await page.locator('a.nav[href="/memory"]').click()
+  await page.getByRole('heading', { name: 'Your memory' }).waitFor()
+  await page.waitForTimeout(600)
+  await shoot(page, 'memory')
 }
 await browser.close()
