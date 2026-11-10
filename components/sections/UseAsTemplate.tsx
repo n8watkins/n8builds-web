@@ -61,7 +61,7 @@ const TEMPLATES: Template[] = [
       { icon: LuUserRound, label: 'About, experience, contact' },
       { icon: LuCloud, label: 'Runs on Cloudflare' },
     ],
-    story: '/builds/dev-portfolio',
+    story: '/builds/portfolio',
     repoName: 'dev-portfolio',
     repo: 'https://github.com/n8watkins/dev-portfolio',
   },

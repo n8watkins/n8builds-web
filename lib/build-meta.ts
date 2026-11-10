@@ -15,7 +15,7 @@ export const BUILD_ICONS: Record<string, string> = {
   'portfolio-rank': '/builds/portfolio-rank/icon.png',
   n8builds: '/tab/n8-icon-192.png',
   // The developer portfolio's mark, a briefcase in its teal, as on its template card.
-  'dev-portfolio': '/builds/dev-portfolio/icon.svg',
+  portfolio: '/builds/portfolio/icon.svg',
   // Projects without a build page (data/logBuilds.ts): the upcoming projects'
   // own marks, and my tools' tiles (scripts/gen-tool-tiles.mjs).
   relink: '/upcoming/relink.svg',

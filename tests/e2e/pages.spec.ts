@@ -139,3 +139,14 @@ test('Piper TTS was renamed VoiceDock: its old page lands on the new one, which 
   await expect(page.locator('a[href="https://github.com/n8watkins/voicedock"]').first()).toBeAttached()
   await expect(page.locator('a[href*="piper-tts"]')).toHaveCount(0)
 })
+
+test("the developer portfolio's page moved to /builds/portfolio: the old path lands on the new one", async ({ page, request }) => {
+  const response = await request.get('/builds/dev-portfolio', { maxRedirects: 0 })
+  expect(response.status()).toBe(308)
+  expect(response.headers()['location']).toBe('/builds/portfolio')
+  await page.goto('/builds/dev-portfolio')
+  expect(new URL(page.url()).pathname).toBe('/builds/portfolio')
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Developer portfolio')
+  await expect(page.locator('a[href="https://github.com/n8watkins/dev-portfolio"]').first()).toBeAttached()
+  await expect(page.locator('a[href^="/builds/dev-portfolio"]')).toHaveCount(0)
+})
