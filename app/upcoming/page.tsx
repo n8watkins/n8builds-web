@@ -1,13 +1,12 @@
 import type { CSSProperties } from 'react'
 import Image from 'next/image'
-import { FiCheck } from 'react-icons/fi'
 import Navbar from '@/components/layout/Navbar'
 import FadeIn from '@/components/ui/FadeIn'
 import Reveal from '@/components/ui/Reveal'
 import JoinButton from '@/components/upcoming/JoinButton'
-import { CodeLink, LandingButton } from '@/components/upcoming/ProjectLinks'
+import { LandingButton } from '@/components/upcoming/ProjectLinks'
 import WaitlistPanel from '@/components/upcoming/WaitlistPanel'
-import { UPCOMING, type UpcomingProject } from '@/data/upcoming'
+import { STATUS_LABEL, UPCOMING, type UpcomingProject } from '@/data/upcoming'
 import { pageMetadata } from '@/lib/seo'
 
 export const metadata = pageMetadata({
@@ -19,74 +18,63 @@ export const metadata = pageMetadata({
   path: '/upcoming',
 })
 
+/** A status pill's tint: green for something you can use now, amber for early access, quiet for the rest. */
+const STATUS_TONE: Record<UpcomingProject['status'], string> = {
+  'try-it': 'border-emerald-300/30 bg-emerald-300/10 text-emerald-200',
+  'early-access': 'border-amber-300/30 bg-amber-300/10 text-amber-200',
+  'in-development': 'border-white/12 bg-white/5 text-slate-300',
+  concept: 'border-white/12 bg-white/5 text-slate-400',
+}
+
+/**
+ * One project as a teaser (owner, round 11 of 2026-11-09: "far too much going
+ * on"; its only job is to send people to check it out): its landing page's
+ * picture, its mark, name and status, one line, then "Check it out" and the
+ * waitlist. The full pitch lives on the landing page.
+ */
 function ProjectCard({ project, index }: { project: UpcomingProject; index: number }) {
   return (
     <FadeIn
       as="article"
-      delay={0.1 + index * 0.08}
+      delay={0.05 + (index % 4) * 0.06}
       id={project.slug}
       aria-labelledby={`${project.slug}-name`}
       className="flex scroll-mt-24"
     >
       <div
         style={{ '--accent': project.accent } as CSSProperties}
-        className="@container relative flex w-full flex-col overflow-hidden rounded-2xl border border-white/8 bg-[#0a1222]/80 p-6 sm:p-7"
+        className="group relative flex w-full flex-col overflow-hidden rounded-2xl border border-white/8 bg-[#0a1222]/80 transition-colors hover:border-(--accent)/40"
       >
-        {/* The project's colour: a bar along the top and a faint glow behind the header. */}
         {/* A renamed project's old anchor (#rewire) still lands here. */}
         {project.oldIds?.map((id) => (
           <span key={id} id={id} aria-hidden className="absolute -top-24" />
         ))}
-        <span aria-hidden className="absolute inset-x-0 top-0 h-[3px] bg-(--accent)" />
-        <span
-          aria-hidden
-          className="pointer-events-none absolute -top-24 -left-16 h-56 w-72 bg-radial from-(--accent)/12 to-transparent to-70%"
-        />
-
-        <header className="relative flex items-start gap-4">
-          <Image src={project.icon} alt="" width={52} height={52} className="h-13 w-13 shrink-0 rounded-xl ring-1 ring-white/10" />
-          <div className="min-w-0">
-            <h2 id={`${project.slug}-name`} className="text-2xl font-extrabold tracking-tight text-slate-50">
+        <span aria-hidden className="absolute inset-x-0 top-0 z-10 h-[3px] bg-(--accent)" />
+        {/* Its landing page, as a picture: the link below opens the real one. */}
+        <div className="relative aspect-16/10 overflow-hidden border-b border-white/8 bg-[#07101d]">
+          <Image
+            src={project.shot}
+            alt=""
+            fill
+            sizes="(min-width: 1024px) 380px, (min-width: 640px) 50vw, 100vw"
+            className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.02] motion-reduce:transition-none"
+          />
+        </div>
+        <div className="flex flex-1 flex-col p-5">
+          <header className="flex items-center gap-3">
+            <Image src={project.icon} alt="" width={40} height={40} className="h-10 w-10 shrink-0 rounded-xl ring-1 ring-white/10" />
+            <h2 id={`${project.slug}-name`} className="min-w-0 flex-1 truncate text-xl font-extrabold tracking-tight text-slate-50">
               {project.name}
-              {project.nameNote && (
-                <span className="ml-2 align-middle text-xs font-medium text-slate-450">({project.nameNote})</span>
-              )}
             </h2>
-            <p className="mt-0.5 text-[0.95rem] font-medium text-balance text-(--accent)">{project.tagline}</p>
-          </div>
-        </header>
-
-        {/* No status line (owner, round 7 of 2026-11-09): every project has a live landing page. */}
-        <p className="relative mt-5 leading-relaxed text-pretty text-slate-200">{project.what}</p>
-
-        <p className="relative mt-4 text-sm leading-relaxed text-pretty text-slate-300">
-          <span className="font-semibold text-slate-100">Who it&rsquo;s for: </span>
-          {project.forWho}
-        </p>
-
-        <ul className="relative mt-5 space-y-2.5" aria-label={`${project.name}: key points`}>
-          {project.points.map((point) => (
-            <li key={point} className="flex items-start gap-2.5 text-sm font-medium text-pretty text-slate-200">
-              <FiCheck className="mt-[3px] h-4 w-4 shrink-0 text-(--accent)" aria-hidden="true" />
-              {point}
-            </li>
-          ))}
-        </ul>
-
-        {/* The landing page first, then Join, then the code where the repository is public
-             (owner, 2026-11-02): the two buttons side by side, equal widths, where the card
-             has room (a container query, as the card's width doesn't follow the window's),
-             stacked otherwise. mt-auto keeps side-by-side cards' buttons level. */}
-        <div className="relative mt-auto pt-6">
-          <div className="flex flex-col gap-3 @md:flex-row">
+            <span data-status={project.status} className={`shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${STATUS_TONE[project.status]}`}>
+              {STATUS_LABEL[project.status]}
+            </span>
+          </header>
+          <p className="mt-3 text-[0.95rem] leading-snug text-pretty text-slate-300">{project.tagline}</p>
+          <div className="mt-auto flex gap-2 pt-5">
             <LandingButton project={project} />
             <JoinButton slug={project.slug} name={project.name} accent={project.accent} compact />
           </div>
-          {project.repo && (
-            <p className="mt-4">
-              <CodeLink project={project} />
-            </p>
-          )}
         </div>
       </div>
     </FadeIn>
@@ -122,7 +110,7 @@ export default function UpcomingPage() {
                card spanning the row) and the waitlist after them. One form either
                way, so ?interest= and the cards' Join buttons tick the same one. */}
           <div className="mt-10 grid gap-6 md:mt-12 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-8 xl:grid-cols-[minmax(0,1fr)_24rem]">
-            <div className="grid gap-6 min-[960px]:max-lg:grid-cols-2 min-[960px]:max-lg:[&>*:nth-child(odd):last-child]:col-span-2">
+            <div className="grid gap-5 sm:grid-cols-2">
               {UPCOMING.map((project, index) => (
                 <ProjectCard key={project.slug} project={project} index={index} />
               ))}

@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { FiChevronLeft, FiChevronRight, FiPause, FiPlay } from 'react-icons/fi'
 import { useHydrated } from '@/hooks/useHydrated'
@@ -162,6 +162,65 @@ export function ProjectGallery({
   )
 }
 
+/**
+ * Clips that take turns (owner, round 9 of 2026-11-09: Featured's OpenPing and
+ * Solara side by side, "only one video plays at a time"; round 12: they
+ * alternate by themselves, forever). The active clip plays once through, then
+ * the next one takes over, and so on round. Pointing at a card (or focusing
+ * it, or pressing its play button) makes its clip the active one, from its
+ * start, and the round goes on from there when it ends. A bar under the
+ * active clip fills as it plays, so you see which one is on and when the
+ * other comes. `ClipTurns` holds whose turn it is; each `ClipSlot` is one
+ * card, and the ProjectTour inside it plays only on its turn. Off screen or in
+ * a hidden tab nothing plays, so the round waits; under reduced motion nothing
+ * plays at all (each card shows its still).
+ */
+type Turns = { active: number; pick: (slot: number) => void; ended: (slot: number) => void }
+const TurnsContext = createContext<Turns | null>(null)
+const SlotContext = createContext<number | null>(null)
+
+export function ClipTurns({ count, children }: { count: number; children: React.ReactNode }) {
+  const [active, setActive] = useState(0)
+  const turns: Turns = {
+    active,
+    pick: (slot) => setActive(slot),
+    // Only the active clip's end moves the turn on.
+    ended: (slot) => setActive((a) => (a === slot ? (slot + 1) % count : a)),
+  }
+  return <TurnsContext.Provider value={turns}>{children}</TurnsContext.Provider>
+}
+
+/** Whether any pointer on this device can hover (a mouse, a trackpad): not a phone or a tablet. */
+const canHover = () => typeof window !== 'undefined' && window.matchMedia('(any-hover: hover)').matches
+
+/**
+ * One card of a ClipTurns group: pointing at it or moving keyboard focus into
+ * it gives its clip the turn, and the round goes on from there.
+ */
+export function ClipSlot({ slot, className, children }: { slot: number; className?: string; children: React.ReactNode }) {
+  const turns = useContext(TurnsContext)
+  return (
+    <SlotContext.Provider value={slot}>
+      <div
+        data-clip-slot={slot}
+        data-clip-turn={turns?.active === slot ? '' : undefined}
+        className={className}
+        // A mouse on a device that can hover. A phone (no hover) never takes a turn
+        // this way: WebKit sends it mouse enters under a resting finger as the page
+        // scrolls, which would hand the turn round on its own.
+        onPointerEnter={(e) => {
+          if (e.pointerType === 'mouse' && canHover() && turns?.active !== slot) turns?.pick(slot)
+        }}
+        onFocus={() => {
+          if (turns?.active !== slot) turns?.pick(slot)
+        }}
+      >
+        {children}
+      </div>
+    </SlotContext.Provider>
+  )
+}
+
 /** A silent, looping tour of an app's own screens (Scribe's), in place of screenshots. */
 export interface ProjectTourVideo {
   /** VP9 WebM, first choice. */
@@ -218,6 +277,20 @@ export function ProjectTour({
   const reduced = usePrefersReducedMotion()
   const visible = usePageVisible()
   const hydrated = useHydrated()
+  // In a ClipTurns group, it plays only on its turn; on its own, always its turn.
+  const turns = useContext(TurnsContext)
+  const slot = useContext(SlotContext)
+  const myTurn = !turns || slot === null || turns.active === slot
+  // The play button gives way to the pause button once its clip has the turn (focusing the
+  // card is enough for that): focus moves to the pause button, so the keyboard keeps its place.
+  const pauseButton = useRef<HTMLButtonElement>(null)
+  const focusPause = useRef(false)
+  useEffect(() => {
+    if (myTurn && focusPause.current) {
+      focusPause.current = false
+      pauseButton.current?.focus({ preventScroll: true })
+    }
+  }, [myTurn])
 
   useEffect(() => {
     const video = ref.current
@@ -243,7 +316,11 @@ export function ProjectTour({
     }
   }, [])
 
-  const playing = inView && visible && !reduced && !paused && !hidden
+  const playing = inView && visible && !reduced && !paused && !hidden && myTurn
+  // Waiting for its turn: back to its first frame, so it starts from the top when its turn comes.
+  useEffect(() => {
+    if (!myTurn && ref.current && ref.current.currentTime > 0) ref.current.currentTime = 0
+  }, [myTurn])
   // The sources go in only once it first plays: with none, no browser fetches
   // anything (Safari ignores preload="none"), so an off-screen row or reduced
   // motion costs only the poster.
@@ -267,6 +344,28 @@ export function ProjectTour({
     }
   }, [playing, started])
 
+  // In a ClipTurns group: the bar under the active clip fills as it plays, read
+  // from the video each frame while it plays (empty off its turn).
+  const inTurns = !!turns && slot !== null
+  const bar = useRef<HTMLSpanElement>(null)
+  useEffect(() => {
+    const video = ref.current
+    const fill = bar.current
+    if (!inTurns || !video || !fill) return
+    if (!myTurn) {
+      fill.style.transform = 'scaleX(0)'
+      return
+    }
+    let frame = 0
+    const draw = () => {
+      const d = video.duration
+      fill.style.transform = `scaleX(${d > 0 ? Math.min(video.currentTime / d, 1) : 0})`
+      frame = requestAnimationFrame(draw)
+    }
+    if (playing) frame = requestAnimationFrame(draw)
+    return () => cancelAnimationFrame(frame)
+  }, [inTurns, myTurn, playing, hydrated])
+
   return (
     <div data-tour data-clip-ms={tour.durationMs} className={className}>
       <div className={`relative ${aspect} overflow-hidden bg-[#07101d] ${frameClassName}`}>
@@ -281,7 +380,11 @@ export function ProjectTour({
           // Muted, inline and looping, like a GIF; played from script, so
           // reduced motion and off-screen rows never start it.
           muted
-          loop
+          // On its own it loops; in a ClipTurns group it plays once, then hands over.
+          loop={!inTurns}
+          onEnded={() => {
+            if (inTurns) turns?.ended(slot ?? 0)
+          }}
           playsInline
           preload="none"
           disablePictureInPicture
@@ -289,7 +392,8 @@ export function ProjectTour({
           // Not a stop for the keyboard: it has no controls (its button pauses it), and
           // Firefox would otherwise make the video itself a tab stop.
           tabIndex={-1}
-          className="absolute inset-0 h-full w-full object-cover"
+          // Off its turn the poster shows through, so a resting clip shows its poster frame.
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-200 motion-reduce:transition-none ${myTurn ? '' : 'opacity-0'}`}
         >
           {started && (
             <>
@@ -298,8 +402,33 @@ export function ProjectTour({
             </>
           )}
         </video>
-        {hydrated && !reduced && (
+        {/* Off its turn: a play button in the middle gives it the turn (a tap on a phone). */}
+        {hydrated && !reduced && !myTurn && (
           <button
+            type="button"
+            onFocus={() => (focusPause.current = true)}
+            onBlur={() => (focusPause.current = false)}
+            // Picked as the finger or the mouse goes down, not on the click: pressing it
+            // focuses it first, which hands its clip the turn and swaps this button for
+            // the pause button, so the click that follows lands elsewhere and a tap
+            // never kept the turn. The click still picks for Enter and Space.
+            onPointerDown={() => turns?.pick(slot ?? 0)}
+            onClick={() => turns?.pick(slot ?? 0)}
+            aria-label={`Play the ${title} ${noun}`}
+            data-clip-play
+            className="group/play absolute inset-0 flex items-center justify-center bg-[#07101d]/15 transition-colors hover:bg-transparent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-cyan-300"
+          >
+            <span
+              aria-hidden="true"
+              className="flex size-14 items-center justify-center rounded-full border border-white/20 bg-[#07101d]/70 text-white shadow-xl shadow-black/40 backdrop-blur-sm transition-transform duration-200 group-hover/play:scale-110 motion-reduce:transition-none"
+            >
+              <FiPlay className="size-6 translate-x-0.5 fill-current" />
+            </span>
+          </button>
+        )}
+        {hydrated && !reduced && myTurn && (
+          <button
+            ref={pauseButton}
             type="button"
             onClick={() => setPaused((p) => !p)}
             aria-label={`${paused ? 'Play' : 'Pause'} the ${title} ${noun}`}
@@ -310,6 +439,12 @@ export function ProjectTour({
           </button>
         )}
       </div>
+      {/* How far the active clip has played: the cue for which one is on and when the next comes. */}
+      {inTurns && hydrated && !reduced && (
+        <div aria-hidden="true" className="mt-2.5 h-1 overflow-hidden rounded-full bg-white/8" data-clip-progress>
+          <span ref={bar} className="block h-full origin-left rounded-full bg-[rgb(var(--lab-from,34_211_238))]" style={{ transform: 'scaleX(0)' }} />
+        </div>
+      )}
     </div>
   )
 }

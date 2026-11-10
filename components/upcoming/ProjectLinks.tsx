@@ -20,7 +20,7 @@ export function LandingButton({ project }: { project: UpcomingProject }) {
       style={{ '--accent': project.accent } as CSSProperties}
       className="inline-flex h-11 w-full items-center justify-center gap-1.5 rounded-lg bg-(--accent) px-3 text-sm font-bold whitespace-nowrap text-slate-950 transition-[filter] duration-150 hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--accent)"
     >
-      Check out the landing page
+      Check it out
       <span className="sr-only"> for {project.name} (opens in a new tab)</span>
       <FiArrowUpRight aria-hidden="true" className="h-4 w-4 shrink-0" />
     </a>

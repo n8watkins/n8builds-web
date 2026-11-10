@@ -476,6 +476,101 @@ images: [
     repo: 'n8watkins/portfolio-rank',
   },
   {
+    // release-kit, the tool that writes this site's release notes and build log (round 9 of
+    // 2026-11-09: the homepage's release-kit column links here, "how it works"). A dev tool,
+    // so not on the homepage's Lab; every claim is from its README and STANDARD.md.
+    slug: 'release-kit',
+    name: 'release-kit',
+    homepage: false,
+    tagline: 'Releases that write themselves',
+    category: 'Dev tool',
+    tags: ['CLI', 'GitHub Actions', 'Open source'],
+    highlights: [
+      'Checks every commit message, as it is written and again in CI',
+      'Picks each version from the commits: SemVer, no guessing',
+      'Writes release notes for users: New, Fixed, Faster and Safer',
+      'Publishes a GitHub Release when a version tag is pushed',
+      'An optional release train ships on a schedule, only when users would notice',
+      'Briefs your coding agents with the same rules, in AGENTS.md',
+    ],
+    color: 'from-cyan-500/20 to-blue-600/20',
+    problem:
+      'Release notes are written last, by hand, from a history full of "wip" and "fix stuff". Versions are guessed, and on a repo where coding agents write most of the commits, a rule in a doc is not followed unless something checks it.',
+    solution:
+      'release-kit sets up a whole release process in a GitHub repo with one command. Commits follow Conventional Commits (feat, fix, perf and the rest), checked by a hook and by CI, so the history already says what changed and for whom. From that history it picks the next version, writes the notes and publishes the release. This site, its build log and every project in it release this way.',
+    stack: [
+      { name: 'Node.js scripts', layer: 'Frontend', detail: 'The CLI and the commit hook: plain Node, with no runtime dependencies', tech: ['node'] },
+      { name: 'GitHub Actions', layer: 'Cloud', detail: 'Commit checks on every push and pull request title, the Release workflow, the release train and a weekly OSV security scan; every action pinned to a commit', tech: ['actions'] },
+      { name: 'Dependabot', layer: 'Cloud', detail: 'One grouped pull request per kit release keeps each repo current' },
+    ],
+    process: [
+      'Install: one command in the repo (npx --allow-git=root github:n8watkins/release-kit .) adds the commit hook, the workflows, RELEASING.md and a short rules block in AGENTS.md, then you review the diff and commit it.',
+      'Commit: every message is a Conventional Commit: type(scope): subject. A commit-msg hook rejects a bad one as it is written, and CI checks every pushed commit and every pull request title, since a squash merge commits the title.',
+      'Write for users: feat, fix, perf and security subjects are the release notes, so they read as patch notes ("the logo strip no longer stutters"). A Release-note: line rewords a technical subject, or keeps it out; chores, docs and tests never show.',
+      'Release: npm run release -- --push (or the scheduled release train) reads the commits since the last tag, picks major, minor or patch, writes the CHANGELOG section, runs the checks and pushes a vX.Y.Z tag.',
+      'Publish: the tag runs the Release workflow, which checks the tag against every version file, runs the checks again, checksums any files it ships and creates the GitHub Release with those notes.',
+      'Show it: this site reads every project\'s releases and user-facing commits from GitHub each hour, and that is the build log on the homepage and at /builds.',
+    ],
+    images: [],
+    cta: {
+      heading: 'Set it up on your repo',
+      body: 'It needs a package.json and a package-lock.json. Run the one command in the repo, review what it added, commit it, and your next release writes its own notes.',
+      label: 'Get release-kit on GitHub',
+      href: 'https://github.com/n8watkins/release-kit#quick-start',
+    },
+    tryIt: { label: 'Get release-kit', href: 'https://github.com/n8watkins/release-kit' },
+    github: 'https://github.com/n8watkins/release-kit',
+    repo: 'n8watkins/release-kit',
+  },
+  {
+    // The developer portfolio, as a template (owner, round 12 of 2026-11-09: it is a
+    // different thing from this site, so it gets its own full story). From its README
+    // and package.json (n8watkins/dev-portfolio, checked 2026-11-09); the pictures are of
+    // portfolio.n8builds.dev, retaken 2026-11-09.
+    slug: 'dev-portfolio',
+    name: 'Developer portfolio',
+    homepage: false,
+    tagline: 'A portfolio that gets you hired',
+    category: 'Website',
+    tags: ['Next.js', 'Cloudflare Workers', 'Open source'],
+    highlights: [
+      { text: 'A first screen that says who you are: a whoami terminal, your portrait and links to your other sites', shot: '/builds/dev-portfolio/home-2026-11.webp' },
+      { text: 'About you, with where you are on a map and the stack you build with', shot: '/builds/dev-portfolio/about-2026-11.webp' },
+      { text: 'Your experience as a timeline: each role and what you shipped in it', shot: '/builds/dev-portfolio/experience-2026-11.webp' },
+      { text: 'Your own sites and side projects, each with a picture and a link', shot: '/builds/dev-portfolio/workshop-2026-11.webp' },
+      { text: 'A contact block and a footer that has everything in one place', shot: '/builds/dev-portfolio/contact-2026-11.webp' },
+    ],
+    color: 'from-teal-500/20 to-cyan-600/20',
+    problem:
+      'A portfolio is the page someone hiring reads in a minute. Most start as a template full of placeholder projects, never get tested, and slow down as they grow.',
+    solution:
+      'The developer portfolio is the hire-me page: selected projects, each with its own page, client work and experience, and links out to the sites you build in public. It is the same kind of codebase as n8builds.dev: Next.js 16 on Cloudflare Workers through OpenNext, tested in six browsers on every pull request, with releases written from its commits. Fork it, put in your projects, words and photos, and deploy.',
+    stack: [
+      { name: 'Next.js 16 · React 19 · TypeScript', layer: 'Frontend', detail: 'App Router, a page per project, and share cards drawn at build time', tech: ['nextjs', 'react', 'typescript'] },
+      { name: 'Tailwind CSS 4 · Motion', layer: 'Frontend', detail: 'Dark only; Inter is bundled, so a build never fetches fonts', tech: ['tailwind'] },
+      { name: 'Cloudflare Workers', layer: 'Cloud', detail: 'Deployed through OpenNext on every push to main', tech: ['workers'] },
+      { name: 'Sentry · analytics', layer: 'Cloud', detail: 'Errors through Sentry, loaded once the page is idle; Google Analytics only after consent, and Cloudflare Web Analytics', tech: ['sentry'] },
+      { name: 'Playwright · GitHub Actions', layer: 'Cloud', detail: 'Lint, types and a production build, then Playwright in Chromium, Firefox, WebKit and two phones, on every pull request', tech: ['playwright', 'actions'] },
+    ],
+    process: [
+      'Fork it: the code is MIT licensed. The photos, screenshots, resume and the copy about me are not, so replace them with your own.',
+      'Make it yours: your projects, your experience and your links live in data files, and each project gets its own page from them.',
+      'Check it: npm test runs the Playwright suite against a production build; CI runs it on every pull request.',
+      'Ship it: every push to main deploys to Cloudflare Workers (DEPLOY.md), and release-kit writes the release notes from the commits.',
+    ],
+    images: [
+      { src: '/builds/dev-portfolio/home-2026-11.webp', alt: "The developer portfolio's first screen: Hi, I'm Nathan, a whoami terminal, the portrait and cards for n8builds.dev and techforpros.com" },
+      { src: '/builds/dev-portfolio/about-2026-11.webp', alt: 'About me: a few paragraphs, a portrait, a map of Los Angeles and the stack I build with' },
+      { src: '/builds/dev-portfolio/experience-2026-11.webp', alt: "Where I've built: a timeline of roles, each with what I shipped" },
+      { src: '/builds/dev-portfolio/workshop-2026-11.webp', alt: 'My workshop: techforpros.com and n8builds.dev, each with a picture and what it is' },
+      { src: '/builds/dev-portfolio/contact-2026-11.webp', alt: "Let's build something together: the email button, social links and the footer" },
+    ],
+    tryIt: { label: 'Visit the portfolio', href: 'https://portfolio.n8builds.dev' },
+    liveSite: 'https://portfolio.n8builds.dev',
+    github: 'https://github.com/n8watkins/dev-portfolio',
+    repo: 'n8watkins/dev-portfolio',
+  },
+  {
     // This site. Every claim here is checked against the repo (tests, CI, headers,
     // Lighthouse runs); refresh the test counts when the suites grow.
     slug: 'n8builds',
@@ -490,7 +585,7 @@ images: [
       { name: 'Next.js 16 · React 19 · TypeScript', layer: 'Frontend', detail: 'App Router in strict mode; build pages are static, and blog posts revalidate hourly', tech: ['nextjs', 'react', 'typescript'] },
       { name: 'Tailwind CSS 4 · Motion', layer: 'Frontend', detail: 'Theme tokens in CSS, scroll reveals, and reduced motion honored on every animation', tech: ['tailwind'] },
       { name: 'Sanity', layer: 'Backend', detail: "N8's Notions posts, read through the CDN client, so a new post needs no deploy", tech: ['sanity'] },
-      { name: 'Vercel · Cloudflare', layer: 'Cloud', detail: 'Auto-deploys from main and an edge rate limit on Vercel; DNS, email routing and Turnstile on Cloudflare', tech: ['vercel', 'cloudflare'] },
+      { name: 'Cloudflare Workers · OpenNext', layer: 'Cloud', detail: 'Deploys from main to Cloudflare Workers through OpenNext; DNS, email and Turnstile on Cloudflare too', tech: ['workers', 'cloudflare'] },
       { name: 'Cloudflare D1 · Durable Objects', layer: 'Backend', detail: 'The waitlist and anonymous counts in D1; contact-form rate limits in Durable Objects, shared by every instance and failing closed when unreachable', tech: ['cloudflare'] },
       { name: 'Sentry', layer: 'Cloud', detail: 'Errors and CSP violation reports, through a same-origin tunnel that forwards only this project', tech: ['sentry'] },
       { name: 'Playwright · Vitest', layer: 'Cloud', detail: 'Browser, accessibility (axe), security-header and API tests, plus unit tests, on every pull request', tech: ['playwright', 'vitest'] },
@@ -500,7 +595,7 @@ images: [
       'The nightly Lighthouse run failed the homepage on layout shift (CLS 0.29). Slowing the CPU 6x reproduced it at 0.91: the browser painted the vertically centered hero before the page finished streaming in, and the hero re-centered as it grew. The hero is now top-aligned and its glows mount after hydration, and CLS measures 0.000 at 1x, 4x and 6x slowdown.',
       'Lighthouse budgets run in CI on the home, blog, build log, loadout and Solara pages on desktop, plus a mobile pass on the home, blog and builds pages. Recent desktop runs scored 0.98 to 1.00 for performance and 1.00 for accessibility, best practices and SEO; the homepage report pictured here has a 0.9s LCP and zero layout shift.',
       'An enforced Content-Security-Policy lists every third-party origin, next to X-Frame-Options, nosniff, a strict referrer policy, COOP and a Permissions-Policy that turns off the camera, microphone and location. An E2E test checks the headers on every page and fails on any CSP violation, including a full contact-form submission through Turnstile.',
-      'The contact form checks size, content type, a Zod schema, a honeypot and a Turnstile token issued for this hostname, then allows 5 messages an hour per IP and a daily cap for the whole site. A Vercel WAF rule answers floods at the edge. In production, if Turnstile or the rate limits are unreachable, it rejects the message and asks the visitor to email instead.',
+      'The contact form checks size, content type, a Zod schema, a honeypot and a Turnstile token issued for this hostname, then allows 5 messages an hour per IP and a daily cap for the whole site. In production, if Turnstile or the rate limits are unreachable, it rejects the message and asks the visitor to email instead.',
       'Every build page and blog post has its own 1200x630 share card, drawn with next/og over the same generated art as the blog covers. An API test walks the sitemap and checks each page for a canonical URL, a unique title and a preview image that loads.',
       'Built with Claude Code as the pair programmer: features are planned in docs in the repo, built in parallel git worktrees, and land as pull requests that branch protection holds until CI is green. This page was one of them.',
     ],

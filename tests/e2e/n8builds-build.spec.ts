@@ -60,9 +60,17 @@ test.describe('with reduced motion', () => {
     await expect(main.getByRole('link', { name: 'Star n8builds-web on GitHub (opens in a new tab)' }).first()).toHaveAttribute('href', REPO)
     await expect(main.getByRole('link', { name: 'n8builds-web on GitHub (opens in a new tab)', exact: true }).first()).toHaveAttribute('href', REPO)
 
-    // Every screenshot in the data is on the page, and loads.
-    expect(await expectImagesLoaded(page, 'main figure img')).toBe(build.images.length)
-    for (const image of build.images) await expect(page.getByRole('img', { name: image.alt })).toBeVisible()
+    // Every screenshot in the data is on the page, and loads: the build's, and each feature's
+    // pictures of it on this site (round 12 of 2026-11-09), several for some.
+    const previews = FEATURES.flatMap((f) => f.previews ?? [])
+    expect(previews.length).toBeGreaterThanOrEqual(FEATURES.length)
+    expect(await expectImagesLoaded(page, 'main figure img')).toBe(build.images.length + previews.length)
+    for (const image of [...build.images, ...previews]) await expect(page.getByRole('img', { name: image.alt })).toBeVisible()
+    // Each feature says how it works, and the share cards show three kinds of page.
+    for (const f of FEATURES) expect(f.how?.length ?? 0, f.title).toBeGreaterThanOrEqual(3)
+    await expect(main.locator('[data-feature="A share card for every page"] figcaption')).toHaveText(['The homepage', 'A blog post', 'A build page'])
+    // The stack's versions come from the installed packages (lib/versions.ts).
+    await expect(main.getByRole('list', { name: 'Tech stack' })).toContainText(/Next\.js \d+\.\d+/)
 
     for (const heading of ['If you fork it, you start with', "Nothing merges until it's green", 'Measured, then made faster', 'Claude Code as the pair programmer', 'Fork it, make it yours']) {
       await expect(main.getByRole('heading', { level: 2, name: heading })).toBeVisible()
@@ -134,7 +142,7 @@ test.describe('with reduced motion', () => {
     await page.goto('/')
     await expect(page.locator('#featured').locator(`a[href="${PATH}"]`)).toHaveCount(0)
     // "Full story" since 2026-11-08 ("How it is built and tested" before).
-    const link = page.locator('#template').getByRole('link', { name: /^Full story/ })
+    const link = page.locator('#template').getByRole('link', { name: 'Full story of My personal site' })
     await link.scrollIntoViewIfNeeded()
     await link.click()
     await expect(page).toHaveURL(new RegExp(`${PATH}$`))

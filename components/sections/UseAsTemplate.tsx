@@ -3,17 +3,19 @@ import Link from 'next/link'
 import { refHref } from '@/lib/referrals'
 import type { IconType } from 'react-icons'
 import { FiBriefcase, FiFileText } from 'react-icons/fi'
+import { LuActivity, LuCloud, LuLayoutPanelTop, LuPenLine, LuScrollText, LuShieldCheck, LuUserRound } from 'react-icons/lu'
 import LabSubheader from '@/components/sections/LabSubheader'
 import RepoButtons from '@/components/ui/RepoButtons'
 import Reveal from '@/components/ui/Reveal'
 
 /**
  * In the Lab, right after the featured builds: a prompt to the visitor who is
- * building their own site, with both of mine as public templates. Two short
- * cards (owner, 2026-11-08): the name, the live site, one sentence on what
- * you get if you fork it, then the full story (this site's build page) and
- * the repo. No stack pills: the build page has the stack. Hiring is the
- * PortfolioAd section's job, not this one's.
+ * building their own site, with both of mine as public templates, as two cards
+ * side by side (owner, round 11 of 2026-11-09: tight, no divider). Each card:
+ * the name and live site, who it is for in a line, a short "what you get"
+ * list with an icon for each thing, then the full story (this site's build
+ * page, the only one with one) and the repo. Hiring is the PortfolioAd
+ * section's job, not this one's.
  */
 
 interface Template {
@@ -22,12 +24,11 @@ interface Template {
   site: { label: string; href: string; internal?: boolean }
   /** The N8 mark belongs to n8builds.dev; the portfolio gets a neutral icon chip. */
   mark: { image: string } | { icon: IconType }
-  /** What you get if you fork it, in one sentence. */
-  description: string
-  /**
-   * Its full story: a build page on this site. The portfolio has none, and its
-   * repo is already the GitHub half of RepoButtons.
-   */
+  /** Who it is for, in a line. */
+  forWhat: string
+  /** What you get if you fork it: a few things, each with its icon. */
+  gets: { icon: IconType; label: string }[]
+  /** Its full story: a build page on this site (the portfolio's since round 12 of 2026-11-09). */
   story?: string
   repoName: string
   repo: string
@@ -38,8 +39,13 @@ const TEMPLATES: Template[] = [
     title: 'My personal site',
     site: { label: 'n8builds.dev', href: '/', internal: true },
     mark: { image: '/tab/n8-icon-192.png' },
-    description:
-      'A fast Next.js 16 site with a blog, a build log and a contact form, tested on five browsers: a clean start for building in public.',
+    forWhat: 'For building in public: your writing, your builds and a way to reach you.',
+    gets: [
+      { icon: LuPenLine, label: 'A blog you write in Sanity' },
+      { icon: LuScrollText, label: 'A build log from GitHub' },
+      { icon: LuShieldCheck, label: 'A contact form that stops spam' },
+      { icon: LuCloud, label: 'Runs on Cloudflare' },
+    ],
     story: '/builds/n8builds',
     repoName: 'n8builds-web',
     repo: 'https://github.com/n8watkins/n8builds-web',
@@ -48,8 +54,14 @@ const TEMPLATES: Template[] = [
     title: 'My developer portfolio',
     site: { label: 'portfolio.n8builds.dev', href: refHref('portfolio', 'lab') },
     mark: { icon: FiBriefcase },
-    description:
-      'A Next.js 16 portfolio with a page per project and live demo status: a clean start for a portfolio of your own.',
+    forWhat: 'For getting hired: your best projects, in front of the people hiring.',
+    gets: [
+      { icon: LuLayoutPanelTop, label: 'A page per project' },
+      { icon: LuActivity, label: 'Live demo status' },
+      { icon: LuUserRound, label: 'About, experience, contact' },
+      { icon: LuCloud, label: 'Runs on Cloudflare' },
+    ],
+    story: '/builds/dev-portfolio',
     repoName: 'dev-portfolio',
     repo: 'https://github.com/n8watkins/dev-portfolio',
   },
@@ -65,25 +77,25 @@ const siteLink =
 
 const Mark = ({ mark }: { mark: Template['mark'] }) =>
   'image' in mark ? (
-    <Image
-      src={mark.image}
-      alt=""
-      width={44}
-      height={44}
-      className="h-10 w-10 shrink-0 rounded-xl ring-1 ring-white/10 sm:h-11 sm:w-11"
-    />
+    <Image src={mark.image} alt="" width={40} height={40} className="h-10 w-10 shrink-0 rounded-xl ring-1 ring-white/10" />
   ) : (
-    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-400/10 text-teal-300 ring-1 ring-teal-300/30 sm:h-11 sm:w-11">
+    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-400/10 text-teal-300 ring-1 ring-teal-300/30">
       <mark.icon className="h-5 w-5" aria-hidden="true" />
     </span>
   )
 
+/** One template's card: its name and site, who it is for, what you get, and its links. */
 const TemplateCard = ({ t }: { t: Template }) => (
-  <li className="flex min-w-0 flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-[border-color,background-color,translate] duration-200 hover:-translate-y-0.5 hover:border-cyan-300/25 hover:bg-white/[0.045] motion-reduce:hover:translate-y-0 sm:p-6">
+  // Four rows (name, who it is for, what you get, links) shared with the other card
+  // (a subgrid from 768px), so each starts level with its neighbour's.
+  <li
+    className="flex min-w-0 flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-colors duration-200 hover:border-cyan-300/25 md:row-span-4 md:grid md:grid-rows-subgrid md:gap-y-0"
+    data-template={t.repoName}
+  >
     <div className="flex items-center gap-3">
       <Mark mark={t.mark} />
       <div className="min-w-0">
-        <h4 className="text-xl font-bold tracking-tight text-slate-50 sm:text-2xl">{t.title}</h4>
+        <h4 className="text-xl font-bold tracking-tight text-slate-50">{t.title}</h4>
         {t.site.internal ? (
           <Link href={t.site.href} className={siteLink}>
             {t.site.label}
@@ -96,10 +108,19 @@ const TemplateCard = ({ t }: { t: Template }) => (
         )}
       </div>
     </div>
-    <p className="mt-3 text-sm leading-relaxed text-[#9cadc5] sm:text-[0.95rem]">{t.description}</p>
-
-    {/* The full story, then the repo. Pinned to the bottom so the two cards line up. */}
-    <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
+    <p className="mt-3 text-sm leading-relaxed text-pretty text-slate-300" data-template-for>
+      {t.forWhat}
+    </p>
+    <ul className="mt-3 grid grid-cols-1 gap-x-4 gap-y-1.5 min-[420px]:grid-cols-2" aria-label={`What you get with ${t.title.toLowerCase()}`}>
+      {t.gets.map(({ icon: Icon, label }) => (
+        <li key={label} className="flex items-center gap-2 text-sm text-[#9cadc5]">
+          <Icon aria-hidden="true" className="h-4 w-4 shrink-0 text-cyan-300" />
+          {label}
+        </li>
+      ))}
+    </ul>
+    {/* The full story, then the repo. */}
+    <div className="mt-auto flex flex-wrap items-center gap-2 self-start pt-4 md:self-end">
       {t.story && (
         <Link href={t.story} className={primary}>
           <FiFileText className="h-3.5 w-3.5" aria-hidden="true" />
@@ -118,7 +139,7 @@ const UseAsTemplate = () => (
   <section
     id="template"
     aria-label="Use my sites as templates"
-    className="lab-accent-template lab-part-wash py-12"
+    className="lab-accent-template lab-part-wash py-10"
   >
     {/* The Lab doesn't reveal itself, so its parts do. */}
     <Reveal className="mx-auto max-w-site px-5 sm:px-8">
@@ -135,7 +156,8 @@ const UseAsTemplate = () => (
           </>
         }
       />
-      <ul className="grid gap-5 md:grid-cols-2">
+      {/* The two side by side from 768px, one over the other on a phone. */}
+      <ul className="grid gap-4 md:grid-cols-2 md:grid-rows-[repeat(4,auto)]" aria-label="My two templates, compared" data-template-compare>
         {TEMPLATES.map((t) => (
           <TemplateCard key={t.title} t={t} />
         ))}

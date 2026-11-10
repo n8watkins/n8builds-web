@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
-import { contentLeft, expectCleanJump, labelLines, railShape } from './section-rail'
+import { contentLeft, expectCleanJump, expectSwitchAtIconMidline, labelLines, placeIcon, railShape } from './section-rail'
 
 /**
  * The Lab's floating side nav (components/sections/LabSectionNav.tsx, on
@@ -86,6 +86,13 @@ test.describe('at 1440px', () => {
     // Past the Lab it scrolls away with it.
     await page.locator('#contact').scrollIntoViewIfNeeded()
     await expect(nav).not.toBeInViewport()
+  })
+
+  test("a part's rail item lights as its heading icon crosses the middle of the window", { tag: '@cross-browser' }, async ({ page }) => {
+    await openHome(page)
+    await placeIcon(page, PARTS[0].id, -12)
+    await expect(rail(page)).toBeVisible(SHOW)
+    await expectSwitchAtIconMidline(page, rail(page), PARTS)
   })
 
   test('is visible, so clickable and named, the moment it shows', { tag: '@cross-browser' }, async ({ page }) => {
@@ -257,10 +264,11 @@ test.describe('placement at 1440px', () => {
       await expect(nav).toBeVisible(SHOW)
       await expect(current, `template at ${top}px`).toHaveAccessibleName('Featured')
     }
-    // Chrome Extensions takes over only once its own top passes the middle of the window.
-    await place('extensions', 500)
+    // Chrome Extensions takes over only once its heading icon passes the middle of the window
+    // (round 10 of 2026-11-09; its top before).
+    await placeIcon(page, 'extensions', 12)
     await expect(current).toHaveAccessibleName('Featured')
-    await place('extensions', 400)
+    await placeIcon(page, 'extensions', -12)
     await expect(current).toHaveAccessibleName('Chrome Extensions')
   })
 

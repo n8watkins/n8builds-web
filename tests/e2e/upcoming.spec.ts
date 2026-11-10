@@ -39,21 +39,32 @@ test('shows each project with its own anchor, and is titled for the site', { tag
   for (const [id, name] of Object.entries(NAMES)) {
     const card = page.locator(`article#${id}`)
     await expect(card.getByRole('heading', { level: 2 })).toContainText(name)
-    await expect(card.getByRole('listitem')).toHaveCount(4)
+    // A teaser (round 11 of 2026-11-09): its landing page's picture, its status and one line,
+    // no list of points.
+    await expect(card.getByRole('listitem')).toHaveCount(0)
+    await expect(card.locator('img[src*="upcoming%2Fshots"], img[src*="/upcoming/shots/"]')).toHaveCount(1)
+    await expect(card.locator('[data-status]')).toHaveCount(1)
   }
-  // No status labels (owner, round 7 of 2026-11-09): every project has a live landing page.
-  await expect(page.locator('main').getByText('Status:')).toHaveCount(0)
+  // Statuses are back (round 11), as each landing page says.
+  for (const [id, status] of [
+    ['feelium', 'Try it now'],
+    ['vibelog', 'Early access'],
+    ['relink', 'In development'],
+    ['asset-arsenal', 'Concept'],
+  ]) {
+    await expect(page.locator(`article#${id} [data-status]`)).toHaveText(status)
+  }
   await expect(page.locator('article#keysready')).toContainText('Stop answering “Is my car ready?”')
   await expect(page.locator('#waitlist-projects').getByRole('checkbox')).toHaveCount(Object.keys(NAMES).length)
 })
 
-test('lays the cards out one to a row beside the waitlist on wide screens, two by two just below, one column on phones', { tag: '@cross-browser' }, async ({ page }) => {
-  // 1040, not 1024: WebKit's media queries see the window minus its scrollbar.
+test('lays the teaser cards out two by two (beside the waitlist on wide screens), one column on phones', { tag: '@cross-browser' }, async ({ page }) => {
+  // Round 11 of 2026-11-09: short teasers, two to a row from 640px.
   for (const [width, columns] of [
-    [1280, 1],
-    [1040, 1],
+    [1280, 2],
+    [1040, 2],
     [1000, 2],
-    [810, 1],
+    [810, 2],
     [390, 1],
   ]) {
     await page.setViewportSize({ width, height: 900 })
@@ -250,7 +261,7 @@ const GROUPS: [string, string[]][] = [
 ]
 
 /**
- * Only public repositories get a "View the code" link on /upcoming and a GitHub button on
+ * Only public repositories get a GitHub button on
  * the homepage (checked 2026-11-09: all public but Asset Arsenal; Relink's repo is still deadlink).
  */
 const CODE: Record<string, string | undefined> = {
@@ -265,21 +276,20 @@ const CODE: Record<string, string | undefined> = {
   whoami: 'https://github.com/n8watkins/who-am-i',
 }
 
-test('each card leads with its landing page, then Join, then its code where public (hrefs only: the sites may not be live yet)', async ({ page }) => {
+test('each card has two actions: Check it out (its landing page), then the waitlist (hrefs only: the sites may not be live yet)', async ({ page }) => {
   await page.goto('/upcoming')
   for (const [slug, href] of Object.entries(LANDING)) {
     const card = page.locator(`article#${slug}`)
     const name = NAMES[slug]
-    const landing = card.getByRole('link', { name: `Check out the landing page for ${name} (opens in a new tab)` })
+    const landing = card.getByRole('link', { name: `Check it out for ${name} (opens in a new tab)` })
     await expect(landing).toHaveAttribute('href', href)
     await expect(landing).toHaveAttribute('target', '_blank')
-    // The landing page is the first action, Join the second.
-    const actions = card.getByRole('link', { name: /landing page|Join the waitlist|View the code/ })
-    await expect(actions.nth(0)).toHaveAccessibleName(/^Check out the landing page/)
+    const actions = card.getByRole('link')
+    await expect(actions).toHaveCount(2)
+    await expect(actions.nth(0)).toHaveAccessibleName(/^Check it out/)
     await expect(actions.nth(1)).toHaveAccessibleName(`Join the waitlist for ${name}`)
-    const code = card.getByRole('link', { name: /^View the code/ })
-    if (CODE[slug]) await expect(code).toHaveAttribute('href', CODE[slug]!)
-    else await expect(code).toHaveCount(0)
+    // The code links stay on the homepage's What's cookin' rows (round 11 of 2026-11-09).
+    await expect(card.getByRole('link', { name: /^View the code/ })).toHaveCount(0)
   }
 })
 
@@ -327,8 +337,14 @@ test("the homepage Lab ends with a compact What's cookin' part: projects grouped
   // No status labels: every project has a live landing page.
   await expect(band.getByText('Status:')).toHaveCount(0)
 
-  // The waitlist: the same form as /upcoming, in a modal opened by one button.
+  // The waitlist: the same form as /upcoming, in a modal opened by one button, which sits
+  // top right beside "See all upcoming" (round 10 of 2026-11-09), not under the groups.
   const join = band.getByRole('button', { name: 'Join the waitlist' })
+  const all = band.getByRole('link', { name: 'See all upcoming' })
+  const [joinBox, allBox, firstGroup] = [(await join.boundingBox())!, (await all.boundingBox())!, (await band.locator('section[data-group]').first().boundingBox())!]
+  expect(joinBox.y + joinBox.height).toBeLessThan(firstGroup.y)
+  expect(Math.abs(joinBox.y + joinBox.height / 2 - (allBox.y + allBox.height / 2))).toBeLessThan(2)
+  expect(allBox.x).toBeGreaterThan(joinBox.x + joinBox.width)
   await expect(join).toHaveAttribute('aria-haspopup', 'dialog')
   const dialog = page.getByRole('dialog', { name: 'Join the waitlist' })
   await expect(dialog).toBeHidden()

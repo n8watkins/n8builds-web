@@ -13,7 +13,8 @@ const button =
 const solid = `${button} border border-transparent bg-linear-to-r from-blue-600 to-sky-700 text-white hover:from-blue-700 hover:to-sky-800`
 const outline = `${button} border border-white/12 bg-white/4 text-slate-200 hover:border-white/20 hover:bg-white/8 hover:text-white`
 
-const OS: Record<DesktopOs, { name: string; icon: IconType }> = {
+/** Each OS's name and mark, as the download buttons show them. */
+export const SCRIBE_OS: Record<DesktopOs, { name: string; icon: IconType }> = {
   windows: { name: 'Windows', icon: FaWindows },
   mac: { name: 'macOS', icon: FaApple },
   linux: { name: 'Linux', icon: FaLinux },
@@ -43,7 +44,7 @@ export default function ScribeActions({
   const desktop = platform !== 'other'
   const os: DesktopOs = desktop ? platform : 'windows'
   const download = downloads[os]
-  const { name, icon: Icon } = OS[os]
+  const { name, icon: Icon } = SCRIBE_OS[os]
   const downloadLink = (
     <a key="download" href={download.href} aria-describedby="scribe-download-note" className={desktop ? solid : outline}>
       <FiDownload className="h-4 w-4 shrink-0" aria-hidden="true" />

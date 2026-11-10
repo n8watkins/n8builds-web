@@ -1,12 +1,12 @@
 import { test, expect, type Page } from '@playwright/test'
-import { contentLeft, expectCleanJump, labelLines, railShape } from './section-rail'
+import { contentLeft, expectCleanJump, expectSwitchAtIconMidline, labelLines, placeIcon, railShape } from './section-rail'
 
 /**
  * The homepage Loadout's floating side nav (components/sections/HomeLoadoutNav.tsx,
  * on components/ui/SectionRail.tsx, the same rail as the Lab's; the owner's
  * ask, 2026-11-02): a desktop-only rail in the left gutter of the Loadout band
  * (after People I follow) that marks the part on screen (Dev setup, AI kit,
- * Default stack, Tools I built and use; the dev setup line leads since round 3
+ * Default stack, Tools I've built; the dev setup line leads since round 3
  * of 2026-11-02) and jumps to it. It lives in its
  * own band, several bands below the Lab, so it never shows with the Lab's.
  */
@@ -16,8 +16,8 @@ test.use({ contextOptions: { reducedMotion: 'reduce' } })
 const PARTS = [
   { id: 'my-setup', label: 'Dev setup' },
   { id: 'ai-kit', label: 'AI kit' },
-  { id: 'default-stack', label: 'Default stacks' },
-  { id: 'tools-i-built', label: 'Tools I built and use' },
+  { id: 'default-stack', label: 'Tech stacks' },
+  { id: 'tools-i-built', label: "Tools I've built" },
 ] as const
 
 const rail = (page: Page) => page.getByRole('navigation', { name: 'Loadout contents' })
@@ -63,6 +63,63 @@ async function place(page: Page, id: string, top = 80) {
 test.describe('at 1440px', () => {
   test.use({ viewport: { width: 1440, height: 900 } })
 
+  // Round 9 of 2026-11-09 (owner): the heading's hammer and the rail's swing together.
+  test("the rail's hammer swings in time with the heading's", async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'no-preference' })
+    const page = await context.newPage()
+    await openHome(page)
+    await place(page, 'tools-i-built', 400)
+    await expect(rail(page).locator('[aria-current]')).toHaveAccessibleName("Tools I've built")
+    const beats = () =>
+      page.evaluate(() =>
+        [...document.querySelectorAll('.part-icon-hammer .hammer-head')]
+          .flatMap((g) => g.getAnimations())
+          .filter((a) => a.playState === 'running')
+          .map((a) => Math.round(Number(a.currentTime) % 2400)),
+      )
+    await expect.poll(async () => (await beats()).length).toBe(2)
+    const [a, b] = await beats()
+    expect(Math.abs(a - b)).toBeLessThan(50)
+    await context.close()
+  })
+
+  test("a part's rail item lights as its heading icon crosses the middle of the window", { tag: '@cross-browser' }, async ({ page }) => {
+    await openHome(page)
+    await placeIcon(page, PARTS[0].id, -12)
+    await expect(rail(page)).toBeVisible(SHOW)
+    await expectSwitchAtIconMidline(page, rail(page), PARTS)
+  })
+
+  // Round 12 of 2026-11-09 (owner): the heading's hammer and the rail's run together and stop
+  // together: both while the rail marks Tools I've built, which it does once the heading's
+  // icon reaches the middle of the window.
+  test("the heading's hammer runs only while the rail marks Tools I've built, together with the rail's", async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'no-preference' })
+    const page = await context.newPage()
+    await openHome(page)
+    const heading = page.locator('#tools-i-built [data-part-icon] .part-icon-hammer')
+    const railHammer = rail(page).locator('.part-icon-hammer')
+    const swinging = (icon: typeof heading) =>
+      icon.locator('.hammer-head').evaluate((g) => g.getAnimations().some((a) => a.playState === 'running'))
+    // In view but under the middle line: the rail marks Tech stacks, so neither hammer swings.
+    await placeIcon(page, 'tools-i-built', 300)
+    await expect(rail(page).locator('[aria-current]')).toHaveAccessibleName('Tech stacks')
+    await page.waitForTimeout(300)
+    expect(await swinging(heading)).toBe(false)
+    expect(await swinging(railHammer)).toBe(false)
+    // Over the line: the rail marks it, and both swing.
+    await placeIcon(page, 'tools-i-built', -12)
+    await expect(rail(page).locator('[aria-current]')).toHaveAccessibleName("Tools I've built")
+    await expect.poll(() => swinging(heading)).toBe(true)
+    await expect.poll(() => swinging(railHammer)).toBe(true)
+    // Back under it: both stop.
+    await placeIcon(page, 'tools-i-built', 120)
+    await expect(rail(page).locator('[aria-current]')).toHaveAccessibleName('Tech stacks')
+    await expect.poll(() => swinging(heading)).toBe(false)
+    await expect.poll(() => swinging(railHammer)).toBe(false)
+    await context.close()
+  })
+
   test('shows only in the Loadout band, never with the Lab rail, and marks the part being read', { tag: '@cross-browser' }, async ({
     page,
   }) => {
@@ -87,10 +144,10 @@ test.describe('at 1440px', () => {
     }
     for (const [i, part] of PARTS.entries())
       await expect(nav.getByRole('link').nth(i)).toHaveAccessibleName(part.label)
-    // Tools I built and use closes the band: scrolled to it, it is the part
+    // Tools I've built closes the band: scrolled to it, it is the part
     // marked, the rail riding out with the band's foot, never below it.
     await place(page, 'tools-i-built', 400)
-    await expect(nav.locator('[aria-current]')).toHaveAccessibleName('Tools I built and use')
+    await expect(nav.locator('[aria-current]')).toHaveAccessibleName("Tools I've built")
     const box = (await nav.boundingBox())!
     const bandBottom = await page
       .locator('#loadout-band')

@@ -4,7 +4,12 @@
 // runs (round 8 of 2026-11-09: no paragraph under each stack).
 // Shown on /loadout (components/sections/BuildStacks.tsx); the homepage's
 // Loadout shows the first two, the Quick stack and the Production stack, as
-// "My default stacks".
+// "My tech stacks".
+//
+// Round 9 (owner, 2026-11-09): the homepage calls them "My tech stacks"; the
+// Quick stack lists what the quick apps really use (no Firebase Auth), and the
+// Production stack reads as the Cloudflare stack it is, each service with
+// what it does.
 //
 // Round 8 (owner, 2026-11-09): two defaults instead of the Turso, Cloudflare
 // and Firebase stacks. The owner hardly uses Vercel now, and wants no Turso
@@ -80,6 +85,14 @@ export interface BuildStack {
    * explicitly): the hosts, the database and file storage, by name.
    */
   hosting: string[]
+  /** What a piece does in this stack, where it differs from stackRoles. */
+  roles?: Record<string, string>
+  /**
+   * The provider its `hosting` belongs to, a small header over those pieces on the
+   * homepage (round 12 of 2026-11-09): the shared code first, then what is Vercel's or
+   * Cloudflare's.
+   */
+  host?: string
   accent: 'cyan' | 'blue' | 'sky' | 'teal' | 'orange'
 }
 
@@ -87,17 +100,35 @@ export const buildStacks: BuildStack[] = [
   {
     id: 'quick',
     name: 'Quick stack',
-    tagline: 'Get something up fast',
-    tools: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Firebase Auth'],
-    hosting: ['Vercel', 'Firestore'],
+    // Round 11 of 2026-11-09 (owner): push it to Vercel, with Better Auth for sign-in in both
+    // stacks (Wren runs better-auth 1.7; Auth.js is now maintained by the Better Auth team,
+    // and the older apps on next-auth v5 beta move over). Turso stays: Pivot, Feelium,
+    // Portfolio Rank and Net Trailers keep their data there.
+    tagline: 'Push it to Vercel',
+    host: 'Vercel',
+    tools: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Better Auth'],
+    hosting: ['Vercel', 'Turso'],
     accent: 'blue',
   },
   {
     id: 'production',
-    name: 'Production stack',
-    tagline: 'What my live apps run on',
-    tools: ['Next.js', 'TypeScript', 'OpenNext', 'Hono'],
-    hosting: ['Workers', 'D1', 'R2', 'Durable Objects', 'Images', 'Email Service'],
+    // Sign-in is Better Auth, as in Wren, the Cloudflare app with accounts (checked
+    // 2026-11-09: n8builds-admin signs in with its own GitHub OAuth, OpenPing has its
+    // own sessions and passkeys in Hono, Solara uses Firebase).
+    // Round 11 of 2026-11-09 (owner): the Cloudflare stack, front end included: Next.js on
+    // Cloudflare Workers through OpenNext, with TypeScript and Tailwind, and the Cloudflare
+    // services the live apps use (the wrangler configs of n8builds.dev, Wren, OpenPing and
+    // Portfolio Rank).
+    name: 'Cloudflare stack',
+    tagline: 'Next.js on Cloudflare Workers, through OpenNext',
+    host: 'Cloudflare',
+    tools: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Better Auth'],
+    hosting: ['Workers', 'D1', 'R2', 'Durable Objects'],
+    roles: {
+      Workers: 'runs the app',
+      R2: 'files and the page cache',
+      'Durable Objects': 'per-user state, live counters',
+    },
     accent: 'orange',
   },
   {
@@ -127,9 +158,10 @@ export const stackRoles: Record<string, string> = {
   'Next.js': 'the framework',
   TypeScript: 'strict, everywhere',
   'Tailwind CSS': 'styling',
-  'Firebase Auth': 'sign-in',
+  'Auth.js': 'GitHub sign-in',
+  'Better Auth': 'sign-in',
   Vercel: 'a push ships it',
-  Firestore: 'data, no migrations',
+  Turso: 'SQLite database',
   OpenNext: 'Next.js on Workers',
   Hono: 'small APIs',
   Workers: 'hosting, at the edge',

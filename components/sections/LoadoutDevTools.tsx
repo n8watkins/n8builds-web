@@ -10,6 +10,7 @@ import {
   loadoutPart,
   loadoutParts,
   people,
+  personHandle,
   toolsIBuilt,
   toolsIUse,
   type BuiltTool,
@@ -232,7 +233,7 @@ export const BuiltToolsGrid = ({
  * these cards, on /loadout and in the homepage's Loadout. Everything in it is
  * MIT-licensed (Scribe included).
  */
-export const TOOLS_I_BUILT_TITLE = 'Tools I built and use'
+export const TOOLS_I_BUILT_TITLE = "Tools I've built"
 export const TOOLS_I_BUILT_BLURB = 'Tools I made for myself and use every day. All open source and MIT-licensed.'
 
 const makerLink = 'font-medium whitespace-nowrap text-slate-300 underline decoration-white/20 underline-offset-4 transition-colors hover:text-cyan-200'
@@ -571,23 +572,36 @@ export const PersonCard = ({ person }: { person: Person }) => (
         Society), each column as wide as its longest link. In a narrow card a
         long name wraps inside its button, and the buttons in a row share its height. */}
     <ul
-      className="mt-auto grid auto-cols-[minmax(min-content,max-content)] grid-flow-col grid-rows-[auto_auto] justify-start gap-1.5 sm:gap-2"
+      className="@container mt-auto grid auto-cols-[minmax(min-content,max-content)] grid-flow-col grid-rows-[auto_auto] justify-start gap-1.5 sm:gap-2"
       aria-label={`${person.name} online`}
     >
       {person.links.map((link) => {
         const { label, icon } = LINKS[link.kind]
+        const handle = personHandle(link)
         return (
           <li key={link.href} className="flex min-w-0">
             <a
               href={link.href}
               target="_blank"
               rel="noopener noreferrer"
+              title={handle ?? undefined}
               className={personLink}
             >
               <span aria-hidden="true" className="shrink-0">
                 {icon}
               </span>
-              <span className="min-w-0 text-balance">{link.label ?? label}</span>
+              {handle ? (
+                // Where the card is too narrow for two handles side by side (under 17.5rem: a
+                // 320px phone, three cards across at 1024px), the icon alone; the handle is
+                // still read out, and shows on hover.
+                <span className="min-w-0 whitespace-nowrap @max-[17.5rem]:sr-only" data-person-handle>
+                  {/* The icon says which platform; a screen reader hears it said. */}
+                  <span className="sr-only">{label} </span>
+                  {handle}
+                </span>
+              ) : (
+                <span className="min-w-0 text-balance">{link.label ?? label}</span>
+              )}
               <span className="sr-only"> ({person.name}, opens in a new tab)</span>
             </a>
           </li>

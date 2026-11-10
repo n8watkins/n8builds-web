@@ -47,17 +47,27 @@ function Month({ month, entries, name }: { month: string; entries: LogEntry[]; n
 export default function BuildPageLog({
   name,
   entries,
+  slug,
+  limit,
   className = 'mt-12',
 }: {
   name: string
   entries: LogEntry[]
+  /** The build's slug, for the link to its whole log on /builds (with `limit`). */
+  slug?: string
+  /**
+   * Show only the newest this many updates, then a link to the rest on /builds
+   * (n8builds.dev's own page, owner, round 11 of 2026-11-09: its log was far too long).
+   */
+  limit?: number
   /** The section's spacing on its page. */
   className?: string
 }) {
   if (entries.length === 0) return null
-  const months = byMonth(entries)
-  const open = months.slice(0, OPEN_MONTHS)
-  const earlier = months.slice(OPEN_MONTHS)
+  const shown = limit ? [...entries].sort((a, b) => b.date.localeCompare(a.date)).slice(0, limit) : entries
+  const months = byMonth(shown)
+  const open = limit ? months : months.slice(0, OPEN_MONTHS)
+  const earlier = limit ? [] : months.slice(OPEN_MONTHS)
   const releases = entries.filter((e) => e.kind === 'release').length
   return (
     <Reveal>
@@ -67,7 +77,8 @@ export default function BuildPageLog({
             Build <span className="bg-linear-to-r from-emerald-300 to-teal-300 bg-clip-text text-transparent">log</span>
           </h2>
           <p className="mt-1.5 text-sm text-[#9cadc5]">
-            Everything shipped to {name}, month by month: {count(entries.length)}
+            {limit ? `The latest shipped to ${name}, of ` : `Everything shipped to ${name}, month by month: `}
+            {count(entries.length)}
             {releases > 0 ? ` and ${releases} ${releases === 1 ? 'release' : 'releases'}` : ''}, pulled from GitHub.
           </p>
         </div>
@@ -95,10 +106,10 @@ export default function BuildPageLog({
         {/* This page has the whole of this build's log; /builds has every build's. */}
         <div className="mt-5 flex justify-center">
           <Link
-            href="/builds#activity"
+            href={limit && slug ? `/builds?build=${slug}#activity` : '/builds#activity'}
             className="group flex items-center gap-2 rounded-xl border border-white/12 bg-white/4 px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:border-emerald-400/40 hover:bg-white/8 hover:text-emerald-200"
           >
-            See the log for every build
+            {limit && slug ? `See all ${count(entries.length)}` : 'See the log for every build'}
             <FiArrowUpRight aria-hidden className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
           </Link>
         </div>

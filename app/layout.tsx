@@ -12,6 +12,7 @@ import { consentBootstrapScript } from '@/lib/consent'
 import { MY_TOOLS_MOVED } from '@/lib/movedAnchors'
 import ConsentLoader from '@/components/consent/ConsentLoader'
 import { WebAnalytics } from '@/components/WebAnalytics'
+import PartIconClock from '@/components/ui/PartIconClock'
 
 // Inter, bundled (variable weight, Latin subset, from @fontsource-variable/inter
 // 5.3.0; OFL, see app/fonts/Inter-OFL.txt) instead of next/font/google: a
@@ -113,6 +114,8 @@ export default function RootLayout({
           <WebVitals />
           <WebVitalsHUD />
           <WebAnalytics />
+          {/* Keeps twin part icons (the hammer in its heading and in the rail) on one beat. */}
+          <PartIconClock />
         </ThemeProvider>
       </body>
     </html>

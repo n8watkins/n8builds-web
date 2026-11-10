@@ -298,14 +298,18 @@ describe('entries for a build', () => {
 })
 
 describe('merging, sorting and the builds index', () => {
-  const log = assembleLog(builds, snapshots, highlights)
+  // The Lab's builds: release-kit's page (round 9 of 2026-11-09) is a build too, but the
+  // recorded fixture captured its repo with nothing logged, so it stays out of these.
+  // The developer portfolio's page (round 12 of 2026-11-09) has none in the fixture either.
+  const inFixture = builds.filter((b) => b.slug !== 'release-kit' && b.slug !== 'dev-portfolio')
+  const log = assembleLog(inFixture, snapshots, highlights)
 
   it('tracks the visible builds with a repo, and none of the hidden ones', () => {
     const tracked = builds.filter((b) => b.repo)
-    expect(tracked.map((b) => b.slug)).toEqual(['voicedock', 'tldw', 'tubevault', 'scribe', 'openping', 'solara', 'portfolio-rank', 'n8builds'])
+    expect(tracked.map((b) => b.slug)).toEqual(['voicedock', 'tldw', 'tubevault', 'scribe', 'openping', 'solara', 'portfolio-rank', 'release-kit', 'dev-portfolio', 'n8builds'])
     expect(tracked.every((b) => /^n8watkins\/[\w-]+$/.test(b.repo!))).toBe(true)
     expect(hiddenBuilds.every((b) => !b.repo)).toBe(true)
-    expect(new Set(log.entries.map((e) => e.build))).toEqual(new Set(tracked.map((b) => b.slug)))
+    expect(new Set(log.entries.map((e) => e.build))).toEqual(new Set(inFixture.filter((b) => b.repo).map((b) => b.slug)))
   })
 
   it("keeps this site's own busy repo to its releases and user-facing changes", () => {
@@ -385,7 +389,7 @@ describe('merging, sorting and the builds index', () => {
 
   it('sorts a build with no entries by its last push, after the active ones', () => {
     const quiet = { ...build('voicedock'), slug: 'quiet', repo: 'n8watkins/quiet' }
-    const rows = buildActivity([quiet, ...builds.filter((b) => b.repo)], log.entries, { 'n8watkins/quiet': '2026-01-01T00:00:00Z' })
+    const rows = buildActivity([quiet, ...inFixture.filter((b) => b.repo)], log.entries, { 'n8watkins/quiet': '2026-01-01T00:00:00Z' })
     expect(rows.at(-1)).toMatchObject({ slug: 'quiet', lastShipped: null, lastShippedLabel: null, latest: [] })
   })
 

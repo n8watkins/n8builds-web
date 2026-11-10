@@ -1,13 +1,16 @@
-import type { CSSProperties } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import Link from 'next/link'
 import { FiArrowUpRight } from 'react-icons/fi'
-import { LuBackpack } from 'react-icons/lu'
+import { LuBackpack, LuServer, LuSparkles, LuSquareTerminal } from 'react-icons/lu'
 import SectionMark from '@/components/ui/SectionMark'
 import AITechStack from '@/components/features/AITechStack'
 import { buildStacks, stackRoles, stackToolIcons, type BuildStack } from '@/data/buildStacks'
 import { devSetup, devSetupVideo } from '@/data/loadout'
 import { SiYoutube } from 'react-icons/si'
 import HomeToolsIBuilt from '@/components/sections/HomeToolsIBuilt'
+import LoadoutPartHeading, { HOME_PART_ACCENTS } from '@/components/sections/LoadoutPartHeading'
+import DevSetupShare from '@/components/sections/DevSetupShare'
+
 
 // Homepage "stack" section, the homepage's Loadout: first a condensed version
 // of my dev setup on /loadout, with each piece's mark (round 8 of 2026-11-09;
@@ -40,7 +43,7 @@ const atAGlance = SETUP_AT_A_GLANCE.map(({ name, label }) => {
   return { name: label ?? name, icon: item.icon }
 })
 
-/** The Quick stack and the Production stack (data/buildStacks.tsx). */
+/** The Quick stack and the Cloudflare stack (data/buildStacks.tsx). */
 const defaults = buildStacks.filter((s) => s.id === 'quick' || s.id === 'production')
 
 const ACCENT: Record<BuildStack['accent'], string> = {
@@ -51,8 +54,30 @@ const ACCENT: Record<BuildStack['accent'], string> = {
   orange: '#fb923c',
 }
 
-/** One default stack: its name and what it is for, then each piece with its mark and what it does there. */
-function DefaultStack({ stack }: { stack: BuildStack }) {
+/** One piece of a stack: its mark, its name and what it does there. */
+function StackPiece({ name, role, icon }: { name: string; role?: string; icon?: ReactNode }) {
+  return (
+    <li className="flex min-w-0 items-center gap-2 text-sm sm:gap-2.5" data-default-tool>
+      <span
+        aria-hidden="true"
+        className="flex size-7 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-[#0a1428] sm:size-8 [&_img]:size-4 [&_svg]:size-4"
+      >
+        {icon}
+      </span>
+      <span className="min-w-0 leading-tight">
+        <span className="block font-semibold text-slate-100">{name}</span>
+        {role && <span className="block text-[0.8rem] text-[#9cadc5]">{role}</span>}
+      </span>
+    </li>
+  )
+}
+
+/**
+ * One of my tech stacks: its name and what it is for, then each piece with its
+ * mark and what it does there, one line each (round 11 of 2026-11-09: the
+ * Cloudflare stack lists its front end too; no footnotes).
+ */
+function TechStack({ stack }: { stack: BuildStack }) {
   return (
     <article
       aria-labelledby={`default-${stack.id}-title`}
@@ -61,24 +86,22 @@ function DefaultStack({ stack }: { stack: BuildStack }) {
     >
       {/* Its colour along the top edge, as on /loadout's stack cards. */}
       <span aria-hidden="true" className="absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-(--accent)/0 via-(--accent)/70 to-(--accent)/0" />
-      <h4 id={`default-${stack.id}-title`} className="text-xl font-bold tracking-tight text-slate-50">
+      <h4 id={`default-${stack.id}-title`} className="text-xl font-bold tracking-tight whitespace-nowrap text-slate-50">
         {stack.name}
       </h4>
       <p className="mt-0.5 text-sm font-semibold text-(--accent)">{stack.tagline}</p>
-      <ul className="mt-4 grid grid-cols-2 gap-x-3 gap-y-2.5 sm:gap-x-5" aria-label={`${stack.name}: what it is made of`}>
-        {[...stack.tools, ...stack.hosting].map((tool) => (
-          <li key={tool} className="flex min-w-0 items-center gap-2 text-sm sm:gap-2.5" data-default-tool>
-            <span
-              aria-hidden="true"
-              className="flex size-7 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-[#0a1428] sm:size-8 [&_img]:size-4 [&_svg]:size-4"
-            >
-              {stackToolIcons[tool]}
-            </span>
-            <span className="min-w-0 leading-tight">
-              <span className="block font-semibold text-slate-100">{tool}</span>
-              {stackRoles[tool] && <span className="block text-[0.8rem] text-[#9cadc5]">{stackRoles[tool]}</span>}
-            </span>
-          </li>
+      <ul className="mt-4 grid grid-cols-2 gap-x-3 gap-y-2.5 sm:gap-x-5" aria-label={`${stack.name}: the code`}>
+        {stack.tools.map((tool) => (
+          <StackPiece key={tool} name={tool} role={stack.roles?.[tool] ?? stackRoles[tool]} icon={stackToolIcons[tool]} />
+        ))}
+      </ul>
+      {/* What runs it, under its provider's name (round 12 of 2026-11-09). */}
+      <h5 className="mt-5 border-t border-white/8 pt-3 font-mono text-[0.68rem] font-bold tracking-[0.16em] text-(--accent) uppercase" data-stack-host>
+        {stack.host ?? 'Runs on'}
+      </h5>
+      <ul className="mt-2.5 grid grid-cols-2 gap-x-3 gap-y-2.5 sm:gap-x-5" aria-label={`${stack.name}: ${stack.host ?? 'where it runs'}`}>
+        {stack.hosting.map((tool) => (
+          <StackPiece key={tool} name={tool} role={stack.roles?.[tool] ?? stackRoles[tool]} icon={stackToolIcons[tool]} />
         ))}
       </ul>
     </article>
@@ -106,27 +129,25 @@ export default function HomeStack() {
 
       {/* Each part's id is a rail stop (components/sections/HomeLoadoutNav.tsx). */}
       {/* My dev setup first (round 3 of 2026-11-02), condensed with its marks (round 8 of 2026-11-09). */}
-      <div
-        id="my-setup"
-        role="group"
-        aria-labelledby="my-setup-title"
-        className="mb-6 rounded-2xl border border-white/8 bg-white/[0.02] p-4 sm:p-5"
-        data-setup-teaser
-      >
-        <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-          <h3 id="my-setup-title" className="font-mono text-[0.72rem] font-bold tracking-[0.16em] text-cyan-400 uppercase">
-            My dev setup
-          </h3>
-          <Link
-            href="/loadout#dev-setup"
-            className="group inline-flex items-center gap-1 text-sm font-semibold text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 transition-colors hover:text-cyan-200"
-          >
-            See my dev setup
-            <FiArrowUpRight aria-hidden="true" className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </Link>
-        </div>
-        <p className="mt-1.5 text-sm text-[#9cadc5]">Windows 11 with WSL2, and Claude Code and Codex running side by side in herdr.</p>
-        <ul className="mt-3.5 flex flex-wrap gap-2" aria-label="My dev setup at a glance">
+      <div id="my-setup" role="group" aria-labelledby="my-setup-title" data-setup-teaser>
+        <LoadoutPartHeading
+          id="my-setup-title"
+          icon={<LuSquareTerminal />}
+          title="Dev setup"
+          blurb="Windows 11 with WSL2, and Claude Code and Codex running side by side in herdr."
+          accent={HOME_PART_ACCENTS.setup}
+          action={
+            <Link
+              href="/loadout#dev-setup"
+              className="group inline-flex items-center gap-1 text-sm font-semibold text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 transition-colors hover:text-cyan-200 sm:mt-2"
+            >
+              See my dev setup
+              <FiArrowUpRight aria-hidden="true" className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </Link>
+          }
+        />
+        <div className="mt-6 rounded-2xl border border-white/8 bg-white/[0.02] p-4 sm:p-5">
+        <ul className="flex flex-wrap gap-2" aria-label="My dev setup at a glance">
           {atAGlance.map((item) => (
             <li
               key={item.name}
@@ -140,7 +161,7 @@ export default function HomeStack() {
           ))}
         </ul>
         {/* The video I recommend for setting up your own (round 8 of 2026-11-09), also under /loadout's setup. */}
-        <p className="mt-3.5 border-t border-white/6 pt-3 text-sm text-[#9cadc5]">
+        <p className="mt-4 border-t border-white/6 pt-3 text-sm text-[#9cadc5]">
           Setting up your own?{' '}
           <a
             href={devSetupVideo.href}
@@ -153,20 +174,36 @@ export default function HomeStack() {
             <span className="sr-only"> (a video, opens in a new tab)</span>
           </a>
         </p>
+        {/* Sharing (round 9 of 2026-11-09): the dotfiles to take home, and Scribe's download. */}
+        <DevSetupShare className="mt-4 border-t border-white/6 pt-4" />
+        </div>
       </div>
 
-      <div id="ai-kit">
-        <AITechStack dino />
+      <div id="ai-kit" role="group" aria-labelledby="ai-kit-title" className="mt-14">
+        <LoadoutPartHeading
+          id="ai-kit-title"
+          icon={<LuSparkles />}
+          title="AI kit"
+          blurb="The agents, models and tools I build with, in daily use."
+          accent={HOME_PART_ACCENTS.aiKit}
+        />
+        <div className="mt-6">
+          <AITechStack dino />
+        </div>
       </div>
 
-      {/* My two default stacks (round 8 of 2026-11-09): what each piece does in it. */}
-      <div id="default-stack" role="group" aria-labelledby="default-stack-title" className="mt-6">
-        <h3 id="default-stack-title" className="mb-4 font-mono text-[0.72rem] font-bold tracking-[0.16em] text-cyan-400 uppercase">
-          My default stacks
-        </h3>
-        <div className="grid gap-4 md:grid-cols-2">
+      {/* My two tech stacks (round 8 of 2026-11-09; "My tech stacks" since round 9): what each piece does in it. */}
+      <div id="default-stack" role="group" aria-labelledby="default-stack-title" className="mt-14">
+        <LoadoutPartHeading
+          id="default-stack-title"
+          icon={<LuServer />}
+          title="My tech stacks"
+          blurb="One to get something up fast, and the one my live apps run on."
+          accent={HOME_PART_ACCENTS.stacks}
+        />
+        <div className="mt-6 grid gap-4 md:grid-cols-2">
           {defaults.map((stack) => (
-            <DefaultStack key={stack.id} stack={stack} />
+            <TechStack key={stack.id} stack={stack} />
           ))}
         </div>
       </div>

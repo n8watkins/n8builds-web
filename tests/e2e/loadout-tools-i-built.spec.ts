@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 
 /**
- * /loadout's "Tools I built and use" (the owner's calls, 2026-11-01): Scribe,
+ * /loadout's "Tools I\'ve built" (the owner's calls, 2026-11-01): Scribe,
  * out of the homepage Lab's "My tools", leads it as the Lab's own full-bleed
  * row, then the small CLIs' cards. OpenPing went the other way, into the
  * Lab's Featured builds. The row's own behaviour (download, gallery, Full story)
@@ -10,10 +10,10 @@ import { test, expect } from '@playwright/test'
 
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
-test('/loadout has Tools I built and use: Scribe as a Lab row, then the CLIs, after the stacks', async ({ page }) => {
+test("/loadout has Tools I've built: Scribe as a Lab row, then the CLIs, after the stacks", async ({ page }) => {
   await page.goto('/loadout')
-  const part = page.getByRole('region', { name: 'Tools I built and use' })
-  await expect(part.getByRole('heading', { level: 2 })).toHaveText('Tools I built and use')
+  const part = page.getByRole('region', { name: "Tools I've built" })
+  await expect(part.getByRole('heading', { level: 2 })).toHaveText("Tools I've built")
   await expect(part).toContainText('~/loadout/built')
   await expect(part).toContainText('Tools I made for myself and use every day. All open source and MIT-licensed.')
   const scribe = part.getByRole('article', { name: 'Scribe' })
@@ -28,7 +28,7 @@ test('/loadout has Tools I built and use: Scribe as a Lab row, then the CLIs, af
     'How I work with AI',
     'Inside the apps I build',
     'Stacks I build with',
-    'Tools I built and use',
+    "Tools I've built",
     'Tools I use',
   ])
   // People I follow moved to the homepage.
@@ -66,10 +66,10 @@ for (const width of [1440, 810, 390]) {
   })
 }
 
-test('Tools I built and use is two groups, its cards the size and style of Tools I use\'s', async ({ page }) => {
+test("Tools I've built is two groups, its cards the size and style of Tools I use's", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/loadout')
-  const part = page.getByRole('region', { name: 'Tools I built and use' })
+  const part = page.getByRole('region', { name: "Tools I've built" })
   // Round 3 of 2026-11-02: the dev tools (Scribe's row leads them); "Other things I built" left
   // with PR Post in round 5 (its one place is The Pull Request Post's card on the homepage).
   await expect(part.getByRole('heading', { level: 3 }).filter({ hasNotText: 'Scribe' })).toHaveText(['Dev tools I built'])
@@ -98,13 +98,13 @@ test('Tools I built and use is two groups, its cards the size and style of Tools
   }
 })
 
-test('old links land on Tools I built and use: the Lab\'s /#my-tools, and /loadout#daily-drivers', { tag: '@cross-browser' }, async ({ page }) => {
+test("old links land on Tools I've built: the Lab's /#my-tools, and /loadout#daily-drivers", { tag: '@cross-browser' }, async ({ page }) => {
   await page.goto('/#my-tools')
   await expect(page).toHaveURL(/\/loadout#tools-i-built$/)
-  await expect(page.getByRole('heading', { level: 2, name: 'Tools I built and use' })).toBeInViewport()
+  await expect(page.getByRole('heading', { level: 2, name: "Tools I've built" })).toBeInViewport()
   // "My daily drivers" was its own part for a day: its anchor still lands here.
   await page.goto('/loadout#daily-drivers')
-  await expect(page.getByRole('heading', { level: 2, name: 'Tools I built and use' })).toBeInViewport()
+  await expect(page.getByRole('heading', { level: 2, name: "Tools I've built" })).toBeInViewport()
 })
 
 test("the navbar's Lab menu lists Featured with OpenPing in it, and no My tools", async ({ page }) => {
@@ -126,12 +126,12 @@ test('on the homepage the Loadout comes right after People I follow, with no Too
 })
 
 /**
- * Round 8 of 2026-11-09 (owner): on the homepage, Tools I built and use is headed
+ * Round 8 of 2026-11-09 (owner): on the homepage, Tools I've built is headed
  * by its hammer, hammering (CSS only, still under reduced motion), with no
  * "Built by me" eyebrow, no accent bar and no rule after its group's heading.
  */
 for (const reducedMotion of ['no-preference', 'reduce'] as const) {
-  test(`the homepage's Tools I built and use: a hammering hammer, no badge, bar or rule (${reducedMotion})`, async ({ browser }) => {
+  test(`the homepage's Tools I've built: a hammering hammer, no badge, bar or rule (${reducedMotion})`, async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion })
     const page = await context.newPage()
     await page.goto('/')
@@ -139,7 +139,7 @@ for (const reducedMotion of ['no-preference', 'reduce'] as const) {
     await built.scrollIntoViewIfNeeded()
     await expect(built).not.toContainText('Built by me')
     // No accent bar beside the heading (it was a left border), and no rule after "Dev tools I built".
-    const heading = built.getByRole('heading', { level: 3, name: 'Tools I built and use' })
+    const heading = built.getByRole('heading', { level: 3, name: "Tools I've built" })
     expect(await heading.evaluate((h) => getComputedStyle(h.closest('div')!.parentElement!).borderLeftWidth)).toBe('0px')
     await expect(built.locator('[data-built-group] h4 span')).toHaveCount(0)
     const head = built.locator('.part-icon-hammer .hammer-head')
@@ -148,9 +148,10 @@ for (const reducedMotion of ['no-preference', 'reduce'] as const) {
       expect(await head.evaluate((g) => getComputedStyle(g).animationName)).toBe('none')
     } else {
       await expect.poll(() => head.evaluate((g) => getComputedStyle(g).animationName)).toBe('part-hammer')
-      // It really swings: the head's rotation changes over time.
+      // It really swings: the head's rotation changes over a whole 2.4s cycle (it rests for
+      // about half of each, so a shorter look can land in the rest).
       const angles = new Set<string>()
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < 22; i++) {
         angles.add(await head.evaluate((g) => getComputedStyle(g).transform))
         await page.waitForTimeout(120)
       }

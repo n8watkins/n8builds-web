@@ -72,9 +72,15 @@ test('nothing inside the contact card can scroll it', { tag: '@cross-browser' },
   await page.getByRole('textbox', { name: 'Name' }).focus()
   for (let i = 0; i < 6; i++) await page.keyboard.press('Tab')
   expect(await card.evaluate((el) => el.scrollTop)).toBe(0)
-  // The avatar and name sit inside the card's top, not scrolled up out of it.
-  const [box, name] = [(await card.boundingBox())!, (await card.getByText('Nathan "n8" Watkins').boundingBox())!]
-  expect(name.y).toBeGreaterThan(box.y)
+  // The avatar and name sit inside the card's top, not scrolled up out of it. Both
+  // measured in the same frame: the hash jump and the tabbing scroll the page
+  // smoothly, and two boundingBox() calls a moment apart once caught the page
+  // mid-scroll on WebKit (the name "50px above" a card that had since moved).
+  const nameBelowTop = await card.evaluate((el) => {
+    const name = [...el.querySelectorAll('*')].find((n) => n.textContent?.trim() === 'Nathan "n8" Watkins')!
+    return name.getBoundingClientRect().top - el.getBoundingClientRect().top
+  })
+  expect(nameBelowTop).toBeGreaterThan(0)
 })
 
 for (const width of [375, 320]) {

@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
-import { contentLeft, expectCleanJump, labelLines, railShape } from './section-rail'
+import { contentLeft, expectCleanJump, labelLines, railShape, placeIcon } from './section-rail'
 
 /**
  * The Loadout's floating side nav (components/sections/LoadoutSectionNav.tsx,
@@ -17,7 +17,7 @@ const PARTS = [
   { id: 'workflow', label: 'How I work' },
   { id: 'in-apps', label: 'Inside my apps' },
   { id: 'stacks', label: 'Stacks I build with' },
-  { id: 'tools-i-built', label: 'Tools I built and use' },
+  { id: 'tools-i-built', label: "Tools I've built" },
   { id: 'tools-i-use', label: 'Tools I use' },
   { id: 'gear', label: 'The gear' },
 ] as const
@@ -95,13 +95,14 @@ test.describe('at 1440px', () => {
     }
   })
 
-  test('a part takes over once its top passes the middle of the window', async ({ page }) => {
+  // Round 10 of 2026-11-09: once its heading icon passes the middle line (its top before), as on the homepage.
+  test("a part takes over once its heading icon passes the middle of the window", async ({ page }) => {
     await openLoadout(page)
     const current = rail(page).locator('[aria-current]')
-    await place(page, 'tools-i-use', 500)
+    await placeIcon(page, 'tools-i-use', 12)
     await expect(rail(page)).toBeVisible(SHOW)
-    await expect(current).toHaveAccessibleName('Tools I built and use')
-    await place(page, 'tools-i-use', 400)
+    await expect(current).toHaveAccessibleName("Tools I've built")
+    await placeIcon(page, 'tools-i-use', -12)
     await expect(current).toHaveAccessibleName('Tools I use')
   })
 
@@ -251,9 +252,9 @@ for (const width of [1280, 1366, 1440, 1536, 1920]) {
     if (shape.labels) await expect(nav.getByText('Loadout', { exact: true })).toBeVisible()
     else await expect(nav.getByText('Loadout', { exact: true })).toBeHidden()
     expect(await labelLines(nav), 'lines per label').toEqual(PARTS.map(() => 1))
-    // Where the gutter is tight, Tools I built and use shows as "My tools" instead of wrapping.
-    const built = nav.getByRole('link', { name: 'Tools I built and use' })
-    await expect(built).toHaveAccessibleName('Tools I built and use')
+    // Where the gutter is tight, Tools I've built shows as "My tools" instead of wrapping.
+    const built = nav.getByRole('link', { name: "Tools I've built" })
+    await expect(built).toHaveAccessibleName("Tools I've built")
     const short = built.getByText('My tools', { exact: true })
     if (shape.shortLabel) await expect(short).toBeVisible()
     else await expect(short).toBeHidden()

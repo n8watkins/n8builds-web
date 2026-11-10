@@ -912,8 +912,12 @@
 /* The homepage parts' animated icons (components/ui/PartIcons.tsx, owner,
    2026-11-08), in the flask's style: transforms, opacity and stroke dashes on
    a 24-unit drawing. By default each shows its finished drawing; it plays
-   once when its part's scroll reveal shows it, or, in a side rail, when its
-   part becomes the current one (the link's aria-current). Only the pot's
+   while its part is the side rail's current one (round 11 of 2026-11-09: the
+   heading's icon and the rail's run together and stop together): the part's
+   data-rail-current, the rail link's aria-current, both from
+   components/ui/SectionRail.tsx. A heading no rail lists (data-rail-part
+   marks the ones it does) plays once it comes into view (data-seen, from
+   components/ui/PartIconClock.tsx). Only the pot's
    steam and the scroll's lines loop, softly. Under reduced motion nothing moves. */
 .part-icon :is(.scroll-sheet, .star-body, .star-glint, .puzzle-piece, .puzzle-snap, .pot-lid, .pot-steam) {
   transform-box: fill-box;
@@ -942,44 +946,44 @@
   opacity: 0.55;
 }
 @media (prefers-reduced-motion: no-preference) {
-  :is(.reveal[data-revealed], a[aria-current]) .part-icon .scroll-sheet {
+  :is(.part-icon[data-seen]:not([data-rail-part] .part-icon), [data-rail-current] [data-part-icon] .part-icon, a[aria-current] .part-icon) .scroll-sheet {
     animation: part-scroll-unroll 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
   /* Then, softly and for as long as it shows (owner, 2026-11-09), its lines are
      written again now and then, one after the other, like the log filling in. */
-  :is(.reveal[data-revealed], a[aria-current]) .part-icon .scroll-line {
+  :is(.part-icon[data-seen]:not([data-rail-part] .part-icon), [data-rail-current] [data-part-icon] .part-icon, a[aria-current] .part-icon) .scroll-line {
     animation:
       part-scroll-write 0.35s ease-out 0.5s both,
       part-scroll-rewrite 5.2s ease-in-out 1.6s infinite;
   }
-  :is(.reveal[data-revealed], a[aria-current]) .part-icon .scroll-line-2 {
+  :is(.part-icon[data-seen]:not([data-rail-part] .part-icon), [data-rail-current] [data-part-icon] .part-icon, a[aria-current] .part-icon) .scroll-line-2 {
     animation-delay: 0.68s, 1.95s;
   }
-  :is(.reveal[data-revealed], a[aria-current]) .part-icon .star-body {
+  :is(.part-icon[data-seen]:not([data-rail-part] .part-icon), [data-rail-current] [data-part-icon] .part-icon, a[aria-current] .part-icon) .star-body {
     animation: part-star-twinkle 0.9s cubic-bezier(0.34, 1.3, 0.64, 1) both;
   }
-  :is(.reveal[data-revealed], a[aria-current]) .part-icon .star-glint {
+  :is(.part-icon[data-seen]:not([data-rail-part] .part-icon), [data-rail-current] [data-part-icon] .part-icon, a[aria-current] .part-icon) .star-glint {
     animation: part-glint 0.6s ease-out 0.45s both;
   }
-  :is(.reveal[data-revealed], a[aria-current]) .part-icon .star-glint-2 {
+  :is(.part-icon[data-seen]:not([data-rail-part] .part-icon), [data-rail-current] [data-part-icon] .part-icon, a[aria-current] .part-icon) .star-glint-2 {
     animation-delay: 0.62s;
   }
-  :is(.reveal[data-revealed], a[aria-current]) .part-icon .puzzle-piece {
+  :is(.part-icon[data-seen]:not([data-rail-part] .part-icon), [data-rail-current] [data-part-icon] .part-icon, a[aria-current] .part-icon) .puzzle-piece {
     animation: part-puzzle-snap 0.75s ease-out both;
   }
-  :is(.reveal[data-revealed], a[aria-current]) .part-icon .puzzle-snap {
+  :is(.part-icon[data-seen]:not([data-rail-part] .part-icon), [data-rail-current] [data-part-icon] .part-icon, a[aria-current] .part-icon) .puzzle-snap {
     animation: part-glint 0.5s ease-out 0.45s both;
   }
-  :is(.reveal[data-revealed], a[aria-current]) .part-icon .pot-lid {
+  :is(.part-icon[data-seen]:not([data-rail-part] .part-icon), [data-rail-current] [data-part-icon] .part-icon, a[aria-current] .part-icon) .pot-lid {
     animation: part-pot-lid 0.9s ease-in-out 0.1s both;
   }
-  :is(.reveal[data-revealed], a[aria-current]) .part-icon .pot-steam {
+  :is(.part-icon[data-seen]:not([data-rail-part] .part-icon), [data-rail-current] [data-part-icon] .part-icon, a[aria-current] .part-icon) .pot-steam {
     animation: part-pot-steam 2.4s ease-in-out 0.3s infinite both;
   }
-  :is(.reveal[data-revealed], a[aria-current]) .part-icon .pot-steam-2 {
+  :is(.part-icon[data-seen]:not([data-rail-part] .part-icon), [data-rail-current] [data-part-icon] .part-icon, a[aria-current] .part-icon) .pot-steam-2 {
     animation-delay: 1.1s;
   }
-  :is(.reveal[data-revealed], a[aria-current]) .part-icon .pot-steam-3 {
+  :is(.part-icon[data-seen]:not([data-rail-part] .part-icon), [data-rail-current] [data-part-icon] .part-icon, a[aria-current] .part-icon) .pot-steam-3 {
     animation-delay: 1.9s;
   }
 }
@@ -1089,10 +1093,10 @@
   opacity: 0;
 }
 @media (prefers-reduced-motion: no-preference) {
-  :is(.reveal[data-revealed], a[aria-current]) .part-icon .hammer-head {
+  :is(.part-icon[data-seen]:not([data-rail-part] .part-icon), [data-rail-current] [data-part-icon] .part-icon, a[aria-current] .part-icon) .hammer-head {
     animation: part-hammer 2.4s cubic-bezier(0.5, 0, 0.5, 1) 0.2s infinite both;
   }
-  :is(.reveal[data-revealed], a[aria-current]) .part-icon .hammer-spark {
+  :is(.part-icon[data-seen]:not([data-rail-part] .part-icon), [data-rail-current] [data-part-icon] .part-icon, a[aria-current] .part-icon) .hammer-spark {
     animation: part-hammer-spark 2.4s linear 0.2s infinite both;
   }
 }
@@ -1329,4 +1333,25 @@ html.modal-open {
   .tfp-underline path {
     transition: none;
   }
+}
+
+/* The AI kit dino's rainbow mode (components/features/dino/DinoGame.tsx): a few
+   four-point stars twinkle around it, each in a rainbow colour, on a 1.2s loop
+   with its own delay. Transform and opacity only, and only while shown (the
+   wrapper is display: none otherwise). */
+.dino-sparkle {
+  position: absolute;
+  background: currentColor;
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  opacity: 0;
+  transform: scale(0);
+  animation: dino-sparkle 1.2s ease-in-out infinite;
+}
+@keyframes dino-sparkle {
+  0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+  45% { opacity: 1; transform: scale(1) rotate(45deg); }
+  70% { opacity: 0.6; transform: scale(0.7) rotate(70deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dino-sparkle { animation: none; opacity: 0; }
 }

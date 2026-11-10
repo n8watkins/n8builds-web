@@ -5,7 +5,7 @@ import { test, expect } from '@playwright/test'
  * row, then the CLIs, with the fork's credit and the Star | GitHub button),
  * then the tools I use (each credited to its maker), plus the header pills;
  * and the homepage's People I follow (moved from /loadout), The Pull Request
- * Post under it, and Tools I built and use in its Loadout.
+ * Post under it, and Tools I've built in its Loadout.
  */
 
 test.describe('Loadout tools and people', () => {
@@ -13,7 +13,7 @@ test.describe('Loadout tools and people', () => {
 
   test('lists the tools I built and use, Scribe first, credits the pass-env fork and links each repo', async ({ page }) => {
     await page.goto('/loadout')
-    const built = page.getByRole('region', { name: 'Tools I built and use' })
+    const built = page.getByRole('region', { name: "Tools I've built" })
     await expect(built.getByRole('heading', { name: /^pass-env\b/ })).toBeVisible()
     // Scribe's row (h3), then the cards (h4, under their groups' h3 subheadings).
     await expect(built.getByRole('article').getByRole('heading', { level: 3 })).toHaveText(['Scribe'])
@@ -155,22 +155,24 @@ test.describe('Loadout tools and people', () => {
       'Nate Herk',
     ])
     await expect(creators.getByText('Former L8 principal engineer at Meta, Microsoft and Atlassian.')).toBeVisible()
+    // A profile shows its platform's icon and the @handle (round 10 of 2026-11-09:
+    // "X" beside the X icon read as two X's); the platform is still in its name.
     const links: Record<string, Record<string, string>> = {
       'Kun Chen': {
-        YouTube: 'https://www.youtube.com/channel/UCb69t9ZkE5z1KvCmfJoaifA',
-        X: 'https://x.com/kunchenguid',
-        Substack: 'https://kunchenguid.substack.com',
-        GitHub: 'https://github.com/kunchenguid',
+        'YouTube @kunchenguid': 'https://www.youtube.com/@kunchenguid',
+        'X @kunchenguid': 'https://x.com/kunchenguid',
+        'Substack @kunchenguid': 'https://kunchenguid.substack.com',
+        'GitHub @kunchenguid': 'https://github.com/kunchenguid',
       },
       'Nate Herk': {
-        YouTube: 'https://www.youtube.com/@nateherk',
-        X: 'https://x.com/nateherk',
+        'YouTube @nateherk': 'https://www.youtube.com/@nateherk',
+        'X @nateherk': 'https://x.com/nateherk',
         'nateherk.com': 'https://nateherk.com',
         'AI Automation Society': 'https://www.skool.com/ai-automation-society/about',
       },
       'Phaedrus Raznikov': {
-        X: 'https://x.com/moomooskycow',
-        GitHub: 'https://github.com/moomooskycow',
+        'X @moomooskycow': 'https://x.com/moomooskycow',
+        'GitHub @moomooskycow': 'https://github.com/moomooskycow',
         'Misty Step': 'https://www.mistystep.io/',
       },
     }
@@ -185,6 +187,14 @@ test.describe('Loadout tools and people', () => {
         await expect(link).toHaveAttribute('href', href)
       }
     }
+    // On screen, a profile is its icon and @handle: never the platform's name beside its icon.
+    const x = creators.getByRole('list', { name: 'Kun Chen online' }).getByRole('link', { name: /^X @kunchenguid/ })
+    const seen = await x.evaluate((a) => {
+      const copy = a.cloneNode(true) as HTMLElement
+      copy.querySelectorAll('.sr-only').forEach((el) => el.remove())
+      return copy.textContent?.trim()
+    })
+    expect(seen).toBe('@kunchenguid')
   })
 
   for (const width of [1440, 1024, 390, 320]) {
@@ -349,7 +359,8 @@ test.describe('Loadout tools and people', () => {
 
   test('the homepage shows my setup at a glance, with marks, and links to it and to Kun Chen\'s setup video', { tag: '@smoke' }, async ({ page }) => {
     await page.goto('/')
-    const setup = page.getByRole('group', { name: 'My dev setup' })
+    // Headed "Dev setup" like the Loadout's other parts (round 9 of 2026-11-09).
+    const setup = page.getByRole('group', { name: 'Dev setup' })
     await expect(setup.getByRole('list', { name: 'My dev setup at a glance' }).getByRole('listitem')).toHaveText([
       'Windows 11',
       'WSL2 Ubuntu',
@@ -363,7 +374,7 @@ test.describe('Loadout tools and people', () => {
       'Codex',
     ])
     // Every piece carries its mark.
-    await expect(setup.locator('li :is(svg, img)')).toHaveCount(10)
+    await expect(setup.getByRole('list', { name: 'My dev setup at a glance' }).locator('li :is(svg, img)')).toHaveCount(10)
     await expect(setup.getByRole('link', { name: /^Watch Kun Chen build his from scratch/ })).toHaveAttribute(
       'href',
       'https://www.youtube.com/watch?v=5N-okeDdIuI',
@@ -386,7 +397,7 @@ test.describe('Loadout tools and people', () => {
   test('the header pills jump to every part of the page', { tag: '@smoke' }, async ({ page }) => {
     await page.goto('/loadout')
     const pills = page.getByRole('navigation', { name: 'Loadout sections' }).getByRole('link')
-    await expect(pills).toHaveText(['Dev setup', 'How I work', 'Inside my apps', 'Stacks I build with', 'Tools I built and use', 'Tools I use', 'The gear'])
+    await expect(pills).toHaveText(['Dev setup', 'How I work', 'Inside my apps', 'Stacks I build with', "Tools I've built", 'Tools I use', 'The gear'])
     const hrefs = await pills.evaluateAll((els) => els.map((el) => el.getAttribute('href')!))
     for (const href of hrefs) await expect(page.locator(href)).toHaveCount(1)
     // In page order: Inside the apps I build right after How I work with AI (2026-11-02).
@@ -474,10 +485,11 @@ test.describe('Loadout tools and people', () => {
     // How I build, right after Inside the apps I build (2026-11-02).
     const order = await page.locator('main h2').allTextContents()
     expect(order.indexOf('Stacks I build with')).toBe(order.indexOf('Inside the apps I build') + 1)
-    // Round 8 of 2026-11-09: the Quick and Production stacks replace the Turso, Cloudflare and Firebase ones.
+    // Round 8 of 2026-11-09: the Quick and Production stacks replace the Turso, Cloudflare and Firebase ones;
+    // round 11 calls the Production one the Cloudflare stack.
     await expect(stacks.getByRole('heading', { level: 3 })).toHaveText([
       'Quick stack',
-      'Production stack',
+      'Cloudflare stack',
       'Local-first stack',
       'Extension stack',
       // Under the stacks (round 5 of 2026-11-02).
@@ -490,10 +502,11 @@ test.describe('Loadout tools and people', () => {
     for (const role of ['Framework', 'Database', 'Hosting']) await expect(stacks).not.toContainText(role)
     const toolsOf = (name: string) => stacks.getByRole('list', { name: `${name} tools` }).locator('[data-stack-tool]')
     const runsOn = (name: string) => stacks.getByRole('list', { name: `${name} hosting` }).locator('[data-stack-tool]')
-    await expect(toolsOf('Quick stack')).toHaveText(['Next.js', 'TypeScript', 'Tailwind CSS', 'Firebase Auth'])
-    await expect(runsOn('Quick stack')).toHaveText(['Vercel', 'Firestore'])
-    await expect(toolsOf('Production stack')).toHaveText(['Next.js', 'TypeScript', 'OpenNext', 'Hono'])
-    await expect(runsOn('Production stack')).toHaveText(['Workers', 'D1', 'R2', 'Durable Objects', 'Images', 'Email Service'])
+    // Both sign in with Better Auth (round 11 of 2026-11-09).
+    await expect(toolsOf('Quick stack')).toHaveText(['Next.js', 'TypeScript', 'Tailwind CSS', 'Better Auth'])
+    await expect(runsOn('Quick stack')).toHaveText(['Vercel', 'Turso'])
+    await expect(toolsOf('Cloudflare stack')).toHaveText(['Next.js', 'TypeScript', 'Tailwind CSS', 'Better Auth'])
+    await expect(runsOn('Cloudflare stack')).toHaveText(['Workers', 'D1', 'R2', 'Durable Objects'])
     await expect(runsOn('Local-first stack')).toHaveText(['Your PC', 'GitHub Releases'])
     await expect(runsOn('Extension stack')).toHaveText(['Your browser'])
     await expect(stacks).not.toContainText('+TypeScript')
@@ -502,7 +515,8 @@ test.describe('Loadout tools and people', () => {
     await expect(stacks).not.toContainText('WXT')
     // Every tool carries its mark, 16px.
     const icons = stacks.getByRole('article').locator('[data-stack-icon] svg')
-    await expect(icons).toHaveCount(30)
+    // 28 since round 11 of 2026-11-09: the Cloudflare stack lists eight pieces (it had ten).
+    await expect(icons).toHaveCount(28)
     for (const height of await icons.evaluateAll((svgs) => svgs.map((svg) => Math.round(svg.getBoundingClientRect().height)))) expect(height).toBe(16)
     // Every tool name stays on one line, and the cards in a row are the same height.
     for (const height of await stacks.locator('[data-stack-tool]').evaluateAll((els) => els.map((el) => el.getBoundingClientRect().height)))
@@ -526,7 +540,7 @@ test.describe('Loadout tools and people', () => {
     await page.goto('/loadout#stream')
     const gear = page.getByRole('region', { name: 'The gear' })
     await expect(gear.getByRole('heading', { name: 'The gear', level: 2 })).toBeInViewport()
-    // Round 3 of 2026-11-02: no Stream kit (Scribe is in Tools I built and use).
+    // Round 3 of 2026-11-02: no Stream kit (Scribe is in Tools I've built).
     await expect(gear.getByRole('heading', { level: 3 })).toHaveText(['Rig', 'Desk'])
     await expect(gear).not.toContainText('OBS Studio')
     for (const size of await gear.locator('[data-gear-icon] svg').evaluateAll((icons) => icons.map((svg) => svg.getBoundingClientRect().height)))
@@ -619,9 +633,9 @@ test.describe('Loadout tools and people', () => {
     }
   })
 
-  test('the homepage has Tools I built and use inside its Loadout, every tool with Scribe first', async ({ page }) => {
+  test("the homepage has Tools I've built inside its Loadout, every tool with Scribe first", async ({ page }) => {
     await page.goto('/')
-    const built = page.getByRole('region', { name: 'Tools I built and use' })
+    const built = page.getByRole('region', { name: "Tools I've built" })
     // As /loadout, a level down: Scribe's compact row (2026-11-08) and the cards (h5) under the h4 subheading.
     // No pr-post (round 5 of 2026-11-02): The Pull Request Post's card a section above is its one place.
     await expect(built.getByRole('heading', { level: 4 })).toHaveText(['Dev tools I built'])
@@ -631,7 +645,7 @@ test.describe('Loadout tools and people', () => {
     const loadout = page.locator('#loadout')
     await expect(loadout.locator('#tools-i-built')).toHaveCount(1)
     const [stack, tools, teaser, kit] = await Promise.all(
-      [loadout.getByRole('heading', { name: 'Production stack' }), built, loadout.locator('[data-setup-teaser]'), loadout.locator('#ai-kit')].map((el) =>
+      [loadout.getByRole('heading', { name: 'Cloudflare stack' }), built, loadout.locator('[data-setup-teaser]'), loadout.locator('#ai-kit')].map((el) =>
         el.boundingBox(),
       ),
     )
@@ -643,7 +657,7 @@ test.describe('Loadout tools and people', () => {
     const people = (await page.locator('#people').boundingBox())!
     expect((await built.boundingBox())!.y).toBeGreaterThan(people.y)
     const sitemap = page.getByRole('navigation', { name: 'Sitemap' })
-    await expect(sitemap.getByRole('link', { name: 'Tools I built and use' })).toHaveAttribute('href', '/#tools-i-built')
+    await expect(sitemap.getByRole('link', { name: "Tools I've built" })).toHaveAttribute('href', '/#tools-i-built')
     await expect(sitemap.getByRole('link', { name: 'People I follow' })).toHaveAttribute('href', '/#people')
   })
 })

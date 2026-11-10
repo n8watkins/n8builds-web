@@ -120,3 +120,47 @@ export async function expectCleanJump(
   expect(moved!).toBeLessThanOrEqual(3)
   await expect(link).toHaveAttribute('aria-current', 'location')
 }
+
+/**
+ * Scroll so a part's heading icon (its `[data-part-icon]`) has its middle `offset` px
+ * below the window's middle line (negative: above it), and keep at it until it stays
+ * there, then send the scroll event the rail listens for.
+ */
+export async function placeIcon(page: Page, partId: string, offset: number) {
+  await expect
+    .poll(
+      () =>
+        page.evaluate(
+          ([id, offset]) => {
+            const icon = document.getElementById(id as string)!.querySelector('[data-part-icon]')!
+            const box = icon.getBoundingClientRect()
+            const now = box.top + box.height / 2 - innerHeight / 2
+            if (Math.abs(now - (offset as number)) <= 1) return true
+            window.scrollTo({ top: window.scrollY + now - (offset as number), behavior: 'instant' })
+            return false
+          },
+          [partId, offset] as const
+        ),
+      { timeout: 20_000 }
+    )
+    .toBe(true)
+  await page.evaluate(() => window.dispatchEvent(new Event('scroll')))
+}
+
+/**
+ * Round 10 of 2026-11-09 (owner): a rail's item switches to a part when that part's
+ * heading icon is halfway up the window, its middle on the window's middle line, so
+ * the rail's icon and the heading's play together. For each part after the first:
+ * with its icon a little under the line the part before is still lit, and a little
+ * over it, this one is.
+ */
+export async function expectSwitchAtIconMidline(page: Page, rail: Locator, parts: readonly { id: string; label: string }[]) {
+  for (let i = 1; i < parts.length; i++) {
+    await placeIcon(page, parts[i].id, 12)
+    // The rail shows on a frame after the scroll: a loaded WebKit can take several seconds.
+    await expect(rail).toBeVisible({ timeout: 15_000 })
+    await expect(rail.locator('[aria-current]'), `${parts[i].id}: icon under the line`).toHaveAccessibleName(parts[i - 1].label)
+    await placeIcon(page, parts[i].id, -12)
+    await expect(rail.locator('[aria-current]'), `${parts[i].id}: icon over the line`).toHaveAccessibleName(parts[i].label)
+  }
+}

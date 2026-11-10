@@ -126,7 +126,7 @@ test('legacy shelf routes redirect to homepage anchors, and /tools to /loadout',
   // Tools are the ones the owner built and uses, Scribe first, on /loadout.
   await page.goto('/tools')
   expect(new URL(page.url()).pathname + new URL(page.url()).hash).toBe('/loadout#tools-i-built')
-  await expect(page.getByRole('heading', { level: 2, name: 'Tools I built and use' })).toBeInViewport()
+  await expect(page.getByRole('heading', { level: 2, name: "Tools I've built" })).toBeInViewport()
 })
 
 test('Piper TTS was renamed VoiceDock: its old page lands on the new one, which links the new repo', async ({ page, request }) => {

@@ -151,7 +151,7 @@ describe('one icon per tool of mine, everywhere', () => {
   const mine = Object.values(OWN_TOOL_ICONS) as unknown[]
   const typeOf = (icon: unknown) => (icon as { type?: unknown } | undefined)?.type
 
-  it('gives a tool the same mark in My dev setup and in Tools I built and use', () => {
+  it("gives a tool the same mark in My dev setup and in Tools I've built", () => {
     for (const [id, Icon] of Object.entries(OWN_TOOL_ICONS)) {
       const card = toolsIBuilt.find((t) => t.id === id)
       if (card) expect(typeOf(card.icon), `${id}'s card`).toBe(Icon)

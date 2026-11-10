@@ -31,10 +31,8 @@ export default async function BlogIndexPage() {
         <div className="relative mx-auto max-w-site px-5 pb-24 pt-28 sm:px-8 md:pt-36">
           {/* Above the fold: a CSS fade, so the heading never waits on hydration. */}
           <FadeIn as="header">
-            <p className="font-mono text-[0.7rem] font-bold uppercase tracking-[0.22em] text-cyan-400">
-              The Build Log
-            </p>
-            <h1 className="mt-3 text-[2.6rem] font-extrabold leading-[1.03] tracking-tight text-slate-50 sm:text-6xl/none">
+            {/* Nothing above the title (owner, round 9 of 2026-11-09: no "The Build Log" label). */}
+            <h1 className="text-[2.6rem] font-extrabold leading-[1.03] tracking-tight text-slate-50 sm:text-6xl/none">
               <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
                 N8&apos;s Notions
               </span>
