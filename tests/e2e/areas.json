@@ -133,6 +133,7 @@
       "sources": [
         "app/builds/page.tsx",
         "app/builds/og.png/**",
+        "app/builds/months.json/**",
         "components/log/**",
         "components/sections/BuildLogStrip.tsx",
         "components/sections/BuildLogMonths.tsx",
