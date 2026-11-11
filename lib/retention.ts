@@ -23,6 +23,12 @@ export async function purgeExpired(
         db.prepare('DELETE FROM waitlist_subscribers WHERE expires_at IS NOT NULL AND expires_at <= ?').bind(at),
         // Expired links, and confirm links already used.
         db.prepare("DELETE FROM waitlist_tokens WHERE expires_at <= ? OR (purpose = 'confirm' AND used_at IS NOT NULL)").bind(at),
+        // The newsletter: unconfirmed sign-ups past their 7 days.
+        db.prepare('DELETE FROM newsletter_subscribers WHERE expires_at IS NOT NULL AND expires_at <= ?').bind(at),
+        // Who had a digest is only needed while it sends: kept 30 days after it finished.
+        db
+          .prepare("DELETE FROM newsletter_deliveries WHERE digest_id IN (SELECT id FROM newsletter_digests WHERE finished_at IS NOT NULL AND finished_at <= ?)")
+          .bind(new Date(at - 30 * 24 * 60 * 60 * 1000).toISOString()),
       ])
     )
   }

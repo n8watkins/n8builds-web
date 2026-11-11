@@ -12,7 +12,7 @@ export const metadata = pageMetadata({
   path: '/privacy',
 })
 
-const UPDATED = 'November 4, 2026'
+const UPDATED = 'November 11, 2026'
 
 export default function PrivacyPolicy() {
   return (
@@ -39,7 +39,7 @@ export default function PrivacyPolicy() {
                 This Privacy Policy explains how{' '}
                 <strong className="text-slate-100">n8builds.dev</strong> (&ldquo;n8builds,&rdquo;
                 operated by Nathan Watkins) collects, uses, and protects your information when you
-                visit the site, get in touch, or join a waitlist.
+                visit the site, get in touch, join a waitlist, or subscribe to the newsletter.
               </p>
 
               <section className="space-y-3">
@@ -77,6 +77,18 @@ export default function PrivacyPolicy() {
                     . Sign-ups are kept in a private Cloudflare D1 database, apart from everything
                     else, that only I can read; the links in its emails are stored only as one-way
                     hashes.
+                  </li>
+                  <li id="newsletter" className="scroll-mt-24">
+                    <span className="text-slate-100">Newsletter.</span> If you subscribe to N8&rsquo;s
+                    Notions by email on the{' '}
+                    <Link href="/blog" className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2">
+                      blog
+                    </Link>
+                    , I keep only your email address and when you subscribed and confirmed, in the same
+                    private database but on a separate list from the waitlist. I email you a link to
+                    confirm, and an unconfirmed address is deleted after 7 days. Once you confirm, you get
+                    at most one email a week, only when there is a new post. Every email has a one-click
+                    unsubscribe link, which deletes your address at once, no login needed.
                   </li>
                   <li>
                     <span className="text-slate-100">Usage analytics.</span> With your permission
@@ -290,6 +302,10 @@ export default function PrivacyPolicy() {
                   correspondence. Waitlist sign-ups are kept until you leave (see{' '}
                   <a href="#waitlist" className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2">
                     Waitlist
+                  </a>
+                  ), and newsletter subscriptions until you unsubscribe (see{' '}
+                  <a href="#newsletter" className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2">
+                    Newsletter
                   </a>
                   ). To request access to or deletion of your information, email me at{' '}
                   <a

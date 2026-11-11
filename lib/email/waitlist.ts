@@ -1,7 +1,7 @@
 import { UPCOMING, type UpcomingSlug } from '@/data/upcoming'
 import { EMAIL_CONFIG } from '@/lib/email/config'
 import { sendEmail } from '@/lib/email/send'
-import { C, FONT, MONO, brandBar, button, sanitizeHtml, shell } from '@/lib/email/templates'
+import { C, FONT, MONO, brandBar, button, card, footnote, paragraph, sanitizeHtml, shell, signOff } from '@/lib/email/templates'
 import { PENDING_DAYS, type WaitlistEntry, type WaitlistLinks } from '@/lib/waitlist/store'
 
 /**
@@ -23,39 +23,6 @@ export const projectList = (slugs: UpcomingSlug[]) => {
   const list = names(slugs)
   return list.length > 1 ? `${list.slice(0, -1).join(', ')} and ${list.at(-1)}` : (list[0] ?? '')
 }
-
-function card(inner: string): string {
-  return `          <tr>
-            <td style="border:1px solid ${C.line};border-top:3px solid ${C.cyan};border-radius:16px;background:${C.card};" bgcolor="${C.card}">
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-${inner}
-              </table>
-            </td>
-          </tr>`
-}
-
-function footnote(text: string): string {
-  return `          <tr>
-            <td align="center" style="padding:20px 8px 0;font-family:${FONT};font-size:12px;line-height:19px;color:${C.faint};">${text}</td>
-          </tr>`
-}
-
-const paragraph = (html: string, top = 0) =>
-  `<p style="margin:${top}px 0 0;font-family:${FONT};font-size:16px;line-height:26px;color:${C.text};">${html}</p>`
-
-const signOff = `
-                <tr>
-                  <td class="px" style="padding:4px 36px 34px;">
-                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-top:1px solid ${C.line};">
-                      <tr>
-                        <td style="padding-top:22px;font-family:${FONT};">
-                          <p style="margin:0;font-size:15px;color:${C.text};">Thanks,</p>
-                          <p style="margin:6px 0 0;font-size:17px;font-weight:800;color:${C.white};">Nathan <span style="color:${C.cyan};">"n8"</span> Watkins</p>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>`
 
 export function confirmSubject(entry: WaitlistEntry): string {
   return `Confirm your spot on the ${projectList(entry.requested)} waitlist`

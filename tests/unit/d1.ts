@@ -33,7 +33,7 @@ async function migrate(db: D1Database, name: 'waitlist' | 'analytics') {
 
 async function tables(db: D1Database): Promise<string[]> {
   const { results } = await db
-    .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND (name LIKE 'waitlist\\_%' ESCAPE '\\' OR name LIKE 'analytics\\_%' ESCAPE '\\' OR name LIKE 'game\\_%' ESCAPE '\\')")
+    .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND (name LIKE 'waitlist\\_%' ESCAPE '\\' OR name LIKE 'analytics\\_%' ESCAPE '\\' OR name LIKE 'game\\_%' ESCAPE '\\' OR name LIKE 'newsletter\\_%' ESCAPE '\\')")
     .all<{ name: string }>()
   return results.map((r) => r.name)
 }

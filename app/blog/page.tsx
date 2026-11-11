@@ -6,6 +6,8 @@ import { pageMetadata } from '@/lib/seo'
 import { FEED_PATH } from '@/lib/rss'
 import FadeIn from '@/components/ui/FadeIn'
 import PreviewBanner from '@/components/blog/PreviewBanner'
+import NewsletterSignup from '@/components/blog/NewsletterSignup'
+import { turnstileSiteKey } from '@/lib/security/turnstileSiteKey'
 
 export const revalidate = 3600
 
@@ -52,6 +54,10 @@ export default async function BlogIndexPage() {
           </FadeIn>
 
           <NotionsList posts={posts} />
+
+          <div className="max-w-3xl">
+            <NewsletterSignup variant="index" turnstileSiteKey={turnstileSiteKey()} />
+          </div>
         </div>
       </main>
       <PreviewBanner path="/blog" />

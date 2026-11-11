@@ -10,6 +10,13 @@ import { MEDIA, fetchWithRanges } from './range.js'
 import { forEdge, mayUseEdgeCache } from './edge-cache.js'
 import { purgeExpired } from '../lib/retention'
 import { WaitlistStore } from '../lib/waitlist/store'
+import { runDigest } from '../lib/newsletter/digest'
+import { newsMailer } from '../lib/newsletter/mail'
+import { sanityPosts } from '../lib/newsletter/posts'
+import { NewsletterStore } from '../lib/newsletter/store'
+
+/** wrangler.jsonc triggers: the weekly run may start a newsletter digest. */
+const WEEKLY_CRON = '0 16 * * 4'
 
 // The Durable Objects (wrangler.jsonc durable_objects): the ISR revalidation
 // queue, the tag cache (on-demand revalidation), and the rate-limit counters.
@@ -65,6 +72,7 @@ function forBrowsers(request, response) {
  *   CONTACT_RATE_LIMITER: { limit: (options: { key: string }) => Promise<{ success: boolean }> },
  *   WAITLIST_DB: import('../lib/db').D1Database,
  *   ANALYTICS_DB: import('../lib/db').D1Database,
+ *   MAILROOM_NEWS?: import('../lib/newsletter/mail').NewsMailroom,
  * }} Env
  */
 
@@ -145,14 +153,29 @@ const worker = {
   },
 
   /**
-   * The daily cleanup (wrangler.jsonc triggers): deletes what has expired in
-   * both databases (lib/retention.ts). Counts only in the log.
-   * @param {ScheduledController} _controller
+   * The Cron Triggers (wrangler.jsonc). Daily: deletes what has expired in
+   * both databases (lib/retention.ts; counts only in the log), and sends the
+   * rest of a newsletter digest a refusal or the per-run limit paused.
+   * Weekly: the newsletter digest, when there is a new post
+   * (lib/newsletter/digest.ts). A skipped or stopped digest is a warning in
+   * the logs and in Sentry, so the owner sees it.
+   * @param {ScheduledController} controller
    * @param {Env} env
    */
-  async scheduled(_controller, env) {
-    const deleted = await purgeExpired({ waitlist: env.WAITLIST_DB, analytics: env.ANALYTICS_DB })
-    console.log(JSON.stringify({ message: 'retention cleanup', deleted }))
+  async scheduled(controller, env) {
+    const weekly = controller.cron === WEEKLY_CRON
+    if (!weekly) {
+      const deleted = await purgeExpired({ waitlist: env.WAITLIST_DB, analytics: env.ANALYTICS_DB })
+      console.log(JSON.stringify({ message: 'retention cleanup', deleted }))
+    }
+    const report = await runDigest(
+      { store: new NewsletterStore(env.WAITLIST_DB), mail: newsMailer(env.MAILROOM_NEWS), posts: sanityPosts },
+      { start: weekly }
+    )
+    console.log(JSON.stringify({ message: 'newsletter digest', ...report }))
+    if (report.action === 'skipped' || report.action === 'stopped') {
+      Sentry.captureMessage(`Newsletter digest ${report.action}: ${report.action === 'skipped' ? report.note : report.code}`, 'warning')
+    }
   },
 }
 

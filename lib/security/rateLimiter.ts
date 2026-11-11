@@ -37,6 +37,11 @@ const DEFAULT_GLOBAL_LIMIT = 50
 const WAITLIST_IP_LIMIT = process.env.NODE_ENV === 'development' ? 50 : 5
 // Confirmation and removal-link emails to one address per day.
 const WAITLIST_RECIPIENT_LIMIT = 3
+const NEWSLETTER_IP_LIMIT = process.env.NODE_ENV === 'development' ? 50 : 5
+// Confirm emails a day: under mailroom's 40 a day for n8builds-news, with room for the digest.
+const DEFAULT_NEWSLETTER_DAILY_LIMIT = 10
+// mailroom allows 3 a day per address, the digest included.
+const NEWSLETTER_RECIPIENT_LIMIT = 2
 const DEFAULT_WAITLIST_DAILY_LIMIT = 100
 
 // Counted things, not forms: an over-limit request still gets its answer,
@@ -55,6 +60,9 @@ const REF_IP_LIMIT = 20
  * - 'waitlist-global': waitlist emails per day site-wide (WAITLIST_DAILY_LIMIT,
  *   default 100), so the waitlist can't use up Gmail's sending quota
  * - 'waitlist-recipient': waitlist emails per address per day (3)
+ * - 'newsletter-ip', 'newsletter-global', 'newsletter-recipient': the blog
+ *   newsletter's sign-ups per IP an hour (5), confirm emails a day site-wide
+ *   (NEWSLETTER_DAILY_LIMIT, default 10) and per address a day (2)
  * - 'game-player', 'game-ip': dino game events per player hash and per IP a minute (12, 60)
  * - 'ref-ip': short-link clicks counted per IP an hour (20)
  */
@@ -65,6 +73,9 @@ export type RateLimitScope =
   | 'waitlist-ip'
   | 'waitlist-global'
   | 'waitlist-recipient'
+  | 'newsletter-ip'
+  | 'newsletter-global'
+  | 'newsletter-recipient'
   | 'game-player'
   | 'game-ip'
   | 'ref-ip'
@@ -84,6 +95,10 @@ function positiveInt(value: string | undefined, fallback: number): number {
 
 function globalLimit(): number {
   return positiveInt(process.env.CONTACT_DAILY_LIMIT, DEFAULT_GLOBAL_LIMIT)
+}
+
+function newsletterDailyLimit(): number {
+  return positiveInt(process.env.NEWSLETTER_DAILY_LIMIT, DEFAULT_NEWSLETTER_DAILY_LIMIT)
 }
 
 function waitlistDailyLimit(): number {
@@ -194,6 +209,9 @@ function memoryLimiters(): Record<RateLimitScope, Limiter> {
     'waitlist-ip': new MemoryLimiter(WAITLIST_IP_LIMIT, IP_WINDOW_MS),
     'waitlist-global': new MemoryLimiter(waitlistDailyLimit(), GLOBAL_WINDOW_MS),
     'waitlist-recipient': new MemoryLimiter(WAITLIST_RECIPIENT_LIMIT, RECIPIENT_WINDOW_MS),
+    'newsletter-ip': new MemoryLimiter(NEWSLETTER_IP_LIMIT, IP_WINDOW_MS),
+    'newsletter-global': new MemoryLimiter(newsletterDailyLimit(), GLOBAL_WINDOW_MS),
+    'newsletter-recipient': new MemoryLimiter(NEWSLETTER_RECIPIENT_LIMIT, RECIPIENT_WINDOW_MS),
     'game-player': new MemoryLimiter(GAME_PLAYER_LIMIT, MINUTE_MS),
     'game-ip': new MemoryLimiter(GAME_IP_LIMIT, MINUTE_MS),
     'ref-ip': new MemoryLimiter(REF_IP_LIMIT, IP_WINDOW_MS),
@@ -214,6 +232,9 @@ function createLimiters(): Record<RateLimitScope, Limiter> {
       'waitlist-ip': new DurableObjectLimiter(counters, WAITLIST_IP_LIMIT, IP_WINDOW_MS, `${prefix}:waitlist-ip`),
       'waitlist-global': new DurableObjectLimiter(counters, waitlistDailyLimit(), GLOBAL_WINDOW_MS, `${prefix}:waitlist-global`),
       'waitlist-recipient': new DurableObjectLimiter(counters, WAITLIST_RECIPIENT_LIMIT, RECIPIENT_WINDOW_MS, `${prefix}:waitlist-recipient`),
+      'newsletter-ip': new DurableObjectLimiter(counters, NEWSLETTER_IP_LIMIT, IP_WINDOW_MS, `${prefix}:newsletter-ip`),
+      'newsletter-global': new DurableObjectLimiter(counters, newsletterDailyLimit(), GLOBAL_WINDOW_MS, `${prefix}:newsletter-global`),
+      'newsletter-recipient': new DurableObjectLimiter(counters, NEWSLETTER_RECIPIENT_LIMIT, RECIPIENT_WINDOW_MS, `${prefix}:newsletter-recipient`),
       'game-player': new DurableObjectLimiter(counters, GAME_PLAYER_LIMIT, MINUTE_MS, `${prefix}:game-player`),
       'game-ip': new DurableObjectLimiter(counters, GAME_IP_LIMIT, MINUTE_MS, `${prefix}:game-ip`),
       'ref-ip': new DurableObjectLimiter(counters, REF_IP_LIMIT, IP_WINDOW_MS, `${prefix}:ref-ip`),
@@ -230,6 +251,9 @@ function createLimiters(): Record<RateLimitScope, Limiter> {
     'waitlist-ip': unavailable,
     'waitlist-global': unavailable,
     'waitlist-recipient': unavailable,
+    'newsletter-ip': unavailable,
+    'newsletter-global': unavailable,
+    'newsletter-recipient': unavailable,
     'game-player': unavailable,
     'game-ip': unavailable,
     'ref-ip': unavailable,

@@ -249,6 +249,18 @@
         "public/email/**"
       ]
     },
+    "newsletter": {
+      "specs": ["tests/e2e/newsletter.spec.ts", "tests/e2e/api/newsletter.spec.ts"],
+      "sources": [
+        "app/newsletter/**",
+        "app/api/newsletter/**",
+        "app/api/test/**",
+        "components/blog/NewsletterSignup.tsx",
+        "components/blog/NewsletterLinkAction.tsx",
+        "lib/newsletter/posts.ts",
+        "migrations/waitlist/**"
+      ]
+    },
     "consent": {
       "specs": ["tests/e2e/consent.spec.ts"],
       "sources": ["components/consent/**", "components/WebAnalytics.tsx", "lib/consent.ts", "lib/analytics.ts"]

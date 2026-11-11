@@ -23,6 +23,8 @@ The site runs on Cloudflare Workers as the `n8builds-web` Worker in the owner's 
 - Email (contact form, quote requests, waitlist links) goes through the shared mailroom Worker ([n8watkins/mailroom](https://github.com/n8watkins/mailroom)) over the `MAILROOM` service binding, as the app `n8builds-web`, from contact@n8builds.dev (`lib/email/send.ts`).
   mailroom caps every send (this app's slice, and the account-wide 2,500 a month under the 3,000 Workers Paid includes) and fails closed: a refused send shows the form's usual error and is never retried.
   mailroom sends with Cloudflare Email Service; the Worker has no `send_email` binding of its own.
+- The blog newsletter sends through mailroom too, as the app `n8builds-news` (`MAILROOM_NEWS`), from news@n8builds.dev (`lib/newsletter/`).
+  The weekly cron (`0 16 * * 4`) sends the digest and the daily one (`30 3 * * *`) finishes one that paused; `docs/DATABASE.md` has the rules.
   n8builds.dev is onboarded for sending; Cloudflare added its records on `cf-bounce.n8builds.dev` and the DKIM key itself.
 - Cloudflare Web Analytics replaces Vercel Analytics and Speed Insights (`components/WebAnalytics.tsx`), once `NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN` is set at build time.
 - `APP_ENV=production` (a `wrangler.jsonc` var) replaces `VERCEL_ENV`: it keeps production's rate-limit counter names and switches off the test modes.

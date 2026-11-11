@@ -60,7 +60,10 @@
     // Contact form, quote request and waitlist emails (lib/email/send.ts), from
     // contact@n8builds.dev through the shared mailroom Worker
     // (n8watkins/mailroom), which caps every send and fails closed.
-    { "binding": "MAILROOM", "service": "mailroom", "entrypoint": "Mailroom", "props": { "app": "n8builds-web" } }
+    { "binding": "MAILROOM", "service": "mailroom", "entrypoint": "Mailroom", "props": { "app": "n8builds-web" } },
+    // The blog newsletter (lib/newsletter/), from news@n8builds.dev, as its own
+    // mailroom app with its own caps: 40 a day, 150 a month, 3 per address a day.
+    { "binding": "MAILROOM_NEWS", "service": "mailroom", "entrypoint": "Mailroom", "props": { "app": "n8builds-news" } }
   ],
   // The edge flood limit on the contact form (worker/index.js): 10 posts a
   // minute per IP, before Next runs. The app's own limits (5 an hour per IP,
@@ -85,8 +88,10 @@
       "migrations_dir": "migrations/analytics"
     }
   ],
-  // The daily cleanup of expired rows in both databases (worker/index.js, lib/retention.ts).
-  "triggers": { "crons": ["30 3 * * *"] },
+  // worker/index.js: every day, the cleanup of expired rows in both databases
+  // (lib/retention.ts) and the rest of an unfinished newsletter digest; every
+  // Thursday at 16:00 UTC, the weekly digest (lib/newsletter/digest.ts).
+  "triggers": { "crons": ["30 3 * * *", "0 16 * * 4"] },
   "vars": {
     // Replaces VERCEL_ENV: "production" here; unset locally and in tests.
     "APP_ENV": "production",
