@@ -70,15 +70,19 @@ test.describe('at 1440px', () => {
     await openHome(page)
     await place(page, 'tools-i-built', 400)
     await expect(rail(page).locator('[aria-current]')).toHaveAccessibleName("Tools I've built")
+    // Each copy's animation starts on its own beat; the page's clock (PartIconClock) re-times it
+    // to the document's origin when its `animationstart` fires, which comes after the animation's
+    // 0.2s delay, later on a busy machine. So wait for that state, not for a time: both copies
+    // running and both re-timed (startTime 0). Their phases are read in one evaluate, one instant.
     const beats = () =>
-      page.evaluate(() =>
-        [...document.querySelectorAll('.part-icon-hammer .hammer-head')]
+      page.evaluate(() => {
+        const running = [...document.querySelectorAll('.part-icon-hammer .hammer-head')]
           .flatMap((g) => g.getAnimations())
           .filter((a) => a.playState === 'running')
-          .map((a) => Math.round(Number(a.currentTime) % 2400)),
-      )
-    await expect.poll(async () => (await beats()).length).toBe(2)
-    const [a, b] = await beats()
+        return { retimed: running.length === 2 && running.every((a) => a.startTime === 0), phases: running.map((a) => Math.round(Number(a.currentTime) % 2400)) }
+      })
+    await expect.poll(async () => (await beats()).retimed, { message: 'both hammers running and on the page clock' }).toBe(true)
+    const [a, b] = (await beats()).phases
     // Apart on the 2.4s loop, either way round: 2399 and 3 are 4ms apart, not 2396.
     const apart = Math.abs(a - b)
     expect(Math.min(apart, 2400 - apart)).toBeLessThan(50)
