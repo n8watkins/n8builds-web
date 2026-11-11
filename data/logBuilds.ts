@@ -28,16 +28,6 @@ export type LogBuild = Pick<Build, 'slug' | 'name' | 'tagline' | 'category' | 'c
  */
 export const logOnlyBuilds: LogBuild[] = [
   {
-    slug: 'relink',
-    name: 'Relink',
-    tagline: 'Turns broken links into the right page',
-    category: 'Upcoming',
-    color: 'from-orange-500/20 to-amber-600/20',
-    github: 'https://github.com/n8watkins/deadlink',
-    repo: 'n8watkins/deadlink',
-    href: '/upcoming#relink',
-  },
-  {
     slug: 'strollz',
     name: 'Strollz',
     tagline: 'Walk the streets you have never walked',

@@ -49,7 +49,6 @@ test('the build log leads with the builds, most recently active first', { tag: '
     'release-kit',
     // The developer portfolio's page (round 12 of 2026-11-09): nothing logged in the fixture either.
     'portfolio',
-    'relink',
     'strollz',
     'keysready',
     'feelium',
@@ -63,9 +62,9 @@ test('the build log leads with the builds, most recently active first', { tag: '
     'pr-post',
   ])
   // A project with nothing logged yet is a quiet card that links where the site shows it.
-  const relink = cards.and(page.locator('[data-build="relink"]'))
-  await expect(relink).toContainText('Nothing logged yet')
-  await expect(relink.getByRole('link', { name: 'Full story of Relink' })).toHaveAttribute('href', '/upcoming#relink')
+  const strollz = cards.and(page.locator('[data-build="strollz"]'))
+  await expect(strollz).toContainText('Nothing logged yet')
+  await expect(strollz.getByRole('link', { name: 'Full story of Strollz' })).toHaveAttribute('href', '/upcoming#strollz')
   await expect(cards.and(page.locator('[data-build="pr-post"]')).getByRole('link', { name: 'Full story of PR Post' })).toHaveAttribute('href', '/#pr-post-edition')
   await expect(cards.first()).toContainText('Last shipped Oct 2026')
   // Quiet builds read as finished, not abandoned.

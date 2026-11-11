@@ -107,7 +107,7 @@ Every column has a `CHECK` on its length, so nothing bigger than the form allows
 | Column | Type | Notes |
 | --- | --- | --- |
 | `subscriber_id` | `TEXT NOT NULL` | references `waitlist_subscribers(id) ON DELETE CASCADE` |
-| `project` | `TEXT NOT NULL` | a slug from `data/upcoming.ts` (relink, strollz, vibelog, keysready, asset-arsenal, feelium) |
+| `project` | `TEXT NOT NULL` | a slug from `data/upcoming.ts` (strollz, vibelog, keysready, asset-arsenal, feelium) |
 | `status` | `TEXT NOT NULL` | `CHECK (status IN ('requested', 'confirmed'))` |
 | `requested_at` | `TEXT NOT NULL` | ISO 8601 |
 | `confirmed_at` | `TEXT` | ISO 8601, null while requested |

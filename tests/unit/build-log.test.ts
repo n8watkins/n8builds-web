@@ -343,13 +343,13 @@ describe('merging, sorting and the builds index', () => {
   it('shows a followed repo with no commits or releases yet as a quiet card, and links it where the site shows it', () => {
     // The upcoming projects and my tools were adopting release-kit (round 5 of 2026-11-02): some had nothing yet.
     const empty = (repo: string) => ({ repo, pushedAt: null, releases: [], commits: [] })
-    const relink = allBuilds.find((b) => b.slug === 'relink')!
-    const quiet = assembleLog([...builds, relink], [...snapshots, empty('n8watkins/deadlink')], highlights)
-    const card = quiet.activity.find((a) => a.slug === 'relink')!
-    expect(card).toMatchObject({ href: '/upcoming#relink', lastShipped: null, lastShippedLabel: null, latest: [] })
+    const strollz = allBuilds.find((b) => b.slug === 'strollz')!
+    const quiet = assembleLog([...builds, strollz], [...snapshots, empty('n8watkins/strollz')], highlights)
+    const card = quiet.activity.find((a) => a.slug === 'strollz')!
+    expect(card).toMatchObject({ href: '/upcoming#strollz', lastShipped: null, lastShippedLabel: null, latest: [] })
     // After every build that has shipped something.
-    expect(quiet.activity.at(-1)?.slug).toBe('relink')
-    expect(quiet.entries.some((e) => e.build === 'relink')).toBe(false)
+    expect(quiet.activity.at(-1)?.slug).toBe('strollz')
+    expect(quiet.entries.some((e) => e.build === 'strollz')).toBe(false)
     // A build page's card still links its page.
     expect(quiet.activity.find((a) => a.slug === 'scribe')?.href).toBe('/builds/scribe')
   })

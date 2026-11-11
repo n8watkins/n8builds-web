@@ -8,8 +8,7 @@
  * The slugs are a public contract: the projects' landing pages link to
  * `https://n8builds.dev/upcoming?interest=<slug>#<slug>`, so never rename one;
  * a renamed project keeps its old interest value working (INTEREST_ALIASES).
- * Copy comes from each project's own docs (Relink's in ~/projects/deadlink,
- * Strollz's in ~/projects/strollz, VibeLog's README and docs/VISION.md in
+ * Copy comes from each project's own docs (Strollz's in ~/projects/strollz, VibeLog's README and docs/VISION.md in
  * ~/projects/polish/vibelog, KeysReady's from the owner and its landing page,
  * Asset Arsenal's docs/SKINS_CONCEPT.md in ~/projects/asset-arsenal, Feelium's
  * README and docs/PRD.md in ~/projects/feelium, Cutely Ask Me's README and
@@ -19,7 +18,6 @@
  */
 
 export const UPCOMING_SLUGS = [
-  'relink',
   'strollz',
   'vibelog',
   'keysready',
@@ -93,32 +91,6 @@ export type UpcomingProject = {
 
 /** In group order (UPCOMING_GROUPS), so /upcoming and the waitlist's picks read like the homepage. */
 export const UPCOMING: UpcomingProject[] = [
-  {
-    slug: 'relink',
-    name: 'Relink',
-    nameNote: 'working name',
-    oldIds: ['rewire'],
-    tagline: 'Turns broken links into the right page',
-    short: 'Sends broken links to the right page',
-    group: 'business',
-    summary:
-      'When a visitor follows a broken link to your website, it sends them to the page they meant instead of an error page.',
-    icon: '/upcoming/relink.svg',
-    landing: 'https://relink.n8builds.dev',
-    status: 'in-development',
-    shot: '/upcoming/shots/relink.webp',
-    repo: 'n8watkins/deadlink',
-    accent: '#ff8a4c',
-    what: "A Cloudflare edge Worker catches broken links the moment a visitor hits them, matches each one to the right page using your site's own content, and turns the fix into a permanent redirect with one click.",
-    forWho:
-      'Developers and indie site owners on Cloudflare, agencies rebuilding client sites, and blogs and docs whose URLs keep moving.',
-    points: [
-      'Catches a 404 at the edge, before the visitor sees an error page',
-      "Matches the missing URL to the right page from your site's own content",
-      "Unsure matches get a 'did you mean' page that stays an honest 404",
-      'Open source: self-host it free on your own Cloudflare first, hosted plans later',
-    ],
-  },
   {
     slug: 'keysready',
     name: 'KeysReady',
@@ -335,7 +307,7 @@ export const UPCOMING: UpcomingProject[] = [
 ]
 
 /** Old interest values from renamed projects, so links already out there keep working. */
-export const INTEREST_ALIASES: Record<string, UpcomingSlug> = { rewire: 'relink' }
+export const INTEREST_ALIASES: Record<string, UpcomingSlug> = {}
 
 export const isUpcomingSlug = (value: unknown): value is UpcomingSlug =>
   typeof value === 'string' && (UPCOMING_SLUGS as readonly string[]).includes(value)

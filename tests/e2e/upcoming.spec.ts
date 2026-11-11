@@ -54,7 +54,7 @@ test('shows each project with its own anchor, and is titled for the site', { tag
   for (const [id, status] of [
     ['feelium', 'Try it now'],
     ['vibelog', 'Early access'],
-    ['relink', 'In development'],
+    ['keysready', 'In development'],
     ['asset-arsenal', 'Concept'],
   ]) {
     await expect(page.locator(`article#${id} [data-status]`)).toHaveText(status)
@@ -89,27 +89,29 @@ test('lays the teaser cards out two by two (beside the waitlist on wide screens)
 test('a landing page link preselects its project and lands on its card', { tag: '@cross-browser' }, async ({ page }) => {
   await page.goto('/upcoming?interest=strollz#strollz')
   await expect(project(page, 'Strollz')).toBeChecked()
-  await expect(project(page, 'Relink')).not.toBeChecked()
+  await expect(project(page, 'KeysReady')).not.toBeChecked()
   await expect(page.locator('article#strollz')).toBeInViewport()
 })
 
-test("links from before Relink's rename still preselect it", async ({ page }) => {
-  await page.goto('/upcoming?interest=rewire#rewire')
-  await expect(project(page, 'Relink')).toBeChecked()
-  await expect(page.locator('article#relink')).toBeInViewport()
+test('an unknown interest value is ignored and the page shows normally', async ({ page }) => {
+  await page.goto('/upcoming?interest=relink#relink')
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  await expect(page.locator('article')).toHaveCount(Object.keys(NAMES).length)
+  await expect(page.locator('#waitlist-projects input:checked')).toHaveCount(0)
+  await expect(page.locator('main')).not.toContainText('Relink')
 })
 
 test("a card's Join button ticks its project and brings the form into view", { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
   await page.goto('/upcoming')
   // Hydrated first: before that the link only jumps to the form, without ticking.
   await waitForForm(page)
-  await page.locator('article#relink').getByRole('link', { name: 'Join the waitlist for Relink' }).click()
-  await expect(project(page, 'Relink')).toBeChecked()
+  await page.locator('article#keysready').getByRole('link', { name: 'Join the waitlist for KeysReady' }).click()
+  await expect(project(page, 'KeysReady')).toBeChecked()
   await expect(page.getByRole('textbox', { name: 'Email' })).toBeInViewport()
 })
 
 test('a visitor can join the waitlist', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
-  await page.goto('/upcoming?interest=relink#relink', { waitUntil: 'domcontentloaded' })
+  await page.goto('/upcoming?interest=keysready#keysready', { waitUntil: 'domcontentloaded' })
   await waitForForm(page)
   await page.getByRole('textbox', { name: 'Email' }).fill(uniqueEmail())
   await waitForTurnstileToken(page)
@@ -121,7 +123,7 @@ test('a visitor can join the waitlist', { tag: ['@cross-browser', '@smoke'] }, a
   const request = page.waitForRequest('/api/waitlist')
   await page.getByRole('button', { name: 'Join the waitlist' }).click()
   const body = (await request).postDataJSON()
-  expect(body).toMatchObject({ projects: ['relink', 'strollz'], source: { interest: 'relink' }, honeypot: '' })
+  expect(body).toMatchObject({ projects: ['keysready', 'strollz'], source: { interest: 'keysready' }, honeypot: '' })
   expect(body).not.toHaveProperty('note')
 
   await expect(page.getByRole('heading', { name: 'Check your inbox' })).toBeVisible({ timeout: SEND_TIMEOUT })
@@ -191,7 +193,7 @@ test('asks for a project and a valid email before sending anything', { tag: ['@c
 })
 
 test('shows the server error when the waitlist is unavailable', async ({ page }) => {
-  await page.goto('/upcoming?interest=relink')
+  await page.goto('/upcoming?interest=keysready')
   await page.route('/api/waitlist', (route) =>
     route.fulfill({ status: 503, json: { error: 'The waitlist is having trouble right now.', type: 'unavailable' } })
   )
@@ -215,7 +217,7 @@ test('Turnstile runs only once the visitor starts on a form', async ({ page }) =
   expect(challenge).toEqual([])
 
   // A pick from a card's Join button is intent too.
-  await page.locator('article#relink').getByRole('link', { name: 'Join the waitlist for Relink' }).click()
+  await page.locator('article#keysready').getByRole('link', { name: 'Join the waitlist for KeysReady' }).click()
   await waitForTurnstileToken(page)
   expect(challenge.length).toBeGreaterThan(0)
 })
@@ -264,7 +266,6 @@ test('is linked from the footer, and the privacy page explains the waitlist', as
 
 /** Every project, in group order, and its landing page. */
 const LANDING: Record<string, string> = {
-  relink: 'https://relink.n8builds.dev',
   keysready: 'https://keysready.n8builds.dev',
   strollz: 'https://strollz.n8builds.dev',
   feelium: 'https://feelium.n8builds.dev',
@@ -276,7 +277,6 @@ const LANDING: Record<string, string> = {
   'asset-arsenal': 'https://assetarsenal.n8builds.dev',
 }
 const NAMES: Record<string, string> = {
-  relink: 'Relink',
   keysready: 'KeysReady',
   strollz: 'Strollz',
   feelium: 'Feelium',
@@ -289,17 +289,16 @@ const NAMES: Record<string, string> = {
 }
 /** The homepage's groups (data/upcoming.ts), in order, with their projects. */
 const GROUPS: [string, string[]][] = [
-  ['For businesses', ['relink', 'keysready']],
+  ['For businesses', ['keysready']],
   ['For everyday life', ['strollz', 'feelium', 'cutelyaskme', 'fitflow7', 'pivot', 'whoami']],
   ['For developers & creators', ['vibelog', 'asset-arsenal']],
 ]
 
 /**
  * Only public repositories get a GitHub button on
- * the homepage (checked 2026-11-09: all public but Asset Arsenal; Relink's repo is still deadlink).
+ * the homepage (checked 2026-11-09: all public but Asset Arsenal).
  */
 const CODE: Record<string, string | undefined> = {
-  relink: 'https://github.com/n8watkins/deadlink',
   strollz: 'https://github.com/n8watkins/strollz',
   vibelog: 'https://github.com/n8watkins/vibelog',
   keysready: 'https://github.com/n8watkins/keysready',
@@ -327,9 +326,9 @@ test('each card has two actions: Check it out (its landing page), then the waitl
   }
 })
 
-test("Relink's card says plainly what it does", async ({ page }) => {
+test("KeysReady's card says plainly what it does", async ({ page }) => {
   await page.goto('/upcoming')
-  await expect(page.locator('article#relink')).toContainText('Turns broken links into the right page')
+  await expect(page.locator('article#keysready')).toContainText('Stop answering')
 })
 
 test("the homepage Lab ends with a compact What's cookin' part: projects grouped by who they are for, and the waitlist in a modal", async ({ page }) => {
@@ -414,7 +413,7 @@ test('a landing page link to the homepage opens the waitlist there and ticks its
   await expect(form).toBeVisible()
   await expect(form).toBeInViewport()
   await expect(form.locator('input[value="strollz"]')).toBeChecked()
-  await expect(form.locator('input[value="relink"]')).not.toBeChecked()
+  await expect(form.locator('input[value="keysready"]')).not.toBeChecked()
 })
 
 for (const [width, height] of [
@@ -477,7 +476,7 @@ test('on a wide screen the waitlist stays beside the cards as you read, and Join
   const waitlist = page.locator('#waitlist')
   await expect(waitlist).toHaveCount(1)
   await expect(waitlist.getByRole('checkbox', { name: /Strollz/ })).toBeChecked()
-  const cards = (await page.locator('#relink').boundingBox())!
+  const cards = (await page.locator('#keysready').boundingBox())!
   const form = (await waitlist.boundingBox())!
   expect(form.x, 'beside the cards').toBeGreaterThan(cards.x + cards.width)
   // Still in view far down the page.

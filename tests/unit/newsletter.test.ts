@@ -95,7 +95,7 @@ describe('NewsletterStore: double opt-in', () => {
   it('unsubscribing deletes the row, pending or confirmed, and never touches the waitlist', async () => {
     const { store } = clock()
     const waitlist = new WaitlistStore(dbs.waitlist, () => T0)
-    await waitlist.join({ email: 'reader@example.com', projects: ['relink'], note: '', interest: '', referrer: '' })
+    await waitlist.join({ email: 'reader@example.com', projects: ['keysready'], note: '', interest: '', referrer: '' })
     const subscriber = await confirmed(store, 'reader@example.com')
     const pending = await store.subscribe('other@example.com')
 

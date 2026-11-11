@@ -12,7 +12,7 @@ import { pageMetadata } from '@/lib/seo'
 export const metadata = pageMetadata({
   title: 'Upcoming | n8builds',
   description:
-    "What I'm building in public: Relink and KeysReady for small businesses; Strollz, Feelium, Cutely Ask Me, FitFlow 7, Pivot and Who Am I? for everyday life; VibeLog and Asset Arsenal for developers and creators. Each has a landing page; join a waitlist to hear what's next.",
+    "What I'm building in public: KeysReady for small businesses; Strollz, Feelium, Cutely Ask Me, FitFlow 7, Pivot and Who Am I? for everyday life; VibeLog and Asset Arsenal for developers and creators. Each has a landing page; join a waitlist to hear what's next.",
   shareDescription:
     "What I'm building in public, from walking loops and a 7-minute workout timer to tools for auto shops and coding streams. Join a waitlist to hear what's next.",
   path: '/upcoming',

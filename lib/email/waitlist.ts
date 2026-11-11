@@ -18,7 +18,7 @@ export const leaveUrl = (token: string) => `${EMAIL_CONFIG.siteUrl}/upcoming/lea
 
 const names = (slugs: UpcomingSlug[]) => UPCOMING.filter((p) => slugs.includes(p.slug)).map((p) => p.name)
 
-/** "Relink", "Relink and Strollz". */
+/** "Strollz", "KeysReady and Strollz". */
 export const projectList = (slugs: UpcomingSlug[]) => {
   const list = names(slugs)
   return list.length > 1 ? `${list.slice(0, -1).join(', ')} and ${list.at(-1)}` : (list[0] ?? '')

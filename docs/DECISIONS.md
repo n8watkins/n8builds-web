@@ -601,3 +601,7 @@ Where these conflict with an older entry above, these win; the older entries are
   Double opt-in with a single-use confirm link that expires in 7 days; unconfirmed addresses are deleted after that, and new and existing addresses get the same answer.
   Every email has a one-click unsubscribe link and List-Unsubscribe headers; unsubscribing needs no login and deletes the address.
   One weekly digest, only in weeks with a new post, inside mailroom's slice (40 a day, 150 a month, 3 per address a day): a week that would pass it is skipped with a note for the owner (`docs/DATABASE.md`).
+- **Relink is retired** (owner, 2026-11-11): the project is killed, so it is gone from /upcoming, the homepage, both waitlist forms, the build log and the tests, with its mark and screenshot removed.
+  Nobody was on its waitlist.
+  `?interest=relink` and `?interest=rewire` are now unknown values: the page shows normally and ignores them, and the waitlist API stores no interest.
+  Earlier entries above that mention Relink are history.
