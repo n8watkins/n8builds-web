@@ -1,7 +1,7 @@
 import { LINKEDIN_URL } from '@/lib/links'
 // Public-facing address shown in emails and used as the From identity. It
-// sends through Cloudflare Email Service (lib/email/send.ts), which signs mail
-// for n8builds.dev; receiving needs the Cloudflare Email Routing rule
+// sends through mailroom on Cloudflare Email Service (lib/email/send.ts), which
+// signs mail for n8builds.dev; receiving needs the Cloudflare Email Routing rule
 // contact@ → Gmail.
 const publicEmail = process.env.CONTACT_EMAIL_FROM || 'contact@n8builds.dev'
 

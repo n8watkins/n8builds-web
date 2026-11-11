@@ -92,7 +92,7 @@ export const FEATURES: Feature[] = [
       'Each message is checked: a Zod schema, a honeypot field and a Turnstile token issued for this site.',
       'Rate limits in Durable Objects: five messages an hour per visitor, and a daily cap for the whole site.',
       'If Turnstile or the limits can\'t be reached, it refuses and shows the email address instead: it fails closed.',
-      'Messages go out through Cloudflare Email Service, from contact@n8builds.dev.',
+      'Messages go out from contact@n8builds.dev through mailroom, a shared Worker that caps every app\'s email on Cloudflare Email Service.',
     ],
   },
   {

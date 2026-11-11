@@ -7,15 +7,22 @@ import { logger } from '@/lib/logger'
 
 /**
  * Every email the site sends (contact notifications and auto-replies, quote
- * requests, waitlist links) goes through Cloudflare Email Service's Workers
- * binding (`send_email` in wrangler.jsonc), from contact@n8builds.dev.
- * The domain is onboarded for sending, so Cloudflare signs the mail (DKIM)
- * and no API key is involved.
+ * requests, waitlist links) goes through the shared mailroom Worker
+ * (n8watkins/mailroom) over the `MAILROOM` service binding in wrangler.jsonc,
+ * as the app `n8builds-web`, from contact@n8builds.dev. mailroom counts every
+ * send against this app's caps and the account-wide monthly cap, so the
+ * account never sends past the emails Workers Paid includes. A send it
+ * refuses (a cap, the rate limit, a suppressed address) is a failure here and
+ * is never retried.
  */
 
 export type EmailImage = keyof typeof EMAIL_ICONS
 
+/** The kinds mailroom allows the n8builds-web app to send. */
+export type EmailKind = 'contact-notice' | 'contact-reply' | 'quote-notice' | 'quote-reply' | 'waitlist'
+
 export interface Email {
+  kind: EmailKind
   to: string
   replyTo: string
   subject: string
@@ -25,15 +32,20 @@ export interface Email {
   images: EmailImage[]
 }
 
-/** The part of the `send_email` binding this file uses. */
-interface EmailBinding {
-  send(message: {
+type MailroomResult =
+  | { ok: true; messageId: string; duplicate?: boolean }
+  | { ok: false; code: string; retryable: boolean; message: string }
+
+/** The part of mailroom's `Mailroom` entrypoint this file uses (its src/types.ts). */
+interface MailroomBinding {
+  send(request: {
+    kind: EmailKind
     to: string
-    from: { email: string; name: string }
-    replyTo: string
     subject: string
-    html: string
     text: string
+    html: string
+    fromName: string
+    replyTo: string
     attachments: {
       content: ArrayBuffer
       filename: string
@@ -41,20 +53,29 @@ interface EmailBinding {
       disposition: 'inline'
       contentId: string
     }[]
-  }): Promise<{ messageId: string }>
+    key: string
+  }): Promise<MailroomResult>
 }
 
-function binding(): EmailBinding {
-  let email: EmailBinding | undefined
+/** mailroom refused the send (`code`: cap_app_day, rate_limited, suppressed, ...). */
+export class EmailRefusedError extends Error {
+  constructor(readonly code: string) {
+    super(`mailroom refused the email: ${code}`)
+    this.name = 'EmailRefusedError'
+  }
+}
+
+function binding(): MailroomBinding {
+  let mailroom: MailroomBinding | undefined
   try {
-    email = getCloudflareContext().env.EMAIL as EmailBinding | undefined
+    mailroom = (getCloudflareContext().env as { MAILROOM?: MailroomBinding }).MAILROOM
   } catch {
     // Not running on Workers (next dev, next start).
   }
-  if (!email) {
-    throw new Error('The EMAIL binding is missing: email sends only on Cloudflare (or set CONTACT_TEST_MODE=1)')
+  if (!mailroom) {
+    throw new Error('The MAILROOM binding is missing: email sends only on Cloudflare (or set CONTACT_TEST_MODE=1)')
   }
-  return email
+  return mailroom
 }
 
 function icon(name: EmailImage) {
@@ -68,7 +89,10 @@ function icon(name: EmailImage) {
   }
 }
 
-/** Sends one email and returns its message ID; throws when it can't be sent. */
+/**
+ * Sends one email and returns its message ID; throws when it can't be sent,
+ * including when mailroom refuses it (EmailRefusedError). Never retries.
+ */
 export async function sendEmail(email: Email): Promise<string> {
   // Test runs send nothing: the message waits in the test outbox instead.
   if (isContactTestMode()) {
@@ -76,15 +100,22 @@ export async function sendEmail(email: Email): Promise<string> {
     return `test-${crypto.randomUUID()}`
   }
 
-  const { messageId } = await binding().send({
+  const result = await binding().send({
+    kind: email.kind,
     to: email.to,
-    from: { email: EMAIL_CONFIG.from, name: EMAIL_CONFIG.fromName },
-    replyTo: email.replyTo,
     subject: email.subject,
-    html: email.html,
     text: email.text,
+    html: email.html,
+    fromName: EMAIL_CONFIG.fromName,
+    replyTo: email.replyTo,
     attachments: email.images.map(icon),
+    // One key per message: the same message never goes out twice.
+    key: `${email.kind}-${crypto.randomUUID()}`,
   })
-  logger.info('   Message ID:', messageId)
-  return messageId
+  if (!result.ok) {
+    logger.warn(`mailroom refused a ${email.kind} email: ${result.code}`)
+    throw new EmailRefusedError(result.code)
+  }
+  logger.info('   Message ID:', result.messageId)
+  return result.messageId
 }

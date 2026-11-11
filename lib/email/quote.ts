@@ -86,6 +86,7 @@ export async function sendQuoteEmail(email: string, { country }: { country?: str
   try {
     const receivedAt = new Date()
     const notificationId = await sendEmail({
+      kind: 'quote-notice',
       to: EMAIL_CONFIG.to,
       replyTo: email,
       subject: quoteSubject(email),

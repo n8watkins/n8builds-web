@@ -229,7 +229,7 @@ Every free check runs before the first rate-limit counter, so requests without a
   After 15s it explains the failure (often an ad or privacy blocker).
   Server error messages are shown to the visitor.
   The success confetti is lazily loaded and has its own error boundary: if its chunk fails, the confetti is dropped and the success message stays.
-- **Emails** (`lib/email/`): Cloudflare Email Service's `send_email` binding, from contact@n8builds.dev (`lib/email/send.ts`, see `DEPLOY.md`).
+- **Emails** (`lib/email/`): the shared mailroom Worker's `MAILROOM` service binding (app `n8builds-web`), from contact@n8builds.dev (`lib/email/send.ts`, see `DEPLOY.md`). A refused send is a failure, never retried.
   Notifications go straight to the Gmail inbox (`CONTACT_EMAIL_TO`), never to contact@n8builds.dev, which forwards back to the same Gmail and gets deduped.
   All user input is HTML-escaped exactly once at template time.
   Regenerate the signature icons with `node scripts/gen-email-icons.mjs`.
@@ -306,7 +306,7 @@ The owner's standing decisions live in [DECISIONS.md](DECISIONS.md), the one pla
   The files are cached forever, so bump `COVER_VERSION` whenever the drawing changes.
 - `data/`: `builds.tsx` (source of truth), `shelves.ts`, `loadout.tsx`, `stack.tsx` (shared with the portfolio), `buildStacks.tsx`, `techStack.tsx`, `projects.tsx`.
 - `lib/security/`: `rateLimiter.ts`, `turnstile.ts` (server check), `turnstileGate.ts` (when a form runs its challenge), `validation.ts`, `testMode.ts`.
-- `lib/email/`: `config.ts` (`EMAIL_CONFIG`), `send.ts` (Cloudflare Email Service), `sender.ts`, `templates.ts`, `icons.ts` (generated).
+- `lib/email/`: `config.ts` (`EMAIL_CONFIG`), `send.ts` (mailroom), `sender.ts`, `templates.ts`, `icons.ts` (generated).
 - `lib/seo.ts`: `pageMetadata()`, `summarize()`, JSON-LD builders; `lib/og-card.tsx`: share-card renderer.
 - `lib/build-log.ts`, `components/log/`, `app/builds/page.tsx`, `app/builds/og.png/`: the build log; `scripts/check-build-repos.mjs` (nightly repo check) and `scripts/build-log-fixture.mjs` (records the test fixture).
 - `next.config.mjs`: redirects (permanent 308s for retired routes), image sources, Sentry wrapper; headers come from `lib/security/headers.mjs` (enforced CSP: add any new third-party origin there).

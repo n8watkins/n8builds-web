@@ -40,8 +40,14 @@
     { "tag": "v2", "new_sqlite_classes": ["RateLimitCounter"] },
     { "tag": "v3", "new_sqlite_classes": ["DOShardedTagCache"] }
   ],
-  // The revalidation queue renders pages again by calling the worker itself.
-  "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "n8builds-web" }],
+  "services": [
+    // The revalidation queue renders pages again by calling the worker itself.
+    { "binding": "WORKER_SELF_REFERENCE", "service": "n8builds-web" },
+    // Contact form, quote request and waitlist emails (lib/email/send.ts), from
+    // contact@n8builds.dev through the shared mailroom Worker
+    // (n8watkins/mailroom), which caps every send and fails closed.
+    { "binding": "MAILROOM", "service": "mailroom", "entrypoint": "Mailroom", "props": { "app": "n8builds-web" } }
+  ],
   // The edge flood limit on the contact form (worker/index.js): 10 posts a
   // minute per IP, before Next runs. The app's own limits (5 an hour per IP,
   // lib/security/rateLimiter.ts) come after it.
@@ -67,8 +73,6 @@
   ],
   // The daily cleanup of expired rows in both databases (worker/index.js, lib/retention.ts).
   "triggers": { "crons": ["30 3 * * *"] },
-  // Contact form, quote request and waitlist emails (lib/email/send.ts).
-  "send_email": [{ "name": "EMAIL" }],
   "vars": {
     // Replaces VERCEL_ENV: "production" here; unset locally and in tests.
     "APP_ENV": "production",
