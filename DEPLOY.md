@@ -8,12 +8,18 @@ The site runs on Cloudflare Workers as the `n8builds-web` Worker in the owner's 
 - `npm run build:worker` runs `next build` (Turbopack) and turns its output into `.open-next/`: the server bundle (`.open-next/worker.js`) and the static assets (`.open-next/assets`).
 - `worker/index.js` is the Worker's entry point (`main` in `wrangler.jsonc`).
   It wraps the OpenNext handler with Sentry (`withSentry`), answers byte-range requests for the videos (`worker/range.js`, which Safari needs to play them), and sends browsers `max-age=0, must-revalidate` for pages instead of Next's CDN `s-maxage`.
+- `keep_names` is off in `wrangler.jsonc`: esbuild's `__name()` wrapper would leak into next-themes' inline theme script and throw `__name is not defined` on every page the Worker renders.
+  `npm run check:deploy` (CI) fails if the bundle calls `__name(` again, and the deploy workflow then loads the live home page and fails on any console error.
 - Files in `public/` and `/_next/static` are served straight from Workers static assets, without the worker.
   `public/_headers` gives them HSTS and the basic security headers, and makes `/_next/static` immutable.
   Pages and API routes get the full set (CSP included) from `lib/security/headers.mjs`.
 - `next/image` resizes through the Cloudflare Images binding (`IMAGES`).
 - ISR (`export const revalidate`, revalidated fetches) is kept in the R2 bucket `n8builds-web-opennext-cache`, with a regional Cache API layer and a Durable Object queue (`DOQueueHandler`) for background revalidation (`open-next.config.ts`).
   A Durable Object tag cache (`DOShardedTagCache`) tracks the site's own cache tags, so publishing in Sanity refreshes the blog at once ([docs/SANITY.md](docs/SANITY.md)).
+- In front of that, Workers Cache keeps every page Next marks the same for everyone (ISR, static, the image optimizer's answers) at the edge, so a repeat view costs no CPU time (`worker/edge-cache.js`).
+  The default entrypoint runs on every request and sends only cacheable ones to the cached `CachedPages` entrypoint; drafts, form posts, videos, www and workers.dev never touch the cache.
+  A response shows `cf-cache-status: HIT` when it came from there; a Sanity publish empties it, and each deploy starts with an empty one.
+- `/healthz` answers `ok` from the Worker before Next runs: it is the URL for uptime checks (OpenPing, Sentry).
 - Email (contact form, quote requests, waitlist links) goes through the shared mailroom Worker ([n8watkins/mailroom](https://github.com/n8watkins/mailroom)) over the `MAILROOM` service binding, as the app `n8builds-web`, from contact@n8builds.dev (`lib/email/send.ts`).
   mailroom caps every send (this app's slice, and the account-wide 2,500 a month under the 3,000 Workers Paid includes) and fails closed: a refused send shows the form's usual error and is never retried.
   mailroom sends with Cloudflare Email Service; the Worker has no `send_email` binding of its own.

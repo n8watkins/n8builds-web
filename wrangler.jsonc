@@ -9,6 +9,11 @@
   // nodejs_compat is required by OpenNext; global_fetch_strictly_public keeps
   // the server's own fetches (GitHub, Sanity) on the public internet.
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  // No esbuild keepNames: it wraps functions in __name(), and a function that
+  // is turned into an inline script with toString() (next-themes' theme
+  // script) then throws "__name is not defined" in the browser.
+  // scripts/check-worker-bundle.mjs fails the build if __name( comes back.
+  "keep_names": false,
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS",
@@ -17,6 +22,15 @@
     // videos itself (worker/range.js). Everything else in public/ and
     // /_next/static is served straight from the assets.
     "run_worker_first": ["/*.mp4", "/*.webm"]
+  },
+  // Workers Cache (worker/edge-cache.js): Cloudflare's cache sits in front of
+  // the CachedPages entrypoint, so a cached page costs no CPU time. The
+  // default entrypoint stays uncached: it runs on every request, cheaply, and
+  // sends only what may be cached to CachedPages.
+  "cache": { "enabled": false },
+  "exports": {
+    "default": { "type": "worker", "cache": { "enabled": false } },
+    "CachedPages": { "type": "worker", "cache": { "enabled": true } }
   },
   // Next's image optimizer (next/image) runs on Cloudflare Images.
   "images": { "binding": "IMAGES" },

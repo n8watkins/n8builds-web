@@ -49,8 +49,29 @@ export async function POST(request: Request) {
 }
 
 /**
- * Asks the Worker itself for each page after the response, so the stale copy
- * is served to nobody but this request and the queue renders the new one now.
+ * Empties the Worker's edge cache (worker/edge-cache.js), which holds every
+ * page as it was, so the next visitor gets the page Next renders afresh. Only
+ * on Workers; `next start` has no edge cache.
+ */
+async function purgeEdgeCache(): Promise<void> {
+  let exports: { CachedPages?: { purgeEverything(): Promise<unknown> } } | undefined
+  try {
+    exports = (getCloudflareContext().ctx as { exports?: typeof exports }).exports
+  } catch {
+    return
+  }
+  if (!exports?.CachedPages) return
+  try {
+    await exports.CachedPages.purgeEverything()
+  } catch (error) {
+    logger.error('[sanity-revalidate] the edge cache was not purged', error)
+  }
+}
+
+/**
+ * Empties the edge cache and asks the Worker itself for each page after the
+ * response, so the stale copy is served to nobody but this request and the
+ * queue renders the new one now.
  * Only on Workers (the self-reference binding); `next start` skips it.
  */
 function warm(paths: string[]): string[] {
@@ -62,11 +83,14 @@ function warm(paths: string[]): string[] {
   }
   const { env } = context
   const ctx = context.ctx as { waitUntil(promise: Promise<unknown>): void }
-  if (!env.WORKER_SELF_REFERENCE || !paths.length) return []
+  if (!env.WORKER_SELF_REFERENCE) return []
   const { host } = new URL(SITE_URL)
   ctx.waitUntil(
     (async () => {
       await new Promise((resolve) => setTimeout(resolve, WARM_DELAY_MS))
+      // After the tag write has landed, so no visitor can put the old page back.
+      await purgeEdgeCache()
+      if (!paths.length) return
       const results = await Promise.allSettled(
         paths.map((path) =>
           // The host header names the page to the revalidation queue.
