@@ -79,7 +79,9 @@ test.describe('at 1440px', () => {
       )
     await expect.poll(async () => (await beats()).length).toBe(2)
     const [a, b] = await beats()
-    expect(Math.abs(a - b)).toBeLessThan(50)
+    // Apart on the 2.4s loop, either way round: 2399 and 3 are 4ms apart, not 2396.
+    const apart = Math.abs(a - b)
+    expect(Math.min(apart, 2400 - apart)).toBeLessThan(50)
     await context.close()
   })
 

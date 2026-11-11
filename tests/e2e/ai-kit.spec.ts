@@ -476,7 +476,6 @@ test.describe('dino easter egg (motion allowed)', () => {
     for (let i = 1; i < moves.length; i++) {
       const [a, b] = [moves[i - 1], moves[i]]
       if (!seen(a) || !seen(b)) continue
-      // Its fastest move (a dash on a slow frame) is under 50px a frame.
       // On its row (not falling or leaping between rows), it moves with the row.
       const onRow = (m: Move) => ['walk', 'flip', 'hop', 'drop', 'miss'].includes(m.mode)
       // Measured from the row it ends the frame on (it can land on a row
@@ -507,7 +506,10 @@ test.describe('dino easter egg (motion allowed)', () => {
         if (travel > a.period / 2) travel -= a.period
         else if (travel < -a.period / 2) travel += a.period
       }
-      if (Math.abs(b.x - a.x - travel) > 60 || Math.abs(dy) > 60)
+      // Its fastest step: 140 px/s walking x 2.2 (a round's top pace) x 2.4
+      // (a dash) x 1.8 (rainbow) over a capped 50ms frame is 66.5px. A
+      // teleport is a jump of hundreds.
+      if (Math.abs(b.x - a.x - travel) > 80 || Math.abs(dy) > 80)
         jumps.push(`${a.mode}@${a.level} (${a.x.toFixed(0)}, ${a.y.toFixed(0)}) -> ${b.mode}@${b.level} (${b.x.toFixed(0)}, ${b.y.toFixed(0)})`)
     }
     return jumps
@@ -801,9 +803,12 @@ test.describe('dino easter egg (motion allowed)', () => {
     await expect(best).toHaveAttribute('data-shown', 'true')
     await expect(best).toHaveText(/^Best \d+$/)
     await expect(dino(page)).toHaveAttribute('data-mode', 'walk')
+    // The first click turns it rainbow one time in twelve, and a rainbow catch counts 3.
+    const rainbow = (await dino(page).getAttribute('data-rainbow')) === 'true'
+    const expected = String(1 + (rainbow ? 3 : 1))
     await pokeDino(page)
-    await expect(dino(page)).toHaveAttribute('data-catches', '2')
-    await expect(score).toHaveText('Catches 2')
+    await expect(dino(page)).toHaveAttribute('data-catches', expected)
+    await expect(score).toHaveText(`Catches ${expected}`)
   })
 
   test('says its lines now and then, each once per visit', async ({ page }) => {
