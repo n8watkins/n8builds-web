@@ -12,7 +12,7 @@ Measured with Lighthouse 13.6 mobile (simulated throttling), median of 3, CPU sl
 
 ## What shipped
 
-- n8builds-web (perf/phone-speed): Google Analytics after the first interaction or 5 s; the contact form's Turnstile only near the screen; the template carousel's hidden slides and the tall phone screenshot only near the screen; the hero portrait at `fetchpriority="high"`.
+- n8builds-web (perf/phone-speed): Google Analytics after the first interaction or 5 s; the contact form's Turnstile only near the screen (since 2026-11-10 every form's Turnstile only on the first focus or input); the template carousel's hidden slides and the tall phone screenshot only near the screen; the hero portrait at `fetchpriority="high"`.
 - dev-portfolio (perf/phone-speed): lazy Sentry (it was most of the 174 KB chunk `14bf1rdeuedjz.js`, React plus Sentry with Replay); the same GA deferral; gsap and lottie-react on demand; the contact card's gradient no longer runs a requestAnimationFrame loop forever; the hero portrait at high priority.
 
 ## Why the homepage is slow on phones

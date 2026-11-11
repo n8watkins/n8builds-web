@@ -9,6 +9,7 @@ import { ContactFormFields } from './ContactFormFields'
 import { SendingFallback, SuccessFallback } from './ContactFormFallbacks'
 import { trackContactEvent } from '@/lib/analytics'
 import { latestEntry } from '@/lib/intersection'
+import { useTurnstileOnIntent } from '@/hooks/useTurnstileOnIntent'
 
 // The sending and success screens (and their motion animations) and the
 // validation are not part of the page's first JavaScript: they load once the
@@ -45,6 +46,11 @@ export default function ContactForm({ className }: ContactFormProps) {
     console.error('Missing NEXT_PUBLIC_TURNSTILE_SITE_KEY')
   }
 
+  // Turnstile runs on the visitor's first focus or input in the form, not with the page.
+  const turnstile = useTurnstileOnIntent(turnstileSiteKey, {
+    onToken: () => trackContactEvent('turnstile_complete'),
+  })
+
   const {
     submissionState,
     setSubmissionState,
@@ -57,9 +63,7 @@ export default function ContactForm({ className }: ContactFormProps) {
     setConfettiKey,
     form,
     handleFormSubmit,
-    onTurnstileToken,
-    onTurnstileExpire,
-  } = useContactFormSubmit()
+  } = useContactFormSubmit(turnstile)
 
   // Track form view when component mounts
   useEffect(() => {
@@ -131,9 +135,8 @@ export default function ContactForm({ className }: ContactFormProps) {
         errorMessage={errorMessage}
         isVerifying={isVerifying}
         onSubmit={handleFormSubmit}
-        onTurnstileToken={onTurnstileToken}
-        onTurnstileExpire={onTurnstileExpire}
-        turnstileSiteKey={turnstileSiteKey}
+        turnstileWidget={turnstile.widget}
+        turnstileIntent={turnstile.intentProps}
       />
     </FadeIn>
   )

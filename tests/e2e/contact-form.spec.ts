@@ -31,24 +31,24 @@ async function fillForm(page: Page) {
 }
 
 async function waitForTurnstileToken(page: Page) {
-  // The token comes from Cloudflare's real script, loaded after hydration, so
-  // it gets the same budget as a send (5s was flaky in WebKit under load).
+  // Turnstile runs on the first focus or input in the form (hooks/useTurnstileOnIntent.tsx),
+  // so call this after filling a field. The token comes from Cloudflare's real script,
+  // so it gets the same budget as a send (5s was flaky in WebKit under load).
   await expect(page.locator('#contact input[name="cf-turnstile-response"]')).toHaveValue(/.+/, { timeout: SEND_TIMEOUT })
 }
 
 async function openContactForm(page: Page) {
-  // Not 'load': Turnstile's script, injected on hydration, delays the load
-  // event when it starts first, so a test holding that script back would hang
-  // whenever the page's other resources are slow. Tests wait on hydration-
-  // dependent state instead (the token, or the Send button being enabled).
+  // Not 'load': a test holding Turnstile's script back would hang whenever the
+  // page's other resources are slow. Tests wait on hydration-dependent state
+  // instead (the token, or the Send button being enabled).
   await page.goto('/#contact', { waitUntil: 'domcontentloaded' })
   await page.locator('#contact form').scrollIntoViewIfNeeded()
 }
 
 test('a visitor can send a message', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
   await openContactForm(page)
-  await waitForTurnstileToken(page)
   await fillForm(page)
+  await waitForTurnstileToken(page)
   await page.getByRole('button', { name: /Send Message/ }).click()
 
   await expect(page.getByText('Message sent successfully!')).toBeVisible({ timeout: SEND_TIMEOUT })
@@ -63,8 +63,8 @@ test.describe('motion allowed', () => {
 
   test('a successful send celebrates with confetti', async ({ page }) => {
     await openContactForm(page)
-    await waitForTurnstileToken(page)
     await fillForm(page)
+    await waitForTurnstileToken(page)
     await page.getByRole('button', { name: /Send Message/ }).click()
 
     await expect(page.getByText('Message sent successfully!')).toBeVisible({ timeout: SEND_TIMEOUT })
@@ -74,11 +74,11 @@ test.describe('motion allowed', () => {
   // Needs motion allowed: with reduced motion the confetti is never loaded.
   test('a sent message still shows success if the confetti chunk fails to load', async ({ page }) => {
     await openContactForm(page)
+    await fillForm(page)
     await waitForTurnstileToken(page)
     // As after a deploy since the page was opened: chunks not loaded yet are gone.
     await page.route('**/_next/static/chunks/**', (route) => route.fulfill({ status: 404, body: '' }))
     const chunkFailed = page.waitForResponse((r) => r.url().includes('/_next/static/chunks/') && r.status() === 404)
-    await fillForm(page)
     await page.getByRole('button', { name: /Send Message/ }).click()
 
     // The success screen renders before the confetti chunk fails, so check it
@@ -123,13 +123,13 @@ test('shows the server message on failure, and a retry succeeds with a fresh Tur
   })
 
   await openContactForm(page)
-  await waitForTurnstileToken(page)
   await fillForm(page)
+  await waitForTurnstileToken(page)
   await page.getByRole('button', { name: /Send Message/ }).click()
   await expect(page.locator('#contact form').getByText(limitMessage)).toBeVisible()
 
   // Retry straight away: the spent token was discarded, so the form waits for
-  // the remounted widget's fresh one before sending.
+  // the fresh one (asked for as the error showed) before sending.
   await page.getByRole('button', { name: /Send Message/ }).click()
   await expect(page.getByRole('button', { name: /Verifying/ })).toBeVisible()
   expect(calls).toBe(1)
@@ -138,6 +138,25 @@ test('shows the server message on failure, and a retry succeeds with a fresh Tur
   await expect(page.getByText('Message sent successfully!')).toBeVisible({ timeout: SEND_TIMEOUT })
   expect(calls).toBe(2)
   expect(tokens.every(Boolean)).toBe(true)
+})
+
+test('Turnstile runs only once the visitor starts on the form, not on page view or scroll', { tag: '@smoke' }, async ({ page }) => {
+  // Cloudflare warns when tokens are issued and never verified (2026-11-10): a
+  // visitor who only reads the page must not run a challenge or load its script.
+  const challenge: string[] = []
+  page.on('request', (r) => {
+    if (r.url().startsWith('https://challenges.cloudflare.com/')) challenge.push(r.url())
+  })
+  await openContactForm(page)
+  await expect(page.getByRole('button', { name: /Send Message/ })).toBeEnabled() // hydrated
+  await page.mouse.wheel(0, 400)
+  await page.waitForTimeout(1500)
+  expect(challenge).toEqual([])
+  await expect(page.locator('input[name="cf-turnstile-response"]')).toHaveCount(0)
+
+  await page.locator('#contact form').getByLabel('Name').focus()
+  await waitForTurnstileToken(page)
+  expect(challenge.some((url) => url.includes('/turnstile/v0/api.js'))).toBe(true)
 })
 
 test('clicking Send before Turnstile is ready waits for the token, then sends', async ({ page }) => {
@@ -196,8 +215,8 @@ test('network failures show the generic message', async ({ page }) => {
   await page.route('/api/contact', (route) => route.abort())
 
   await openContactForm(page)
-  await waitForTurnstileToken(page)
   await fillForm(page)
+  await waitForTurnstileToken(page)
   await page.getByRole('button', { name: /Send Message/ }).click()
 
   await expect(page.locator('#contact form').getByText('Oops! Something went wrong. Please try again or email me directly.')).toBeVisible()
@@ -251,9 +270,8 @@ test('client-side validation blocks an empty submission', { tag: ['@cross-browse
   })
 
   await openContactForm(page)
-  // The widget only renders after hydration; clicking before then would hit a
-  // button with no handler yet (flaky under load).
-  await waitForTurnstileToken(page)
+  // Clicking before hydration would hit a button with no handler yet (flaky under load).
+  await expect(page.getByRole('button', { name: /Send Message/ })).toBeEnabled()
   // No topic is pre-selected; leaving it blank is an error, not a silent default.
   await expect(page.locator('#contact form').getByRole('radio', { checked: true })).toHaveCount(0)
   await page.getByRole('button', { name: /Send Message/ }).click()
@@ -264,8 +282,8 @@ test('client-side validation blocks an empty submission', { tag: ['@cross-browse
 
 test('pressing Enter in a field submits the form, like Go on a phone keyboard', { tag: '@cross-browser' }, async ({ page }) => {
   await openContactForm(page)
-  await waitForTurnstileToken(page)
   await fillForm(page)
+  await waitForTurnstileToken(page)
   await page.locator('#contact form').getByLabel('Email').press('Enter')
 
   await expect(page.getByText('Message sent successfully!')).toBeVisible({ timeout: SEND_TIMEOUT })
@@ -273,7 +291,7 @@ test('pressing Enter in a field submits the form, like Go on a phone keyboard', 
 
 test('validation errors are tied to their fields for screen readers', async ({ page }) => {
   await openContactForm(page)
-  await waitForTurnstileToken(page)
+  await expect(page.getByRole('button', { name: /Send Message/ })).toBeEnabled() // hydrated
   await page.getByRole('button', { name: /Send Message/ }).click()
 
   const form = page.locator('#contact form')
@@ -304,8 +322,8 @@ test("Vercel's firewall 429 gets a readable message, not the raw error object", 
   )
 
   await openContactForm(page)
-  await waitForTurnstileToken(page)
   await fillForm(page)
+  await waitForTurnstileToken(page)
   await page.getByRole('button', { name: /Send Message/ }).click()
 
   const form = page.locator('#contact form')

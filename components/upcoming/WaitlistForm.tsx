@@ -2,17 +2,14 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Turnstile } from '@marsidev/react-turnstile'
 import { FiCheck, FiMail } from 'react-icons/fi'
 import { ContactInput } from '@/components/ui/ContactInput'
 import { errorId } from '@/components/ui/FieldWrapper'
 import { useHydrated } from '@/hooks/useHydrated'
-import { useNearViewport } from '@/hooks/useNearViewport'
+import { useTurnstileOnIntent } from '@/hooks/useTurnstileOnIntent'
 import { UPCOMING, interestSlug, isUpcomingSlug, type UpcomingSlug } from '@/data/upcoming'
 import { PICK_EVENT } from './JoinButton'
 
-// How long to wait for Turnstile to issue a token after the visitor clicks Join.
-const TURNSTILE_WAIT_MS = 15_000
 const DIRECT_EMAIL = 'contact@n8builds.dev'
 const FALLBACK_ERROR = `Something went wrong. Please try again, or email me at ${DIRECT_EMAIL}.`
 const VERIFY_ERROR = `We couldn't verify your browser (an ad or privacy blocker can cause this). Please refresh and try again, or email me at ${DIRECT_EMAIL}.`
@@ -42,18 +39,15 @@ export default function WaitlistForm({
   const side = layout === 'side'
   const modal = layout === 'modal'
   const hydrated = useHydrated()
-  // Turnstile loads once the form is near the screen, not with the page (useNearViewport).
-  const [formRef, near] = useNearViewport<HTMLFormElement>()
+  // Turnstile runs on the first focus or input in the form, or a pick from a card (useTurnstileOnIntent).
+  const turnstile = useTurnstileOnIntent(turnstileSiteKey)
+  const { prepare } = turnstile
   const [email, setEmail] = useState('')
   const [projects, setProjects] = useState<UpcomingSlug[]>([])
   const [honeypot, setHoneypot] = useState('')
   const [state, setState] = useState<State>({ kind: 'idle' })
   const [errors, setErrors] = useState<{ email?: string; projects?: string }>({})
   const source = useRef<{ interest?: string; referrer?: string }>({})
-  const token = useRef('')
-  // Turnstile tokens are single-use: a new widget issues a fresh one after each send.
-  const [widget, setWidget] = useState(0)
-  const tokenWaiter = useRef<((token: string | null) => void) | null>(null)
   const doneHeading = useRef<HTMLHeadingElement>(null)
 
   // Arriving from a landing page: ?interest=<slug> ticks that project.
@@ -74,10 +68,11 @@ export default function WaitlistForm({
       if (!isUpcomingSlug(slug)) return
       setProjects((list) => (list.includes(slug) ? list : [...list, slug]))
       setErrors((current) => ({ ...current, projects: undefined }))
+      prepare()
     }
     window.addEventListener(PICK_EVENT, onPick)
     return () => window.removeEventListener(PICK_EVENT, onPick)
-  }, [])
+  }, [prepare])
 
   useEffect(() => {
     if (state.kind === 'done') doneHeading.current?.focus()
@@ -86,21 +81,6 @@ export default function WaitlistForm({
   const toggle = (slug: UpcomingSlug) => {
     setProjects((list) => (list.includes(slug) ? list.filter((s) => s !== slug) : [...list, slug]))
     setErrors((current) => ({ ...current, projects: undefined }))
-  }
-
-  const waitForToken = (): Promise<string | null> => {
-    if (!turnstileSiteKey) return Promise.resolve('dev_bypass_token')
-    if (token.current) return Promise.resolve(token.current)
-    return new Promise((resolve) => {
-      const timer = setTimeout(() => {
-        tokenWaiter.current = null
-        resolve(null)
-      }, TURNSTILE_WAIT_MS)
-      tokenWaiter.current = (value) => {
-        clearTimeout(timer)
-        resolve(value)
-      }
-    })
   }
 
   const submit = async () => {
@@ -112,26 +92,25 @@ export default function WaitlistForm({
     if (found.projects) return document.querySelector<HTMLInputElement>('#waitlist-projects input')?.focus()
 
     setState({ kind: 'sending' })
-    const turnstile = await waitForToken()
-    if (!turnstile) return setState({ kind: 'error', message: VERIFY_ERROR })
-    // Tokens are single-use: this one is spent once sent; the widget issues another.
-    token.current = ''
-    setWidget((n) => n + 1)
+    const token = await turnstile.getToken()
+    if (!token) return setState({ kind: 'error', message: VERIFY_ERROR })
+    // Tokens are single-use: this one is spent once sent.
+    turnstile.spend()
 
     try {
       const response = await fetch('/api/waitlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), projects, source: source.current, turnstile, honeypot }),
+        body: JSON.stringify({ email: email.trim(), projects, source: source.current, turnstile: token, honeypot }),
       })
       const data = await response.json().catch(() => ({}))
-      if (!response.ok) {
-        return setState({ kind: 'error', message: typeof data.error === 'string' ? data.error : FALLBACK_ERROR })
-      }
-      setState({ kind: 'done', email: email.trim() })
+      if (response.ok) return setState({ kind: 'done', email: email.trim() })
+      setState({ kind: 'error', message: typeof data.error === 'string' ? data.error : FALLBACK_ERROR })
     } catch {
       setState({ kind: 'error', message: FALLBACK_ERROR })
     }
+    // The visitor will likely try again: have a fresh token ready.
+    turnstile.prepare()
   }
 
   if (state.kind === 'done') {
@@ -156,7 +135,7 @@ export default function WaitlistForm({
 
   return (
     <form
-      ref={formRef}
+      {...turnstile.intentProps}
       noValidate
       onSubmit={(e) => {
         e.preventDefault()
@@ -272,22 +251,7 @@ export default function WaitlistForm({
 
       <div className="flex flex-col items-center gap-3">
         {/* Invisible unless Cloudflare needs a challenge; see the contact form. */}
-        {turnstileSiteKey && near && (
-          <Turnstile
-            key={widget}
-            siteKey={turnstileSiteKey}
-            onSuccess={(value) => {
-              token.current = value
-              tokenWaiter.current?.(value)
-              tokenWaiter.current = null
-            }}
-            onExpire={() => {
-              token.current = ''
-            }}
-            options={{ appearance: 'interaction-only', refreshExpired: 'auto' }}
-            className="absolute"
-          />
-        )}
+        {turnstile.widget}
         <button
           type="submit"
           disabled={!hydrated || busy}

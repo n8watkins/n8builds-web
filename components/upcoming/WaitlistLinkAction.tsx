@@ -1,13 +1,14 @@
 'use client'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Turnstile } from '@marsidev/react-turnstile'
 import { FiCheckCircle } from 'react-icons/fi'
 import { ContactInput } from '@/components/ui/ContactInput'
 import { useHydrated } from '@/hooks/useHydrated'
+import { useTurnstileOnIntent } from '@/hooks/useTurnstileOnIntent'
 
 const DIRECT_EMAIL = 'contact@n8builds.dev'
 const FALLBACK_ERROR = `Something went wrong. Please try again, or email me at ${DIRECT_EMAIL}.`
+const VERIFY_ERROR = `We couldn't verify your browser (an ad or privacy blocker can cause this). Please refresh and try again, or email me at ${DIRECT_EMAIL}.`
 
 type State =
   | { kind: 'loading' }
@@ -141,9 +142,8 @@ function LeaveByEmail({ turnstileSiteKey }: { turnstileSiteKey: string }) {
   const hydrated = useHydrated()
   const [email, setEmail] = useState('')
   const [honeypot, setHoneypot] = useState('')
-  const [token, setToken] = useState('')
-  // Tokens are single-use: a new widget issues a fresh one after each send.
-  const [widget, setWidget] = useState(0)
+  // Turnstile runs on the first focus or input in the form (useTurnstileOnIntent).
+  const turnstile = useTurnstileOnIntent(turnstileSiteKey)
   const [state, setState] = useState<{ kind: 'idle' | 'sending' } | { kind: 'done' | 'error'; message: string }>({ kind: 'idle' })
 
   if (state.kind === 'done') {
@@ -156,31 +156,33 @@ function LeaveByEmail({ turnstileSiteKey }: { turnstileSiteKey: string }) {
   }
 
   const busy = state.kind === 'sending'
-  // Without a site key (next dev) the server skips Turnstile.
-  const ready = hydrated && !busy && (!turnstileSiteKey || Boolean(token))
+  // A send before Turnstile's token is ready waits for it, as on the other forms.
+  const ready = hydrated && !busy
 
   return (
     <form
+      {...turnstile.intentProps}
       noValidate
       className="space-y-5"
       onSubmit={async (e) => {
         e.preventDefault()
         if (!ready) return
         setState({ kind: 'sending' })
+        const token = await turnstile.getToken()
+        if (!token) return setState({ kind: 'error', message: VERIFY_ERROR })
+        // Tokens are single-use: this one is spent once sent.
+        turnstile.spend()
         try {
-          const { ok, data } = await post('/api/waitlist/leave', {
-            email: email.trim(),
-            turnstile: token || 'dev_bypass_token',
-            honeypot,
-          })
-          setToken('')
-          setWidget((n) => n + 1)
+          const { ok, data } = await post('/api/waitlist/leave', { email: email.trim(), turnstile: token, honeypot })
           const message =
             typeof data.message === 'string' ? data.message : typeof data.error === 'string' ? data.error : FALLBACK_ERROR
           setState({ kind: ok ? 'done' : 'error', message })
+          if (ok) return
         } catch {
           setState({ kind: 'error', message: FALLBACK_ERROR })
         }
+        // The visitor will likely try again: have a fresh token ready.
+        turnstile.prepare()
       }}
     >
       <p className="leading-relaxed text-slate-300">
@@ -213,16 +215,8 @@ function LeaveByEmail({ turnstileSiteKey }: { turnstileSiteKey: string }) {
           {state.message}
         </p>
       )}
-      {turnstileSiteKey && (
-        <Turnstile
-          key={widget}
-          siteKey={turnstileSiteKey}
-          onSuccess={setToken}
-          onExpire={() => setToken('')}
-          options={{ appearance: 'interaction-only', refreshExpired: 'auto' }}
-          className="absolute"
-        />
-      )}
+      {/* Invisible unless Cloudflare needs a challenge; see the contact form. */}
+      {turnstile.widget}
       <button
         type="submit"
         disabled={!ready}

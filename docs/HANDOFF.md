@@ -222,6 +222,9 @@ Every free check runs before the first rate-limit counter, so requests without a
 - **Turnstile** (`lib/security/turnstile.ts`): tokens must be issued on `n8builds.dev` or `www.n8builds.dev` (`TURNSTILE_ALLOWED_HOSTNAMES` overrides).
   Verification is skipped only under `next dev`.
 - **Client** (`components/ContactForm/`): Send is disabled until the form hydrates (`hooks/useHydrated.ts`), so an early click is never silently lost.
+  Turnstile runs only on intent (2026-11-10): nothing loads with the page or on scroll; the first focus or input in a field loads Cloudflare's script and executes the challenge (`hooks/useTurnstileOnIntent.tsx`, `lib/security/turnstileGate.ts`, used by every form with Turnstile: contact, quote, waitlist, leaving the waitlist).
+  Tokens issued on page views were never sent, and Cloudflare warned that siteverify wasn't being called.
+  A spent or expired token is replaced on the next intent or send, never in the background; a failed send asks for a fresh one at once.
   If Turnstile has not issued a token when Send is clicked, the button shows "Verifying..." and submits once it arrives.
   After 15s it explains the failure (often an ad or privacy blocker).
   Server error messages are shown to the visitor.
@@ -302,7 +305,7 @@ The owner's standing decisions live in [DECISIONS.md](DECISIONS.md), the one pla
   Posts without a cover image get a generated "signal" cover: `lib/blog-cover.ts` (art and topic colours), served as cached SVG files by `app/notions-cover/[version]/[topic]/[file]/route.ts`.
   The files are cached forever, so bump `COVER_VERSION` whenever the drawing changes.
 - `data/`: `builds.tsx` (source of truth), `shelves.ts`, `loadout.tsx`, `stack.tsx` (shared with the portfolio), `buildStacks.tsx`, `techStack.tsx`, `projects.tsx`.
-- `lib/security/`: `rateLimiter.ts`, `turnstile.ts`, `validation.ts`, `testMode.ts`.
+- `lib/security/`: `rateLimiter.ts`, `turnstile.ts` (server check), `turnstileGate.ts` (when a form runs its challenge), `validation.ts`, `testMode.ts`.
 - `lib/email/`: `config.ts` (`EMAIL_CONFIG`), `send.ts` (Cloudflare Email Service), `sender.ts`, `templates.ts`, `icons.ts` (generated).
 - `lib/seo.ts`: `pageMetadata()`, `summarize()`, JSON-LD builders; `lib/og-card.tsx`: share-card renderer.
 - `lib/build-log.ts`, `components/log/`, `app/builds/page.tsx`, `app/builds/og.png/`: the build log; `scripts/check-build-repos.mjs` (nightly repo check) and `scripts/build-log-fixture.mjs` (records the test fixture).
