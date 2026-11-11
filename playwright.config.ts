@@ -85,6 +85,7 @@ export default defineConfig({
           // High enough that the suite never trips the site-wide cap; the cap
           // itself is covered by unit tests.
           CONTACT_DAILY_LIMIT: '100000',
+          NEWSLETTER_DAILY_LIMIT: '100000',
           NEXT_PUBLIC_TURNSTILE_SITE_KEY: '1x00000000000000000000AA',
           TURNSTILE_SECRET_KEY: '1x0000000000000000000000000000000AA',
           NEXT_PUBLIC_SITE_URL: 'https://n8builds.dev',

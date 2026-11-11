@@ -145,6 +145,40 @@ export function brandBar(right: string): string {
           </tr>`
 }
 
+/** The bordered card every email's content sits in, with the cyan rule on top. */
+export function card(inner: string): string {
+  return `          <tr>
+            <td style="border:1px solid ${C.line};border-top:3px solid ${C.cyan};border-radius:16px;background:${C.card};" bgcolor="${C.card}">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+${inner}
+              </table>
+            </td>
+          </tr>`
+}
+
+export function footnote(text: string): string {
+  return `          <tr>
+            <td align="center" style="padding:20px 8px 0;font-family:${FONT};font-size:12px;line-height:19px;color:${C.faint};">${text}</td>
+          </tr>`
+}
+
+export const paragraph = (html: string, top = 0) =>
+  `<p style="margin:${top}px 0 0;font-family:${FONT};font-size:16px;line-height:26px;color:${C.text};">${html}</p>`
+
+export const signOff = `
+                <tr>
+                  <td class="px" style="padding:4px 36px 34px;">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-top:1px solid ${C.line};">
+                      <tr>
+                        <td style="padding-top:22px;font-family:${FONT};">
+                          <p style="margin:0;font-size:15px;color:${C.text};">Thanks,</p>
+                          <p style="margin:6px 0 0;font-size:17px;font-weight:800;color:${C.white};">Nathan <span style="color:${C.cyan};">"n8"</span> Watkins</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>`
+
 export function pill(text: string): string {
   return `<span style="display:inline-block;padding:6px 12px;border-radius:999px;background:#0e2a3a;border:1px solid #155e75;font-family:${FONT};font-size:12px;font-weight:600;color:#a5f3fc;letter-spacing:0.2px;">${text}</span>`
 }

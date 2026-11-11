@@ -151,6 +151,25 @@ D1 runs a `batch()` as one transaction, and each statement below is a single tra
 - Expired tokens and used confirm tokens are purged by the daily cleanup.
 - Leaving deletes the row and everything with it at once, as the privacy page promises, so no "left" timestamp is kept.
 
+### The newsletter: `newsletter_subscribers`, `newsletter_digests`, `newsletter_deliveries`
+
+The blog newsletter (N8's Notions by email, double opt-in), in the same database but in its own tables (`migrations/waitlist/0002_newsletter.sql`), so unsubscribing never touches the waitlist and leaving the waitlist never touches the newsletter.
+Its rules live in `lib/newsletter/store.ts` and `lib/newsletter/digest.ts`; the routes are `app/api/newsletter/**`, the pages `app/newsletter/**`.
+
+- `newsletter_subscribers`: one row per address (`id` is the first 32 hex characters of the SHA-256 of the address, as the waitlist's).
+  `confirm_hash` holds the SHA-256 of the newest confirm link's token, cleared when it is used, so a confirm link works once; a new sign-up replaces it.
+  Unconfirmed rows carry `expires_at` (7 days after the last confirm email); confirmed ones have `confirmed_at` instead.
+  `unsubscribe_token` is kept as is, because every digest needs it for its links and headers; all it can do is delete its own row.
+- `newsletter_digests`: one row per weekly digest, with the posts it carries and its status (`sending`, `sent`, `skipped`), the number of recipients, and a note for the owner when it was skipped or paused. No personal data.
+- `newsletter_deliveries`: which subscriber has had which digest, so a run that stops at a mailroom refusal resumes where it left off.
+
+Email goes through mailroom as the app `n8builds-news` (`MAILROOM_NEWS`): 40 a day, 150 a month, 3 per address a day.
+The weekly cron (Thursday 16:00 UTC) starts a digest only when a post was published since the last one, and skips the week (status `skipped`, a warning in the logs and Sentry) when the month's digests would pass 120 emails, keeping 30 of the 150 for confirm emails.
+Each run sends at most 30 and stops at the first refusal; the daily cron finishes an unfinished digest.
+An address mailroom has suppressed (a bounce or a complaint) is deleted.
+
+Retention: unconfirmed rows are purged by the daily cleanup once `expires_at` passes, unsubscribing deletes the row and its deliveries at once, and deliveries are purged 30 days after their digest finished.
+
 ## n8builds-analytics
 
 Anonymous counts only: no IP address, user agent, cookie or email is ever written here.

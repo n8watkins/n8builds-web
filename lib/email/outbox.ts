@@ -6,7 +6,7 @@
  * outside test mode, which every deployed Worker is (APP_ENV is set).
  */
 
-export type SentEmail = { to: string; subject: string; text: string }
+export type SentEmail = { to: string; subject: string; text: string; headers?: Record<string, string> }
 
 const KEY = Symbol.for('n8builds.testOutbox')
 const LIMIT = 100

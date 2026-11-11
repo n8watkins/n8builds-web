@@ -6,7 +6,8 @@ z.config({ jitless: true })
 
 export const NOTE_MAX = 500
 
-const email = z
+/** An email address as every list here takes it (the waitlist, the newsletter). */
+export const email = z
   .email('Please enter a valid email address')
   .max(100, 'Email must be less than 100 characters')
   .refine((value) => value.split('@')[1]?.includes('.'), 'Please enter a valid email address')

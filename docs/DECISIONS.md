@@ -594,3 +594,10 @@ Where these conflict with an older entry above, these win; the older entries are
   WebKit anchors to content inside the rising, transformed block and scrolls the page 24px when the rise ends, about a second after any jump to a section, which made a press on the Scribe tour's pause button land on the video.
   Chromium and Firefox handle the transform correctly and need those anchors right after a jump, so the rule is gated with `@supports (hanging-punctuation: first)`, a feature-detection proxy that only WebKit passes today.
   If Chromium or Firefox ship `hanging-punctuation`, the rule starts applying to them: re-check the Pull Request Post's recording test (`tests/e2e/loadout-dev-tools.spec.ts`) in those browsers and narrow the gate if it regresses.
+- **Every email goes through mailroom** (2026-11-11): Cloudflare Email bills past 3,000 a month and the owner never pays, so the site has no `send_email` binding of its own.
+  Contact, quote and waitlist email go through the shared mailroom Worker as the app `n8builds-web` (`MAILROOM`), from contact@n8builds.dev; the blog newsletter as `n8builds-news` (`MAILROOM_NEWS`), from news@n8builds.dev.
+  mailroom caps every send and fails closed: a refused send is a failure, never retried.
+- **The blog newsletter** (2026-11-11): N8's Notions by email, signed up for on /blog and at the end of every post (email only, Turnstile and a honeypot), on its own list apart from the waitlist.
+  Double opt-in with a single-use confirm link that expires in 7 days; unconfirmed addresses are deleted after that, and new and existing addresses get the same answer.
+  Every email has a one-click unsubscribe link and List-Unsubscribe headers; unsubscribing needs no login and deletes the address.
+  One weekly digest, only in weeks with a new post, inside mailroom's slice (40 a day, 150 a month, 3 per address a day): a week that would pass it is skipped with a note for the owner (`docs/DATABASE.md`).
