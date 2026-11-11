@@ -101,6 +101,8 @@ test("links from before Relink's rename still preselect it", async ({ page }) =>
 
 test("a card's Join button ticks its project and brings the form into view", { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
   await page.goto('/upcoming')
+  // Hydrated first: before that the link only jumps to the form, without ticking.
+  await waitForForm(page)
   await page.locator('article#relink').getByRole('link', { name: 'Join the waitlist for Relink' }).click()
   await expect(project(page, 'Relink')).toBeChecked()
   await expect(page.getByRole('textbox', { name: 'Email' })).toBeInViewport()
