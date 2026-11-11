@@ -19,7 +19,6 @@ export const BUILD_ICONS: Record<string, string> = {
   portfolio: '/builds/portfolio/icon.svg',
   // Projects without a build page (data/logBuilds.ts): the upcoming projects'
   // own marks, and my tools' tiles (scripts/gen-tool-tiles.mjs).
-  relink: '/upcoming/relink.svg',
   strollz: '/upcoming/strollz.svg',
   keysready: '/upcoming/keysready.svg',
   feelium: '/upcoming/feelium.svg',

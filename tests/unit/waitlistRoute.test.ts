@@ -45,9 +45,9 @@ const { entryId } = await import('@/lib/waitlist/store')
 
 const valid = {
   email: 'Visitor@Example.com',
-  projects: ['relink'],
+  projects: ['keysready'],
   note: 'For my docs site',
-  source: { interest: 'relink', referrer: 'https://getrelink.dev/pricing?ref=abc#plans' },
+  source: { interest: 'keysready', referrer: 'https://keysready.n8builds.dev/pricing?ref=abc#plans' },
   turnstile: 'token',
   honeypot: '',
 }
@@ -105,12 +105,12 @@ describe('POST /api/waitlist', () => {
     expect(saved()).toMatchObject({
       email: 'visitor@example.com',
       projects: [],
-      requested: ['relink'],
+      requested: ['keysready'],
       requestedNote: 'For my docs site',
       confirmedAt: '',
-      interest: 'relink',
+      interest: 'keysready',
       // Origin and path only: the query string and fragment are dropped.
-      referrer: 'https://getrelink.dev/pricing',
+      referrer: 'https://keysready.n8builds.dev/pricing',
     })
     expect(saved()!.createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T/)
     expect(sendConfirmEmail).toHaveBeenCalledWith(saved(), { confirm: expect.any(String), leave: expect.any(String) })
@@ -122,9 +122,9 @@ describe('POST /api/waitlist', () => {
     ])
   })
 
-  it("maps a renamed project's old interest to its new name", async () => {
-    await call(join, { ...valid, source: { interest: 'rewire' } })
-    expect(saved()).toMatchObject({ interest: 'relink' })
+  it('ignores an interest that is no longer a project', async () => {
+    await call(join, { ...valid, source: { interest: 'relink' } })
+    expect(saved()).toMatchObject({ interest: '' })
   })
 
   it('accepts Feelium as a project and as an interest', async () => {
@@ -143,7 +143,7 @@ describe('POST /api/waitlist', () => {
     const { note: _note, ...withoutNote } = valid
     const response = await call(join, withoutNote)
     expect(response.status).toBe(200)
-    expect(saved()).toMatchObject({ requested: ['relink'], requestedNote: '' })
+    expect(saved()).toMatchObject({ requested: ['keysready'], requestedNote: '' })
   })
 
   it('keeps an interest only when it names a project', async () => {
@@ -154,7 +154,7 @@ describe('POST /api/waitlist', () => {
   it.each([
     ['a bad email', { email: 'not-an-email' }],
     ['no projects', { projects: [] }],
-    ['an unknown project', { projects: ['deadlink'] }],
+    ['an unknown project', { projects: ['relink'] }],
     ['a known project next to an unknown one', { projects: ['keysready', 'keys-ready'] }],
     ['a note over 500 characters', { note: 'x'.repeat(501) }],
     ['no Turnstile token', { turnstile: '' }],
@@ -217,21 +217,21 @@ describe('POST /api/waitlist', () => {
       scope === 'waitlist-recipient' ? { allowed: false, reason: 'limited' } : { allowed: true }
     )
     expect((await call(join, valid)).status).toBe(200)
-    expect(saved()?.requested).toEqual(['relink'])
+    expect(saved()?.requested).toEqual(['keysready'])
     expect(sendConfirmEmail).not.toHaveBeenCalled()
   })
 
   it("gives the same answer for a confirmed address, and doesn't change it until confirmed", async () => {
     await call(join, valid)
     await call(confirm, { token: links().confirm })
-    expect(saved()).toMatchObject({ projects: ['relink'], note: 'For my docs site' })
+    expect(saved()).toMatchObject({ projects: ['keysready'], note: 'For my docs site' })
 
     const again = await call(join, { ...valid, projects: ['strollz'], note: 'Walks too' })
     expect(again).toEqual({ status: 200, json: { message: JOINED_MESSAGE } })
-    expect(saved()).toMatchObject({ projects: ['relink'], requested: ['strollz'], note: 'For my docs site' })
+    expect(saved()).toMatchObject({ projects: ['keysready'], requested: ['strollz'], note: 'For my docs site' })
 
     await call(confirm, { token: links().confirm })
-    expect(saved()).toMatchObject({ projects: ['relink', 'strollz'], requested: [], note: 'Walks too' })
+    expect(saved()).toMatchObject({ projects: ['keysready', 'strollz'], requested: [], note: 'Walks too' })
   })
 })
 
@@ -240,15 +240,15 @@ describe('the confirm email after a repeat join', () => {
     await call(join, valid)
     await call(confirm, { token: links().confirm })
     await call(join, valid)
-    expect(sendConfirmEmail.mock.calls.at(-1)![0]).toMatchObject({ projects: ['relink'], requested: ['relink'] })
+    expect(sendConfirmEmail.mock.calls.at(-1)![0]).toMatchObject({ projects: ['keysready'], requested: ['keysready'] })
   })
 })
 
 describe('POST /api/waitlist/confirm', () => {
   it('confirms the projects behind a link', async () => {
-    await call(join, { ...valid, projects: ['relink', 'strollz'] })
+    await call(join, { ...valid, projects: ['keysready', 'strollz'] })
     const response = await call(confirm, { token: links().confirm })
-    expect(response).toEqual({ status: 200, json: { message: 'Confirmed', projects: 'Relink and Strollz' } })
+    expect(response).toEqual({ status: 200, json: { message: 'Confirmed', projects: 'KeysReady and Strollz' } })
     expect(saved()!.confirmedAt).toMatch(/^\d{4}-/)
   })
 

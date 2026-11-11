@@ -24,9 +24,9 @@ function storeAt(start = T0) {
 
 const request = (overrides: Partial<Parameters<WaitlistStore['join']>[0]> = {}) => ({
   email: 'visitor@example.com',
-  projects: ['relink' as const],
+  projects: ['keysready' as const],
   note: '42',
-  interest: 'relink',
+  interest: 'keysready',
   referrer: '',
   ...overrides,
 })
@@ -41,14 +41,14 @@ describe('WaitlistStore (n8builds-waitlist)', () => {
       id: entryId('visitor@example.com'),
       email: 'visitor@example.com',
       projects: [],
-      requested: ['relink'],
+      requested: ['keysready'],
       // A note that looks like a number stays text.
       note: '',
       requestedNote: '42',
       createdAt: T0.toISOString(),
       updatedAt: T0.toISOString(),
       confirmedAt: '',
-      interest: 'relink',
+      interest: 'keysready',
       referrer: '',
     })
     expect(await all('SELECT expires_at FROM waitlist_subscribers')).toEqual([{ expires_at: T0.getTime() + PENDING_DAYS * DAY }])
@@ -56,14 +56,14 @@ describe('WaitlistStore (n8builds-waitlist)', () => {
 
   it('never makes a second row for the same address or project, however often it joins', async () => {
     const { store } = storeAt()
-    await Promise.all([store.join(request()), store.join(request()), store.join(request({ projects: ['relink', 'feelium'] }))])
+    await Promise.all([store.join(request()), store.join(request()), store.join(request({ projects: ['keysready', 'feelium'] }))])
     expect(await all('SELECT COUNT(*) AS n FROM waitlist_subscribers')).toEqual([{ n: 1 }])
-    expect(await all('SELECT project FROM waitlist_projects ORDER BY project')).toEqual([{ project: 'feelium' }, { project: 'relink' }])
+    expect(await all('SELECT project FROM waitlist_projects ORDER BY project')).toEqual([{ project: 'feelium' }, { project: 'keysready' }])
   })
 
   it('keeps every project slug, KeysReady and Feelium included', async () => {
     const { store } = storeAt()
-    const projects = ['relink', 'strollz', 'vibelog', 'keysready', 'asset-arsenal', 'feelium'] as const
+    const projects = ['strollz', 'vibelog', 'keysready', 'asset-arsenal', 'feelium'] as const
     const entry = await store.join(request({ projects: [...projects] }))
     expect([...entry.requested].sort()).toEqual([...projects].sort())
   })
@@ -83,13 +83,13 @@ describe('WaitlistStore (n8builds-waitlist)', () => {
 
   it('confirms once: everything requested becomes confirmed, and the link is spent', async () => {
     const { store } = storeAt()
-    const links = await store.issueLinks(await store.join(request({ projects: ['relink', 'keysready'] })))
+    const links = await store.issueLinks(await store.join(request({ projects: ['feelium', 'keysready'] })))
     // A double click: two confirms at once, one wins.
     const results = await Promise.all([store.confirm(links.confirm), store.confirm(links.confirm)])
     expect(results.filter(Boolean)).toHaveLength(1)
     const confirmed = results.find(Boolean)!
     expect(confirmed).toMatchObject({ requested: [], note: '42', requestedNote: '', confirmedAt: T0.toISOString() })
-    expect([...confirmed.projects].sort()).toEqual(['keysready', 'relink'])
+    expect([...confirmed.projects].sort()).toEqual(['feelium', 'keysready'])
     expect(await store.confirm(links.confirm)).toBeNull()
     // Confirmed entries no longer expire.
     expect(await all('SELECT expires_at FROM waitlist_subscribers')).toEqual([{ expires_at: null }])
@@ -99,8 +99,8 @@ describe('WaitlistStore (n8builds-waitlist)', () => {
     const { store, later } = storeAt()
     await store.confirm((await store.issueLinks(await store.join(request()))).confirm)
     later(DAY)
-    const again = await store.join(request({ projects: ['relink', 'strollz'], note: 'walks' }))
-    expect(again).toMatchObject({ projects: ['relink'], requested: ['strollz'], note: '42', requestedNote: 'walks' })
+    const again = await store.join(request({ projects: ['keysready', 'strollz'], note: 'walks' }))
+    expect(again).toMatchObject({ projects: ['keysready'], requested: ['strollz'], note: '42', requestedNote: 'walks' })
     expect(await all('SELECT expires_at FROM waitlist_subscribers')).toEqual([{ expires_at: null }])
   })
 
@@ -119,12 +119,12 @@ describe('WaitlistStore (n8builds-waitlist)', () => {
 
   it('manages with a leave link only: keeps the projects ticked, and keeping none leaves', async () => {
     const { store, later } = storeAt()
-    const entry = await store.join(request({ projects: ['relink', 'strollz', 'vibelog'] }))
+    const entry = await store.join(request({ projects: ['keysready', 'strollz', 'vibelog'] }))
     const links = await store.issueLinks(entry)
     await store.confirm(links.confirm)
 
     expect(await store.forLeaveToken(links.confirm)).toBeNull()
-    expect((await store.forLeaveToken(links.leave))?.projects.sort()).toEqual(['relink', 'strollz', 'vibelog'])
+    expect((await store.forLeaveToken(links.leave))?.projects.sort()).toEqual(['keysready', 'strollz', 'vibelog'])
 
     const kept = await store.keepOnly(links.leave, ['strollz'])
     expect(kept).toMatchObject({ projects: ['strollz'], requested: [] })
@@ -141,7 +141,7 @@ describe('WaitlistStore (n8builds-waitlist)', () => {
     const third = await store.issueLinks(await store.join(request({ email: 'c@example.com' })))
     later(LEAVE_LINK_DAYS * DAY)
     expect(await store.forLeaveToken(third.leave)).toBeNull()
-    expect(await store.keepOnly(third.leave, ['relink'])).toBeNull()
+    expect(await store.keepOnly(third.leave, ['keysready'])).toBeNull()
   })
 
   it('leaves with a leave link only, deleting the entry, its projects and its links', async () => {
@@ -221,13 +221,13 @@ const entry: WaitlistEntry = {
   id: 'abc',
   email: 'visitor@example.com',
   projects: [],
-  requested: ['relink', 'strollz'],
+  requested: ['keysready', 'strollz'],
   note: '',
   requestedNote: '42',
   createdAt: T0.toISOString(),
   updatedAt: T0.toISOString(),
   confirmedAt: '',
-  interest: 'relink',
+  interest: 'keysready',
   referrer: '',
 }
 const links = { confirm: 'tok_confirmabcdefghijklmnopqrstuvwxyz', leave: 'tok_leaveabcdefghijklmnopqrstuvwxyz' }
@@ -267,12 +267,12 @@ describe('waitlist emails', () => {
   })
 
   it('name the projects asked for', () => {
-    expect(projectList(['relink'])).toBe('Relink')
-    expect(projectList(['relink', 'strollz'])).toBe('Relink and Strollz')
-    expect(projectList(['vibelog', 'relink', 'strollz'])).toBe('Relink, Strollz and VibeLog')
-    expect(projectList(['keysready', 'vibelog', 'relink', 'strollz'])).toBe('Relink, KeysReady, Strollz and VibeLog')
+    expect(projectList(['keysready'])).toBe('KeysReady')
+    expect(projectList(['keysready', 'strollz'])).toBe('KeysReady and Strollz')
+    expect(projectList(['vibelog', 'keysready', 'strollz'])).toBe('KeysReady, Strollz and VibeLog')
+    expect(projectList(['feelium', 'vibelog', 'keysready', 'strollz'])).toBe('KeysReady, Strollz, Feelium and VibeLog')
     expect(createConfirmText({ ...entry, requested: ['keysready'] }, links)).toContain('waitlist for KeysReady on n8builds.dev')
     expect(createConfirmHtml({ ...entry, requested: ['feelium'] }, links)).toContain('Feelium')
-    expect(createConfirmHtml(entry, links)).toContain('Relink and Strollz')
+    expect(createConfirmHtml(entry, links)).toContain('KeysReady and Strollz')
   })
 })
