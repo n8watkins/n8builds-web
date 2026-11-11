@@ -16,6 +16,10 @@ The site runs on Cloudflare Workers as the `n8builds-web` Worker in the owner's 
 - `next/image` resizes through the Cloudflare Images binding (`IMAGES`).
 - ISR (`export const revalidate`, revalidated fetches) is kept in the R2 bucket `n8builds-web-opennext-cache`, with a regional Cache API layer and a Durable Object queue (`DOQueueHandler`) for background revalidation (`open-next.config.ts`).
   A Durable Object tag cache (`DOShardedTagCache`) tracks the site's own cache tags, so publishing in Sanity refreshes the blog at once ([docs/SANITY.md](docs/SANITY.md)).
+- In front of that, Workers Cache keeps every page Next marks the same for everyone (ISR, static, the image optimizer's answers) at the edge, so a repeat view costs no CPU time (`worker/edge-cache.js`).
+  The default entrypoint runs on every request and sends only cacheable ones to the cached `CachedPages` entrypoint; drafts, form posts, videos, www and workers.dev never touch the cache.
+  A response shows `cf-cache-status: HIT` when it came from there; a Sanity publish empties it, and each deploy starts with an empty one.
+- `/healthz` answers `ok` from the Worker before Next runs: it is the URL for uptime checks (OpenPing, Sentry).
 - Email (contact form, quote requests, waitlist links) goes through Cloudflare Email Service's `send_email` binding (`EMAIL`), from contact@n8builds.dev (`lib/email/send.ts`).
   n8builds.dev is onboarded for sending; Cloudflare added its records on `cf-bounce.n8builds.dev` and the DKIM key itself.
 - Cloudflare Web Analytics replaces Vercel Analytics and Speed Insights (`components/WebAnalytics.tsx`), once `NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN` is set at build time.

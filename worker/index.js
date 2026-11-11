@@ -7,6 +7,7 @@ import openNext from '../.open-next/worker.js'
 import { dataCollection } from '../lib/sentry-data-collection'
 import { scrubContactBody } from '../lib/sentry-scrub'
 import { MEDIA, fetchWithRanges } from './range.js'
+import { forEdge, mayUseEdgeCache } from './edge-cache.js'
 import { purgeExpired } from '../lib/retention'
 import { WaitlistStore } from '../lib/waitlist/store'
 
@@ -16,6 +17,23 @@ export { DOQueueHandler, DOShardedTagCache } from '../.open-next/worker.js'
 export { RateLimitCounter } from './rate-limit-counter.js'
 
 const DRAFT_MODE_COOKIE = /(?:^|;\s*)__prerender_bypass=/
+
+/**
+ * What may come from the edge cache (worker/edge-cache.js): the site's own
+ * host only, and never the videos, which worker/range.js answers in ranges.
+ */
+const EDGE_CACHE_SITE = { host: 'n8builds.dev', uncachedPaths: MEDIA }
+
+/**
+ * The uptime check's URL (OpenPing, Sentry): answered here, before Next, so a
+ * check every minute costs next to no CPU. It proves the Worker is deployed
+ * and starts; the pages themselves are checked by the E2E tests and the deploy.
+ */
+function health() {
+  return new Response('ok', {
+    headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' },
+  })
+}
 
 /**
  * Next marks prerendered pages `s-maxage=<revalidate>, stale-while-revalidate`
@@ -68,27 +86,62 @@ export class WaitlistAdmin extends WorkerEntrypoint {
   }
 }
 
+/**
+ * The pages Cloudflare's cache sits in front of (wrangler.jsonc "exports"):
+ * a hit is answered without running this code at all. The default entrypoint
+ * below sends only cacheable requests here (worker/edge-cache.js).
+ * @extends {WorkerEntrypoint<Env>}
+ */
+export class CachedPages extends WorkerEntrypoint {
+  /** @param {Request} request */
+  async fetch(request) {
+    return forBrowsers(request, forEdge(await openNext.fetch(request, this.env, this.ctx)))
+  }
+
+  /**
+   * Empties the edge cache (a purge only reaches the entrypoint that calls
+   * it). Called by app/api/sanity/revalidate after a publish.
+   */
+  async purgeEverything() {
+    const ctx = /** @type {ExecutionContext & { cache: { purge(options: { purgeEverything: true }): Promise<unknown> } }} */ (this.ctx)
+    return ctx.cache.purge({ purgeEverything: true })
+  }
+}
+
+/**
+ * Everything that never comes from the edge cache: the contact form's flood
+ * limit, the videos' byte ranges, and the pages for drafts and revalidations.
+ * @param {Request} request
+ * @param {Env} env
+ * @param {ExecutionContext} ctx
+ */
+async function uncached(request, env, ctx) {
+  const { pathname } = new URL(request.url)
+  // A flood of contact posts is turned away here, before any of it reaches
+  // Turnstile, the rate-limit counters or Next. The form shows its own message for a bare 429.
+  if (request.method === 'POST' && pathname === '/api/contact') {
+    const ip = request.headers.get('cf-connecting-ip') ?? 'unknown'
+    const { success } = await env.CONTACT_RATE_LIMITER.limit({ key: ip })
+    if (!success) return new Response('Too many requests', { status: 429, headers: { 'Retry-After': '60' } })
+  }
+  if (MEDIA.test(pathname)) {
+    const response = await fetchWithRanges(request, env.ASSETS)
+    // A missing video gets the site's own 404 page.
+    if (response.status !== 404) return response
+  }
+  return forBrowsers(request, await openNext.fetch(request, env, ctx))
+}
+
 const worker = {
   /**
    * @param {Request} request
    * @param {Env} env
-   * @param {ExecutionContext} ctx
+   * @param {ExecutionContext & { exports: { CachedPages: { fetch(request: Request): Promise<Response> } } }} ctx
    */
   async fetch(request, env, ctx) {
-    const { pathname } = new URL(request.url)
-    // A flood of contact posts is turned away here, before any of it reaches
-    // Turnstile, the rate-limit counters or Next. The form shows its own message for a bare 429.
-    if (request.method === 'POST' && pathname === '/api/contact') {
-      const ip = request.headers.get('cf-connecting-ip') ?? 'unknown'
-      const { success } = await env.CONTACT_RATE_LIMITER.limit({ key: ip })
-      if (!success) return new Response('Too many requests', { status: 429, headers: { 'Retry-After': '60' } })
-    }
-    if (MEDIA.test(pathname)) {
-      const response = await fetchWithRanges(request, env.ASSETS)
-      // A missing video gets the site's own 404 page.
-      if (response.status !== 404) return response
-    }
-    return forBrowsers(request, await openNext.fetch(request, env, ctx))
+    if (new URL(request.url).pathname === '/healthz') return health()
+    if (mayUseEdgeCache(request, EDGE_CACHE_SITE)) return ctx.exports.CachedPages.fetch(request)
+    return uncached(request, env, ctx)
   },
 
   /**
