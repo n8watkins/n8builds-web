@@ -214,6 +214,40 @@ export class WaitlistStore {
     return meta.changes > 0
   }
 
+  /** The live entry behind a leave link (for the manage page), or null when it is unknown or expired. */
+  async forLeaveToken(token: string): Promise<WaitlistEntry | null> {
+    const row = await this.db
+      .prepare("SELECT subscriber_id FROM waitlist_tokens WHERE token_hash = ? AND purpose = 'leave' AND expires_at > ?")
+      .bind(tokenHash(token), this.now().getTime())
+      .first<{ subscriber_id: string }>()
+    return row ? this.get(row.subscriber_id) : null
+  }
+
+  /**
+   * Uses a leave link to stay on only some projects: every other project of
+   * the entry is removed. Keeping none deletes the entry, as leaving does.
+   * Null when the link is unknown or expired, or the entry is gone; else what
+   * is left. One transaction, and the link keeps working until it expires.
+   */
+  async keepOnly(token: string, keep: UpcomingSlug[]): Promise<WaitlistEntry | null> {
+    const entry = await this.forLeaveToken(token)
+    if (!entry) return null
+    if (keep.length === 0) {
+      await this.leave(token)
+      return null
+    }
+    const marks = keep.map(() => '?').join(', ')
+    await this.db.batch([
+      this.db.prepare(`DELETE FROM waitlist_projects WHERE subscriber_id = ? AND project NOT IN (${marks})`).bind(entry.id, ...keep),
+      // Nothing left (it kept only projects it wasn't on): gone, as leaving.
+      this.db
+        .prepare('DELETE FROM waitlist_subscribers WHERE id = ? AND NOT EXISTS (SELECT 1 FROM waitlist_projects WHERE subscriber_id = ?)')
+        .bind(entry.id, entry.id),
+      this.db.prepare('UPDATE waitlist_subscribers SET updated_at = ? WHERE id = ?').bind(this.now().toISOString(), entry.id),
+    ])
+    return this.get(entry.id)
+  }
+
   /** Deletes an entry by id (a deletion request, from the admin). */
   async remove(id: string): Promise<boolean> {
     const { meta } = await this.db.prepare('DELETE FROM waitlist_subscribers WHERE id = ?').bind(id).run()

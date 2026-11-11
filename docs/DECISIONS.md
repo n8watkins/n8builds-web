@@ -601,3 +601,6 @@ Where these conflict with an older entry above, these win; the older entries are
   Double opt-in with a single-use confirm link that expires in 7 days; unconfirmed addresses are deleted after that, and new and existing addresses get the same answer.
   Every email has a one-click unsubscribe link and List-Unsubscribe headers; unsubscribing needs no login and deletes the address.
   One weekly digest, only in weeks with a new post, inside mailroom's slice (40 a day, 150 a month, 3 per address a day): a week that would pass it is skipped with a note for the owner (`docs/DATABASE.md`).
+- **The waitlist emails' refresh** (owner feedback, 2026-11-11): the header's N8 mark and each project's icon are absolute https PNGs on the site (`public/email/`, 2x, width and height set), never SVG or data: images; the contact emails keep their inline attachments.
+  Each email lists its projects as small cards (icon, name, the tagline from `data/upcoming.ts`), the footer is short muted lines, and there is more room throughout; the newsletter emails share the header and spacing.
+  The leave link opens a manage page: a checkbox per project, Save, and Leave the waitlist. No login: the leave token identifies the address, does nothing else, and still expires after a year. A mail client's one-click unsubscribe (List-Unsubscribe-Post) leaves the whole waitlist.

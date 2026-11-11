@@ -37,21 +37,22 @@ export const CONFIRM_SUBJECT = `Confirm your ${NEWSLETTER_NAME} subscription`
 
 export function createConfirmHtml(confirmToken: string, unsubscribeToken: string): string {
   const url = confirmUrl(confirmToken)
-  const body = `${brandBar('Newsletter')}
+  const body = `${brandBar('Newsletter', { logo: 'url' })}
 ${card(`                <tr>
-                  <td class="px" style="padding:34px 36px 8px;">
+                  <td class="px" style="padding:38px 40px 6px;">
                     <h1 class="h1" style="margin:0 0 12px;font-family:${FONT};font-size:28px;line-height:34px;font-weight:800;color:${C.white};letter-spacing:-0.6px;">One click to subscribe</h1>
                     ${paragraph(`Someone, hopefully you, asked for <strong style="color:${C.white};">${NEWSLETTER_NAME}</strong> by email on n8builds.dev. Confirm, and you'll get one short email in any week with a new post. No other email, ever.`)}
                   </td>
                 </tr>
                 <tr>
-                  <td class="px" style="padding:22px 36px 26px;">
+                  <td class="px" style="padding:28px 40px 30px;">
                     ${button(url, 'Confirm my subscription')}
                     <p style="margin:14px 0 0;font-family:${MONO};font-size:11px;line-height:17px;color:${C.faint};word-break:break-all;">Or open ${url}</p>
                   </td>
                 </tr>${signOff}`)}
 ${footnote(
-  `Not you? Ignore this email: nothing happens unless you confirm, and the address is deleted after ${CONFIRM_DAYS} days.<br>${unsubscribeNote(unsubscribeToken)}`
+  ['Not you? Ignore this email: nothing happens unless you confirm.', `An unconfirmed address is deleted after ${CONFIRM_DAYS} days.`],
+  unsubscribeNote(unsubscribeToken)
 )}`
   return shell({ title: 'Confirm your subscription', preheader: `Confirm to get ${NEWSLETTER_NAME} by email.`, body })
 }
@@ -86,7 +87,7 @@ function postRow(post: DigestPost, last: boolean): string {
   const url = postUrl(post.slug)
   const excerpt = post.excerpt ? paragraph(sanitizeHtml(post.excerpt), 8) : ''
   return `                <tr>
-                  <td class="px" style="padding:22px 36px ${last ? 26 : 22}px;">
+                  <td class="px" style="padding:24px 40px ${last ? 28 : 24}px;">
                     <p style="margin:0;font-family:${MONO};font-size:11px;letter-spacing:1px;text-transform:uppercase;color:${C.cyan};">${postDate(post.publishedAt)}</p>
                     <h2 style="margin:8px 0 0;font-family:${FONT};font-size:21px;line-height:28px;font-weight:800;color:${C.white};letter-spacing:-0.3px;"><a href="${url}" style="color:${C.white};text-decoration:none;">${sanitizeHtml(post.title)}</a></h2>
                     ${excerpt}
@@ -98,20 +99,21 @@ function postRow(post: DigestPost, last: boolean): string {
 // Between posts, inset like the sign-off's rule.
 const divider = `
                 <tr>
-                  <td class="px" style="padding:0 36px;"><div style="border-top:1px solid ${C.line};height:0;line-height:0;font-size:0;">&nbsp;</div></td>
+                  <td class="px" style="padding:0 40px;"><div style="border-top:1px solid ${C.line};height:0;line-height:0;font-size:0;">&nbsp;</div></td>
                 </tr>`
 
 export function createDigestHtml(posts: DigestPost[], unsubscribeToken: string): string {
   const heading = posts.length === 1 ? 'A new post' : `${posts.length} new posts`
-  const body = `${brandBar(NEWSLETTER_NAME)}
+  const body = `${brandBar(NEWSLETTER_NAME, { logo: 'url' })}
 ${card(`                <tr>
-                  <td class="px" style="padding:34px 36px 4px;">
+                  <td class="px" style="padding:38px 40px 4px;">
                     <h1 class="h1" style="margin:0;font-family:${FONT};font-size:28px;line-height:34px;font-weight:800;color:${C.white};letter-spacing:-0.6px;">${heading} this week</h1>
                   </td>
                 </tr>
 ${posts.map((post, i) => postRow(post, i === posts.length - 1)).join('\n')}${signOff}`)}
 ${footnote(
-  `You get this because you subscribed to ${NEWSLETTER_NAME} at n8builds.dev: at most one email a week, only when there is a new post.<br>${unsubscribeNote(unsubscribeToken)}`
+  [`You subscribed to ${NEWSLETTER_NAME} at n8builds.dev.`, 'At most one email a week, only when there is a new post.'],
+  unsubscribeNote(unsubscribeToken)
 )}`
   return shell({ title: digestSubject(posts), preheader: posts.map((p) => p.title).join(' · '), body })
 }
