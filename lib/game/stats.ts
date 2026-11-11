@@ -24,15 +24,11 @@ import type { D1Database } from '@/lib/db'
  * - game_top         the best TOP_KEEP scores: site, country, date
  */
 
-export const SITES = ['n8builds', 'portfolio'] as const
-export type Site = (typeof SITES)[number]
+// The sites and their origins live in ./origins, which the Worker's entry also
+// reads (worker/game-gate.js) without loading the rest of this module.
+import type { Site } from './origins'
 
-/** The pages allowed to send events, and the site each one is. */
-export const ORIGINS: Record<string, Site> = {
-  'https://n8builds.dev': 'n8builds',
-  'https://www.n8builds.dev': 'n8builds',
-  'https://portfolio.n8builds.dev': 'portfolio',
-}
+export { ORIGINS, SITES, type Site } from './origins'
 
 /** A round is 30 s of the dino on screen; it can last longer (paused off screen), never shorter. */
 export const ROUND_SECONDS = 30

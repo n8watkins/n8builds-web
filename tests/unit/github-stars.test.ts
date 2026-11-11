@@ -29,13 +29,13 @@ describe('repoStars', () => {
     vi.unstubAllEnvs()
   })
 
-  it("returns the repo's stargazer count, cached for an hour", async () => {
+  it("returns the repo's stargazer count, cached for six hours", async () => {
     vi.stubEnv('BUILD_LOG_FIXTURE', '')
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ stargazers_count: 42 })))
     vi.stubGlobal('fetch', fetchMock)
     await expect(repoStars('n8watkins/scribe')).resolves.toBe(42)
     expect(fetchMock.mock.calls[0][0]).toBe('https://api.github.com/repos/n8watkins/scribe')
-    expect(fetchMock.mock.calls[0][1].next).toEqual({ revalidate: 3600 })
+    expect(fetchMock.mock.calls[0][1].next).toEqual({ revalidate: 21600 })
   })
 
   it('returns null when GitHub fails or answers oddly, so the button shows no count', async () => {

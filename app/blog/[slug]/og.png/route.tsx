@@ -5,7 +5,7 @@ import { getAllPosts, getPostBySlug } from '@/lib/sanity'
 // SEO image or cover (or the generated cover art when it has neither). The
 // title matters: in a feed, a bare illustration doesn't say what the post is.
 
-export const revalidate = 3600
+export const revalidate = 21600
 
 export async function generateStaticParams() {
   const posts = await getAllPosts()

@@ -6,8 +6,8 @@ import { getLogMonths } from '@/components/sections/BuildLogStrip'
  * owner's portfolio (n8watkins/dev-portfolio), which shows the month summary
  * in its bento grid (2026-11-09).
  *
- * Built from the same hourly-cached GitHub log as /builds, and served as a
- * static file regenerated about once an hour. Anyone may read it (CORS `*`):
+ * Built from the same GitHub log as /builds (cached for six hours), and served
+ * as a static file regenerated about every six hours. Anyone may read it (CORS `*`):
  * it carries only what /builds already shows.
  *
  * Shape (version 1):
@@ -20,7 +20,7 @@ import { getLogMonths } from '@/components/sections/BuildLogStrip'
  */
 
 export const dynamic = 'force-static'
-export const revalidate = 3600
+export const revalidate = 21600
 
 const SITE = 'https://n8builds.dev'
 
@@ -45,7 +45,7 @@ export async function GET() {
   return Response.json(body, {
     headers: {
       'Access-Control-Allow-Origin': '*',
-      'Cache-Control': 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400',
+      'Cache-Control': 'public, max-age=300, s-maxage=21600, stale-while-revalidate=86400',
     },
   })
 }
