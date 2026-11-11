@@ -374,7 +374,7 @@ test("the homepage Lab ends with a compact What's cookin' part: projects grouped
       }
     }
   }
-  await expect(band.getByText('Sends broken links to the right page')).toBeVisible()
+  await expect(band.getByText('Booking and live repair status for auto shops')).toBeVisible()
   // No status labels: every project has a live landing page.
   await expect(band.getByText('Status:')).toHaveCount(0)
 
