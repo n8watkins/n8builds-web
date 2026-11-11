@@ -571,7 +571,9 @@ test.describe('dino easter egg (motion allowed)', () => {
   })
 
   test('shouts a different word each click, and turns rainbow on the 5th', async ({ page }) => {
-    await dinoTiming(page, { reactions: ['dash'] })
+    // Rainbow lasts the whole test: it is on the clock (6s on the site), and a busy machine can
+    // take longer than that over the clicks and the sparkle polls below.
+    await dinoTiming(page, { reactions: ['dash'], rainbow: 300 })
     await onTopRow(page)
     const words: string[] = []
     for (let i = 0; i < 5; i++) {
@@ -599,8 +601,11 @@ test.describe('dino easter egg (motion allowed)', () => {
   // Round 11 of 2026-11-09 (owner): rainbow mode doesn't last forever. While it lasts the dino
   // runs faster and, in a round, a catch counts three; then it takes a colour again.
   test('rainbow mode wears off, and in a round a rainbow catch counts three', async ({ page }) => {
-    // Rainbow for 1.5s here (6s on the site), the 5th click turning it rainbow as always.
-    await dinoTiming(page, { reactions: ['dash'], rainbow: 1.5 })
+    // Rainbow for 10s here (6s on the site), the 5th click turning it rainbow as always. It runs
+    // on the wall clock, so it has to outlast the clicks and checks that need it on, however slow
+    // the machine; only the wearing off at the end waits for it.
+    test.setTimeout(60_000)
+    await dinoTiming(page, { reactions: ['dash'], rainbow: 10 })
     await onTopRow(page)
     for (let i = 0; i < 5; i++) {
       await pokeWalking(page)
@@ -613,7 +618,7 @@ test.describe('dino easter egg (motion allowed)', () => {
     await expect(dino(page)).toHaveAttribute('data-catches', String(before + 3))
     await expect(dino(page)).toHaveAttribute('data-bonus', '3')
     // It wears off and takes a colour again, its sparkles gone.
-    await expect(dino(page)).not.toHaveAttribute('data-rainbow', 'true', { timeout: 10_000 })
+    await expect(dino(page)).not.toHaveAttribute('data-rainbow', 'true', { timeout: 20_000 })
     await expect(dino(page).locator('[data-dino-sparkles]')).toBeHidden()
     expect(await dino(page).evaluate((el) => getComputedStyle(el).getPropertyValue('--dino-body').trim())).toMatch(/^hsl\(/)
   })

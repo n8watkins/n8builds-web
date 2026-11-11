@@ -454,14 +454,16 @@ test('each row has one primary action, then Full story, then Star | GitHub, and 
   }
 })
 
-test("each row's buttons fit their column, with one-line labels, at every width", { tag: '@cross-browser' }, async ({ page, isMobile }) => {
-  test.skip(isMobile, 'phones set their own width; the desktop projects walk the widths')
-  // Rows times widths, each a relayout: WebKit under a full parallel run needs more than 30s.
-  test.setTimeout(90_000)
-  // Scribe offers the visitor's OS: Windows here (Desktop Safari's user agent says Mac).
-  await page.addInitScript(asWindows)
-  // Row by row (each page opens once), every width on each.
-  for (const title of ROWS) {
+// One test per row (each opens its page once and walks every width on it): all the rows in
+// one test were rows times widths of relayouts, which ran WebKit past even 90s under a full
+// parallel run. Per row the work is a quarter of that, and the rows run in parallel. Each
+// relayout in WebKit can take seconds on a busy machine, so a row keeps a generous timeout too.
+for (const title of ROWS) {
+  test(`${title}'s buttons fit their column, with one-line labels, at every width`, { tag: '@cross-browser' }, async ({ page, isMobile }) => {
+    test.skip(isMobile, 'phones set their own width; the desktop projects walk the widths')
+    test.setTimeout(90_000)
+    // Scribe offers the visitor's OS: Windows here (Desktop Safari's user agent says Mac).
+    await page.addInitScript(asWindows)
     const row = await rowOf(page, title)
     for (const width of [1920, 1440, 1366, 1280, 1100, 1040, 1024, 820, 768, 390, 320]) {
       await page.setViewportSize({ width, height: 900 })
@@ -485,8 +487,8 @@ test("each row's buttons fit their column, with one-line labels, at every width"
       )
       expect(clipped, `${at}: nothing clipped`).toEqual([false, false, false, false])
     }
-  }
-})
+  })
+}
 
 test('the rows and the extensions share one Star | GitHub control, its star showing the live count', async ({ page }) => {
   const expectControl = async (control: import('@playwright/test').Locator) => {
