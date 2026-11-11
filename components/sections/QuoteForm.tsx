@@ -1,12 +1,9 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
-import { Turnstile } from '@marsidev/react-turnstile'
 import { FiArrowRight, FiCheck } from 'react-icons/fi'
 import { useHydrated } from '@/hooks/useHydrated'
-import { useNearViewport } from '@/hooks/useNearViewport'
+import { useTurnstileOnIntent } from '@/hooks/useTurnstileOnIntent'
 
-// How long to wait for Turnstile to issue a token after the visitor sends.
-const TURNSTILE_WAIT_MS = 15_000
 const DIRECT_EMAIL = 'contact@n8builds.dev'
 const FALLBACK_ERROR = `Something went wrong. Please try again, or email me at ${DIRECT_EMAIL}.`
 const VERIFY_ERROR = `We couldn't verify your browser (an ad or privacy blocker can cause this). Please refresh and try again, or email me at ${DIRECT_EMAIL}.`
@@ -31,18 +28,14 @@ type State =
  */
 export default function QuoteForm({ turnstileSiteKey }: { turnstileSiteKey: string }) {
   const hydrated = useHydrated()
-  // Turnstile loads once the form is near the screen, not with the page (useNearViewport).
-  const [formRef, near] = useNearViewport<HTMLFormElement>()
+  // Turnstile runs on the first focus or input in the form (useTurnstileOnIntent).
+  const turnstile = useTurnstileOnIntent(turnstileSiteKey)
   const [email, setEmail] = useState('')
   const [honeypot, setHoneypot] = useState('')
   const [state, setState] = useState<State>({ kind: 'idle' })
   const [invalid, setInvalid] = useState(false)
   const input = useRef<HTMLInputElement>(null)
   const done = useRef<HTMLParagraphElement>(null)
-  const token = useRef('')
-  // Turnstile tokens are single-use: a new widget issues a fresh one after each send.
-  const [widget, setWidget] = useState(0)
-  const tokenWaiter = useRef<((token: string | null) => void) | null>(null)
 
   // A link to /#quote lands here, ready to type.
   useEffect(() => {
@@ -58,21 +51,6 @@ export default function QuoteForm({ turnstileSiteKey }: { turnstileSiteKey: stri
     if (state.kind === 'done') done.current?.focus()
   }, [state.kind])
 
-  const waitForToken = (): Promise<string | null> => {
-    if (!turnstileSiteKey) return Promise.resolve('dev_bypass_token')
-    if (token.current) return Promise.resolve(token.current)
-    return new Promise((resolve) => {
-      const timer = setTimeout(() => {
-        tokenWaiter.current = null
-        resolve(null)
-      }, TURNSTILE_WAIT_MS)
-      tokenWaiter.current = (value) => {
-        clearTimeout(timer)
-        resolve(value)
-      }
-    })
-  }
-
   const submit = async () => {
     const address = email.trim()
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address)) {
@@ -80,26 +58,24 @@ export default function QuoteForm({ turnstileSiteKey }: { turnstileSiteKey: stri
       return input.current?.focus()
     }
     setState({ kind: 'sending' })
-    const turnstile = await waitForToken()
-    if (!turnstile) return setState({ kind: 'error', message: VERIFY_ERROR })
-    token.current = ''
-    setWidget((n) => n + 1)
+    const token = await turnstile.getToken()
+    if (!token) return setState({ kind: 'error', message: VERIFY_ERROR })
+    // Tokens are single-use: this one is spent once sent.
+    turnstile.spend()
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kind: 'techforpros-quote', email: address, turnstile, honeypot }),
+        body: JSON.stringify({ kind: 'techforpros-quote', email: address, turnstile: token, honeypot }),
       })
       const data = await response.json().catch(() => ({}))
-      if (!response.ok)
-        return setState({
-          kind: 'error',
-          message: typeof data.error === 'string' ? data.error : FALLBACK_ERROR,
-        })
-      setState({ kind: 'done', email: address })
+      if (response.ok) return setState({ kind: 'done', email: address })
+      setState({ kind: 'error', message: typeof data.error === 'string' ? data.error : FALLBACK_ERROR })
     } catch {
       setState({ kind: 'error', message: FALLBACK_ERROR })
     }
+    // The visitor will likely try again: have a fresh token ready.
+    turnstile.prepare()
   }
 
   if (state.kind === 'done') {
@@ -130,7 +106,7 @@ export default function QuoteForm({ turnstileSiteKey }: { turnstileSiteKey: stri
   const errorId = 'quote-email-error'
   return (
     <form
-      ref={formRef}
+      {...turnstile.intentProps}
       id={QUOTE_ANCHOR}
       noValidate
       className="@container scroll-mt-28"
@@ -204,22 +180,7 @@ export default function QuoteForm({ turnstileSiteKey }: { turnstileSiteKey: stri
         </p>
       )}
       {/* Invisible unless Cloudflare needs a challenge; see the contact form. */}
-      {turnstileSiteKey && near && (
-        <Turnstile
-          key={widget}
-          siteKey={turnstileSiteKey}
-          onSuccess={(value) => {
-            token.current = value
-            tokenWaiter.current?.(value)
-            tokenWaiter.current = null
-          }}
-          onExpire={() => {
-            token.current = ''
-          }}
-          options={{ appearance: 'interaction-only', refreshExpired: 'auto' }}
-          className="absolute"
-        />
-      )}
+      {turnstile.widget}
     </form>
   )
 }

@@ -3,7 +3,6 @@
 import React, { useEffect, useRef } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import FadeIn from '@/components/ui/FadeIn'
-import { Turnstile } from '@marsidev/react-turnstile'
 import { ContactInput } from '@/components/ui/ContactInput'
 import { ContactTopicCards } from '@/components/ui/ContactTopicCards'
 import { ContactTextarea } from '@/components/ui/ContactTextarea'
@@ -12,7 +11,7 @@ import { subjectOptions } from '@/lib/validations/contactOptions'
 import { CONTACT_PRESETS, CONTACT_PRESET_EVENT, isContactPresetId } from '@/lib/contactPresets'
 import { trackContactEvent } from '@/lib/analytics'
 import { useHydrated } from '@/hooks/useHydrated'
-import { useNearViewport } from '@/hooks/useNearViewport'
+import type { TurnstileOnIntent } from '@/hooks/useTurnstileOnIntent'
 import { SubmissionState } from './useContactFormSubmit'
 
 interface ContactFormFieldsProps {
@@ -21,9 +20,9 @@ interface ContactFormFieldsProps {
   errorMessage: string
   isVerifying: boolean
   onSubmit: () => Promise<void>
-  onTurnstileToken: (token: string) => void
-  onTurnstileExpire: () => void
-  turnstileSiteKey: string
+  /** The invisible Turnstile widget (useTurnstileOnIntent), mounted on the first intent. */
+  turnstileWidget: React.ReactNode
+  turnstileIntent: TurnstileOnIntent['intentProps']
 }
 
 export function ContactFormFields({
@@ -32,9 +31,8 @@ export function ContactFormFields({
   errorMessage,
   isVerifying,
   onSubmit,
-  onTurnstileToken,
-  onTurnstileExpire,
-  turnstileSiteKey,
+  turnstileWidget,
+  turnstileIntent,
 }: ContactFormFieldsProps) {
   const {
     register,
@@ -49,11 +47,6 @@ export function ContactFormFields({
   // The server-rendered button has no click handler until hydration, so a
   // click before then would be silently lost.
   const hydrated = useHydrated()
-  // Turnstile loads once the form is near the screen, not with the page, as
-  // the waitlist and quote forms do (useNearViewport): its challenge ran about
-  // a second of script on a phone at every homepage load, for a form at the
-  // bottom of the page. A Send before it has a token waits for one.
-  const [formRef, near] = useNearViewport<HTMLFormElement>()
 
   // The topic radios are uncontrolled (ContactTopicCards): one picked before
   // hydration, on a slow connection, is only in the DOM, so adopt it.
@@ -96,7 +89,8 @@ export function ContactFormFields({
 
   return (
     <form
-      ref={formRef}
+      // The first focus or input in a field runs Turnstile (useTurnstileOnIntent).
+      {...turnstileIntent}
       // Send is a real submit button, so Enter (or Go on a phone keyboard)
       // submits too. Before hydration the button is disabled and React isn't
       // listening yet, so nothing can be lost.
@@ -190,26 +184,9 @@ export function ContactFormFields({
       )}
 
       <FadeIn delay={0.45} className="flex flex-col items-center gap-3 pt-1">
-        {/*
-          Invisible Cloudflare Turnstile widget.
-          appearance: 'interaction-only' keeps it hidden unless a challenge is
-          truly required. On success it hands its token to the form, which
-          waits for one if the visitor clicks Send first. Only rendered when a
-          site key is configured; otherwise useContactFormSubmit falls back to a
-          placeholder token.
-        */}
-        {turnstileSiteKey && near && (
-          <Turnstile
-            siteKey={turnstileSiteKey}
-            onSuccess={(token) => {
-              onTurnstileToken(token)
-              trackContactEvent('turnstile_complete')
-            }}
-            onExpire={onTurnstileExpire}
-            options={{ appearance: 'interaction-only', refreshExpired: 'auto' }}
-            className="absolute"
-          />
-        )}
+        {/* Invisible Cloudflare Turnstile: mounted and run on the first focus or
+            input in the form; a Send before its token is ready waits for it. */}
+        {turnstileWidget}
 
         <button
           type="submit"

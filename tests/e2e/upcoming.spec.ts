@@ -20,9 +20,14 @@ test.beforeEach(async ({ page }) => {
 
 const uniqueEmail = () => `visitor+${Date.now()}${Math.floor(Math.random() * 1e6)}@example.com`
 
+/** Hydrated: a field filled before then is typed into a form React isn't listening to yet. */
+async function waitForForm(page: Page) {
+  await expect(page.getByRole('button', { name: 'Join the waitlist' })).toBeEnabled()
+}
+
 async function waitForTurnstileToken(page: Page) {
-  // Its Turnstile loads once the form nears the screen (hooks/useNearViewport.ts).
-  await page.locator('#waitlist').scrollIntoViewIfNeeded()
+  // Its Turnstile runs on the first focus or input in the form (hooks/useTurnstileOnIntent.tsx),
+  // so call this after filling a field (once the form has hydrated: waitForForm).
   await expect(page.locator('#waitlist input[name="cf-turnstile-response"]')).toHaveValue(/.+/, { timeout: SEND_TIMEOUT })
 }
 
@@ -103,8 +108,9 @@ test("a card's Join button ticks its project and brings the form into view", { t
 
 test('a visitor can join the waitlist', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
   await page.goto('/upcoming?interest=relink#relink', { waitUntil: 'domcontentloaded' })
-  await waitForTurnstileToken(page)
+  await waitForForm(page)
   await page.getByRole('textbox', { name: 'Email' }).fill(uniqueEmail())
+  await waitForTurnstileToken(page)
   await page.locator('#waitlist-projects label', { hasText: 'Strollz' }).click()
   await expect(project(page, 'Strollz')).toBeChecked()
   // No note field (owner, 2026-11-02): email and projects are all it asks.
@@ -136,8 +142,9 @@ async function emailedLink(page: Page, to: string, path: '/upcoming/confirm' | '
 test('a visitor joins, confirms from the email, and leaves again, with every step kept in the database', { tag: '@smoke' }, async ({ page }) => {
   const email = uniqueEmail()
   await page.goto('/upcoming?interest=feelium#feelium', { waitUntil: 'domcontentloaded' })
-  await waitForTurnstileToken(page)
+  await waitForForm(page)
   await page.getByRole('textbox', { name: 'Email' }).fill(email)
+  await waitForTurnstileToken(page)
   await page.locator('#waitlist-projects label', { hasText: 'KeysReady' }).click()
   await page.getByRole('button', { name: 'Join the waitlist' }).click()
   await expect(page.getByRole('heading', { name: 'Check your inbox' })).toBeVisible({ timeout: SEND_TIMEOUT })
@@ -183,13 +190,32 @@ test('asks for a project and a valid email before sending anything', { tag: ['@c
 
 test('shows the server error when the waitlist is unavailable', async ({ page }) => {
   await page.goto('/upcoming?interest=relink')
-  await waitForTurnstileToken(page)
   await page.route('/api/waitlist', (route) =>
     route.fulfill({ status: 503, json: { error: 'The waitlist is having trouble right now.', type: 'unavailable' } })
   )
+  await waitForForm(page)
   await page.getByRole('textbox', { name: 'Email' }).fill(uniqueEmail())
+  await waitForTurnstileToken(page)
   await page.getByRole('button', { name: 'Join the waitlist' }).click()
   await expect(page.locator('main').getByRole('alert')).toHaveText('The waitlist is having trouble right now.')
+})
+
+test('Turnstile runs only once the visitor starts on a form', async ({ page }) => {
+  // Not on page view or scroll (2026-11-10): Cloudflare warns about tokens that are never verified.
+  const challenge: string[] = []
+  page.on('request', (r) => {
+    if (r.url().startsWith('https://challenges.cloudflare.com/')) challenge.push(r.url())
+  })
+  await page.goto('/upcoming')
+  await waitForForm(page)
+  await page.locator('#waitlist').scrollIntoViewIfNeeded()
+  await page.waitForTimeout(1500)
+  expect(challenge).toEqual([])
+
+  // A pick from a card's Join button is intent too.
+  await page.locator('article#relink').getByRole('link', { name: 'Join the waitlist for Relink' }).click()
+  await waitForTurnstileToken(page)
+  expect(challenge.length).toBeGreaterThan(0)
 })
 
 test('the confirm page acts only on a click, and explains an expired link', async ({ page }) => {
@@ -208,11 +234,17 @@ test('the confirm page acts only on a click, and explains an expired link', asyn
 })
 
 test('the leave page without a link offers to email one', async ({ page }) => {
+  let challenged = false
+  page.on('request', (r) => {
+    if (r.url().startsWith('https://challenges.cloudflare.com/')) challenged = true
+  })
   await page.goto('/upcoming/leave', { waitUntil: 'domcontentloaded' })
-  await page.getByRole('textbox', { name: 'Email' }).fill(uniqueEmail())
   const send = page.getByRole('button', { name: 'Email me a link' })
-  // Enabled once Turnstile has issued a token.
-  await expect(send).toBeEnabled({ timeout: SEND_TIMEOUT })
+  await expect(send).toBeEnabled() // hydrated
+  // No challenge for a visitor who only reads the page.
+  expect(challenged).toBe(false)
+  await page.getByRole('textbox', { name: 'Email' }).fill(uniqueEmail())
+  // Sent at once: the send waits for Turnstile's token if it isn't ready yet.
   await send.click()
   await expect(page.locator('main').getByRole('status')).toContainText('If that address is on the waitlist')
 })

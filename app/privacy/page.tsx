@@ -103,7 +103,8 @@ export default function PrivacyPolicy() {
                   <li>
                     <span className="text-slate-100">Bot protection.</span> The contact form, the
                     quote request and the waitlist are protected by Cloudflare Turnstile, which collects limited device and interaction
-                    signals to confirm you are a human and to block automated abuse.
+                    signals to confirm you are a human and to block automated abuse. It runs only once you start filling in one of
+                    those forms, not when you just read a page.
                   </li>
                   <li>
                     <span className="text-slate-100">Error monitoring.</span> To catch and fix bugs,
