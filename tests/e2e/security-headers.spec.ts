@@ -108,9 +108,11 @@ test.describe('the CSP blocks nothing the site uses', () => {
     await page.goto('/#contact')
     const form = page.locator('#contact form')
     await form.scrollIntoViewIfNeeded()
-    await expect(page.locator('#contact input[name="cf-turnstile-response"]')).toHaveValue(/.+/, { timeout: SEND_TIMEOUT })
+    await expect(page.getByRole('button', { name: /Send Message/ })).toBeEnabled() // hydrated
 
+    // Turnstile's script and challenge run on the first input (hooks/useTurnstileOnIntent.tsx).
     await form.getByLabel('Name').fill('Test Visitor')
+    await expect(page.locator('#contact input[name="cf-turnstile-response"]')).toHaveValue(/.+/, { timeout: SEND_TIMEOUT })
     await form.getByLabel('Email').fill('visitor@example.com')
     await form.getByRole('group', { name: 'Topic' }).getByText('Consulting', { exact: true }).click()
     await form.getByLabel('Message').fill('Hello! This is an end-to-end CSP test message.')

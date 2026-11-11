@@ -43,6 +43,9 @@ async function openContactForm(page: Page) {
   // instead (the token, or the Send button being enabled).
   await page.goto('/#contact', { waitUntil: 'domcontentloaded' })
   await page.locator('#contact form').scrollIntoViewIfNeeded()
+  // Hydrated: a field filled before then would never start Turnstile (it runs on
+  // the first focus or input React sees).
+  await expect(page.getByRole('button', { name: /Send Message/ })).toBeEnabled()
 }
 
 test('a visitor can send a message', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {

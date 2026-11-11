@@ -20,9 +20,14 @@ test.beforeEach(async ({ page }) => {
 
 const uniqueEmail = () => `visitor+${Date.now()}${Math.floor(Math.random() * 1e6)}@example.com`
 
+/** Hydrated: a field filled before then is typed into a form React isn't listening to yet. */
+async function waitForForm(page: Page) {
+  await expect(page.getByRole('button', { name: 'Join the waitlist' })).toBeEnabled()
+}
+
 async function waitForTurnstileToken(page: Page) {
   // Its Turnstile runs on the first focus or input in the form (hooks/useTurnstileOnIntent.tsx),
-  // so call this after filling a field.
+  // so call this after filling a field (once the form has hydrated: waitForForm).
   await expect(page.locator('#waitlist input[name="cf-turnstile-response"]')).toHaveValue(/.+/, { timeout: SEND_TIMEOUT })
 }
 
@@ -103,6 +108,7 @@ test("a card's Join button ticks its project and brings the form into view", { t
 
 test('a visitor can join the waitlist', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
   await page.goto('/upcoming?interest=relink#relink', { waitUntil: 'domcontentloaded' })
+  await waitForForm(page)
   await page.getByRole('textbox', { name: 'Email' }).fill(uniqueEmail())
   await waitForTurnstileToken(page)
   await page.locator('#waitlist-projects label', { hasText: 'Strollz' }).click()
@@ -136,6 +142,7 @@ async function emailedLink(page: Page, to: string, path: '/upcoming/confirm' | '
 test('a visitor joins, confirms from the email, and leaves again, with every step kept in the database', { tag: '@smoke' }, async ({ page }) => {
   const email = uniqueEmail()
   await page.goto('/upcoming?interest=feelium#feelium', { waitUntil: 'domcontentloaded' })
+  await waitForForm(page)
   await page.getByRole('textbox', { name: 'Email' }).fill(email)
   await waitForTurnstileToken(page)
   await page.locator('#waitlist-projects label', { hasText: 'KeysReady' }).click()
@@ -186,6 +193,7 @@ test('shows the server error when the waitlist is unavailable', async ({ page })
   await page.route('/api/waitlist', (route) =>
     route.fulfill({ status: 503, json: { error: 'The waitlist is having trouble right now.', type: 'unavailable' } })
   )
+  await waitForForm(page)
   await page.getByRole('textbox', { name: 'Email' }).fill(uniqueEmail())
   await waitForTurnstileToken(page)
   await page.getByRole('button', { name: 'Join the waitlist' }).click()
@@ -199,7 +207,7 @@ test('Turnstile runs only once the visitor starts on a form', async ({ page }) =
     if (r.url().startsWith('https://challenges.cloudflare.com/')) challenge.push(r.url())
   })
   await page.goto('/upcoming')
-  await expect(page.getByRole('button', { name: 'Join the waitlist' })).toBeEnabled() // hydrated
+  await waitForForm(page)
   await page.locator('#waitlist').scrollIntoViewIfNeeded()
   await page.waitForTimeout(1500)
   expect(challenge).toEqual([])
