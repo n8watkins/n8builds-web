@@ -162,13 +162,21 @@ test('a visitor joins, confirms from the email, and leaves again, with every ste
   await page.getByRole('button', { name: 'Confirm my spot' }).click()
   await expect(page.locator('main').getByRole('alert')).toContainText('expired')
 
-  // Its leave link deletes the entry; after that, neither link does anything.
+  // Its leave link opens the manage page: untick a project to drop it, then
+  // leave altogether; after that, the link does nothing.
   const leave = await emailedLink(page, email, '/upcoming/leave')
   await page.goto(leave)
-  await page.getByRole('button', { name: 'Remove me from the waitlist' }).click()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Manage your waitlist')
+  const save = page.getByRole('button', { name: 'Save my choices' })
+  await expect(page.getByRole('checkbox', { name: /KeysReady/ })).toBeChecked()
+  await expect(save).toBeDisabled()
+  await page.getByRole('checkbox', { name: /KeysReady/ }).uncheck()
+  await save.click()
+  await expect(page.locator('main').getByRole('status')).toContainText("Saved. You're on the list for Feelium.")
+  await expect(page.getByRole('checkbox')).toHaveCount(1)
+  await page.getByRole('button', { name: 'Leave the waitlist' }).click()
   await expect(page.locator('main').getByRole('status')).toContainText('everything stored with it are deleted')
   await page.goto(leave)
-  await page.getByRole('button', { name: 'Remove me from the waitlist' }).click()
   await expect(page.locator('main').getByRole('alert')).toContainText('no longer on the waitlist')
 })
 

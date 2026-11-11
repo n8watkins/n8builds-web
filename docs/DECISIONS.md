@@ -605,3 +605,6 @@ Where these conflict with an older entry above, these win; the older entries are
   Nobody was on its waitlist.
   `?interest=relink` and `?interest=rewire` are now unknown values: the page shows normally and ignores them, and the waitlist API stores no interest.
   Earlier entries above that mention Relink are history.
+- **The waitlist emails' refresh** (owner feedback, 2026-11-11): the header's N8 mark and each project's icon are absolute https PNGs on the site (`public/email/`, 2x, width and height set), never SVG or data: images; the contact emails keep their inline attachments.
+  Each email lists its projects as small cards (icon, name, the tagline from `data/upcoming.ts`), the footer is short muted lines, and there is more room throughout; the newsletter emails share the header and spacing.
+  The leave link opens a manage page: a checkbox per project, Save, and Leave the waitlist. No login: the leave token identifies the address, does nothing else, and still expires after a year. A mail client's one-click unsubscribe (List-Unsubscribe-Post) leaves the whole waitlist.

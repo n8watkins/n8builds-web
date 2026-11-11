@@ -2,7 +2,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { LEAVE_LINK_DAYS, PENDING_DAYS, WaitlistStore, entryId, tokenHash, type WaitlistEntry } from '@/lib/waitlist/store'
 import { cleanReferrer } from '@/lib/waitlist/schema'
 import { purgeExpired } from '@/lib/retention'
-import { confirmUrl, createConfirmHtml, createConfirmText, createLeaveHtml, leaveUrl, projectList } from '@/lib/email/waitlist'
+import { confirmUrl, createConfirmHtml, createConfirmText, createLeaveHtml, leaveHeaders, leaveUrl, projectList } from '@/lib/email/waitlist'
 import { testDatabases, type TestDatabases } from './d1'
 
 const DAY = 86_400_000
@@ -117,6 +117,33 @@ describe('WaitlistStore (n8builds-waitlist)', () => {
     expect(fresh.createdAt).not.toBe(T0.toISOString())
   })
 
+  it('manages with a leave link only: keeps the projects ticked, and keeping none leaves', async () => {
+    const { store, later } = storeAt()
+    const entry = await store.join(request({ projects: ['keysready', 'strollz', 'vibelog'] }))
+    const links = await store.issueLinks(entry)
+    await store.confirm(links.confirm)
+
+    expect(await store.forLeaveToken(links.confirm)).toBeNull()
+    expect((await store.forLeaveToken(links.leave))?.projects.sort()).toEqual(['keysready', 'strollz', 'vibelog'])
+
+    const kept = await store.keepOnly(links.leave, ['strollz'])
+    expect(kept).toMatchObject({ projects: ['strollz'], requested: [] })
+    // The link keeps working, for the same address only.
+    expect((await store.forLeaveToken(links.leave))?.id).toBe(entry.id)
+    // Keeping only a project it isn't on leaves nothing: the entry goes.
+    expect(await store.keepOnly(links.leave, ['keysready'])).toBeNull()
+    expect(await all('SELECT COUNT(*) AS n FROM waitlist_subscribers')).toEqual([{ n: 0 }])
+
+    // Keeping none is leaving; an expired link does nothing.
+    const again = await store.issueLinks(await store.join(request({ email: 'b@example.com' })))
+    expect(await store.keepOnly(again.leave, [])).toBeNull()
+    expect(await all('SELECT COUNT(*) AS n FROM waitlist_subscribers')).toEqual([{ n: 0 }])
+    const third = await store.issueLinks(await store.join(request({ email: 'c@example.com' })))
+    later(LEAVE_LINK_DAYS * DAY)
+    expect(await store.forLeaveToken(third.leave)).toBeNull()
+    expect(await store.keepOnly(third.leave, ['keysready'])).toBeNull()
+  })
+
   it('leaves with a leave link only, deleting the entry, its projects and its links', async () => {
     const { store } = storeAt()
     const links = await store.issueLinks(await store.join(request()))
@@ -212,7 +239,25 @@ describe('waitlist emails', () => {
     expect(html).toContain(leaveUrl(links.leave))
     expect(confirmUrl(links.confirm)).toBe('https://n8builds.dev/upcoming/confirm?t=tok_confirmabcdefghijklmnopqrstuvwxyz')
     expect(createConfirmText(entry, links)).toContain(leaveUrl(links.leave))
-    expect(createLeaveHtml(links.leave)).toContain(leaveUrl(links.leave))
+    expect(createLeaveHtml(entry, links.leave)).toContain(leaveUrl(links.leave))
+  })
+
+  it('show each project as a card with its PNG icon, name and one line, linked by absolute https URL', () => {
+    const html = createConfirmHtml({ ...entry, requested: ['feelium', 'fitflow7', 'pivot'] }, links)
+    for (const slug of ['feelium', 'fitflow7', 'pivot']) {
+      expect(html).toContain(`<img src="https://n8builds.dev/email/upcoming/${slug}.png" width="40" height="40"`)
+    }
+    expect(html).toContain('The no-excuses 7-minute workout timer')
+    // The header's N8 mark: an absolute PNG, never a CID, SVG or data: image.
+    expect(html).toContain('<img src="https://n8builds.dev/email/logo.png" width="32" height="32" alt="n8builds"')
+    expect(html).not.toMatch(/src="(cid:|data:)|\.svg"/)
+  })
+
+  it('carry one-click List-Unsubscribe headers that leave the whole waitlist', () => {
+    expect(leaveHeaders(links.leave)).toEqual({
+      'List-Unsubscribe': '<https://n8builds.dev/api/waitlist/leave?t=tok_leaveabcdefghijklmnopqrstuvwxyz>',
+      'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+    })
   })
 
   it("never repeat the visitor's note", () => {

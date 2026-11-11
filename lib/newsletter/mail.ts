@@ -1,5 +1,4 @@
 import { getCloudflareContext } from '@opennextjs/cloudflare'
-import { EMAIL_ICONS } from '@/lib/email/icons'
 import { recordTestEmail } from '@/lib/email/outbox'
 import { isContactTestMode } from '@/lib/security/testMode'
 
@@ -41,7 +40,6 @@ export interface NewsMailroom {
     html: string
     fromName: string
     headers: Record<string, string>
-    attachments: { content: ArrayBuffer; filename: string; type: string; disposition: 'inline'; contentId: string }[]
     key: string
   }): Promise<MailroomResult>
 }
@@ -49,11 +47,6 @@ export interface NewsMailroom {
 export type NewsMailer = (email: NewsEmail) => Promise<NewsSendResult>
 
 const FROM_NAME = "N8's Notions"
-
-function logo() {
-  const bytes = Uint8Array.from(atob(EMAIL_ICONS.logo), (c) => c.charCodeAt(0))
-  return { content: bytes.buffer, filename: 'logo.png', type: 'image/png', disposition: 'inline' as const, contentId: 'icon-logo' }
-}
 
 /**
  * A mailer over a MAILROOM_NEWS binding. In test mode (CONTACT_TEST_MODE)
@@ -67,7 +60,7 @@ export function newsMailer(binding: NewsMailroom | undefined): NewsMailer {
       return { ok: true }
     }
     if (!binding) return { ok: false, code: 'not_configured' }
-    const result = await binding.send({ ...email, fromName: FROM_NAME, attachments: [logo()] })
+    const result = await binding.send({ ...email, fromName: FROM_NAME })
     return result.ok ? { ok: true } : { ok: false, code: result.code }
   }
 }

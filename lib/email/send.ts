@@ -30,6 +30,8 @@ export interface Email {
   text: string
   /** Icons sent as inline attachments, referenced in the HTML as `cid:icon-<name>`. */
   images: EmailImage[]
+  /** Allowlisted headers, such as List-Unsubscribe and List-Unsubscribe-Post. */
+  headers?: Record<string, string>
 }
 
 type MailroomResult =
@@ -46,6 +48,7 @@ interface MailroomBinding {
     html: string
     fromName: string
     replyTo: string
+    headers?: Record<string, string>
     attachments: {
       content: ArrayBuffer
       filename: string
@@ -96,7 +99,7 @@ function icon(name: EmailImage) {
 export async function sendEmail(email: Email): Promise<string> {
   // Test runs send nothing: the message waits in the test outbox instead.
   if (isContactTestMode()) {
-    recordTestEmail({ to: email.to, subject: email.subject, text: email.text })
+    recordTestEmail({ to: email.to, subject: email.subject, text: email.text, headers: email.headers })
     return `test-${crypto.randomUUID()}`
   }
 
@@ -108,6 +111,7 @@ export async function sendEmail(email: Email): Promise<string> {
     html: email.html,
     fromName: EMAIL_CONFIG.fromName,
     replyTo: email.replyTo,
+    ...(email.headers ? { headers: email.headers } : {}),
     attachments: email.images.map(icon),
     // One key per message: the same message never goes out twice.
     key: `${email.kind}-${crypto.randomUUID()}`,

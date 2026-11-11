@@ -7,7 +7,7 @@ import { FaLinkedinIn, FaGithub, FaXTwitter } from 'react-icons/fa6'
 import { FiBriefcase } from 'react-icons/fi'
 import { LuFlaskConical } from 'react-icons/lu'
 import sharp from 'sharp'
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 
 const COLOR = '#94a3b8' // slate-400: reads as quiet on the emails' dark navy card
 const SIZE = 64 // rendered 2x+ for retina; displayed at ~22px
@@ -61,6 +61,16 @@ for (const [name, svg] of Object.entries(tiles)) {
   const path = `public/email/${name}.png`
   await sharp(Buffer.from(svg)).png().toFile(path)
   entries.push(`  ${name}: '${readFileSync(path).toString('base64')}',`)
+  console.log(`wrote ${path}`)
+}
+
+// The upcoming projects' icons for the waitlist emails' project cards, served
+// from the site (public/email/upcoming/<slug>.png) and linked by absolute URL:
+// Gmail and Outlook show neither SVG nor data: images. 96px for a 48px slot (2x).
+mkdirSync('public/email/upcoming', { recursive: true })
+for (const file of readdirSync('public/upcoming').filter((f) => f.endsWith('.svg'))) {
+  const path = `public/email/upcoming/${file.replace(/\.svg$/, '.png')}`
+  await sharp(`public/upcoming/${file}`, { density: 384 }).resize(96, 96, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toFile(path)
   console.log(`wrote ${path}`)
 }
 

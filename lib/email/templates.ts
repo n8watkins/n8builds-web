@@ -130,13 +130,24 @@ ${body}
 </html>`
 }
 
+/**
+ * An image the emails link to on the live site (public/email/), by absolute
+ * https URL: Gmail and Outlook block SVG and data: images, and a CID
+ * attachment shows as a broken image in some clients and in previews.
+ * Each PNG is at least twice the size it is shown at.
+ */
+export const emailAsset = (path: string) => `${EMAIL_CONFIG.siteUrl}/email/${path}`
+
 /** The N8 mark, the site's name, and a right-hand label, above the card. */
-export function brandBar(right: string): string {
+export function brandBar(right: string, { logo = 'cid' }: { logo?: 'cid' | 'url' } = {}): string {
+  // The contact emails attach their icons (no remote images at all); the
+  // waitlist and newsletter emails link the mark on the site instead.
+  const src = logo === 'url' ? emailAsset('logo.png') : 'cid:icon-logo'
   return `          <tr>
-            <td style="padding:0 4px 16px;">
+            <td style="padding:0 4px 22px;">
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                 <tr>
-                  <td valign="middle" style="width:40px;"><a href="${EMAIL_CONFIG.siteUrl}"><img src="cid:icon-logo" width="32" height="32" alt="N8" style="display:block;border:0;border-radius:8px;"></a></td>
+                  <td valign="middle" style="width:44px;"><a href="${EMAIL_CONFIG.siteUrl}"><img src="${src}" width="32" height="32" alt="n8builds" style="display:block;width:32px;height:32px;border:0;border-radius:8px;"></a></td>
                   <td valign="middle" style="font-family:${FONT};font-size:15px;font-weight:700;color:${C.white};letter-spacing:-0.2px;"><a href="${EMAIL_CONFIG.siteUrl}" style="color:${C.white};text-decoration:none;">n8builds<span style="color:${C.cyan};">.dev</span></a></td>
                   <td valign="middle" align="right" style="font-family:${MONO};font-size:11px;letter-spacing:1px;text-transform:uppercase;color:${C.faint};">${right}</td>
                 </tr>
@@ -156,21 +167,33 @@ ${inner}
           </tr>`
 }
 
-export function footnote(text: string): string {
+/**
+ * Small muted lines under the card, never one long line: each argument is a
+ * block, and a block given as a list keeps its short lines close together.
+ */
+export function footnote(...blocks: (string | string[])[]): string {
+  const lines = blocks
+    .map((block, i) => {
+      const inner = Array.isArray(block) ? block.map((line) => `<span style="display:block;">${line}</span>`).join('') : block
+      return `<p style="margin:${i === 0 ? 0 : 12}px 0 0;font-family:${FONT};font-size:12px;line-height:19px;color:${C.faint};">${inner}</p>`
+    })
+    .join('\n              ')
   return `          <tr>
-            <td align="center" style="padding:20px 8px 0;font-family:${FONT};font-size:12px;line-height:19px;color:${C.faint};">${text}</td>
+            <td align="center" class="px" style="padding:26px 28px 8px;">
+              ${lines}
+            </td>
           </tr>`
 }
 
 export const paragraph = (html: string, top = 0) =>
-  `<p style="margin:${top}px 0 0;font-family:${FONT};font-size:16px;line-height:26px;color:${C.text};">${html}</p>`
+  `<p style="margin:${top}px 0 0;font-family:${FONT};font-size:16px;line-height:27px;color:${C.text};">${html}</p>`
 
 export const signOff = `
                 <tr>
-                  <td class="px" style="padding:4px 36px 34px;">
+                  <td class="px" style="padding:8px 40px 38px;">
                     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-top:1px solid ${C.line};">
                       <tr>
-                        <td style="padding-top:22px;font-family:${FONT};">
+                        <td style="padding-top:24px;font-family:${FONT};">
                           <p style="margin:0;font-size:15px;color:${C.text};">Thanks,</p>
                           <p style="margin:6px 0 0;font-size:17px;font-weight:800;color:${C.white};">Nathan <span style="color:${C.cyan};">"n8"</span> Watkins</p>
                         </td>

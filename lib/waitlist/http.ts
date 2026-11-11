@@ -7,7 +7,7 @@ import type { RateLimitResult } from '@/lib/security/rateLimiter'
 export const DIRECT_EMAIL = 'contact@n8builds.dev'
 
 export const JOINED_MESSAGE = 'Almost there: check your inbox and click the link to confirm your spot.'
-export const LEAVE_LINK_MESSAGE = 'If that address is on the waitlist, a link to leave it is on its way.'
+export const LEAVE_LINK_MESSAGE = 'If that address is on the waitlist, a link to manage it is on its way.'
 
 export const fail = (status: number, error: string, type?: string) =>
   NextResponse.json(type ? { error, type } : { error }, { status })

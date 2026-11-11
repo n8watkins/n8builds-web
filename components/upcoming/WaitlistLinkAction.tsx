@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { FiCheckCircle } from 'react-icons/fi'
 import { ContactInput } from '@/components/ui/ContactInput'
+import ManageWaitlist from '@/components/upcoming/ManageWaitlist'
 import { useHydrated } from '@/hooks/useHydrated'
 import { useTurnstileOnIntent } from '@/hooks/useTurnstileOnIntent'
 
@@ -109,6 +110,9 @@ export default function WaitlistLinkAction({ mode, turnstileSiteKey }: { mode: '
     )
   }
 
+  // A leave link opens the manage page: which projects to stay on, or leave them all.
+  if (mode === 'leave' && state.kind === 'ready') return <ManageWaitlist token={state.token} />
+
   if (state.kind === 'no-token') {
     if (mode === 'leave') return <LeaveByEmail turnstileSiteKey={turnstileSiteKey} />
     return (
@@ -186,7 +190,7 @@ function LeaveByEmail({ turnstileSiteKey }: { turnstileSiteKey: string }) {
       }}
     >
       <p className="leading-relaxed text-slate-300">
-        Enter the address you signed up with, and I&rsquo;ll email it a link that removes it from the waitlist.
+        Enter the address you signed up with, and I&rsquo;ll email it a link to manage it or leave the waitlist.
       </p>
       <div className="hidden">
         <input
