@@ -63,3 +63,16 @@ test('the upcoming page is in the sitemap; its link pages are not indexed', asyn
   const confirm = await (await request.get('/upcoming/confirm')).text()
   expect(confirm).toMatch(/<meta name="robots" content="noindex, nofollow"/)
 })
+
+test("a mail client's one-click unsubscribe (RFC 8058) answers 200 for a well-formed link", async ({ request }) => {
+  const response = await request.post(`/api/waitlist/leave?t=${'z'.repeat(32)}`, { form: { 'List-Unsubscribe': 'One-Click' } })
+  expect(response.status()).toBe(200)
+})
+
+test('the manage route needs a live leave link', async ({ request }) => {
+  const headers = { 'x-real-ip': uniqueIp() }
+  expect((await request.post('/api/waitlist/manage', { headers, data: { token: 'short' } })).status()).toBe(400)
+  expect((await request.post('/api/waitlist/manage', { headers, data: { token: 'y'.repeat(32) } })).status()).toBe(404)
+  const unknownProject = await request.post('/api/waitlist/manage', { headers, data: { token: 'y'.repeat(32), keep: ['deadlink'] } })
+  expect(unknownProject.status()).toBe(400)
+})

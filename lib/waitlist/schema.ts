@@ -40,6 +40,15 @@ export type JoinInput = z.infer<typeof joinSchema>
 
 export const tokenSchema = z.object({ token: z.string().regex(/^[A-Za-z0-9_-]{20,100}$/) })
 
+/** The manage page: `{ token }` reads what the address is on; with `keep`, it stays on only those. */
+export const manageSchema = tokenSchema.extend({
+  keep: z
+    .array(z.enum(UPCOMING_SLUGS))
+    .max(UPCOMING_SLUGS.length)
+    .transform((list) => [...new Set(list)])
+    .optional(),
+})
+
 /** Asking for a removal link by email (when the visitor has no link to hand). */
 export const leaveRequestSchema = z.object({
   email,
