@@ -9,6 +9,11 @@
   // nodejs_compat is required by OpenNext; global_fetch_strictly_public keeps
   // the server's own fetches (GitHub, Sanity) on the public internet.
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  // No esbuild keepNames: it wraps functions in __name(), and a function that
+  // is turned into an inline script with toString() (next-themes' theme
+  // script) then throws "__name is not defined" in the browser.
+  // scripts/check-worker-bundle.mjs fails the build if __name( comes back.
+  "keep_names": false,
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS",

@@ -8,6 +8,8 @@ The site runs on Cloudflare Workers as the `n8builds-web` Worker in the owner's 
 - `npm run build:worker` runs `next build` (Turbopack) and turns its output into `.open-next/`: the server bundle (`.open-next/worker.js`) and the static assets (`.open-next/assets`).
 - `worker/index.js` is the Worker's entry point (`main` in `wrangler.jsonc`).
   It wraps the OpenNext handler with Sentry (`withSentry`), answers byte-range requests for the videos (`worker/range.js`, which Safari needs to play them), and sends browsers `max-age=0, must-revalidate` for pages instead of Next's CDN `s-maxage`.
+- `keep_names` is off in `wrangler.jsonc`: esbuild's `__name()` wrapper would leak into next-themes' inline theme script and throw `__name is not defined` on every page the Worker renders.
+  `npm run check:deploy` (CI) fails if the bundle calls `__name(` again, and the deploy workflow then loads the live home page and fails on any console error.
 - Files in `public/` and `/_next/static` are served straight from Workers static assets, without the worker.
   `public/_headers` gives them HSTS and the basic security headers, and makes `/_next/static` immutable.
   Pages and API routes get the full set (CSP included) from `lib/security/headers.mjs`.

@@ -67,3 +67,17 @@ jobs:
       - name: Deploy
         if: env.CLOUDFLARE_API_TOKEN != ''
         run: npx opennextjs-cloudflare deploy
+
+      # The live home page loads with no console errors or uncaught exceptions
+      # (tests/e2e/pages.spec.ts against n8builds.dev). CI's own runs use
+      # `next start`, which never sees the Worker bundle; this sees what
+      # visitors get.
+      - name: Install Chromium
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        run: npx playwright install --with-deps chromium
+
+      - name: Live home page has no console errors
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        env:
+          E2E_REMOTE_URL: https://n8builds.dev
+        run: npx playwright test tests/e2e/pages.spec.ts --project=chromium --grep " / renders without errors" --reporter=github
