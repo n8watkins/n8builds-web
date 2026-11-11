@@ -123,7 +123,7 @@ describe('POST /api/waitlist', () => {
   })
 
   it('ignores an interest that is no longer a project', async () => {
-    await call(join, { ...valid, source: { interest: 'keysready' } })
+    await call(join, { ...valid, source: { interest: 'relink' } })
     expect(saved()).toMatchObject({ interest: '' })
   })
 
@@ -154,7 +154,7 @@ describe('POST /api/waitlist', () => {
   it.each([
     ['a bad email', { email: 'not-an-email' }],
     ['no projects', { projects: [] }],
-    ['an unknown project', { projects: ['keysready'] }],
+    ['an unknown project', { projects: ['relink'] }],
     ['a known project next to an unknown one', { projects: ['keysready', 'keys-ready'] }],
     ['a note over 500 characters', { note: 'x'.repeat(501) }],
     ['no Turnstile token', { turnstile: '' }],
