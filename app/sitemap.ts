@@ -4,10 +4,10 @@ import { getBuildLog } from '@/lib/build-log'
 import { getAllPosts } from '@/lib/sanity'
 import { SITE_URL } from '@/lib/seo'
 
-// Refreshed hourly, like /blog, so new posts appear without a deploy. A Sanity
+// Refreshed every six hours, like /blog, so new posts appear without a deploy. A Sanity
 // error throws on purpose: during a revalidation Next keeps serving the last
 // good sitemap instead of one with every post missing.
-export const revalidate = 3600
+export const revalidate = 21600
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [posts, log] = await Promise.all([getAllPosts(), getBuildLog()])

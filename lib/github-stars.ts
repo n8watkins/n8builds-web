@@ -3,8 +3,8 @@ import { usesFixtures } from '@/lib/fixtures'
 /**
  * A public repo's facts from GitHub: its star count (the Star half of
  * RepoButtons) and its license (a build page's sidebar). Fetched on the
- * server and cached for an hour (like the build log and the downloads), so it
- * costs no client JS and at most one GitHub call per repo an hour: both read
+ * server and cached for six hours (like the build log and the downloads), so it
+ * costs no client JS and at most one GitHub call per repo every six hours: both read
  * the same response. Null when GitHub can't say: the button then shows just
  * the star, the sidebar no license. The E2E suite (BUILD_LOG_FIXTURE=1) never
  * calls GitHub; it reads the fixtures below, where some repos have a value and
@@ -26,7 +26,7 @@ export async function repoFacts(repo: string): Promise<RepoFacts> {
         'User-Agent': 'n8builds-web',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
-      next: { revalidate: 3600 },
+      next: { revalidate: 21600 },
       signal: AbortSignal.timeout(5000),
     })
     if (!res.ok) return { stars: null, license: null }

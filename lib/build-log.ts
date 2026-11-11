@@ -525,7 +525,7 @@ export function assembleLog(builds: LogBuild[], snapshots: RepoSnapshot[], highl
 
 const GITHUB_API = 'https://api.github.com'
 /** Matches the pages' ISR window; the fetch cache keeps the last good response per URL. */
-const REVALIDATE = 3600
+const REVALIDATE = 21600
 
 async function github<T>(path: string): Promise<T> {
   const token = process.env.GITHUB_TOKEN
@@ -633,7 +633,7 @@ export async function collectCommits(
  * commits (not every commit) keeps bot-heavy repos visible: Portfolio Rank's
  * newest 100 commits are all daily bot syncs.
  *
- * Requests per hourly refresh: two (the repo and its releases) plus one per
+ * Requests per refresh (every six hours): two (the repo and its releases) plus one per
  * page of commits. Each URL is its own entry in Next's fetch cache.
  */
 async function fetchRepoSnapshot(repo: string): Promise<RepoSnapshot> {

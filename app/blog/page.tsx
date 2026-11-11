@@ -9,7 +9,7 @@ import PreviewBanner from '@/components/blog/PreviewBanner'
 import NewsletterSignup from '@/components/blog/NewsletterSignup'
 import { turnstileSiteKey } from '@/lib/security/turnstileSiteKey'
 
-export const revalidate = 3600
+export const revalidate = 21600
 
 export const metadata = pageMetadata({
   title: "N8's Notions | n8builds",

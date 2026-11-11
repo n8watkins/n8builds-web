@@ -24,10 +24,10 @@ export const sanity = createClient({
 })
 
 /** The fallback refresh, should a publish webhook never arrive. */
-export const SANITY_REVALIDATE = 3600
+export const SANITY_REVALIDATE = 21600
 
 /**
- * Every read goes through here: cached by Next for an hour and tagged with the
+ * Every read goes through here: cached by Next for six hours and tagged with the
  * document type it reads, so publishing one (app/api/sanity/revalidate)
  * refreshes every page that shows it at once.
  */

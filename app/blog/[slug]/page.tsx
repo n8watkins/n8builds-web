@@ -25,7 +25,7 @@ import NewsletterSignup from '@/components/blog/NewsletterSignup'
 import { turnstileSiteKey } from '@/lib/security/turnstileSiteKey'
 import PreviewBanner from '@/components/blog/PreviewBanner'
 
-export const revalidate = 3600
+export const revalidate = 21600
 
 interface PostPageProps {
   params: Promise<{ slug: string }>

@@ -131,8 +131,8 @@ export async function latestAsset(download: Download): Promise<Asset | null> {
           'User-Agent': 'n8builds-web',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        // An hour, like the build log: a new release is picked up within the hour.
-        next: { revalidate: 3600 },
+        // Six hours, like the build log: a new release is picked up the same day.
+        next: { revalidate: 21600 },
         signal: AbortSignal.timeout(5000),
       })
       if (!res.ok) return null

@@ -34,8 +34,8 @@ interface BuildPageProps {
 // The builds list is static: any other slug is a plain 404.
 export const dynamicParams = false
 
-// "Recent activity" comes from the build log (GitHub), refreshed hourly.
-export const revalidate = 3600
+// "Recent activity" comes from the build log (GitHub), refreshed every six hours.
+export const revalidate = 21600
 
 export function generateStaticParams() {
   return builds.map((b) => ({ slug: b.slug }))

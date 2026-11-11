@@ -10,9 +10,11 @@ export const metadata = pageMetadata({
   path: '/',
 })
 
-// The page is static and refreshed hourly, like /blog, so a new post reaches
-// the "N8's Notions" strip within the hour.
-export const revalidate = 3600
+// The page is static and refreshed every six hours, like /blog. A new post
+// reaches the "N8's Notions" strip at once: publishing in Sanity expires the
+// page (app/api/sanity/revalidate) and empties the edge cache. Six hours, not
+// one, because each refresh renders the whole page (about a second of CPU).
+export const revalidate = 21600
 
 /** The 4 newest posts (the newest featured, then 3); none (the strip hides) if Sanity is unreachable. */
 async function recentPosts(): Promise<Post[]> {

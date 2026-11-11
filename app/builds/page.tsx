@@ -12,9 +12,9 @@ import { getBuildLog } from '@/lib/build-log'
 import { BUILD_ICONS, logKind } from '@/lib/build-meta'
 import { absoluteUrl, pageMetadata } from '@/lib/seo'
 
-// Rebuilt at most hourly from GitHub (lib/build-log.ts). A revalidation that
+// Rebuilt at most every six hours from GitHub (lib/build-log.ts). A revalidation that
 // can't reach GitHub keeps serving the last good page.
-export const revalidate = 3600
+export const revalidate = 21600
 
 const DESCRIPTION =
   'What shipped across every n8builds project, month by month: releases and changes pulled from GitHub, plus the occasional note.'
@@ -103,7 +103,7 @@ export default async function BuildLogPage() {
                 delay={0.12}
                 className="mt-4 max-w-[640px] text-base leading-relaxed text-[#9cadc5] sm:text-lg/7"
               >
-                What shipped across every build, pulled from GitHub releases and commits every hour,
+                What shipped across every build, pulled from GitHub releases and commits a few times a day,
                 plus the occasional note from me.
               </FadeIn>
               {/* release-kit makes the releases; this log shows them. Separate projects, linked. */}

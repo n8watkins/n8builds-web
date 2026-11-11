@@ -130,7 +130,7 @@ Suggested order: 1 and 2 now (they need nothing), 4 next, then 6-9 as your answe
 ## How to use what's live now
 
 - **Going live on X (or anywhere the site can't detect):** open the Sanity Studio (the app works on a phone), tap "Live status", switch "Live now" on, pick the platform, paste the stream or post link, add a title, Publish. The corner player, the navbar dot and n8builds.dev/live switch on within a minute. Switch it off and Publish when you're done; it also turns itself off after 12 hours.
-- **A build log highlight:** in the Studio, "Build log highlight", pick the build, write one line, Publish. It's pinned at the top of its month on n8builds.dev/builds within the hour.
+- **A build log highlight:** in the Studio, "Build log highlight", pick the build, write one line, Publish. It's pinned at the top of its month on n8builds.dev/builds within a minute (the publish webhook).
 - **Twitch and YouTube** are detected automatically once their keys are in Vercel (Part 1 B); until then, use the switch for them too.
 
 ## On hold
@@ -151,7 +151,7 @@ To review it later, paste [prompts/review-2026-10-24-changes.md](prompts/review-
 | #10 | CI runs all six browser projects in parallel, plus Lighthouse, on every pull request | `.github/workflows/ci.yml` |
 | #11 | "Share on X" and "Copy link" at the end of every post | any post, `components/blog/ShareBar.tsx` |
 | #12 | A case-study build page for the site itself, featured in the Lab | https://n8builds.dev/builds/n8builds |
-| #14 | The build log, fed hourly from GitHub; "Recent activity" on build pages; "Log" in the navbar; nightly repo check | https://n8builds.dev/builds, `lib/build-log.ts` |
+| #14 | The build log, fed from GitHub every six hours; "Recent activity" on build pages; "Log" in the navbar; nightly repo check | https://n8builds.dev/builds, `lib/build-log.ts` |
 | #13 | Live streams part 1: corner player, `/live`, navbar live dot, the Studio "Live status" switch | `/api/live`, `components/live/`, `lib/live.ts` |
 | #15 | Checklist and HANDOFF updated | `docs/` |
 
