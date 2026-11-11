@@ -132,6 +132,7 @@ export function createLeaveText(token: string): string {
 /** Throws when the message can't be sent. */
 async function send(to: string, subject: string, html: string, text: string): Promise<void> {
   await sendEmail({
+    kind: 'waitlist',
     to,
     replyTo: EMAIL_CONFIG.contactEmail,
     subject,

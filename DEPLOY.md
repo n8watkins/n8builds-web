@@ -20,7 +20,9 @@ The site runs on Cloudflare Workers as the `n8builds-web` Worker in the owner's 
   The default entrypoint runs on every request and sends only cacheable ones to the cached `CachedPages` entrypoint; drafts, form posts, videos, www and workers.dev never touch the cache.
   A response shows `cf-cache-status: HIT` when it came from there; a Sanity publish empties it, and each deploy starts with an empty one.
 - `/healthz` answers `ok` from the Worker before Next runs: it is the URL for uptime checks (OpenPing, Sentry).
-- Email (contact form, quote requests, waitlist links) goes through Cloudflare Email Service's `send_email` binding (`EMAIL`), from contact@n8builds.dev (`lib/email/send.ts`).
+- Email (contact form, quote requests, waitlist links) goes through the shared mailroom Worker ([n8watkins/mailroom](https://github.com/n8watkins/mailroom)) over the `MAILROOM` service binding, as the app `n8builds-web`, from contact@n8builds.dev (`lib/email/send.ts`).
+  mailroom caps every send (this app's slice, and the account-wide 2,500 a month under the 3,000 Workers Paid includes) and fails closed: a refused send shows the form's usual error and is never retried.
+  mailroom sends with Cloudflare Email Service; the Worker has no `send_email` binding of its own.
   n8builds.dev is onboarded for sending; Cloudflare added its records on `cf-bounce.n8builds.dev` and the DKIM key itself.
 - Cloudflare Web Analytics replaces Vercel Analytics and Speed Insights (`components/WebAnalytics.tsx`), once `NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN` is set at build time.
 - `APP_ENV=production` (a `wrangler.jsonc` var) replaces `VERCEL_ENV`: it keeps production's rate-limit counter names and switches off the test modes.

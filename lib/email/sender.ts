@@ -57,6 +57,7 @@ export async function sendContactEmails(
     // The emails' images ride along as inline CID attachments, so they render
     // without depending on the deployed site or on remote-image loading.
     const notificationId = await sendEmail({
+      kind: 'contact-notice',
       to: EMAIL_CONFIG.to,
       replyTo: data.email,
       subject: contactEmailSubject(data),
@@ -79,6 +80,7 @@ export async function sendContactEmails(
     logger.info('   To:', data.email)
 
     const autoReplyId = await sendEmail({
+      kind: 'contact-reply',
       to: data.email,
       replyTo: EMAIL_CONFIG.contactEmail,
       subject: autoReplySubject(data),
