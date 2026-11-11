@@ -8,6 +8,7 @@ import { dataCollection } from '../lib/sentry-data-collection'
 import { scrubContactBody } from '../lib/sentry-scrub'
 import { MEDIA, fetchWithRanges } from './range.js'
 import { forEdge, mayUseEdgeCache } from './edge-cache.js'
+import { refuseGameOrigin } from './game-gate.js'
 import { purgeExpired } from '../lib/retention'
 import { WaitlistStore } from '../lib/waitlist/store'
 import { runDigest } from '../lib/newsletter/digest'
@@ -73,6 +74,7 @@ function forBrowsers(request, response) {
  *   WAITLIST_DB: import('../lib/db').D1Database,
  *   ANALYTICS_DB: import('../lib/db').D1Database,
  *   MAILROOM_NEWS?: import('../lib/newsletter/mail').NewsMailroom,
+ *   APP_ENV?: string,
  * }} Env
  */
 
@@ -148,6 +150,8 @@ const worker = {
    */
   async fetch(request, env, ctx) {
     if (new URL(request.url).pathname === '/healthz') return health()
+    const refused = refuseGameOrigin(request, env.APP_ENV)
+    if (refused) return refused
     if (mayUseEdgeCache(request, EDGE_CACHE_SITE)) return ctx.exports.CachedPages.fetch(request)
     return uncached(request, env, ctx)
   },
