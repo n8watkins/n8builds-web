@@ -1,7 +1,7 @@
 /**
  * What I'm building in public ("What's cookin'"), shown on /upcoming and the
- * homepage with a waitlist. Each one has a live landing page; some are plans,
- * some working apps. Round 11 of 2026-11-09 (owner): /upcoming is a teaser,
+ * homepage with a waitlist. Each one has a live landing page, and every listed
+ * one is a working app you can try. Round 11 of 2026-11-09 (owner): /upcoming is a teaser,
  * each card the landing page's picture, the name, one line and its status
  * (round 7 had dropped statuses; they are back, read off each landing page).
  *
@@ -15,27 +15,26 @@
  * docs/REVIEW_2026-11.md in ~/projects/polish/cutelyaskme, Who Am I?'s README in
  * ~/projects/who-am-i, Pivot's README and /welcome page in ~/projects/pivot,
  * FitFlow 7's README in ~/projects/public/fitflow7); keep it in step and modest.
+ *
+ * Four are unlisted since 2026-11-11 (owner: "it's just not advertised"):
+ * KeysReady, Strollz, VibeLog and Asset Arsenal. See `unlisted` on UpcomingProject.
  */
 
-export const UPCOMING_SLUGS = [
-  'strollz',
-  'vibelog',
-  'keysready',
-  'asset-arsenal',
-  'feelium',
-  'cutelyaskme',
-  'whoami',
-  'pivot',
-  'fitflow7',
-] as const
+export const UPCOMING_SLUGS = ['feelium', 'fitflow7', 'pivot', 'cutelyaskme', 'whoami', 'keysready', 'strollz', 'vibelog', 'asset-arsenal'] as const
 export type UpcomingSlug = (typeof UPCOMING_SLUGS)[number]
 
-/** Who a project is for: the homepage groups its What's cookin' list by it (round 7, 2026-11-09). */
-export type UpcomingGroup = 'business' | 'life' | 'creators'
+/**
+ * Who a project is for: the homepage groups its What's cookin' list by it (round 7,
+ * 2026-11-09). Since 2026-11-11 every listed project is an everyday-life one, so
+ * two groups split those: the ones for your own habits and health, and the ones for
+ * two people. A group with no listed project is not shown (the last two today).
+ */
+export type UpcomingGroup = 'habits' | 'two' | 'business' | 'creators'
 
 export const UPCOMING_GROUPS: { id: UpcomingGroup; label: string }[] = [
+  { id: 'habits', label: 'For your habits & health' },
+  { id: 'two', label: 'For two' },
   { id: 'business', label: 'For businesses' },
-  { id: 'life', label: 'For everyday life' },
   { id: 'creators', label: 'For developers & creators' },
 ]
 
@@ -81,22 +80,147 @@ export type UpcomingProject = {
   what: string
   forWho: string
   /**
-   * Whether the homepage's What's cookin' list shows it (default true; every project
-   * does since 2026-11-09, when the list became one compact row each). A project left
-   * off still appears on /upcoming and in both waitlist forms.
+   * Unlisted: working, but not shown or advertised (default false; owner,
+   * 2026-11-11). An unlisted project is left off the homepage, the /upcoming
+   * list, the waitlist form's picks, page descriptions and share text, and
+   * the build log never names or links it (its work still counts in the
+   * totals). Everything behind it works as for any project: a direct link
+   * (`/upcoming?interest=<slug>`) shows it in the form, ticked; the API takes
+   * its slug; the manage page and the emails show it; announcements for it can
+   * be previewed, tested and sent. To list a project again, delete this line.
    */
-  homepage?: boolean
+  unlisted?: boolean
   points: string[]
 }
 
-/** In group order (UPCOMING_GROUPS), so /upcoming and the waitlist's picks read like the homepage. */
+/** Every project, unlisted ones included: what the waitlist's API, emails and announcements know. To show projects, use UPCOMING_LISTED. */
 export const UPCOMING: UpcomingProject[] = [
+  {
+    slug: 'feelium',
+    name: 'Feelium',
+    tagline: 'What did I do, how did I feel, and are they connected?',
+    short: 'See which habits go with how you feel',
+    group: 'habits',
+    summary:
+      'A small daily tracker: log a few habits, check in on how you feel, and see which days went with which.',
+    icon: '/upcoming/feelium.svg',
+    landing: 'https://feelium.n8builds.dev',
+    status: 'try-it',
+    shot: '/upcoming/shots/feelium.webp',
+    repo: 'n8watkins/feelium',
+    // Feelium's brand is black and white; its light grey keeps the card edge visible on this dark site.
+    accent: '#a3a3a3',
+    what: 'Log a few behaviors with a tap, rate how you feel from 1 to 5 whenever you want, and after a couple of weeks it compares how you felt on days with and without each one, in plain words.',
+    forWho: 'People who want to know whether coffee, exercise or doomscrolling actually changes how they feel, without streaks or scores.',
+    points: [
+      'Yes or no behaviors and number ones (cups of coffee, hours of screen time), saved as you tap',
+      'Check-ins rate mood, anxiety, energy or focus from 1 to 5; a blank stays blank, never a zero',
+      'Comparisons appear once a behavior has 5 days with it and 5 without, with the caveat that it is an association',
+      'Private to your account, export or delete anytime, and open source',
+    ],
+  },
+  {
+    slug: 'fitflow7',
+    name: 'FitFlow 7',
+    tagline: 'The no-excuses 7-minute workout timer',
+    short: 'A 7-minute workout timer, no account',
+    group: 'habits',
+    summary: 'Pick a routine, hit start and follow along, with audio cues on every move. No account, no ads, no subscription.',
+    icon: '/upcoming/fitflow7.svg',
+    landing: 'https://fitflow7.n8builds.dev',
+    status: 'try-it',
+    shot: '/upcoming/shots/fitflow7.webp',
+    repo: 'n8watkins/fitflow7',
+    // Its electric cyan.
+    accent: '#22d3ee',
+    what: 'Pick a routine, hit start and follow along: a countdown you can read across the room, color-coded phases and audio cues call out every move, and it keeps your streaks and history on your device.',
+    forWho: 'Anyone who wants a quick workout at home without an account, ads or a subscription.',
+    points: [
+      'Start from the Classic 7 routine, or build your own with your own work and rest times',
+      'Audio cues on every phase, a focus mode with just the timer, and keyboard shortcuts',
+      'Streaks and history saved on your device, with no account or login',
+      'Works offline after the first load, with no ads and no upsell',
+    ],
+  },
+  {
+    slug: 'pivot',
+    name: 'Pivot',
+    tagline: 'A pause button for everyday urges',
+    short: 'One small next step when an urge hits',
+    group: 'habits',
+    summary: 'When the pull to scroll, snack or check your email hits, it gives you one small next step you already picked.',
+    icon: '/upcoming/pivot.svg',
+    // Its landing page; the app itself is at the site's root.
+    landing: 'https://pivot.n8builds.dev/welcome',
+    status: 'try-it',
+    shot: '/upcoming/shots/pivot.webp',
+    repo: 'n8watkins/pivot',
+    // Its sage green, lightened for this dark site.
+    accent: '#8fbf9f',
+    what: 'When the pull to scroll, snack or check your email hits, Pivot gives you one small next step you already picked, chosen from the moment, the time of day and what helped before.',
+    forWho: 'Anyone changing an everyday habit who wants a calm nudge, without streaks, scores or judgment.',
+    points: [
+      'Free, with no account needed; signing in with GitHub is optional',
+      'A pivot per habit, each with the replacement actions you approved',
+      'A quick follow-up on how it went, and a history you can export or delete',
+      'Crisis lines one tap away on every screen; it is not a substitute for professional care',
+    ],
+  },
+  {
+    slug: 'cutelyaskme',
+    name: 'Cutely Ask Me',
+    tagline: 'Send a cute ask, they pick the vibe, you plan the date',
+    short: 'Ask someone out with a cute invite',
+    group: 'two',
+    summary:
+      'Ask someone on a date with a cute invite: they say yes and pick the vibe, then you plan the stops and share the plan.',
+    icon: '/upcoming/cutelyaskme.svg',
+    landing: 'https://cutelyaskme.n8builds.dev',
+    status: 'try-it',
+    shot: '/upcoming/shots/cutelyaskme.webp',
+    repo: 'n8watkins/cutelyaskme',
+    // Its brand pink (the app's theme colour).
+    accent: '#ff7aaa',
+    what: 'You send a personalized invite; they accept and pick the date, the time and the kind of date (activities, food, dress code). Then you choose the real places, arrange the stops on a map with travel times and a sunset-aware order, and share the plan or keep it a surprise, with a calendar invite.',
+    forWho: 'Anyone asking someone out, or planning a date night for their partner, who wants it to feel thoughtful rather than a group chat.',
+    points: [
+      'A playful ask: a "No" button that dodges, and confetti for yes',
+      'They pick the kind of date; you pick the real venues, from Google Places or OpenStreetMap',
+      'A timeline with travel between stops, and Google Calendar or .ics export',
+      'After the date: ratings, and a keepsake card with your photos and a short poem',
+    ],
+  },
+  {
+    slug: 'whoami',
+    name: 'Who Am I?',
+    tagline: 'A two-player guessing game: only your opponent sees who you are',
+    short: 'A two-player guessing game for your phones',
+    group: 'two',
+    summary: 'Each of you gets a secret identity; you see theirs, never your own. Ask yes or no questions until you work it out.',
+    icon: '/upcoming/whoami.svg',
+    landing: 'https://whoami.n8builds.dev',
+    status: 'try-it',
+    shot: '/upcoming/shots/whoami.webp',
+    repo: 'n8watkins/who-am-i',
+    // Its violet, lightened for this dark site.
+    accent: '#9d8cff',
+    what: 'Each player gets a secret identity, a famous person, a fictional character or a brand mascot. You see the one your opponent is guessing but never your own, and you take turns asking yes or no questions or giving clues until you work out who you are.',
+    forWho: 'Two friends, a couple or roommates who want a quick game on their phones.',
+    points: [
+      'No account or install: one player creates a room, the other joins by QR code, link or PIN',
+      'Ask out loud or in the app, with up to three free hints a turn',
+      'Packs from actors and movie characters to historical figures, video games and mascots',
+      'First to 5 points or best after 10 rounds, then a one-tap rematch',
+    ],
+  },
+  // Unlisted (see `unlisted` above): kept working, not shown.
   {
     slug: 'keysready',
     name: 'KeysReady',
     tagline: 'Stop answering “Is my car ready?”',
     short: 'Booking and live repair status for auto shops',
     group: 'business',
+    unlisted: true,
     summary:
       'For small auto repair shops: customers book online, follow their repair live, and approve and pay from their phone.',
     icon: '/upcoming/keysready.svg',
@@ -121,7 +245,8 @@ export const UPCOMING: UpcomingProject[] = [
     name: 'Strollz',
     tagline: 'Walk the streets you have never walked',
     short: 'Walking loops through new streets near you',
-    group: 'life',
+    group: 'habits',
+    unlisted: true,
     summary:
       'Tell it how long you have, and it plans a walking loop from your door through streets you have not walked yet.',
     icon: '/upcoming/strollz.svg',
@@ -141,129 +266,12 @@ export const UPCOMING: UpcomingProject[] = [
     ],
   },
   {
-    slug: 'feelium',
-    name: 'Feelium',
-    tagline: 'What did I do, how did I feel, and are they connected?',
-    short: 'See which habits go with how you feel',
-    group: 'life',
-    summary:
-      'A small daily tracker: log a few habits, check in on how you feel, and see which days went with which.',
-    icon: '/upcoming/feelium.svg',
-    landing: 'https://feelium.n8builds.dev',
-    status: 'try-it',
-    shot: '/upcoming/shots/feelium.webp',
-    repo: 'n8watkins/feelium',
-    // Feelium's brand is black and white; its light grey keeps the card edge visible on this dark site.
-    accent: '#a3a3a3',
-    what: 'Log a few behaviors with a tap, rate how you feel from 1 to 5 whenever you want, and after a couple of weeks it compares how you felt on days with and without each one, in plain words.',
-    forWho: 'People who want to know whether coffee, exercise or doomscrolling actually changes how they feel, without streaks or scores.',
-    points: [
-      'Yes or no behaviors and number ones (cups of coffee, hours of screen time), saved as you tap',
-      'Check-ins rate mood, anxiety, energy or focus from 1 to 5; a blank stays blank, never a zero',
-      'Comparisons appear once a behavior has 5 days with it and 5 without, with the caveat that it is an association',
-      'Private to your account, export or delete anytime, and open source',
-    ],
-  },
-  {
-    slug: 'cutelyaskme',
-    name: 'Cutely Ask Me',
-    tagline: 'Send a cute ask, they pick the vibe, you plan the date',
-    short: 'Ask someone out with a cute invite',
-    group: 'life',
-    summary:
-      'Ask someone on a date with a cute invite: they say yes and pick the vibe, then you plan the stops and share the plan.',
-    icon: '/upcoming/cutelyaskme.svg',
-    landing: 'https://cutelyaskme.n8builds.dev',
-    status: 'try-it',
-    shot: '/upcoming/shots/cutelyaskme.webp',
-    repo: 'n8watkins/cutelyaskme',
-    // Its brand pink (the app's theme colour).
-    accent: '#ff7aaa',
-    what: 'You send a personalized invite; they accept and pick the date, the time and the kind of date (activities, food, dress code). Then you choose the real places, arrange the stops on a map with travel times and a sunset-aware order, and share the plan or keep it a surprise, with a calendar invite.',
-    forWho: 'Anyone asking someone out, or planning a date night for their partner, who wants it to feel thoughtful rather than a group chat.',
-    points: [
-      'A playful ask: a "No" button that dodges, and confetti for yes',
-      'They pick the kind of date; you pick the real venues, from Google Places or OpenStreetMap',
-      'A timeline with travel between stops, and Google Calendar or .ics export',
-      'After the date: ratings, and a keepsake card with your photos and a short poem',
-    ],
-  },
-  {
-    slug: 'fitflow7',
-    name: 'FitFlow 7',
-    tagline: 'The no-excuses 7-minute workout timer',
-    short: 'A 7-minute workout timer, no account',
-    group: 'life',
-    summary: 'Pick a routine, hit start and follow along, with audio cues on every move. No account, no ads, no subscription.',
-    icon: '/upcoming/fitflow7.svg',
-    landing: 'https://fitflow7.n8builds.dev',
-    status: 'try-it',
-    shot: '/upcoming/shots/fitflow7.webp',
-    repo: 'n8watkins/fitflow7',
-    // Its electric cyan.
-    accent: '#22d3ee',
-    what: 'Pick a routine, hit start and follow along: a countdown you can read across the room, color-coded phases and audio cues call out every move, and it keeps your streaks and history on your device.',
-    forWho: 'Anyone who wants a quick workout at home without an account, ads or a subscription.',
-    points: [
-      'Start from the Classic 7 routine, or build your own with your own work and rest times',
-      'Audio cues on every phase, a focus mode with just the timer, and keyboard shortcuts',
-      'Streaks and history saved on your device, with no account or login',
-      'Works offline after the first load, with no ads and no upsell',
-    ],
-  },
-  {
-    slug: 'pivot',
-    name: 'Pivot',
-    tagline: 'A pause button for everyday urges',
-    short: 'One small next step when an urge hits',
-    group: 'life',
-    summary: 'When the pull to scroll, snack or check your email hits, it gives you one small next step you already picked.',
-    icon: '/upcoming/pivot.svg',
-    // Its landing page; the app itself is at the site's root.
-    landing: 'https://pivot.n8builds.dev/welcome',
-    status: 'try-it',
-    shot: '/upcoming/shots/pivot.webp',
-    repo: 'n8watkins/pivot',
-    // Its sage green, lightened for this dark site.
-    accent: '#8fbf9f',
-    what: 'When the pull to scroll, snack or check your email hits, Pivot gives you one small next step you already picked, chosen from the moment, the time of day and what helped before.',
-    forWho: 'Anyone changing an everyday habit who wants a calm nudge, without streaks, scores or judgment.',
-    points: [
-      'Free, with no account needed; signing in with GitHub is optional',
-      'A pivot per habit, each with the replacement actions you approved',
-      'A quick follow-up on how it went, and a history you can export or delete',
-      'Crisis lines one tap away on every screen; it is not a substitute for professional care',
-    ],
-  },
-  {
-    slug: 'whoami',
-    name: 'Who Am I?',
-    tagline: 'A two-player guessing game: only your opponent sees who you are',
-    short: 'A two-player guessing game for your phones',
-    group: 'life',
-    summary: 'Each of you gets a secret identity; you see theirs, never your own. Ask yes or no questions until you work it out.',
-    icon: '/upcoming/whoami.svg',
-    landing: 'https://whoami.n8builds.dev',
-    status: 'try-it',
-    shot: '/upcoming/shots/whoami.webp',
-    repo: 'n8watkins/who-am-i',
-    // Its violet, lightened for this dark site.
-    accent: '#9d8cff',
-    what: 'Each player gets a secret identity, a famous person, a fictional character or a brand mascot. You see the one your opponent is guessing but never your own, and you take turns asking yes or no questions or giving clues until you work out who you are.',
-    forWho: 'Two friends, a couple or roommates who want a quick game on their phones.',
-    points: [
-      'No account or install: one player creates a room, the other joins by QR code, link or PIN',
-      'Ask out loud or in the app, with up to three free hints a turn',
-      'Packs from actors and movie characters to historical figures, video games and mascots',
-      'First to 5 points or best after 10 rounds, then a one-tap rematch',
-    ],
-  },
-  {
     slug: 'vibelog',
     name: 'VibeLog',
     tagline: 'Live coding telemetry for vibe-coding streams',
     short: 'Live coding stats for your streams',
     group: 'creators',
+    unlisted: true,
     summary:
       'For people who stream themselves coding with AI: it shows your commits, code changes and AI usage on screen, live.',
     icon: '/upcoming/vibelog.svg',
@@ -287,6 +295,7 @@ export const UPCOMING: UpcomingProject[] = [
     tagline: 'Give your page a skin',
     short: 'Reskins your page, then cuts the assets',
     group: 'creators',
+    unlisted: true,
     summary:
       'For builders: it redraws your page in your brand or any style you name, then cuts it into assets you can ship.',
     icon: '/upcoming/asset-arsenal.svg',
@@ -305,6 +314,15 @@ export const UPCOMING: UpcomingProject[] = [
     ],
   },
 ]
+
+/** Whether the site shows a project (see `unlisted` on UpcomingProject). */
+export const isListed = (project: UpcomingProject) => project.unlisted !== true
+
+/** The projects the site shows: the homepage, the /upcoming list and the waitlist form's picks. */
+export const UPCOMING_LISTED = UPCOMING.filter(isListed)
+
+/** The slugs of the unlisted projects, for the places that must not name them (the build log). */
+export const UNLISTED_SLUGS: ReadonlySet<string> = new Set(UPCOMING.filter((p) => !isListed(p)).map((p) => p.slug))
 
 /** Old interest values from renamed projects, so links already out there keep working. */
 export const INTEREST_ALIASES: Record<string, UpcomingSlug> = {}

@@ -613,3 +613,20 @@ Where these conflict with an older entry above, these win; the older entries are
   The games: Who Am I? (whoami.n8builds.dev), PortfolioRank Play (the face-off only; "guess the percentile" waits behind GAMES_V2, so the card says more modes are coming), and the homepage dino catch (`/#ai-kit`).
   Terminal Invaders was listed at first and removed the same day (owner, 2026-11-11): its repo is archived and it has nothing to play in a browser.
   Only playable games belong here; the page is static, linked from the footer's Lab column and in the sitemap, with its own share card (`/games/og.png`).
+- **Wren leaves the site, and four upcoming projects go unlisted** (owner, 2026-11-11).
+  **Wren is removed from n8builds.dev** at the owner's request ("Wren should not be in my n8builds"): its Featured card, its build page, its row in the build log and its assets are gone, and the Wren entries above are history.
+  Wren stays a featured project on the portfolio, so `/builds/wren` redirects permanently (308) to `https://portfolio.n8builds.dev/projects/wren` (`next.config.mjs`).
+  Featured is two cards again, OpenPing and Solara, side by side from 1024px.
+  **KeysReady, Strollz, VibeLog and Asset Arsenal are unlisted**: in the owner's words "it's not a priority right now" and "it's just not advertised".
+  Unlisted is one value per project (`unlisted: true` in `data/upcoming.ts`); deleting that line lists the project again.
+  An unlisted project is not on the homepage, not in the /upcoming list, not among the waitlist form's picks, and not named in page titles, descriptions, share text, the sitemap or structured data.
+  Everything behind it keeps working: its landing page on its own subdomain, its waitlist, its email image, and announcements to the people on its waitlist.
+  A direct link such as `/upcoming?interest=keysready` shows that project in the form, ticked, and brings the form into view; the waitlist API accepts its slug, and the manage page lists it for people who are on it.
+  A visitor who did not arrive with that interest never sees it.
+  /upcoming and What's cookin' show the five that are listed: Feelium, FitFlow 7 and Pivot under "For your habits & health", Cutely Ask Me and Who Am I? under "For two" (the group names are the agent's, for the owner to confirm).
+  On /upcoming an odd last card spans the row, its picture beside its words.
+  `/builds/vibelog` keeps its temporary redirect to `/#lab`, as before.
+  **The build log still counts the unlisted projects' work** in its totals (changes shipped, releases, days and the streak, on the homepage card, on /builds and in `/builds/months.json`), since it is real shipped work.
+  It never names them: no card in the builds index, no filter chip, no row in the feed, no link to `/upcoming#<slug>`, and they are left out of "builds touched" and "busiest build" (`unlisted` in `data/logBuilds.ts`, `counted` in `lib/build-log.ts`).
+  Wren's work no longer counts, so the month's total drops by Wren's share only: about 24 of November 2026's 412 changes when this was written.
+  **A project taken out of `data/upcoming.ts` altogether** (none of these four) is refused by the waitlist like any unknown project, its stored rows are left in place and never read, and an announcement still going for it waits without sending and without holding the others up.

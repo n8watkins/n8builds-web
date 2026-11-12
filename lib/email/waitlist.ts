@@ -30,7 +30,7 @@ export function leaveHeaders(token: string): Record<string, string> {
 
 const projectsFor = (slugs: UpcomingSlug[]) => UPCOMING.filter((p) => slugs.includes(p.slug))
 
-/** "Strollz", "KeysReady and Strollz". */
+/** "Pivot", "Feelium and Pivot". */
 export const projectList = (slugs: UpcomingSlug[]) => {
   const list = projectsFor(slugs).map((p) => p.name)
   return list.length > 1 ? `${list.slice(0, -1).join(', ')} and ${list.at(-1)}` : (list[0] ?? '')

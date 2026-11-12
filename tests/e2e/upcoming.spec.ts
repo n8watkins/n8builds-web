@@ -37,7 +37,7 @@ test('shows each project with its own anchor, and is titled for the site', { tag
   await page.goto('/upcoming')
   await expect(page).toHaveTitle('Upcoming | n8builds')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('What’s cookin’')
-  // In group order: for businesses, for everyday life, for developers and creators (round 7, 2026-11-09).
+  // In group order: for your habits and health, then for two (round 7 of 2026-11-09; these groups since 2026-11-11).
   const articles = page.locator('main article')
   await expect(articles).toHaveCount(Object.keys(NAMES).length)
   expect(await articles.evaluateAll((list) => list.map((a) => a.id))).toEqual(Object.keys(NAMES))
@@ -50,16 +50,12 @@ test('shows each project with its own anchor, and is titled for the site', { tag
     await expect(card.locator('img[src*="upcoming%2Fshots"], img[src*="/upcoming/shots/"]')).toHaveCount(1)
     await expect(card.locator('[data-status]')).toHaveCount(1)
   }
-  // Statuses are back (round 11), as each landing page says.
-  for (const [id, status] of [
-    ['feelium', 'Try it now'],
-    ['vibelog', 'Early access'],
-    ['keysready', 'In development'],
-    ['asset-arsenal', 'Concept'],
-  ]) {
-    await expect(page.locator(`article#${id} [data-status]`)).toHaveText(status)
+  // Statuses are back (round 11), as each landing page says: every one is a working app today.
+  for (const id of Object.keys(NAMES)) {
+    await expect(page.locator(`article#${id} [data-status]`)).toHaveText('Try it now')
   }
-  await expect(page.locator('article#keysready')).toContainText('Stop answering “Is my car ready?”')
+  await expect(page.locator('main')).toContainText('every one you can already try')
+  await expect(page.locator('article#feelium')).toContainText('What did I do, how did I feel, and are they connected?')
   await expect(page.locator('#waitlist-projects').getByRole('checkbox')).toHaveCount(Object.keys(NAMES).length)
 })
 
@@ -77,9 +73,21 @@ test('lays the teaser cards out two by two (beside the waitlist on wide screens)
     const lefts = await page.locator('main article').evaluateAll((cards) => cards.map((c) => Math.round(c.getBoundingClientRect().left)))
     expect(new Set(lefts).size, `columns at ${width}px`).toBe(columns)
     expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0)
+    // The odd last card (five listed projects since 2026-11-11) never sits alone in half a row: from 640px
+    // it spans both columns, its picture beside its words; on a phone it is a card like the others.
+    const [first, second, last] = await Promise.all(['#feelium', '#fitflow7', '#whoami'].map(async (id) => (await page.locator(id).boundingBox())!))
+    const [picture, name] = await Promise.all([page.locator('#whoami img[src*="shots"]').boundingBox(), page.locator('#whoami h2').boundingBox()])
+    if (columns === 2) {
+      expect(Math.abs(last.x - first.x), `the last card starts the row at ${width}px`).toBeLessThan(1)
+      expect(Math.abs(last.x + last.width - (second.x + second.width)), `the last card ends the row at ${width}px`).toBeLessThan(1)
+      expect(name!.x, `its words beside its picture at ${width}px`).toBeGreaterThan(picture!.x + picture!.width)
+    } else {
+      expect(Math.abs(last.width - first.width)).toBeLessThan(1)
+      expect(name!.y).toBeGreaterThan(picture!.y + picture!.height)
+    }
     // Tablets and phones: the waitlist comes after the cards.
     if (width < 1000) {
-      const last = (await page.locator('#asset-arsenal').boundingBox())!
+      const last = (await page.locator('#whoami').boundingBox())!
       const form = (await page.locator('#waitlist').boundingBox())!
       expect(form.y, `the waitlist after the cards at ${width}px`).toBeGreaterThan(last.y + last.height)
     }
@@ -87,10 +95,97 @@ test('lays the teaser cards out two by two (beside the waitlist on wide screens)
 })
 
 test('a landing page link preselects its project and lands on its card', { tag: '@cross-browser' }, async ({ page }) => {
-  await page.goto('/upcoming?interest=strollz#strollz')
-  await expect(project(page, 'Strollz')).toBeChecked()
-  await expect(project(page, 'KeysReady')).not.toBeChecked()
-  await expect(page.locator('article#strollz')).toBeInViewport()
+  await page.goto('/upcoming?interest=pivot#pivot')
+  await expect(project(page, 'Pivot')).toBeChecked()
+  await expect(project(page, 'Feelium')).not.toBeChecked()
+  await expect(page.locator('article#pivot')).toBeInViewport()
+})
+
+/**
+ * The four unlisted projects (owner, 2026-11-11: "it's just not advertised"; `unlisted` in
+ * data/upcoming.ts): working, with their waitlists, but shown nowhere unless a link asks for one.
+ */
+const UNLISTED: Record<string, string> = {
+  keysready: 'KeysReady',
+  strollz: 'Strollz',
+  vibelog: 'VibeLog',
+  'asset-arsenal': 'Asset Arsenal',
+}
+const UNLISTED_WORDS = /KeysReady|Strollz|VibeLog|Asset Arsenal|keysready|strollz|vibelog|asset-arsenal|assetarsenal/
+
+test('an unlisted project is nowhere for a normal visitor: not on the homepage or /upcoming, in what they show or in their source', async ({ page }) => {
+  for (const path of ['/', '/upcoming']) {
+    // The page as served: no card, no pick, no link, no icon, no description or share text that names one.
+    const source = await (await page.request.get(path)).text()
+    expect(source.match(UNLISTED_WORDS)?.[0], `the source of ${path}`).toBeUndefined()
+    await page.goto(path)
+    for (const [slug, name] of Object.entries(UNLISTED)) {
+      await expect(page.locator('body'), `${name} on ${path}`).not.toContainText(name)
+      await expect(page.locator(`[id="${slug}"], input[value="${slug}"], a[href*="${slug}"], img[src*="${slug}"]`), `${slug} on ${path}`).toHaveCount(0)
+    }
+  }
+  // /upcoming lists the five, in its cards and in its form; the homepage's modal offers the same five.
+  await expect(page.locator('main article')).toHaveCount(Object.keys(NAMES).length)
+  await expect(page.locator('#waitlist-projects').getByRole('checkbox')).toHaveCount(Object.keys(NAMES).length)
+  await page.goto('/')
+  await page.locator('#lab section#upcoming').getByRole('button', { name: 'Join the waitlist' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Join the waitlist' })
+  await expect(dialog.getByRole('checkbox')).toHaveCount(Object.keys(NAMES).length)
+  for (const name of Object.values(UNLISTED)) await expect(dialog).not.toContainText(name)
+})
+
+for (const [slug, name] of Object.entries(UNLISTED)) {
+  test(`a direct link to ${name}'s waitlist works end to end: offered and ticked, joined, confirmed, on the manage page`, async ({ page }) => {
+    const email = uniqueEmail()
+    // As its own landing page links here: its interest, and its old card's anchor.
+    await page.goto(`/upcoming?interest=${slug}#${slug}`, { waitUntil: 'domcontentloaded' })
+    await waitForForm(page)
+    // No card for it, and no dead end: the form is in view with its project there, ticked, after the listed five.
+    await expect(page.locator('main article')).toHaveCount(Object.keys(NAMES).length)
+    await expect(page.locator(`article[id="${slug}"]`)).toHaveCount(0)
+    await expect(project(page, name)).toBeChecked()
+    // (Its label: the checkbox itself is visually hidden behind its drawn tick.)
+    await expect(page.locator(`#waitlist-projects label:has(input[value="${slug}"])`)).toBeInViewport()
+    expect(await page.locator('#waitlist-projects input').evaluateAll((list) => list.map((i) => (i as HTMLInputElement).value))).toEqual([...Object.keys(NAMES), slug])
+    // Only the one the link asked for.
+    for (const other of Object.keys(UNLISTED).filter((s) => s !== slug)) {
+      await expect(page.locator(`#waitlist-projects input[value="${other}"]`)).toHaveCount(0)
+    }
+    // Its icon loads.
+    const icon = page.locator(`#waitlist-projects label:has(input[value="${slug}"]) img`)
+    await expect.poll(() => icon.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true)
+
+    await page.getByRole('textbox', { name: 'Email' }).fill(email)
+    await waitForTurnstileToken(page)
+    const request = page.waitForRequest('/api/waitlist')
+    await page.getByRole('button', { name: 'Join the waitlist' }).click()
+    expect((await request).postDataJSON()).toMatchObject({ projects: [slug], source: { interest: slug } })
+    await expect(page.getByRole('heading', { name: 'Check your inbox' })).toBeVisible({ timeout: SEND_TIMEOUT })
+
+    // The confirm email names it and shows its picture; its button confirms it.
+    const { emails } = await (await page.request.get(`/api/test/outbox?to=${encodeURIComponent(email)}`)).json()
+    expect(emails.at(-1).subject).toBe(`Confirm your spot on the ${name} waitlist`)
+    expect(emails.at(-1).text).toContain(`- ${name}: `)
+    expect((await page.request.get(`/email/upcoming/${slug}.png`)).status()).toBe(200)
+    await page.goto(await emailedLink(page, email, '/upcoming/confirm'))
+    await page.getByRole('button', { name: 'Confirm my spot' }).click()
+    await expect(page.locator('main').getByRole('status')).toContainText(`You're on the list for ${name}.`)
+    // The manage page lists it for someone who is on it, and they can leave.
+    await page.goto(await emailedLink(page, email, '/upcoming/leave'))
+    await expect(page.getByRole('checkbox', { name: new RegExp(name) })).toBeChecked()
+    await page.getByRole('button', { name: 'Leave the waitlist' }).click()
+    await expect(page.locator('main').getByRole('status')).toContainText('everything stored with it are deleted')
+  })
+}
+
+test("a direct link to the homepage's waitlist offers an unlisted project there too, ticked", async ({ page }) => {
+  await page.goto('/?interest=keysready#waitlist')
+  const dialog = page.getByRole('dialog', { name: 'Join the waitlist' })
+  await expect(dialog).toBeVisible()
+  await expect(dialog.locator('input[value="keysready"]')).toBeChecked()
+  await expect(dialog.getByRole('checkbox')).toHaveCount(Object.keys(NAMES).length + 1)
+  // The page behind it still doesn't show it.
+  await expect(page.locator('#lab section#upcoming section[data-group]').filter({ hasText: 'KeysReady' })).toHaveCount(0)
 })
 
 test('an unknown interest value is ignored and the page shows normally', async ({ page }) => {
@@ -105,25 +200,25 @@ test("a card's Join button ticks its project and brings the form into view", { t
   await page.goto('/upcoming')
   // Hydrated first: before that the link only jumps to the form, without ticking.
   await waitForForm(page)
-  await page.locator('article#keysready').getByRole('link', { name: 'Join the waitlist for KeysReady' }).click()
-  await expect(project(page, 'KeysReady')).toBeChecked()
+  await page.locator('article#feelium').getByRole('link', { name: 'Join the waitlist for Feelium' }).click()
+  await expect(project(page, 'Feelium')).toBeChecked()
   await expect(page.getByRole('textbox', { name: 'Email' })).toBeInViewport()
 })
 
 test('a visitor can join the waitlist', { tag: ['@cross-browser', '@smoke'] }, async ({ page }) => {
-  await page.goto('/upcoming?interest=keysready#keysready', { waitUntil: 'domcontentloaded' })
+  await page.goto('/upcoming?interest=feelium#feelium', { waitUntil: 'domcontentloaded' })
   await waitForForm(page)
   await page.getByRole('textbox', { name: 'Email' }).fill(uniqueEmail())
   await waitForTurnstileToken(page)
-  await page.locator('#waitlist-projects label', { hasText: 'Strollz' }).click()
-  await expect(project(page, 'Strollz')).toBeChecked()
+  await page.locator('#waitlist-projects label', { hasText: 'Pivot' }).click()
+  await expect(project(page, 'Pivot')).toBeChecked()
   // No note field (owner, 2026-11-02): email and projects are all it asks.
   await expect(page.locator('#waitlist textarea')).toHaveCount(0)
 
   const request = page.waitForRequest('/api/waitlist')
   await page.getByRole('button', { name: 'Join the waitlist' }).click()
   const body = (await request).postDataJSON()
-  expect(body).toMatchObject({ projects: ['keysready', 'strollz'], source: { interest: 'keysready' }, honeypot: '' })
+  expect(body).toMatchObject({ projects: ['feelium', 'pivot'], source: { interest: 'feelium' }, honeypot: '' })
   expect(body).not.toHaveProperty('note')
 
   await expect(page.getByRole('heading', { name: 'Check your inbox' })).toBeVisible({ timeout: SEND_TIMEOUT })
@@ -149,7 +244,7 @@ test('a visitor joins, confirms from the email, and leaves again, with every ste
   await waitForForm(page)
   await page.getByRole('textbox', { name: 'Email' }).fill(email)
   await waitForTurnstileToken(page)
-  await page.locator('#waitlist-projects label', { hasText: 'KeysReady' }).click()
+  await page.locator('#waitlist-projects label', { hasText: 'Pivot' }).click()
   await page.getByRole('button', { name: 'Join the waitlist' }).click()
   await expect(page.getByRole('heading', { name: 'Check your inbox' })).toBeVisible({ timeout: SEND_TIMEOUT })
 
@@ -157,7 +252,7 @@ test('a visitor joins, confirms from the email, and leaves again, with every ste
   const confirm = await emailedLink(page, email, '/upcoming/confirm')
   await page.goto(confirm)
   await page.getByRole('button', { name: 'Confirm my spot' }).click()
-  await expect(page.locator('main').getByRole('status')).toContainText("You're on the list for KeysReady and Feelium")
+  await expect(page.locator('main').getByRole('status')).toContainText("You're on the list for Feelium and Pivot")
   await page.goto(confirm)
   await page.getByRole('button', { name: 'Confirm my spot' }).click()
   await expect(page.locator('main').getByRole('alert')).toContainText('expired')
@@ -168,9 +263,9 @@ test('a visitor joins, confirms from the email, and leaves again, with every ste
   await page.goto(leave)
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Manage your waitlist')
   const save = page.getByRole('button', { name: 'Save my choices' })
-  await expect(page.getByRole('checkbox', { name: /KeysReady/ })).toBeChecked()
+  await expect(page.getByRole('checkbox', { name: /Pivot/ })).toBeChecked()
   await expect(save).toBeDisabled()
-  await page.getByRole('checkbox', { name: /KeysReady/ }).uncheck()
+  await page.getByRole('checkbox', { name: /Pivot/ }).uncheck()
   await save.click()
   await expect(page.locator('main').getByRole('status')).toContainText("Saved. You're on the list for Feelium.")
   await expect(page.getByRole('checkbox')).toHaveCount(1)
@@ -201,7 +296,7 @@ test('asks for a project and a valid email before sending anything', { tag: ['@c
 })
 
 test('shows the server error when the waitlist is unavailable', async ({ page }) => {
-  await page.goto('/upcoming?interest=keysready')
+  await page.goto('/upcoming?interest=feelium')
   await page.route('/api/waitlist', (route) =>
     route.fulfill({ status: 503, json: { error: 'The waitlist is having trouble right now.', type: 'unavailable' } })
   )
@@ -225,7 +320,7 @@ test('Turnstile runs only once the visitor starts on a form', async ({ page }) =
   expect(challenge).toEqual([])
 
   // A pick from a card's Join button is intent too.
-  await page.locator('article#keysready').getByRole('link', { name: 'Join the waitlist for KeysReady' }).click()
+  await page.locator('article#feelium').getByRole('link', { name: 'Join the waitlist for Feelium' }).click()
   await waitForTurnstileToken(page)
   expect(challenge.length).toBeGreaterThan(0)
 })
@@ -274,42 +369,30 @@ test('is linked from the footer, and the privacy page explains the waitlist', as
 
 /** Every project, in group order, and its landing page. */
 const LANDING: Record<string, string> = {
-  keysready: 'https://keysready.n8builds.dev',
-  strollz: 'https://strollz.n8builds.dev',
   feelium: 'https://feelium.n8builds.dev',
-  cutelyaskme: 'https://cutelyaskme.n8builds.dev',
   fitflow7: 'https://fitflow7.n8builds.dev',
   pivot: 'https://pivot.n8builds.dev/welcome',
+  cutelyaskme: 'https://cutelyaskme.n8builds.dev',
   whoami: 'https://whoami.n8builds.dev',
-  vibelog: 'https://vibelogs.dev',
-  'asset-arsenal': 'https://assetarsenal.n8builds.dev',
 }
 const NAMES: Record<string, string> = {
-  keysready: 'KeysReady',
-  strollz: 'Strollz',
   feelium: 'Feelium',
-  cutelyaskme: 'Cutely Ask Me',
   fitflow7: 'FitFlow 7',
   pivot: 'Pivot',
+  cutelyaskme: 'Cutely Ask Me',
   whoami: 'Who Am I?',
-  vibelog: 'VibeLog',
-  'asset-arsenal': 'Asset Arsenal',
 }
 /** The homepage's groups (data/upcoming.ts), in order, with their projects. */
 const GROUPS: [string, string[]][] = [
-  ['For businesses', ['keysready']],
-  ['For everyday life', ['strollz', 'feelium', 'cutelyaskme', 'fitflow7', 'pivot', 'whoami']],
-  ['For developers & creators', ['vibelog', 'asset-arsenal']],
+  ['For your habits & health', ['feelium', 'fitflow7', 'pivot']],
+  ['For two', ['cutelyaskme', 'whoami']],
 ]
 
 /**
  * Only public repositories get a GitHub button on
- * the homepage (checked 2026-11-09: all public but Asset Arsenal).
+ * the homepage (checked 2026-11-09; every one left is public).
  */
 const CODE: Record<string, string | undefined> = {
-  strollz: 'https://github.com/n8watkins/strollz',
-  vibelog: 'https://github.com/n8watkins/vibelog',
-  keysready: 'https://github.com/n8watkins/keysready',
   feelium: 'https://github.com/n8watkins/feelium',
   cutelyaskme: 'https://github.com/n8watkins/cutelyaskme',
   fitflow7: 'https://github.com/n8watkins/fitflow7',
@@ -332,11 +415,6 @@ test('each card has two actions: Check it out (its landing page), then the waitl
     // The code links stay on the homepage's What's cookin' rows (round 11 of 2026-11-09).
     await expect(card.getByRole('link', { name: /^View the code/ })).toHaveCount(0)
   }
-})
-
-test("KeysReady's card says plainly what it does", async ({ page }) => {
-  await page.goto('/upcoming')
-  await expect(page.locator('article#keysready')).toContainText('Stop answering')
 })
 
 test("the homepage Lab ends with a compact What's cookin' part: projects grouped by who they are for, and the waitlist in a modal", async ({ page }) => {
@@ -363,7 +441,7 @@ test("the homepage Lab ends with a compact What's cookin' part: projects grouped
       await expect(landing).toHaveAttribute('href', LANDING[slug])
       await expect(landing).toHaveAttribute('target', '_blank')
       await expect(row.getByText('Landing page', { exact: true })).toHaveCount(0)
-      // ... and a GitHub button follows when the repo is public (not Asset Arsenal's).
+      // ... and a GitHub button follows when the repo is public.
       const github = row.getByRole('link', { name: `${name} on GitHub (opens in a new tab)` })
       if (CODE[slug]) {
         await expect(github).toHaveAttribute('href', CODE[slug]!)
@@ -374,7 +452,7 @@ test("the homepage Lab ends with a compact What's cookin' part: projects grouped
       }
     }
   }
-  await expect(band.getByText('Booking and live repair status for auto shops')).toBeVisible()
+  await expect(band.getByText('See which habits go with how you feel')).toBeVisible()
   // No status labels: every project has a live landing page.
   await expect(band.getByText('Status:')).toHaveCount(0)
 
@@ -416,12 +494,12 @@ test("the homepage Lab ends with a compact What's cookin' part: projects grouped
 })
 
 test('a landing page link to the homepage opens the waitlist there and ticks its project', async ({ page }) => {
-  await page.goto('/?interest=strollz#waitlist')
+  await page.goto('/?interest=pivot#waitlist')
   const form = page.getByRole('dialog', { name: 'Join the waitlist' })
   await expect(form).toBeVisible()
   await expect(form).toBeInViewport()
-  await expect(form.locator('input[value="strollz"]')).toBeChecked()
-  await expect(form.locator('input[value="keysready"]')).not.toBeChecked()
+  await expect(form.locator('input[value="pivot"]')).toBeChecked()
+  await expect(form.locator('input[value="feelium"]')).not.toBeChecked()
 })
 
 for (const [width, height] of [
@@ -466,9 +544,12 @@ for (const [width, height] of [
     if (width >= 1024) {
       // Side by side, the two columns start and end level.
       const box = async (id: string) => (await band.locator(`section[data-group="${id}"]`).boundingBox())!
-      const [business, life, creators] = [await box('business'), await box('life'), await box('creators')]
-      expect(Math.abs(business.y - life.y)).toBeLessThan(1)
-      expect(Math.abs(creators.y + creators.height - (life.y + life.height))).toBeLessThan(1)
+      const [habits, two] = [await box('habits'), await box('two')]
+      expect(Math.abs(habits.y - two.y)).toBeLessThan(1)
+      expect(Math.abs(habits.y + habits.height - (two.y + two.height))).toBeLessThan(1)
+      expect(two.x).toBeGreaterThan(habits.x + habits.width)
+      // The same width, and together they fill the part's content width: no gap left beside them.
+      expect(Math.abs(habits.width - two.width)).toBeLessThan(1)
     }
   })
 }
@@ -480,19 +561,19 @@ for (const [width, height] of [
  */
 test('on a wide screen the waitlist stays beside the cards as you read, and Join ticks it in place', { tag: '@cross-browser' }, async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
-  await page.goto('/upcoming?interest=strollz')
+  await page.goto('/upcoming?interest=pivot')
   const waitlist = page.locator('#waitlist')
   await expect(waitlist).toHaveCount(1)
-  await expect(waitlist.getByRole('checkbox', { name: /Strollz/ })).toBeChecked()
-  const cards = (await page.locator('#keysready').boundingBox())!
+  await expect(waitlist.getByRole('checkbox', { name: /Pivot/ })).toBeChecked()
+  const cards = (await page.locator('#feelium').boundingBox())!
   const form = (await waitlist.boundingBox())!
   expect(form.x, 'beside the cards').toBeGreaterThan(cards.x + cards.width)
   // Still in view far down the page.
-  await page.locator('#asset-arsenal').scrollIntoViewIfNeeded()
+  await page.locator('#whoami').scrollIntoViewIfNeeded()
   await expect(waitlist).toBeInViewport()
   const y = await page.evaluate(() => window.scrollY)
-  await page.locator('#asset-arsenal').getByRole('link', { name: /Join the waitlist/ }).click()
-  await expect(waitlist.getByRole('checkbox', { name: /Asset Arsenal/ })).toBeChecked()
+  await page.locator('#whoami').getByRole('link', { name: /Join the waitlist/ }).click()
+  await expect(waitlist.getByRole('checkbox', { name: /Who Am I/ })).toBeChecked()
   // Ticked where it is, with a glow, not a jump.
   await expect(waitlist).toHaveAttribute('data-flash', '')
   expect(Math.abs((await page.evaluate(() => window.scrollY)) - y)).toBeLessThan(2)

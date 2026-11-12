@@ -9,14 +9,13 @@ import { expect, test } from '@playwright/test'
 const LIVE = {
   openping: 'https://openping.n8builds.dev/tools/is-it-down',
   solara: 'https://solara-uv.web.app/app/',
-  wren: 'https://wren.n8builds.dev',
 }
 
 test.describe('the product stage on a desktop', () => {
   test.use({ viewport: { width: 1280, height: 900 } })
 
   test('plays the clip, embeds nothing, and Try it live opens the real product in a new tab', async ({ page }) => {
-    for (const slug of ['openping', 'solara', 'wren'] as const) {
+    for (const slug of ['openping', 'solara'] as const) {
       await page.goto(`/builds/${slug}`)
       const stage = page.getByTestId('product-stage')
       await expect(stage.locator('[data-tour] video').filter({ visible: true }), slug).toHaveCount(1)

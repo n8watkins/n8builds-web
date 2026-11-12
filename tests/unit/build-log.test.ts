@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import fixture from '@/tests/fixtures/build-log-github.json'
 import { builds, getBuild, hiddenBuilds, type Build } from '@/data/builds'
+import { shippedStats, weight } from '@/lib/log-stats'
 import {
   allBuilds,
   assembleLog,
@@ -300,14 +301,13 @@ describe('entries for a build', () => {
 describe('merging, sorting and the builds index', () => {
   // The Lab's builds: release-kit's page (round 9 of 2026-11-09) is a build too, but the
   // recorded fixture captured its repo with nothing logged, so it stays out of these.
-  // The developer portfolio's page (round 12 of 2026-11-09) has none in the fixture either,
-  // and nor has Wren's (2026-11-10), added to it empty after it was recorded.
-  const inFixture = builds.filter((b) => !['release-kit', 'portfolio', 'wren'].includes(b.slug))
+  // The developer portfolio's page (round 12 of 2026-11-09) has none in the fixture either.
+  const inFixture = builds.filter((b) => b.slug !== 'release-kit' && b.slug !== 'portfolio')
   const log = assembleLog(inFixture, snapshots, highlights)
 
   it('tracks the visible builds with a repo, and none of the hidden ones', () => {
     const tracked = builds.filter((b) => b.repo)
-    expect(tracked.map((b) => b.slug)).toEqual(['voicedock', 'tldw', 'tubevault', 'scribe', 'openping', 'solara', 'wren', 'portfolio-rank', 'release-kit', 'portfolio', 'n8builds'])
+    expect(tracked.map((b) => b.slug)).toEqual(['voicedock', 'tldw', 'tubevault', 'scribe', 'openping', 'solara', 'portfolio-rank', 'release-kit', 'portfolio', 'n8builds'])
     expect(tracked.every((b) => /^n8watkins\/[\w-]+$/.test(b.repo!))).toBe(true)
     expect(hiddenBuilds.every((b) => !b.repo)).toBe(true)
     expect(new Set(log.entries.map((e) => e.build))).toEqual(new Set(inFixture.filter((b) => b.repo).map((b) => b.slug)))
@@ -343,15 +343,61 @@ describe('merging, sorting and the builds index', () => {
   it('shows a followed repo with no commits or releases yet as a quiet card, and links it where the site shows it', () => {
     // The upcoming projects and my tools were adopting release-kit (round 5 of 2026-11-02): some had nothing yet.
     const empty = (repo: string) => ({ repo, pushedAt: null, releases: [], commits: [] })
-    const strollz = allBuilds.find((b) => b.slug === 'strollz')!
-    const quiet = assembleLog([...builds, strollz], [...snapshots, empty('n8watkins/strollz')], highlights)
-    const card = quiet.activity.find((a) => a.slug === 'strollz')!
-    expect(card).toMatchObject({ href: '/upcoming#strollz', lastShipped: null, lastShippedLabel: null, latest: [] })
+    const feelium = allBuilds.find((b) => b.slug === 'feelium')!
+    const quiet = assembleLog([...builds, feelium], [...snapshots, empty('n8watkins/feelium')], highlights)
+    const card = quiet.activity.find((a) => a.slug === 'feelium')!
+    expect(card).toMatchObject({ href: '/upcoming#feelium', lastShipped: null, lastShippedLabel: null, latest: [] })
     // After every build that has shipped something.
-    expect(quiet.activity.at(-1)?.slug).toBe('strollz')
-    expect(quiet.entries.some((e) => e.build === 'strollz')).toBe(false)
+    expect(quiet.activity.at(-1)?.slug).toBe('feelium')
+    expect(quiet.entries.some((e) => e.build === 'feelium')).toBe(false)
     // A build page's card still links its page.
     expect(quiet.activity.find((a) => a.slug === 'scribe')?.href).toBe('/builds/scribe')
+  })
+
+  it("counts an unlisted project's work in the totals without ever naming it", () => {
+    // Unlisted since 2026-11-11 (data/upcoming.ts): KeysReady, Strollz and VibeLog are followed, never shown.
+    const unlisted = allBuilds.filter((b) => b.unlisted)
+    expect(unlisted.map((b) => b.slug).sort()).toEqual(['keysready', 'strollz', 'vibelog'])
+    expect(allBuilds.find((b) => b.slug === 'feelium')?.unlisted).toBeUndefined()
+    const work = (repo: string) => ({
+      repo,
+      pushedAt: '2026-10-20T18:00:00Z',
+      releases: [{ tag: 'v0.2.0', name: 'v0.2.0', publishedAt: '2026-10-20T18:00:00Z', url: `https://github.com/${repo}/releases/tag/v0.2.0`, draft: false, prerelease: false }],
+      commits: [
+        { sha: 'a'.repeat(40), message: 'feat: a secret feature', date: '2026-10-20T17:00:00Z', author: 'n8watkins', parents: 1, url: `https://github.com/${repo}/commit/a` },
+        { sha: 'b'.repeat(40), message: 'fix: a secret fix', date: '2026-10-19T17:00:00Z', author: 'n8watkins', parents: 1, url: `https://github.com/${repo}/commit/b` },
+      ],
+    })
+    const keysready = unlisted.find((b) => b.slug === 'keysready')!
+    const quiet = assembleLog([...inFixture, keysready], snapshots.filter((s) => s.repo !== keysready.repo), highlights)
+    const busy = assembleLog([...inFixture, keysready], [...snapshots.filter((s) => s.repo !== keysready.repo), work(keysready.repo!)], [
+      ...highlights,
+      { ...highlights[0], id: 'unlisted-highlight', date: '2026-10-21', build: 'keysready', title: 'KeysReady takes its first booking' },
+    ])
+    // Nothing a visitor sees changes: the feed, the builds index and the months are the same.
+    expect(busy.entries).toEqual(quiet.entries)
+    expect(busy.activity).toEqual(quiet.activity)
+    expect(busy.activity.map((a) => a.slug)).not.toContain('keysready')
+    // The work is counted: two days of changes, a release among them, and the highlight.
+    const added = busy.counted.filter((e) => e.unnamed)
+    expect(busy.counted.length).toBe(quiet.counted.length + 3)
+    expect(busy.counted.filter((e) => !e.unnamed)).toEqual(quiet.entries)
+    expect(added.map((e) => e.kind).sort()).toEqual(['change', 'highlight', 'release'])
+    // ... with everything that names the project taken off.
+    for (const e of added) {
+      expect(Object.keys(e).sort()).toEqual(['build', 'date', 'day', 'dayLabel', 'id', 'kind', 'month', 'more', 'title', 'unnamed'])
+      expect(JSON.stringify(e)).not.toMatch(/keysready|KeysReady|secret|github/i)
+    }
+    // The month's figures: more changes and one more release, the same builds, and never the busiest.
+    const names = Object.fromEntries(allBuilds.map((b) => [b.slug, b.name]))
+    const stat = (log: typeof busy, id: string) => shippedStats(log.counted.filter((e) => e.month === '2026-10'), log.counted, '2026-10-26T20:00:00Z', names).find((s) => s.id === id)?.value
+    expect(Number(stat(busy, 'changes'))).toBe(Number(stat(quiet, 'changes')) + added.reduce((n, e) => n + weight(e), 0))
+    expect(Number(stat(busy, 'releases') ?? 0)).toBe(Number(stat(quiet, 'releases') ?? 0) + 1)
+    expect(stat(busy, 'builds')).toBe(stat(quiet, 'builds'))
+    expect(stat(busy, 'busiest')).toBe(stat(quiet, 'busiest'))
+    const loud = assembleLog([keysready], [work(keysready.repo!)], [])
+    expect(loud.entries).toEqual([])
+    expect(shippedStats(loud.counted, loud.counted, '2026-10-26T20:00:00Z', names).map((s) => s.id)).toEqual(['changes', 'builds', 'releases', 'days', 'streak'].filter((id) => id !== 'streak'))
   })
 
   it('pins highlights above the automatic entries of their month', () => {
@@ -372,7 +418,7 @@ describe('merging, sorting and the builds index', () => {
   })
 
   it('drops highlights for builds that are not on the site', () => {
-    const merged = assembleLog(builds, snapshots, [{ ...highlights[0], id: 'hidden', build: 'vibelog' }])
+    const merged = assembleLog(builds, snapshots, [{ ...highlights[0], id: 'hidden', build: 'not-on-the-site' }])
     expect(merged.entries.some((e) => e.kind === 'highlight')).toBe(false)
   })
 
@@ -471,7 +517,7 @@ describe('getBuildLog', () => {
     vi.stubEnv('NEXT_PHASE', 'phase-production-build')
     const log = await getBuildLog()
     expect(log.entries).toEqual([])
-    expect(log.activity).toHaveLength(allBuilds.filter((b) => b.repo).length)
+    expect(log.activity).toHaveLength(allBuilds.filter((b) => b.repo && !b.unlisted).length)
   })
 
   it('throws on a revalidation where GitHub serves nothing, so ISR keeps the last good page', async () => {

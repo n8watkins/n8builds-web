@@ -173,11 +173,13 @@ async function ReleaseKitAd() {
  * can't be read or is empty. Shared with /builds, which shows the same card.
  */
 export async function getLogMonths(): Promise<LogMonth[] | null> {
+  // `entries` is everything the totals count, unlisted projects' unnamed work included
+  // (`counted`); the rows shown are picked from the named ones only (`shown`).
   let entries: LogEntry[]
   let asOf: string
   let recentFrom: string | null
   try {
-    ;({ entries, asOf, recentFrom } = await getBuildLog())
+    ;({ counted: entries, asOf, recentFrom } = await getBuildLog())
   } catch {
     // GitHub unreachable with nothing cached: leave the strip out.
     return null
@@ -188,6 +190,7 @@ export async function getLogMonths(): Promise<LogMonth[] | null> {
   const thisMonth = entries.filter((e) => e.month === current)
   const isThisMonth = thisMonth.length >= MONTH_MIN
   const today = dayKey(asOf)
+  const shown = (list: LogEntry[]) => list.filter((e) => !e.unnamed)
   const view = (rows: LogEntry[]) => ({
     rows: rows.map((entry) => <LogRow key={entry.id} entry={entry} twoLines />),
     labels: rows.map((entry) => `${names[entry.build] ?? entry.build}, ${entry.title}`),
@@ -206,7 +209,7 @@ export async function getLogMonths(): Promise<LogMonth[] | null> {
     days: isThisMonth
       ? dailyCounts(firstPeriod, `${current}-01`, lastDayOf(current), today)
       : dailyCounts(firstPeriod, cutoff, today, today),
-    ...view(isThisMonth ? pickRows(thisMonth) : pickRows(entries, true)),
+    ...view(isThisMonth ? pickRows(shown(thisMonth)) : pickRows(shown(entries), true)),
     listLabel: isThisMonth ? 'Latest this month' : 'Latest updates',
   }
   // Then each month before it with something shipped, back to the /builds feed's 12-month window
@@ -222,7 +225,7 @@ export async function getLogMonths(): Promise<LogMonth[] | null> {
         name: monthLabel(m),
         stats: shippedStats(period, entries, asOf, names, { streak: false }),
         days: dailyCounts(period, `${m}-01`, lastDayOf(m), today),
-        ...view(pickRows(period)),
+        ...view(pickRows(shown(period))),
         listLabel: `Latest in ${monthLabel(m)}`,
       }
     })

@@ -1,4 +1,5 @@
 import type { Build } from '@/data/builds'
+import { UNLISTED_SLUGS } from '@/data/upcoming'
 
 /**
  * A project the build log follows. Every build in data/builds.tsx with a
@@ -9,6 +10,12 @@ import type { Build } from '@/data/builds'
 export type LogBuild = Pick<Build, 'slug' | 'name' | 'tagline' | 'category' | 'color' | 'repo' | 'github' | 'log' | 'logHide'> & {
   /** Where the project's name links in the log: its build page (`/builds/<slug>`) unless set. */
   href?: string
+  /**
+   * An unlisted upcoming project (`unlisted` in data/upcoming.ts): the log still
+   * reads its repo, and its work counts in the "changes shipped" totals, but
+   * the log never names it, links it or shows its entries.
+   */
+  unlisted?: boolean
 }
 
 /**
@@ -26,7 +33,7 @@ export type LogBuild = Pick<Build, 'slug' | 'name' | 'tagline' | 'category' | 'c
  * /builds. Every `repo` here is also read by scripts/build-log-fixture.mjs
  * and scripts/check-build-repos.mjs (one per line, as written).
  */
-export const logOnlyBuilds: LogBuild[] = [
+const followed: LogBuild[] = [
   {
     slug: 'strollz',
     name: 'Strollz',
@@ -139,3 +146,6 @@ export const logOnlyBuilds: LogBuild[] = [
     href: '/#pr-post-edition',
   },
 ]
+
+/** The projects above, the unlisted upcoming ones marked as such (the one place that decides it is data/upcoming.ts). */
+export const logOnlyBuilds: LogBuild[] = followed.map((build) => (UNLISTED_SLUGS.has(build.slug) ? { ...build, unlisted: true } : build))

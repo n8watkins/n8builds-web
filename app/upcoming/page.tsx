@@ -6,15 +6,15 @@ import Reveal from '@/components/ui/Reveal'
 import JoinButton from '@/components/upcoming/JoinButton'
 import { LandingButton } from '@/components/upcoming/ProjectLinks'
 import WaitlistPanel from '@/components/upcoming/WaitlistPanel'
-import { STATUS_LABEL, UPCOMING, type UpcomingProject } from '@/data/upcoming'
+import { STATUS_LABEL, UPCOMING_LISTED, type UpcomingProject } from '@/data/upcoming'
 import { pageMetadata } from '@/lib/seo'
 
 export const metadata = pageMetadata({
   title: 'Upcoming | n8builds',
   description:
-    "What I'm building in public: KeysReady for small businesses; Strollz, Feelium, Cutely Ask Me, FitFlow 7, Pivot and Who Am I? for everyday life; VibeLog and Asset Arsenal for developers and creators. Each has a landing page; join a waitlist to hear what's next.",
+    "What I'm building in public: Feelium, FitFlow 7 and Pivot for your habits and health; Cutely Ask Me and Who Am I? for two. Each has a landing page you can try it from; join a waitlist to hear what's next.",
   shareDescription:
-    "What I'm building in public, from walking loops and a 7-minute workout timer to tools for auto shops and coding streams. Join a waitlist to hear what's next.",
+    "What I'm building in public, from a 7-minute workout timer and a habit tracker to a date planner and a two-player guessing game. Join a waitlist to hear what's next.",
   path: '/upcoming',
 })
 
@@ -31,19 +31,23 @@ const STATUS_TONE: Record<UpcomingProject['status'], string> = {
  * on"; its only job is to send people to check it out): its landing page's
  * picture, its mark, name and status, one line, then "Check it out" and the
  * waitlist. The full pitch lives on the landing page.
+ *
+ * `wide`: an odd last card (five listed projects since 2026-11-11) spans both columns
+ * from 640px, its picture beside its words, so it never sits alone in half a row.
  */
-function ProjectCard({ project, index }: { project: UpcomingProject; index: number }) {
+function ProjectCard({ project, index, wide = false }: { project: UpcomingProject; index: number; wide?: boolean }) {
   return (
     <FadeIn
       as="article"
       delay={0.05 + (index % 4) * 0.06}
       id={project.slug}
       aria-labelledby={`${project.slug}-name`}
-      className="flex scroll-mt-24"
+      className={`flex scroll-mt-24 ${wide ? 'sm:col-span-2' : ''}`}
+      data-wide={wide ? '' : undefined}
     >
       <div
         style={{ '--accent': project.accent } as CSSProperties}
-        className="group relative flex w-full flex-col overflow-hidden rounded-2xl border border-white/8 bg-[#0a1222]/80 transition-colors hover:border-(--accent)/40"
+        className={`group relative flex w-full flex-col overflow-hidden rounded-2xl border border-white/8 bg-[#0a1222]/80 transition-colors hover:border-(--accent)/40 ${wide ? 'sm:flex-row' : ''}`}
       >
         {/* A renamed project's old anchor (#rewire) still lands here. */}
         {project.oldIds?.map((id) => (
@@ -51,7 +55,9 @@ function ProjectCard({ project, index }: { project: UpcomingProject; index: numb
         ))}
         <span aria-hidden className="absolute inset-x-0 top-0 z-10 h-[3px] bg-(--accent)" />
         {/* Its landing page, as a picture: the link below opens the real one. */}
-        <div className="relative aspect-16/10 overflow-hidden border-b border-white/8 bg-[#07101d]">
+        <div
+          className={`relative aspect-16/10 overflow-hidden border-b border-white/8 bg-[#07101d] ${wide ? 'sm:w-1/2 sm:shrink-0 sm:border-r sm:border-b-0' : ''}`}
+        >
           <Image
             src={project.shot}
             alt=""
@@ -99,7 +105,7 @@ export default function UpcomingPage() {
               <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">cookin&rsquo;</span>
             </h1>
             <p className="mt-4 max-w-[640px] text-base leading-relaxed text-[#9cadc5] sm:text-lg/7">
-              Things I&rsquo;m building in public, each with its own landing page: some are plans, some you can already try.
+              Things I&rsquo;m building in public, each with its own landing page, and every one you can already try.
               Join a waitlist and I&rsquo;ll email you when there&rsquo;s news.
             </p>
           </FadeIn>
@@ -111,8 +117,14 @@ export default function UpcomingPage() {
                way, so ?interest= and the cards' Join buttons tick the same one. */}
           <div className="mt-10 grid gap-6 md:mt-12 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-8 xl:grid-cols-[minmax(0,1fr)_24rem]">
             <div className="grid gap-5 sm:grid-cols-2">
-              {UPCOMING.map((project, index) => (
-                <ProjectCard key={project.slug} project={project} index={index} />
+              {/* The listed projects only: an unlisted one has no card (data/upcoming.ts). */}
+              {UPCOMING_LISTED.map((project, index) => (
+                <ProjectCard
+                  key={project.slug}
+                  project={project}
+                  index={index}
+                  wide={UPCOMING_LISTED.length % 2 === 1 && index === UPCOMING_LISTED.length - 1}
+                />
               ))}
             </div>
 
