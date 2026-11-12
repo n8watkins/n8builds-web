@@ -613,7 +613,7 @@ export const PersonCard = ({ person }: { person: Person }) => (
 
 /** The people I follow, as cards (the homepage's People I follow, components/sections/HomePeople.tsx). */
 export const PeopleGrid = () => (
-  <ul className="grid gap-5 lg:grid-cols-3">
+  <ul className="grid gap-5 md:grid-cols-2">
     {people.map((person) => (
       <li key={person.id}>
         <PersonCard person={person} />

@@ -62,10 +62,10 @@ describe('the loadout dev-tool lists', () => {
     }
   })
 
-  it('follows exactly the owner\'s three people, in order', () => {
-    expect(people.map((c) => c.name)).toEqual(['Kun Chen', 'Phaedrus Raznikov', 'Nate Herk'])
-    // Nate Herk has no public GitHub; never add a guessed one.
-    expect(people.find((c) => c.id === 'nate-herk')?.links.some((l) => l.kind === 'github')).toBe(false)
+  it('follows exactly the owner\'s four people, in order', () => {
+    expect(people.map((c) => c.name)).toEqual(['Kun Chen', 'Phaedrus Raznikov', 'Nate Herk', 'Nick Saraev'])
+    // Neither has a public GitHub; never add a guessed one (github.com/nicksaraev is dormant since 2018 and unconfirmed).
+    for (const id of ['nate-herk', 'nick-saraev']) expect(people.find((c) => c.id === id)?.links.some((l) => l.kind === 'github')).toBe(false)
   })
 
   it('self-hosts every avatar in public/people/', () => {
