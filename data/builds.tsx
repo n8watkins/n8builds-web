@@ -416,68 +416,6 @@ images: [
     logHide: ['fmtH', 'V1 hardening'],
   },
   {
-    // Launched 2026-11-10; the featured builds' third card. Every claim is from its
-    // README, docs/DECISIONS.md and its live /api/health. Its clip and chat screenshot
-    // replay one genuine answer of Wren's (scripts/product-clips/wren-replay.mjs).
-    slug: 'wren',
-    name: 'Wren',
-    tagline: 'An AI assistant you can type or talk to',
-    category: 'Web app',
-    tags: ['Next.js', 'Cloudflare Workers', 'Gemini'],
-    highlights: [
-      { text: 'Chat that answers as it writes', shot: '/builds/wren/chat.webp' },
-      { text: 'Talk instead of typing, through Gemini Live; talk over Wren to interrupt it', shot: '/builds/wren/how-it-works.webp' },
-      'Research from chat: it searches the web, reads the pages and writes a report that cites only pages it opened',
-      { text: 'A Memory library: save notes, links and files and find them by meaning; Wren keeps facts you tell it, with an Undo', shot: '/builds/wren/memory.webp' },
-      { text: "Try it as a guest, no sign-up; it's a free demo, so bring your own Gemini key for real use", shot: '/builds/wren/demo-notice.webp' },
-    ],
-    color: 'from-orange-500/20 to-red-600/20',
-    problem:
-      'An assistant that can chat, talk, look things up and remember usually splits that across modes and tools, each with its own history.',
-    solution:
-      'Wren is one chat where typing and talking are always both there. Turn on Research and it reads the web and cites what it read; save anything to Memory and Wren finds it by meaning when it matters.',
-    stack: [
-      { name: 'Next.js 16 · React 19 · TypeScript', layer: 'Frontend', detail: 'The chat, Research runs and the Memory library, served from Workers through OpenNext', tech: ['nextjs', 'react', 'typescript'] },
-      { name: 'Cloudflare Workers · Durable Objects', layer: 'Backend', detail: "One agent per person (Cloudflare's Agents SDK) holds their chats, memory and daily usage", tech: ['workers', 'durableobjects'] },
-      { name: 'Gemini 3.5 Flash-Lite · Gemini Live', layer: 'Backend', detail: "Answers streamed as they're written, and voice relayed through each person's agent", tech: ['gemini', 'geminilive'] },
-      { name: 'Tavily', layer: 'Backend', detail: 'Web search with page text, so a research report cites only what it read', tech: ['tavily'] },
-      { name: 'Better Auth', layer: 'Backend', detail: 'Sign-in with GitHub or an email link', tech: ['betterauth'] },
-      { name: 'Vectorize · R2 · D1', layer: 'Cloud', detail: 'Memory searched by meaning (a namespace per person), saved files, and accounts', tech: ['vectorize', 'r2', 'd1'] },
-      { name: 'Vitest · Playwright · GitHub Actions', layer: 'Cloud', detail: 'Unit and browser tests at desktop and phone widths, against mocks of Gemini, Gemini Live and Tavily', tech: ['vitest', 'playwright', 'actions'] },
-    ],
-    process: [
-      'One chat for everything: the mic sits next to the message box, and every spoken turn lands in the same thread as text.',
-      "Each person gets their own Durable Object agent, so their chats, memory and usage live together, and voice is a WebSocket relayed through that agent.",
-      'Research cites only pages it opened: Tavily returns results with their text, so a report can show what it searched, read and cited.',
-      "A free demo on Gemini's free tier, with a daily allowance per person. Don't share anything private with it; for real use, add your own Gemini key, which stays in your browser and is never stored or logged.",
-      'Health is checked for real: once a day the Worker makes one tiny call to each model and to search, and its health endpoint reports the result, so a model that goes quiet shows up in monitoring.',
-    ],
-    images: [
-      { src: '/builds/wren/chat.webp', alt: 'Wren answering "What should I look for in an e-bike under $1,500?": motor, battery, brakes, class, weight and warranty, in its dark theme' },
-      { src: '/builds/wren/how-it-works.webp', alt: 'How Wren works: talk or type, ask it to research, build your memory, and your key, limits and privacy' },
-      { src: '/builds/wren/memory.webp', alt: "Wren's Memory: a library of notes, links and files you save, plus facts Wren keeps from your chats, all searchable by meaning" },
-      { src: '/builds/wren/demo-notice.webp', alt: "Wren's free-demo notice over the message box: it runs on Gemini's free tier, so don't share anything private, and a Use your own key button" },
-    ],
-    clip: {
-      webm: '/builds/wren/clip.webm',
-      mp4: '/builds/wren/clip.mp4',
-      poster: '/builds/wren/clip-poster.webp',
-      alt: 'A short clip of Wren in use: a guest types "What should I look for in an e-bike under $1,500?" and Wren writes its answer, motor, battery, class, brakes and warranty',
-      phone: {
-        webm: '/builds/wren/clip-phone.webm',
-        mp4: '/builds/wren/clip-phone.mp4',
-        poster: '/builds/wren/clip-phone-poster.webp',
-        alt: 'The same on a phone: typing the e-bike question and Wren writing its answer',
-      },
-    },
-    // Try it live: the app is the first screen, and guests can chat with no sign-up.
-    tryLive: 'https://wren.n8builds.dev',
-    tryIt: { label: 'Ask Wren', href: 'https://wren.n8builds.dev' },
-    github: 'https://github.com/n8watkins/wren',
-    liveSite: 'https://wren.n8builds.dev',
-    repo: 'n8watkins/wren',
-  },
-  {
     slug: 'portfolio-rank',
     name: 'Portfolio Rank',
     // On the developer portfolio since 2026-11-08, not a Lab row.
@@ -680,7 +618,6 @@ images: [
 /**
  * Builds kept for later but not shown anywhere on the site: no page, no card,
  * no sitemap entry. To bring one back, move it into `builds` above.
- * - VibeLog: paused 2026-10-22 until it's ready to show again.
  */
 export const hiddenBuilds: Build[] = [
   // On hold (2026-10-23): the owner is deciding what to do with it; its repo is private.
@@ -705,30 +642,6 @@ export const hiddenBuilds: Build[] = [
       'V1 is intentionally a template, not a builder: no analytics, no feedback backend, no store automation. Boundaries are written down in the PRD.',
       'A check:extension health command verifies the config and release readiness before shipping.',
       'Born from the patterns repeated across VoiceDock (then Piper TTS), TL;DW, and TubeVault - this kit is those lessons, extracted.',
-    ],
-    images: [],
-  },
-  {
-    slug: 'vibelog',
-    name: 'VibeLog',
-    tagline: 'Live coding telemetry & OBS overlay',
-    category: 'Streaming tool',
-    tags: ['Node.js', 'OBS', 'TypeScript'],
-    color: 'from-blue-500/20 to-cyan-600/20',
-    problem:
-      'Streaming "building in public" gives viewers no live signal of what is actually happening: git activity, Claude token spend, and session time all live in different tools, and the post-stream recap is a manual chore.',
-    solution:
-      'One local Node process that tracks git activity, AI token spend, stream time, and channel growth - and serves a live HUD as an OBS browser source, a private dashboard, a public /live page, and shareable /share cards. Local-first, no accounts, $0.',
-    stack: [
-      { name: 'Node.js · TypeScript', layer: 'Frontend', detail: 'Single local agent process that watches git and session state' },
-      { name: 'OBS Browser Source', layer: 'Frontend', detail: 'Transparent 1920×1080 HUD served at localhost:4545/overlay' },
-      { name: 'CLI', layer: 'Frontend', detail: 'vibe start / mark / status / report - drive the overlay from a second terminal while coding' },
-    ],
-    process: [
-      'Markers are first-class: "vibe mark feature/bug" annotates the session live, and the end-of-day report is built entirely from the local log - no AI, no network.',
-      'A demo mode seeds fake data so the whole overlay can be previewed without a real git repo or session.',
-      'Direction lives in a canonical VISION.md; earlier spec docs are kept but explicitly marked historical.',
-      'This is the tool behind the "LIVE on VibeLog" badge planned for this site\'s hero.',
     ],
     images: [],
   },

@@ -33,7 +33,7 @@ test('the build log leads with the builds, most recently active first', { tag: '
   const cards = page.getByRole('list', { name: 'Builds by latest activity' }).locator(':scope > li')
   // The builds, then the projects without a build page the log follows since round 5 of
   // 2026-11-02 (data/logBuilds.ts); in the fixture those have nothing yet, so they come last.
-  await expect(cards).toHaveCount(22)
+  await expect(cards).toHaveCount(18)
   expect(await cards.evaluateAll((els) => els.map((el) => el.getAttribute('data-build')))).toEqual([
     'n8builds',
     'solara',
@@ -43,16 +43,11 @@ test('the build log leads with the builds, most recently active first', { tag: '
     'portfolio-rank',
     'tubevault',
     'voicedock',
-    // Wren's page (2026-11-10): added to the fixture empty, after it was recorded.
-    'wren',
     // release-kit's page (round 9 of 2026-11-09): the fixture has nothing logged for it yet.
     'release-kit',
     // The developer portfolio's page (round 12 of 2026-11-09): nothing logged in the fixture either.
     'portfolio',
-    'strollz',
-    'keysready',
     'feelium',
-    'vibelog',
     'cutelyaskme',
     'fitflow7',
     'pivot',
@@ -62,9 +57,13 @@ test('the build log leads with the builds, most recently active first', { tag: '
     'pr-post',
   ])
   // A project with nothing logged yet is a quiet card that links where the site shows it.
-  const strollz = cards.and(page.locator('[data-build="strollz"]'))
-  await expect(strollz).toContainText('Nothing logged yet')
-  await expect(strollz.getByRole('link', { name: 'Full story of Strollz' })).toHaveAttribute('href', '/upcoming#strollz')
+  const feelium = cards.and(page.locator('[data-build="feelium"]'))
+  await expect(feelium).toContainText('Nothing logged yet')
+  await expect(feelium.getByRole('link', { name: 'Full story of Feelium' })).toHaveAttribute('href', '/upcoming#feelium')
+  // Every card's link leads somewhere that exists: no anchor of a project that left /upcoming (2026-11-11).
+  for (const gone of ['strollz', 'keysready', 'vibelog', 'asset-arsenal']) {
+    await expect(page.locator(`a[href$="#${gone}"]`)).toHaveCount(0)
+  }
   await expect(cards.and(page.locator('[data-build="pr-post"]')).getByRole('link', { name: 'Full story of PR Post' })).toHaveAttribute('href', '/#pr-post-edition')
   await expect(cards.first()).toContainText('Last shipped Oct 2026')
   // Quiet builds read as finished, not abandoned.

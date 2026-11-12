@@ -15,11 +15,11 @@ import { test, expect, type Locator, type Page } from '@playwright/test'
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
 /** Where each row lives: Scribe on /loadout, the featured builds in the homepage Lab. */
-const ROW_PAGE: Record<string, string> = { Scribe: '/loadout', OpenPing: '/', Solara: '/', Wren: '/' }
+const ROW_PAGE: Record<string, string> = { Scribe: '/loadout', OpenPing: '/', Solara: '/' }
 const ROWS = Object.keys(ROW_PAGE)
 /** Each row's slug and repository under github.com/n8watkins. */
-const SLUG: Record<string, string> = { Scribe: 'scribe', OpenPing: 'openping', Solara: 'solara', Wren: 'wren' }
-const REPO: Record<string, string> = { Scribe: 'scribe', OpenPing: 'open-ping', Solara: 'solara', Wren: 'wren' }
+const SLUG: Record<string, string> = { Scribe: 'scribe', OpenPing: 'openping', Solara: 'solara' }
+const REPO: Record<string, string> = { Scribe: 'scribe', OpenPing: 'open-ping', Solara: 'solara' }
 /** Each row's one primary action, to the live thing. */
 const PRIMARY: Record<string, [RegExp, string]> = {
   Scribe: [/^Download for Windows/, '/download/scribe'],
@@ -27,8 +27,6 @@ const PRIMARY: Record<string, [RegExp, string]> = {
   OpenPing: [/^Check it out/, 'https://openping.n8builds.dev'],
   // The planner itself, not its landing page.
   Solara: [/^Find your sun window/, 'https://solara-uv.web.app/app/'],
-  // The app is Wren's first screen; guests can chat with no sign-up.
-  Wren: [/^Ask Wren/, 'https://wren.n8builds.dev'],
 }
 
 /** The row's article, opening its page first unless it is already open. */
@@ -60,7 +58,7 @@ test('the Lab leads with the featured builds, OpenPing first, each with its icon
   const featured = page.locator('#featured')
   await featured.scrollIntoViewIfNeeded()
   // The part's own heading, then one per row.
-  await expect(featured.getByRole('heading', { level: 3 })).toHaveText(['Featured', 'OpenPing', 'Solara', 'Wren'])
+  await expect(featured.getByRole('heading', { level: 3 })).toHaveText(['Featured', 'OpenPing', 'Solara'])
   // Just "Featured" since 2026-11-09, with no blurb and no checks of its own (they sit under "The Lab").
   await expect(featured).not.toContainText('Free to use and open source')
   await expect(featured.getByRole('list', { name: 'Open source' })).toHaveCount(0)
@@ -72,10 +70,13 @@ test('the Lab leads with the featured builds, OpenPing first, each with its icon
   await expect(page.locator('#featured')).not.toContainText(/^Featured\s*Featured/)
   await expect(page.locator('#lab')).not.toContainText('The bench')
   const lab = page.locator('#lab')
-  for (const slug of ['openping', 'solara', 'wren']) {
+  for (const slug of ['openping', 'solara']) {
     await expect(lab.locator(`a[href="/builds/${slug}"]`).first(), slug).toBeAttached()
     await expect(lab.locator(`img[src*="${slug}"]`).first(), `${slug} icon`).toBeAttached()
   }
+  // Wren left the site on 2026-11-11 (owner): no card, no mention and no link to its old page.
+  await expect(page.locator('body')).not.toContainText(/\bWren\b/)
+  await expect(page.locator('a[href*="/builds/wren"], a[href*="wren.n8builds.dev"]')).toHaveCount(0)
   // Their screenshots are real files.
   for (const src of ['/builds/scribe/tour-poster.webp', '/builds/openping/landing.webp']) {
     expect((await page.request.get(src)).status(), src).toBe(200)
@@ -87,9 +88,9 @@ for (const width of [1280, 390]) {
     await page.setViewportSize({ width, height: 900 })
     await page.goto('/')
     const cards = page.locator('#featured article')
-    await expect(cards).toHaveCount(3)
+    await expect(cards).toHaveCount(2)
     const boxes: { top: number; bottom: number }[] = []
-    for (const title of ['OpenPing', 'Solara', 'Wren']) {
+    for (const title of ['OpenPing', 'Solara']) {
       const card = page.getByRole('article', { name: title })
       await card.scrollIntoViewIfNeeded()
       const [article, clip, heading, primary] = await Promise.all([
@@ -114,14 +115,8 @@ for (const width of [1280, 390]) {
       expect(Math.round(a!.y)).toBe(Math.round(b!.y))
       expect(b!.x).toBeGreaterThan(a!.x + a!.width)
       expect(Math.abs(a!.height - b!.height)).toBeLessThan(1)
-      // Wren (2026-11-10), the odd one out, sits under the pair, centred, as wide as each of them.
-      const c = (await page.getByRole('article', { name: 'Wren' }).boundingBox())!
-      expect(c.y).toBeGreaterThan(a!.y + a!.height)
-      expect(Math.abs(c.width - a!.width)).toBeLessThan(1)
-      expect(Math.abs(c.x + c.width / 2 - (a!.x + b!.x + b!.width) / 2)).toBeLessThan(1)
     } else {
       expect(boxes[1].top).toBeGreaterThanOrEqual(boxes[0].bottom)
-      expect(boxes[2].top).toBeGreaterThanOrEqual(boxes[1].bottom)
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
   })
@@ -139,10 +134,10 @@ test('the Lab has no tools part any more, in its own links, the navbar menu or t
   await expect(page.getByRole('link', { name: /^My tools/ })).toHaveCount(0)
 })
 
-test("Scribe's build page leads back to Tools I've built on /loadout; OpenPing, Solara and Wren back to Featured", async ({ page }) => {
+test("Scribe's build page leads back to Tools I've built on /loadout; OpenPing and Solara back to Featured", async ({ page }) => {
   await page.goto('/builds/scribe')
   await expect(page.getByRole('link', { name: "Back to Tools I've built" })).toHaveAttribute('href', '/loadout#tools-i-built')
-  for (const slug of ['openping', 'solara', 'wren']) {
+  for (const slug of ['openping', 'solara']) {
     await page.goto(`/builds/${slug}`)
     await expect(page.getByRole('link', { name: 'Back to Featured' })).toHaveAttribute('href', '/#featured')
   }
@@ -160,7 +155,7 @@ test('Full story opens the build page: no Details dialog, and the row shows no s
   // No Details dialog (What's cookin's waitlist modal is the Lab's only dialog, round 7).
   await expect(page.locator('#lab dialog:not(#waitlist)')).toHaveCount(0)
   await expect(page.locator('#lab').getByRole('button', { name: /^Details/ })).toHaveCount(0)
-  for (const title of ['OpenPing', 'Solara', 'Wren']) {
+  for (const title of ['OpenPing', 'Solara']) {
     const article = page.getByRole('article', { name: title })
     await expect(article.getByRole('list', { name: `What ${title} does` })).toHaveCount(0)
     await expect(article.getByRole('list', { name: `${title} is built with` })).toHaveCount(0)
@@ -535,13 +530,12 @@ test.describe('featured clips, with motion', () => {
     ['Scribe', '/builds/scribe/tour'],
     ['OpenPing', '/builds/openping/clip'],
     ['Solara', '/builds/solara/clip'],
-    ['Wren', '/builds/wren/clip'],
   ] as const) {
     const row = await rowOf(page, title)
     const video = row.locator('[data-tour] video')
     await video.scrollIntoViewIfNeeded()
-    // Featured's clips take turns (round 9): Solara's and Wren's play once they have the turn, here by hovering.
-    if (title === 'Solara' || title === 'Wren') await row.hover()
+    // Featured's clips take turns (round 9): Solara's plays once it has the turn, here by hovering it.
+    if (title === 'Solara') await row.hover()
     await expect(row.getByRole('group', { name: `${title} screenshots` })).toHaveCount(0)
     await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.currentSrc), { message: title }).toContain(src)
     await expect.poll(() => video.evaluate((v: HTMLVideoElement) => !v.paused && v.currentTime > 0), { message: title }).toBe(true)
@@ -604,17 +598,13 @@ test.describe('featured clips, with motion', () => {
     await resting(solara)
     await expect(solara.getByRole('button', { name: name('Solara') })).toBeVisible()
     if (!isMobile) {
-      // When OpenPing's clip ends, Solara's plays, then Wren's (2026-11-10); when that ends, OpenPing's again.
-      const wren = page.getByRole('article', { name: 'Wren' })
+      // When OpenPing's clip ends, Solara's plays; when that ends, OpenPing's again.
       await nearEnd(openping)
       await plays(solara)
       await resting(openping)
       await nearEnd(solara)
-      await plays(wren)
-      await resting(solara)
-      await nearEnd(wren)
       await plays(openping)
-      await resting(wren)
+      await resting(solara)
       // Pointing at Solara makes it the playing one, and it stays so when the pointer leaves.
       await solara.hover()
       await plays(solara)
@@ -643,7 +633,6 @@ test("the row's stack and features moved to the build page", async ({ page }) =>
     ['Scribe', 'whisper.cpp', 'Works in any app: hold Ctrl + Win, talk, let go'],
     ['OpenPing', 'Hono', 'Schedule-aware: off-hours never count as downtime'],
     ['Solara', 'Firebase', 'Live UV forecasts on a dashboard and a week calendar'],
-    ['Wren', 'Tavily', 'Chat that answers as it writes'],
   ]) {
     await page.goto(`/builds/${SLUG[title]}`)
     const how = page.getByRole('region', { name: "How it's built" })

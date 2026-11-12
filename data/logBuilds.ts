@@ -28,26 +28,6 @@ export type LogBuild = Pick<Build, 'slug' | 'name' | 'tagline' | 'category' | 'c
  */
 export const logOnlyBuilds: LogBuild[] = [
   {
-    slug: 'strollz',
-    name: 'Strollz',
-    tagline: 'Walk the streets you have never walked',
-    category: 'Upcoming',
-    color: 'from-emerald-500/20 to-teal-600/20',
-    github: 'https://github.com/n8watkins/strollz',
-    repo: 'n8watkins/strollz',
-    href: '/upcoming#strollz',
-  },
-  {
-    slug: 'keysready',
-    name: 'KeysReady',
-    tagline: 'Stop answering “Is my car ready?”',
-    category: 'Upcoming',
-    color: 'from-sky-500/20 to-blue-600/20',
-    github: 'https://github.com/n8watkins/keysready',
-    repo: 'n8watkins/keysready',
-    href: '/upcoming#keysready',
-  },
-  {
     slug: 'feelium',
     name: 'Feelium',
     tagline: 'What did I do, how did I feel, and are they connected?',
@@ -56,16 +36,6 @@ export const logOnlyBuilds: LogBuild[] = [
     github: 'https://github.com/n8watkins/feelium',
     repo: 'n8watkins/feelium',
     href: '/upcoming#feelium',
-  },
-  {
-    slug: 'vibelog',
-    name: 'VibeLog',
-    tagline: 'Live coding telemetry for vibe-coding streams',
-    category: 'Upcoming',
-    color: 'from-pink-500/20 to-fuchsia-600/20',
-    github: 'https://github.com/n8watkins/vibelog',
-    repo: 'n8watkins/vibelog',
-    href: '/upcoming#vibelog',
   },
   {
     slug: 'cutelyaskme',

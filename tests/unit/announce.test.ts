@@ -15,7 +15,7 @@ import { testDatabases, type TestDatabases } from './d1'
 const DAY = 86_400_000
 const T0 = new Date('2026-11-02T10:00:00.000Z')
 const OWNER = 'owner@example.com'
-const keysready = UPCOMING.find((p) => p.slug === 'keysready')!
+const feelium = UPCOMING.find((p) => p.slug === 'feelium')!
 
 let dbs: TestDatabases
 beforeAll(async () => {
@@ -75,7 +75,7 @@ function setup(start = T0) {
     at,
     later: (ms: number) => (now = new Date(now.getTime() + ms)),
     /** Confirmed people on a project. */
-    async people(n: number, project: 'keysready' | 'strollz' = 'keysready', prefix = 'p') {
+    async people(n: number, project: 'feelium' | 'fitflow7' = 'feelium', prefix = 'p') {
       const ids: string[] = []
       for (let i = 0; i < n; i++) {
         const entry = await waitlist.join({ email: `${prefix}${i}@example.com`, projects: [project], note: '', interest: '', referrer: '' })
@@ -87,7 +87,7 @@ function setup(start = T0) {
   }
 }
 
-const launch = { project: 'keysready', template: 'launched', fields: {} }
+const launch = { project: 'feelium', template: 'launched', fields: {} }
 const count = async (sql: string, ...binds: unknown[]) => ((await dbs.waitlist.prepare(sql).bind(...binds).first<{ n: number }>())?.n ?? 0)
 
 describe('announcement templates', () => {
@@ -100,51 +100,51 @@ describe('announcement templates', () => {
   })
 
   it('writes the launch email from the example: subject, ready line, pitch, self-host line, signed Nathan', () => {
-    const fields = defaultFields(keysready, 'launched')
-    expect(fields.subject).toBe('KeysReady is open, and your early spot is ready')
-    const { html, text, subject } = renderAnnouncement(keysready, 'launched', { ...fields, perk: 'Early sign-ups get Pro free for a year.' }, 'https://n8builds.dev/upcoming/leave?t=abc')
+    const fields = defaultFields(feelium, 'launched')
+    expect(fields.subject).toBe('Feelium is open, and your early spot is ready')
+    const { html, text, subject } = renderAnnouncement(feelium, 'launched', { ...fields, perk: 'Early sign-ups get Pro free for a year.' }, 'https://n8builds.dev/upcoming/leave?t=abc')
     expect(subject).toBe(fields.subject)
-    expect(text).toContain("You joined the waitlist for KeysReady, and it's ready.")
-    expect(text).toContain(keysready.summary)
+    expect(text).toContain("You joined the waitlist for Feelium, and it's ready.")
+    expect(text).toContain(feelium.summary)
     expect(text).toContain('Early sign-ups get Pro free for a year.')
-    expect(text).toContain('Rather self-host? It stays free and open source. https://github.com/n8watkins/keysready')
+    expect(text).toContain('Rather self-host? It stays free and open source. https://github.com/n8watkins/feelium')
     expect(text).toMatch(/\nNathan\n/)
     expect(text).toContain('Manage or leave the waitlist: https://n8builds.dev/upcoming/leave?t=abc')
     expect(html).toContain('https://n8builds.dev/email/logo.png')
-    expect(html).toContain('https://n8builds.dev/email/upcoming/keysready.png')
+    expect(html).toContain('https://n8builds.dev/email/upcoming/feelium.png')
     expect(html).toContain('href="https://n8builds.dev/upcoming/leave?t=abc"')
-    expect(html).toContain('href="https://github.com/n8watkins/keysready"')
+    expect(html).toContain('href="https://github.com/n8watkins/feelium"')
   })
 
   it('leaves out the perk and self-host lines when they are empty', () => {
-    const fields = { ...defaultFields(keysready, 'launched'), perk: '', selfHost: '' }
-    const { html, text } = renderAnnouncement(keysready, 'launched', fields, PREVIEW_MANAGE_URL)
+    const fields = { ...defaultFields(feelium, 'launched'), perk: '', selfHost: '' }
+    const { html, text } = renderAnnouncement(feelium, 'launched', fields, PREVIEW_MANAGE_URL)
     expect(text).not.toContain('self-host')
-    expect(html).not.toContain('github.com/n8watkins/keysready')
+    expect(html).not.toContain('github.com/n8watkins/feelium')
   })
 
   it('escapes every field and keeps paragraphs', () => {
-    const fields = resolveFields(keysready, 'open', { title: '<b>Hi</b>', body: 'One <script>\n\nTwo' })
-    const { html } = renderAnnouncement(keysready, 'open', fields, PREVIEW_MANAGE_URL)
+    const fields = resolveFields(feelium, 'open', { title: '<b>Hi</b>', body: 'One <script>\n\nTwo' })
+    const { html } = renderAnnouncement(feelium, 'open', fields, PREVIEW_MANAGE_URL)
     expect(html).not.toContain('<script>')
     expect(html).toContain('&lt;b&gt;Hi&lt;/b&gt;')
     expect(html).toContain('One &lt;script&gt;</p>')
   })
 
   it('refuses a too-long field, an empty required one and a non-https button', () => {
-    expect(() => resolveFields(keysready, 'open', { subject: 'x'.repeat(121) })).toThrow(InvalidAnnouncement)
-    expect(() => resolveFields(keysready, 'open', { title: '' })).toThrow(/required/)
-    expect(() => resolveFields(keysready, 'open', { buttonUrl: 'javascript:alert(1)' })).toThrow(/https/)
-    expect(() => resolveFields(keysready, 'open', { subject: 'two\nlines' })).toThrow(/one line/)
+    expect(() => resolveFields(feelium, 'open', { subject: 'x'.repeat(121) })).toThrow(InvalidAnnouncement)
+    expect(() => resolveFields(feelium, 'open', { title: '' })).toThrow(/required/)
+    expect(() => resolveFields(feelium, 'open', { buttonUrl: 'javascript:alert(1)' })).toThrow(/https/)
+    expect(() => resolveFields(feelium, 'open', { subject: 'two\nlines' })).toThrow(/one line/)
   })
 
   it('previews with the placeholder manage link and the number of people it would reach', async () => {
     const { service, people } = setup()
     await people(3)
-    const preview = await service.preview({ project: 'keysready', template: 'open', fields: { subject: 'Hello' } })
+    const preview = await service.preview({ project: 'feelium', template: 'open', fields: { subject: 'Hello' } })
     expect(preview).toMatchObject({ subject: 'Hello', recipients: 3 })
     expect(preview.html).toContain(PREVIEW_MANAGE_URL)
-    expect(preview.fields.title).toBe('KeysReady: early access is open')
+    expect(preview.fields.title).toBe('Feelium: early access is open')
   })
 })
 
@@ -152,13 +152,13 @@ describe('Announcements: start', () => {
   it('snapshots the confirmed people at start: later sign-ups and unconfirmed ones are left out', async () => {
     const { service, people, waitlist, fake } = setup()
     await people(3)
-    await waitlist.join({ email: 'pending@example.com', projects: ['keysready'], note: '', interest: '', referrer: '' })
-    await people(2, 'strollz', 's')
+    await waitlist.join({ email: 'pending@example.com', projects: ['feelium'], note: '', interest: '', referrer: '' })
+    await people(2, 'fitflow7', 's')
     const result = await service.start(launch, 'owner')
     if (!('id' in result)) throw new Error('expected a start')
-    expect(await service.status(result.id)).toMatchObject({ project: 'keysready', total: 3, sent: 0, state: 'sending', createdBy: 'owner' })
+    expect(await service.status(result.id)).toMatchObject({ project: 'feelium', total: 3, sent: 0, state: 'sending', createdBy: 'owner' })
 
-    await people(2, 'keysready', 'late')
+    await people(2, 'feelium', 'late')
     await service.run()
     expect(fake.delivered.map((m) => m.to).sort()).toEqual(['p0@example.com', 'p1@example.com', 'p2@example.com'])
     expect(await service.status(result.id)).toMatchObject({ total: 3, sent: 3, skipped: 0, state: 'done', nextRunAt: null })
@@ -167,7 +167,7 @@ describe('Announcements: start', () => {
   it('allows one announcement per project every 30 days', async () => {
     const { service, people, later } = setup()
     await people(1)
-    await people(1, 'strollz', 's')
+    await people(1, 'fitflow7', 's')
     expect(await service.start(launch, 'owner')).toHaveProperty('id')
     later(29 * DAY)
     expect(await service.start({ ...launch, template: 'open' }, 'owner')).toEqual({
@@ -175,7 +175,7 @@ describe('Announcements: start', () => {
       nextAllowedAt: new Date(T0.getTime() + 30 * DAY).toISOString(),
     })
     // Another project is unaffected.
-    expect(await service.start({ ...launch, project: 'strollz' }, 'owner')).toHaveProperty('id')
+    expect(await service.start({ ...launch, project: 'fitflow7' }, 'owner')).toHaveProperty('id')
     later(DAY + 1)
     expect(await service.start({ ...launch, template: 'open' }, 'owner')).toHaveProperty('id')
   })
@@ -199,14 +199,32 @@ describe('Announcements: start', () => {
     await expect(service.start(launch, '')).rejects.toThrow(/actor/)
   })
 
+  it('has nothing to do with a project that left the site: not listed, and no preview, test send or start', async () => {
+    const { service, people, fake } = setup()
+    const [id] = await people(1)
+    // Someone confirmed on Strollz before it left /upcoming (2026-11-11): the row is still there.
+    await dbs.waitlist.prepare("UPDATE waitlist_projects SET project = 'strollz' WHERE subscriber_id = ?").bind(id).run()
+    expect((await service.projects()).map((p) => p.slug)).toEqual(UPCOMING.map((p) => p.slug))
+    for (const project of ['strollz', 'keysready', 'vibelog', 'asset-arsenal']) {
+      const request = { ...launch, project }
+      await expect(service.preview(request), project).rejects.toThrow(/unknown project/)
+      await expect(service.sendTest(request, 'owner'), project).rejects.toThrow(/unknown project/)
+      await expect(service.start(request, 'owner'), project).rejects.toThrow(/unknown project/)
+    }
+    await service.run()
+    expect(fake.calls()).toBe(0)
+    expect(await count('SELECT COUNT(*) AS n FROM waitlist_announcements')).toBe(0)
+    expect(await count("SELECT COUNT(*) AS n FROM waitlist_projects WHERE project = 'strollz' AND status = 'confirmed'")).toBe(1)
+  })
+
   it('reports projects with their confirmed counts and last announcement', async () => {
     const { service, people } = setup()
     await people(2)
     await service.start(launch, 'owner')
     const projects = await service.projects()
     expect(projects).toHaveLength(UPCOMING.length)
-    expect(projects.find((p) => p.slug === 'keysready')).toEqual({ slug: 'keysready', name: 'KeysReady', confirmed: 2, lastAnnouncedAt: T0.toISOString() })
-    expect(projects.find((p) => p.slug === 'strollz')).toMatchObject({ confirmed: 0, lastAnnouncedAt: null })
+    expect(projects.find((p) => p.slug === 'feelium')).toEqual({ slug: 'feelium', name: 'Feelium', confirmed: 2, lastAnnouncedAt: T0.toISOString() })
+    expect(projects.find((p) => p.slug === 'fitflow7')).toMatchObject({ confirmed: 0, lastAnnouncedAt: null })
   })
 })
 
@@ -332,7 +350,7 @@ describe('Announcements: sending', () => {
     if (!('id' in start)) throw new Error()
     await waitlist.remove(ids[0])
     // Moves the second person to another project only.
-    await dbs.waitlist.prepare("UPDATE waitlist_projects SET project = 'strollz' WHERE subscriber_id = ?").bind(ids[1]).run()
+    await dbs.waitlist.prepare("UPDATE waitlist_projects SET project = 'fitflow7' WHERE subscriber_id = ?").bind(ids[1]).run()
     await service.run()
     expect(fake.delivered).toHaveLength(1)
     expect(await service.status(start.id)).toMatchObject({ total: 3, sent: 1, skipped: 2, state: 'done' })
@@ -371,10 +389,10 @@ describe('Announcements: sending', () => {
   it('lists the newest first, with the same fields as status', async () => {
     const { service, people, later } = setup()
     await people(1)
-    await people(1, 'strollz', 's')
+    await people(1, 'fitflow7', 's')
     const a = await service.start(launch, 'owner')
     later(1000)
-    const b = await service.start({ ...launch, project: 'strollz' }, 'owner')
+    const b = await service.start({ ...launch, project: 'fitflow7' }, 'owner')
     const list = await service.list({ limit: 10 })
     expect(list.map((x) => x.id)).toEqual([(b as { id: string }).id, (a as { id: string }).id])
     expect(list[0]).toEqual(await service.status((b as { id: string }).id))
@@ -388,7 +406,7 @@ describe('Announcements: test sends and the audit log', () => {
     const result: SendResult = await service.sendTest(launch, 'n8watkins')
     expect(result.ok).toBe(true)
     expect(fake.delivered).toHaveLength(1)
-    expect(fake.delivered[0]).toMatchObject({ to: OWNER, kind: 'announce', subject: '[Test] KeysReady is open, and your early spot is ready' })
+    expect(fake.delivered[0]).toMatchObject({ to: OWNER, kind: 'announce', subject: '[Test] Feelium is open, and your early spot is ready' })
     expect(fake.delivered[0].html).toContain(PREVIEW_MANAGE_URL)
 
     const start = await service.start(launch, 'n8watkins')
@@ -398,9 +416,9 @@ describe('Announcements: test sends and the audit log', () => {
       .prepare('SELECT actor, action, announcement_id, project FROM waitlist_announcement_audit ORDER BY id')
       .all<Record<string, unknown>>()
     expect(results).toEqual([
-      { actor: 'n8watkins', action: 'test', announcement_id: null, project: 'keysready' },
-      { actor: 'n8watkins', action: 'start', announcement_id: start.id, project: 'keysready' },
-      { actor: 'n8watkins', action: 'cancel', announcement_id: start.id, project: 'keysready' },
+      { actor: 'n8watkins', action: 'test', announcement_id: null, project: 'feelium' },
+      { actor: 'n8watkins', action: 'start', announcement_id: start.id, project: 'feelium' },
+      { actor: 'n8watkins', action: 'cancel', announcement_id: start.id, project: 'feelium' },
     ])
   })
 

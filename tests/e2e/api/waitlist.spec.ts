@@ -15,7 +15,7 @@ function join(request: APIRequestContext, overrides: Record<string, unknown> = {
     headers: { 'x-real-ip': uniqueIp() },
     data: {
       email: `api+${Date.now()}${Math.floor(Math.random() * 1e6)}@example.com`,
-      projects: ['keysready'],
+      projects: ['feelium'],
       note: '',
       turnstile: 'XXXX.DUMMY.TOKEN.XXXX',
       honeypot: '',
@@ -25,15 +25,26 @@ function join(request: APIRequestContext, overrides: Record<string, unknown> = {
 }
 
 test('accepts a valid sign-up', async ({ request }) => {
-  const response = await join(request, { source: { interest: 'keysready', referrer: 'https://example.com/' } })
+  const response = await join(request, { source: { interest: 'feelium', referrer: 'https://example.com/' } })
   expect(response.status()).toBe(200)
   expect((await response.json()).message).toMatch(/check your inbox/i)
 })
 
-test('accepts every project, KeysReady included, and an old interest value', async ({ request }) => {
-  const all = ['strollz', 'vibelog', 'keysready']
-  expect((await join(request, { projects: all, source: { interest: 'keysready' } })).status()).toBe(200)
-  expect((await join(request, { projects: ['strollz'], source: { interest: 'rewire' } })).status()).toBe(200)
+test('accepts every project, and an old interest value', async ({ request }) => {
+  const all = ['feelium', 'fitflow7', 'pivot', 'cutelyaskme', 'whoami']
+  expect((await join(request, { projects: all, source: { interest: 'feelium' } })).status()).toBe(200)
+  expect((await join(request, { projects: ['pivot'], source: { interest: 'rewire' } })).status()).toBe(200)
+})
+
+test('refuses a project that left the site (2026-11-11), alone or beside one that is still here', async ({ request }) => {
+  for (const slug of ['strollz', 'keysready', 'vibelog', 'asset-arsenal']) {
+    const alone = await join(request, { projects: [slug] })
+    expect(alone.status(), slug).toBe(400)
+    expect((await alone.json()).error, slug).toBe('Please check the form: a valid email and at least one project.')
+    expect((await join(request, { projects: ['feelium', slug] })).status(), slug).toBe(400)
+  }
+  // Arriving from its landing page still works for the projects that stayed: the old interest is just not kept.
+  expect((await join(request, { projects: ['feelium'], source: { interest: 'strollz' } })).status()).toBe(200)
 })
 
 test('rejects a filled honeypot', async ({ request }) => {
@@ -42,7 +53,7 @@ test('rejects a filled honeypot', async ({ request }) => {
 
 test('rejects an unknown project', async ({ request }) => {
   expect((await join(request, { projects: ['relink'] })).status()).toBe(400)
-  expect((await join(request, { projects: ['keysready', 'keys-ready'] })).status()).toBe(400)
+  expect((await join(request, { projects: ['feelium', 'feel-ium'] })).status()).toBe(400)
 })
 
 test('rejects a form post (JSON only)', async ({ request }) => {

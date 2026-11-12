@@ -32,7 +32,7 @@ export default function WaitlistForm({
   /**
    * "side": beside /upcoming's cards from 1024px, so one column of picks there.
    * "modal": the homepage's waitlist modal, where a pick is its mark and name
-   * only (two to a row from 640px), so ten projects fit without much scrolling.
+   * only (two to a row from 640px), so the projects fit without much scrolling.
    */
   layout?: 'page' | 'side' | 'modal'
 }) {

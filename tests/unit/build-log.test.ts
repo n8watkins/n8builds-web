@@ -300,14 +300,13 @@ describe('entries for a build', () => {
 describe('merging, sorting and the builds index', () => {
   // The Lab's builds: release-kit's page (round 9 of 2026-11-09) is a build too, but the
   // recorded fixture captured its repo with nothing logged, so it stays out of these.
-  // The developer portfolio's page (round 12 of 2026-11-09) has none in the fixture either,
-  // and nor has Wren's (2026-11-10), added to it empty after it was recorded.
-  const inFixture = builds.filter((b) => !['release-kit', 'portfolio', 'wren'].includes(b.slug))
+  // The developer portfolio's page (round 12 of 2026-11-09) has none in the fixture either.
+  const inFixture = builds.filter((b) => b.slug !== 'release-kit' && b.slug !== 'portfolio')
   const log = assembleLog(inFixture, snapshots, highlights)
 
   it('tracks the visible builds with a repo, and none of the hidden ones', () => {
     const tracked = builds.filter((b) => b.repo)
-    expect(tracked.map((b) => b.slug)).toEqual(['voicedock', 'tldw', 'tubevault', 'scribe', 'openping', 'solara', 'wren', 'portfolio-rank', 'release-kit', 'portfolio', 'n8builds'])
+    expect(tracked.map((b) => b.slug)).toEqual(['voicedock', 'tldw', 'tubevault', 'scribe', 'openping', 'solara', 'portfolio-rank', 'release-kit', 'portfolio', 'n8builds'])
     expect(tracked.every((b) => /^n8watkins\/[\w-]+$/.test(b.repo!))).toBe(true)
     expect(hiddenBuilds.every((b) => !b.repo)).toBe(true)
     expect(new Set(log.entries.map((e) => e.build))).toEqual(new Set(inFixture.filter((b) => b.repo).map((b) => b.slug)))
@@ -343,13 +342,13 @@ describe('merging, sorting and the builds index', () => {
   it('shows a followed repo with no commits or releases yet as a quiet card, and links it where the site shows it', () => {
     // The upcoming projects and my tools were adopting release-kit (round 5 of 2026-11-02): some had nothing yet.
     const empty = (repo: string) => ({ repo, pushedAt: null, releases: [], commits: [] })
-    const strollz = allBuilds.find((b) => b.slug === 'strollz')!
-    const quiet = assembleLog([...builds, strollz], [...snapshots, empty('n8watkins/strollz')], highlights)
-    const card = quiet.activity.find((a) => a.slug === 'strollz')!
-    expect(card).toMatchObject({ href: '/upcoming#strollz', lastShipped: null, lastShippedLabel: null, latest: [] })
+    const feelium = allBuilds.find((b) => b.slug === 'feelium')!
+    const quiet = assembleLog([...builds, feelium], [...snapshots, empty('n8watkins/feelium')], highlights)
+    const card = quiet.activity.find((a) => a.slug === 'feelium')!
+    expect(card).toMatchObject({ href: '/upcoming#feelium', lastShipped: null, lastShippedLabel: null, latest: [] })
     // After every build that has shipped something.
-    expect(quiet.activity.at(-1)?.slug).toBe('strollz')
-    expect(quiet.entries.some((e) => e.build === 'strollz')).toBe(false)
+    expect(quiet.activity.at(-1)?.slug).toBe('feelium')
+    expect(quiet.entries.some((e) => e.build === 'feelium')).toBe(false)
     // A build page's card still links its page.
     expect(quiet.activity.find((a) => a.slug === 'scribe')?.href).toBe('/builds/scribe')
   })
@@ -372,7 +371,7 @@ describe('merging, sorting and the builds index', () => {
   })
 
   it('drops highlights for builds that are not on the site', () => {
-    const merged = assembleLog(builds, snapshots, [{ ...highlights[0], id: 'hidden', build: 'vibelog' }])
+    const merged = assembleLog(builds, snapshots, [{ ...highlights[0], id: 'hidden', build: 'not-on-the-site' }])
     expect(merged.entries.some((e) => e.kind === 'highlight')).toBe(false)
   })
 

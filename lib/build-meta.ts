@@ -12,17 +12,13 @@ export const BUILD_ICONS: Record<string, string> = {
   scribe: '/builds/scribe/app-icon.png',
   openping: '/builds/openping/icon.svg',
   solara: '/builds/solara/icon.png',
-  wren: '/builds/wren/icon.svg',
   'portfolio-rank': '/builds/portfolio-rank/icon.png',
   n8builds: '/tab/n8-icon-192.png',
   // The developer portfolio's mark, a briefcase in its teal, as on its template card.
   portfolio: '/builds/portfolio/icon.svg',
   // Projects without a build page (data/logBuilds.ts): the upcoming projects'
   // own marks, and my tools' tiles (scripts/gen-tool-tiles.mjs).
-  strollz: '/upcoming/strollz.svg',
-  keysready: '/upcoming/keysready.svg',
   feelium: '/upcoming/feelium.svg',
-  vibelog: '/upcoming/vibelog.svg',
   cutelyaskme: '/upcoming/cutelyaskme.svg',
   fitflow7: '/upcoming/fitflow7.svg',
   pivot: '/upcoming/pivot.svg',

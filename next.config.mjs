@@ -62,7 +62,10 @@ const nextConfig = {
       { source: '/builds/dev-portfolio', destination: '/builds/portfolio', permanent: true },
       // On hold, not retired: temporary, so it can come back at the same URL.
       { source: '/builds/chrome-extension-kit', destination: '/#extensions', permanent: false },
-      { source: '/builds/vibelog', destination: '/#lab', permanent: false },
+      // Removed from the site (owner, 2026-11-11). VibeLog had been on hold since 2026-10-22.
+      { source: '/builds/vibelog', destination: '/#lab', permanent: true },
+      // Wren is a project on the portfolio, so its old page lands on its page there.
+      { source: '/builds/wren', destination: 'https://portfolio.n8builds.dev/projects/wren', permanent: true },
       // RFC 9116: canonical lives at /.well-known/security.txt; redirect the
       // legacy root path some scanners still probe.
       { source: '/security.txt', destination: '/.well-known/security.txt', permanent: true },
