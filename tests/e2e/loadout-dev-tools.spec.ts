@@ -193,6 +193,34 @@ test.describe('Loadout tools and people', () => {
         await expect(link).toHaveAttribute('href', href)
       }
     }
+    // Each link shows its platform's own mark in its own colour (owner, 2026-11-11): YouTube's red
+    // over a white play triangle, X's white mark on a black chip, Substack's orange, GitHub's white.
+    const kun = creators.getByRole('list', { name: 'Kun Chen online' })
+    const mark = (name: RegExp, brand: string) => kun.getByRole('link', { name }).locator(`[data-brand="${brand}"]`)
+    await expect(mark(/^YouTube /, 'youtube').locator('svg')).toHaveCSS('color', 'rgb(255, 0, 0)')
+    await expect(mark(/^YouTube /, 'youtube').locator('span')).toHaveCSS('background-color', 'rgb(255, 255, 255)')
+    await expect(mark(/^X /, 'x')).toHaveCSS('background-color', 'rgb(0, 0, 0)')
+    await expect(mark(/^X /, 'x').locator('svg')).toHaveCSS('color', 'rgb(255, 255, 255)')
+    await expect(mark(/^Substack /, 'substack')).toHaveCSS('color', 'rgb(255, 103, 25)')
+    await expect(mark(/^GitHub /, 'github')).toHaveCSS('color', 'rgb(255, 255, 255)')
+    // Every mark is the same 14px, for the eye only.
+    for (const link of await kun.getByRole('link').all()) {
+      const box = (await link.locator('[aria-hidden="true"]').first().boundingBox())!
+      expect(Math.round(box.width)).toBe(14)
+      expect(Math.round(box.height)).toBe(14)
+    }
+    // A community on skool.com shows Skool's own mark (navy and red on its light tile); a website keeps the globe.
+    for (const [person, community, site] of [
+      ['Nate Herk', 'AI Automation Society', 'nateherk.com'],
+      ['Nick Saraev', 'Maker School', 'nicksaraev.com'],
+    ]) {
+      const list = creators.getByRole('list', { name: `${person} online` })
+      const skool = list.getByRole('link', { name: new RegExp(`^${community} `) }).locator('svg')
+      await expect(skool).toHaveCount(1)
+      await expect(skool).toHaveAttribute('data-mark', 'skool')
+      expect(await skool.locator('path').evaluateAll((paths) => paths.map((p) => p.getAttribute('fill')))).toEqual(['#263397', '#d3513e'])
+      await expect(list.getByRole('link', { name: new RegExp(`^${site} `) }).locator('[data-mark="skool"]')).toHaveCount(0)
+    }
     // On screen, a profile is its icon and @handle: never the platform's name beside its icon.
     const x = creators.getByRole('list', { name: 'Kun Chen online' }).getByRole('link', { name: /^X @kunchenguid/ })
     const seen = await x.evaluate((a) => {
@@ -328,6 +356,8 @@ test.describe('Loadout tools and people', () => {
     await expect(card).not.toContainText('nix-darwin')
     await expect(card).toContainText('for more on his setup.')
     await expect(card.getByRole('link', { name: 'Check out how he works (a video, opens in a new tab)' })).toHaveAttribute('href', 'https://youtu.be/iQyg-KypKAA')
+    // Its YouTube mark is YouTube's red too (owner, 2026-11-11), not the link's cyan.
+    await expect(card.getByRole('link', { name: /^Check out how he works/ }).locator('[data-brand="youtube"] svg')).toHaveCSS('color', 'rgb(255, 0, 0)')
   })
 
   for (const width of [1280, 390]) {

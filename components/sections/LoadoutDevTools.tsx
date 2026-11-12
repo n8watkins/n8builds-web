@@ -22,6 +22,7 @@ import {
   type NamedLink,
 } from '@/data/loadout'
 import RepoButtons from '@/components/ui/RepoButtons'
+import SkoolMark from '@/components/ui/SkoolMark'
 import { ProjectTour } from '@/components/sections/FeaturedProjectIslands'
 import Reveal from '@/components/ui/Reveal'
 import SetupTilesMotion from '@/components/sections/SetupTilesMotion'
@@ -468,13 +469,43 @@ const SetupVideo = () => {
   )
 }
 
+/**
+ * Each link's platform mark in the platform's own colour (owner, 2026-11-11),
+ * 14px in a person's link. YouTube's red with its white play triangle (the
+ * mark's triangle is a hole, so a white patch sits behind it); X's white mark
+ * on a black chip, edged so the chip shows on the navy card; Substack's
+ * orange; GitHub's white mark. Against the link's fill (about #161e2b, measured
+ * 2026-11-11) every mark clears the 3:1 a graphic needs: YouTube red 4.2:1,
+ * Substack orange 5.8:1, white 16.8:1, and the black chip's edge (white at
+ * 35%) 3.2:1 round a mark that is itself 21:1 on the chip.
+ */
+const youtubeMark = (
+  <span className="relative flex" data-brand="youtube">
+    <span className="absolute inset-x-[30%] inset-y-[28%] bg-white" />
+    <SiYoutube className="relative text-[#ff0000]" />
+  </span>
+)
+
 const LINKS: Record<PersonLink['kind'], { label: string; icon: ReactNode }> = {
-  youtube: { label: 'YouTube', icon: <SiYoutube /> },
-  x: { label: 'X', icon: <SiX /> },
-  substack: { label: 'Substack', icon: <SiSubstack /> },
-  github: { label: 'GitHub', icon: <SiGithub /> },
+  youtube: { label: 'YouTube', icon: youtubeMark },
+  x: {
+    label: 'X',
+    icon: (
+      <span className="flex size-3.5 items-center justify-center rounded-[4px] bg-black ring-1 ring-white/35" data-brand="x">
+        <SiX className="size-2! text-white" />
+      </span>
+    ),
+  },
+  substack: { label: 'Substack', icon: <SiSubstack className="text-[#ff6719]" data-brand="substack" /> },
+  github: { label: 'GitHub', icon: <SiGithub className="text-white" data-brand="github" /> },
   website: { label: 'Website', icon: <LuGlobe /> },
   community: { label: 'Community', icon: <LuUsers /> },
+}
+
+/** A link's mark: its kind's, except a community on skool.com, which shows Skool's own. */
+function linkIcon(link: PersonLink): ReactNode {
+  if (link.kind === 'community' && /(^|\.)skool\.com$/.test(new URL(link.href).hostname)) return <SkoolMark />
+  return LINKS[link.kind].icon
 }
 
 const ACTIVITY: Record<PublicActivity['kind'], { label: string; icon: ReactNode }> = {
@@ -558,7 +589,7 @@ export const PersonCard = ({ person }: { person: Person }) => (
       <p className="-mt-1 text-sm leading-relaxed text-slate-400" data-person-more>
         <a href={person.howTheyWork.href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-semibold whitespace-nowrap text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 hover:text-cyan-200">
           <span aria-hidden="true" className="[&_svg]:h-3.5 [&_svg]:w-3.5">
-            <SiYoutube />
+            {youtubeMark}
           </span>
           Check out how he works
           <span className="sr-only"> (a video, opens in a new tab)</span>
@@ -576,7 +607,8 @@ export const PersonCard = ({ person }: { person: Person }) => (
       aria-label={`${person.name} online`}
     >
       {person.links.map((link) => {
-        const { label, icon } = LINKS[link.kind]
+        const { label } = LINKS[link.kind]
+        const icon = linkIcon(link)
         const handle = personHandle(link)
         return (
           <li key={link.href} className="flex min-w-0">
