@@ -26,6 +26,7 @@ The site runs on Cloudflare Workers as the `n8builds-web` Worker in the owner's 
 - The blog newsletter sends through mailroom too, as the app `n8builds-news` (`MAILROOM_NEWS`), from news@n8builds.dev (`lib/newsletter/`).
   The weekly cron (`0 16 * * 4`) sends the digest and the daily one (`30 3 * * *`) finishes one that paused; `docs/DATABASE.md` has the rules.
   n8builds.dev is onboarded for sending; Cloudflare added its records on `cf-bounce.n8builds.dev` and the DKIM key itself.
+- Announcements to the waitlist send through `MAILROOM` as the kind `announce`: the admin's Announcements page starts one over the `Announcements` RPC entrypoint (a service binding), and a cron every 15 minutes (`*/15 * * * *`) sends the next batch (`lib/announce/`, `docs/DATABASE.md`).
 - Cloudflare Web Analytics replaces Vercel Analytics and Speed Insights (`components/WebAnalytics.tsx`), once `NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN` is set at build time.
 - `APP_ENV=production` (a `wrangler.jsonc` var) replaces `VERCEL_ENV`: it keeps production's rate-limit counter names and switches off the test modes.
 - The contact form's and waitlist's rate limits are sliding windows in Durable Objects (`RATE_LIMIT_COUNTERS`, `worker/rate-limit-counter.js`), one per limit and key; a Workers rate limit binding (`CONTACT_RATE_LIMITER`) also turns away floods of contact posts before Next runs.

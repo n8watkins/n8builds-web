@@ -15,9 +15,13 @@ import { runDigest } from '../lib/newsletter/digest'
 import { newsMailer } from '../lib/newsletter/mail'
 import { sanityPosts } from '../lib/newsletter/posts'
 import { NewsletterStore } from '../lib/newsletter/store'
+import { Announcements as AnnouncementService } from '../lib/announce/service'
+import { EMAIL_CONFIG } from '../lib/email/config'
 
 /** wrangler.jsonc triggers: the weekly run may start a newsletter digest. */
 const WEEKLY_CRON = '0 16 * * 4'
+/** wrangler.jsonc triggers: every 15 minutes, the next batch of an announcement (lib/announce/service.ts). */
+const ANNOUNCE_CRON = '*/15 * * * *'
 
 // The Durable Objects (wrangler.jsonc durable_objects): the ISR revalidation
 // queue, the tag cache (on-demand revalidation), and the rate-limit counters.
@@ -74,6 +78,8 @@ function forBrowsers(request, response) {
  *   WAITLIST_DB: import('../lib/db').D1Database,
  *   ANALYTICS_DB: import('../lib/db').D1Database,
  *   MAILROOM_NEWS?: import('../lib/newsletter/mail').NewsMailroom,
+ *   MAILROOM?: import('../lib/announce/service').AnnounceMailroom,
+ *   CONTACT_EMAIL_TO?: string,
  *   APP_ENV?: string,
  * }} Env
  */
@@ -93,6 +99,86 @@ export class WaitlistAdmin extends WorkerEntrypoint {
   async deleteSubscriber(id) {
     if (typeof id !== 'string' || !/^[a-f0-9]{32}$/.test(id)) throw new Error('invalid waitlist id')
     return new WaitlistStore(this.env.WAITLIST_DB).remove(id)
+  }
+}
+
+/** @param {Env} env */
+const announcements = (env) =>
+  new AnnouncementService({ db: env.WAITLIST_DB, mailroom: env.MAILROOM, ownerEmail: env.CONTACT_EMAIL_TO || EMAIL_CONFIG.to })
+
+/**
+ * Announcements to the waitlist (lib/announce/service.ts): the admin's
+ * Announcements page binds this as ANNOUNCE (service n8builds-web,
+ * entrypoint Announcements). Like WaitlistAdmin, it is reachable only through
+ * a service binding, never from the internet, and every call comes from the
+ * owner; the methods that change something take the owner's login (`actor`)
+ * for the audit log. The cron below does the sending.
+ * @extends {WorkerEntrypoint<Env>}
+ */
+export class Announcements extends WorkerEntrypoint {
+  projects() {
+    return announcements(this.env).projects()
+  }
+
+  templates() {
+    return announcements(this.env).templates()
+  }
+
+  /** @param {import('../lib/announce/service').AnnounceRequest} request */
+  preview(request) {
+    return announcements(this.env).preview(request)
+  }
+
+  /**
+   * @param {import('../lib/announce/service').AnnounceRequest} request
+   * @param {string} actor
+   */
+  sendTest(request, actor) {
+    return announcements(this.env).sendTest(request, actor)
+  }
+
+  /**
+   * Starts sending at once, in the background; the cron carries on from there.
+   * @param {import('../lib/announce/service').AnnounceRequest} request
+   * @param {string} actor
+   */
+  async start(request, actor) {
+    const result = await announcements(this.env).start(request, actor)
+    if ('id' in result) this.ctx.waitUntil(runAnnouncements(this.env))
+    return result
+  }
+
+  /** @param {string} id */
+  status(id) {
+    return announcements(this.env).status(id)
+  }
+
+  /** @param {{ limit?: number }} [options] */
+  list(options) {
+    return announcements(this.env).list(options)
+  }
+
+  /**
+   * @param {string} id
+   * @param {string} actor
+   */
+  cancel(id, actor) {
+    return announcements(this.env).cancel(id, actor)
+  }
+}
+
+/**
+ * Sends the next batches of the announcements that are due; a refusal or a
+ * stop is a warning in the logs and in Sentry, so the owner sees it.
+ * @param {Env} env
+ */
+async function runAnnouncements(env) {
+  const reports = await announcements(env).run()
+  for (const report of reports) {
+    console.log(JSON.stringify({ message: 'announcement run', ...report }))
+    if (report.stoppedAt && !report.stoppedAt.startsWith('budget_')) {
+      Sentry.captureMessage(`Announcement ${report.id} paused: ${report.stoppedAt}`, 'warning')
+    }
   }
 }
 
@@ -157,7 +243,8 @@ const worker = {
   },
 
   /**
-   * The Cron Triggers (wrangler.jsonc). Daily: deletes what has expired in
+   * The Cron Triggers (wrangler.jsonc). Every 15 minutes: the next batch of
+   * an announcement that is sending (lib/announce/service.ts). Daily: deletes what has expired in
    * both databases (lib/retention.ts; counts only in the log), and sends the
    * rest of a newsletter digest a refusal or the per-run limit paused.
    * Weekly: the newsletter digest, when there is a new post
@@ -167,6 +254,7 @@ const worker = {
    * @param {Env} env
    */
   async scheduled(controller, env) {
+    if (controller.cron === ANNOUNCE_CRON) return runAnnouncements(env)
     const weekly = controller.cron === WEEKLY_CRON
     if (!weekly) {
       const deleted = await purgeExpired({ waitlist: env.WAITLIST_DB, analytics: env.ANALYTICS_DB })
