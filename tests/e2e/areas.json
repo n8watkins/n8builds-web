@@ -46,6 +46,7 @@
     "tests/unit/**",
     "scripts/**",
     "worker/**",
+    "lib/announce/**",
     "eslint.config.mjs",
     "vitest.config.mts",
     "components.json",

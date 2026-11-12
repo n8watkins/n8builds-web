@@ -29,6 +29,12 @@ export async function purgeExpired(
         db
           .prepare("DELETE FROM newsletter_deliveries WHERE digest_id IN (SELECT id FROM newsletter_digests WHERE finished_at IS NOT NULL AND finished_at <= ?)")
           .bind(new Date(at - 30 * 24 * 60 * 60 * 1000).toISOString()),
+        // Who had an announcement, the same: its counts stay on the announcement.
+        db
+          .prepare(
+            'DELETE FROM waitlist_announcement_recipients WHERE announcement_id IN (SELECT id FROM waitlist_announcements WHERE finished_at IS NOT NULL AND finished_at <= ?)'
+          )
+          .bind(new Date(at - 30 * 24 * 60 * 60 * 1000).toISOString()),
       ])
     )
   }

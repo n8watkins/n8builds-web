@@ -206,6 +206,24 @@ A finished round is consumed with `DELETE ... RETURNING`, so it counts at most o
 Counter and player rows older than `KEEP_DAYS` (400, `lib/game/stats.ts`) are deleted by the daily cleanup; old salts and finished-or-abandoned rounds too.
 Readers only ask for the last 30 days, so a late cleanup never shows stale data.
 
+### Announcements: `waitlist_announcements`, `waitlist_announcement_recipients`, `waitlist_announcement_audit`
+
+The owner emails the confirmed people of one project from the admin's Announcements page (`migrations/waitlist/0003_announcements.sql`).
+The admin calls n8builds-web's `Announcements` RPC entrypoint (`worker/index.js`, bound there as `ANNOUNCE`); the rules live in `lib/announce/service.ts` and the emails in `lib/announce/templates.ts`.
+
+- `waitlist_announcements`: one row per announcement: the project, the template and its fields, its state (`sending`, `paused_cap`, `done`, `cancelled`), the counts (`total`, `sent`, `failed`, `skipped`), mailroom's last refusal, when the cron next picks it up, and the owner's login.
+  At most one per project every 30 days; a cancelled one that sent nothing doesn't count.
+- `waitlist_announcement_recipients`: the snapshot of the people confirmed on the project when it started, and how far each got (`pending`, `sent`, `failed`, `skipped`), so a run that stops resumes where it left off and never sends twice.
+  Someone who leaves takes their rows with them (cascade); someone who left the project before their turn is skipped.
+- `waitlist_announcement_audit`: every start, cancel and test send, with the owner's login. No other personal data.
+
+A cron every 15 minutes sends up to 20 through mailroom as the app `n8builds-web` (kind `announce`), each with the key `announce:<id>:<subscriberId>` and a fresh manage/leave link (a `leave` token in `waitlist_tokens`, hashed like every other).
+It stops at the first refusal and never retries past it: the announcement waits as `paused_cap` until the next UTC day for a daily or monthly cap, or the next run otherwise.
+It keeps to 40 announcement emails a UTC day and 140 a month, inside n8builds-web's 60 and 200, so the contact form and the waitlist's own emails still go out.
+An address mailroom has suppressed counts as failed and is passed over.
+
+Retention: the recipients of an announcement are purged 30 days after it finished; its counts stay on the announcement.
+
 ## n8builds-admin
 
 Owned and migrated by n8builds-admin; see its `docs/DATABASE.md`.
@@ -217,7 +235,7 @@ It holds no visitor data.
 - **n8builds-web** is the only writer of `n8builds-waitlist` and `n8builds-analytics`, and the only repository with their migrations.
 - **n8builds-admin** binds both read-only by convention, and the convention is enforced:
   its `lib/db.ts` hands out a wrapper that refuses any statement that isn't a single `SELECT` (or `WITH ... SELECT`), and `tests/unit/db-read-only.test.ts` fails if any admin reader writes, changes a row, or if any other file reaches the raw bindings.
-  The one write the admin needs, deleting an address on request, goes through n8builds-web's `WaitlistAdmin` RPC entrypoint (a service binding, never reachable from the internet).
+  The writes the admin needs go through n8builds-web's RPC entrypoints (service bindings, never reachable from the internet): deleting an address on request through `WaitlistAdmin`, and announcements through `Announcements`.
 - Every query in both repositories is a prepared statement with bound parameters: no value ever becomes part of the SQL text.
   The only text put into SQL is constant fragments in the same file, and, in test helpers, table names read from `sqlite_master`.
 

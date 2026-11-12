@@ -41,7 +41,7 @@ export const projectIconUrl = (project: UpcomingProject) =>
   emailAsset(`upcoming/${project.icon.split('/').pop()!.replace(/\.svg$/, '.png')}`)
 
 /** One small card per project: icon, name and the one line on what it is. Stacks for any number. */
-function projectCards(slugs: UpcomingSlug[]): string {
+export function projectCards(slugs: UpcomingSlug[]): string {
   const rows = projectsFor(slugs).map(
     (p, i) => `                      <tr>
                         <td style="padding-top:${i === 0 ? 0 : 10}px;">
@@ -62,10 +62,10 @@ ${rows.join('\n')}
                     </table>`
 }
 
-const heading = (text: string) =>
+export const heading = (text: string) =>
   `<h1 class="h1" style="margin:0 0 14px;font-family:${FONT};font-size:28px;line-height:35px;font-weight:800;color:${C.white};letter-spacing:-0.6px;">${text}</h1>`
 
-const footLink = (href: string, label: string) => `<a href="${href}" style="color:${C.muted};text-decoration:underline;">${label}</a>`
+export const footLink = (href: string, label: string) => `<a href="${href}" style="color:${C.muted};text-decoration:underline;">${label}</a>`
 
 export function confirmSubject(entry: WaitlistEntry): string {
   return `Confirm your spot on the ${projectList(entry.requested)} waitlist`
