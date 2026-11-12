@@ -145,7 +145,7 @@ test.describe('Loadout tools and people', () => {
     await expect(page.locator('#kun-chen')).toBeInViewport()
   })
 
-  test('the homepage follows Kun Chen, Phaedrus and Nate Herk, in that order, with their own links', async ({ page }) => {
+  test('the homepage follows Kun Chen, Phaedrus, Nate Herk and Nick Saraev, in that order, with their own links', async ({ page }) => {
     await page.goto('/')
     const creators = page.getByRole('region', { name: 'People I follow' })
     // The person cards (The Pull Request Post's card follows them).
@@ -153,6 +153,7 @@ test.describe('Loadout tools and people', () => {
       'Kun Chen',
       'Phaedrus Raznikov',
       'Nate Herk',
+      'Nick Saraev',
     ])
     await expect(creators.getByText('Former L8 principal engineer at Meta, Microsoft and Atlassian.')).toBeVisible()
     // A profile shows its platform's icon and the @handle (round 10 of 2026-11-09:
@@ -170,6 +171,11 @@ test.describe('Loadout tools and people', () => {
         'nateherk.com': 'https://nateherk.com',
         'AI Automation Society': 'https://www.skool.com/ai-automation-society/about',
       },
+      'Nick Saraev': {
+        'YouTube @nicksaraev': 'https://www.youtube.com/@nicksaraev',
+        'nicksaraev.com': 'https://nicksaraev.com',
+        'Maker School': 'https://www.skool.com/makerschool/about',
+      },
       'Phaedrus Raznikov': {
         'X @moomooskycow': 'https://x.com/moomooskycow',
         'GitHub @moomooskycow': 'https://github.com/moomooskycow',
@@ -180,7 +186,7 @@ test.describe('Loadout tools and people', () => {
     await expect(creators.getByText('Recently shipped')).toHaveCount(0)
     for (const [name, byLabel] of Object.entries(links)) {
       const list = creators.getByRole('list', { name: `${name} online` })
-      // Exactly these links (Nate Herk has no public GitHub, so none is shown).
+      // Exactly these links (Nate Herk and Nick Saraev have no public GitHub, so none is shown).
       await expect(list.getByRole('link')).toHaveCount(Object.keys(byLabel).length)
       for (const [label, href] of Object.entries(byLabel)) {
         const link = list.getByRole('link', { name: `${label} (${name}, opens in a new tab)`, exact: true })
@@ -201,7 +207,7 @@ test.describe('Loadout tools and people', () => {
     test(`at ${width}px each person's links sit in two columns, two rows at most, inside the card`, { tag: width === 1440 || width === 320 ? '@cross-browser' : [] }, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 })
       await page.goto('/')
-      for (const name of ['Kun Chen', 'Phaedrus Raznikov', 'Nate Herk']) {
+      for (const name of ['Kun Chen', 'Phaedrus Raznikov', 'Nate Herk', 'Nick Saraev']) {
         const list = page.getByRole('list', { name: `${name} online` })
         await list.scrollIntoViewIfNeeded()
         const boxes = await list.getByRole('link').evaluateAll((links) =>
@@ -228,7 +234,7 @@ test.describe('Loadout tools and people', () => {
   test('shows each person\'s self-hosted avatar, with the initials behind it as a fallback', { tag: '@cross-browser' }, async ({ page }) => {
     await page.goto('/')
     const people = page.getByRole('region', { name: 'People I follow' })
-    for (const name of ['Kun Chen', 'Phaedrus Raznikov', 'Nate Herk']) {
+    for (const name of ['Kun Chen', 'Phaedrus Raznikov', 'Nate Herk', 'Nick Saraev']) {
       const img = people.getByRole('img', { name, exact: true })
       await img.scrollIntoViewIfNeeded()
       await expect(img).toBeVisible()
@@ -338,7 +344,7 @@ test.describe('Loadout tools and people', () => {
           }
         }),
       )
-      expect(lines).toHaveLength(3)
+      expect(lines).toHaveLength(4)
       for (const card of lines) {
         expect(card.note, card.id).toBeLessThanOrEqual(3)
         expect(card.more, card.id).toBeGreaterThanOrEqual(1)
@@ -563,7 +569,7 @@ test.describe('Loadout tools and people', () => {
     const card = people.getByRole('article', { name: 'The Pull Request Post' })
     await card.scrollIntoViewIfNeeded()
     // Right under the person cards.
-    const lastPerson = (await people.locator('#nate-herk').boundingBox())!
+    const lastPerson = (await people.locator('#nick-saraev').boundingBox())!
     const box = (await card.boundingBox())!
     expect(box.y).toBeGreaterThan(lastPerson.y + lastPerson.height)
     await expect(card).toContainText('The public GitHub activity of the developers I follow, printed as a newspaper.')

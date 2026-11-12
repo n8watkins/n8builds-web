@@ -446,6 +446,21 @@ export const people: Person[] = [
       { kind: 'community', href: 'https://www.skool.com/ai-automation-society/about', label: 'AI Automation Society' },
     ],
   },
+  {
+    id: 'nick-saraev',
+    name: 'Nick Saraev',
+    initials: 'NS',
+    avatar: '/people/nick-saraev.webp',
+    role: 'AI automation educator.',
+    // From his YouTube channel's about page (2026-11-12).
+    note: 'Teaching Claude Code, Codex and n8n automation on\u00a0YouTube.',
+    more: 'He started in the agency world and runs the Maker School\u00a0community.',
+    links: [
+      { kind: 'youtube', href: 'https://www.youtube.com/@nicksaraev' },
+      { kind: 'website', href: 'https://nicksaraev.com', label: 'nicksaraev.com' },
+      { kind: 'community', href: 'https://www.skool.com/makerschool/about', label: 'Maker School' },
+    ],
+  },
 ]
 
 /**
