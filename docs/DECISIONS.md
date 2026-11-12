@@ -608,3 +608,8 @@ Where these conflict with an older entry above, these win; the older entries are
 - **The waitlist emails' refresh** (owner feedback, 2026-11-11): the header's N8 mark and each project's icon are absolute https PNGs on the site (`public/email/`, 2x, width and height set), never SVG or data: images; the contact emails keep their inline attachments.
   Each email lists its projects as small cards (icon, name, the tagline from `data/upcoming.ts`), the footer is short muted lines, and there is more room throughout; the newsletter emails share the header and spacing.
   The leave link opens a manage page: a checkbox per project, Save, and Leave the waitlist. No login: the leave token identifies the address, does nothing else, and still expires after a year. A mail client's one-click unsubscribe (List-Unsubscribe-Post) leaves the whole waitlist.
+- **/games** (owner, 2026-11-11): one page listing the playable games, each card linking to the game's own site (`data/games.ts`, `app/games/page.tsx`).
+  A card is the game's screenshot (`public/games/`, taken with GET requests only), its mark, a kind pill, one line, tags (players, device, free) and a Play button.
+  The games: Who Am I? (whoami.n8builds.dev), PortfolioRank Play (the face-off only; "guess the percentile" waits behind GAMES_V2, so the card says more modes are coming), the homepage dino catch (`/#ai-kit`) and Terminal Invaders.
+  Terminal Invaders has no live site and its repo is archived, but it runs locally, so its button is "Play locally" to the repo's quick start.
+  Only playable games belong here; the page is static, linked from the footer's Lab column and in the sitemap, with its own share card (`/games/og.png`).
