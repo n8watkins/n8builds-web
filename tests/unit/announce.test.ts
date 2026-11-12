@@ -333,6 +333,27 @@ describe('Announcements: sending', () => {
     expect(await service.status(start.id)).toMatchObject({ state: 'done', sent: 2 })
   })
 
+  it('an announcement still going for a project that then left the site sends no one anything, and holds no other up', async () => {
+    const { service, people, fake } = setup()
+    const gone = await people(2, 'feelium', 'gone')
+    const old = await service.start(launch, 'owner')
+    if (!('id' in old)) throw new Error()
+    // The project leaves data/upcoming.ts while its announcement is still waiting to send.
+    await dbs.waitlist.prepare("UPDATE waitlist_announcements SET project = 'strollz' WHERE id = ?").bind(old.id).run()
+    for (const id of gone) await dbs.waitlist.prepare("UPDATE waitlist_projects SET project = 'strollz' WHERE subscriber_id = ?").bind(id).run()
+    await people(1, 'fitflow7', 'here')
+    const next = await service.start({ ...launch, project: 'fitflow7' }, 'owner')
+    if (!('id' in next)) throw new Error()
+
+    await service.run()
+    expect(await service.status(old.id)).toMatchObject({ state: 'paused_cap', lastError: 'unknown_project', sent: 0, failed: 0, skipped: 0 })
+    expect(await service.status(next.id)).toMatchObject({ state: 'done', sent: 1 })
+    expect(fake.delivered.map((m) => m.to)).toEqual(['here0@example.com'])
+    // The owner can still cancel it; the two people count as skipped.
+    expect(await service.cancel(old.id, 'owner')).toMatchObject({ state: 'cancelled', sent: 0, skipped: 2 })
+    expect(await count("SELECT COUNT(*) AS n FROM waitlist_projects WHERE project = 'strollz'")).toBe(2)
+  })
+
   it('counts a suppressed address as failed and carries on with the rest', async () => {
     const { service, people, fake } = setup()
     await people(3)

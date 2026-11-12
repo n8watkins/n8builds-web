@@ -143,6 +143,9 @@ const toStatus = (row: Row): AnnouncementStatus => ({
 /** The announcements that count toward the 30 days: all but a cancelled one that sent nothing. */
 const COUNTS = "(state <> 'cancelled' OR sent > 0)"
 
+/** Why an announcement waits when its project is no longer in data/upcoming.ts (or its template is gone). */
+const UNKNOWN_PROJECT = 'unknown_project'
+
 /** Refusals that are about one address only: it fails, and the others still get theirs. */
 const RECIPIENT_FAILURES = new Set(['suppressed'])
 
@@ -345,7 +348,9 @@ export class Announcements {
       reports.push(report)
       budget -= report.sent
       // A refusal stops the whole run: the next announcement would hit the same cap.
-      if (report.stoppedAt || budget <= 0) break
+      // One for a project that has left /upcoming only waits itself (until it is
+      // cancelled): it sends nothing, and must not hold the others up.
+      if ((report.stoppedAt && report.stoppedAt !== UNKNOWN_PROJECT) || budget <= 0) break
     }
     return reports
   }
@@ -364,7 +369,7 @@ export class Announcements {
       return { ...report, state: 'paused_cap', stoppedAt: code }
     }
 
-    if (!project || !isTemplateId(row.template)) return pause('unknown_project')
+    if (!project || !isTemplateId(row.template)) return pause(UNKNOWN_PROJECT)
 
     const used = await this.usedBudget()
     let allowed = Math.min(runBudget, DAY_BUDGET - used.day, MONTH_BUDGET - used.month)
