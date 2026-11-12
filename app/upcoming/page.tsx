@@ -6,7 +6,7 @@ import Reveal from '@/components/ui/Reveal'
 import JoinButton from '@/components/upcoming/JoinButton'
 import { LandingButton } from '@/components/upcoming/ProjectLinks'
 import WaitlistPanel from '@/components/upcoming/WaitlistPanel'
-import { STATUS_LABEL, UPCOMING, type UpcomingProject } from '@/data/upcoming'
+import { STATUS_LABEL, UPCOMING_LISTED, type UpcomingProject } from '@/data/upcoming'
 import { pageMetadata } from '@/lib/seo'
 
 export const metadata = pageMetadata({
@@ -32,7 +32,7 @@ const STATUS_TONE: Record<UpcomingProject['status'], string> = {
  * picture, its mark, name and status, one line, then "Check it out" and the
  * waitlist. The full pitch lives on the landing page.
  *
- * `wide`: an odd last card (five projects since 2026-11-11) spans both columns
+ * `wide`: an odd last card (five listed projects since 2026-11-11) spans both columns
  * from 640px, its picture beside its words, so it never sits alone in half a row.
  */
 function ProjectCard({ project, index, wide = false }: { project: UpcomingProject; index: number; wide?: boolean }) {
@@ -117,12 +117,13 @@ export default function UpcomingPage() {
                way, so ?interest= and the cards' Join buttons tick the same one. */}
           <div className="mt-10 grid gap-6 md:mt-12 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-8 xl:grid-cols-[minmax(0,1fr)_24rem]">
             <div className="grid gap-5 sm:grid-cols-2">
-              {UPCOMING.map((project, index) => (
+              {/* The listed projects only: an unlisted one has no card (data/upcoming.ts). */}
+              {UPCOMING_LISTED.map((project, index) => (
                 <ProjectCard
                   key={project.slug}
                   project={project}
                   index={index}
-                  wide={UPCOMING.length % 2 === 1 && index === UPCOMING.length - 1}
+                  wide={UPCOMING_LISTED.length % 2 === 1 && index === UPCOMING_LISTED.length - 1}
                 />
               ))}
             </div>

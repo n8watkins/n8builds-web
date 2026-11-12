@@ -137,7 +137,16 @@ export type LogEntry = {
   url?: string
   highlightKind?: HighlightKind
   image?: { url: string; alt: string }
+  /**
+   * Work on an unlisted project (`unlisted` in data/logBuilds.ts): only in
+   * `BuildLog.counted`, with its build, title and links taken off, so it adds
+   * to the totals and can never be shown or named.
+   */
+  unnamed?: true
 }
+
+/** The `build` of an unnamed entry: no build's slug. */
+export const OTHER_WORK = 'other-work'
 
 export type BuildActivity = {
   slug: string
@@ -156,8 +165,14 @@ export type BuildActivity = {
 }
 
 export type BuildLog = {
-  /** Feed order: month by month, newest first, highlights pinned atop their month. */
+  /** Feed order: month by month, newest first, highlights pinned atop their month. Never an unlisted project's. */
   entries: LogEntry[]
+  /**
+   * What the totals count ("changes shipped", releases, days, the streak, the
+   * day bars): `entries`, plus the unlisted projects' work as unnamed entries.
+   * Real shipped work counts; an unlisted project is just never named.
+   */
+  counted: LogEntry[]
   /** Every build, most recently active first. */
   activity: BuildActivity[]
   /** Month labels for the feed headings: `{ '2026-10': 'October 2026' }`. */
@@ -510,11 +525,21 @@ export function assembleLog(builds: LogBuild[], snapshots: RepoSnapshot[], highl
     return snapshot ? entriesForBuild(build, snapshot) : []
   })
   const pinned = highlights.filter((h) => slugs.includes(h.build)).map(highlightEntry)
-  const entries = sortEntries([...pinned, ...automatic], slugs)
+  const everything = sortEntries([...pinned, ...automatic], slugs)
+  // An unlisted project's work is counted, never shown: out of the feed and the
+  // builds index, and in `counted` only with everything that names it taken off.
+  const unlisted = new Set(tracked.filter((b) => b.unlisted).map((b) => b.slug))
+  const entries = everything.filter((e) => !unlisted.has(e.build))
+  const counted = everything.map((e, i): LogEntry =>
+    unlisted.has(e.build)
+      ? { id: `${OTHER_WORK}:${i}`, build: OTHER_WORK, kind: e.kind, date: e.date, day: e.day, month: e.month, dayLabel: e.dayLabel, title: 'Other work', more: e.more, unnamed: true }
+      : e
+  )
 
   return {
     entries,
-    activity: buildActivity(tracked, entries, Object.fromEntries(snapshots.map((s) => [s.repo, s.pushedAt]))),
+    counted,
+    activity: buildActivity(tracked.filter((b) => !b.unlisted), entries, Object.fromEntries(snapshots.map((s) => [s.repo, s.pushedAt]))),
     months: Object.fromEntries([...new Set(entries.map((e) => e.month))].map((m) => [m, monthLabel(m)])),
     recentFrom: recentFrom(entries),
   }

@@ -1,39 +1,41 @@
 /**
  * What I'm building in public ("What's cookin'"), shown on /upcoming and the
- * homepage with a waitlist. Each one has a live landing page, and since
- * 2026-11-11 every one is a working app you can try. Round 11 of 2026-11-09 (owner): /upcoming is a teaser,
+ * homepage with a waitlist. Each one has a live landing page, and every listed
+ * one is a working app you can try. Round 11 of 2026-11-09 (owner): /upcoming is a teaser,
  * each card the landing page's picture, the name, one line and its status
  * (round 7 had dropped statuses; they are back, read off each landing page).
  *
  * The slugs are a public contract: the projects' landing pages link to
  * `https://n8builds.dev/upcoming?interest=<slug>#<slug>`, so never rename one;
  * a renamed project keeps its old interest value working (INTEREST_ALIASES).
- * Copy comes from each project's own docs (Feelium's README and docs/PRD.md in
- * ~/projects/feelium, Cutely Ask Me's README and docs/REVIEW_2026-11.md in
- * ~/projects/polish/cutelyaskme, Who Am I?'s README in ~/projects/who-am-i,
- * Pivot's README and /welcome page in ~/projects/pivot, FitFlow 7's README in
- * ~/projects/public/fitflow7); keep it in step and modest.
+ * Copy comes from each project's own docs (Strollz's in ~/projects/strollz, VibeLog's README and docs/VISION.md in
+ * ~/projects/polish/vibelog, KeysReady's from the owner and its landing page,
+ * Asset Arsenal's docs/SKINS_CONCEPT.md in ~/projects/asset-arsenal, Feelium's
+ * README and docs/PRD.md in ~/projects/feelium, Cutely Ask Me's README and
+ * docs/REVIEW_2026-11.md in ~/projects/polish/cutelyaskme, Who Am I?'s README in
+ * ~/projects/who-am-i, Pivot's README and /welcome page in ~/projects/pivot,
+ * FitFlow 7's README in ~/projects/public/fitflow7); keep it in step and modest.
  *
- * A project that leaves this list (owner, 2026-11-11: four did) leaves the
- * waitlist's forms and API with it: its slug is refused like any unknown one,
- * no announcement can be started or sent for it, and the rows people already
- * have for it stay in the database: nothing reads them or deletes them, until
- * that person leaves the waitlist or trims their own list on the manage page.
+ * Four are unlisted since 2026-11-11 (owner: "it's just not advertised"):
+ * KeysReady, Strollz, VibeLog and Asset Arsenal. See `unlisted` on UpcomingProject.
  */
 
-export const UPCOMING_SLUGS = ['feelium', 'fitflow7', 'pivot', 'cutelyaskme', 'whoami'] as const
+export const UPCOMING_SLUGS = ['feelium', 'fitflow7', 'pivot', 'cutelyaskme', 'whoami', 'keysready', 'strollz', 'vibelog', 'asset-arsenal'] as const
 export type UpcomingSlug = (typeof UPCOMING_SLUGS)[number]
 
 /**
  * Who a project is for: the homepage groups its What's cookin' list by it (round 7,
- * 2026-11-09). Since 2026-11-11 every project is an everyday-life one, so the groups
- * split those: the ones for your own habits and health, and the ones for two people.
+ * 2026-11-09). Since 2026-11-11 every listed project is an everyday-life one, so
+ * two groups split those: the ones for your own habits and health, and the ones for
+ * two people. A group with no listed project is not shown (the last two today).
  */
-export type UpcomingGroup = 'habits' | 'two'
+export type UpcomingGroup = 'habits' | 'two' | 'business' | 'creators'
 
 export const UPCOMING_GROUPS: { id: UpcomingGroup; label: string }[] = [
   { id: 'habits', label: 'For your habits & health' },
   { id: 'two', label: 'For two' },
+  { id: 'business', label: 'For businesses' },
+  { id: 'creators', label: 'For developers & creators' },
 ]
 
 export type UpcomingStatus = 'try-it' | 'early-access' | 'in-development' | 'concept'
@@ -78,15 +80,20 @@ export type UpcomingProject = {
   what: string
   forWho: string
   /**
-   * Whether the homepage's What's cookin' list shows it (default true; every project
-   * does since 2026-11-09, when the list became one compact row each). A project left
-   * off still appears on /upcoming and in both waitlist forms.
+   * Unlisted: working, but not shown or advertised (default false; owner,
+   * 2026-11-11). An unlisted project is left off the homepage, the /upcoming
+   * list, the waitlist form's picks, page descriptions and share text, and
+   * the build log never names or links it (its work still counts in the
+   * totals). Everything behind it works as for any project: a direct link
+   * (`/upcoming?interest=<slug>`) shows it in the form, ticked; the API takes
+   * its slug; the manage page and the emails show it; announcements for it can
+   * be previewed, tested and sent. To list a project again, delete this line.
    */
-  homepage?: boolean
+  unlisted?: boolean
   points: string[]
 }
 
-/** In group order (UPCOMING_GROUPS), so /upcoming and the waitlist's picks read like the homepage. */
+/** Every project, unlisted ones included: what the waitlist's API, emails and announcements know. To show projects, use UPCOMING_LISTED. */
 export const UPCOMING: UpcomingProject[] = [
   {
     slug: 'feelium',
@@ -206,7 +213,116 @@ export const UPCOMING: UpcomingProject[] = [
       'First to 5 points or best after 10 rounds, then a one-tap rematch',
     ],
   },
+  // Unlisted (see `unlisted` above): kept working, not shown.
+  {
+    slug: 'keysready',
+    name: 'KeysReady',
+    tagline: 'Stop answering “Is my car ready?”',
+    short: 'Booking and live repair status for auto shops',
+    group: 'business',
+    unlisted: true,
+    summary:
+      'For small auto repair shops: customers book online, follow their repair live, and approve and pay from their phone.',
+    icon: '/upcoming/keysready.svg',
+    landing: 'https://keysready.n8builds.dev',
+    status: 'in-development',
+    shot: '/upcoming/shots/keysready.webp',
+    repo: 'n8watkins/keysready',
+    // Signal red: #c81e1e on light backgrounds, #ff5a4e on dark ones (this site); its icon adds a ready-green, #43d095.
+    accent: '#ff5a4e',
+    what: 'Your customers get online booking, live repair status and estimates they approve and pay from their phone. They always know where their car is, so you can stay under the hood instead of on the phone.',
+    forWho:
+      'Independent 1-3 bay auto shops, mobile mechanics and other small repair shops running on paper and a phone, plus agencies building their websites.',
+    points: [
+      'Online booking with a link for your site or Google profile, and no app for customers',
+      'Live repair status by email and browser notifications, with a status page that answers the call before it happens',
+      "Estimates customers approve and pay from their phone, with money going to the shop's own Stripe account",
+      'Free for a small shop and open source, so you can self-host it; Pro at $29/mo adds texts, reminders and reviews (planned)',
+    ],
+  },
+  {
+    slug: 'strollz',
+    name: 'Strollz',
+    tagline: 'Walk the streets you have never walked',
+    short: 'Walking loops through new streets near you',
+    group: 'habits',
+    unlisted: true,
+    summary:
+      'Tell it how long you have, and it plans a walking loop from your door through streets you have not walked yet.',
+    icon: '/upcoming/strollz.svg',
+    landing: 'https://strollz.n8builds.dev',
+    status: 'in-development',
+    shot: '/upcoming/shots/strollz.webp',
+    repo: 'n8watkins/strollz',
+    accent: '#5cc49b',
+    what: 'Tell it how long you have, and it plans a walking loop from your door through streets you have never walked, with a few short notes about what you pass, each linked to its source.',
+    forWho:
+      'People who just moved and want to learn the area on foot, dog walkers bored of the same loop, and parents pushing a stroller.',
+    points: [
+      'Pick a time (20 to 60 minutes) and choose one of three loops from your door',
+      "Remembers the streets you've walked and steers each loop toward new ones",
+      'Two to four short notes per walk, each with its source: no source, no note',
+      'Safety and step-free filters free for everyone, and your walks stay private',
+    ],
+  },
+  {
+    slug: 'vibelog',
+    name: 'VibeLog',
+    tagline: 'Live coding telemetry for vibe-coding streams',
+    short: 'Live coding stats for your streams',
+    group: 'creators',
+    unlisted: true,
+    summary:
+      'For people who stream themselves coding with AI: it shows your commits, code changes and AI usage on screen, live.',
+    icon: '/upcoming/vibelog.svg',
+    landing: 'https://vibelogs.dev',
+    status: 'early-access',
+    shot: '/upcoming/shots/vibelog.webp',
+    repo: 'n8watkins/vibelog',
+    accent: '#f472b6',
+    what: 'One local process tracks your git activity, Claude token spend, stream time and channel growth, and turns them into a live OBS overlay, a private dashboard, a public live page and shareable stat cards.',
+    forWho: 'People who stream themselves building software with AI and want viewers to see what is actually happening.',
+    points: [
+      'A HUD for OBS: what you are building, commits, lines changed and tokens, live',
+      'A private dashboard and an activity calendar of your coding and streaming',
+      'A public live page and share cards built only from names and numbers you choose',
+      'Local-first with no account; open source first, a hosted page later',
+    ],
+  },
+  {
+    slug: 'asset-arsenal',
+    name: 'Asset Arsenal',
+    tagline: 'Give your page a skin',
+    short: 'Reskins your page, then cuts the assets',
+    group: 'creators',
+    unlisted: true,
+    summary:
+      'For builders: it redraws your page in your brand or any style you name, then cuts it into assets you can ship.',
+    icon: '/upcoming/asset-arsenal.svg',
+    landing: 'https://assetarsenal.n8builds.dev',
+    status: 'concept',
+    shot: '/upcoming/shots/asset-arsenal.webp',
+    accent: '#f3b73f',
+    what: 'It reimagines your page in your brand or in any style you name, then breaks that picture into real assets you can ship: backgrounds, frames, buttons, icons and illustrations, each cut out and ready to drop in.',
+    forWho:
+      'Builders who want a site that looks like their brand rather than a template, and apps that want to offer their users a few skins to pick from.',
+    points: [
+      'Starts from a screenshot of your page plus your logo, colors and images',
+      'A few full-page concepts in the style you describe; keep the one you love',
+      'Every asset rebuilt full size on a transparent background, matching the concept',
+      'Keep, reject or retry any single piece, and see the cost before each run',
+    ],
+  },
 ]
+
+/** Whether the site shows a project (see `unlisted` on UpcomingProject). */
+export const isListed = (project: UpcomingProject) => project.unlisted !== true
+
+/** The projects the site shows: the homepage, the /upcoming list and the waitlist form's picks. */
+export const UPCOMING_LISTED = UPCOMING.filter(isListed)
+
+/** The slugs of the unlisted projects, for the places that must not name them (the build log). */
+export const UNLISTED_SLUGS: ReadonlySet<string> = new Set(UPCOMING.filter((p) => !isListed(p)).map((p) => p.slug))
 
 /** Old interest values from renamed projects, so links already out there keep working. */
 export const INTEREST_ALIASES: Record<string, UpcomingSlug> = {}

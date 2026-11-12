@@ -618,6 +618,7 @@ images: [
 /**
  * Builds kept for later but not shown anywhere on the site: no page, no card,
  * no sitemap entry. To bring one back, move it into `builds` above.
+ * - VibeLog: paused 2026-10-22 until it's ready to show again.
  */
 export const hiddenBuilds: Build[] = [
   // On hold (2026-10-23): the owner is deciding what to do with it; its repo is private.
@@ -642,6 +643,30 @@ export const hiddenBuilds: Build[] = [
       'V1 is intentionally a template, not a builder: no analytics, no feedback backend, no store automation. Boundaries are written down in the PRD.',
       'A check:extension health command verifies the config and release readiness before shipping.',
       'Born from the patterns repeated across VoiceDock (then Piper TTS), TL;DW, and TubeVault - this kit is those lessons, extracted.',
+    ],
+    images: [],
+  },
+  {
+    slug: 'vibelog',
+    name: 'VibeLog',
+    tagline: 'Live coding telemetry & OBS overlay',
+    category: 'Streaming tool',
+    tags: ['Node.js', 'OBS', 'TypeScript'],
+    color: 'from-blue-500/20 to-cyan-600/20',
+    problem:
+      'Streaming "building in public" gives viewers no live signal of what is actually happening: git activity, Claude token spend, and session time all live in different tools, and the post-stream recap is a manual chore.',
+    solution:
+      'One local Node process that tracks git activity, AI token spend, stream time, and channel growth - and serves a live HUD as an OBS browser source, a private dashboard, a public /live page, and shareable /share cards. Local-first, no accounts, $0.',
+    stack: [
+      { name: 'Node.js · TypeScript', layer: 'Frontend', detail: 'Single local agent process that watches git and session state' },
+      { name: 'OBS Browser Source', layer: 'Frontend', detail: 'Transparent 1920×1080 HUD served at localhost:4545/overlay' },
+      { name: 'CLI', layer: 'Frontend', detail: 'vibe start / mark / status / report - drive the overlay from a second terminal while coding' },
+    ],
+    process: [
+      'Markers are first-class: "vibe mark feature/bug" annotates the session live, and the end-of-day report is built entirely from the local log - no AI, no network.',
+      'A demo mode seeds fake data so the whole overlay can be previewed without a real git repo or session.',
+      'Direction lives in a canonical VISION.md; earlier spec docs are kept but explicitly marked historical.',
+      'This is the tool behind the "LIVE on VibeLog" badge planned for this site\'s hero.',
     ],
     images: [],
   },

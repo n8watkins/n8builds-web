@@ -28,10 +28,12 @@ test('the build log describes its builds as an ItemList, most recently active fi
   expect(items.map((i) => i.url)).toContain('https://n8builds.dev/upcoming#feelium')
   expect(items[0]).toMatchObject({ name: 'n8builds.dev', url: 'https://n8builds.dev/builds/n8builds' })
   expect(items[1]).toMatchObject({ name: 'Solara', url: 'https://n8builds.dev/builds/solara' })
-  // Nothing that left the site (2026-11-11): no Wren page, and no card of a removed upcoming project.
+  // Wren left the site (2026-11-11), and the unlisted upcoming projects are followed without being
+  // named: none is an item, and the page's source names none of them.
   for (const gone of ['/builds/wren', '/builds/vibelog', '/upcoming#strollz', '/upcoming#keysready', '/upcoming#vibelog']) {
     expect(items.map((i) => i.url)).not.toContain(`https://n8builds.dev${gone}`)
   }
+  expect(html.match(/\bWren\b|KeysReady|Strollz|VibeLog|Asset Arsenal|keysready|strollz|vibelog/)?.[0]).toBeUndefined()
 })
 
 test('the build log shares its own 1200x630 card', async ({ request }) => {

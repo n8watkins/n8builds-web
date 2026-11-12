@@ -1,4 +1,5 @@
 import type { Build } from '@/data/builds'
+import { UNLISTED_SLUGS } from '@/data/upcoming'
 
 /**
  * A project the build log follows. Every build in data/builds.tsx with a
@@ -9,6 +10,12 @@ import type { Build } from '@/data/builds'
 export type LogBuild = Pick<Build, 'slug' | 'name' | 'tagline' | 'category' | 'color' | 'repo' | 'github' | 'log' | 'logHide'> & {
   /** Where the project's name links in the log: its build page (`/builds/<slug>`) unless set. */
   href?: string
+  /**
+   * An unlisted upcoming project (`unlisted` in data/upcoming.ts): the log still
+   * reads its repo, and its work counts in the "changes shipped" totals, but
+   * the log never names it, links it or shows its entries.
+   */
+  unlisted?: boolean
 }
 
 /**
@@ -26,7 +33,27 @@ export type LogBuild = Pick<Build, 'slug' | 'name' | 'tagline' | 'category' | 'c
  * /builds. Every `repo` here is also read by scripts/build-log-fixture.mjs
  * and scripts/check-build-repos.mjs (one per line, as written).
  */
-export const logOnlyBuilds: LogBuild[] = [
+const followed: LogBuild[] = [
+  {
+    slug: 'strollz',
+    name: 'Strollz',
+    tagline: 'Walk the streets you have never walked',
+    category: 'Upcoming',
+    color: 'from-emerald-500/20 to-teal-600/20',
+    github: 'https://github.com/n8watkins/strollz',
+    repo: 'n8watkins/strollz',
+    href: '/upcoming#strollz',
+  },
+  {
+    slug: 'keysready',
+    name: 'KeysReady',
+    tagline: 'Stop answering “Is my car ready?”',
+    category: 'Upcoming',
+    color: 'from-sky-500/20 to-blue-600/20',
+    github: 'https://github.com/n8watkins/keysready',
+    repo: 'n8watkins/keysready',
+    href: '/upcoming#keysready',
+  },
   {
     slug: 'feelium',
     name: 'Feelium',
@@ -36,6 +63,16 @@ export const logOnlyBuilds: LogBuild[] = [
     github: 'https://github.com/n8watkins/feelium',
     repo: 'n8watkins/feelium',
     href: '/upcoming#feelium',
+  },
+  {
+    slug: 'vibelog',
+    name: 'VibeLog',
+    tagline: 'Live coding telemetry for vibe-coding streams',
+    category: 'Upcoming',
+    color: 'from-pink-500/20 to-fuchsia-600/20',
+    github: 'https://github.com/n8watkins/vibelog',
+    repo: 'n8watkins/vibelog',
+    href: '/upcoming#vibelog',
   },
   {
     slug: 'cutelyaskme',
@@ -109,3 +146,6 @@ export const logOnlyBuilds: LogBuild[] = [
     href: '/#pr-post-edition',
   },
 ]
+
+/** The projects above, the unlisted upcoming ones marked as such (the one place that decides it is data/upcoming.ts). */
+export const logOnlyBuilds: LogBuild[] = followed.map((build) => (UNLISTED_SLUGS.has(build.slug) ? { ...build, unlisted: true } : build))

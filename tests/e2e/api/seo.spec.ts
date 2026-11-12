@@ -154,7 +154,7 @@ test("the blog is called N8's Notions in its title, heading and share tags", asy
 })
 
 test('retired routes redirect permanently', async ({ request }) => {
-  for (const path of ['/lab', '/extensions', '/resources', '/builds/canihost', '/builds/repo-steward', '/builds/asset-arsenal', '/builds/jobsignal', '/builds/vibelog']) {
+  for (const path of ['/lab', '/extensions', '/resources', '/builds/canihost', '/builds/repo-steward', '/builds/asset-arsenal', '/builds/jobsignal']) {
     const response = await request.get(path, { maxRedirects: 0 })
     expect(response.status(), path).toBe(308)
   }
@@ -167,11 +167,14 @@ test("Wren's old page lands on its page on the portfolio (it left this site on 2
   const sitemap = await (await request.get('/sitemap.xml')).text()
   expect(sitemap).not.toContain('/builds/wren')
   expect(sitemap).toContain('/builds/openping')
+  // Nor does the sitemap name an unlisted upcoming project: /upcoming is one address.
+  expect(sitemap.match(/keysready|strollz|vibelog|asset-arsenal/)?.[0]).toBeUndefined()
 })
 
 test('temporary redirects: builds on hold (so they can come back at the same URL) and Tools', async ({ request }) => {
   for (const [path, target] of [
     ['/builds/chrome-extension-kit', '/#extensions'],
+    ['/builds/vibelog', '/#lab'],
     // Tools are the ones the owner built and uses, Scribe first, on /loadout.
     ['/tools', '/loadout#tools-i-built'],
   ]) {

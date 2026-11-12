@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import fixture from '@/tests/fixtures/build-log-github.json'
 import { builds, getBuild, hiddenBuilds, type Build } from '@/data/builds'
+import { shippedStats, weight } from '@/lib/log-stats'
 import {
   allBuilds,
   assembleLog,
@@ -353,6 +354,52 @@ describe('merging, sorting and the builds index', () => {
     expect(quiet.activity.find((a) => a.slug === 'scribe')?.href).toBe('/builds/scribe')
   })
 
+  it("counts an unlisted project's work in the totals without ever naming it", () => {
+    // Unlisted since 2026-11-11 (data/upcoming.ts): KeysReady, Strollz and VibeLog are followed, never shown.
+    const unlisted = allBuilds.filter((b) => b.unlisted)
+    expect(unlisted.map((b) => b.slug).sort()).toEqual(['keysready', 'strollz', 'vibelog'])
+    expect(allBuilds.find((b) => b.slug === 'feelium')?.unlisted).toBeUndefined()
+    const work = (repo: string) => ({
+      repo,
+      pushedAt: '2026-10-20T18:00:00Z',
+      releases: [{ tag: 'v0.2.0', name: 'v0.2.0', publishedAt: '2026-10-20T18:00:00Z', url: `https://github.com/${repo}/releases/tag/v0.2.0`, draft: false, prerelease: false }],
+      commits: [
+        { sha: 'a'.repeat(40), message: 'feat: a secret feature', date: '2026-10-20T17:00:00Z', author: 'n8watkins', parents: 1, url: `https://github.com/${repo}/commit/a` },
+        { sha: 'b'.repeat(40), message: 'fix: a secret fix', date: '2026-10-19T17:00:00Z', author: 'n8watkins', parents: 1, url: `https://github.com/${repo}/commit/b` },
+      ],
+    })
+    const keysready = unlisted.find((b) => b.slug === 'keysready')!
+    const quiet = assembleLog([...inFixture, keysready], snapshots.filter((s) => s.repo !== keysready.repo), highlights)
+    const busy = assembleLog([...inFixture, keysready], [...snapshots.filter((s) => s.repo !== keysready.repo), work(keysready.repo!)], [
+      ...highlights,
+      { ...highlights[0], id: 'unlisted-highlight', date: '2026-10-21', build: 'keysready', title: 'KeysReady takes its first booking' },
+    ])
+    // Nothing a visitor sees changes: the feed, the builds index and the months are the same.
+    expect(busy.entries).toEqual(quiet.entries)
+    expect(busy.activity).toEqual(quiet.activity)
+    expect(busy.activity.map((a) => a.slug)).not.toContain('keysready')
+    // The work is counted: two days of changes, a release among them, and the highlight.
+    const added = busy.counted.filter((e) => e.unnamed)
+    expect(busy.counted.length).toBe(quiet.counted.length + 3)
+    expect(busy.counted.filter((e) => !e.unnamed)).toEqual(quiet.entries)
+    expect(added.map((e) => e.kind).sort()).toEqual(['change', 'highlight', 'release'])
+    // ... with everything that names the project taken off.
+    for (const e of added) {
+      expect(Object.keys(e).sort()).toEqual(['build', 'date', 'day', 'dayLabel', 'id', 'kind', 'month', 'more', 'title', 'unnamed'])
+      expect(JSON.stringify(e)).not.toMatch(/keysready|KeysReady|secret|github/i)
+    }
+    // The month's figures: more changes and one more release, the same builds, and never the busiest.
+    const names = Object.fromEntries(allBuilds.map((b) => [b.slug, b.name]))
+    const stat = (log: typeof busy, id: string) => shippedStats(log.counted.filter((e) => e.month === '2026-10'), log.counted, '2026-10-26T20:00:00Z', names).find((s) => s.id === id)?.value
+    expect(Number(stat(busy, 'changes'))).toBe(Number(stat(quiet, 'changes')) + added.reduce((n, e) => n + weight(e), 0))
+    expect(Number(stat(busy, 'releases') ?? 0)).toBe(Number(stat(quiet, 'releases') ?? 0) + 1)
+    expect(stat(busy, 'builds')).toBe(stat(quiet, 'builds'))
+    expect(stat(busy, 'busiest')).toBe(stat(quiet, 'busiest'))
+    const loud = assembleLog([keysready], [work(keysready.repo!)], [])
+    expect(loud.entries).toEqual([])
+    expect(shippedStats(loud.counted, loud.counted, '2026-10-26T20:00:00Z', names).map((s) => s.id)).toEqual(['changes', 'builds', 'releases', 'days', 'streak'].filter((id) => id !== 'streak'))
+  })
+
   it('pins highlights above the automatic entries of their month', () => {
     const july = log.entries.filter((e) => e.month === '2026-07')
     expect(july[0]).toMatchObject({ kind: 'highlight', build: 'tldw', title: 'TL;DW 1.0 is packaged for the Chrome Web Store' })
@@ -470,7 +517,7 @@ describe('getBuildLog', () => {
     vi.stubEnv('NEXT_PHASE', 'phase-production-build')
     const log = await getBuildLog()
     expect(log.entries).toEqual([])
-    expect(log.activity).toHaveLength(allBuilds.filter((b) => b.repo).length)
+    expect(log.activity).toHaveLength(allBuilds.filter((b) => b.repo && !b.unlisted).length)
   })
 
   it('throws on a revalidation where GitHub serves nothing, so ISR keeps the last good page', async () => {

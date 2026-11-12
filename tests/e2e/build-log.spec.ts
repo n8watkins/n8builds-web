@@ -60,9 +60,11 @@ test('the build log leads with the builds, most recently active first', { tag: '
   const feelium = cards.and(page.locator('[data-build="feelium"]'))
   await expect(feelium).toContainText('Nothing logged yet')
   await expect(feelium.getByRole('link', { name: 'Full story of Feelium' })).toHaveAttribute('href', '/upcoming#feelium')
-  // Every card's link leads somewhere that exists: no anchor of a project that left /upcoming (2026-11-11).
-  for (const gone of ['strollz', 'keysready', 'vibelog', 'asset-arsenal']) {
-    await expect(page.locator(`a[href$="#${gone}"]`)).toHaveCount(0)
+  // The unlisted upcoming projects (2026-11-11) are followed for the totals only: no card, no
+  // filter chip, no row and no link names one.
+  for (const [slug, name] of [['strollz', 'Strollz'], ['keysready', 'KeysReady'], ['vibelog', 'VibeLog'], ['asset-arsenal', 'Asset Arsenal']]) {
+    await expect(page.locator(`a[href$="#${slug}"], [data-build="${slug}"]`)).toHaveCount(0)
+    await expect(page.locator('body')).not.toContainText(name)
   }
   await expect(cards.and(page.locator('[data-build="pr-post"]')).getByRole('link', { name: 'Full story of PR Post' })).toHaveAttribute('href', '/#pr-post-edition')
   await expect(cards.first()).toContainText('Last shipped Oct 2026')

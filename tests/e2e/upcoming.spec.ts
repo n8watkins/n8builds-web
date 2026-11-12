@@ -73,7 +73,7 @@ test('lays the teaser cards out two by two (beside the waitlist on wide screens)
     const lefts = await page.locator('main article').evaluateAll((cards) => cards.map((c) => Math.round(c.getBoundingClientRect().left)))
     expect(new Set(lefts).size, `columns at ${width}px`).toBe(columns)
     expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0)
-    // The odd last card (five projects since 2026-11-11) never sits alone in half a row: from 640px
+    // The odd last card (five listed projects since 2026-11-11) never sits alone in half a row: from 640px
     // it spans both columns, its picture beside its words; on a phone it is a card like the others.
     const [first, second, last] = await Promise.all(['#feelium', '#fitflow7', '#whoami'].map(async (id) => (await page.locator(id).boundingBox())!))
     const [picture, name] = await Promise.all([page.locator('#whoami img[src*="shots"]').boundingBox(), page.locator('#whoami h2').boundingBox()])
@@ -101,30 +101,91 @@ test('a landing page link preselects its project and lands on its card', { tag: 
   await expect(page.locator('article#pivot')).toBeInViewport()
 })
 
-/** The four projects that left the site on 2026-11-11 (owner); their landing pages may still link here. */
-const REMOVED: Record<string, string> = {
-  strollz: 'Strollz',
+/**
+ * The four unlisted projects (owner, 2026-11-11: "it's just not advertised"; `unlisted` in
+ * data/upcoming.ts): working, with their waitlists, but shown nowhere unless a link asks for one.
+ */
+const UNLISTED: Record<string, string> = {
   keysready: 'KeysReady',
+  strollz: 'Strollz',
   vibelog: 'VibeLog',
   'asset-arsenal': 'Asset Arsenal',
 }
+const UNLISTED_WORDS = /KeysReady|Strollz|VibeLog|Asset Arsenal|keysready|strollz|vibelog|asset-arsenal|assetarsenal/
 
-test('a project that left the site is not shown, offered or ticked, even from its old link', async ({ page }) => {
-  for (const [slug, name] of Object.entries(REMOVED)) {
-    await page.goto(`/upcoming?interest=${slug}#${slug}`)
-    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-    await expect(page.locator('article')).toHaveCount(Object.keys(NAMES).length)
-    await expect(page.locator(`[id="${slug}"]`)).toHaveCount(0)
-    await expect(page.locator(`#waitlist-projects input[value="${slug}"]`)).toHaveCount(0)
-    await expect(page.locator('#waitlist-projects input:checked')).toHaveCount(0)
-    await expect(page.locator('body')).not.toContainText(name)
+test('an unlisted project is nowhere for a normal visitor: not on the homepage or /upcoming, in what they show or in their source', async ({ page }) => {
+  for (const path of ['/', '/upcoming']) {
+    // The page as served: no card, no pick, no link, no icon, no description or share text that names one.
+    const source = await (await page.request.get(path)).text()
+    expect(source.match(UNLISTED_WORDS)?.[0], `the source of ${path}`).toBeUndefined()
+    await page.goto(path)
+    for (const [slug, name] of Object.entries(UNLISTED)) {
+      await expect(page.locator('body'), `${name} on ${path}`).not.toContainText(name)
+      await expect(page.locator(`[id="${slug}"], input[value="${slug}"], a[href*="${slug}"], img[src*="${slug}"]`), `${slug} on ${path}`).toHaveCount(0)
+    }
   }
-  // Nor on the homepage, in its What's cookin' rows or its waitlist modal.
-  await page.goto('/?interest=strollz#waitlist')
+  // /upcoming lists the five, in its cards and in its form; the homepage's modal offers the same five.
+  await expect(page.locator('main article')).toHaveCount(Object.keys(NAMES).length)
+  await expect(page.locator('#waitlist-projects').getByRole('checkbox')).toHaveCount(Object.keys(NAMES).length)
+  await page.goto('/')
+  await page.locator('#lab section#upcoming').getByRole('button', { name: 'Join the waitlist' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Join the waitlist' })
+  await expect(dialog.getByRole('checkbox')).toHaveCount(Object.keys(NAMES).length)
+  for (const name of Object.values(UNLISTED)) await expect(dialog).not.toContainText(name)
+})
+
+for (const [slug, name] of Object.entries(UNLISTED)) {
+  test(`a direct link to ${name}'s waitlist works end to end: offered and ticked, joined, confirmed, on the manage page`, async ({ page }) => {
+    const email = uniqueEmail()
+    // As its own landing page links here: its interest, and its old card's anchor.
+    await page.goto(`/upcoming?interest=${slug}#${slug}`, { waitUntil: 'domcontentloaded' })
+    await waitForForm(page)
+    // No card for it, and no dead end: the form is in view with its project there, ticked, after the listed five.
+    await expect(page.locator('main article')).toHaveCount(Object.keys(NAMES).length)
+    await expect(page.locator(`article[id="${slug}"]`)).toHaveCount(0)
+    await expect(project(page, name)).toBeChecked()
+    // (Its label: the checkbox itself is visually hidden behind its drawn tick.)
+    await expect(page.locator(`#waitlist-projects label:has(input[value="${slug}"])`)).toBeInViewport()
+    expect(await page.locator('#waitlist-projects input').evaluateAll((list) => list.map((i) => (i as HTMLInputElement).value))).toEqual([...Object.keys(NAMES), slug])
+    // Only the one the link asked for.
+    for (const other of Object.keys(UNLISTED).filter((s) => s !== slug)) {
+      await expect(page.locator(`#waitlist-projects input[value="${other}"]`)).toHaveCount(0)
+    }
+    // Its icon loads.
+    const icon = page.locator(`#waitlist-projects label:has(input[value="${slug}"]) img`)
+    await expect.poll(() => icon.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true)
+
+    await page.getByRole('textbox', { name: 'Email' }).fill(email)
+    await waitForTurnstileToken(page)
+    const request = page.waitForRequest('/api/waitlist')
+    await page.getByRole('button', { name: 'Join the waitlist' }).click()
+    expect((await request).postDataJSON()).toMatchObject({ projects: [slug], source: { interest: slug } })
+    await expect(page.getByRole('heading', { name: 'Check your inbox' })).toBeVisible({ timeout: SEND_TIMEOUT })
+
+    // The confirm email names it and shows its picture; its button confirms it.
+    const { emails } = await (await page.request.get(`/api/test/outbox?to=${encodeURIComponent(email)}`)).json()
+    expect(emails.at(-1).subject).toBe(`Confirm your spot on the ${name} waitlist`)
+    expect(emails.at(-1).text).toContain(`- ${name}: `)
+    expect((await page.request.get(`/email/upcoming/${slug}.png`)).status()).toBe(200)
+    await page.goto(await emailedLink(page, email, '/upcoming/confirm'))
+    await page.getByRole('button', { name: 'Confirm my spot' }).click()
+    await expect(page.locator('main').getByRole('status')).toContainText(`You're on the list for ${name}.`)
+    // The manage page lists it for someone who is on it, and they can leave.
+    await page.goto(await emailedLink(page, email, '/upcoming/leave'))
+    await expect(page.getByRole('checkbox', { name: new RegExp(name) })).toBeChecked()
+    await page.getByRole('button', { name: 'Leave the waitlist' }).click()
+    await expect(page.locator('main').getByRole('status')).toContainText('everything stored with it are deleted')
+  })
+}
+
+test("a direct link to the homepage's waitlist offers an unlisted project there too, ticked", async ({ page }) => {
+  await page.goto('/?interest=keysready#waitlist')
   const dialog = page.getByRole('dialog', { name: 'Join the waitlist' })
   await expect(dialog).toBeVisible()
-  await expect(dialog.locator('input:checked')).toHaveCount(0)
-  for (const name of Object.values(REMOVED)) await expect(page.locator('body')).not.toContainText(name)
+  await expect(dialog.locator('input[value="keysready"]')).toBeChecked()
+  await expect(dialog.getByRole('checkbox')).toHaveCount(Object.keys(NAMES).length + 1)
+  // The page behind it still doesn't show it.
+  await expect(page.locator('#lab section#upcoming section[data-group]').filter({ hasText: 'KeysReady' })).toHaveCount(0)
 })
 
 test('an unknown interest value is ignored and the page shows normally', async ({ page }) => {

@@ -199,22 +199,43 @@ describe('Announcements: start', () => {
     await expect(service.start(launch, '')).rejects.toThrow(/actor/)
   })
 
-  it('has nothing to do with a project that left the site: not listed, and no preview, test send or start', async () => {
+  it('has nothing to do with a project that is no longer in the data: not listed, and no preview, test send or start', async () => {
     const { service, people, fake } = setup()
     const [id] = await people(1)
-    // Someone confirmed on Strollz before it left /upcoming (2026-11-11): the row is still there.
-    await dbs.waitlist.prepare("UPDATE waitlist_projects SET project = 'strollz' WHERE subscriber_id = ?").bind(id).run()
+    // Someone confirmed on a project that was later taken out of data/upcoming.ts: the row is still there.
+    await dbs.waitlist.prepare("UPDATE waitlist_projects SET project = 'retired-one' WHERE subscriber_id = ?").bind(id).run()
     expect((await service.projects()).map((p) => p.slug)).toEqual(UPCOMING.map((p) => p.slug))
-    for (const project of ['strollz', 'keysready', 'vibelog', 'asset-arsenal']) {
-      const request = { ...launch, project }
-      await expect(service.preview(request), project).rejects.toThrow(/unknown project/)
-      await expect(service.sendTest(request, 'owner'), project).rejects.toThrow(/unknown project/)
-      await expect(service.start(request, 'owner'), project).rejects.toThrow(/unknown project/)
-    }
+    const request = { ...launch, project: 'retired-one' }
+    await expect(service.preview(request)).rejects.toThrow(/unknown project/)
+    await expect(service.sendTest(request, 'owner')).rejects.toThrow(/unknown project/)
+    await expect(service.start(request, 'owner')).rejects.toThrow(/unknown project/)
     await service.run()
     expect(fake.calls()).toBe(0)
     expect(await count('SELECT COUNT(*) AS n FROM waitlist_announcements')).toBe(0)
-    expect(await count("SELECT COUNT(*) AS n FROM waitlist_projects WHERE project = 'strollz' AND status = 'confirmed'")).toBe(1)
+    expect(await count("SELECT COUNT(*) AS n FROM waitlist_projects WHERE project = 'retired-one' AND status = 'confirmed'")).toBe(1)
+  })
+
+  // Unlisted since 2026-11-11 (`unlisted` in data/upcoming.ts): not advertised, but the owner can still write to its waitlist.
+  it.each(['keysready', 'strollz', 'vibelog', 'asset-arsenal'] as const)('announces for %s, an unlisted project, like any other: listed for the owner, previewed, tested and sent', async (slug) => {
+    const { service, waitlist, fake } = setup()
+    const project = UPCOMING.find((p) => p.slug === slug)!
+    expect(project.unlisted).toBe(true)
+    const entry = await waitlist.join({ email: 'early@example.com', projects: [slug], note: '', interest: slug, referrer: '' })
+    await waitlist.confirm((await waitlist.issueLinks(entry)).confirm)
+    const request = { ...launch, project: slug }
+    const subject = `${project.name} is open, and your early spot is ready`
+    expect(await service.projects()).toContainEqual({ slug, name: project.name, confirmed: 1, lastAnnouncedAt: null })
+    expect(await service.preview(request)).toMatchObject({ subject, recipients: 1 })
+    expect(await service.sendTest(request, 'owner')).toMatchObject({ ok: true })
+    expect(fake.delivered.at(-1)).toMatchObject({ to: OWNER, subject: `[Test] ${subject}` })
+    const start = await service.start(request, 'owner')
+    if (!('id' in start)) throw new Error()
+    await service.run()
+    expect(await service.status(start.id)).toMatchObject({ project: slug, state: 'done', total: 1, sent: 1 })
+    const sent = fake.delivered.at(-1)!
+    expect(sent).toMatchObject({ to: 'early@example.com', subject })
+    expect(sent.html).toContain(`https://n8builds.dev/email/upcoming/${slug}.png`)
+    expect(sent.text).toContain(`${project.name}: ${project.tagline}`)
   })
 
   it('reports projects with their confirmed counts and last announcement', async () => {
@@ -333,14 +354,14 @@ describe('Announcements: sending', () => {
     expect(await service.status(start.id)).toMatchObject({ state: 'done', sent: 2 })
   })
 
-  it('an announcement still going for a project that then left the site sends no one anything, and holds no other up', async () => {
+  it('an announcement still going for a project that is then taken out of the data sends no one anything, and holds no other up', async () => {
     const { service, people, fake } = setup()
     const gone = await people(2, 'feelium', 'gone')
     const old = await service.start(launch, 'owner')
     if (!('id' in old)) throw new Error()
     // The project leaves data/upcoming.ts while its announcement is still waiting to send.
-    await dbs.waitlist.prepare("UPDATE waitlist_announcements SET project = 'strollz' WHERE id = ?").bind(old.id).run()
-    for (const id of gone) await dbs.waitlist.prepare("UPDATE waitlist_projects SET project = 'strollz' WHERE subscriber_id = ?").bind(id).run()
+    await dbs.waitlist.prepare("UPDATE waitlist_announcements SET project = 'retired-one' WHERE id = ?").bind(old.id).run()
+    for (const id of gone) await dbs.waitlist.prepare("UPDATE waitlist_projects SET project = 'retired-one' WHERE subscriber_id = ?").bind(id).run()
     await people(1, 'fitflow7', 'here')
     const next = await service.start({ ...launch, project: 'fitflow7' }, 'owner')
     if (!('id' in next)) throw new Error()
@@ -351,7 +372,7 @@ describe('Announcements: sending', () => {
     expect(fake.delivered.map((m) => m.to)).toEqual(['here0@example.com'])
     // The owner can still cancel it; the two people count as skipped.
     expect(await service.cancel(old.id, 'owner')).toMatchObject({ state: 'cancelled', sent: 0, skipped: 2 })
-    expect(await count("SELECT COUNT(*) AS n FROM waitlist_projects WHERE project = 'strollz'")).toBe(2)
+    expect(await count("SELECT COUNT(*) AS n FROM waitlist_projects WHERE project = 'retired-one'")).toBe(2)
   })
 
   it('counts a suppressed address as failed and carries on with the rest', async () => {

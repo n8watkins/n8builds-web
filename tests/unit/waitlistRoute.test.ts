@@ -145,11 +145,17 @@ describe('POST /api/waitlist', () => {
     expect(saved()).toMatchObject({ interest: '', referrer: '' })
   })
 
-  it('takes a sign-up that arrived from the landing page of a project that left the site, without keeping that interest', async () => {
-    // Strollz left /upcoming on 2026-11-11; its landing page may still link here with ?interest=strollz.
-    const response = await call(join, { ...valid, source: { interest: 'strollz' } })
+  // Unlisted since 2026-11-11 (owner: "it's just not advertised"): the waitlist behind each still works.
+  it.each(['keysready', 'strollz', 'vibelog', 'asset-arsenal'])('accepts %s, an unlisted project, as a project and as an interest, and emails its confirm link', async (slug) => {
+    const response = await call(join, { ...valid, projects: [slug], source: { interest: slug } })
     expect(response.status).toBe(200)
-    expect(saved()).toMatchObject({ requested: ['feelium'], interest: '' })
+    expect(saved()).toMatchObject({ requested: [slug], interest: slug })
+    expect(sendConfirmEmail).toHaveBeenCalledTimes(1)
+    expect(sendConfirmEmail.mock.calls.at(-1)![0]).toMatchObject({ requested: [slug] })
+    // Confirming it puts the address on it, by name.
+    const confirmed = await call(confirm, { token: links().confirm })
+    expect(confirmed.status).toBe(200)
+    expect(saved()?.projects).toEqual([slug])
   })
 
   it.each([
@@ -157,12 +163,6 @@ describe('POST /api/waitlist', () => {
     ['no projects', { projects: [] }],
     ['an unknown project', { projects: ['relink'] }],
     ['a known project next to an unknown one', { projects: ['feelium', 'keys-ready'] }],
-    // The four that left the site on 2026-11-11 (owner) are unknown ones now.
-    ['Strollz, which left the site', { projects: ['strollz'] }],
-    ['KeysReady, which left the site', { projects: ['keysready'] }],
-    ['VibeLog, which left the site', { projects: ['vibelog'] }],
-    ['Asset Arsenal, which left the site', { projects: ['asset-arsenal'] }],
-    ['a project that left next to one that is still here', { projects: ['feelium', 'strollz'] }],
     ['a note over 500 characters', { note: 'x'.repeat(501) }],
     ['no Turnstile token', { turnstile: '' }],
   ])('rejects %s without touching the store', async (_, change) => {

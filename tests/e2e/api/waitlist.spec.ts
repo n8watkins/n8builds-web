@@ -31,20 +31,18 @@ test('accepts a valid sign-up', async ({ request }) => {
 })
 
 test('accepts every project, and an old interest value', async ({ request }) => {
-  const all = ['feelium', 'fitflow7', 'pivot', 'cutelyaskme', 'whoami']
+  const all = ['feelium', 'fitflow7', 'pivot', 'cutelyaskme', 'whoami', 'keysready', 'strollz', 'vibelog', 'asset-arsenal']
   expect((await join(request, { projects: all, source: { interest: 'feelium' } })).status()).toBe(200)
   expect((await join(request, { projects: ['pivot'], source: { interest: 'rewire' } })).status()).toBe(200)
 })
 
-test('refuses a project that left the site (2026-11-11), alone or beside one that is still here', async ({ request }) => {
-  for (const slug of ['strollz', 'keysready', 'vibelog', 'asset-arsenal']) {
-    const alone = await join(request, { projects: [slug] })
-    expect(alone.status(), slug).toBe(400)
-    expect((await alone.json()).error, slug).toBe('Please check the form: a valid email and at least one project.')
-    expect((await join(request, { projects: ['feelium', slug] })).status(), slug).toBe(400)
+test('accepts each unlisted project (2026-11-11: not advertised, still working), alone, as an interest and beside a listed one', async ({ request }) => {
+  for (const slug of ['keysready', 'strollz', 'vibelog', 'asset-arsenal']) {
+    const alone = await join(request, { projects: [slug], source: { interest: slug } })
+    expect(alone.status(), slug).toBe(200)
+    expect((await alone.json()).message, slug).toMatch(/check your inbox/i)
+    expect((await join(request, { projects: ['feelium', slug] })).status(), slug).toBe(200)
   }
-  // Arriving from its landing page still works for the projects that stayed: the old interest is just not kept.
-  expect((await join(request, { projects: ['feelium'], source: { interest: 'strollz' } })).status()).toBe(200)
 })
 
 test('rejects a filled honeypot', async ({ request }) => {

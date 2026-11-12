@@ -155,17 +155,18 @@ describe('WaitlistStore (n8builds-waitlist)', () => {
     }
   })
 
-  it('leaves the rows of a project that left the site where they are, and never reads them', async () => {
-    // Strollz left /upcoming on 2026-11-11 (owner): people already on it keep their rows.
+  it('leaves the rows of a project that is no longer in the data where they are, and never reads them', async () => {
+    // Should a project ever be taken out of data/upcoming.ts ("strollz" stands in for one here by
+    // renaming rows; the real Strollz is unlisted, not removed): people already on it keep their rows.
     const { store, later } = storeAt()
     const entry = await store.join(request({ projects: ['feelium', 'pivot'] }))
     const links = await store.issueLinks(entry)
-    const strollz = () => all("SELECT project, status FROM waitlist_projects WHERE project = 'strollz' ORDER BY subscriber_id")
-    await dbs.waitlist.prepare("UPDATE waitlist_projects SET project = 'strollz' WHERE subscriber_id = ? AND project = 'pivot'").bind(entry.id).run()
+    const retired = () => all("SELECT project, status FROM waitlist_projects WHERE project = 'retired-one' ORDER BY subscriber_id")
+    await dbs.waitlist.prepare("UPDATE waitlist_projects SET project = 'retired-one' WHERE subscriber_id = ? AND project = 'pivot'").bind(entry.id).run()
     // Someone whose only project it was, already confirmed.
     const only = await store.join(request({ email: 'only@example.com' }))
     await store.confirm((await store.issueLinks(only)).confirm)
-    await dbs.waitlist.prepare("UPDATE waitlist_projects SET project = 'strollz' WHERE subscriber_id = ?").bind(only.id).run()
+    await dbs.waitlist.prepare("UPDATE waitlist_projects SET project = 'retired-one' WHERE subscriber_id = ?").bind(only.id).run()
 
     // Not in what the site, the emails or the manage page read ...
     expect(await store.get(entry.id)).toMatchObject({ projects: [], requested: ['feelium'] })
@@ -176,11 +177,25 @@ describe('WaitlistStore (n8builds-waitlist)', () => {
     await store.join(request({ projects: ['fitflow7'] }))
     expect(await store.confirm(links.confirm)).toMatchObject({ projects: ['feelium', 'fitflow7'], requested: [] })
     await purgeExpired({ waitlist: dbs.waitlist }, new Date(T0.getTime() + 30 * DAY))
-    expect(await strollz()).toEqual([{ project: 'strollz', status: 'confirmed' }, { project: 'strollz', status: 'confirmed' }])
+    expect(await retired()).toEqual([{ project: 'retired-one', status: 'confirmed' }, { project: 'retired-one', status: 'confirmed' }])
     expect(await all('SELECT COUNT(*) AS n FROM waitlist_subscribers')).toEqual([{ n: 2 }])
     // Leaving is still theirs to do, and takes the row with it.
     expect(await store.leave(links.leave)).toBe(true)
-    expect(await strollz()).toEqual([{ project: 'strollz', status: 'confirmed' }])
+    expect(await retired()).toEqual([{ project: 'retired-one', status: 'confirmed' }])
+  })
+
+  it('keeps an unlisted project like any other: joined, confirmed, read back, and named in its emails', async () => {
+    const { store } = storeAt()
+    const unlisted = ['keysready', 'strollz', 'vibelog', 'asset-arsenal'] as const
+    const joined = await store.join(request({ projects: [...unlisted] }))
+    expect([...joined.requested].sort()).toEqual([...unlisted].sort())
+    const links = await store.issueLinks(joined)
+    const html = createConfirmHtml(joined, links)
+    for (const slug of unlisted) expect(html).toContain(`https://n8builds.dev/email/upcoming/${slug}.png`)
+    expect(projectList(joined.requested)).toBe('KeysReady, Strollz, VibeLog and Asset Arsenal')
+    const confirmed = await store.confirm(links.confirm)
+    expect([...confirmed!.projects].sort()).toEqual([...unlisted].sort())
+    expect((await store.keepOnly(links.leave, ['keysready']))?.projects).toEqual(['keysready'])
   })
 
   it('deletes by id for a deletion request', async () => {
