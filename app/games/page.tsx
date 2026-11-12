@@ -2,7 +2,6 @@ import type { CSSProperties } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { FiArrowUpRight, FiGithub, FiPlay } from 'react-icons/fi'
-import { LuTerminal } from 'react-icons/lu'
 import Navbar from '@/components/layout/Navbar'
 import FadeIn from '@/components/ui/FadeIn'
 import { DINO_COLS, DINO_FRAMES, DINO_ROWS, framePaths } from '@/components/features/dino/sprite'
@@ -16,7 +15,7 @@ import { pageMetadata } from '@/lib/seo'
 export const metadata = pageMetadata({
   title: 'Games | n8builds',
   description:
-    'Small games I built, all free: Who Am I?, a two-player guessing game for two phones; PortfolioRank Play, a portfolio face-off; the homepage dino catch; and Terminal Invaders, a command-line trainer.',
+    'Small games I built, all free: Who Am I?, a two-player guessing game for two phones; PortfolioRank Play, a portfolio face-off; and the homepage dino catch.',
   shareDescription: 'Small games I built, all free: a two-phone guessing game, a portfolio face-off, a dino to catch and a command-line trainer.',
   path: '/games',
   image: {
@@ -40,13 +39,6 @@ function GameMark({ game }: { game: Game }) {
           <path d={DINO.eye} fill="#050812" />
           <path d={DINO.shine} fill="#fff" />
         </svg>
-      </span>
-    )
-  }
-  if (game.icon === 'terminal') {
-    return (
-      <span className={`${tile} bg-[#140d22] text-(--accent)`}>
-        <LuTerminal aria-hidden className="h-5 w-5" />
       </span>
     )
   }

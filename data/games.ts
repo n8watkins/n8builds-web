@@ -23,7 +23,7 @@ export type Game = {
   href: string
   /** The button's words, when not "Play". */
   cta?: string
-  /** The game's mark: an image path, or 'dino' / 'terminal' for a drawn one. */
+  /** The game's mark: an image path, or 'dino' for the drawn dino. */
   icon: string
   shot: string
   /** The public repository, for the "View the code" link. */
@@ -75,19 +75,5 @@ export const GAMES: Game[] = [
     shot: '/games/dino.webp',
     repo: 'n8watkins/n8builds-web',
     accent: '#22d3ee',
-  },
-  {
-    slug: 'terminal-invaders',
-    name: 'Terminal Invaders',
-    description:
-      'An arcade-style command-line trainer: finish missions by typing real commands, with a score, combos and learning paths.',
-    note: 'Not online: it runs on your machine, in the terminal or the browser.',
-    kind: 'Trainer',
-    tags: ['1 player', 'Desktop', 'Runs locally', 'Free'],
-    href: 'https://github.com/n8watkins/terminal-invaders#quick-start',
-    cta: 'Play locally',
-    icon: 'terminal',
-    shot: '/games/terminal-invaders.webp',
-    accent: '#c084fc',
   },
 ]
