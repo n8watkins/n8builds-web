@@ -21,6 +21,7 @@ const SITEMAP: { heading: string; links: { label: string; href: string; mark?: R
       { label: 'Featured builds', href: '/#featured' },
       { label: 'Chrome extensions', href: '/#extensions' },
       { label: 'Upcoming', href: '/upcoming' },
+      { label: 'Games', href: '/games' },
       { label: 'Use as a template', href: '/#template' },
       { label: "Tools I've built", href: '/#tools-i-built' },
     ],
