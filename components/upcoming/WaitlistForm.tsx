@@ -7,7 +7,7 @@ import { ContactInput } from '@/components/ui/ContactInput'
 import { errorId } from '@/components/ui/FieldWrapper'
 import { useHydrated } from '@/hooks/useHydrated'
 import { useTurnstileOnIntent } from '@/hooks/useTurnstileOnIntent'
-import { UPCOMING, interestSlug, isUpcomingSlug, type UpcomingSlug } from '@/data/upcoming'
+import { UPCOMING, interestSlug, isListed, isUpcomingSlug, type UpcomingSlug } from '@/data/upcoming'
 import { PICK_EVENT } from './JoinButton'
 
 const DIRECT_EMAIL = 'contact@n8builds.dev'
@@ -32,7 +32,7 @@ export default function WaitlistForm({
   /**
    * "side": beside /upcoming's cards from 1024px, so one column of picks there.
    * "modal": the homepage's waitlist modal, where a pick is its mark and name
-   * only (two to a row from 640px), so ten projects fit without much scrolling.
+   * only (two to a row from 640px), so the projects fit without much scrolling.
    */
   layout?: 'page' | 'side' | 'modal'
 }) {
@@ -44,6 +44,8 @@ export default function WaitlistForm({
   const { prepare } = turnstile
   const [email, setEmail] = useState('')
   const [projects, setProjects] = useState<UpcomingSlug[]>([])
+  // An unlisted project (data/upcoming.ts) is offered only to a visitor whose link asked for it.
+  const [arrivedFor, setArrivedFor] = useState<UpcomingSlug | null>(null)
   const [honeypot, setHoneypot] = useState('')
   const [state, setState] = useState<State>({ kind: 'idle' })
   const [errors, setErrors] = useState<{ email?: string; projects?: string }>({})
@@ -57,8 +59,15 @@ export default function WaitlistForm({
     // Old names (?interest=rewire) tick the renamed project.
     const slug = interestSlug(interest)
     // Read once on arrival, from the address bar: setting state here is the point.
+    if (!slug) return
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (slug) setProjects((list) => (list.includes(slug) ? list : [...list, slug]))
+    setProjects((list) => (list.includes(slug) ? list : [...list, slug]))
+    if (UPCOMING.some((p) => p.slug === slug && !isListed(p))) {
+      setArrivedFor(slug)
+      // Its landing page links to its card (#<slug>), which an unlisted project doesn't have:
+      // bring the form into view instead, so the visitor isn't left at the top of the page.
+      if (window.location.hash === `#${slug}`) document.getElementById('waitlist')?.scrollIntoView()
+    }
   }, [])
 
   // A card's "Join the <name> waitlist" button.
@@ -188,7 +197,8 @@ export default function WaitlistForm({
         <div
           className={`mt-2 grid sm:grid-cols-2 ${modal ? 'gap-2' : 'gap-2.5'} ${side ? 'lg:grid-cols-1 lg:gap-2 xl:grid-cols-2' : ''}`}
         >
-          {UPCOMING.map((p) => {
+          {/* The listed projects, and an unlisted one only when the visitor's link asked for it. */}
+          {UPCOMING.filter((p) => isListed(p) || p.slug === arrivedFor).map((p) => {
             const checked = projects.includes(p.slug)
             return (
               <label

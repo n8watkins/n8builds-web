@@ -39,7 +39,8 @@ export default async function BuildLogPage() {
   // day bars and figures, with arrows back through the year. Left out if it can't load.
   const months = await getLogMonths()
   // The year at a glance, over the feed's own 12-month window.
-  const recent = log.entries.filter((e) => !log.recentFrom || e.month >= log.recentFrom)
+  // Counted, so an unlisted project's work is in the figures without being named (lib/build-log.ts).
+  const recent = log.counted.filter((e) => !log.recentFrom || e.month >= log.recentFrom)
   const figures = [
     { value: log.activity.length, label: 'builds tracked' },
     { value: recent.length, label: 'updates in 12 months' },

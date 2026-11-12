@@ -1,6 +1,5 @@
 import type { IconType } from 'react-icons'
 import {
-  SiBetterauth,
   SiCloudflare,
   SiCloudflareworkers,
   SiDiscord,
@@ -36,7 +35,7 @@ import {
   SiZod,
 } from 'react-icons/si'
 import { VscTerminalPowershell } from 'react-icons/vsc'
-import { LuAppWindow, LuAudioLines, LuBellRing, LuBoxes, LuDatabase, LuGlobe, LuScanSearch } from 'react-icons/lu'
+import { LuAppWindow, LuAudioLines, LuBellRing, LuDatabase } from 'react-icons/lu'
 
 /**
  * The technologies a build page names, each with its real mark: a Simple
@@ -90,11 +89,6 @@ export const TECH = {
   sentry: { label: 'Sentry', Icon: SiSentry, color: '#A78BFA' },
   upstash: { label: 'Upstash', Icon: SiUpstash, color: '#00E9A3' },
   lighthouse: { label: 'Lighthouse', Icon: SiLighthouse, color: '#F44B21' },
-  durableobjects: { label: 'Durable Objects', Icon: LuBoxes, color: '#F38020' },
-  vectorize: { label: 'Cloudflare Vectorize', Icon: LuScanSearch, color: '#F38020' },
-  geminilive: { label: 'Gemini Live', Icon: LuAudioLines, color: '#8AB4F8' },
-  tavily: { label: 'Tavily', Icon: LuGlobe, color: '#60A5FA' },
-  betterauth: { label: 'Better Auth', Icon: SiBetterauth, color: '#E5E7EB' },
 } satisfies Record<string, TechMark>
 
 export type TechKey = keyof typeof TECH

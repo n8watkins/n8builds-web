@@ -735,11 +735,6 @@
     --lab-from: 251 146 60;
     --lab-to: 251 146 60;
   }
-  /* Wren's ember, as its dark theme draws it (#ff7d4d). */
-  .lab-accent-wren {
-    --lab-from: 255 125 77;
-    --lab-to: 255 125 77;
-  }
   /* A part's colours, used by its subheader bar. */
   /* The build log (components/sections/BuildLogStrip.tsx), the Lab's first part: shipped green to teal. */
   .lab-accent-buildlog {

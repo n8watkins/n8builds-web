@@ -1,37 +1,40 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import type { ReactNode } from 'react'
-import { FiArrowRight, FiArrowUpRight, FiBriefcase, FiCode, FiCoffee, FiGithub } from 'react-icons/fi'
+import { FiArrowRight, FiArrowUpRight, FiBriefcase, FiCode, FiCoffee, FiGithub, FiUsers } from 'react-icons/fi'
 import LabSubheader from '@/components/sections/LabSubheader'
 import { PotIcon } from '@/components/ui/PartIcons'
 import WaitlistDialog from '@/components/upcoming/WaitlistDialog'
 import WaitlistPanel from '@/components/upcoming/WaitlistPanel'
-import { UPCOMING, UPCOMING_GROUPS, type UpcomingGroup, type UpcomingProject } from '@/data/upcoming'
+import { UPCOMING_GROUPS, UPCOMING_LISTED, type UpcomingGroup, type UpcomingProject } from '@/data/upcoming'
 
 const GROUP_ICONS: Record<UpcomingGroup, ReactNode> = {
-  business: <FiBriefcase />,
   // A coffee mug, not the sun (round 8 of 2026-11-09): Solara owns the sun on this page.
-  life: <FiCoffee />,
+  habits: <FiCoffee />,
+  two: <FiUsers />,
+  business: <FiBriefcase />,
   creators: <FiCode />,
 }
 
 /**
- * Where each group sits from 1024px (round 7 of 2026-11-09): two columns, the
- * everyday apps (the most) down the right, the business and the developer
- * ones stacked on the left, so both columns end level. One column below that,
- * in reading order.
+ * Where each group sits from 1024px (round 7 of 2026-11-09): two columns side
+ * by side, ending level (the shorter list is centred in its panel). One column
+ * below that, in reading order. The other groups have no listed project today;
+ * if one is listed again, its group flows in after the pair and this layout
+ * wants another look.
  */
 const GROUP_PLACE: Record<UpcomingGroup, string> = {
-  business: 'lg:col-start-1 lg:row-start-1',
-  life: 'lg:col-start-2 lg:row-span-2 lg:row-start-1',
-  creators: 'lg:col-start-1 lg:row-start-2',
+  habits: 'lg:col-start-1',
+  two: 'lg:col-start-2',
+  business: '',
+  creators: '',
 }
 
 /**
  * One project, one tight line (round 8 of 2026-11-09): its mark, its name as
  * the link to its landing page over its few words (cut short with an ellipsis
  * when they don't fit), and a GitHub button when its repo is public (every one
- * but Asset Arsenal today; `repo` in data/upcoming.ts is set only then).
+ * today; `repo` in data/upcoming.ts is set only then).
  */
 function Row({ project: p }: { project: UpcomingProject }) {
   return (
@@ -81,7 +84,8 @@ function Row({ project: p }: { project: UpcomingProject }) {
  * beside "See all upcoming". The full cards and code links stay on /upcoming.
  */
 export default function UpcomingStrip() {
-  const projects = UPCOMING.filter((p) => p.homepage !== false)
+  // Never an unlisted project (`unlisted` in data/upcoming.ts).
+  const projects = UPCOMING_LISTED
   return (
     // The Lab's last part, in its own warm wash (`.lab-accent-upcoming` in app/globals.css).
     <section id="upcoming" aria-label="What's cookin': upcoming projects" className="lab-accent-upcoming lab-part-wash py-10">

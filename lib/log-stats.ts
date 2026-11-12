@@ -55,8 +55,10 @@ export function shippedStats(
   { streak: withStreak = true } = {},
 ): ShippedStat[] {
   const changes = period.reduce((n, e) => n + weight(e), 0)
+  // Unnamed work (an unlisted project's, lib/build-log.ts) counts in the changes, releases,
+  // days and streak, but is no build to count or to name as the busiest.
   const perBuild = new Map<string, number>()
-  for (const e of period) perBuild.set(e.build, (perBuild.get(e.build) ?? 0) + weight(e))
+  for (const e of period) if (!e.unnamed) perBuild.set(e.build, (perBuild.get(e.build) ?? 0) + weight(e))
   const releases = period.filter((e) => e.kind === 'release').length
   const days = new Set(period.map((e) => e.day)).size
   const busiest = [...perBuild].sort((a, b) => b[1] - a[1])[0]
