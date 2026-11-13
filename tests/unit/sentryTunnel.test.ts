@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { forwardEnvelope } from '@/lib/sentry/tunnel'
 
 const DSN = 'https://publickey@o111.ingest.us.sentry.io/222'
 
@@ -54,5 +55,27 @@ describe('/monitoring Sentry tunnel', () => {
 
     expect((await POST(envelope(DSN))).status).toBe(404)
     expect(upstream).not.toHaveBeenCalled()
+  })
+})
+
+describe('forwardEnvelope (the Worker answers /monitoring before Next)', () => {
+  it("forwards the site's own envelopes with the DSN the Worker passes, bytes unchanged", async () => {
+    const binary = new Uint8Array([0x7b, 0x7d, 0x0a, 0x00, 0xff, 0x0a])
+    const body = new Uint8Array([...new TextEncoder().encode(`${JSON.stringify({ dsn: DSN })}\n`), ...binary])
+    const response = await forwardEnvelope(new Request('https://n8builds.dev/monitoring', { method: 'POST', body }), DSN)
+
+    expect(response.status).toBe(200)
+    expect(upstream).toHaveBeenCalledOnce()
+    expect(upstream.mock.calls[0][0]).toBe('https://o111.ingest.us.sentry.io/api/222/envelope/')
+    expect(upstream.mock.calls[0][1]?.body).toEqual(body)
+  })
+
+  it('passes on Sentry’s own status and refuses other projects', async () => {
+    upstream.mockResolvedValueOnce(new Response(null, { status: 429 }))
+    expect((await forwardEnvelope(envelope(DSN), DSN)).status).toBe(429)
+    expect((await forwardEnvelope(envelope('https://k@o111.ingest.us.sentry.io/999'), DSN)).status).toBe(400)
+    expect((await forwardEnvelope(envelope('{"dsn":null}'), DSN)).status).toBe(400)
+    expect((await forwardEnvelope(envelope(DSN), undefined)).status).toBe(404)
+    expect(upstream).toHaveBeenCalledOnce()
   })
 })

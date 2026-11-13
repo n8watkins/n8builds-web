@@ -9,6 +9,7 @@ import { scrubContactBody } from '../lib/sentry-scrub'
 import { MEDIA, fetchWithRanges } from './range.js'
 import { forEdge, mayUseEdgeCache } from './edge-cache.js'
 import { refuseGameOrigin } from './game-gate.js'
+import { TUNNEL_PATH, forwardEnvelope } from '../lib/sentry/tunnel'
 import { purgeExpired } from '../lib/retention'
 import { WaitlistStore } from '../lib/waitlist/store'
 import { runDigest } from '../lib/newsletter/digest'
@@ -81,6 +82,7 @@ function forBrowsers(request, response) {
  *   MAILROOM?: import('../lib/announce/service').AnnounceMailroom,
  *   CONTACT_EMAIL_TO?: string,
  *   APP_ENV?: string,
+ *   SENTRY_DSN?: string,
  * }} Env
  */
 
@@ -235,7 +237,13 @@ const worker = {
    * @param {ExecutionContext & { exports: { CachedPages: { fetch(request: Request): Promise<Response> } } }} ctx
    */
   async fetch(request, env, ctx) {
-    if (new URL(request.url).pathname === '/healthz') return health()
+    const { pathname } = new URL(request.url)
+    if (pathname === '/healthz') return health()
+    // The browser's Sentry envelopes (lib/sentry/tunnel.ts), forwarded here
+    // rather than through Next: about 200 ms of CPU each there, next to none here.
+    if (pathname === TUNNEL_PATH && request.method === 'POST' && env.SENTRY_DSN) {
+      return forwardEnvelope(request, env.SENTRY_DSN)
+    }
     const refused = refuseGameOrigin(request, env.APP_ENV)
     if (refused) return refused
     if (mayUseEdgeCache(request, EDGE_CACHE_SITE)) return ctx.exports.CachedPages.fetch(request)
