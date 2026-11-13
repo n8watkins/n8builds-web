@@ -149,7 +149,7 @@ export default function NewsletterSignup({
                       key={topic.id}
                       title={topic.hint}
                       className={cn(
-                        'inline-flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-[13px] transition-colors sm:px-3.5 sm:text-sm has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-cyan-400',
+                        'inline-flex cursor-pointer items-center gap-2 rounded-full border px-2.5 py-1.5 text-[13px] transition-colors sm:px-3.5 sm:text-sm has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-cyan-400',
                         checked ? 'border-cyan-400/60 bg-cyan-400/10 text-slate-50' : 'border-slate-600 bg-slate-800/60 text-slate-300 hover:border-slate-500'
                       )}
                     >
