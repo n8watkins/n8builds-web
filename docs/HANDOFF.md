@@ -312,6 +312,7 @@ The owner's standing decisions live in [DECISIONS.md](DECISIONS.md), the one pla
 - `next.config.mjs`: redirects (permanent 308s for retired routes), image sources, Sentry wrapper; headers come from `lib/security/headers.mjs` (enforced CSP: add any new third-party origin there).
 - `instrumentation*.ts`, `sentry.*.config.ts`: Sentry (inert without a DSN).
   The browser SDK posts to `/monitoring` (`app/monitoring/route.ts`), which forwards only envelopes for our own DSN; the SDK's `tunnelRoute` rewrite was an open relay to any Sentry project.
+  In production the Worker answers `/monitoring` itself, before Next (`worker/index.js`, `lib/sentry/tunnel.ts`), since through Next each envelope cost about 200 ms of CPU.
   The server SDK sends no stack-frame locals and drops contact-route request bodies (`lib/sentry-scrub.ts`).
 - `tests/unit/`, `tests/e2e/`, `playwright.config.ts`, `vitest.config.mts`.
 - `public/builds/<slug>/`: build icons and screenshots (`n8builds/` holds this site's own); `public/tab/`: favicons and OG image, generated from `public/brand/n8-mark.png` by `node scripts/gen-brand-icons.mjs` (rerun it after changing the mark, then `node scripts/gen-email-icons.mjs` for the emails' logo).
