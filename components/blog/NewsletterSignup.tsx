@@ -16,7 +16,7 @@ type State = { kind: 'idle' | 'sending' } | { kind: 'done'; email: string } | { 
 
 /**
  * The n8builds newsletter's sign-up: an email address and the topics to get
- * (Everything, the default, or N8's Notions posts and New launches), with
+ * (Everything, the default, or n8 Notions and New launches), with
  * Turnstile (run on the first focus or input, useTurnstileOnIntent) and a
  * honeypot. Kit keeps the list and sends its own confirm email (double opt-in,
  * app/api/newsletter); the answer is the same whether the address is new or

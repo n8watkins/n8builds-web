@@ -64,11 +64,11 @@ test('a reader picks topics on /blog and is signed up in Kit, which sends the co
   await expect(topic(section, 'Everything')).toBeChecked()
   await topic(section, 'New launches').check({ force: true })
   await expect(topic(section, 'Everything')).not.toBeChecked()
-  await topic(section, "N8's Notions posts").check({ force: true })
+  await topic(section, 'n8 Notions').check({ force: true })
   await topic(section, 'Everything').check({ force: true })
   await expect(topic(section, 'New launches')).not.toBeChecked()
   await topic(section, 'New launches').check({ force: true })
-  await topic(section, "N8's Notions posts").check({ force: true })
+  await topic(section, 'n8 Notions').check({ force: true })
 
   await section.getByRole('textbox', { name: 'Email' }).fill(email)
   // Turnstile runs on the first input (hooks/useTurnstileOnIntent.tsx).

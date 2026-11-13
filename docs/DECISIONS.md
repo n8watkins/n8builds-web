@@ -633,7 +633,7 @@ Where these conflict with an older entry above, these win; the older entries are
 - **The newsletter runs on Kit** (owner-approved design, 2026-11-13; replaces the self-sent blog newsletter of 2026-11-11).
   One Kit list for n8builds, sent as "Nate from n8builds" <updates@n8builds.dev>.
   Kit sends the double opt-in confirm email and every broadcast, and handles unsubscribes, bounces and complaints; the site stores no address beyond the rate limits' hashed keys.
-  Readers pick topics at sign-up, each a Kit tag: "Everything" (the default), "n8 Notions posts" (shown as "N8's Notions posts") and "New launches"; picking Everything clears the others and the other way round (`lib/newsletter/topics.ts`).
+  Readers pick topics at sign-up, each a Kit tag: "Everything" (the default), "n8 Notions posts" (shown as "n8 Notions"; `lib/newsletter/topics.ts` holds both, the one place they are defined) and "New launches"; picking Everything clears the others and the other way round (`lib/newsletter/topics.ts`).
   Each upcoming project's waitlist is a Kit tag too ("Waitlist: Feelium"); the site creates a missing tag by its exact name, so a tag renamed in Kit must be renamed in `topics.ts` as well.
   **An admin switch, "Turn newsletter on/off", off by default** (stored in `newsletter_settings`, every change logged with the owner's login; set over the `NewsletterAdmin` entrypoint).
   Off: no newsletter form anywhere, the newsletter API answers "closed", and the waitlist keeps its own double opt-in and mailroom emails, as before.

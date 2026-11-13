@@ -11,7 +11,7 @@ import { UPCOMING, type UpcomingSlug } from '@/data/upcoming'
 
 export const TOPICS = [
   { id: 'everything', label: 'Everything', hint: 'Posts, launches and news', tag: 'Everything' },
-  { id: 'notions', label: "N8's Notions posts", hint: 'A new post on the blog', tag: 'n8 Notions posts' },
+  { id: 'notions', label: 'n8 Notions', hint: 'A new post on the blog', tag: 'n8 Notions posts' },
   { id: 'launches', label: 'New launches', hint: 'When a project opens or ships', tag: 'New launches' },
 ] as const
 
