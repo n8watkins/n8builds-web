@@ -12,7 +12,7 @@ export const metadata = pageMetadata({
   path: '/privacy',
 })
 
-const UPDATED = 'November 11, 2026'
+const UPDATED = 'November 13, 2026'
 
 export default function PrivacyPolicy() {
   return (
@@ -79,16 +79,17 @@ export default function PrivacyPolicy() {
                     hashes.
                   </li>
                   <li id="newsletter" className="scroll-mt-24">
-                    <span className="text-slate-100">Newsletter.</span> If you subscribe to N8&rsquo;s
-                    Notions by email on the{' '}
+                    <span className="text-slate-100">Newsletter.</span> If you subscribe to the n8builds
+                    newsletter on the{' '}
                     <Link href="/blog" className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2">
                       blog
                     </Link>
-                    , I keep only your email address and when you subscribed and confirmed, in the same
-                    private database but on a separate list from the waitlist. I email you a link to
-                    confirm, and an unconfirmed address is deleted after 7 days. Once you confirm, you get
-                    at most one email a week, only when there is a new post. Every email has a one-click
-                    unsubscribe link, which deletes your address at once, no login needed.
+                    , your email address and the topics you picked go to Kit, the email service that
+                    keeps the n8builds list and sends it. This site doesn&rsquo;t store your address. Kit
+                    emails you a link to confirm, and nothing else is sent until you click it. You get
+                    only the topics you picked, and every email has an unsubscribe link, handled by Kit.
+                    While the newsletter is on, joining a waitlist also goes to Kit, marked with the
+                    projects you picked, instead of the database above.
                   </li>
                   <li>
                     <span className="text-slate-100">Usage analytics.</span> With your permission
@@ -188,6 +189,20 @@ export default function PrivacyPolicy() {
                     <span className="text-slate-100">Email.</span> Contact-form submissions are
                     delivered to me by email so I can respond directly. Replies and waitlist emails
                     are sent through Cloudflare Email Service.
+                  </li>
+                  <li>
+                    <span className="text-slate-100">Kit.</span> The newsletter&rsquo;s list and its
+                    emails are handled by Kit under the{' '}
+                    <a
+                      href="https://kit.com/privacy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
+                    >
+                      Kit Privacy Policy
+                      <span className="sr-only"> (opens in a new tab)</span>
+                    </a>
+                    .
                   </li>
                   <li>
                     <span className="text-slate-100">Hosting.</span> The site is hosted on Cloudflare,

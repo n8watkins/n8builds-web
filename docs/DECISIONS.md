@@ -595,9 +595,9 @@ Where these conflict with an older entry above, these win; the older entries are
   Chromium and Firefox handle the transform correctly and need those anchors right after a jump, so the rule is gated with `@supports (hanging-punctuation: first)`, a feature-detection proxy that only WebKit passes today.
   If Chromium or Firefox ship `hanging-punctuation`, the rule starts applying to them: re-check the Pull Request Post's recording test (`tests/e2e/loadout-dev-tools.spec.ts`) in those browsers and narrow the gate if it regresses.
 - **Every email goes through mailroom** (2026-11-11): Cloudflare Email bills past 3,000 a month and the owner never pays, so the site has no `send_email` binding of its own.
-  Contact, quote and waitlist email go through the shared mailroom Worker as the app `n8builds-web` (`MAILROOM`), from contact@n8builds.dev; the blog newsletter as `n8builds-news` (`MAILROOM_NEWS`), from news@n8builds.dev.
+  Contact, quote and waitlist email go through the shared mailroom Worker as the app `n8builds-web` (`MAILROOM`), from contact@n8builds.dev. (The blog newsletter went through mailroom as `n8builds-news` until 2026-11-13; it runs on Kit now.)
   mailroom caps every send and fails closed: a refused send is a failure, never retried.
-- **The blog newsletter** (2026-11-11): N8's Notions by email, signed up for on /blog and at the end of every post (email only, Turnstile and a honeypot), on its own list apart from the waitlist.
+- **The blog newsletter** (2026-11-11; _superseded 2026-11-13: it runs on Kit, see "The newsletter runs on Kit" below_): N8's Notions by email, signed up for on /blog and at the end of every post (email only, Turnstile and a honeypot), on its own list apart from the waitlist.
   Double opt-in with a single-use confirm link that expires in 7 days; unconfirmed addresses are deleted after that, and new and existing addresses get the same answer.
   Every email has a one-click unsubscribe link and List-Unsubscribe headers; unsubscribing needs no login and deletes the address.
   One weekly digest, only in weeks with a new post, inside mailroom's slice (40 a day, 150 a month, 3 per address a day): a week that would pass it is skipped with a note for the owner (`docs/DATABASE.md`).
@@ -630,3 +630,14 @@ Where these conflict with an older entry above, these win; the older entries are
   It never names them: no card in the builds index, no filter chip, no row in the feed, no link to `/upcoming#<slug>`, and they are left out of "builds touched" and "busiest build" (`unlisted` in `data/logBuilds.ts`, `counted` in `lib/build-log.ts`).
   Wren's work no longer counts, so the month's total drops by Wren's share only: about 24 of November 2026's 412 changes when this was written.
   **A project taken out of `data/upcoming.ts` altogether** (none of these four) is refused by the waitlist like any unknown project, its stored rows are left in place and never read, and an announcement still going for it waits without sending and without holding the others up.
+- **The newsletter runs on Kit** (owner-approved design, 2026-11-13; replaces the self-sent blog newsletter of 2026-11-11).
+  One Kit list for n8builds, sent as "Nate from n8builds" <updates@n8builds.dev>.
+  Kit sends the double opt-in confirm email and every broadcast, and handles unsubscribes, bounces and complaints; the site stores no address beyond the rate limits' hashed keys.
+  Readers pick topics at sign-up, each a Kit tag: "Everything" (the default), "n8 Notions posts" (shown as "N8's Notions posts") and "New launches"; picking Everything clears the others and the other way round (`lib/newsletter/topics.ts`).
+  Each upcoming project's waitlist is a Kit tag too ("Waitlist: Feelium"); the site creates a missing tag by its exact name, so a tag renamed in Kit must be renamed in `topics.ts` as well.
+  **An admin switch, "Turn newsletter on/off", off by default** (stored in `newsletter_settings`, every change logged with the owner's login; set over the `NewsletterAdmin` entrypoint).
+  Off: no newsletter form anywhere, the newsletter API answers "closed", and the waitlist keeps its own double opt-in and mailroom emails, as before.
+  On (and `KIT_API_KEY` set): the forms show on /blog and at the end of every post, and waitlist sign-ups go to Kit with their project tags instead of the waitlist database and mailroom; the waitlist form says Kit sends the email.
+  Both forms keep Turnstile, the honeypot and their rate limits; past the per-address limit the answer is the same and Kit isn't called.
+  No broadcast is ever created or sent by the site: the owner writes them in Kit.
+  The old `/newsletter/confirm` and `/newsletter/unsubscribe` pages redirect to /blog.

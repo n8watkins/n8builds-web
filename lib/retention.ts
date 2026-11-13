@@ -23,7 +23,7 @@ export async function purgeExpired(
         db.prepare('DELETE FROM waitlist_subscribers WHERE expires_at IS NOT NULL AND expires_at <= ?').bind(at),
         // Expired links, and confirm links already used.
         db.prepare("DELETE FROM waitlist_tokens WHERE expires_at <= ? OR (purpose = 'confirm' AND used_at IS NOT NULL)").bind(at),
-        // The newsletter: unconfirmed sign-ups past their 7 days.
+        // The self-sent newsletter's tables, no longer written (it runs on Kit): their last expired rows.
         db.prepare('DELETE FROM newsletter_subscribers WHERE expires_at IS NOT NULL AND expires_at <= ?').bind(at),
         // Who had a digest is only needed while it sends: kept 30 days after it finished.
         db
