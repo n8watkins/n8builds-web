@@ -23,9 +23,10 @@ The site runs on Cloudflare Workers as the `n8builds-web` Worker in the owner's 
 - Email (contact form, quote requests, waitlist links) goes through the shared mailroom Worker ([n8watkins/mailroom](https://github.com/n8watkins/mailroom)) over the `MAILROOM` service binding, as the app `n8builds-web`, from contact@n8builds.dev (`lib/email/send.ts`).
   mailroom caps every send (this app's slice, and the account-wide 2,500 a month under the 3,000 Workers Paid includes) and fails closed: a refused send shows the form's usual error and is never retried.
   mailroom sends with Cloudflare Email Service; the Worker has no `send_email` binding of its own.
-- The blog newsletter sends through mailroom too, as the app `n8builds-news` (`MAILROOM_NEWS`), from news@n8builds.dev (`lib/newsletter/`).
-  The weekly cron (`0 16 * * 4`) sends the digest and the daily one (`30 3 * * *`) finishes one that paused; `docs/DATABASE.md` has the rules.
-  n8builds.dev is onboarded for sending; Cloudflare added its records on `cf-bounce.n8builds.dev` and the DKIM key itself.
+- The newsletter runs on Kit (kit.com, `lib/newsletter/kit.ts`): Kit keeps the list, sends the double opt-in confirm email and every broadcast, and handles unsubscribes.
+  The site only signs people up (with their topic or waitlist tags) and needs no email binding for it.
+  It is live only while the owner's switch is on (stored in `n8builds-waitlist`, set from the admin over the `NewsletterAdmin` RPC entrypoint) and `KIT_API_KEY` is set; otherwise every newsletter form is hidden and the waitlist keeps its own double opt-in.
+  Sending from updates@n8builds.dev needs n8builds.dev verified as a sending domain in Kit (Kit shows the DNS records to add in Cloudflare).
 - Announcements to the waitlist send through `MAILROOM` as the kind `announce`: the admin's Announcements page starts one over the `Announcements` RPC entrypoint (a service binding), and a cron every 15 minutes (`*/15 * * * *`) sends the next batch (`lib/announce/`, `docs/DATABASE.md`).
 - Cloudflare Web Analytics replaces Vercel Analytics and Speed Insights (`components/WebAnalytics.tsx`), once `NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN` is set at build time.
 - `APP_ENV=production` (a `wrangler.jsonc` var) replaces `VERCEL_ENV`: it keeps production's rate-limit counter names and switches off the test modes.
@@ -45,6 +46,8 @@ Secrets are set once with `npx wrangler secret put <NAME>` (it reads the value f
 | `GITHUB_TOKEN` | the build log, stars and downloads when pages revalidate |
 | `SANITY_WEBHOOK_SECRET` | checks the signature on Sanity's publish webhook ([docs/SANITY.md](docs/SANITY.md)) |
 | `SANITY_VIEWER_TOKEN` | a Sanity robot token (Viewer role) that checks Studio preview links and reads drafts during a preview; without it previews are off ([docs/SANITY.md](docs/SANITY.md)) |
+| `KIT_API_KEY` | a Kit V4 API key (pass-env `n8builds/KIT_API_KEY`): newsletter and waitlist sign-ups to Kit; without it the newsletter stays off |
+| `KIT_FORM_ID` (optional) | the Kit double opt-in form to sign people up to; without it the account's only active form is used |
 
 Build-time values (inlined into the pages) are public and set in the deploy workflow (`.github/workflows/deploy.yml`): the site URL, the Sanity project, the GA ID, the Turnstile site key and the Sentry DSN, plus `NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN` from a repository variable.
 `/upcoming` is prerendered and shows its waitlist form when the `WAITLIST_DB` binding exists, which the build sees through wrangler's local simulation of `wrangler.jsonc`.

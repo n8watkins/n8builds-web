@@ -1,9 +1,11 @@
 'use client'
 import { useRef, useState } from 'react'
 import Link from 'next/link'
-import { FiMail } from 'react-icons/fi'
+import { FiCheck, FiMail } from 'react-icons/fi'
 import { useHydrated } from '@/hooks/useHydrated'
+import { useNewsletterOn } from '@/hooks/useNewsletterOn'
 import { useTurnstileOnIntent } from '@/hooks/useTurnstileOnIntent'
+import { TOPICS, type TopicId } from '@/lib/newsletter/topics'
 import { cn } from '@/lib/utils'
 
 const DIRECT_EMAIL = 'contact@n8builds.dev'
@@ -13,10 +15,13 @@ const VERIFY_ERROR = `We couldn't verify your browser (an ad or privacy blocker 
 type State = { kind: 'idle' | 'sending' } | { kind: 'done'; email: string } | { kind: 'error'; message: string }
 
 /**
- * The blog newsletter's sign-up: just an email address, with Turnstile (run
- * on the first focus or input, useTurnstileOnIntent) and a honeypot. The
- * address gets a confirm link (double opt-in, app/api/newsletter); the answer
- * is the same whether it is new or already on the list.
+ * The n8builds newsletter's sign-up: an email address and the topics to get
+ * (Everything, the default, or n8 Notions and New launches), with
+ * Turnstile (run on the first focus or input, useTurnstileOnIntent) and a
+ * honeypot. Kit keeps the list and sends its own confirm email (double opt-in,
+ * app/api/newsletter); the answer is the same whether the address is new or
+ * already on the list. Nothing renders while the owner's switch is off
+ * (hooks/useNewsletterOn.ts).
  * `variant`: "index" under the /blog header, "post" at the end of a post.
  */
 export default function NewsletterSignup({
@@ -27,7 +32,9 @@ export default function NewsletterSignup({
   variant: 'index' | 'post'
 }) {
   const hydrated = useHydrated()
+  const on = useNewsletterOn()
   const [email, setEmail] = useState('')
+  const [topics, setTopics] = useState<TopicId[]>(['everything'])
   const [honeypot, setHoneypot] = useState('')
   const [state, setState] = useState<State>({ kind: 'idle' })
   const turnstile = useTurnstileOnIntent(turnstileSiteKey)
@@ -36,6 +43,15 @@ export default function NewsletterSignup({
 
   const busy = state.kind === 'sending'
   const ready = hydrated && !busy
+
+  // Everything stands for the rest: picking it clears them, and picking one of them clears it.
+  const toggleTopic = (topic: TopicId) =>
+    setTopics((list) => {
+      if (list.includes(topic)) return list.filter((t) => t !== topic)
+      return topic === 'everything' ? ['everything'] : [...list.filter((t) => t !== 'everything'), topic]
+    })
+
+  if (!on) return null
 
   return (
     <section
@@ -57,7 +73,7 @@ export default function NewsletterSignup({
           </h2>
           <p className="mt-2 max-w-lg text-sm leading-relaxed text-slate-300">
             If <span className="font-semibold text-slate-100">{state.email}</span> isn&rsquo;t subscribed yet, a link to confirm is on its
-            way. Nothing is kept unless you click it: an unconfirmed address is deleted after 7 days.
+            way from Kit, the service that sends the newsletter. Nothing is sent until you click it.
           </p>
         </div>
       ) : (
@@ -67,7 +83,7 @@ export default function NewsletterSignup({
             {variant === 'post' ? 'Liked this? Get the next one by email' : 'Get new posts by email'}
           </h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#9cadc5] sm:text-base">
-            One short email in any week with a new post. Nothing else, and one click to unsubscribe.
+            Pick what you want to hear about. One click to unsubscribe from any email.
           </p>
           <form
             {...turnstile.intentProps}
@@ -82,6 +98,11 @@ export default function NewsletterSignup({
                 document.getElementById(`${id}-email`)?.focus()
                 return
               }
+              if (topics.length === 0) {
+                setState({ kind: 'error', message: 'Pick at least one topic.' })
+                document.getElementById(`${id}-topic-everything`)?.focus()
+                return
+              }
               setState({ kind: 'sending' })
               const token = await turnstile.getToken()
               if (!token) return setState({ kind: 'error', message: VERIFY_ERROR })
@@ -91,7 +112,7 @@ export default function NewsletterSignup({
                 const response = await fetch('/api/newsletter', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ email: address, turnstile: token, honeypot }),
+                  body: JSON.stringify({ email: address, topics, turnstile: token, honeypot }),
                 })
                 const data = (await response.json().catch(() => ({}))) as { error?: unknown }
                 if (response.ok) {
@@ -118,6 +139,45 @@ export default function NewsletterSignup({
                 aria-hidden="true"
               />
             </div>
+            <fieldset className="mb-4">
+              <legend className="sr-only">Topics</legend>
+              <div className="flex flex-wrap gap-2">
+                {TOPICS.map((topic) => {
+                  const checked = topics.includes(topic.id)
+                  return (
+                    <label
+                      key={topic.id}
+                      title={topic.hint}
+                      className={cn(
+                        'inline-flex cursor-pointer items-center gap-2 rounded-full border px-2.5 py-1.5 text-[13px] transition-colors sm:px-3.5 sm:text-sm has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-cyan-400',
+                        checked ? 'border-cyan-400/60 bg-cyan-400/10 text-slate-50' : 'border-slate-600 bg-slate-800/60 text-slate-300 hover:border-slate-500'
+                      )}
+                    >
+                      <input
+                        id={`${id}-topic-${topic.id}`}
+                        type="checkbox"
+                        name="topics"
+                        value={topic.id}
+                        checked={checked}
+                        onChange={() => toggleTopic(topic.id)}
+                        disabled={busy}
+                        className="sr-only"
+                      />
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          'flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors',
+                          checked ? 'border-cyan-400 bg-cyan-400 text-slate-950' : 'border-slate-500 text-transparent'
+                        )}
+                      >
+                        <FiCheck className="h-3 w-3" strokeWidth={3} />
+                      </span>
+                      {topic.label}
+                    </label>
+                  )
+                })}
+              </div>
+            </fieldset>
             <div className="flex flex-col gap-3 sm:flex-row">
               <label htmlFor={`${id}-email`} className="sr-only">
                 Email
@@ -155,7 +215,7 @@ export default function NewsletterSignup({
             {/* Invisible unless Cloudflare needs a challenge; see the contact form. */}
             {turnstile.widget}
             <p className="mt-3 text-xs leading-relaxed text-slate-400">
-              You&rsquo;ll get a link to confirm first.{' '}
+              Kit sends a link to confirm first, and every email has an unsubscribe link.{' '}
               <Link href="/privacy" className="text-slate-300 underline underline-offset-2 hover:text-cyan-300">
                 Privacy
               </Link>

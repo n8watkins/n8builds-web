@@ -261,8 +261,10 @@
         "app/api/newsletter/**",
         "app/api/test/**",
         "components/blog/NewsletterSignup.tsx",
-        "components/blog/NewsletterLinkAction.tsx",
-        "lib/newsletter/posts.ts",
+        "hooks/useNewsletterOn.ts",
+        "lib/newsletter/**",
+        "app/api/waitlist/route.ts",
+        "components/upcoming/WaitlistForm.tsx",
         "migrations/waitlist/**"
       ]
     },

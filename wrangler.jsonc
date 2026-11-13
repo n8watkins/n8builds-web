@@ -61,10 +61,9 @@
     // (lib/email/send.ts, lib/announce/service.ts), from
     // contact@n8builds.dev through the shared mailroom Worker
     // (n8watkins/mailroom), which caps every send and fails closed.
-    { "binding": "MAILROOM", "service": "mailroom", "entrypoint": "Mailroom", "props": { "app": "n8builds-web" } },
-    // The blog newsletter (lib/newsletter/), from news@n8builds.dev, as its own
-    // mailroom app with its own caps: 40 a day, 150 a month, 3 per address a day.
-    { "binding": "MAILROOM_NEWS", "service": "mailroom", "entrypoint": "Mailroom", "props": { "app": "n8builds-news" } }
+    // The newsletter needs no binding: Kit keeps the list and sends it
+    // (lib/newsletter/kit.ts, the KIT_API_KEY secret).
+    { "binding": "MAILROOM", "service": "mailroom", "entrypoint": "Mailroom", "props": { "app": "n8builds-web" } }
   ],
   // The edge flood limit on the contact form (worker/index.js): 10 posts a
   // minute per IP, before Next runs. The app's own limits (5 an hour per IP,
@@ -90,10 +89,9 @@
     }
   ],
   // worker/index.js: every day, the cleanup of expired rows in both databases
-  // (lib/retention.ts) and the rest of an unfinished newsletter digest; every
-  // Thursday at 16:00 UTC, the weekly digest (lib/newsletter/digest.ts); every
-  // 15 minutes, the next batch of a waitlist announcement (lib/announce/).
-  "triggers": { "crons": ["30 3 * * *", "0 16 * * 4", "*/15 * * * *"] },
+  // (lib/retention.ts); every 15 minutes, the next batch of a waitlist
+  // announcement (lib/announce/). The newsletter has none: it is sent from Kit.
+  "triggers": { "crons": ["30 3 * * *", "*/15 * * * *"] },
   "vars": {
     // Replaces VERCEL_ENV: "production" here; unset locally and in tests.
     "APP_ENV": "production",
@@ -103,7 +101,9 @@
     "SENTRY_DSN": "https://7e41d848c6abae7aaf931bd7fa5049e1@o4507767562371072.ingest.us.sentry.io/4511629733855232"
   },
   // Secrets (wrangler secret put, see DEPLOY.md): TURNSTILE_SECRET_KEY, GITHUB_TOKEN,
-  // SANITY_WEBHOOK_SECRET, SANITY_VIEWER_TOKEN.
+  // SANITY_WEBHOOK_SECRET, SANITY_VIEWER_TOKEN, KIT_API_KEY (a Kit V4 key; the
+  // newsletter stays off without it). KIT_FORM_ID is optional: without it the
+  // site signs people up to the Kit account's only active form.
   "observability": { "enabled": true, "head_sampling_rate": 1 },
   // n8builds.dev and www as Workers custom domains: Cloudflare creates and
   // manages their DNS records and certificates. www redirects to the apex

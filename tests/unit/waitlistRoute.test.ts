@@ -1,6 +1,9 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 import { WaitlistStore, type WaitlistLinks } from '@/lib/waitlist/store'
+import type { D1Database } from '@/lib/db'
+import { FAKE_FORM_ID, KIT_DOWN_DOMAIN, fakeKit, type FakeKit } from '@/lib/newsletter/kitFake'
+import { setSwitch } from '@/lib/newsletter/switch'
 import { testDatabases, type TestDatabases } from './d1'
 
 const checkRateLimit = vi.fn()
@@ -36,6 +39,9 @@ vi.mock('@/lib/waitlist/store', async (importOriginal) => ({
 vi.mock('@/lib/logger', () => ({
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }))
+// The newsletter switch's database (lib/newsletter/server.ts): none, so off, unless a test sets it.
+let switchDb: D1Database | null = null
+vi.mock('@/lib/db', () => ({ waitlistDb: async () => switchDb }))
 
 const join = (await import('@/app/api/waitlist/route')).POST
 const confirm = (await import('@/app/api/waitlist/confirm/route')).POST
@@ -96,6 +102,72 @@ beforeEach(async () => {
   real = new WaitlistStore(dbs.waitlist)
   store = real
   current = null
+  switchDb = null
+})
+
+describe('POST /api/waitlist while the newsletter is on (Kit)', () => {
+  let kit: FakeKit
+  beforeEach(async () => {
+    kit = fakeKit()
+    vi.stubGlobal('fetch', kit.fetch)
+    vi.stubEnv('KIT_API_KEY', 'kit_test_key')
+    vi.stubEnv('KIT_FORM_ID', FAKE_FORM_ID)
+    switchDb = dbs.waitlist
+    await setSwitch(dbs.waitlist, true, { by: 'test' })
+  })
+
+  it('sends the sign-up to Kit with one tag per project, and keeps nothing here', async () => {
+    const response = await call(join, { ...valid, projects: ['feelium', 'fitflow7'] })
+    expect(response).toEqual({ status: 200, json: { message: JOINED_MESSAGE } })
+    expect(kit.subscriber('visitor@example.com')).toEqual({
+      email: 'visitor@example.com',
+      state: 'inactive',
+      tags: ['Waitlist: Feelium', 'Waitlist: FitFlow 7'],
+      forms: [FAKE_FORM_ID],
+      // Origin and path only, as the stored referrer.
+      referrer: 'https://feelium.n8builds.dev/pricing',
+    })
+    expect(await rows()).toBe(0)
+    expect(sendConfirmEmail).not.toHaveBeenCalled()
+    expect(checkRateLimit.mock.calls).toEqual([
+      ['waitlist-ip', 'key:1.2.3.4'],
+      ['waitlist-global', 'all'],
+      ['waitlist-recipient', 'hash:visitor@example.com'],
+    ])
+  })
+
+  it('works without the waitlist store: Kit is all it needs', async () => {
+    store = null
+    expect((await call(join, valid)).status).toBe(200)
+    expect(kit.subscriber('visitor@example.com')?.tags).toEqual(['Waitlist: Feelium'])
+  })
+
+  it('still checks Turnstile and the form first', async () => {
+    verifyTurnstile.mockResolvedValue(false)
+    expect((await call(join, valid)).status).toBe(400)
+    expect((await call(join, { ...valid, projects: [] })).status).toBe(400)
+    expect(kit.calls).toEqual([])
+  })
+
+  it('answers the same past the per-address limit, without calling Kit', async () => {
+    checkRateLimit.mockImplementation(async (s: string) => (s === 'waitlist-recipient' ? { allowed: false, reason: 'limited' } : { allowed: true }))
+    expect(await call(join, valid)).toEqual({ status: 200, json: { message: JOINED_MESSAGE } })
+    expect(kit.calls).toEqual([])
+  })
+
+  it('answers 503 when Kit refuses', async () => {
+    const response = await call(join, { ...valid, email: `visitor@${KIT_DOWN_DOMAIN}` })
+    expect(response).toMatchObject({ status: 503, json: { type: 'unavailable' } })
+    expect(await rows()).toBe(0)
+  })
+
+  it('goes back to its own double opt-in when the switch is off', async () => {
+    await setSwitch(dbs.waitlist, false, { by: 'test' })
+    expect((await call(join, valid)).status).toBe(200)
+    expect(kit.calls).toEqual([])
+    expect(sendConfirmEmail).toHaveBeenCalledTimes(1)
+    expect(await rows()).toBe(1)
+  })
 })
 
 describe('POST /api/waitlist', () => {

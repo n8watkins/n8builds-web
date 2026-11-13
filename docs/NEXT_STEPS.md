@@ -46,6 +46,13 @@ Last checked: 2026-11-02.
 - [ ] **YouTube Data API key** (5 minutes): console.cloud.google.com, new project `n8builds-live`, enable "YouTube Data API v3", Credentials, Create credentials, API key, restrict it to YouTube Data API v3. Then `! vercel env add YOUTUBE_API_KEY production`.
 - [ ] **X:** confirm you'll stream from @n8watkins.
 - [ ] **X developer account** (only if you choose automatic posting to X): developer.x.com, a small prepaid credit, and its keys added to Vercel the same way.
+- [ ] **Kit for the n8builds newsletter (new 2026-11-13; about 20 minutes, in the n8builds Kit account):** the site side is built and off until you switch it on (`docs/DECISIONS.md`, "The newsletter runs on Kit").
+  1. Sender: Settings, Email, set the sender to "Nate from n8builds" <updates@n8builds.dev> and click the confirmation link Kit emails to that address (route updates@ to your inbox first with Cloudflare Email Routing if it isn't yet).
+  2. Sending domain: Settings, Email, add n8builds.dev as a verified sending domain and add the DNS records Kit shows (CNAMEs for DKIM and the return path, and a DMARC record if there is none) in Cloudflare DNS, proxy off; wait for Kit to show it verified.
+  3. One form: Grow, Landing Pages & Forms, create one inline form (name it "n8builds"), turn on double opt-in in its settings (Incentive: "Send incentive email"), and write the confirm email; keep it the only active form, or give its id to Claude as `KIT_FORM_ID`.
+  4. Tags (optional: the site creates any that are missing on the first sign-up): "Everything", "n8 Notions posts", "New launches", and "Waitlist: <project>" for each upcoming project, spelled exactly so.
+  5. Key: the V4 key is in pass-env as `n8builds/KIT_API_KEY`; Claude sets it as the Worker secret `KIT_API_KEY` on deploy.
+  6. Turn it on from the admin's Newsletter page once its switch ships there (until then it stays off).
 
 ### B2. Small cleanups only you can do (2026-10-25)
 

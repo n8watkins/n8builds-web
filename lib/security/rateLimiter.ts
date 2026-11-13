@@ -38,9 +38,9 @@ const WAITLIST_IP_LIMIT = process.env.NODE_ENV === 'development' ? 50 : 5
 // Confirmation and removal-link emails to one address per day.
 const WAITLIST_RECIPIENT_LIMIT = 3
 const NEWSLETTER_IP_LIMIT = process.env.NODE_ENV === 'development' ? 50 : 5
-// Confirm emails a day: under mailroom's 40 a day for n8builds-news, with room for the digest.
-const DEFAULT_NEWSLETTER_DAILY_LIMIT = 10
-// mailroom allows 3 a day per address, the digest included.
+// Sign-ups sent to Kit a day site-wide (Kit sends each new address one confirm email).
+const DEFAULT_NEWSLETTER_DAILY_LIMIT = 100
+// Sign-ups sent to Kit for one address a day: past this the answer is the same and Kit isn't called.
 const NEWSLETTER_RECIPIENT_LIMIT = 2
 const DEFAULT_WAITLIST_DAILY_LIMIT = 100
 
@@ -61,8 +61,8 @@ const REF_IP_LIMIT = 20
  *   default 100), so the waitlist can't use up Gmail's sending quota
  * - 'waitlist-recipient': waitlist emails per address per day (3)
  * - 'newsletter-ip', 'newsletter-global', 'newsletter-recipient': the blog
- *   newsletter's sign-ups per IP an hour (5), confirm emails a day site-wide
- *   (NEWSLETTER_DAILY_LIMIT, default 10) and per address a day (2)
+ *   newsletter's sign-ups per IP an hour (5), sign-ups sent to Kit a day
+ *   site-wide (NEWSLETTER_DAILY_LIMIT, default 100) and per address a day (2)
  * - 'game-player', 'game-ip': dino game events per player hash and per IP a minute (12, 60)
  * - 'ref-ip': short-link clicks counted per IP an hour (20)
  */

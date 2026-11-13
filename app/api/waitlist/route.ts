@@ -3,7 +3,10 @@ import { logger } from '@/lib/logger'
 import { checkRateLimit, getClientIp, rateLimitIpKey, recipientKey } from '@/lib/security/rateLimiter'
 import { verifyTurnstile } from '@/lib/security/turnstile'
 import { sendConfirmEmail } from '@/lib/email/waitlist'
-import { joinSchema } from '@/lib/waitlist/schema'
+import { signUpWithKit } from '@/lib/newsletter/http'
+import { newsletterOn } from '@/lib/newsletter/server'
+import { waitlistTag } from '@/lib/newsletter/topics'
+import { cleanReferrer, joinSchema, normalizeEmail, type JoinInput } from '@/lib/waitlist/schema'
 import { joinWaitlist } from '@/lib/waitlist/service'
 import { waitlistStore } from '@/lib/waitlist/store'
 import { DIRECT_EMAIL, JOINED_MESSAGE, closed, fail, limited, readJson, unavailable } from '@/lib/waitlist/http'
@@ -20,6 +23,10 @@ import { DIRECT_EMAIL, JOINED_MESSAGE, closed, fail, limited, readJson, unavaila
  * 6. New single-use links and the confirm email, unless this address already
  *    had 3 waitlist emails today (an earlier unused link confirms this request too)
  * The answer is the same for a new, pending or confirmed address.
+ *
+ * While the newsletter is on (lib/newsletter/server.ts) the sign-up goes to
+ * Kit instead, tagged per project ("Waitlist: Feelium"), and nothing is
+ * stored here: see joinWithKit below.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -29,6 +36,8 @@ export async function POST(request: NextRequest) {
     const parsed = joinSchema.safeParse(body.data)
     if (!parsed.success) return fail(400, 'Please check the form: a valid email and at least one project.')
     const input = parsed.data
+
+    if (await newsletterOn(request.cookies)) return joinWithKit(request, input)
 
     const store = await waitlistStore()
     if (!store) return closed()
@@ -76,4 +85,33 @@ export async function POST(request: NextRequest) {
     logger.error('Waitlist join error:', error)
     return fail(500, `Something went wrong. Please try again, or email me at ${DIRECT_EMAIL}.`)
   }
+}
+
+/**
+ * The waitlist on Kit (owner, 2026-11-12): the same checks and limits, then
+ * the address goes to Kit with one tag per project, on the double opt-in
+ * form, and Kit sends the confirm email. Kit keeps the address; this site
+ * keeps nothing but the rate limits' counters. Past the per-address limit the
+ * answer is the same, and Kit isn't called.
+ */
+async function joinWithKit(request: NextRequest, input: JoinInput) {
+  const ip = getClientIp(request.headers)
+  if (!(await verifyTurnstile(input.turnstile, ip))) {
+    return fail(400, 'Verification failed. Please refresh the page and try again.')
+  }
+  const ipLimit = await checkRateLimit('waitlist-ip', rateLimitIpKey(ip))
+  if (!ipLimit.allowed) return limited(ipLimit)
+  const dailyLimit = await checkRateLimit('waitlist-global', 'all')
+  if (!dailyLimit.allowed) return limited(dailyLimit)
+
+  const address = normalizeEmail(input.email)
+  const recipient = await checkRateLimit('waitlist-recipient', recipientKey(address))
+  if (!recipient.allowed) {
+    logger.warn('Waitlist: skipping Kit, this address had its sign-ups for today')
+    return NextResponse.json({ message: JOINED_MESSAGE }, { status: 200 })
+  }
+
+  const referrer = cleanReferrer(input.source?.referrer) || 'https://n8builds.dev/upcoming'
+  if (!(await signUpWithKit(address, input.projects.map(waitlistTag), referrer))) return unavailable()
+  return NextResponse.json({ message: JOINED_MESSAGE }, { status: 200 })
 }
