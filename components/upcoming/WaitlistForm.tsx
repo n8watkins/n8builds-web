@@ -6,6 +6,7 @@ import { FiCheck, FiMail } from 'react-icons/fi'
 import { ContactInput } from '@/components/ui/ContactInput'
 import { errorId } from '@/components/ui/FieldWrapper'
 import { useHydrated } from '@/hooks/useHydrated'
+import { useNewsletterOn } from '@/hooks/useNewsletterOn'
 import { useTurnstileOnIntent } from '@/hooks/useTurnstileOnIntent'
 import { UPCOMING, interestSlug, isListed, isUpcomingSlug, type UpcomingSlug } from '@/data/upcoming'
 import { PICK_EVENT } from './JoinButton'
@@ -23,6 +24,8 @@ type State = { kind: 'idle' } | { kind: 'sending' } | { kind: 'error'; message: 
  * from `?interest=` (the projects' landing pages link here with it) and from
  * a card's "Join" button, and sends where the visitor came from with the entry.
  * No zod on the client: the browser checks the email and the server checks it all.
+ * While the newsletter is on (hooks/useNewsletterOn.ts) the sign-up goes to
+ * Kit, with a tag per project, and the copy says so.
  */
 export default function WaitlistForm({
   turnstileSiteKey,
@@ -39,6 +42,7 @@ export default function WaitlistForm({
   const side = layout === 'side'
   const modal = layout === 'modal'
   const hydrated = useHydrated()
+  const onKit = useNewsletterOn()
   // Turnstile runs on the first focus or input in the form, or a pick from a card (useTurnstileOnIntent).
   const turnstile = useTurnstileOnIntent(turnstileSiteKey)
   const { prepare } = turnstile
@@ -132,8 +136,17 @@ export default function WaitlistForm({
           Check your inbox
         </h3>
         <p className="mt-2 max-w-md text-sm leading-relaxed text-slate-300">
-          I sent a link to <span className="font-semibold text-slate-100">{state.email}</span>. Click it to confirm your spot.
-          Nothing is kept unless you do: an unconfirmed request is deleted after 7 days.
+          {onKit ? (
+            <>
+              Kit, the service that sends my emails, sent a link to <span className="font-semibold text-slate-100">{state.email}</span>.
+              Click it to confirm your spot. Nothing is sent until you do.
+            </>
+          ) : (
+            <>
+              I sent a link to <span className="font-semibold text-slate-100">{state.email}</span>. Click it to confirm your spot.
+              Nothing is kept unless you do: an unconfirmed request is deleted after 7 days.
+            </>
+          )}
         </p>
         <p className="mt-3 text-sm text-slate-450">No email in a few minutes? Check your spam folder.</p>
       </div>
@@ -275,7 +288,9 @@ export default function WaitlistForm({
           </span>
         </button>
         <p className={`text-center text-sm text-balance text-slate-400 ${side ? 'lg:text-xs lg:leading-relaxed' : ''}`}>
-          An email when there is something to try. No newsletter, and you can leave any time.{' '}
+          {onKit
+            ? 'An email when there is something to try, sent with Kit. Unsubscribe from any email.'
+            : 'An email when there is something to try. No newsletter, and you can leave any time.'}{' '}
           <Link href="/privacy#waitlist" className="text-cyan-400 underline underline-offset-2 hover:text-cyan-300">
             How sign-ups are kept
           </Link>

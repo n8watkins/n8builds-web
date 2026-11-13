@@ -12,15 +12,11 @@ import { refuseGameOrigin } from './game-gate.js'
 import { TUNNEL_PATH, forwardEnvelope } from '../lib/sentry/tunnel'
 import { purgeExpired } from '../lib/retention'
 import { WaitlistStore } from '../lib/waitlist/store'
-import { runDigest } from '../lib/newsletter/digest'
-import { newsMailer } from '../lib/newsletter/mail'
-import { sanityPosts } from '../lib/newsletter/posts'
-import { NewsletterStore } from '../lib/newsletter/store'
+import { kitClient } from '../lib/newsletter/kit'
+import { readSwitch, setSwitch, switchLog } from '../lib/newsletter/switch'
 import { Announcements as AnnouncementService } from '../lib/announce/service'
 import { EMAIL_CONFIG } from '../lib/email/config'
 
-/** wrangler.jsonc triggers: the weekly run may start a newsletter digest. */
-const WEEKLY_CRON = '0 16 * * 4'
 /** wrangler.jsonc triggers: every 15 minutes, the next batch of an announcement (lib/announce/service.ts). */
 const ANNOUNCE_CRON = '*/15 * * * *'
 
@@ -78,7 +74,8 @@ function forBrowsers(request, response) {
  *   CONTACT_RATE_LIMITER: { limit: (options: { key: string }) => Promise<{ success: boolean }> },
  *   WAITLIST_DB: import('../lib/db').D1Database,
  *   ANALYTICS_DB: import('../lib/db').D1Database,
- *   MAILROOM_NEWS?: import('../lib/newsletter/mail').NewsMailroom,
+ *   KIT_API_KEY?: string,
+ *   KIT_FORM_ID?: string,
  *   MAILROOM?: import('../lib/announce/service').AnnounceMailroom,
  *   CONTACT_EMAIL_TO?: string,
  *   APP_ENV?: string,
@@ -170,6 +167,54 @@ export class Announcements extends WorkerEntrypoint {
 }
 
 /**
+ * The newsletter's admin side (lib/newsletter/): the admin's Newsletter page
+ * binds this as NEWSLETTER (service n8builds-web, entrypoint
+ * NewsletterAdmin) for the owner's "Turn newsletter on/off". Like
+ * Announcements, it is reachable only through a service binding, never from
+ * the internet; setSwitch takes the owner's login (`actor`) for the log.
+ * @extends {WorkerEntrypoint<Env>}
+ */
+export class NewsletterAdmin extends WorkerEntrypoint {
+  /**
+   * The switch, its latest changes, and Kit's side: whether the key is set,
+   * the form in use and the confirmed count (or why Kit couldn't say).
+   */
+  async status() {
+    const db = this.env.WAITLIST_DB
+    const kit = kitClient({ apiKey: this.env.KIT_API_KEY })
+    /** @type {{ configured: boolean, formId: string | null, confirmed: number | null, error: string | null }} */
+    const kitStatus = { configured: Boolean(kit), formId: null, confirmed: null, error: null }
+    if (kit) {
+      try {
+        kitStatus.formId = this.env.KIT_FORM_ID?.trim() || (await kit.onlyForm())
+        kitStatus.confirmed = await kit.confirmedCount()
+      } catch (error) {
+        kitStatus.error = error instanceof Error ? error.message : 'error'
+      }
+    }
+    const state = await readSwitch(db)
+    return { ...state, live: state.on && kitStatus.configured, log: await switchLog(db, 10), kit: kitStatus }
+  }
+
+  /**
+   * Turns the newsletter on or off; logged with the owner's login.
+   * @param {boolean} on
+   * @param {string} actor
+   */
+  async setSwitch(on, actor) {
+    if (typeof on !== 'boolean') throw new Error('on must be a boolean')
+    if (typeof actor !== 'string' || !actor) throw new Error('actor required')
+    return setSwitch(this.env.WAITLIST_DB, on, { by: actor.slice(0, 100) })
+  }
+
+  /** Kit's setup check, read-only: account, forms, tags. Null without a key. */
+  async diagnostics() {
+    const kit = kitClient({ apiKey: this.env.KIT_API_KEY })
+    return kit ? kit.diagnostics() : null
+  }
+}
+
+/**
  * Sends the next batches of the announcements that are due; a refusal or a
  * stop is a warning in the logs and in Sentry, so the owner sees it.
  * @param {Env} env
@@ -253,29 +298,15 @@ const worker = {
   /**
    * The Cron Triggers (wrangler.jsonc). Every 15 minutes: the next batch of
    * an announcement that is sending (lib/announce/service.ts). Daily: deletes what has expired in
-   * both databases (lib/retention.ts; counts only in the log), and sends the
-   * rest of a newsletter digest a refusal or the per-run limit paused.
-   * Weekly: the newsletter digest, when there is a new post
-   * (lib/newsletter/digest.ts). A skipped or stopped digest is a warning in
-   * the logs and in Sentry, so the owner sees it.
+   * both databases (lib/retention.ts; counts only in the log). The
+   * newsletter has no cron: the owner sends it from Kit.
    * @param {ScheduledController} controller
    * @param {Env} env
    */
   async scheduled(controller, env) {
     if (controller.cron === ANNOUNCE_CRON) return runAnnouncements(env)
-    const weekly = controller.cron === WEEKLY_CRON
-    if (!weekly) {
-      const deleted = await purgeExpired({ waitlist: env.WAITLIST_DB, analytics: env.ANALYTICS_DB })
-      console.log(JSON.stringify({ message: 'retention cleanup', deleted }))
-    }
-    const report = await runDigest(
-      { store: new NewsletterStore(env.WAITLIST_DB), mail: newsMailer(env.MAILROOM_NEWS), posts: sanityPosts },
-      { start: weekly }
-    )
-    console.log(JSON.stringify({ message: 'newsletter digest', ...report }))
-    if (report.action === 'skipped' || report.action === 'stopped') {
-      Sentry.captureMessage(`Newsletter digest ${report.action}: ${report.action === 'skipped' ? report.note : report.code}`, 'warning')
-    }
+    const deleted = await purgeExpired({ waitlist: env.WAITLIST_DB, analytics: env.ANALYTICS_DB })
+    console.log(JSON.stringify({ message: 'retention cleanup', deleted }))
   },
 }
 
