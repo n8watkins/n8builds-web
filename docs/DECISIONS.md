@@ -640,4 +640,4 @@ Where these conflict with an older entry above, these win; the older entries are
   On (and `KIT_API_KEY` set): the forms show on /blog and at the end of every post, and waitlist sign-ups go to Kit with their project tags instead of the waitlist database and mailroom; the waitlist form says Kit sends the email.
   Both forms keep Turnstile, the honeypot and their rate limits; past the per-address limit the answer is the same and Kit isn't called.
   No broadcast is ever created or sent by the site: the owner writes them in Kit.
-  The old `/newsletter/confirm` and `/newsletter/unsubscribe` pages redirect to /blog.
+  The old `/newsletter/confirm` and `/newsletter/unsubscribe` pages redirect to /blog, without their token.

@@ -257,6 +257,7 @@
     "newsletter": {
       "specs": ["tests/e2e/newsletter.spec.ts", "tests/e2e/api/newsletter.spec.ts"],
       "sources": [
+        "app/newsletter/**",
         "app/api/newsletter/**",
         "app/api/test/**",
         "components/blog/NewsletterSignup.tsx",
