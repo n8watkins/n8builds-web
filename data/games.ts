@@ -34,6 +34,22 @@ export type Game = {
 
 export const GAMES: Game[] = [
   {
+    slug: 'party-games',
+    name: 'n8 Party Games',
+    description:
+      'One room for up to four people. Friends join with a code from their phones, walk a little piece around the room and vote for the next game by standing in its light.',
+    note: 'Cork & Bell plays in the room today and Who Am I? is being moved in. More games are planned.',
+    kind: 'Party',
+    tags: ['1-4 players', 'Phone or laptop', 'No account', 'Free'],
+    href: 'https://partygames.n8builds.dev',
+    cta: 'Start a party',
+    icon: '/games/party-games-icon.png',
+    shot: '/games/party-games.webp',
+    repo: 'n8watkins/n8-party-games',
+    // The lamp's amber over the room's dark wood, lightened for this dark site.
+    accent: '#f0a24b',
+  },
+  {
     slug: 'who-am-i',
     name: 'Who Am I?',
     description:

@@ -15,8 +15,8 @@ import { pageMetadata } from '@/lib/seo'
 export const metadata = pageMetadata({
   title: 'Games | n8builds',
   description:
-    'Small games I built, all free: Who Am I?, a two-player guessing game for two phones; PortfolioRank Play, a portfolio face-off; and the homepage dino catch.',
-  shareDescription: 'Small games I built, all free: a two-phone guessing game, a portfolio face-off, a dino to catch and a command-line trainer.',
+    'Small games I built, all free: n8 Party Games, a room for up to four friends on their phones; Who Am I?, a two-player guessing game; PortfolioRank Play, a portfolio face-off; and the homepage dino catch.',
+  shareDescription: 'Small games I built, all free: a party room for friends, a two-phone guessing game, a portfolio face-off and a dino to catch.',
   path: '/games',
   image: {
     url: '/games/og.png',
