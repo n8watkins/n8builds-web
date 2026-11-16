@@ -582,7 +582,7 @@ images: [
             title: 'Read the contract',
             body: 'party-kit/GAME-CONTRACT.md says what a game exports: `game`, the rules the room runs, and `manifest`, what a site needs to host it. Cork & Bell is the first game that keeps it.',
             code: {
-              file: "Cork & Bell's manifest, as the contract shows it",
+              file: 'GAME-CONTRACT.md (excerpt)',
               href: 'https://github.com/n8watkins/n8-party-games/blob/main/party-kit/GAME-CONTRACT.md#what-the-package-exports',
               text: `export const manifest = {
   id: "cork-and-bell",
@@ -704,9 +704,9 @@ export const GAMES = [corkAndBell];`,
             body: 'A word chain by voice on one phone or computer passed around a group of 2 to 8. No server: the page is all there is.',
           },
           {
-            title: 'Tin Derby, Paper Masks, Who Am I?',
+            title: 'Next games',
             status: 'In progress',
-            body: 'Tin Derby for the room; Paper Masks and Who Am I? for the Table, which seats up to four today. Who Am I? plays on its own site meanwhile.',
+            body: 'Tin Derby, for the room. Paper Masks and Who Am I?, for the Table, which seats up to four today. Who Am I? plays on its own site meanwhile.',
           },
           {
             title: 'Pawn',

@@ -36,7 +36,7 @@ export const N8GAMES_AD = {
     /** The whole room, 2:1, from 640px. */
     wide: { src: '/games/n8games/room-wide.webp', width: 2000, height: 1000 },
     /** Cropped close on the pieces, 16:10, for phones (and the /games card). */
-    close: { src: '/games/n8games/room-action.webp', width: 920, height: 575 },
+    close: { src: '/games/n8games/room-action.webp', width: 960, height: 600 },
     alt: 'A rendered party room: a red pawn punches a robot with a boxing glove on a spring, a yellow slime zooms past and a white ghost looks on, under lamps and game posters, with the join code by the door.',
   },
 } as const

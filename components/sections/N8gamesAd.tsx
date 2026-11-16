@@ -41,7 +41,8 @@ export default function N8gamesAd({ id = 'n8games-ad', priority = false }: { id?
       aria-labelledby={headingId}
       className="grid overflow-hidden rounded-2xl border border-[#f0a24b]/25 bg-linear-to-br from-[#f0a24b]/[0.07] to-[#0a1222]/80 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"
     >
-      <div className="relative aspect-16/10 overflow-hidden bg-[#140d08] sm:aspect-2/1">
+      {/* From 1024px the words sit beside it, so it takes their row's height (at least 2:1's) and covers it. */}
+      <div className="relative aspect-16/10 overflow-hidden bg-[#140d08] sm:aspect-2/1 lg:aspect-auto lg:min-h-[21rem]">
         <picture>
           <source media="(min-width: 640px)" srcSet={wide} sizes={sizes} />
           {/* next/image's own props (getImageProps), in a <picture> for the two crops. */}

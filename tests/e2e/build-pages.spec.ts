@@ -201,7 +201,7 @@ test.describe('the n8games build page', () => {
     await page.goto('/builds/n8games')
     await expect(page).toHaveTitle('n8games | n8builds')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('n8games')
-    const play = page.getByRole('banner').getByRole('link', { name: /^Play n8games/ })
+    const play = page.getByRole('main').getByRole('link', { name: 'Play n8games (opens in a new tab)' })
     await expect(play).toHaveAttribute('href', 'https://partygames.n8builds.dev')
     await expect(page.getByRole('img', { name: /red pawn punches a robot/ }).first()).toBeVisible()
 
