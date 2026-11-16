@@ -17,6 +17,7 @@ import { getRecentActivity } from '@/lib/build-log'
 import N8buildsCaseStudy from '@/components/builds/n8builds/CaseStudy'
 import { LightboxGallery, LightboxThumb } from '@/components/builds/Lightbox'
 import MoreBuilds from '@/components/builds/MoreBuilds'
+import BuildGuides, { WithCode } from '@/components/builds/BuildGuides'
 import FadeIn from '@/components/ui/FadeIn'
 import FeatureShots, { type Feature } from '@/components/builds/FeatureShots'
 import StackTabs from '@/components/builds/StackTabs'
@@ -362,6 +363,9 @@ function StoryParts({ build, layers }: { build: Build; layers: ('Frontend' | 'Ba
           </Reveal>
         )}
 
+        {/* What the standard parts don't hold (n8games: the kit's path, the pieces) */}
+        {build.guides && build.guides.length > 0 && <BuildGuides guides={build.guides} />}
+
         {/* Process notes */}
         <Reveal>
           <section id="process" className="mt-16 scroll-mt-24" aria-label="Process notes">
@@ -377,7 +381,9 @@ function StoryParts({ build, layers }: { build: Build; layers: ('Frontend' | 'Ba
                   <span className="shrink-0 flex items-center justify-center w-7 h-7 rounded-full border border-cyan-400/20 bg-cyan-400/10 text-cyan-300 text-xs font-bold mt-0.5">
                     {i + 1}
                   </span>
-                  <p className="text-slate-300 leading-relaxed">{note}</p>
+                  <p className="text-slate-300 leading-relaxed">
+                    <WithCode text={note} />
+                  </p>
                 </li>
               ))}
             </ol>
@@ -394,6 +400,7 @@ function pageParts(build: Build, features: boolean, layers: boolean, log: boolea
     features ? ({ id: 'features', label: 'What it does', icon: 'features' } as const) : null,
     build.problem ? ({ id: 'story', label: 'Problem and build', icon: 'story' } as const) : null,
     layers ? ({ id: 'built', label: "How it's built", icon: 'built' } as const) : null,
+    ...(build.guides ?? []).map((g) => ({ id: g.id, label: g.label, icon: g.icon })),
     build.process.length > 0 ? ({ id: 'process', label: 'Process notes', icon: 'process' } as const) : null,
     log ? ({ id: 'log', label: 'Build log', icon: 'log' } as const) : null,
     { id: 'more', label: 'More builds', icon: 'more' } as const,

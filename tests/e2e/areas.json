@@ -252,7 +252,7 @@
     },
     "games": {
       "specs": ["tests/e2e/games.spec.ts"],
-      "sources": ["app/games/page.tsx", "data/games.ts", "public/games/**"]
+      "sources": ["app/games/page.tsx", "data/games.ts", "public/games/**", "components/sections/N8gamesAd.tsx"]
     },
     "newsletter": {
       "specs": ["tests/e2e/newsletter.spec.ts", "tests/e2e/api/newsletter.spec.ts"],

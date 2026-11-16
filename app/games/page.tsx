@@ -1,8 +1,9 @@
 import type { CSSProperties } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { FiArrowUpRight, FiGithub, FiPlay } from 'react-icons/fi'
+import { FiArrowRight, FiArrowUpRight, FiGithub, FiPlay } from 'react-icons/fi'
 import Navbar from '@/components/layout/Navbar'
+import N8gamesAd from '@/components/sections/N8gamesAd'
 import FadeIn from '@/components/ui/FadeIn'
 import { DINO_COLS, DINO_FRAMES, DINO_ROWS, framePaths } from '@/components/features/dino/sprite'
 import { GAMES, type Game } from '@/data/games'
@@ -15,8 +16,8 @@ import { pageMetadata } from '@/lib/seo'
 export const metadata = pageMetadata({
   title: 'Games | n8builds',
   description:
-    'Small games I built, all free: n8 Party Games, a room for up to four friends on their phones; Who Am I?, a two-player guessing game; PortfolioRank Play, a portfolio face-off; and the homepage dino catch.',
-  shareDescription: 'Small games I built, all free: a party room for friends, a two-phone guessing game, a portfolio face-off and a dino to catch.',
+    'Small games I built, all free: n8games, party games friends play from their phones; Who Am I?, a two-player guessing game; PortfolioRank Play, a portfolio face-off; and the homepage dino catch.',
+  shareDescription: 'Small games I built, all free: party games for friends on their phones, a two-phone guessing game, a portfolio face-off and a dino to catch.',
   path: '/games',
   image: {
     url: '/games/og.png',
@@ -81,7 +82,7 @@ function GameCard({ game, index }: { game: Game; index: number }) {
         <div className="relative aspect-16/10 overflow-hidden border-b border-white/8 bg-[#07101d]">
           <Image
             src={game.shot}
-            alt=""
+            alt={game.shotAlt ?? ''}
             fill
             sizes="(min-width: 1024px) 560px, (min-width: 640px) 50vw, 100vw"
             priority={index < 2}
@@ -109,6 +110,16 @@ function GameCard({ game, index }: { game: Game; index: number }) {
           </ul>
           <div className="mt-auto flex flex-wrap items-center gap-x-5 gap-y-3 pt-5">
             <PlayButton game={game} />
+            {game.more && (
+              <Link
+                href={game.more.href}
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-300 transition-colors hover:text-cyan-200"
+              >
+                {game.more.label}
+                <FiArrowRight aria-hidden className="h-4 w-4 shrink-0" />
+                <span className="sr-only"> about {game.name}</span>
+              </Link>
+            )}
             {game.repo && (
               <a
                 href={`https://github.com/${game.repo}`}
@@ -150,7 +161,12 @@ export default function GamesPage() {
             </p>
           </FadeIn>
 
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 md:mt-12 lg:gap-6">
+          {/* n8games, wide, first (owner, 2026-11-16); its own card leads the list below too. */}
+          <FadeIn delay={0.04} className="mt-10 md:mt-12">
+            <N8gamesAd id="n8games-feature" priority />
+          </FadeIn>
+
+          <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:mt-6 lg:gap-6">
             {GAMES.map((game, index) => (
               <GameCard key={game.slug} game={game} index={index} />
             ))}

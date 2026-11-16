@@ -1,4 +1,5 @@
 import type { TechKey } from '@/lib/tech-icons'
+import { N8GAMES_REPO, N8GAMES_URL } from './n8games'
 
 /** Where a piece of the stack sits, for the tabs of a build page's "How it's built". */
 export type BuildLayer = 'Frontend' | 'Backend' | 'Cloud'
@@ -31,6 +32,37 @@ export interface BuildClip {
   mp4: string
   poster: string
   alt: string
+}
+
+/**
+ * A part of a build page for what its standard parts don't hold (n8games, for
+ * developers: the path to make a game for the kit, and the pieces and rooms
+ * with where each stands). It sits after "How it's built", with a link in the
+ * sidebar. In the words, `backticks` are code.
+ */
+export interface BuildGuide {
+  /** Its anchor, and the sidebar's link to it. */
+  id: string
+  /** The sidebar's name for it. */
+  label: string
+  icon: 'code' | 'pieces'
+  /** The heading: `lead` plain, then `accent` in the site's gradient. */
+  heading: { lead: string; accent: string }
+  intro?: string
+  /** `steps`: a numbered path, one item under another. `cards`: a grid of pictures and words. */
+  layout: 'steps' | 'cards'
+  items: BuildGuideItem[]
+}
+
+export interface BuildGuideItem {
+  title: string
+  body: string
+  /** Where it stands today, said plainly on the card. */
+  status?: 'Live' | 'In progress' | 'Planned'
+  image?: BuildImage & { width: number; height: number }
+  /** A short excerpt from the source, with the file it is from and a link to it on GitHub. */
+  code?: { file: string; href: string; text: string }
+  links?: { label: string; href: string }[]
 }
 
 export interface Build {
@@ -82,6 +114,8 @@ export interface Build {
    * already open (Portfolio Rank: add your portfolio).
    */
   cta?: { heading: string; body: string; label: string; href: string }
+  /** Parts after "How it's built" that the standard ones don't cover (BuildGuide). */
+  guides?: BuildGuide[]
   /**
    * The one main action, to the live thing: the app, the download or the
    * product's landing page when that is the product (owner, 2026-11-08). The
@@ -414,6 +448,312 @@ images: [
     repo: 'n8watkins/solara',
     // Refactors and internal milestones the filters let through.
     logHide: ['fmtH', 'V1 hardening'],
+  },
+  {
+    // n8games (owner, 2026-11-16): the build page for developers, technical and
+    // plain, not a sales page. Every claim is from n8watkins/n8-party-games at
+    // origin/main on 2026-11-16 (README.md, party-kit/README.md,
+    // party-kit/GAME-CONTRACT.md, lobby/README.md, one-device/hot-potato/README.md).
+    // Its address is linked from the games site ("Learn more"): keep the slug.
+    slug: 'n8games',
+    name: 'n8games',
+    // Linked from the homepage's n8games ad and the /games card, not a Lab row.
+    homepage: false,
+    tagline: 'Party games on your phones, on an open-source room kit',
+    category: 'Web app',
+    status: 'in the lab',
+    tags: ['Cloudflare Workers', 'Durable Objects', 'three.js', 'Open source'],
+    highlights: [
+      {
+        text: 'Open it on a laptop or a TV as the big screen; everyone else joins from their phone with a four-digit code or the QR code on the wall',
+        shot: '/games/n8games/screen-vote.webp',
+      },
+      {
+        text: 'Your phone shows the same room, live, closer in on your own piece, with the buttons under your thumbs',
+        shot: '/games/n8games/phone-closer.webp',
+      },
+      {
+        text: 'Pick the next game by standing in its light. Cork & Bell then plays right inside the room, a stall each, and the places go on the Tonight board',
+        shot: '/games/n8games/cork-in-the-room.webp',
+      },
+      'One party moves between the Floor, where everyone plays at once, and the Table, where you sit and take turns, keeping its code, seats and scores',
+      'Hot Potato plays on one phone or computer passed around: say a word that starts with the last letter of the one before',
+      'No app and no account; up to four players in a room today',
+    ],
+    color: 'from-amber-500/15 to-orange-700/15',
+    problem:
+      'Party games usually want everyone on one console, or an app and an account on every phone. And a game server that stays awake all evening costs money while people just stand around.',
+    solution:
+      'n8games is one front door to three kinds of game: a character room where friends join from their phones with a code, a table for turn-based games, and games for one device passed around. The rooms run on Cloudflare Durable Objects that sleep between moves, and the kit under them is MIT-licensed, so you can write a game for it or take it for your own.',
+    stack: [
+      {
+        name: 'Plain ES modules',
+        layer: 'Frontend',
+        detail: 'No framework and no bundle: the browser loads the pages and the kit client (party-kit/client/party-client.js) as they are. The build copies an allowlist into dist/public and writes its CSP.',
+      },
+      {
+        name: 'three.js, a flat SVG, rendered rooms',
+        layer: 'Frontend',
+        detail: 'One room state, three looks: a three.js scene (the normal one), a flat SVG for devices without hardware WebGL 2, and rooms rendered in Blender where only the lamps, posters and pieces are drawn live.',
+        tech: ['threejs', 'blender'],
+      },
+      {
+        name: 'Cloudflare Workers',
+        layer: 'Backend',
+        detail: 'One Worker serves the front page, the party room, every hosted game and the party API (worker.js, party-kit/src/worker/index.js).',
+        tech: ['workers'],
+      },
+      {
+        name: 'Durable Objects',
+        layer: 'Backend',
+        detail: "One object per party holds its seats, code and Tonight board. It keeps the sockets through the WebSocket Hibernation API and uses its alarm for every timer, so a room nobody touches is asleep.",
+        tech: ['cloudflare'],
+      },
+      {
+        name: 'The party kit',
+        layer: 'Backend',
+        detail: 'Four-digit codes and QR codes, seats, reconnects, a bot for a dropped seat in real-time games, rate limits, and per-seat views so a game can keep a secret per phone (party-kit/).',
+      },
+      {
+        name: 'The room budget',
+        layer: 'Cloud',
+        detail: "Rooms may use 10% of the plan's included Durable Object time. Once the day's or the month's share is spent, no new party starts and the round in play finishes (party-kit/src/worker/room-budget.js).",
+        tech: ['cloudflare'],
+      },
+      {
+        name: 'Vitest · sockets · headless browsers',
+        layer: 'Cloud',
+        detail: 'Unit tests on every pull request; socket scripts and headless browser suites against a local Worker; the full gate once before each deploy.',
+        tech: ['vitest', 'playwright', 'actions'],
+      },
+    ],
+    process: [
+      'The room is built to be asleep. Each phone moves its own piece and only speaks when something changes; the room passes it on and judges what must be fair (who stands in which light, the count, who a bump lands on), with an alarm instead of a loop. Four scripted players wandering for ten minutes kept it awake 0.28 seconds a minute (measured locally, lobby/README.md).',
+      'A round of Cork & Bell is what a party costs: the room is awake for the whole round, at most 94.6 seconds. The 10% share is about 3,300 rounds a month, and the budget counts every second against it.',
+      'Turn-based games run no timer at all. A game that says `tickHz: 0` has each input applied and saved as it arrives, and its turn timer is the room\'s alarm.',
+      "A seat's token never goes in an address or a header, because Workers Logs keep every request's address. It travels in the answer that hands out the seat and in the socket's first message, and nowhere else.",
+      'Testing in layers: `npm test` (Vitest, about a second) runs on every pull request; `test:room` and `test:lobby` drive real sockets with no browser; `test:cork`, `test:characters` and the other suites play in headless browsers; `npm run predeploy` runs the whole gate once before a deploy, from my PC.',
+    ],
+    images: [
+      {
+        src: '/games/n8games/room.webp',
+        alt: 'A render of the party room: a red pawn punches a robot with a boxing glove on a spring, a yellow slime zooms past and a white ghost looks on, under lamps and game posters, with the join code by the door and the night\'s scores on a chalkboard',
+      },
+      {
+        src: '/games/n8games/screen-vote.webp',
+        alt: 'The room on a big screen, from a test run: four pawns by the door, two of them in the lights of Cork & Bell and Coin Flip, the join code and QR code on the wall and the Tonight board on the right',
+      },
+      {
+        src: '/games/n8games/phone-closer.webp',
+        alt: 'The same room on a phone held sideways, closer in on the player\'s red pawn, with Left, Right, Whole room, Jump and Bump buttons along the bottom',
+      },
+      {
+        src: '/games/n8games/cork-in-the-room.webp',
+        alt: 'Cork & Bell played inside the room on the big screen: three fairground stalls side by side with their teapots and stars, and each player\'s score under their cork gun',
+      },
+      {
+        src: '/games/n8games/star-lounge.webp',
+        alt: 'The Star Lounge, another of the room\'s looks, on a big screen: the same wall of games and lamps in a lounge with a planet outside the windows',
+      },
+    ],
+    credits: [
+      {
+        name: 'Nick Saraev',
+        href: 'https://www.youtube.com/@nicksaraev',
+        note: 'The games started from build prompts he published with two of his Claude Fable 5.2 videos; each takes one of his single-player builds and remakes it for friends on their phones. His prompts are kept unchanged in credits/nick-saraev/ in the repository; they remain his and are not under its MIT License. Not affiliated with or endorsed by him.',
+      },
+      {
+        name: 'Kenney and the Freesound recordists',
+        href: 'https://github.com/n8watkins/n8-party-games/blob/main/lobby/public/sounds/CREDITS.txt',
+        note: "The room's sounds are made from CC0 recordings, each named with its source in the credits file.",
+      },
+    ],
+    guides: [
+      {
+        id: 'kit',
+        label: 'Make a game for it',
+        icon: 'code',
+        heading: { lead: 'Make a game for it, or', accent: 'take the kit' },
+        intro:
+          'A game is its own repository and plays on its own. The party site installs it and hangs it on the wall. Here is the path, with the files to read.',
+        layout: 'steps',
+        items: [
+          {
+            title: 'Read the contract',
+            body: 'party-kit/GAME-CONTRACT.md says what a game exports: `game`, the rules the room runs, and `manifest`, what a site needs to host it. Cork & Bell is the first game that keeps it.',
+            code: {
+              file: "Cork & Bell's manifest, as the contract shows it",
+              href: 'https://github.com/n8watkins/n8-party-games/blob/main/party-kit/GAME-CONTRACT.md#what-the-package-exports',
+              text: `export const manifest = {
+  id: "cork-and-bell",
+  name: "Cork & Bell",
+  path: "/cork-and-bell/",
+  players: { min: 2, max: 4, solo: true },
+  devices: { phone: true, desktop: true, sharedScreen: true, sideways: "preferred" },
+  public: [
+    { from: "index.html", to: "index.html" },
+    { from: "game", to: "game" },
+  ],
+};`,
+            },
+            links: [
+              { label: 'GAME-CONTRACT.md', href: 'https://github.com/n8watkins/n8-party-games/blob/main/party-kit/GAME-CONTRACT.md' },
+              { label: 'The kit README', href: 'https://github.com/n8watkins/n8-party-games/blob/main/party-kit/README.md' },
+            ],
+          },
+          {
+            title: 'Write the rules as a plain module',
+            body: 'The room calls your functions and you never touch a socket: inputs in, events and snapshots out. The rules import nothing from the kit, and every random choice comes from the round\'s seed, so a round can be replayed. Coin Flip, a 74-line test game, is the smallest one in the repository.',
+            code: {
+              file: 'lobby/games/coin-flip.js (excerpt)',
+              href: 'https://github.com/n8watkins/n8-party-games/blob/main/lobby/games/coin-flip.js',
+              text: `export const game = {
+  id: "coin-flip",
+  minSeats: 1,
+  maxSeats: 4,
+  tickHz: 4,
+  snapshotEvery: 4,
+
+  create({ seed, seats, now }) {
+    const next = rng(seed);
+    // ... shuffle the seats with it
+    return { startAt: now, seats: seats.map((s) => s.seat), order, shown: false };
+  },
+
+  // Nothing to press: luck does it all.
+  input() {},
+
+  tick(state, now) {
+    if (state.shown || now - state.startAt < FLIP_MS) return [];
+    state.shown = true;
+    return [{ k: "shown", order: state.order }];
+  },
+  // ... snapshot, isOver, result, standings
+};`,
+            },
+          },
+          {
+            title: 'Keep a secret per phone, if your game has one',
+            body: '`snapshot(state, now, viewer)` is called once for each kind of viewer: a player\'s phone, the big screen, someone watching. An event with `only: seat` reaches that seat and nobody else. The room never sends its seed, so a secret cannot be worked out from it.',
+            code: {
+              file: 'party-kit/README.md, "The game object"',
+              href: 'https://github.com/n8watkins/n8-party-games/blob/main/party-kit/README.md#the-game-object',
+              text: `  // Advance to \`now\`. Return the events clients should hear about.
+  // An event with \`only: seat\` (or \`only: [seats]\`) reaches only the players in those seats.
+  tick(state, now) { return events; },
+
+  // What this viewer may see. A game that shows everyone the same can leave \`viewer\` out.
+  snapshot(state, now, viewer) { return json; },`,
+            },
+          },
+          {
+            title: 'Run it locally',
+            body: 'Open the address in two browser windows, start a party in one and join with its code in the other. No Cloudflare account is needed to play or develop.',
+            code: {
+              file: 'README.md, "Run it"',
+              href: 'https://github.com/n8watkins/n8-party-games#run-it',
+              text: `npm install
+npm run dev     # http://localhost:8791/ (the party room)
+npm test`,
+            },
+          },
+          {
+            title: 'Hang it on the wall',
+            body: 'Add the game as a development dependency pinned to a commit, import it in games.js and add it to the list. The build copies the files its manifest names, and the Worker takes its rules for the rooms.',
+            code: {
+              file: 'games.js',
+              href: 'https://github.com/n8watkins/n8-party-games/blob/main/games.js',
+              text: `import * as corkAndBell from "cork-and-bell";
+
+export const GAMES = [corkAndBell];`,
+            },
+          },
+          {
+            title: 'Or take the kit for your own game',
+            body: 'The kit is not its own package yet: a game takes it from the repository as a development dependency, pinned to a tag or a commit, and gets `createPartyRoom`, the PIN directory, the rate limiter, the room budget and the browser client. It runs on Workers and Durable Objects, with four Durable Object bindings in wrangler.jsonc.',
+            links: [{ label: 'Taking the kit into a game', href: 'https://github.com/n8watkins/n8-party-games/blob/main/party-kit/README.md#taking-the-kit-into-a-game' }],
+          },
+          {
+            title: 'The licence',
+            body: "MIT, for the kit, the room and the site. Each game carries its own licence. The room's sounds are not under MIT: they are made from CC0 recordings, credited one by one. Nick Saraev's prompts in credits/nick-saraev/ are his and not under MIT either.",
+            links: [
+              { label: 'LICENSE', href: 'https://github.com/n8watkins/n8-party-games/blob/main/LICENSE' },
+              { label: 'Credit and licence notes', href: 'https://github.com/n8watkins/n8-party-games#credit' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'pieces',
+        label: 'Games, pieces, rooms',
+        icon: 'pieces',
+        heading: { lead: 'Games, pieces and', accent: 'rooms' },
+        intro:
+          'Each player is a piece in a colour they choose. The render at the top shows where this is going; here is where each part stands today.',
+        layout: 'cards',
+        items: [
+          {
+            title: 'Cork & Bell',
+            status: 'Live',
+            body: 'A 1930s fairground shooting gallery, from its own repository. It plays inside the room, a stall each, for ninety seconds.',
+            links: [{ label: 'n8watkins/cork-and-bell', href: 'https://github.com/n8watkins/cork-and-bell' }],
+          },
+          {
+            title: 'Hot Potato',
+            status: 'Live',
+            body: 'A word chain by voice on one phone or computer passed around a group of 2 to 8. No server: the page is all there is.',
+          },
+          {
+            title: 'Tin Derby, Paper Masks, Who Am I?',
+            status: 'In progress',
+            body: 'Tin Derby for the room; Paper Masks and Who Am I? for the Table, which seats up to four today. Who Am I? plays on its own site meanwhile.',
+          },
+          {
+            title: 'Pawn',
+            status: 'Live',
+            body: 'Everyone starts as one. Walk, jump and bump: the bumper kicks with its base, and the other piece is thrown back, tips over and gets up.',
+            image: { src: '/games/n8games/piece-pawn.webp', alt: 'A red lacquered pawn with two dark eyes', width: 360, height: 400 },
+          },
+          {
+            title: 'Ghost',
+            status: 'Live',
+            body: 'A white sheet with a hem in your colour and floating hands for its emotes. It bumps like the pawn for now; its own move, a fade nothing can touch, is not built yet.',
+            image: { src: '/games/n8games/piece-ghost.webp', alt: 'A white ghost with round black eyes, a small open mouth and two nub arms', width: 360, height: 400 },
+          },
+          {
+            title: 'Robot',
+            status: 'Planned',
+            body: 'Its move is a hook on a chain that drags one player across the floor. Designed and drawn, not playable.',
+            image: { src: '/games/n8games/piece-robot.webp', alt: 'A small teal robot with a screen face, an antenna and tank treads', width: 360, height: 400 },
+          },
+          {
+            title: 'Slime',
+            status: 'Planned',
+            body: 'Go soft to turn a hook around, or go hard to throw a charge back. Designed and drawn, not playable.',
+            image: { src: '/games/n8games/piece-slime.webp', alt: 'A yellow jelly slime dome with two eyes', width: 360, height: 400 },
+          },
+          {
+            title: 'Rooms',
+            status: 'Live',
+            body: 'Seven rooms in the 3D look: the bar, the Star Lounge, the arcade, the campfire, the rooftop, the studio and the pier fair. The host picks one and every screen changes together. Rendered versions of the bar and the Star Lounge are behind a switch for now.',
+          },
+          {
+            title: 'Adding a character',
+            body: 'A character is one entry in each of three lists, which a test keeps the same: the room\'s (lobby/shared/characters.js), its emotes and flat drawing, and its 3D model. No draw site names a character, so a new one is a definition, not a hunt through the code.',
+            links: [{ label: 'The character interface', href: 'https://github.com/n8watkins/n8-party-games/blob/main/lobby/README.md#the-interface' }],
+          },
+        ],
+      },
+    ],
+    cta: {
+      heading: 'Make a game, or take the kit',
+      body: 'The kit, the room and the site are MIT-licensed. Start with the game contract, or open the room locally in two browser windows.',
+      label: 'Get the code',
+      href: N8GAMES_REPO,
+    },
+    tryIt: { label: 'Play n8games', href: N8GAMES_URL },
+    github: N8GAMES_REPO,
+    liveSite: N8GAMES_URL,
   },
   {
     slug: 'portfolio-rank',

@@ -5,9 +5,12 @@
  * its card describes the face-off and says more is coming.
  *
  * Each card's picture is a screenshot of the game itself (public/games/,
- * 960x600 WebP, taken with GET requests only). Copy comes from each game's
- * own site and README; keep it in step and modest.
+ * 960x600 WebP, taken with GET requests only), apart from n8games, whose
+ * picture is the owner's render of its room. Copy comes from each game's own
+ * site and README; keep it in step and modest.
  */
+
+import { N8GAMES_AD, N8GAMES_PAGE, N8GAMES_URL } from './n8games'
 
 export type Game = {
   slug: string
@@ -26,6 +29,13 @@ export type Game = {
   /** The game's mark: an image path, or 'dino' for the drawn dino. */
   icon: string
   shot: string
+  /**
+   * The picture's words, when it shows more than the card says (n8games' render).
+   * A screenshot of the game's own page is decorative: the name and line say it.
+   */
+  shotAlt?: string
+  /** A page here about the game (its build page), linked beside "View the code". */
+  more?: { label: string; href: string }
   /** The public repository, for the "View the code" link. */
   repo?: string
   /** Its colour, lightened for this dark site. */
@@ -34,17 +44,20 @@ export type Game = {
 
 export const GAMES: Game[] = [
   {
-    slug: 'party-games',
-    name: 'n8 Party Games',
+    // The games site's address lives in data/n8games.ts, with its build page and its ad.
+    slug: 'n8games',
+    name: 'n8games',
     description:
-      'One room for up to four people. Friends join with a code from their phones, walk a little piece around the room and vote for the next game by standing in its light.',
-    note: 'Cork & Bell plays in the room today and Who Am I? is being moved in. More games are planned.',
+      'One front door for party games. In the character room friends join from their phones with a code and pick the next game by standing in its light. There is a table for turn-based games, and games for one phone passed around.',
+    note: 'Playable now: Cork & Bell in the room, and Hot Potato on one device. Coming: Tin Derby in the room, Paper Masks and Who Am I? at the table.',
     kind: 'Party',
-    tags: ['1-4 players', 'Phone or laptop', 'No account', 'Free'],
-    href: 'https://partygames.n8builds.dev',
-    cta: 'Start a party',
-    icon: '/games/party-games-icon.png',
-    shot: '/games/party-games.webp',
+    tags: ['Phones + any screen', 'Up to 4 per room', 'No account', 'Free'],
+    href: N8GAMES_URL,
+    icon: '/games/n8games/icon.png',
+    // The owner's render of the room, cropped close on the pieces (data/n8games.ts).
+    shot: N8GAMES_AD.image.close.src,
+    shotAlt: N8GAMES_AD.image.alt,
+    more: { label: 'Learn more', href: N8GAMES_PAGE },
     repo: 'n8watkins/n8-party-games',
     // The lamp's amber over the room's dark wood, lightened for this dark site.
     accent: '#f0a24b',

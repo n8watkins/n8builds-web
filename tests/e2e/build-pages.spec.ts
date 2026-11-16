@@ -193,6 +193,58 @@ test('every build page ends with More builds: three others, the featured ones fi
   await expect(page).toHaveURL(/\/builds\/openping$/)
 })
 
+test.describe('the n8games build page', () => {
+  test.use({ contextOptions: { reducedMotion: 'reduce' } })
+
+  test('leads with Play and the render, then the kit for developers and where each piece stands', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await page.goto('/builds/n8games')
+    await expect(page).toHaveTitle('n8games | n8builds')
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('n8games')
+    const play = page.getByRole('banner').getByRole('link', { name: /^Play n8games/ })
+    await expect(play).toHaveAttribute('href', 'https://partygames.n8builds.dev')
+    await expect(page.getByRole('img', { name: /red pawn punches a robot/ }).first()).toBeVisible()
+
+    // The guides, in the sidebar and on the page.
+    const nav = page.getByRole('navigation', { name: /on this page/i })
+    for (const label of ['Make a game for it', 'Games, pieces, rooms']) await expect(nav.getByRole('link', { name: label })).toBeAttached()
+    const kit = page.locator('section#kit')
+    await expect(kit.getByRole('heading', { level: 2 })).toHaveText('Make a game for it, or take the kit')
+    await expect(kit.getByRole('listitem').filter({ has: page.getByRole('heading', { level: 3 }) })).toHaveCount(7)
+    await expect(kit.locator('pre').filter({ hasText: 'export const game = {' })).toBeVisible()
+    await expect(kit.getByRole('link', { name: /Source of lobby\/games\/coin-flip\.js/ })).toHaveAttribute(
+      'href',
+      'https://github.com/n8watkins/n8-party-games/blob/main/lobby/games/coin-flip.js',
+    )
+
+    const pieces = page.locator('section#pieces')
+    for (const [name, status] of [
+      ['Pawn', 'Live'],
+      ['Ghost', 'Live'],
+      ['Robot', 'Planned'],
+      ['Slime', 'Planned'],
+    ] as const) {
+      const card = pieces.getByRole('listitem').filter({ has: page.getByRole('heading', { level: 3, name, exact: true }) })
+      await expect(card.getByText(status, { exact: true })).toBeVisible()
+      const img = card.getByRole('img')
+      await img.scrollIntoViewIfNeeded()
+      await expect.poll(() => img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true)
+    }
+
+    // "Get the code" goes to the repository; Nick Saraev is credited.
+    await expect(page.getByRole('link', { name: /^Get the code/ })).toHaveAttribute('href', 'https://github.com/n8watkins/n8-party-games')
+    await expect(page.getByRole('region', { name: 'Credits' })).toContainText('Nick Saraev')
+  })
+
+  for (const width of [390, 768]) {
+    test(`fits ${width}px with no sideways scroll, code scrolling inside its box`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 844 })
+      await page.goto('/builds/n8games')
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0)
+    })
+  }
+})
+
 test('the section headings are centred', async ({ page }) => {
   await page.goto('/builds/openping')
   for (const name of ["How it's built", 'Process notes', 'Build log', 'More builds']) {

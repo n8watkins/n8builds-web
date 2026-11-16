@@ -12,6 +12,7 @@ import BuildLogStrip from '@/components/sections/BuildLogStrip'
 import FeaturedProjects from '@/components/sections/FeaturedProjects'
 import UseAsTemplate from '@/components/sections/UseAsTemplate'
 import PortfolioAd from '@/components/sections/PortfolioAd'
+import N8gamesAd from '@/components/sections/N8gamesAd'
 import UpcomingStrip from '@/components/sections/UpcomingStrip'
 import NotionsStrip from '@/components/sections/NotionsStrip'
 import ExtensionsShowcase from '@/components/sections/ExtensionsShowcase'
@@ -184,8 +185,15 @@ export default async function HomePage({ posts }: { posts: Post[] }) {
           </SectionErrorBoundary>
         </div>
 
-        {/* ===== THE PORTFOLIO AD: hiring after seeing the builds? One click. ===== */}
+        {/* ===== THE ADS: n8games (owner, 2026-11-16: come play the games I've been
+             making; switched off or swapped in data/n8games.ts), then the portfolio
+             ad: hiring after seeing the builds? One click. ===== */}
         <Band>
+          <SectionErrorBoundary sectionName="n8games Ad">
+            <div className="pt-10">
+              <N8gamesAd />
+            </div>
+          </SectionErrorBoundary>
           <SectionErrorBoundary sectionName="Portfolio Ad">
             <PortfolioAd />
           </SectionErrorBoundary>
