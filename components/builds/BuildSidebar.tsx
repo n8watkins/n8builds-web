@@ -2,7 +2,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import type { IconType } from 'react-icons'
 import { FiArrowUpRight, FiGithub } from 'react-icons/fi'
-import { LuBookOpen, LuCode, LuLayers, LuLayoutGrid, LuNotebookPen, LuPlay, LuScrollText, LuShapes, LuSparkles } from 'react-icons/lu'
+import { LuBookOpen, LuLayers, LuLayoutGrid, LuNotebookPen, LuPlay, LuScrollText, LuSparkles } from 'react-icons/lu'
 import RailRows from '@/components/ui/RailRows'
 import { TechGlyph, TECH, type TechKey } from '@/lib/tech-icons'
 
@@ -29,8 +29,6 @@ const PART_ICONS = {
   process: LuNotebookPen,
   log: LuScrollText,
   more: LuLayoutGrid,
-  code: LuCode,
-  pieces: LuShapes,
 } satisfies Record<string, IconType>
 export type PartIcon = keyof typeof PART_ICONS
 

@@ -1,0 +1,210 @@
+import { test, expect, type Page } from '@playwright/test'
+import { N8GAMES_PAGE, N8GAMES_URL, gamePage } from '../../data/n8games'
+import { N8GAMES_GAMES } from '../../data/n8games/games'
+import { PIECES } from '../../data/n8games/page'
+
+/**
+ * The n8games page (/builds/n8games) and a page per game under it
+ * (owner, 2026-11-16): the clips, the links, the steps, the credits, the
+ * pieces' stage, phone widths and reduced motion.
+ */
+
+const sideways = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
+
+/** Waits until a video is really playing (its clock moves). */
+async function expectPlaying(page: Page, selector: string) {
+  await expect
+    .poll(() => page.locator(selector).evaluate((v: HTMLVideoElement) => !v.paused && v.currentTime > 0), { timeout: 15_000 })
+    .toBe(true)
+}
+
+test.describe('the n8games page', () => {
+  test('one Go play, the moving room, the five games each to its own page, and the credits', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 })
+    await page.goto(N8GAMES_PAGE)
+    await expect(page).toHaveTitle('n8games | n8builds')
+    const main = page.getByRole('main')
+    await expect(main.getByRole('heading', { level: 1 })).toHaveText('n8games')
+    await expect(main.getByRole('link', { name: 'Go play (opens in a new tab)' })).toHaveAttribute('href', N8GAMES_URL)
+
+    // The hero clip: the wide crop on a computer, with its poster, playing by itself.
+    const hero = main.locator('section').first().locator('video:visible')
+    await expect(hero).toHaveCount(1)
+    await expect(hero).toHaveAttribute('poster', /hero-wide-poster\.webp$/)
+    await expect(hero.locator('source[type="video/webm"]')).toHaveAttribute('src', /hero-wide\.webm$/)
+    await expect(hero.locator('source[type="video/mp4"]')).toHaveAttribute('src', /hero-wide\.mp4$/)
+    await expect.poll(() => hero.evaluate((v: HTMLVideoElement) => !v.paused && v.muted)).toBe(true)
+    await expect(main.getByRole('button', { name: 'Pause the clip of the party room' })).toBeVisible()
+
+    // The shelf: five games, all playable, each card to its own page.
+    const shelf = page.locator('#games')
+    for (const g of N8GAMES_GAMES) {
+      const card = shelf.getByRole('listitem').filter({ has: page.getByRole('heading', { level: 3, name: g.name, exact: true }) })
+      await expect(card.getByText('Playable')).toBeVisible()
+      await expect(card.getByRole('link', { name: `How ${g.name} is made` })).toHaveAttribute('href', gamePage(g.slug))
+    }
+
+    // Make a game: the README, not setup steps.
+    await expect(main.getByRole('link', { name: /Read the README/ })).toHaveAttribute('href', 'https://github.com/n8watkins/n8-party-games#how-a-game-gets-in')
+
+    // Thanks: Nick Saraev as the repository credits him, with his links, and the sounds.
+    await expect(main).toContainText('This project is not affiliated with Nick Saraev or endorsed by him.')
+    for (const href of ['https://www.youtube.com/@nicksaraev', 'https://www.youtube.com/watch?v=wpFw66kKixU', 'https://www.youtube.com/watch?v=5mA9Hab09Do', 'https://www.skool.com/maker-zero/about']) {
+      await expect(main.locator(`a[href="${href}"]`)).toHaveCount(1)
+    }
+    await expect(main.locator('a[href="https://kenney.nl/assets/interface-sounds"]')).toHaveCount(1)
+    await main.getByText('Show all sound credits').click()
+    await expect(main.locator('a[href^="https://freesound.org/people/"]')).toHaveCount(19)
+  })
+
+  test('the game cards lead to the game pages', async ({ page }) => {
+    await page.goto(N8GAMES_PAGE)
+    await page.getByRole('link', { name: 'How Cork & Bell is made' }).click()
+    await expect(page).toHaveURL(new RegExp(`${gamePage('cork-and-bell')}$`))
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Cork & Bell')
+  })
+
+  test('on a phone the hero clip is the taller crop', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto(N8GAMES_PAGE)
+    const hero = page.getByRole('main').locator('section').first().locator('video:visible')
+    await expect(hero).toHaveCount(1)
+    await expect(hero).toHaveAttribute('poster', /hero-tall-poster\.webp$/)
+  })
+
+  test.describe('the pieces', () => {
+    test('cycle by themselves, hover holds a piece, and the arrow keys move along the row', async ({ page }) => {
+      await page.setViewportSize({ width: 1280, height: 900 })
+      await page.goto(N8GAMES_PAGE)
+      const row = page.getByRole('tablist', { name: 'The pieces' })
+      await row.scrollIntoViewIfNeeded()
+      const tabs = row.getByRole('tab')
+      await expect(tabs).toHaveText(PIECES.map((p) => p.name))
+      await expect(tabs.nth(0)).toHaveAttribute('aria-selected', 'true')
+      // The stage plays the piece showing.
+      await expectPlaying(page, '#piece-panel video[data-on="true"]')
+      // By itself it moves on to the next piece after a few seconds.
+      await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true', { timeout: 9_000 })
+
+      // Hovering a piece shows it at once and holds it while the pointer stays.
+      await tabs.nth(2).hover()
+      await expect(tabs.nth(2)).toHaveAttribute('aria-selected', 'true')
+      await expect(page.locator('#piece-panel')).toContainText('Coming to the room')
+      await page.waitForTimeout(6_500)
+      await expect(tabs.nth(2)).toHaveAttribute('aria-selected', 'true')
+      await expectPlaying(page, '#piece-panel video[data-on="true"]')
+
+      // The keyboard: the arrows move along the row, Home goes to the first.
+      await tabs.nth(2).focus()
+      await page.keyboard.press('ArrowRight')
+      await expect(tabs.nth(3)).toHaveAttribute('aria-selected', 'true')
+      await expect(tabs.nth(3)).toBeFocused()
+      await page.keyboard.press('ArrowRight')
+      await expect(tabs.nth(0)).toBeFocused()
+      await page.keyboard.press('End')
+      await expect(tabs.nth(3)).toHaveAttribute('aria-selected', 'true')
+      await page.keyboard.press('Home')
+      await expect(tabs.nth(0)).toHaveAttribute('aria-selected', 'true')
+    })
+
+    test('with reduced motion they hold still, and Play plays the one showing', async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: 'reduce' })
+      await page.goto(N8GAMES_PAGE)
+      const row = page.getByRole('tablist', { name: 'The pieces' })
+      await row.scrollIntoViewIfNeeded()
+      const tabs = row.getByRole('tab')
+      await page.waitForTimeout(6_500)
+      await expect(tabs.nth(0)).toHaveAttribute('aria-selected', 'true')
+      const clip = page.locator('#piece-panel video[data-on="true"]')
+      await expect(clip).toHaveAttribute('poster', /piece-pawn-poster\.webp$/)
+      expect(await clip.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true)
+      // A tap on a piece shows its still; Play plays it.
+      await tabs.nth(1).click()
+      await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true')
+      await page.getByRole('button', { name: "Play the ghost's clip" }).click()
+      await expectPlaying(page, '#piece-panel video[data-on="true"]')
+    })
+  })
+})
+
+test.describe('the game pages', () => {
+  for (const g of N8GAMES_GAMES) {
+    test(`${g.name}: its clip, pictures, steps, how it's made, links and credits`, async ({ page, request }) => {
+      await page.setViewportSize({ width: 1280, height: 800 })
+      await page.goto(gamePage(g.slug))
+      await expect(page).toHaveTitle(`${g.name} | n8games | n8builds`)
+      const main = page.getByRole('main')
+      await expect(main.getByRole('heading', { level: 1 })).toHaveText(g.name)
+      await expect(main.getByText('Playable', { exact: true })).toBeVisible()
+
+      // The clip: muted, looping, inline, with its poster and both files, playing by itself.
+      const clip = main.locator(`video[poster="${g.clip.poster}"]`)
+      await expect(clip).toHaveCount(1)
+      await expect(clip).toHaveAttribute('aria-label', g.clip.alt)
+      await expect(clip.locator('source[type="video/webm"]')).toHaveAttribute('src', g.clip.webm)
+      await expect(clip.locator('source[type="video/mp4"]')).toHaveAttribute('src', g.clip.mp4)
+      expect(await clip.evaluate((v: HTMLVideoElement) => v.muted && v.loop && v.playsInline)).toBe(true)
+      await expectPlaying(page, `video[poster="${g.clip.poster}"]`)
+      await main.getByRole('button', { name: `Pause the clip of ${g.name}` }).click()
+      await expect.poll(() => clip.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true)
+
+      // Go play (twice: top and bottom), and Get the code only where the code is public.
+      const play = main.getByRole('link', { name: `Go play ${g.name} (opens in a new tab)` })
+      await expect(play).toHaveCount(2)
+      for (const link of await play.all()) await expect(link).toHaveAttribute('href', g.play.href)
+      const code = main.getByRole('link', { name: `Get the code for ${g.name} (opens in a new tab)` })
+      if (g.code) await expect(code.first()).toHaveAttribute('href', g.code)
+      else await expect(code).toHaveCount(0)
+      await expect(main.getByRole('link', { name: 'All of n8games' }).first()).toHaveAttribute('href', `${N8GAMES_PAGE}#games`)
+
+      // How a round goes, how it's made (icons and short items), the credits.
+      await expect(main.getByRole('list', { name: 'How a round goes' }).getByRole('listitem')).toHaveCount(g.steps.length)
+      const made = main.getByRole('list', { name: "How it's made" }).getByRole('listitem')
+      await expect(made).toHaveCount(g.made.length)
+      await expect(made.locator('svg')).toHaveCount(g.made.length)
+      for (const c of g.credits) {
+        await expect(main.getByRole('heading', { level: 3, name: c.heading })).toBeVisible()
+        for (const l of c.links) await expect(main.locator(`a[href="${l.href}"]`).first()).toBeAttached()
+      }
+      if (g.credits.some((c) => c.heading === 'Nick Saraev')) await expect(main).toContainText('This project is not affiliated with Nick Saraev or endorsed by him.')
+
+      // The pictures load, with their words.
+      for (const p of g.pictures) {
+        const img = main.getByRole('img', { name: p.alt })
+        await img.scrollIntoViewIfNeeded()
+        await expect.poll(() => img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true)
+      }
+
+      // Its share card.
+      const og = await request.get(`${gamePage(g.slug)}/og.png`)
+      expect(og.status()).toBe(200)
+      expect(og.headers()['content-type']).toBe('image/png')
+    })
+  }
+
+  test('reduced motion: a clip never plays by itself, and Play plays it', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    const g = N8GAMES_GAMES[0]
+    await page.goto(gamePage(g.slug))
+    const clip = page.locator(`video[poster="${g.clip.poster}"]`)
+    await page.waitForTimeout(1_500)
+    expect(await clip.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true)
+    await page.getByRole('button', { name: `Play the clip of ${g.name}` }).click()
+    await expectPlaying(page, `video[poster="${g.clip.poster}"]`)
+  })
+
+  test('an unknown game is a 404', async ({ request }) => {
+    expect((await request.get(`${N8GAMES_PAGE}/no-such-game`)).status()).toBe(404)
+    expect((await request.get('/builds/openping/cork-and-bell')).status()).toBe(404)
+  })
+})
+
+for (const width of [390, 768]) {
+  test(`no sideways scroll at ${width}px on the n8games page and every game page`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 })
+    for (const path of [N8GAMES_PAGE, ...N8GAMES_GAMES.map((g) => gamePage(g.slug))]) {
+      await page.goto(path)
+      expect(await sideways(page), path).toBeLessThanOrEqual(0)
+    }
+  })
+}

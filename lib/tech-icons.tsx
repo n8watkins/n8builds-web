@@ -1,6 +1,5 @@
 import type { IconType } from 'react-icons'
 import {
-  SiBlender,
   SiCloudflare,
   SiCloudflareworkers,
   SiDiscord,
@@ -26,7 +25,6 @@ import {
   SiStripe,
   SiTailwindcss,
   SiTauri,
-  SiThreedotjs,
   SiTurso,
   SiTypescript,
   SiUpstash,
@@ -91,8 +89,6 @@ export const TECH = {
   sentry: { label: 'Sentry', Icon: SiSentry, color: '#A78BFA' },
   upstash: { label: 'Upstash', Icon: SiUpstash, color: '#00E9A3' },
   lighthouse: { label: 'Lighthouse', Icon: SiLighthouse, color: '#F44B21' },
-  threejs: { label: 'three.js', Icon: SiThreedotjs, color: '#F8FAFC' },
-  blender: { label: 'Blender', Icon: SiBlender, color: '#F5792A' },
 } satisfies Record<string, TechMark>
 
 export type TechKey = keyof typeof TECH

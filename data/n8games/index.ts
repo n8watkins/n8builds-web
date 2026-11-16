@@ -18,6 +18,9 @@ export const N8GAMES_REPO = 'https://github.com/n8watkins/n8-party-games'
  */
 export const N8GAMES_PAGE = '/builds/n8games'
 
+/** A game's own page under it ("How it's made"): /builds/n8games/<slug>, a stable address. */
+export const gamePage = (slug: string) => `${N8GAMES_PAGE}/${slug}`
+
 /**
  * The ad for n8games (owner, 2026-11-16): a wide picture of the rendered party
  * room, one line, "Play" to the games site and "Learn more" to the build page.

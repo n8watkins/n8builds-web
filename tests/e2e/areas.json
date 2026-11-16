@@ -155,6 +155,10 @@
       ],
       "sources": ["app/builds/[slug]/**", "app/download/**", "components/builds/**", "public/builds/**", "public/work/**"]
     },
+    "n8games-pages": {
+      "specs": ["tests/e2e/n8games-pages.spec.ts"],
+      "sources": ["app/builds/[slug]/[game]/**", "components/builds/n8games/**", "data/n8games/**", "public/games/n8games/**"]
+    },
     "lab": {
       "specs": [
         "tests/e2e/lab.spec.ts",

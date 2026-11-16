@@ -1,5 +1,7 @@
 import { MetadataRoute } from 'next'
 import { builds } from '@/data/builds'
+import { gamePage } from '@/data/n8games'
+import { N8GAMES_GAMES } from '@/data/n8games/games'
 import { getBuildLog } from '@/lib/build-log'
 import { getAllPosts } from '@/lib/sanity'
 import { SITE_URL } from '@/lib/seo'
@@ -37,6 +39,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${SITE_URL}/builds/${build.slug}`,
       changeFrequency: 'monthly' as const,
       priority: 0.7,
+    })),
+    // Each n8games game's own page, under its build page.
+    ...N8GAMES_GAMES.map((game) => ({
+      url: `${SITE_URL}${gamePage(game.slug)}`,
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
     })),
     ...posts.map((post) => ({
       url: `${SITE_URL}/blog/${post.slug.current}`,
