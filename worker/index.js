@@ -9,6 +9,7 @@ import { scrubContactBody } from '../lib/sentry-scrub'
 import { MEDIA, fetchWithRanges } from './range.js'
 import { forEdge, mayUseEdgeCache } from './edge-cache.js'
 import { refuseGameOrigin } from './game-gate.js'
+import { missingFileResponse } from './missing-file.js'
 import { TUNNEL_PATH, forwardEnvelope } from '../lib/sentry/tunnel'
 import { purgeExpired } from '../lib/retention'
 import { WaitlistStore } from '../lib/waitlist/store'
@@ -243,6 +244,13 @@ const worker = {
     // rather than through Next: about 200 ms of CPU each there, next to none here.
     if (pathname === TUNNEL_PATH && request.method === 'POST' && env.SENTRY_DSN) {
       return forwardEnvelope(request, env.SENTRY_DSN)
+    }
+    // File-like paths that are not routes (scanners: /config.json, /.s3cfg,
+    // /www.zip) get a plain 404 here, before Next. The videos are left to
+    // uncached(), which answers their byte ranges.
+    if (!MEDIA.test(pathname)) {
+      const missing = missingFileResponse(request)
+      if (missing) return missing
     }
     const refused = refuseGameOrigin(request, env.APP_ENV)
     if (refused) return refused
