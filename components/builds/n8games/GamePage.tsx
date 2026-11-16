@@ -91,12 +91,18 @@ export default function GamePage({ game }: { game: N8Game }) {
               <Actions game={game} />
             </div>
           </div>
-          <figure className={`${styles.heroStage} ${styles.enter} ${game.clip.frame === 'phone' ? styles.phoneStage : ''}`} style={vars({ '--i': 3 })}>
-            <div className={`${styles.heroView} ${game.clip.frame === 'phone' ? styles.phoneView : ''}`} style={vars({ '--ratio': `${game.clip.width} / ${game.clip.height}` })}>
-              <LoopVideo clip={game.clip} alt={game.clip.alt} label={`clip of ${game.name}`} priority />
-            </div>
-            <figcaption className={styles.clipCaption}>{game.clip.caption}</figcaption>
-          </figure>
+          <div className={`${styles.heroStage} ${styles.enter} ${game.clip.frame === 'phone' ? styles.phoneStage : ''}`} style={vars({ '--i': 3 })}>
+            {/* Pause sits under the frame, so it never covers the game's own buttons. */}
+            <LoopVideo
+              clip={game.clip}
+              alt={game.clip.alt}
+              label={`clip of ${game.name}`}
+              priority
+              frameClassName={`${styles.heroView} ${game.clip.frame === 'phone' ? styles.phoneView : ''}`}
+              frameStyle={vars({ '--ratio': `${game.clip.width} / ${game.clip.height}` })}
+              caption={game.clip.caption}
+            />
+          </div>
         </section>
 
         <Reveal as="section" className={`${styles.sec} ${styles.wrap}`}>

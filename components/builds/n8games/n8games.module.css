@@ -523,8 +523,36 @@
   margin-left: 4px;
 }
 
-.clipCaption {
-  margin-top: 14px;
+/* Under a game's clip: Pause, and what the clip is. */
+.clipBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 14px;
+  margin-top: 18px;
+}
+
+.n8g .clipToggleBelow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 6px 14px 4px;
+  border-radius: 14px;
+  border: 2px solid var(--g-line);
+  background: var(--g-plate);
+  color: var(--g-ink);
+  font: 800 16px/1 var(--display);
+  cursor: pointer;
+}
+
+.clipToggleBelow svg {
+  width: 14px;
+  height: 14px;
+}
+
+.n8g .clipCaption {
   font: 700 14px/1.35 var(--text);
   color: var(--g-ink-soft);
   text-align: center;
@@ -1553,19 +1581,17 @@
   transform: skewX(-6deg);
 }
 
-.themePotato .heroView,
-.themePotato .madeItem {
-  border-image: repeating-linear-gradient(45deg, #f5d03b 0 10px, #14163a 10px 20px) 6;
-  border-width: 6px;
+/* The clip sits in a hazard-striped rig. */
+.themePotato .heroView {
+  border-image: repeating-linear-gradient(45deg, #f5d03b 0 10px, #14163a 10px 20px) 8;
+  border-width: 8px;
   border-style: solid;
-}
-
-.themePotato .phoneView {
   border-radius: 0;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
 }
 
 .themePotato .madeItem {
-  border-width: 4px;
+  border-color: #f5d03b;
 }
 
 .themePotato .steps li::before {

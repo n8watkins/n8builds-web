@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { LuPause, LuPlay } from 'react-icons/lu'
 import styles from './n8games.module.css'
 
@@ -25,6 +25,9 @@ export default function LoopVideo({
   label,
   className,
   priority = false,
+  frameClassName,
+  frameStyle,
+  caption,
 }: {
   clip: LoopClip
   alt: string
@@ -33,6 +36,14 @@ export default function LoopVideo({
   className?: string
   /** Above the fold: fetch the poster early. */
   priority?: boolean
+  /**
+   * The clip's own frame. With one, Pause sits under the frame beside the
+   * caption, so it never covers the game's own buttons; without, it sits on
+   * the clip's corner (inside the caller's frame).
+   */
+  frameClassName?: string
+  frameStyle?: CSSProperties
+  caption?: string
 }) {
   const ref = useRef<HTMLVideoElement>(null)
   // `null` until the browser has said whether reduced motion is asked for.
@@ -98,9 +109,14 @@ export default function LoopVideo({
   }
 
   const name = playing ? `Pause the ${label}` : `Play the ${label}`
-  return (
-    <div className={`${styles.clip} ${className ?? ''}`} data-playing={playing ? 'true' : 'false'} data-still={still ? 'true' : 'false'}>
-      <video
+  const button = (
+    <button type="button" className={frameClassName ? styles.clipToggleBelow : styles.clipToggle} onClick={toggle} aria-label={name}>
+      {playing ? <LuPause aria-hidden /> : <LuPlay aria-hidden />}
+      <span aria-hidden>{playing ? 'Pause' : 'Play'}</span>
+    </button>
+  )
+  const video = (
+    <video
         ref={ref}
         className={styles.clipVideo}
         width={clip.width}
@@ -115,18 +131,36 @@ export default function LoopVideo({
       >
         <source src={clip.webm} type="video/webm" />
         <source src={clip.mp4} type="video/mp4" />
-      </video>
-      {/* Under reduced motion, before it has played: the still, with a big Play in the middle. */}
-      {still && !playing && (
-        // The corner button is the one for the keyboard and screen readers; this is a bigger target for a tap.
-        <button type="button" className={styles.clipBigPlay} onClick={toggle} tabIndex={-1} aria-hidden="true">
-          <LuPlay aria-hidden />
-        </button>
-      )}
-      <button type="button" className={styles.clipToggle} onClick={toggle} aria-label={name}>
-        {playing ? <LuPause aria-hidden /> : <LuPlay aria-hidden />}
-        <span aria-hidden>{playing ? 'Pause' : 'Play'}</span>
-      </button>
+    </video>
+  )
+  // Under reduced motion, before it has played: the still, with a big Play in the middle. The
+  // other button is the one for the keyboard and screen readers; this is a bigger target for a tap.
+  const bigPlay = still && !playing && (
+    <button type="button" className={styles.clipBigPlay} onClick={toggle} tabIndex={-1} aria-hidden="true">
+      <LuPlay aria-hidden />
+    </button>
+  )
+  const state = { 'data-playing': playing ? 'true' : 'false', 'data-still': still ? 'true' : 'false' }
+
+  if (!frameClassName) {
+    return (
+      <div className={`${styles.clip} ${className ?? ''}`} {...state}>
+        {video}
+        {bigPlay}
+        {button}
+      </div>
+    )
+  }
+  return (
+    <div className={`${styles.clip} ${className ?? ''}`} {...state}>
+      <div className={frameClassName} style={frameStyle}>
+        {video}
+        {bigPlay}
+      </div>
+      <div className={styles.clipBar}>
+        {button}
+        {caption && <p className={styles.clipCaption}>{caption}</p>}
+      </div>
     </div>
   )
 }
