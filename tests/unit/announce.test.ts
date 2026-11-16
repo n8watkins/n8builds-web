@@ -249,7 +249,9 @@ describe('Announcements: start', () => {
   })
 })
 
-describe('Announcements: sending', () => {
+// Each test drives a real local D1 through many batches: about 4.7 s on a quiet
+// PC, so the default 5 s ran out whenever the whole suite ran at once.
+describe('Announcements: sending', { timeout: 20_000 }, () => {
   it('sends in batches up to the run limit and resumes on the next run without sending anyone twice', async () => {
     const { service, people, fake, later } = setup()
     await people(RUN_LIMIT + 5)

@@ -133,7 +133,9 @@ describe('newsletter emails', () => {
   })
 })
 
-describe('runDigest: selection and sending', () => {
+// Real local D1 through many batches (about 3 s on a quiet PC): the default 5 s
+// ran out whenever the whole suite ran at once.
+describe('runDigest: selection and sending', { timeout: 20_000 }, () => {
   const post = (publishedAt: string, slug = 'p'): DigestPost => ({ title: `Post ${slug}`, slug, publishedAt, excerpt: '' })
 
   /** A mailer that records sends, and refuses with `refuse(n)` from the nth send on. */
