@@ -541,11 +541,11 @@ images: [
       },
       {
         src: '/games/n8games/screen-vote.webp',
-        alt: 'The room on a big screen, from a test run: four pawns by the door, two of them in the lights of Cork & Bell and Coin Flip, the join code and QR code on the wall and the Tonight board on the right',
+        alt: 'The room on a big screen, in its rendered bar: four pawns, red and blue in the light of Cork & Bell and yellow in the light of Who Am I?, the join code and QR code on the wall, and the Tonight board on the right',
       },
       {
         src: '/games/n8games/phone-closer.webp',
-        alt: 'The same room on a phone held sideways, closer in on the player\'s red pawn, with Left, Right, Whole room, Jump and Bump buttons along the bottom',
+        alt: 'The same room on a phone held sideways, closer in on the player\'s yellow pawn, with Left, Right, Whole room, Jump and Bump buttons and the player\'s vote along the bottom',
       },
       {
         src: '/games/n8games/cork-in-the-room.webp',
@@ -553,7 +553,7 @@ images: [
       },
       {
         src: '/games/n8games/star-lounge.webp',
-        alt: 'The Star Lounge, another of the room\'s looks, on a big screen: the same wall of games and lamps in a lounge with a planet outside the windows',
+        alt: 'The Star Lounge, another of the room\'s looks, on a big screen: the same wall of games and lamps in a lounge with stars and a ringed planet outside the windows',
       },
     ],
     credits: [
