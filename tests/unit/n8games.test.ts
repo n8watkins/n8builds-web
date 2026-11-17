@@ -51,6 +51,11 @@ describe('n8games: the games', () => {
       }
       // A clip a phone can afford: each file under 2.5 MB.
       for (const path of [g.clip.webm, g.clip.mp4]) expect(statSync(publicFile(path)).size, path).toBeLessThan(2.5 * 1024 * 1024)
+      // A phone encode, where there is one, is the smaller file.
+      if (g.clip.phone) {
+        expect(statSync(publicFile(g.clip.phone.webm)).size).toBeLessThan(statSync(publicFile(g.clip.webm)).size)
+        expect(statSync(publicFile(g.clip.phone.mp4)).size).toBeLessThan(statSync(publicFile(g.clip.mp4)).size)
+      }
       expect(g.play.href).toMatch(/^https:\/\/(partygames|whoami)\.n8builds\.dev/)
     })
   }

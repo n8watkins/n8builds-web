@@ -34,6 +34,7 @@ export const tinDerby: N8Game = {
     alt: 'Tin Derby from behind a red tin car: it races over a red and cream checked tablecloth, past a teapot and a box of Tin Flakes, chasing the other cars, with the steering pad, Drift and Use buttons on the screen.',
     frame: 'screen',
     caption: 'A race on a phone held sideways, the house driving.',
+    phone: { webm: `${D}/clip-phone.webm`, mp4: `${D}/clip-phone.mp4` },
   },
   pictures: [
     {

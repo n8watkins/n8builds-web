@@ -34,6 +34,7 @@ export const corkAndBell: N8Game = {
     alt: 'Cork & Bell being played: corks fly at a red and gold stall at dusk, teapots tip over, stars and moons swing on the belt, and the score climbs on the ticket at the bottom left.',
     frame: 'screen',
     caption: 'The house playing a solo round, in the game itself.',
+    phone: { webm: `${D}/clip-phone.webm`, mp4: `${D}/clip-phone.mp4` },
   },
   pictures: [
     {

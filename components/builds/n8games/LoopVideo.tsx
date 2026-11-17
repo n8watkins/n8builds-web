@@ -9,7 +9,12 @@ export interface LoopClip {
   poster: string
   width: number
   height: number
+  /** A smaller encode for narrow screens, picked by the <source> media query. */
+  phone?: { webm: string; mp4: string }
 }
+
+/** Where the phone encode takes over (the page's own phone width). */
+const PHONE = '(max-width: 619px)'
 
 /**
  * A silent looping clip of a game being played (the site's clip rules, as for
@@ -132,6 +137,8 @@ export default function LoopVideo({
         disablePictureInPicture
         aria-label={alt}
       >
+        {clip.phone && <source src={clip.phone.webm} type="video/webm" media={PHONE} />}
+        {clip.phone && <source src={clip.phone.mp4} type="video/mp4" media={PHONE} />}
         <source src={clip.webm} type="video/webm" />
         <source src={clip.mp4} type="video/mp4" />
     </video>

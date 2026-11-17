@@ -85,6 +85,8 @@ export interface N8Game {
     frame: 'screen' | 'phone'
     /** Where it was recorded, said under it. */
     caption: string
+    /** A smaller encode of the same clip (640 wide) that phones get instead, for the heaviest clips. */
+    phone?: { webm: string; mp4: string }
   }
   /** Two to four more pictures. */
   pictures: GamePicture[]

@@ -149,8 +149,10 @@ test.describe('the game pages', () => {
       const clip = main.locator(`video[poster="${g.clip.poster}"]`)
       await expect(clip).toHaveCount(1)
       await expect(clip).toHaveAttribute('aria-label', g.clip.alt)
-      await expect(clip.locator('source[type="video/webm"]')).toHaveAttribute('src', g.clip.webm)
-      await expect(clip.locator('source[type="video/mp4"]')).toHaveAttribute('src', g.clip.mp4)
+      await expect(clip.locator('source[type="video/webm"]:not([media])')).toHaveAttribute('src', g.clip.webm)
+      await expect(clip.locator('source[type="video/mp4"]:not([media])')).toHaveAttribute('src', g.clip.mp4)
+      // A computer never gets the phone encode.
+      if (g.clip.phone) await expect.poll(() => clip.evaluate((v: HTMLVideoElement) => v.currentSrc)).toMatch(/\/clip\.(webm|mp4)$/)
       expect(await clip.evaluate((v: HTMLVideoElement) => v.muted && v.loop && v.playsInline)).toBe(true)
       await expectPlaying(page, `video[poster="${g.clip.poster}"]`)
       await main.getByRole('button', { name: `Pause the clip of ${g.name}` }).click()
@@ -260,6 +262,15 @@ test('on a phone, a game page\'s phone pictures scroll sideways and the keyboard
   await expect(strip).toBeFocused()
   await page.keyboard.press('ArrowRight')
   await expect.poll(() => strip.evaluate((el) => el.scrollLeft)).toBeGreaterThan(0)
+})
+
+test('on a phone the heaviest clips play their smaller phone encode', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  for (const g of N8GAMES_GAMES.filter((x) => x.clip.phone)) {
+    await page.goto(gamePage(g.slug))
+    const clip = page.locator(`video[poster="${g.clip.poster}"]`)
+    await expect.poll(() => clip.evaluate((v: HTMLVideoElement) => v.currentSrc), { timeout: 15_000 }).toMatch(/\/clip-phone\.(webm|mp4)$/)
+  }
 })
 
 test('on a phone the hero clip\'s Pause sits under the clip, not over it', async ({ page }) => {
