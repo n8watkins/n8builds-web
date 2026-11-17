@@ -108,7 +108,7 @@ export async function shareCard({
             )}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: 24, fontWeight: 500, color: '#94a3b8' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: split ? 21 : 24, fontWeight: 500, color: '#94a3b8' }}>
             <div style={{ width: 36, height: 3, borderRadius: 3, background: accent }} />
             {footer}
           </div>
