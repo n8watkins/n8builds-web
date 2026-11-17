@@ -626,6 +626,37 @@ test.describe('featured clips, with motion', () => {
       await resting(openping)
     }
   })
+
+  /**
+   * WebKit's GStreamer engine (WebKitGTK, WPE, and Playwright's WebKit on Linux) does
+   * not always fire `ended` when a clip reaches its end (bugs.webkit.org 285595): the
+   * clip sat on its last frame with its bar full and the other never got its turn
+   * (CI run 44017599804, 2026-11-16). The turn moves on because the clip has played to
+   * its end, whether or not the browser says so. Here the browser never says so.
+   */
+  test("a clip that reaches its end hands the turn on even when the browser never fires 'ended'", { tag: '@cross-browser' }, async ({ page, isMobile }) => {
+    test.skip(isMobile, 'The round is the same on a phone; the desktop layout shows both cards at once.')
+    // Swallow every `ended` before the page sees it (capture at the window runs first).
+    await page.addInitScript(() => window.addEventListener('ended', (e) => e.stopImmediatePropagation(), true))
+    await page.setViewportSize({ width: 1280, height: 900 })
+    await page.goto('/')
+    await page.locator('#featured').evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
+    await page.mouse.move(0, 0)
+    const openping = page.getByRole('article', { name: 'OpenPing' })
+    const solara = page.getByRole('article', { name: 'Solara' })
+    const turn = (card: typeof openping) => card.locator('[data-clip-slot]')
+    const video = (card: typeof openping) => card.locator('[data-tour] video')
+    await expect(turn(openping)).toHaveAttribute('data-clip-turn', '')
+    // Once it is really playing, skip to its last moment.
+    await expect.poll(() => video(openping).evaluate((v: HTMLVideoElement) => !v.paused && v.currentTime > 0 && v.duration > 0), { timeout: 15_000 }).toBe(true)
+    await video(openping).evaluate((v: HTMLVideoElement) => {
+      v.currentTime = Math.max(0, v.duration - 0.3)
+    })
+    // It plays out, and Solara takes the turn, though no `ended` reached the page.
+    await expect(turn(solara)).toHaveAttribute('data-clip-turn', '', { timeout: 10_000 })
+    await expect(turn(openping)).not.toHaveAttribute('data-clip-turn')
+    await expect.poll(() => video(solara).evaluate((v: HTMLVideoElement) => !v.paused && v.currentTime > 0), { timeout: 15_000 }).toBe(true)
+  })
 })
 
 test("the row's stack and features moved to the build page", async ({ page }) => {
