@@ -188,11 +188,12 @@ test('temporary redirects: builds on hold (so they can come back at the same URL
 // orphan: crawlers rank it poorly and visitors can never reach it. Every build
 // page is linked from the homepage or from the /builds index the homepage
 // links to (Portfolio Rank left the homepage on 2026-11-08 and is in the index).
-test('every build page in the sitemap is linked from the homepage or the /builds index', async ({ request }) => {
+// n8games' own games have pages under its build page (/builds/n8games/<game>), linked from it.
+test('every build page in the sitemap is linked from the homepage, the /builds index or its build page', async ({ request }) => {
   const builds = (await sitemapUrls(request)).filter((url) => url.includes('/builds/')).map(local)
   const home = await (await request.get('/')).text()
   expect(home).toMatch(/href="\/builds"/)
-  const html = home + (await (await request.get('/builds')).text())
+  const html = home + (await (await request.get('/builds')).text()) + (await (await request.get('/builds/n8games')).text())
   const linked = new Set([...html.matchAll(/href="(\/builds\/[^"#?]+)"/g)].map((m) => m[1]))
   expect(builds.length).toBeGreaterThan(5)
   expect(builds.filter((path) => !linked.has(path)), 'build pages with no link from the homepage or /builds').toEqual([])

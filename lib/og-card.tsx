@@ -31,6 +31,7 @@ export async function shareCard({
   subtitle,
   footer,
   background,
+  layout = 'cover',
 }: {
   /** Seeds the waveform (the post or build slug). */
   seed: string
@@ -42,7 +43,14 @@ export async function shareCard({
   footer: string
   /** A 1200x630 image (data URL) to draw instead of the generated art. */
   background?: string
+  /**
+   * `split`: the background's picture sits in its right half (its left half a
+   * flat colour), so the words keep to the left half and the picture is not
+   * dimmed. Smaller files too: half the card is flat.
+   */
+  layout?: 'cover' | 'split'
 }) {
+  const split = layout === 'split' && !!background
   const [medium, extraBold, icon] = await assets()
   const accent = coverAccent(topic, seed)
   const art = background ?? `data:image/svg+xml;base64,${Buffer.from(coverSvg(topic, seed)).toString('base64')}`
@@ -62,12 +70,14 @@ export async function shareCard({
             height: '100%',
             // Uploaded covers are busier than the waveform (text, UI mockups), so
             // they get dimmed across the whole card as well.
-            backgroundImage: background
-              ? 'linear-gradient(90deg, rgba(5,8,18,0.92) 0%, rgba(5,8,18,0.8) 50%, rgba(5,8,18,0.55) 100%)'
-              : 'linear-gradient(90deg, rgba(5,8,18,0.9) 0%, rgba(5,8,18,0.7) 45%, rgba(5,8,18,0) 85%)',
+            backgroundImage: split
+              ? 'linear-gradient(90deg, rgba(5,8,18,0.55) 0%, rgba(5,8,18,0.35) 44%, rgba(5,8,18,0) 54%)'
+              : background
+                ? 'linear-gradient(90deg, rgba(5,8,18,0.92) 0%, rgba(5,8,18,0.8) 50%, rgba(5,8,18,0.55) 100%)'
+                : 'linear-gradient(90deg, rgba(5,8,18,0.9) 0%, rgba(5,8,18,0.7) 45%, rgba(5,8,18,0) 85%)',
           }}
         />
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '64px 72px', width: '100%' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '64px 72px', width: split ? 680 : '100%' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             {/* eslint-disable-next-line @next/next/no-img-element -- rendered by Satori, not the browser */}
             <img src={`data:image/png;base64,${Buffer.from(icon).toString('base64')}`} width={52} height={52} alt="" style={{ borderRadius: 12 }} />
@@ -92,13 +102,13 @@ export async function shareCard({
               {title}
             </div>
             {subtitle && (
-              <div style={{ marginTop: 22, fontSize: 30, fontWeight: 500, lineHeight: 1.35, color: '#9cadc5', lineClamp: 2 }}>
+              <div style={{ marginTop: 22, fontSize: 30, fontWeight: 500, lineHeight: 1.35, color: split ? '#c3cfdf' : '#9cadc5', lineClamp: split ? 3 : 2 }}>
                 {subtitle}
               </div>
             )}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: 24, fontWeight: 500, color: '#94a3b8' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: split ? 21 : 24, fontWeight: 500, color: '#94a3b8' }}>
             <div style={{ width: 36, height: 3, borderRadius: 3, background: accent }} />
             {footer}
           </div>

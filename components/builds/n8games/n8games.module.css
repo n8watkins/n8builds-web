@@ -1,0 +1,1804 @@
+/*
+ * The n8games pages: /builds/n8games and each game's page under it. Ported
+ * from the owner-approved preview (round two, 2026-11-16): a toy box on a deep
+ * blue ground, warm cards and stickers as the colour, tomato for Play. Colours
+ * come in as --g-* custom properties from data/n8games/themes.ts (where a test
+ * holds every text pair to 4.5:1); each game page adds its own touch through
+ * a .theme* class at the bottom. The page is its own size container (stage), so
+ * the layout follows the page's width as the preview's did.
+ *
+ * Motion: the page arrives in turn (title, button, picture, pieces), things
+ * drift and bob behind it, and cards lift under the pointer. Opacity and
+ * transform only. Under reduced motion nothing moves by itself.
+ */
+
+.n8g {
+  --display: var(--font-n8g-display), 'Arial Rounded MT Bold', 'Trebuchet MS', system-ui, sans-serif;
+  --text: var(--font-n8g-text), 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+  --heading: var(--display);
+  --ease-soft: cubic-bezier(0.45, 0, 0.55, 1);
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --shadow: rgba(0, 0, 0, 0.5);
+  --clip-bg: #10141f;
+  --clip-btn: #fff6ea;
+  --clip-ink: #2a1606;
+  --amp: 9px;
+  --spin: 4deg;
+  position: relative;
+  min-height: 100vh;
+  background-color: var(--g-ground);
+  background-image:
+    radial-gradient(circle, var(--g-ground-dot) 0 9px, transparent 10px),
+    radial-gradient(circle, var(--g-ground-dot) 0 5px, transparent 6px);
+  background-size: 76px 76px, 76px 76px;
+  background-position: 0 0, 38px 38px;
+  color: var(--g-ink);
+  font: 500 16px/1.5 var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+.n8g :focus-visible {
+  outline: 3px solid var(--g-focus);
+  outline-offset: 3px;
+}
+
+.n8g a {
+  color: inherit;
+}
+
+.page {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  container: stage / inline-size;
+  /* Clear of the site's fixed header (68px). */
+  padding-top: 68px;
+  padding-bottom: clamp(24px, 6cqi, 56px);
+}
+
+.wrap {
+  width: 100%;
+  max-width: 1080px;
+  margin-inline: auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+/* ---------- The things that drift behind the page ---------- */
+
+.floaters {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.fl {
+  position: absolute;
+  width: calc(var(--w) * var(--fs, 0.8));
+  left: calc(var(--x) - var(--w) * var(--fs, 0.8) / 2);
+  top: var(--y);
+  animation: drift var(--drift) var(--ease-soft) var(--delay) infinite alternate both;
+}
+
+.fl img {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 6px 4px var(--shadow));
+}
+
+.flB {
+  animation: bob var(--bob) var(--ease-soft) var(--delay) infinite alternate both;
+}
+
+@container stage (min-width: 760px) {
+  .fl {
+    --fs: 1;
+  }
+}
+
+/* On a phone the edges are where the words are: fewer, smaller and fainter things there. */
+@container stage (max-width: 619px) {
+  .fl:nth-child(n + 7) {
+    display: none;
+  }
+  .fl {
+    opacity: 0.55;
+  }
+}
+
+@keyframes drift {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(var(--dx), var(--dy));
+  }
+}
+
+@keyframes bob {
+  from {
+    transform: translateY(0) rotate(var(--r, 0deg));
+  }
+  to {
+    transform: translateY(calc(var(--amp) * -1)) rotate(calc(var(--r, 0deg) + var(--spin)));
+  }
+}
+
+/* ---------- Shared pieces ---------- */
+
+.sec {
+  position: relative;
+  padding-block: clamp(28px, 6cqi, 56px);
+}
+
+.secHead {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: clamp(18px, 3.4cqi, 30px);
+}
+
+.sticker {
+  display: inline-block;
+  padding: 0.12em 0.45em 0;
+  border-radius: 20px;
+  background: var(--g-sticker);
+  color: var(--g-on-sticker);
+  border: 3px solid var(--g-ink);
+  box-shadow: 0 6px 0 var(--g-ink);
+  font: 800 clamp(30px, 6cqi, 48px) / 1.08 var(--heading);
+  letter-spacing: -0.01em;
+  rotate: -2deg;
+  text-wrap: balance;
+}
+
+.stApricot {
+  background: #ffb877;
+  color: #2a1606;
+  rotate: 1.5deg;
+}
+
+.stCream {
+  background: var(--g-card);
+  color: var(--g-ink);
+  rotate: -1deg;
+}
+
+.lede {
+  max-width: 46ch;
+  padding: 4px 12px;
+  border-radius: 12px;
+  background: var(--g-plate);
+  font-size: clamp(16px, 2.3cqi, 18px);
+  font-weight: 700;
+  color: var(--g-ink-soft);
+  text-wrap: pretty;
+}
+
+.lede a {
+  color: var(--g-ink);
+  text-underline-offset: 3px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 56px;
+  padding: 8px 26px 4px;
+  border-radius: 18px;
+  border: 3px solid var(--g-ink);
+  font: 800 21px/1.1 var(--display);
+  text-decoration: none;
+  box-shadow: 0 5px 0 var(--g-ink);
+  transition: translate 0.14s var(--ease-out);
+}
+
+.btn:active {
+  translate: 0 4px;
+  box-shadow: 0 1px 0 var(--g-ink);
+}
+
+.n8g .btnPlay {
+  background: var(--g-play);
+  color: var(--g-on-play);
+  font-size: 26px;
+  min-height: 64px;
+  padding-inline: 34px;
+}
+
+.n8g .btnGo {
+  background: #f7c24a;
+  color: #2a1606;
+}
+
+.n8g .btnPlain {
+  background: var(--g-card);
+  color: var(--g-ink);
+}
+
+.btnIcon {
+  width: 20px;
+  height: 20px;
+  margin-top: -3px;
+}
+
+.btnSmall {
+  min-height: 44px;
+  font-size: 17px;
+  padding: 6px 16px 3px;
+  border-radius: 14px;
+  box-shadow: 0 4px 0 var(--g-ink);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px 2px;
+  border-radius: 999px;
+  border: 2px solid var(--g-ink);
+  background: var(--g-card);
+  color: var(--g-ink);
+  font: 800 12px/1.3 var(--text);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.chipLive {
+  background: var(--g-chip);
+  color: var(--g-on-chip);
+}
+
+.chipSoon {
+  background: #f7c24a;
+  color: #2a1606;
+}
+
+/* ---------- Hero: words, then the moving room, the pieces under both ---------- */
+
+.hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(16px, 3.4cqi, 30px);
+  padding-block: clamp(22px, 4.4cqi, 44px) clamp(8px, 2cqi, 20px);
+}
+
+.heroText {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.hero h1 {
+  padding: 0.06em 0.32em 0;
+  border-radius: 24px;
+  background: var(--g-title-plate);
+  color: var(--g-on-title-plate);
+  border: 3px solid var(--g-ink);
+  box-shadow: 0 7px 0 var(--g-ink);
+  font: 800 clamp(48px, 13cqi, 84px) / 1 var(--heading);
+  letter-spacing: -0.02em;
+  rotate: -3deg;
+}
+
+.hero h1 span {
+  color: var(--g-title-accent);
+}
+
+.heroLine {
+  max-width: 26ch;
+  font: 700 clamp(19px, 3.2cqi, 25px) / 1.3 var(--text);
+  text-wrap: balance;
+}
+
+.heroGo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 16px;
+}
+
+.heroStage {
+  position: relative;
+  min-width: 0;
+  margin: 0;
+  align-self: center;
+}
+
+.heroView {
+  position: relative;
+  border-radius: clamp(16px, 3cqi, 26px);
+  border: 3px solid var(--g-ink);
+  box-shadow: 0 8px 0 var(--g-ink);
+  overflow: hidden;
+  background: var(--clip-bg);
+}
+
+.heroTag {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  z-index: 2;
+}
+
+.prop {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  height: auto;
+  filter: drop-shadow(0 6px 4px var(--shadow));
+  animation: bob 4.4s var(--ease-soft) infinite alternate both;
+}
+
+.propMask {
+  width: clamp(46px, 9cqi, 72px);
+  right: -8px;
+  bottom: -22px;
+  --r: 9deg;
+}
+
+.propKey {
+  width: clamp(34px, 6cqi, 50px);
+  left: -6px;
+  bottom: -18px;
+  --r: -14deg;
+  animation-duration: 3.6s;
+  animation-delay: -1.2s;
+}
+
+.lineup {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: clamp(10px, 4cqi, 44px);
+  height: min(84px, 20cqi);
+  padding-inline: 8px;
+  margin-bottom: 30px;
+  border-bottom: 3px dashed var(--g-line);
+}
+
+.lu {
+  width: auto;
+  height: 100%;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 5px 3px var(--shadow));
+  animation: hop 2.6s var(--ease-soft) var(--ld, 0s) infinite alternate both;
+}
+
+.lu_ghost {
+  --ld: -0.7s;
+  height: 92%;
+}
+
+.lu_robot {
+  --ld: -2.1s;
+  height: 96%;
+}
+
+.lu_slime {
+  --ld: -1.4s;
+  height: 58%;
+}
+
+.propCar {
+  position: absolute;
+  left: 0;
+  bottom: -32px;
+  width: clamp(54px, 11cqi, 84px);
+  height: auto;
+  filter: drop-shadow(0 4px 3px var(--shadow));
+  animation: drive 16s linear infinite both;
+}
+
+@keyframes drive {
+  0% {
+    translate: -14cqi 0;
+  }
+  55%,
+  100% {
+    translate: 104cqi 0;
+  }
+}
+
+@keyframes hop {
+  from {
+    transform: translateY(0) scale(1.03, 0.97);
+  }
+  to {
+    transform: translateY(calc(var(--amp) * -1.1)) scale(0.98, 1.02);
+  }
+}
+
+@container stage (min-width: 760px) {
+  .hero {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: center;
+    column-gap: clamp(24px, 4cqi, 48px);
+  }
+  .lineup {
+    grid-column: 1 / -1;
+    height: 96px;
+  }
+  .heroText {
+    gap: 18px;
+  }
+  .hero h1 {
+    font-size: clamp(46px, 7cqi, 80px);
+  }
+  .tallOnly {
+    display: none;
+  }
+}
+
+/* A phone gets the taller crop of the room, closer on the pieces (reviewer's note). */
+@container stage (max-width: 759px) {
+  .wideOnly {
+    display: none;
+  }
+}
+
+/* The page arrives in turn: title, button, picture, pieces. */
+.enter {
+  animation: rise 0.7s var(--ease-out) calc(var(--i, 0) * 120ms + 80ms) both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0.01;
+    transform: translateY(20px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- A looping clip ---------- */
+
+.clip {
+  position: relative;
+}
+
+.clipVideo {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: var(--clip-bg);
+}
+
+.clipToggle {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 6px 14px 4px;
+  border-radius: 14px;
+  border: 3px solid var(--clip-ink);
+  background: var(--clip-btn);
+  color: var(--clip-ink);
+  font: 800 16px/1 var(--display);
+  box-shadow: 0 3px 0 var(--clip-ink);
+  cursor: pointer;
+}
+
+.clipToggle svg {
+  width: 14px;
+  height: 14px;
+}
+
+.clipBigPlay {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  border: 3px solid var(--clip-ink);
+  background: var(--clip-btn);
+  color: var(--clip-ink);
+  box-shadow: 0 4px 0 var(--clip-ink);
+  cursor: pointer;
+}
+
+.clipBigPlay svg {
+  width: 30px;
+  height: 30px;
+  margin-left: 4px;
+}
+
+/* Under a game's clip: Pause, and what the clip is. */
+.clipBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 14px;
+  margin-top: 18px;
+}
+
+.n8g .clipToggleBelow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 6px 14px 4px;
+  border-radius: 14px;
+  border: 2px solid var(--g-line);
+  background: var(--g-plate);
+  color: var(--g-ink);
+  font: 800 16px/1 var(--display);
+  cursor: pointer;
+}
+
+.clipToggleBelow svg {
+  width: 14px;
+  height: 14px;
+}
+
+.n8g .clipCaption {
+  font: 700 14px/1.35 var(--text);
+  color: var(--g-ink-soft);
+  text-align: center;
+}
+
+/* ---------- The games: one shelf ---------- */
+
+.shelf {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.game {
+  position: relative;
+  display: grid;
+  grid-template-columns: clamp(88px, 28%, 140px) minmax(0, 1fr);
+  gap: 12px 14px;
+  align-items: center;
+  padding: 10px 14px 12px 10px;
+  border-radius: 22px;
+  border: 3px solid var(--g-ink);
+  background: var(--g-card);
+  box-shadow: 0 7px 0 var(--g-ink);
+  transition: translate 0.18s var(--ease-out);
+}
+
+.gameArt {
+  aspect-ratio: 3 / 4;
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 2px solid var(--g-ink);
+  rotate: var(--tilt, -2deg);
+  background: var(--g-plate);
+  transition: scale 0.2s var(--ease-out);
+  animation: sway 5s var(--ease-soft) var(--sd, 0s) infinite alternate both;
+}
+
+.gameArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@keyframes sway {
+  from {
+    rotate: var(--tilt, -2deg);
+  }
+  to {
+    rotate: calc(var(--tilt, -2deg) * -0.6);
+  }
+}
+
+.gameText {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.game h3 {
+  font: 800 clamp(22px, 3.6cqi, 26px) / 1.1 var(--display);
+  text-wrap: balance;
+}
+
+.game p {
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--g-ink-soft);
+}
+
+.gameMeta {
+  font: 800 13px/1.3 var(--text);
+  text-wrap: balance;
+}
+
+.game .btn {
+  margin-top: 4px;
+  white-space: nowrap;
+}
+
+@container stage (min-width: 620px) {
+  .shelf {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    align-items: start;
+  }
+  .game {
+    grid-column: span 2;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    padding: 14px;
+  }
+  .game:nth-child(4) {
+    grid-column: 2 / span 2;
+  }
+  .gameArt {
+    width: 70%;
+    justify-self: center;
+  }
+}
+
+@container stage (min-width: 980px) {
+  .shelf {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .game,
+  .game:nth-child(4) {
+    grid-column: auto;
+    padding: 12px;
+  }
+  .gameArt {
+    width: 82%;
+  }
+  .game h3 {
+    font-size: 22px;
+  }
+}
+
+/* ---------- The pieces: one stage, the four in a row under it ---------- */
+
+.piecesStage {
+  display: grid;
+  gap: 14px;
+  max-width: 820px;
+  margin-inline: auto;
+}
+
+.pieceView {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  border-radius: 24px;
+  border: 3px solid var(--g-ink);
+  box-shadow: 0 7px 0 var(--g-ink);
+  overflow: hidden;
+  background: var(--clip-bg);
+}
+
+.pieceClip {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.35s var(--ease-out);
+}
+
+.pieceClip[data-on='true'] {
+  opacity: 1;
+}
+
+.pieceTag {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  z-index: 2;
+}
+
+.pieceCaption {
+  display: grid;
+  gap: 2px;
+  min-height: 5.6em;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: var(--g-plate);
+}
+
+.pieceCaption p {
+  font-size: 15.5px;
+  line-height: 1.4;
+}
+
+.n8g .pieceName {
+  font: 800 22px/1.15 var(--display);
+}
+
+.n8g .pieceSoon {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--g-ink-soft);
+}
+
+.pieceRow {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(6px, 2cqi, 14px);
+}
+
+.pieceTab {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 10px 6px 12px;
+  border-radius: 18px;
+  border: 3px solid var(--g-line);
+  background: var(--g-card);
+  color: var(--g-ink);
+  cursor: pointer;
+  transition: translate 0.18s var(--ease-out), border-color 0.18s;
+}
+
+.pieceTab[aria-selected='true'] {
+  border-color: var(--g-ink);
+  box-shadow: 0 5px 0 var(--g-ink);
+  translate: 0 -3px;
+}
+
+.pieceFace {
+  width: auto;
+  height: clamp(40px, 9cqi, 64px);
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 4px 3px var(--shadow));
+}
+
+.pieceTab[aria-selected='true'] .pieceFace {
+  animation: hop 1.2s var(--ease-soft) infinite alternate both;
+}
+
+.pieceTabName {
+  font: 800 clamp(14px, 2.6cqi, 18px) / 1.1 var(--display);
+}
+
+.pieceProgress {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 5px;
+  height: 4px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: transparent;
+}
+
+.pieceTab[aria-selected='true'] .pieceProgress {
+  background: var(--g-line);
+}
+
+.pieceProgress i {
+  display: block;
+  height: 100%;
+  width: 100%;
+  border-radius: inherit;
+  background: #f7c24a;
+  transform-origin: 0 50%;
+  animation-name: fill;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+
+@keyframes fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* ---------- Where this is going: postcards ---------- */
+
+.cards {
+  display: grid;
+  gap: 22px;
+}
+
+.card {
+  position: relative;
+  padding: 10px 10px 14px;
+  border-radius: 18px;
+  background: var(--g-card);
+  border: 3px solid var(--g-ink);
+  box-shadow: 0 7px 0 var(--g-ink);
+  rotate: var(--tilt, -1deg);
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -13px;
+  width: 22px;
+  height: 22px;
+  margin-left: -11px;
+  border-radius: 50%;
+  background: var(--g-play);
+  border: 3px solid var(--g-ink);
+  box-shadow: 0 3px 0 var(--g-ink);
+}
+
+.cardPic {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid var(--g-ink);
+  aspect-ratio: 16 / 9;
+  background: var(--g-plate);
+}
+
+.cardPic img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card h3 {
+  margin-top: 10px;
+  padding-inline: 4px;
+  font: 800 24px/1.1 var(--display);
+}
+
+.card p {
+  padding-inline: 4px;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--g-ink-soft);
+}
+
+.rooms {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.rooms .cardPic {
+  aspect-ratio: 4 / 3;
+}
+
+.rooms figure {
+  margin: 0;
+}
+
+.rooms figcaption {
+  margin-top: 4px;
+  font: 800 12px/1.2 var(--text);
+  text-align: center;
+  color: var(--g-ink-soft);
+}
+
+@container stage (min-width: 760px) {
+  .cards {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    align-items: start;
+    gap: 30px 26px;
+  }
+}
+
+/* ---------- Make a game ---------- */
+
+.make {
+  position: relative;
+  display: grid;
+  gap: 18px;
+  padding: clamp(18px, 4cqi, 34px);
+  border-radius: 28px;
+  border: 3px solid var(--g-ink);
+  background: #24774b;
+  color: #ffffff;
+  box-shadow: 0 8px 0 var(--g-ink);
+}
+
+.make h2 {
+  font: 800 clamp(32px, 6.4cqi, 52px) / 1.05 var(--display);
+  text-wrap: balance;
+}
+
+.make ul {
+  display: grid;
+  gap: 8px;
+  max-width: 44ch;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.make li {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  gap: 10px;
+  font: 700 clamp(16px, 2.4cqi, 19px) / 1.35 var(--text);
+  text-wrap: pretty;
+}
+
+.make li::before {
+  content: '';
+  width: 14px;
+  height: 14px;
+  margin-top: 0.35em;
+  border-radius: 50%;
+  background: #f7c24a;
+  border: 3px solid var(--g-ink);
+}
+
+.makeGo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+}
+
+.makeNote {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.makeRobot {
+  width: clamp(96px, 22cqi, 190px);
+  height: auto;
+  justify-self: end;
+  margin-bottom: -6px;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 6px 4px var(--shadow));
+  animation: hop 2.8s var(--ease-soft) infinite alternate both;
+}
+
+@container stage (min-width: 620px) {
+  .make {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+  .makeRobot {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+  }
+}
+
+@container stage (max-width: 619px) {
+  .makeRobot {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    width: 66px;
+  }
+  .make h2 {
+    padding-right: 70px;
+  }
+  .make .btn {
+    white-space: nowrap;
+  }
+}
+
+/* ---------- Credits ---------- */
+
+.thanks {
+  display: grid;
+  gap: 18px;
+}
+
+.thank {
+  padding: 16px 18px 18px;
+  border-radius: 20px;
+  background: var(--g-plate);
+  border: 2px dashed var(--g-line);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.thank h3 {
+  font: 800 24px/1.1 var(--display);
+}
+
+.thank p {
+  font-size: 15.5px;
+  line-height: 1.5;
+  max-width: 62ch;
+}
+
+.n8g .fine {
+  font-size: 14px;
+  color: var(--g-ink-soft);
+}
+
+.fine a {
+  font-weight: 800;
+  text-underline-offset: 3px;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 6px 13px 5px;
+  border-radius: 12px;
+  border: 2px solid var(--g-ink);
+  background: var(--g-card);
+  font: 800 14.5px/1.2 var(--text);
+  text-decoration: none;
+  transition: translate 0.18s var(--ease-out);
+}
+
+.yt {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  color: #ff6b57;
+}
+
+.fold summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 6px 14px 5px;
+  border-radius: 12px;
+  border: 2px dashed var(--g-ink-soft);
+  font: 800 14.5px/1.2 var(--text);
+  cursor: pointer;
+  list-style: none;
+}
+
+.fold summary::-webkit-details-marker {
+  display: none;
+}
+
+.fold[open] summary {
+  margin-bottom: 10px;
+}
+
+.fold > p + p {
+  margin-top: 6px;
+}
+
+.names {
+  font-size: 14.5px;
+  line-height: 1.9;
+}
+
+.names a {
+  font-weight: 700;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+
+@container stage (min-width: 760px) {
+  .thanks {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+    align-items: start;
+  }
+}
+
+/* ---------- How it works, folded ---------- */
+
+.how {
+  padding-block: 6px clamp(10px, 3cqi, 24px);
+}
+
+.how details {
+  border-radius: 18px;
+  border: 2px solid var(--g-line);
+  background: var(--g-card);
+}
+
+.how summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 10px 16px;
+  font: 800 18px/1.2 var(--display);
+  cursor: pointer;
+  list-style: none;
+  border-radius: 16px;
+}
+
+.how summary::-webkit-details-marker {
+  display: none;
+}
+
+.how summary::after {
+  content: '';
+  margin-left: auto;
+  width: 10px;
+  height: 10px;
+  border-right: 3px solid currentColor;
+  border-bottom: 3px solid currentColor;
+  rotate: 45deg;
+  translate: 0 -3px;
+}
+
+.how details[open] summary::after {
+  rotate: 225deg;
+  translate: 0 3px;
+}
+
+.how summary span {
+  font: 700 14px/1.2 var(--text);
+  color: var(--g-ink-soft);
+}
+
+.howBody {
+  margin: 0;
+  padding: 2px 16px 16px;
+  display: grid;
+  gap: 10px;
+  list-style: none;
+}
+
+.howBody li {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 8px;
+  font-size: 15px;
+  line-height: 1.45;
+  max-width: 70ch;
+}
+
+.howBody li::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  margin-top: 0.5em;
+  border-radius: 50%;
+  background: var(--g-play);
+}
+
+.howBody a {
+  font-weight: 800;
+  text-underline-offset: 3px;
+}
+
+/* ---------- A game's own page ---------- */
+
+.backRow {
+  padding-top: 14px;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 6px 14px 4px 10px;
+  border-radius: 999px;
+  border: 2px solid var(--g-line);
+  background: var(--g-plate);
+  font: 800 16px/1.1 var(--display);
+  text-decoration: none;
+  transition: translate 0.18s var(--ease-out);
+}
+
+.backIcon {
+  width: 14px;
+  height: 14px;
+}
+
+.endGo {
+  margin-top: 26px;
+}
+
+/*
+ * A game's name on one line, as big as its column allows: --len is its number
+ * of letters (GamePage), --cw a letter's width in em in the game's face (set per
+ * theme, measured), --col the width of the column it sits in. The plate wraps the
+ * name tight; only a name that would go below 30px breaks onto two lines.
+ */
+.n8g .gameTitle {
+  --cw: 0.6;
+  --col: calc(100cqi - 32px);
+  --max: 76px;
+  font-size: max(30px, min(var(--max), calc((var(--col) - 14px) / (var(--len, 10) * var(--cw) + 0.64))));
+  max-width: 100%;
+  text-wrap: balance;
+  rotate: -2deg;
+}
+
+.gameIntro {
+  display: grid;
+  gap: 6px;
+  max-width: 36ch;
+}
+
+.gameIntro p {
+  font: 700 clamp(17px, 2.7cqi, 21px) / 1.35 var(--text);
+  text-wrap: pretty;
+}
+
+.gameIntro p + p {
+  font-weight: 600;
+  color: var(--g-ink-soft);
+}
+
+@container stage (min-width: 760px) {
+  /* The words' column: 5 of 12 parts of the page's width, less the gap (.hero). */
+  .n8g .gameTitle {
+    --col: calc((min(100cqi, 1080px) - 32px - clamp(24px, 4cqi, 48px)) * 5 / 12);
+    --max: 68px;
+  }
+}
+
+/* An upright clip (phones) sits in a phone-shaped frame, never taller than the window allows. */
+.phoneStage {
+  justify-self: center;
+  width: 100%;
+}
+
+/* At most 72% of the window's height, and short enough that Pause under it is in the first screen. */
+.phoneView {
+  width: min(100%, calc(min(72svh, 100svh - 270px) * var(--ratio)));
+  margin-inline: auto;
+  border-width: 6px;
+  border-radius: 34px;
+}
+
+/*
+ * A phone held sideways: an upright clip beside the words would be a sliver,
+ * so it comes first, nearly the window's height, and the words sit beside it.
+ */
+@media (orientation: landscape) and (max-height: 560px) {
+  .gameHero:has(.phoneStage) {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+  }
+  .gameHero .phoneStage {
+    order: -1;
+    width: auto;
+  }
+  .phoneView {
+    width: calc(90svh * var(--ratio));
+  }
+}
+
+/* Go play and Get the code, stacked on a phone, are the same width. */
+@container stage (max-width: 619px) {
+  .gameHero .heroGo .btn,
+  .endGo .btn {
+    flex: 1 1 auto;
+  }
+}
+
+/* Pictures: landscape ones in a grid; phone screens side by side. */
+.pics {
+  display: grid;
+  gap: 22px;
+}
+
+.pic {
+  margin: 0;
+  rotate: var(--tilt, 0deg);
+  transition: translate 0.18s var(--ease-out), scale 0.18s var(--ease-out);
+}
+
+.picFrame {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 3px solid var(--g-ink);
+  box-shadow: 0 6px 0 var(--g-ink);
+  background: var(--g-plate);
+}
+
+.picFrame img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.pic figcaption {
+  margin-top: 10px;
+  font: 800 15px/1.3 var(--text);
+  text-align: center;
+  color: var(--g-ink-soft);
+}
+
+.picsPhone .picFrame {
+  border-radius: 24px;
+  border-width: 5px;
+}
+
+@container stage (min-width: 620px) {
+  .pics {
+    grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
+  }
+  .picsPhone {
+    max-width: 820px;
+    margin-inline: auto;
+  }
+}
+
+/* On a phone, phone screens go side by side in a row you swipe, each most of the width. */
+@container stage (max-width: 619px) {
+  .picsPhone {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    margin-inline: -16px;
+    padding: 4px 16px 12px;
+  }
+  .picsPhone .pic {
+    flex: 0 0 62%;
+    scroll-snap-align: center;
+  }
+}
+
+/* How a round goes: numbered steps. */
+.steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+  display: grid;
+  gap: 12px;
+  max-width: 760px;
+}
+
+.steps li {
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 14px;
+  /* A one-line step sits level with its number; a longer one centres on it. */
+  align-items: center;
+  padding: 12px 16px 12px 12px;
+  border-radius: 18px;
+  background: var(--g-card);
+  border: 2px solid var(--g-line);
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.steps li::before {
+  content: counter(step);
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--g-step);
+  color: var(--g-on-step);
+  border: 3px solid var(--g-ink);
+  font: 800 22px/1 var(--heading);
+  padding-top: 3px;
+}
+
+/* How it's made: a small grid of short items, each with an icon. */
+.made {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 14px;
+}
+
+.madeItem {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 4px 14px;
+  align-items: start;
+  padding: 14px 16px 16px 14px;
+  border-radius: 20px;
+  background: var(--g-card);
+  border: 3px solid var(--g-ink);
+  box-shadow: 0 6px 0 var(--g-ink);
+  transition: translate 0.18s var(--ease-out);
+}
+
+.madeIcon {
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  border: 2px solid var(--g-accent);
+  color: var(--g-accent);
+  background: var(--g-plate);
+}
+
+.madeIcon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.madeItem h3 {
+  font: 800 19px/1.2 var(--display);
+  align-self: end;
+}
+
+.madeItem p {
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--g-ink-soft);
+}
+
+@container stage (min-width: 620px) {
+  .made {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container stage (min-width: 980px) {
+  .made {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* The other games: a row of small posters. */
+.otherTitle {
+  font: 800 22px/1.2 var(--display);
+  margin-bottom: 14px;
+}
+
+.others {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(8px, 2.4cqi, 18px);
+  max-width: 640px;
+}
+
+.other {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  text-decoration: none;
+  font: 800 clamp(13px, 2.4cqi, 16px) / 1.15 var(--display);
+  text-align: center;
+  transition: translate 0.18s var(--ease-out);
+}
+
+.other img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid var(--g-ink);
+  box-shadow: 0 4px 0 var(--g-ink);
+}
+
+/* ---------- Hover: things lift a little under the pointer ---------- */
+
+@media (hover: hover) {
+  .btn:hover {
+    translate: 0 -2px;
+  }
+  .btn:active {
+    translate: 0 4px;
+  }
+  .game:hover,
+  .madeItem:hover {
+    translate: 0 -4px;
+  }
+  .game:hover .gameArt {
+    scale: 1.05;
+  }
+  .card {
+    transition: translate 0.18s var(--ease-out), scale 0.18s var(--ease-out);
+  }
+  .card:hover {
+    translate: 0 -5px;
+    scale: 1.015;
+  }
+  .link:hover,
+  .back:hover {
+    translate: 0 -2px;
+  }
+  .pic:hover {
+    translate: 0 -4px;
+  }
+  .other:hover {
+    translate: 0 -4px;
+  }
+  .pieceTab:hover {
+    border-color: var(--g-ink);
+  }
+}
+
+/* ---------- Each game's own touch ---------- */
+
+/* Cork & Bell: a 1930s fairground at dusk. The sign-writer's fat face, bunting along the top, gilt edges, numerals in cream roundels. */
+.themeCork {
+  --heading: var(--font-n8g-cork), Georgia, serif;
+}
+
+.themeCork .page::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 68px;
+  height: 26px;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(135deg, #7d1c14 25%, transparent 25.5%) 0 0 / 40px 26px,
+    linear-gradient(225deg, #7d1c14 25%, transparent 25.5%) 0 0 / 40px 26px;
+  filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.35));
+}
+
+.themeCork .page::after {
+  content: '';
+  position: absolute;
+  left: 20px;
+  right: 0;
+  top: 68px;
+  height: 26px;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(135deg, #f2c45a 25%, transparent 25.5%) 0 0 / 80px 26px,
+    linear-gradient(225deg, #f2c45a 25%, transparent 25.5%) 0 0 / 80px 26px;
+}
+
+.themeCork .backRow {
+  padding-top: 40px;
+}
+
+.themeCork .gameTitle {
+  --cw: 0.51;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  box-shadow: 0 7px 0 var(--g-ink), inset 0 0 0 4px #e2b04a;
+}
+
+.themeCork .sticker,
+.themeCork .steps li::before {
+  font-weight: 400;
+}
+
+.themeCork .steps li::before {
+  border-color: #e2b04a;
+  box-shadow: 0 0 0 2px var(--g-ink);
+}
+
+.themeCork .heroView,
+.themeCork .picFrame {
+  border-color: #e2b04a;
+  box-shadow: 0 0 0 3px var(--g-ink), 0 9px 0 var(--g-ink);
+}
+
+.themeCork .madeItem {
+  border-color: #e2b04a;
+}
+
+/* Hot Potato: the Specimen's lab. A lighter diagonal band across the navy, condensed slanted capitals, hazard stripes. */
+.themePotato {
+  --heading: var(--font-n8g-potato), Impact, sans-serif;
+  background-image:
+    linear-gradient(115deg, transparent 0 38%, rgba(120, 130, 255, 0.09) 38% 62%, transparent 62%),
+    radial-gradient(circle, var(--g-ground-dot) 0 9px, transparent 10px),
+    radial-gradient(circle, var(--g-ground-dot) 0 5px, transparent 6px);
+  background-size: 100% 100%, 76px 76px, 76px 76px;
+}
+
+.themePotato .gameTitle,
+.themePotato .sticker {
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-style: oblique 8deg;
+}
+
+.themePotato .gameTitle {
+  --cw: 0.47;
+  transform: skewX(-6deg);
+}
+
+/* The clip sits in a hazard-striped rig. */
+.themePotato .heroView {
+  border-image: repeating-linear-gradient(45deg, #f5d03b 0 10px, #14163a 10px 20px) 8;
+  border-width: 8px;
+  border-style: solid;
+  border-radius: 0;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+}
+
+.themePotato .madeItem {
+  border-color: #f5d03b;
+}
+
+.themePotato .steps li::before {
+  font-weight: 400;
+}
+
+/* Who Am I?: its purple, and a question mark in the corner of things. */
+.themeWho .gameTitle {
+  --cw: 0.52;
+  border-radius: 22px;
+}
+
+.themeWho .madeItem,
+.themeWho .steps li {
+  position: relative;
+  overflow: hidden;
+}
+
+.themeWho .madeItem::after,
+.themeWho .heroText::after {
+  content: '?';
+  position: absolute;
+  right: 10px;
+  bottom: -18px;
+  font: 800 72px/1 var(--display);
+  color: rgba(169, 155, 255, 0.12);
+  pointer-events: none;
+}
+
+.themeWho .heroText {
+  position: relative;
+}
+
+.themeWho .heroText::after {
+  right: auto;
+  left: 70%;
+  top: -10px;
+  bottom: auto;
+  font-size: 180px;
+  color: rgba(169, 155, 255, 0.1);
+  z-index: -1;
+}
+
+/* Tin Derby: the poster's checked tablecloth, along the top and under the clip; the poster's heavy face. */
+.themeDerby {
+  --heading: var(--font-n8g-derby), 'Arial Black', sans-serif;
+}
+
+.themeDerby .page::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 68px;
+  height: 22px;
+  z-index: 0;
+  pointer-events: none;
+  background: repeating-conic-gradient(#c8382c 0 25%, #f3e3c3 0 50%) 0 0 / 22px 22px;
+  opacity: 0.9;
+}
+
+.themeDerby .backRow {
+  padding-top: 36px;
+}
+
+.themeDerby .gameTitle,
+.themeDerby .sticker {
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.themeDerby .gameTitle {
+  --cw: 0.64;
+}
+
+.themeDerby .steps li::before {
+  font-weight: 400;
+  font-size: 18px;
+}
+
+.themeDerby .heroView {
+  border-bottom-width: 14px;
+  border-image: none;
+  border-bottom-color: transparent;
+  background:
+    linear-gradient(var(--clip-bg), var(--clip-bg)) padding-box,
+    repeating-conic-gradient(#c8382c 0 25%, #f3e3c3 0 50%) 0 0 / 14px 14px border-box;
+  border-color: transparent;
+  box-shadow: 0 0 0 3px var(--g-ink), 0 8px 0 3px var(--g-ink);
+}
+
+.themeDerby .madeIcon {
+  border-color: #3aa9a0;
+}
+
+/* Paper Masks: the masquerade. Gold on plum, a curtain's swag along the top, the playbill's capitals. */
+.themeMasks {
+  --heading: var(--font-n8g-masks), Georgia, serif;
+}
+
+.themeMasks .page::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 68px;
+  height: 34px;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 50% 100% at 50% 0, #7a1530 0 96%, transparent 100%) 0 0 / 90px 34px repeat-x;
+  filter: drop-shadow(0 3px 0 #e9c46a);
+}
+
+.themeMasks .backRow {
+  padding-top: 46px;
+}
+
+.themeMasks .gameTitle {
+  --cw: 0.68;
+  letter-spacing: 0.02em;
+  box-shadow: 0 7px 0 var(--g-ink), inset 0 0 0 3px #e9c46a;
+}
+
+.themeMasks .heroView,
+.themeMasks .picFrame,
+.themeMasks .madeItem {
+  border-color: #e9c46a;
+}
+
+.themeMasks .sticker {
+  font-size: clamp(24px, 5cqi, 40px);
+  letter-spacing: 0.02em;
+}
+
+/* ---------- Reduced motion: nothing moves by itself ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .fl,
+  .flB,
+  .lu,
+  .prop,
+  .propCar,
+  .gameArt,
+  .makeRobot,
+  .enter,
+  .pieceFace,
+  .pieceTab[aria-selected='true'] .pieceFace {
+    animation: none !important;
+  }
+  .btn,
+  .game,
+  .gameArt,
+  .madeItem,
+  .card,
+  .link,
+  .back,
+  .pic,
+  .other,
+  .pieceTab,
+  .pieceClip {
+    transition: none !important;
+  }
+}
