@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { LuPause, LuPlay } from 'react-icons/lu'
 import styles from './n8games.module.css'
 
@@ -28,6 +28,7 @@ export default function LoopVideo({
   frameClassName,
   frameStyle,
   caption,
+  badge,
 }: {
   clip: LoopClip
   alt: string
@@ -44,6 +45,8 @@ export default function LoopVideo({
   frameClassName?: string
   frameStyle?: CSSProperties
   caption?: string
+  /** Laid on the clip's corner, inside its frame (a tag such as "The real room"). */
+  badge?: ReactNode
 }) {
   const ref = useRef<HTMLVideoElement>(null)
   // `null` until the browser has said whether reduced motion is asked for.
@@ -156,6 +159,7 @@ export default function LoopVideo({
       <div className={frameClassName} style={frameStyle}>
         {video}
         {bigPlay}
+        {badge}
       </div>
       <div className={styles.clipBar}>
         {button}

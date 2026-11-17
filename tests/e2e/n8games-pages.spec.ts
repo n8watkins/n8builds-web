@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright'
 import { test, expect, type Page } from '@playwright/test'
 import { N8GAMES_PAGE, N8GAMES_URL, gamePage } from '../../data/n8games'
 import { N8GAMES_GAMES } from '../../data/n8games/games'
@@ -8,6 +9,9 @@ import { PIECES } from '../../data/n8games/page'
  * (owner, 2026-11-16): the clips, the links, the steps, the credits, the
  * pieces' stage, phone widths and reduced motion.
  */
+
+/** A card's "How it's made" link: the words on it, then the game's name for a screen reader. */
+const madeLink = (name: string) => new RegExp(`^How it's made\\s+for ${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`)
 
 const sideways = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
 
@@ -36,12 +40,13 @@ test.describe('the n8games page', () => {
     await expect.poll(() => hero.evaluate((v: HTMLVideoElement) => !v.paused && v.muted)).toBe(true)
     await expect(main.getByRole('button', { name: 'Pause the clip of the party room' })).toBeVisible()
 
-    // The shelf: five games, all playable, each card to its own page.
+    // The shelf: five games, each card to its own page, "Playable" only on a game that is live.
     const shelf = page.locator('#games')
     for (const g of N8GAMES_GAMES) {
       const card = shelf.getByRole('listitem').filter({ has: page.getByRole('heading', { level: 3, name: g.name, exact: true }) })
-      await expect(card.getByText('Playable')).toBeVisible()
-      await expect(card.getByRole('link', { name: `How ${g.name} is made` })).toHaveAttribute('href', gamePage(g.slug))
+      await expect(card.getByText(g.play.live ? 'Playable' : 'Coming soon', { exact: true })).toBeVisible()
+      await expect(card.getByText(g.play.live ? 'Coming soon' : 'Playable', { exact: true })).toHaveCount(0)
+      await expect(card.getByRole('link', { name: madeLink(g.name) })).toHaveAttribute('href', gamePage(g.slug))
     }
 
     // Make a game: the README, not setup steps.
@@ -59,7 +64,7 @@ test.describe('the n8games page', () => {
 
   test('the game cards lead to the game pages', async ({ page }) => {
     await page.goto(N8GAMES_PAGE)
-    await page.getByRole('link', { name: 'How Cork & Bell is made' }).click()
+    await page.getByRole('link', { name: madeLink('Cork & Bell') }).click()
     await expect(page).toHaveURL(new RegExp(`${gamePage('cork-and-bell')}$`))
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Cork & Bell')
   })
@@ -89,7 +94,8 @@ test.describe('the n8games page', () => {
       // Hovering a piece shows it at once and holds it while the pointer stays.
       await tabs.nth(2).hover()
       await expect(tabs.nth(2)).toHaveAttribute('aria-selected', 'true')
-      await expect(page.locator('#piece-panel')).toContainText('Coming to the room')
+      await expect(page.locator('#piece-panel')).toContainText('From the real room')
+      await expect(page.getByText('In the room now: it kicks like the pawn until its own move comes.')).toBeVisible()
       await page.waitForTimeout(6_500)
       await expect(tabs.nth(2)).toHaveAttribute('aria-selected', 'true')
       await expectPlaying(page, '#piece-panel video[data-on="true"]')
@@ -135,7 +141,9 @@ test.describe('the game pages', () => {
       await expect(page).toHaveTitle(`${g.name} | n8games | n8builds`)
       const main = page.getByRole('main')
       await expect(main.getByRole('heading', { level: 1 })).toHaveText(g.name)
-      await expect(main.getByText('Playable', { exact: true })).toBeVisible()
+      // The `live` flag decides the chip: "Playable" only for a game on the live site.
+      await expect(main.getByText(g.play.live ? 'Playable' : 'Coming soon', { exact: true })).toBeVisible()
+      await expect(main.getByText(g.play.live ? 'Coming soon' : 'Playable', { exact: true })).toHaveCount(0)
 
       // The clip: muted, looping, inline, with its poster and both files, playing by itself.
       const clip = main.locator(`video[poster="${g.clip.poster}"]`)
@@ -148,10 +156,16 @@ test.describe('the game pages', () => {
       await main.getByRole('button', { name: `Pause the clip of ${g.name}` }).click()
       await expect.poll(() => clip.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true)
 
-      // Go play (twice: top and bottom), and Get the code only where the code is public.
+      // Go play (twice: top and bottom) for a live game; for one that is not live, never Go
+      // play, and the main button goes to the games site instead. Get the code only where the
+      // code is public.
       const play = main.getByRole('link', { name: `Go play ${g.name} (opens in a new tab)` })
-      await expect(play).toHaveCount(2)
+      const site = main.getByRole('link', { name: 'See the games site (opens in a new tab)' })
+      await expect(play).toHaveCount(g.play.live ? 2 : 0)
+      await expect(site).toHaveCount(g.play.live ? 0 : 2)
       for (const link of await play.all()) await expect(link).toHaveAttribute('href', g.play.href)
+      for (const link of await site.all()) await expect(link).toHaveAttribute('href', N8GAMES_URL)
+      if (!g.play.live) await expect(main.getByText('Go play', { exact: true })).toHaveCount(0)
       const code = main.getByRole('link', { name: `Get the code for ${g.name} (opens in a new tab)` })
       if (g.code) await expect(code.first()).toHaveAttribute('href', g.code)
       else await expect(code).toHaveCount(0)
@@ -198,6 +212,84 @@ test.describe('the game pages', () => {
     expect((await request.get('/builds/openping/cork-and-bell')).status()).toBe(404)
   })
 })
+
+for (const [width, height] of [
+  [390, 844],
+  [844, 390],
+  [1280, 720],
+] as const) {
+  test(`at ${width}x${height} every game's name is one line, on a plate that wraps it tight`, async ({ page }) => {
+    await page.setViewportSize({ width, height })
+    for (const g of N8GAMES_GAMES) {
+      await page.goto(gamePage(g.slug))
+      const h1 = page.getByRole('heading', { level: 1 })
+      await expect(h1).toHaveText(g.name)
+      await page.evaluate(() => document.fonts.ready)
+      await expect.poll(() => h1.evaluate((el) => el.getAnimations().every((a) => a.playState === 'finished'))).toBe(true)
+      const m = await h1.evaluate((el: HTMLElement) => {
+        // Measured upright (the plate leans a little, Hot Potato's is slanted too).
+        el.style.rotate = '0deg'
+        el.style.transform = 'none'
+        const cs = getComputedStyle(el)
+        const range = document.createRange()
+        range.selectNodeContents(el)
+        const text = range.getBoundingClientRect()
+        const lineHeight = parseFloat(cs.fontSize) * (parseFloat(cs.lineHeight) / parseFloat(cs.fontSize) || 1)
+        const inner = el.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom)
+        // The plate's width against its name's on one line, with the plate's padding and border.
+        const natural = text.width + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + (el.offsetWidth - el.clientWidth)
+        el.style.rotate = ''
+        el.style.transform = ''
+        return { lines: Math.round(inner / lineHeight), width: el.offsetWidth, natural, room: el.parentElement!.clientWidth }
+      })
+      expect(m.lines, `${g.name}: lines`).toBe(1)
+      expect(Math.abs(m.width - m.natural), `${g.name}: the plate is ${m.width}px for ${m.natural}px of name`).toBeLessThanOrEqual(3)
+      expect(m.width, `${g.name}: fits its column`).toBeLessThanOrEqual(m.room)
+    }
+  })
+}
+
+test('on a phone, a game page\'s phone pictures scroll sideways and the keyboard can reach and scroll them', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  const g = N8GAMES_GAMES.find((x) => x.pictures[0].height > x.pictures[0].width)!
+  await page.goto(gamePage(g.slug))
+  const strip = page.getByRole('region', { name: `Pictures of ${g.name}` })
+  await strip.scrollIntoViewIfNeeded()
+  expect(await strip.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true)
+  await strip.focus()
+  await expect(strip).toBeFocused()
+  await page.keyboard.press('ArrowRight')
+  await expect.poll(() => strip.evaluate((el) => el.scrollLeft)).toBeGreaterThan(0)
+})
+
+test('on a phone the hero clip\'s Pause sits under the clip, not over it', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto(N8GAMES_PAGE)
+  const clip = page.getByRole('main').locator('section').first().locator('video:visible')
+  const pause = page.getByRole('button', { name: 'Pause the clip of the party room' }).locator('visible=true')
+  const [v, b] = [await clip.boundingBox(), await pause.boundingBox()]
+  expect(b!.y).toBeGreaterThanOrEqual(v!.y + v!.height)
+})
+
+for (const width of [390, 1280]) {
+  test(`axe finds nothing serious at ${width}px on the n8games page and every game page`, async ({ page }) => {
+    await page.setViewportSize({ width, height: width < 600 ? 844 : 720 })
+    for (const path of [N8GAMES_PAGE, ...N8GAMES_GAMES.map((g) => gamePage(g.slug))]) {
+      await page.goto(path)
+      // Every Reveal in: scroll through once.
+      await page.evaluate(async () => {
+        for (let y = 0; y < document.documentElement.scrollHeight; y += 500) {
+          window.scrollTo(0, y)
+          await new Promise((r) => setTimeout(r, 60))
+        }
+        window.scrollTo(0, 0)
+      })
+      await page.waitForTimeout(800)
+      const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze()
+      expect(results.violations.map((v) => `${path}: ${v.id} (${v.impact}): ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`)).toEqual([])
+    }
+  })
+}
 
 for (const width of [390, 768]) {
   test(`no sideways scroll at ${width}px on the n8games page and every game page`, async ({ page }) => {

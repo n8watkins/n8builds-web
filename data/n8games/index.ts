@@ -18,6 +18,12 @@ export const N8GAMES_REPO = 'https://github.com/n8watkins/n8-party-games'
  */
 export const N8GAMES_PAGE = '/builds/n8games'
 
+/**
+ * The build page's share card picture (1200x630 JPEG, the room in its right half):
+ * the owner's render, cropped clear of the join code and QR code painted on its wall.
+ */
+export const N8GAMES_SHARE = '/games/n8games/share.jpg'
+
 /** A game's own page under it ("How it's made"): /builds/n8games/<slug>, a stable address. */
 export const gamePage = (slug: string) => `${N8GAMES_PAGE}/${slug}`
 
@@ -31,7 +37,7 @@ export const N8GAMES_AD = {
   show: true,
   eyebrow: 'n8games',
   heading: "Come play what I've been building",
-  body: "Party games I've been playing around with: friends join from their phones with a code, walk a little piece around the room and pick the next game by standing in its light. Two are playable now, more are on the way.",
+  body: "Party games I've been playing around with: friends join from their phones with a code, walk a little piece around the room and pick the next game by standing in its light. Four are playable now, more are on the way.",
   play: { label: 'Play', href: N8GAMES_URL },
   more: { label: 'Learn more', href: N8GAMES_PAGE },
   /** The owner's render (from n8watkins/n8-party-games, landing/public/img/hero-2000.webp). */

@@ -186,7 +186,7 @@ export default async function HomePage({ posts }: { posts: Post[] }) {
         </div>
 
         {/* ===== THE ADS: n8games (owner, 2026-11-16: come play the games I've been
-             making; switched off or swapped in data/n8games.ts), then the portfolio
+             making; switched off or swapped in data/n8games/index.ts), then the portfolio
              ad: hiring after seeing the builds? One click. ===== */}
         <Band>
           <SectionErrorBoundary sectionName="n8games Ad">

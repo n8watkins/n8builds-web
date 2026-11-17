@@ -79,7 +79,7 @@ export const corkAndBell: N8Game = {
       heading: 'Nick Saraev',
       body: [
         'Cork & Bell is Nick Saraev\'s idea first. It started from "The cork gallery", one of the build prompts behind his video I Threw $1000 at Fable 5.2 to Build The Coolest Demos Possible.',
-        'The battle mode and all the code in this repository were made for this project.',
+        'The battle mode and all the code in the Cork & Bell repository were made for this project.',
       ],
       links: [
         { label: '@nicksaraev', href: 'https://www.youtube.com/@nicksaraev', youtube: true },

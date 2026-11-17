@@ -6,7 +6,7 @@ import { N8GAMES_AD } from '@/data/n8games'
 /**
  * The ad for n8games (owner, 2026-11-16): the rendered party room, wide, with
  * one line, "Play" to the games site and "Learn more" to its build page. On
- * the homepage and at the top of /games; `N8GAMES_AD` in data/n8games.ts holds
+ * the homepage and at the top of /games; `N8GAMES_AD` in data/n8games/index.ts holds
  * its words and pictures and switches it off.
  *
  * The picture is art-directed: the whole room (2:1) from 640px, and a crop

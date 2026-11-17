@@ -15,6 +15,8 @@ export const HERO = {
   /** Four scripted players in the real room, cropped to the floor (no join code, QR code or address). */
   clip: {
     alt: 'A loop from the real party room: four pieces walk about the bar floor, jump, kick each other over and get back up, while a ghost points and laughs.',
+    /** The phone crop's first frame, as a still elsewhere (the /games card). */
+    posterAlt: 'The real party room: a red, a blue and a green pawn on the bar floor with their name tags, and a white ghost beside the blue one laughing "HA HA".',
     /** From 760px: the wide strip of floor. */
     wide: { webm: `${P}/hero-wide.webm`, mp4: `${P}/hero-wide.mp4`, poster: `${P}/hero-wide-poster.webp`, width: 960, height: 408 },
     /** On a phone: a taller crop on the pieces. */
@@ -31,16 +33,20 @@ export interface Piece {
   faceSize: { width: number; height: number }
   clip: { webm: string; mp4: string; poster: string }
   alt: string
-  /** Its own move is not built yet: it walks and emotes like the others for now. */
+  /** Its own move is still being built: in the room it kicks like the pawn until then. */
   soon?: string
 }
+
+/** Said under the robot and the slime until their own moves land (the owner's line). */
+const OWN_MOVE_SOON = 'In the room now: it kicks like the pawn until its own move comes.'
 
 /**
  * The pieces (owner, 2026-11-16: "all the pieces ... the four pieces on the bottom
  * with the carousel going through each piece. If you hover over the piece, it
- * shows that piece moving around."). Every clip is from a real party room on a
- * local Worker: the pawn and the ghost from main, the robot and the slime from
- * the branch that adds them (feat/slime-and-robot, not live yet).
+ * shows that piece moving around."). All four can be picked in the live room.
+ * Every clip is from a real party room on a local Worker: the pawn's kick and the
+ * ghost's fade from main (2026-11-16), the robot and the slime from the branch
+ * that added them before it merged (#63), walking and emoting.
  */
 export const PIECES: Piece[] = [
   {
@@ -50,16 +56,16 @@ export const PIECES: Piece[] = [
     face: `${P}/fl-pawn.webp`,
     faceSize: { width: 180, height: 179 },
     clip: { webm: `${P}/piece-pawn.webm`, mp4: `${P}/piece-pawn.mp4`, poster: `${P}/piece-pawn-poster.webp` },
-    alt: 'In the party room, a red pawn kicks a blue pawn, which flies back, lands on its side and gets up.',
+    alt: 'In the party room, a red pawn steps up and kicks a blue pawn, which flies back, lands on its side and gets up; the blue one walks back and kicks the red one the other way, and both walk back to where they started.',
   },
   {
     id: 'ghost',
     name: 'Ghost',
-    line: 'Floating hands. It points, claps and laughs with hands that hang in the air.',
+    line: 'The fade. It turns see-through for a moment: kick a faded ghost and it scares you off, and if it drifts through you, you get spooked.',
     face: `${P}/fl-ghost.webp`,
     faceSize: { width: 180, height: 192 },
     clip: { webm: `${P}/piece-ghost.webm`, mp4: `${P}/piece-ghost.mp4`, poster: `${P}/piece-ghost-poster.webp` },
-    alt: 'In the party room, a white ghost points a floating purple hand at a pawn and laughs, HA HA.',
+    alt: 'In the party room, a white ghost turns see-through; a red pawn kicks at it, the kick goes straight through, and the pawn goes pale, freezes and scurries off, then walks back as the ghost turns solid again.',
   },
   {
     id: 'robot',
@@ -69,7 +75,7 @@ export const PIECES: Piece[] = [
     faceSize: { width: 180, height: 191 },
     clip: { webm: `${P}/piece-robot.webm`, mp4: `${P}/piece-robot.mp4`, poster: `${P}/piece-robot-poster.webp` },
     alt: 'In the party room, a teal robot rolls across the floor and back beside a yellow slime, gives a thumbs up ("nice!") and claps.',
-    soon: 'Coming to the room: it walks and emotes already, and its own move is still to come.',
+    soon: OWN_MOVE_SOON,
   },
   {
     id: 'slime',
@@ -79,24 +85,24 @@ export const PIECES: Piece[] = [
     faceSize: { width: 180, height: 108 },
     clip: { webm: `${P}/piece-slime.webm`, mp4: `${P}/piece-slime.mp4`, poster: `${P}/piece-slime-poster.webp` },
     alt: 'In the party room, a yellow slime oozes across the floor and back beside a teal robot, throws confetti ("yay!") and claps.',
-    soon: 'Coming to the room: it walks and emotes already, and its own move is still to come.',
+    soon: OWN_MOVE_SOON,
   },
 ]
 
-/** Where this is going: postcards. */
+/** Where this is going: postcards of what is really coming (the Table itself is live). */
 export const NEXT = {
-  table: {
-    title: 'The Table',
-    line: 'Sit down, talk, take turns. The party keeps its code and its scores.',
-    image: { src: `${P}/wide-who.webp`, width: 720, height: 405, alt: 'A painted round table from above, hands holding phones and cards under a lamp.' },
+  coming: {
+    title: 'Coming next',
+    line: 'Tin Derby in the room: wind-up tin cars racing round the breakfast table, a phone each. And Who Am I? at the Table.',
+    image: { src: `${P}/wide-derby.webp`, width: 720, height: 405, alt: 'A painted race of wind-up tin cars across a red checked tablecloth, past a fruit bowl, the salt and pepper, and a butter dish.' },
   },
   rooms: {
     title: 'More rooms',
     line: 'Seven rooms to party in today. These three are still drawings.',
     images: [
-      { src: `${P}/room-alley.webp`, width: 560, height: 289, alt: 'The party room drawn as a lantern-lit alley.', caption: 'An alley' },
-      { src: `${P}/room-submarine.webp`, width: 560, height: 289, alt: 'The party room drawn inside a submarine, with portholes and brass lamps.', caption: 'A submarine' },
-      { src: `${P}/room-train.webp`, width: 560, height: 289, alt: 'The party room drawn as a night train carriage.', caption: 'A night train' },
+      { src: `${P}/room-alley.webp`, width: 560, height: 289, alt: 'The party room drawn as a night alley: two pawns on the dark cobbles, a black cat and a steaming food stall.', caption: 'An alley' },
+      { src: `${P}/room-submarine.webp`, width: 560, height: 289, alt: 'The party room drawn inside a submarine: two pawns on a green grid floor under a brass porthole.', caption: 'A submarine' },
+      { src: `${P}/room-train.webp`, width: 560, height: 289, alt: 'The party room drawn as a night train carriage: two pawns on a red carpet, a door, and lit windows going by.', caption: 'A night train' },
     ],
   },
 }
@@ -172,13 +178,14 @@ export const HOW = [
  * mood of the preview: ten of them.
  */
 export const FLOATERS = [
-  { img: 'car-red', w: 84, x: 93, y: 14, dx: -40, dy: 14, drift: 30, bob: 4.0, r: 3 },
+  // Not a car: the hero's red car drives off at this edge, about this height.
+  { img: 'trophy', w: 50, x: 94, y: 12, dx: -30, dy: 16, drift: 30, bob: 4.0, r: 6 },
   { img: 'mask-jester', w: 62, x: 5, y: 26, dx: 26, dy: 22, drift: 27, bob: 4.8, r: -7 },
   { img: 'key', w: 50, x: 95, y: 40, dx: -24, dy: 26, drift: 25, bob: 4.4, r: -10 },
   { img: 'trophy', w: 50, x: 4, y: 53, dx: 22, dy: -24, drift: 26, bob: 3.9, r: -5 },
   { img: 'mask-moon', w: 58, x: 95, y: 67, dx: -26, dy: 22, drift: 28, bob: 4.7, r: -6 },
   { img: 'flag', w: 46, x: 5, y: 81, dx: 24, dy: -26, drift: 24, bob: 3.7, r: 8 },
-  { img: 'card', w: 38, x: 90, y: 22, dx: -26, dy: 24, drift: 25, bob: 4.5, r: -12 },
+  { img: 'card', w: 38, x: 90, y: 27, dx: -26, dy: 24, drift: 25, bob: 4.5, r: -12 },
   { img: 'car-teal', w: 78, x: 6, y: 38, dx: 44, dy: -8, drift: 30, bob: 4.3, r: -2 },
   { img: 'mask-fox', w: 58, x: 94, y: 55, dx: -30, dy: 24, drift: 29, bob: 5.2, r: 6 },
   { img: 'card', w: 36, x: 8, y: 68, dx: 30, dy: -28, drift: 23, bob: 4.1, r: 9 },

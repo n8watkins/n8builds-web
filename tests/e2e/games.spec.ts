@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test'
 import { GAMES } from '../../data/games'
 import { N8GAMES_AD, N8GAMES_PAGE, N8GAMES_URL } from '../../data/n8games'
+import { HERO } from '../../data/n8games/page'
 
 /**
  * /games: one card per playable game, each with its picture, a line, its tags
@@ -38,10 +39,11 @@ test('every card picture loads', async ({ page }) => {
   }
 })
 
-test('n8games card leads to its build page and shows the render with real alt text', async ({ page }) => {
+test('n8games card leads to its build page and shows the real room, not the ad\'s render again', async ({ page }) => {
   await page.goto('/games')
   const card = page.locator('main article#n8games')
-  await expect(card.getByRole('img', { name: /red pawn punches a robot/ })).toBeVisible()
+  await expect(card.getByRole('img', { name: HERO.clip.posterAlt })).toBeVisible()
+  await expect(card.getByRole('img', { name: N8GAMES_AD.image.alt })).toHaveCount(0)
   await expect(card.getByRole('link', { name: 'Learn more about n8games' })).toHaveAttribute('href', N8GAMES_PAGE)
 })
 

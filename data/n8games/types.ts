@@ -65,9 +65,10 @@ export interface N8Game {
   /** Two short lines on what it is, under its name. */
   intro: [string, string]
   /**
-   * Where it is played. `live: false` means the game is not on the live site
-   * yet, so `href` is a stand-in (the games site's front door); a test lists
-   * these pages so the merge can wait until they are.
+   * Where it is played. `live` drives what the card and the page say: true,
+   * "Playable" and Go play to `href`; false, the game is not on the live site
+   * yet, so they say "Coming soon" and the main button is "See the games site"
+   * (`href` is then the games site's front door).
    */
   play: { href: string; live: boolean }
   /** The public repository (or folder of one), for "Get the code". Left out where there is none. */

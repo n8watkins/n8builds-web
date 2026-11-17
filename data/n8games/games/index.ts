@@ -15,5 +15,5 @@ export const N8GAMES_GAMES: N8Game[] = [corkAndBell, hotPotato, whoAmI, tinDerby
 
 export const getGame = (slug: string) => N8GAMES_GAMES.find((g) => g.slug === slug)
 
-/** Pages whose Go play points at a game that is not on the live site yet. */
+/** The games not on the live site yet: their card and page say "Coming soon", with no Go play. */
 export const notLiveYet = () => N8GAMES_GAMES.filter((g) => !g.play.live).map((g) => g.slug)

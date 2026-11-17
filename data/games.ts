@@ -6,11 +6,12 @@
  *
  * Each card's picture is a screenshot of the game itself (public/games/,
  * 960x600 WebP, taken with GET requests only), apart from n8games, whose
- * picture is the owner's render of its room. Copy comes from each game's own
+ * picture is a still from its real room. Copy comes from each game's own
  * site and README; keep it in step and modest.
  */
 
-import { N8GAMES_AD, N8GAMES_PAGE, N8GAMES_URL } from './n8games'
+import { N8GAMES_PAGE, N8GAMES_URL } from './n8games'
+import { HERO } from './n8games/page'
 
 export type Game = {
   slug: string
@@ -44,19 +45,20 @@ export type Game = {
 
 export const GAMES: Game[] = [
   {
-    // The games site's address lives in data/n8games.ts, with its build page and its ad.
+    // The games site's address lives in data/n8games/index.ts, with its build page and its ad.
     slug: 'n8games',
     name: 'n8games',
     description:
       'One front door for party games. In the character room friends join from their phones with a code and pick the next game by standing in its light. There is a table for turn-based games, and games for one phone passed around.',
-    note: 'Playable now: Cork & Bell in the room, and Hot Potato on one device. Coming: Tin Derby in the room, Paper Masks and Who Am I? at the table.',
+    note: 'Playable now: Cork & Bell in the room, Paper Masks at the table, Hot Potato on one phone and Who Am I? on its own site. Coming: Tin Derby in the room.',
     kind: 'Party',
-    tags: ['Phones + any screen', 'Up to 4 per room', 'No account', 'Free'],
+    tags: ['Phones + any screen', 'Up to 8 players', 'No account', 'Free'],
     href: N8GAMES_URL,
     icon: '/games/n8games/icon.png',
-    // The owner's render of the room, cropped close on the pieces (data/n8games.ts).
-    shot: N8GAMES_AD.image.close.src,
-    shotAlt: N8GAMES_AD.image.alt,
+    // A still from the real room (the n8games page's hero clip), so the card does not repeat
+    // the ad's render right above it on a phone.
+    shot: HERO.clip.tall.poster,
+    shotAlt: HERO.clip.posterAlt,
     more: { label: 'Learn more', href: N8GAMES_PAGE },
     repo: 'n8watkins/n8-party-games',
     // The lamp's amber over the room's dark wood, lightened for this dark site.

@@ -3,14 +3,14 @@ import Link from 'next/link'
 import type { CSSProperties } from 'react'
 import { LuGithub } from 'react-icons/lu'
 import Reveal from '@/components/ui/Reveal'
-import { N8GAMES_PAGE, gamePage } from '@/data/n8games'
+import { N8GAMES_PAGE, N8GAMES_URL, gamePage } from '@/data/n8games'
 import { N8GAMES_GAMES } from '@/data/n8games/games'
 import { THEMES, paletteVars } from '@/data/n8games/themes'
 import type { GameTheme, N8Game } from '@/data/n8games/types'
 import { abril, anton, baloo, bowlby, cinzel, nunito } from './fonts'
 import { BackArrow, MADE_ICONS } from './icons'
 import LoopVideo from './LoopVideo'
-import { Floaters, OutLink } from './N8gamesPage'
+import { Floaters, OutLink, StatusChip } from './N8gamesPage'
 import styles from './n8games.module.css'
 
 const vars = (v: Record<string, string | number>) => v as CSSProperties
@@ -24,12 +24,22 @@ const LOOK: Record<GameTheme, { font: string; theme: string }> = {
   masks: { font: cinzel.variable, theme: styles.themeMasks },
 }
 
+/**
+ * Go play to the game itself, while it is live (`play.live`). A game that is not
+ * live yet never says Go play: its main button goes to the games site instead.
+ */
 function Actions({ game, end = false }: { game: N8Game; end?: boolean }) {
   return (
     <div className={`${styles.heroGo} ${end ? styles.endGo : ''}`}>
-      <a className={`${styles.btn} ${styles.btnPlay}`} href={game.play.href} target="_blank" rel="noopener noreferrer" aria-label={`Go play ${game.name} (opens in a new tab)`}>
-        Go play
-      </a>
+      {game.play.live ? (
+        <a className={`${styles.btn} ${styles.btnPlay}`} href={game.play.href} target="_blank" rel="noopener noreferrer" aria-label={`Go play ${game.name} (opens in a new tab)`}>
+          Go play
+        </a>
+      ) : (
+        <a className={`${styles.btn} ${styles.btnPlay}`} href={N8GAMES_URL} target="_blank" rel="noopener noreferrer" aria-label="See the games site (opens in a new tab)">
+          See the games site
+        </a>
+      )}
       {game.code && (
         <a className={`${styles.btn} ${styles.btnPlain}`} href={game.code} target="_blank" rel="noopener noreferrer" aria-label={`Get the code for ${game.name} (opens in a new tab)`}>
           <LuGithub aria-hidden className={styles.btnIcon} />
@@ -57,6 +67,7 @@ export default function GamePage({ game }: { game: N8Game }) {
   const look = LOOK[game.theme]
   const others = N8GAMES_GAMES.filter((g) => g.slug !== game.slug)
   const [first, ...rest] = game.name.split(' ')
+  const phonePics = game.pictures[0].height > game.pictures[0].width
   return (
     <main
       id="main-content"
@@ -76,11 +87,11 @@ export default function GamePage({ game }: { game: N8Game }) {
 
         <section className={`${styles.hero} ${styles.gameHero} ${styles.wrap}`} aria-labelledby="game-title">
           <div className={styles.heroText}>
-            <span className={`${styles.chip} ${styles.chipLive} ${styles.enter}`} style={vars({ '--i': 0 })}>
-              Playable
-            </span>
-            <h1 id="game-title" className={`${styles.gameTitle} ${styles.enter}`} style={vars({ '--i': 0 })}>
-              {first} {rest.length > 0 && <span>{rest.join(' ')}</span>}
+            <StatusChip live={game.play.live} className={styles.enter} />
+            {/* One line, sized to fit its column (--len: its letters); the plate wraps it tight. */}
+            <h1 id="game-title" className={`${styles.gameTitle} ${styles.enter}`} style={vars({ '--i': 0, '--len': game.name.length })}>
+              {first}
+              {rest.length > 0 && <span> {rest.join(' ')}</span>}
             </h1>
             <div className={`${styles.gameIntro} ${styles.enter}`} style={vars({ '--i': 1 })}>
               {game.intro.map((l) => (
@@ -107,7 +118,11 @@ export default function GamePage({ game }: { game: N8Game }) {
 
         <Reveal as="section" className={`${styles.sec} ${styles.wrap}`}>
           <h2 className="sr-only">Pictures</h2>
-          <div className={`${styles.pics} ${game.pictures[0].height > game.pictures[0].width ? styles.picsPhone : ''}`}>
+          {/* Phone screens scroll sideways on a phone: a region the keyboard can reach and scroll. */}
+          <div
+            className={`${styles.pics} ${phonePics ? styles.picsPhone : ''}`}
+            {...(phonePics ? { role: 'region', tabIndex: 0, 'aria-label': `Pictures of ${game.name}` } : {})}
+          >
             {game.pictures.map((p, i) => (
               <figure key={p.src} className={styles.pic} style={vars({ '--tilt': `${[-1.2, 1, -0.6, 0.8][i]}deg` })}>
                 <div className={styles.picFrame}>

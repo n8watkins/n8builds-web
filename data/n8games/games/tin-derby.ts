@@ -5,7 +5,10 @@ import type { N8Game } from '../types'
  * repo, 2026-11-15) and its playable round-five preview, which the clip and the
  * pictures come from: the house driving your car in a four-car race, held sideways
  * like a phone, and the split screen for a TV. It is not on the live site yet
- * (`live: false`): its Go play goes to the games site's front door for now.
+ * (`live: false`): its page says "Coming soon" and its main button goes to the
+ * games site. Its page and its card come from this file alone; when the room
+ * version goes live, pull request #204 lists what to change here and the three
+ * lines elsewhere (the ad's count, the /games note, "Coming next").
  */
 const D = '/games/n8games/tin-derby'
 

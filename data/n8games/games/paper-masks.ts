@@ -2,10 +2,11 @@ import type { N8Game } from '../types'
 
 /**
  * Paper Masks. Facts from its rules (PAPER-MASKS-RULES.md in the private ops repo)
- * and its rules module, party/games/paper-masks in github.com/n8watkins/n8-party-games
- * (main on 2026-11-16). The clip and the pictures are the approved screens preview
- * (masks-round3), tapped through in order on a phone. It is not on the live site yet
- * (`live: false`): its Go play goes to the games site's front door for now.
+ * and its module, party/games/paper-masks in github.com/n8watkins/n8-party-games
+ * (main on 2026-11-16). It plays at the Table on the live site (3 to 8 players,
+ * started at /table/). The clip and the pictures are one phone of a real three-player
+ * match at the Table, on a local run of that main (test games off), cropped to the game
+ * so the Table's party code is never in them; the three players are made up.
  */
 const D = '/games/n8games/paper-masks'
 
@@ -21,38 +22,38 @@ export const paperMasks: N8Game = {
     tilt: 1.5,
   },
   intro: ['Everyone answers the same prompt in secret, and one reader reads the answers out with no names.', 'The table argues, everyone guesses who wrote what, and the masks come off.'],
-  play: { href: 'https://partygames.n8builds.dev', live: false },
+  play: { href: 'https://partygames.n8builds.dev/table/', live: true },
   code: 'https://github.com/n8watkins/n8-party-games/tree/main/party/games/paper-masks',
   clip: {
     webm: `${D}/clip.webm`,
     mp4: `${D}/clip.mp4`,
     poster: `${D}/clip-poster.webp`,
     width: 432,
-    height: 934,
-    alt: 'Paper Masks on a phone, between red theatre curtains: the table of six, a card turns over to deal the Fox mask, "Who wrote this? Never trust a ladder that is already up" with names to tap, the blank mask lifts to show the Owl, "Wren wrote it", and the final curtain, "Priya wins".',
+    height: 828,
+    alt: 'Paper Masks on a phone at the Table, between red theatre curtains: a card turns over to deal the Sun mask, the prompt "If we wrote a cookbook together, your recipe in it" and the answer "Pasta with too much garlic" typed in secret, "Who wrote this? Pancakes shaped like states" with Priya tapped, the blank mask lifts off the moon mask, "Priya wrote it", and the final curtain, "Priya wins".',
     frame: 'phone',
-    caption: 'One round, screen by screen.',
+    caption: 'One phone in a real three-player match at the Table.',
   },
   pictures: [
     {
-      src: `${D}/deal.webp`,
+      src: `${D}/guess.webp`,
       width: 480,
-      height: 1038,
-      alt: 'Your mask tonight: the Fox, on a gold-framed card. "Everyone sees your mask. Nobody sees which answer is yours."',
-      caption: 'Dealt a mask.',
+      height: 920,
+      alt: '"Who wrote this? Pancakes shaped like states", with all three tapped and Priya picked from Maya, Priya and The game.',
+      caption: 'Who wrote it? Tap a name.',
     },
     {
       src: `${D}/reveal.webp`,
       width: 480,
-      height: 1038,
-      alt: '"Never trust a ladder that is already up": the Owl mask, "Wren wrote it", with who guessed right and who was fooled.',
+      height: 920,
+      alt: '"Pancakes shaped like states": the moon mask, "Priya wrote it", "You said Priya. Right!", Jonah guessed right and Maya was fooled.',
       caption: 'Masks off.',
     },
     {
       src: `${D}/end.webp`,
       width: 480,
-      height: 1038,
-      alt: 'The final curtain: "Priya wins", 23 points, the scores of all six, Best mask and Mind reader, and Play again.',
+      height: 920,
+      alt: 'The final curtain after three rounds: "Priya wins", 9 points, Best mask and Mind reader, and the scores of all three.',
       caption: 'The final curtain.',
     },
   ],

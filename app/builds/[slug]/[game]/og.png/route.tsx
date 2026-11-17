@@ -25,5 +25,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
     title: game.name,
     subtitle: game.card.line,
     footer: `n8builds.dev${gamePage(game.slug)}`,
+    // The picture keeps to the card's right half (from x 640), the words to its left.
+    layout: 'split',
   })
 }

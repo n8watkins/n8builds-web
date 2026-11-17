@@ -44,6 +44,11 @@ export function Floaters() {
   )
 }
 
+/** Whether a game can be played today: its data file's `play.live` decides, on its card and its page. */
+export function StatusChip({ live, className = '' }: { live: boolean; className?: string }) {
+  return <span className={`${styles.chip} ${live ? styles.chipLive : styles.chipSoon} ${className}`}>{live ? 'Playable' : 'Coming soon'}</span>
+}
+
 /** A link out, as a small bordered tag (credits). */
 export function OutLink({ href, label, youtube }: { href: string; label: string; youtube?: boolean }) {
   return (
@@ -90,12 +95,22 @@ export default function N8gamesPage() {
             </div>
           </div>
           <div className={`${styles.heroStage} ${styles.enter}`} style={vars({ '--i': 3 })}>
-            <div className={styles.heroView}>
-              {/* The wide strip of floor from 760px; on a phone a taller crop, closer on the pieces. */}
-              <LoopVideo clip={HERO.clip.wide} alt={HERO.clip.alt} label="clip of the party room" className={styles.wideOnly} priority />
-              <LoopVideo clip={HERO.clip.tall} alt={HERO.clip.alt} label="clip of the party room" className={styles.tallOnly} priority />
-              <span className={`${styles.chip} ${styles.chipLive} ${styles.heroTag}`}>The real room</span>
-            </div>
+            {/* The wide strip of floor from 760px; on a phone a taller crop, closer on the pieces. Pause sits under it. */}
+            {[
+              { clip: HERO.clip.wide, className: styles.wideOnly },
+              { clip: HERO.clip.tall, className: styles.tallOnly },
+            ].map(({ clip, className }) => (
+              <LoopVideo
+                key={clip.webm}
+                clip={clip}
+                alt={HERO.clip.alt}
+                label="clip of the party room"
+                className={className}
+                priority
+                frameClassName={styles.heroView}
+                badge={<span className={`${styles.chip} ${styles.chipLive} ${styles.heroTag}`}>The real room</span>}
+              />
+            ))}
             <Image className={`${styles.prop} ${styles.propMask}`} src={`${P}/fl-mask-jester.webp`} width={150} height={150} alt="" aria-hidden="true" unoptimized />
             <Image className={`${styles.prop} ${styles.propKey}`} src={`${P}/fl-key.webp`} width={130} height={97} alt="" aria-hidden="true" unoptimized />
           </div>
@@ -121,12 +136,13 @@ export default function N8gamesPage() {
                   <Image src={g.card.tile} alt={g.card.tileAlt} width={420} height={560} sizes="(min-width: 980px) 160px, (min-width: 620px) 200px, 140px" />
                 </div>
                 <div className={styles.gameText}>
-                  <span className={`${styles.chip} ${styles.chipLive}`}>Playable</span>
+                  <StatusChip live={g.play.live} />
                   <h3>{g.name}</h3>
                   <p>{g.card.line}</p>
                   <span className={styles.gameMeta}>{g.card.meta}</span>
-                  <Link className={`${styles.btn} ${styles.btnGo} ${styles.btnSmall}`} href={gamePage(g.slug)} aria-label={`How ${g.name} is made`}>
+                  <Link className={`${styles.btn} ${styles.btnGo} ${styles.btnSmall}`} href={gamePage(g.slug)}>
                     How it&apos;s made
+                    <span className="sr-only"> for {g.name}</span>
                   </Link>
                 </div>
               </li>
@@ -139,7 +155,7 @@ export default function N8gamesPage() {
             <h2 className={`${styles.sticker} ${styles.stApricot}`} id="pieces-title">
               Meet the pieces
             </h2>
-            <p className={styles.lede}>You walk a little piece round the room. Each one has its own trick.</p>
+            <p className={styles.lede}>You walk a little piece round the room, and each one gets its own trick.</p>
           </div>
           <PiecesStage pieces={PIECES} />
         </Reveal>
@@ -151,10 +167,10 @@ export default function N8gamesPage() {
           <div className={styles.cards}>
             <article className={styles.card} style={vars({ '--tilt': '-1.2deg' })}>
               <div className={styles.cardPic}>
-                <Image src={NEXT.table.image.src} alt={NEXT.table.image.alt} width={NEXT.table.image.width} height={NEXT.table.image.height} sizes="(min-width: 900px) 340px, (min-width: 620px) 45vw, 90vw" />
+                <Image src={NEXT.coming.image.src} alt={NEXT.coming.image.alt} width={NEXT.coming.image.width} height={NEXT.coming.image.height} sizes="(min-width: 900px) 340px, (min-width: 620px) 45vw, 90vw" />
               </div>
-              <h3>{NEXT.table.title}</h3>
-              <p>{NEXT.table.line}</p>
+              <h3>{NEXT.coming.title}</h3>
+              <p>{NEXT.coming.line}</p>
             </article>
             <article className={`${styles.card} ${styles.cardWide}`} style={vars({ '--tilt': '.5deg' })}>
               <div className={styles.rooms}>

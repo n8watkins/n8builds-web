@@ -1,6 +1,7 @@
 import { existsSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { N8GAMES_URL } from '@/data/n8games'
 import { N8GAMES_GAMES, notLiveYet } from '@/data/n8games/games'
 import { BASE, THEMES, textPairs } from '@/data/n8games/themes'
 import { PIECES } from '@/data/n8games/page'
@@ -54,14 +55,17 @@ describe('n8games: the games', () => {
     })
   }
 
-  it('lists the pages whose Go play points at a game that is not live yet', () => {
-    // The main session holds the merge while this list is not empty: Tin Derby and
-    // Paper Masks are not on the live site yet, so their Go play is the games
-    // site's front door for now. Update this when one goes live.
-    const waiting = notLiveYet()
-    console.log(`n8games pages pointing at a game that is not live yet: ${waiting.join(', ') || 'none'}`)
-    expect(waiting).toEqual(['tin-derby', 'paper-masks'])
-    for (const slug of waiting) expect(N8GAMES_GAMES.find((g) => g.slug === slug)!.play.href).toBe('https://partygames.n8builds.dev')
+  it('knows which games are not live yet, and points them at the games site', () => {
+    // A game that is not live shows "Coming soon" and "See the games site", never
+    // "Playable" or "Go play" (GamePage, N8gamesPage). Tin Derby's room version is
+    // built and in review; flip its `play.live` and `play.href` when it is out.
+    expect(notLiveYet()).toEqual(['tin-derby'])
+    for (const slug of notLiveYet()) expect(N8GAMES_GAMES.find((g) => g.slug === slug)!.play.href).toBe(N8GAMES_URL)
+  })
+
+  it('sends Go play for a live game to the game itself, never to the front door', () => {
+    for (const g of N8GAMES_GAMES.filter((x) => x.play.live)) expect(g.play.href, g.slug).not.toBe(N8GAMES_URL)
+    expect(N8GAMES_GAMES.find((g) => g.slug === 'paper-masks')!.play).toEqual({ href: 'https://partygames.n8builds.dev/table/', live: true })
   })
 })
 

@@ -132,7 +132,7 @@ export default function PiecesStage({ pieces }: { pieces: Piece[] }) {
             <source src={p.clip.mp4} type="video/mp4" />
           </video>
         ))}
-        <span className={`${styles.chip} ${piece.soon ? styles.chipSoon : styles.chipLive} ${styles.pieceTag}`}>{piece.soon ? 'Coming to the room' : 'From the real room'}</span>
+        <span className={`${styles.chip} ${styles.chipLive} ${styles.pieceTag}`}>From the real room</span>
         {still && !playing && (
           // The Pause/Play button below is the one for the keyboard; this is a bigger target for a tap.
           <button type="button" className={styles.clipBigPlay} onClick={toggle} tabIndex={-1} aria-hidden="true">
