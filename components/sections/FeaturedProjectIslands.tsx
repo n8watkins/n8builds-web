@@ -176,6 +176,8 @@ export function ProjectGallery({
  * plays at all (each card shows its still).
  */
 type Turns = { active: number; pick: (slot: number) => void; ended: (slot: number) => void }
+/** How close to its end, in seconds, a playing clip counts as played through: about one frame at 24 fps. */
+const END_SLACK_S = 0.05
 const TurnsContext = createContext<Turns | null>(null)
 const SlotContext = createContext<number | null>(null)
 
@@ -348,7 +350,12 @@ export function ProjectTour({
   }, [playing, started, myTurn])
 
   // In a ClipTurns group: the bar under the active clip fills as it plays, read
-  // from the video each frame while it plays (empty off its turn).
+  // from the video each frame while it plays (empty off its turn). The same
+  // frame-by-frame look moves the turn on once the clip has played to its end:
+  // WebKit's GStreamer engine (WebKitGTK, WPE) does not always fire `ended` there
+  // (bugs.webkit.org 285595), which left the clip on its last frame and the round
+  // stopped for good (CI, 2026-11-16). `ended`, when it comes, does the same; only
+  // the first of the two moves the turn.
   const inTurns = !!turns && slot !== null
   const bar = useRef<HTMLSpanElement>(null)
   useEffect(() => {
@@ -363,11 +370,15 @@ export function ProjectTour({
     const draw = () => {
       const d = video.duration
       fill.style.transform = `scaleX(${d > 0 ? Math.min(video.currentTime / d, 1) : 0})`
+      if (video.ended || (d > 0 && !video.seeking && video.currentTime >= d - END_SLACK_S)) {
+        turns?.ended(slot ?? 0)
+        return
+      }
       frame = requestAnimationFrame(draw)
     }
     if (playing) frame = requestAnimationFrame(draw)
     return () => cancelAnimationFrame(frame)
-  }, [inTurns, myTurn, playing, hydrated])
+  }, [inTurns, myTurn, playing, hydrated, turns, slot])
 
   return (
     <div data-tour data-clip-ms={tour.durationMs} className={className}>
