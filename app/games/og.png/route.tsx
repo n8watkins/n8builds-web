@@ -10,7 +10,7 @@ export async function GET() {
     seed: 'games',
     eyebrow: 'Games',
     title: 'Take a break, play something',
-    subtitle: 'Small games I built, all free: a two-phone guessing game, a portfolio face-off, a dino to catch and a command-line trainer.',
+    subtitle: 'Small games I built, all free: party games for friends on their phones, a two-phone guessing game, a portfolio face-off and a dino to catch.',
     footer: 'n8builds.dev/games',
   })
 }

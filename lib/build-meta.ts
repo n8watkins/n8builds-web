@@ -13,6 +13,8 @@ export const BUILD_ICONS: Record<string, string> = {
   openping: '/builds/openping/icon.svg',
   solara: '/builds/solara/icon.png',
   'portfolio-rank': '/builds/portfolio-rank/icon.png',
+  // The lamp over a pawn, the games site's own mark.
+  n8games: '/games/n8games/icon.png',
   n8builds: '/tab/n8-icon-192.png',
   // The developer portfolio's mark, a briefcase in its teal, as on its template card.
   portfolio: '/builds/portfolio/icon.svg',

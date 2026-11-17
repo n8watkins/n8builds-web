@@ -8,7 +8,7 @@ import {
   type SendResult,
 } from '@/lib/announce/service'
 import { InvalidAnnouncement, PREVIEW_MANAGE_URL, TEMPLATES, defaultFields, renderAnnouncement, resolveFields } from '@/lib/announce/templates'
-import { WaitlistStore, tokenHash } from '@/lib/waitlist/store'
+import { LEAVE_LINK_DAYS, PENDING_DAYS, WaitlistStore, entryId, newToken, tokenHash } from '@/lib/waitlist/store'
 import { purgeExpired } from '@/lib/retention'
 import { testDatabases, type TestDatabases } from './d1'
 
@@ -74,14 +74,32 @@ function setup(start = T0) {
     waitlist,
     at,
     later: (ms: number) => (now = new Date(now.getTime() + ms)),
-    /** Confirmed people on a project. */
+    /**
+     * Confirmed people on a project: the rows join, issueLinks and confirm leave
+     * behind (the entry, its confirmed project, its spent confirm link and its
+     * leave link), written in one batch. Going through the store for each person
+     * took two round trips to D1 apiece, seconds for a run's worth of people.
+     */
     async people(n: number, project: 'feelium' | 'fitflow7' = 'feelium', prefix = 'p') {
-      const ids: string[] = []
-      for (let i = 0; i < n; i++) {
-        const entry = await waitlist.join({ email: `${prefix}${i}@example.com`, projects: [project], note: '', interest: '', referrer: '' })
-        await waitlist.confirm((await waitlist.issueLinks(entry)).confirm)
-        ids.push(entry.id)
-      }
+      const t = now.getTime()
+      const iso = now.toISOString()
+      const token = 'INSERT INTO waitlist_tokens (token_hash, subscriber_id, purpose, created_at, expires_at, used_at) VALUES (?, ?, ?, ?, ?, ?)'
+      const ids = Array.from({ length: n }, (_, i) => entryId(`${prefix}${i}@example.com`))
+      await dbs.waitlist.batch(
+        ids.flatMap((id, i) => [
+          dbs.waitlist
+            .prepare(
+              `INSERT INTO waitlist_subscribers (id, email, note, requested_note, interest, referrer, created_at, updated_at, confirmed_at, expires_at)
+               VALUES (?, ?, '', '', '', '', ?, ?, ?, NULL)`
+            )
+            .bind(id, `${prefix}${i}@example.com`, iso, iso, iso),
+          dbs.waitlist
+            .prepare("INSERT INTO waitlist_projects (subscriber_id, project, status, requested_at, confirmed_at) VALUES (?, ?, 'confirmed', ?, ?)")
+            .bind(id, project, iso, iso),
+          dbs.waitlist.prepare(token).bind(tokenHash(newToken()), id, 'confirm', t, t + PENDING_DAYS * DAY, t),
+          dbs.waitlist.prepare(token).bind(tokenHash(newToken()), id, 'leave', t, t + LEAVE_LINK_DAYS * DAY, null),
+        ])
+      )
       return ids
     },
   }

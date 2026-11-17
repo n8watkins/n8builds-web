@@ -1,4 +1,5 @@
 import type { TechKey } from '@/lib/tech-icons'
+import { N8GAMES_REPO, N8GAMES_URL } from './n8games'
 
 /** Where a piece of the stack sits, for the tabs of a build page's "How it's built". */
 export type BuildLayer = 'Frontend' | 'Backend' | 'Cloud'
@@ -414,6 +415,30 @@ images: [
     repo: 'n8watkins/solara',
     // Refactors and internal milestones the filters let through.
     logHide: ['fmtH', 'V1 hardening'],
+  },
+  {
+    // n8games (owner, 2026-11-16): its own page, fun and light in the games'
+    // own look, with a page for each game under it (/builds/n8games/<game>).
+    // Its address is linked from the games site ("Learn more"): keep the slug.
+    slug: 'n8games',
+    name: 'n8games',
+    // Linked from the homepage's n8games ad and the /games card, not a Lab row.
+    homepage: false,
+    tagline: 'Party games on your phones, on an open-source room kit',
+    category: 'Web app',
+    status: 'in the lab',
+    tags: ['Cloudflare Workers', 'Durable Objects', 'three.js', 'Open source'],
+    color: 'from-amber-500/15 to-orange-700/15',
+    solution:
+      'n8games is party games for friends in one room, each on their own phone: a character room where you join with a code and vote for the next game by standing in its light, games for one phone passed around, and games played at a table. The rooms run on Cloudflare Durable Objects that sleep between moves, and the kit under them is MIT-licensed.',
+    // Its page has its own layout (components/builds/n8games/), so it carries
+    // none of the template's parts; its five games are data files in data/n8games/games/.
+    stack: [],
+    process: [],
+    images: [],
+    tryIt: { label: 'Play n8games', href: N8GAMES_URL },
+    github: N8GAMES_REPO,
+    liveSite: N8GAMES_URL,
   },
   {
     slug: 'portfolio-rank',

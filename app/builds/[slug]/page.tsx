@@ -17,6 +17,7 @@ import { getRecentActivity } from '@/lib/build-log'
 import N8buildsCaseStudy from '@/components/builds/n8builds/CaseStudy'
 import { LightboxGallery, LightboxThumb } from '@/components/builds/Lightbox'
 import MoreBuilds from '@/components/builds/MoreBuilds'
+import N8gamesPage from '@/components/builds/n8games/N8gamesPage'
 import FadeIn from '@/components/ui/FadeIn'
 import FeatureShots, { type Feature } from '@/components/builds/FeatureShots'
 import StackTabs from '@/components/builds/StackTabs'
@@ -64,6 +65,17 @@ export default async function BuildPage({ params }: BuildPageProps) {
   const { slug } = await params
   const build = getBuild(slug)
   if (!build) notFound()
+
+  // n8games has its own page in the games' own look, with a page per game
+  // under it (owner, 2026-11-16: "fun and light ... on brand to the thing that we built").
+  if (slug === 'n8games') {
+    return (
+      <>
+        <Navbar />
+        <N8gamesPage />
+      </>
+    )
+  }
 
   const shelf = shelfMeta[getShelf(build)]
   const activity = await getRecentActivity(slug, Infinity)

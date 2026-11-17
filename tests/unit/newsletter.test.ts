@@ -11,7 +11,7 @@ import {
   digestSubject,
   unsubscribeHeaders,
 } from '@/lib/newsletter/emails'
-import { WaitlistStore } from '@/lib/waitlist/store'
+import { WaitlistStore, entryId, newToken } from '@/lib/waitlist/store'
 import { purgeExpired } from '@/lib/retention'
 import { testDatabases, type TestDatabases } from './d1'
 
@@ -149,8 +149,23 @@ describe('runDigest: selection and sending', () => {
     return { sent, mail, refuse: (n: number, c = 'cap_app_day') => ((refuseAt = n), (code = c)), allow: () => (refuseAt = Infinity) }
   }
 
+  /**
+   * Confirmed subscribers, as of the store's own clock: the rows subscribe and
+   * confirm leave behind, written in one batch (through the store, two round
+   * trips to D1 apiece, seconds for a run's worth of readers).
+   */
   async function subscribers(store: NewsletterStore, n: number) {
-    for (let i = 0; i < n; i++) await confirmed(store, `reader${i}@example.com`)
+    const iso = store['now']().toISOString()
+    await store.db.batch(
+      Array.from({ length: n }, (_, i) =>
+        store.db
+          .prepare(
+            `INSERT INTO newsletter_subscribers (id, email, created_at, confirmed_at, expires_at, confirm_hash, unsubscribe_token)
+             VALUES (?, ?, ?, ?, NULL, NULL, ?)`
+          )
+          .bind(entryId(`reader${i}@example.com`), `reader${i}@example.com`, iso, iso, newToken())
+      )
+    )
   }
 
   it('sends nothing in a week without a new post', async () => {
