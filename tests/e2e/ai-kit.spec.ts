@@ -342,6 +342,12 @@ test.describe('dino easter egg (motion allowed)', () => {
   })
 
   test('a tapped or focused tile pauses only its own row for the dino', { tag: '@cross-browser' }, async ({ page, hasTouch }) => {
+    // No lines: it stands still while it talks, on its own capped clock. Where
+    // frames come slowly (WebKit drawing in software on a busy machine, about
+    // 8 a second) a line that starts just before the last pause holds it for
+    // some 6 s, and with the walk to its next gap that outlasts the miss's
+    // wait below (2026-11-18). This test is about which row pauses, not talk.
+    await dinoTiming(page, { firstLineAfter: 999 })
     await onTopRow(page)
     // Focus (a keyboard user) or a tap (a touch screen) on a tile of the
     // bottom row pauses that row, not the one the dino is on. Wait for a tile
