@@ -106,12 +106,16 @@ const showKit = (page: Page, selector: string) =>
         // taller than the window, its top just in view: a reload's restored
         // scroll can leave its top row under the header, where the dino counts
         // as out of sight. (The page's scroll padding keeps "centre" a little
-        // off true centre, hence the slack.)
+        // off true centre, hence the slack.) Too tall to centre with its top
+        // below the header, it goes to the top: the AI kit is 578px, and
+        // centred in a 720px window its top sat at 71px, which this never took,
+        // so once its reveal had settled it scrolled there again and again
+        // until it timed out (WebKit and Firefox, 2026-11-18).
         const centred = Math.abs((box.top + box.bottom) / 2 - innerHeight / 2) <= 100 && box.top >= 72
-        const tall = box.height > innerHeight - 80
+        const tall = box.height > innerHeight - 2 * 72
         if (tall ? box.top >= 72 && box.top <= innerHeight / 3 : centred) return true
-        el.scrollIntoView({ block: box.height > innerHeight - 80 ? 'start' : 'center', behavior: 'instant' })
-        if (box.height > innerHeight - 80) scrollBy(0, -88)
+        el.scrollIntoView({ block: tall ? 'start' : 'center', behavior: 'instant' })
+        if (tall) scrollBy(0, -88)
         return false
       })
     )
