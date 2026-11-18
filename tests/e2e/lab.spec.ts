@@ -657,6 +657,34 @@ test.describe('featured clips, with motion', () => {
     await expect(turn(openping)).not.toHaveAttribute('data-clip-turn')
     await expect.poll(() => video(solara).evaluate((v: HTMLVideoElement) => !v.paused && v.currentTime > 0), { timeout: 15_000 }).toBe(true)
   })
+
+  /**
+   * The bar under each clip used to appear only once the page had hydrated: Featured
+   * grew by its 14px a few seconds in on a busy machine, and everything under it
+   * jumped (the AI kit's music toggle moved under the pointer as it was pressed,
+   * and the press was lost: dino-music.spec.ts in Firefox, 2026-11-18). Its place
+   * is in the server's HTML now, so the page keeps its layout as it comes to life.
+   */
+  test('Featured is as tall as the server sent it once the page has hydrated: the clip bars have their place from the start', { tag: '@cross-browser' }, async ({
+    page,
+  }) => {
+    const featuredHeight = async (p: Page) => {
+      await p.evaluate(() => document.fonts.ready)
+      return p.locator('#featured').evaluate((el) => el.getBoundingClientRect().height)
+    }
+    // As the server sent it, what a visitor sees before the page hydrates: the
+    // page's scripts never load. (Not javaScriptEnabled: false, under which
+    // Firefox can't evaluate anything in the page to measure it.)
+    const server = await page.context().newPage()
+    await server.route('**/_next/static/**/*.js', (route) => route.abort())
+    await server.goto('/')
+    const before = await featuredHeight(server)
+    await server.close()
+    // Hydrated: the resting clip's play button is there (it renders only then).
+    await page.goto('/')
+    await expect(page.locator('#featured [data-clip-play]')).toHaveCount(1, { timeout: 15_000 })
+    expect(await featuredHeight(page)).toBe(before)
+  })
 })
 
 test("the row's stack and features moved to the build page", async ({ page }) => {

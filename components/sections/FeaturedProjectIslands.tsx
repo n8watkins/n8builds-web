@@ -459,9 +459,12 @@ export function ProjectTour({
           </button>
         )}
       </div>
-      {/* How far the active clip has played: the cue for which one is on and when the next comes. */}
-      {inTurns && hydrated && !reduced && (
-        <div aria-hidden="true" className="mt-2.5 h-1 overflow-hidden rounded-full bg-white/8" data-clip-progress>
+      {/* How far the active clip has played: the cue for which one is on and when the next comes.
+          In the server's HTML too, empty until the page hydrates: added only then, it grew
+          Featured by its 14px a few seconds in on a slow device, and everything under it
+          jumped (2026-11-18). Under reduced motion the clips never play, so it has no place. */}
+      {inTurns && (
+        <div aria-hidden="true" className="mt-2.5 h-1 overflow-hidden rounded-full bg-white/8 motion-reduce:hidden" data-clip-progress>
           <span ref={bar} className="block h-full origin-left rounded-full bg-[rgb(var(--lab-from,34_211_238))]" style={{ transform: 'scaleX(0)' }} />
         </div>
       )}
