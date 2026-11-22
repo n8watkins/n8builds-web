@@ -62,9 +62,9 @@ describe('n8games: the games', () => {
 
   it('knows which games are not live yet, and points them at the games site', () => {
     // A game that is not live shows "Coming soon" and "See the games site", never
-    // "Playable" or "Go play" (GamePage, N8gamesPage). Tin Derby's room version is
-    // built and in review; flip its `play.live` and `play.href` when it is out.
-    expect(notLiveYet()).toEqual(['tin-derby'])
+    // "Playable" or "Go play" (GamePage, N8gamesPage). Every game is live now
+    // (Tin Derby in the party room since 2026-11-22).
+    expect(notLiveYet()).toEqual([])
     for (const slug of notLiveYet()) expect(N8GAMES_GAMES.find((g) => g.slug === slug)!.play.href).toBe(N8GAMES_URL)
   })
 

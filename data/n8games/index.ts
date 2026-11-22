@@ -37,7 +37,7 @@ export const N8GAMES_AD = {
   show: true,
   eyebrow: 'n8games',
   heading: "Come play what I've been building",
-  body: "Party games I've been playing around with: friends join from their phones with a code, walk a little piece around the room and pick the next game by standing in its light. Four are playable now, more are on the way.",
+  body: "Party games I've been playing around with: friends join from their phones with a code, walk a little piece around the room and pick the next game by standing in its light. Five are playable now, more are on the way.",
   play: { label: 'Play', href: N8GAMES_URL },
   more: { label: 'Learn more', href: N8GAMES_PAGE },
   /** The owner's render (from n8watkins/n8-party-games, landing/public/img/hero-2000.webp). */

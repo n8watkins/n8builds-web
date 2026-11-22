@@ -2,9 +2,10 @@ import type { N8Game } from '../types'
 
 /**
  * Who Am I?. Facts from the game's README (github.com/n8watkins/who-am-i, main on
- * 2026-11-16). The clip is a normal game between two made-up players on a local run
- * (wrangler dev, pictures switched off), both phones recorded at once; recording
- * starts after the match starts, so no join code or QR code is in it.
+ * 2026-11-16). The clip and the pictures are a round between two made-up players
+ * (Pip and Toast, Historical Figures) at the Table on the live party site
+ * (partygames.n8builds.dev, 2026-11-22), both phones recorded at once and cropped
+ * below the Table's header, so no party code is in them.
  */
 const D = '/games/n8games/who-am-i'
 
@@ -20,47 +21,48 @@ export const whoAmI: N8Game = {
     tilt: -1.5,
   },
   intro: ['A two-player guessing game: each of you gets a secret identity, a famous person, a character or a mascot.', 'You can see the one your opponent is guessing, never your own.'],
-  play: { href: 'https://whoami.n8builds.dev', live: true },
+  // At the Table on the party site; its own site still plays it too.
+  play: { href: 'https://partygames.n8builds.dev/table/', live: true, also: { label: 'Or on its own site', href: 'https://whoami.n8builds.dev' } },
   code: 'https://github.com/n8watkins/who-am-i',
   clip: {
     webm: `${D}/clip.webm`,
     mp4: `${D}/clip.mp4`,
     poster: `${D}/clip-poster.webp`,
     width: 740,
-    height: 780,
-    alt: "Two phones side by side. Maya, on the left, asks \"Am I a real person?\" and \"Am I alive today?\"; Jonah answers No and Yes on the right. She takes a hint, guesses, he confirms it, and the big reveal shows she was Marco Polo and he was Nelson Mandela.",
+    height: 730,
+    alt: 'Two phones side by side at the Table. Toast, on the left, asks "Am I a real person?"; Pip answers Yes on the right, under a picture of Socrates. Toast takes a hint ("A thinker from the ancient world"), guesses, Pip confirms it, and the big reveal shows Toast was Socrates and Pip was Marie Curie.',
     frame: 'phone',
-    caption: 'Two phones, one round, recorded at once.',
+    caption: 'Two phones at the Table, one round, recorded at once.',
   },
   pictures: [
     {
       src: `${D}/turn.webp`,
       width: 480,
-      height: 1039,
-      alt: "Maya's turn: \"Jonah is Nelson Mandela\" at the top, suggested questions, a box to type one, and Hint, Give up and I Guessed It.",
+      height: 973,
+      alt: 'Toast\'s turn: "Pip is Marie Curie" with her picture at the top, "Your name: hidden", suggested questions, a box to type one, and Hint, Pass and I Guessed It.',
       caption: 'Your turn: ask away.',
     },
     {
       src: `${D}/answer.webp`,
       width: 480,
-      height: 1039,
-      alt: 'Jonah\'s phone: Answer as Marco Polo, with "Am I a real person?" answered No.',
+      height: 973,
+      alt: 'Pip\'s phone: Answer as Socrates, under his picture, and "Toast asks: Am I a real person?" with Yes, No, Sort of and Don\'t know.',
       caption: 'Their phone: answer as the name you see.',
     },
     {
       src: `${D}/reveal.webp`,
       width: 480,
-      height: 1039,
-      alt: 'The big reveal: You were Marco Polo, guessed it with one hint; Jonah was Nelson Mandela, gave up. Maya 1, Jonah 0, and Next round.',
+      height: 973,
+      alt: 'The big reveal: You were Socrates, guessed it with one hint and one question; Pip was Marie Curie, beaten to it. Toast 1, Pip 0, and Next round.',
       caption: 'The big reveal.',
     },
   ],
   steps: [
-    'One player creates a game and picks a category. The other joins with the QR code, the invite link or a 4-digit PIN.',
-    "Each screen shows your opponent's character, and yours as Hidden.",
-    'On your turn, ask yes or no questions, out loud or in the app. Your opponent answers on their phone.',
-    'Stuck? Up to three hints a turn, vague to strong. Say your guess and tap I Guessed It; they confirm it.',
-    'After both turns, the big reveal. First to 5 points, or the best after 10 rounds.',
+    'Start a party at the Table and pick Who Am I?. The host picks a category, the hints and how long the match runs.',
+    "Each phone shows the other player's name and picture, and yours as hidden.",
+    'On your move, ask one yes or no question, out loud or in the app. The other player answers on their phone; then guess or pass.',
+    'Stuck? Up to three hints, vague to strong. Say your guess and tap I Guessed It; they confirm it.',
+    'The big reveal shows both names. Anyone else at the Table watches the match.',
   ],
   made: [
     { icon: 'shield', title: 'The secret stays on the server', body: 'Your own identity never reaches your phone before the reveal. Every message is built for one player.' },

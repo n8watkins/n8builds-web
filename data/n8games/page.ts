@@ -12,11 +12,14 @@ const P = '/games/n8games/page'
 export const HERO = {
   line: 'Party games for friends in one room, each on their own phone.',
   play: N8GAMES_URL,
-  /** Four scripted players in the real room, cropped to the floor (no join code, QR code or address). */
+  /**
+   * Four scripted players in the live party room (2026-11-22), from its big screen, cropped to
+   * the floor (no join code, QR code or address): the lights under Cork & Bell and Tin Derby.
+   */
   clip: {
-    alt: 'A loop from the real party room: four pieces walk about the bar floor, jump, kick each other over and get back up, while a ghost points and laughs.',
-    /** The phone crop's first frame, as a still elsewhere (the /games card). */
-    posterAlt: 'The real party room: a red, a blue and a green pawn on the bar floor with their name tags, and a white ghost beside the blue one laughing "HA HA".',
+    alt: 'A loop from the real party room: on the bar floor, under the lights of the games you can play, a red pawn kicks a blue one over and it gets back up, a ghost points and laughs, and an orange pawn jumps.',
+    /** The phone crop's poster, as a still elsewhere (the /games card). */
+    posterAlt: 'The real party room: a red and a blue pawn in a pool of light on the bar floor, a white ghost pointing and laughing "HA HA", and an orange pawn jumping, each with its name tag.',
     /** From 760px: the wide strip of floor. */
     wide: { webm: `${P}/hero-wide.webm`, mp4: `${P}/hero-wide.mp4`, poster: `${P}/hero-wide-poster.webp`, width: 960, height: 408 },
     /** On a phone: a taller crop on the pieces. */
@@ -44,9 +47,10 @@ const OWN_MOVE_SOON = 'In the room now: it kicks like the pawn until its own mov
  * The pieces (owner, 2026-11-16: "all the pieces ... the four pieces on the bottom
  * with the carousel going through each piece. If you hover over the piece, it
  * shows that piece moving around."). All four can be picked in the live room.
- * Every clip is from a real party room on a local Worker: the pawn's kick and the
- * ghost's fade from main (2026-11-16), the robot and the slime from the branch
- * that added them before it merged (#63), walking and emoting.
+ * Every clip is from a real party room: the pawn's kick and the ghost's fade from the
+ * live site's painted bar (2026-11-22), the robot and the slime from a local Worker on
+ * the branch that added them before it merged (#63), walking and emoting (they are
+ * re-recorded when their own moves land, n8-party-games #69).
  */
 export const PIECES: Piece[] = [
   {
@@ -93,8 +97,8 @@ export const PIECES: Piece[] = [
 export const NEXT = {
   coming: {
     title: 'Coming next',
-    line: 'Tin Derby in the room: wind-up tin cars racing round the breakfast table, a phone each. And Who Am I? at the Table.',
-    image: { src: `${P}/wide-derby.webp`, width: 720, height: 405, alt: 'A painted race of wind-up tin cars across a red checked tablecloth, past a fruit bowl, the salt and pepper, and a butter dish.' },
+    line: "The robot's and the slime's own moves: a hook on a chain and stilt legs, and a slime that hardens, soaks up a hook and shoves.",
+    image: { src: `${P}/piece-robot-poster.webp`, width: 640, height: 400, alt: 'In the party room, a teal robot beside a yellow slime on the bar floor.' },
   },
   rooms: {
     title: 'More rooms',
