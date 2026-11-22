@@ -29,8 +29,12 @@ test('the newest note is featured above the rest, larger, with its cover, title 
   expect(dates[0]).toBe([...dates].sort().reverse()[0])
   // Larger than the others, and the others sit in one row of equal cards under it.
   if (restCount > 0) {
-    const big = (await featured.boundingBox())!
-    const boxes = await rest.evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON() as DOMRect))
+    // Measured together, at one moment: the site scrolls smoothly, so the page could still be
+    // moving between two separate measurements (WebKit, 3.5px, 2026-11-22).
+    const { big, boxes } = await rest.evaluateAll((els) => ({
+      big: document.querySelector('#notions [data-featured-post]')!.getBoundingClientRect().toJSON() as DOMRect,
+      boxes: els.map((el) => el.getBoundingClientRect().toJSON() as DOMRect),
+    }))
     for (const box of boxes) {
       expect(big.width).toBeGreaterThan(box.width * 2)
       expect(box.y).toBeGreaterThan(big.y + big.height)

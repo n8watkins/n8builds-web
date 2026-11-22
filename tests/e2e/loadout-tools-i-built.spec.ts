@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { asWindows } from './platform'
 
 /**
  * /loadout's "Tools I\'ve built" (the owner's calls, 2026-11-01): Scribe,
@@ -11,6 +12,9 @@ import { test, expect } from '@playwright/test'
 test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
 test("/loadout has Tools I've built: Scribe as a Lab row, then the CLIs, after the stacks", async ({ page }) => {
+  // On Windows, so Scribe's row leads with the Windows download in every browser project (WebKit's
+  // own OS is a Mac's: there it passed only when the check beat hydration, 2026-11-20).
+  await page.addInitScript(asWindows)
   await page.goto('/loadout')
   const part = page.getByRole('region', { name: "Tools I've built" })
   await expect(part.getByRole('heading', { level: 2 })).toHaveText("Tools I've built")

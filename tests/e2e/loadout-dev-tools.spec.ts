@@ -644,7 +644,9 @@ test.describe('Loadout tools and people', () => {
       ['Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Safari/537.36', 'linux', 'Download for Linux Beta', '/download/scribe-linux', /^Linux, 64-bit AppImage · v0\.8\.0 · \d+ MB · Also as a \.deb$/],
       ['Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1', 'other', 'Download for Windows', '/download/scribe', 'Desktop app for Windows, with macOS and Linux in beta.'],
     ] as const) {
-      const context = await browser.newContext({ userAgent, viewport: { width: 1280, height: 800 }, reducedMotion: 'reduce' })
+      // A computer, also in the phone projects: their contexts are phones by default, and Chromium
+      // then sends a phone's client hints whatever the user agent string says.
+      const context = await browser.newContext({ userAgent, viewport: { width: 1280, height: 800 }, isMobile: false, hasTouch: false, reducedMotion: 'reduce' })
       const page = await context.newPage()
       await page.goto('/')
       const row = page.locator('#tools-i-built').getByRole('article', { name: 'Scribe' })
