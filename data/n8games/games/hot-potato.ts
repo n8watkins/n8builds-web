@@ -2,9 +2,10 @@ import type { N8Game } from '../types'
 
 /**
  * Hot Potato. Facts from one-device/hot-potato/README.md and shared/CREDITS.txt in
- * github.com/n8watkins/n8-party-games (main on 2026-11-16). The clip is a round of
- * cities on a phone on a local run of the party site, with speech recognition
- * replaced by the scripted stand-in the game's own browser test uses.
+ * github.com/n8watkins/n8-party-games (main on 2026-11-16). The clip and the pictures
+ * are a round of cities on a phone on the live site (2026-11-22, the potato big and
+ * centred), with speech recognition replaced by the scripted stand-in the game's own
+ * browser test uses.
  */
 const D = '/games/n8games/hot-potato'
 
@@ -28,7 +29,7 @@ export const hotPotato: N8Game = {
     poster: `${D}/clip-poster.webp`,
     width: 432,
     height: 934,
-    alt: 'Hot Potato on a phone: four players say Paris, Sydney and Yaounde, each answered with a green "Yes!", then "Salmon" gets a red "Nope!" and a slow turn "Too slow!", while the potato in its lab rig grows, sweats and turns green.',
+    alt: 'Hot Potato on a phone, the potato big in his lab rig in the middle of the screen: four players say Paris, Sydney and Yaounde, each answered with a green "Yes!", then "Salmon" gets a red "Nope!" and the potato grows and sweats, and Edinburgh is a "Yes!" again.',
     frame: 'phone',
     caption: 'A round of cities, on a phone.',
   },
@@ -44,7 +45,7 @@ export const hotPotato: N8Game = {
       src: `${D}/yes.webp`,
       width: 480,
       height: 1039,
-      alt: 'A green screen with a big "Yes!" over the word Paris; the potato winks in its rig.',
+      alt: 'A green screen with a big "Yes!" and Paris over the potato in his rig; the strip under him says Paris and Player 2 is up.',
       caption: 'Right: the letter moves on.',
     },
     {
