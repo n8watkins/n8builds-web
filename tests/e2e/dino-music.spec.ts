@@ -106,19 +106,53 @@ const stored = (page: Page) => page.evaluate(() => localStorage.getItem('n8-dino
 
 // Bring the panel on screen without a smooth scroll still on its way (the
 // same helper as ai-kit.spec.ts), and only once its scroll reveal has settled:
-// the reveal lifts it about 10px, which on a phone left the music toggle under
-// the navbar, so WebKit scrolled to show it when it was pressed (a flake).
-const showKit = (page: Page) =>
+// the reveal lifts it 40px, which on a phone left the music toggle under the
+// navbar, so WebKit scrolled to show it when it was pressed (a flake).
+// Settled means revealed (every Reveal around it has data-revealed) and its
+// rise over: before the reveal starts it is still 40px low, and a poll that
+// caught it there let a press land as it rose. The rise is awaited, not
+// polled: on a busy machine, loading the page and the rise took longer than a
+// poll's 5s (Firefox, 2026-11-18).
+const showKit = async (page: Page) => {
+  await placeKit(page)
+  await page.locator(PANEL).evaluate(async (el) => {
+    const reveals = [...document.querySelectorAll('.reveal')].filter((r) => r.contains(el))
+    await Promise.all(
+      reveals.map((r) =>
+        r.hasAttribute('data-revealed')
+          ? null
+          : new Promise<void>((resolve) => {
+              const observer = new MutationObserver(() => {
+                if (!r.hasAttribute('data-revealed')) return
+                observer.disconnect()
+                resolve()
+              })
+              observer.observe(r, { attributes: true, attributeFilter: ['data-revealed'] })
+            })
+      )
+    )
+    // Reading the animations brings the styles up to date, so a rise that has
+    // just been set off is among them.
+    const rising = document
+      .getAnimations()
+      .filter((a) => a.playState === 'running' && a.effect instanceof KeyframeEffect && a.effect.target instanceof Element && a.effect.target.contains(el))
+    await Promise.all(rising.map((a) => a.finished.catch(() => {})))
+  })
+  // Risen: still in place, or put back.
+  await placeKit(page)
+}
+
+// "Centred" needs its top below the 72px header; a panel too tall for that
+// (in a 720px window it is 578px, so centring it put its top at 71px, and the
+// poll scrolled it there again and again until it timed out once it had
+// settled: Firefox, 2026-11-18) goes to the top instead, just under the header.
+const placeKit = (page: Page) =>
   expect
     .poll(() =>
       page.locator(PANEL).evaluate((el) => {
-        const moving = document
-          .getAnimations()
-          .some((a) => a.playState === 'running' && a.effect instanceof KeyframeEffect && a.effect.target instanceof Element && a.effect.target.contains(el))
-        if (moving) return false
         const box = el.getBoundingClientRect()
+        const tall = box.height > innerHeight - 2 * 72
         const centred = Math.abs((box.top + box.bottom) / 2 - innerHeight / 2) <= 100 && box.top >= 72
-        const tall = box.height > innerHeight - 80
         if (tall ? box.top >= 72 && box.top <= innerHeight / 3 : centred) return true
         el.scrollIntoView({ block: tall ? 'start' : 'center', behavior: 'instant' })
         if (tall) scrollBy(0, -88)
