@@ -21,7 +21,8 @@ export const whoAmI: N8Game = {
     tilt: -1.5,
   },
   intro: ['A two-player guessing game: each of you gets a secret identity, a famous person, a character or a mascot.', 'You can see the one your opponent is guessing, never your own.'],
-  play: { href: 'https://whoami.n8builds.dev', live: true },
+  // At the Table on the party site; its own site still plays it too.
+  play: { href: 'https://partygames.n8builds.dev/table/', live: true, also: { label: 'Or on its own site', href: 'https://whoami.n8builds.dev' } },
   code: 'https://github.com/n8watkins/who-am-i',
   clip: {
     webm: `${D}/clip.webm`,
@@ -57,11 +58,11 @@ export const whoAmI: N8Game = {
     },
   ],
   steps: [
-    'One player creates a game and picks a category. The other joins with the QR code, the invite link or a 4-digit PIN.',
-    "Each screen shows your opponent's character, and yours as Hidden.",
-    'On your turn, ask yes or no questions, out loud or in the app. Your opponent answers on their phone.',
-    'Stuck? Up to three hints a turn, vague to strong. Say your guess and tap I Guessed It; they confirm it.',
-    'After both turns, the big reveal. First to 5 points, or the best after 10 rounds.',
+    'Start a party at the Table and pick Who Am I?. The host picks a category, the hints and how long the match runs.',
+    "Each phone shows the other player's name and picture, and yours as hidden.",
+    'On your move, ask one yes or no question, out loud or in the app. The other player answers on their phone; then guess or pass.',
+    'Stuck? Up to three hints, vague to strong. Say your guess and tap I Guessed It; they confirm it.',
+    'The big reveal shows both names. Anyone else at the Table watches the match.',
   ],
   made: [
     { icon: 'shield', title: 'The secret stays on the server', body: 'Your own identity never reaches your phone before the reveal. Every message is built for one player.' },
