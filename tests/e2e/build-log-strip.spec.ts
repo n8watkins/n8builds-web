@@ -398,7 +398,12 @@ async function openList(page: Page) {
   return allRows(page).count()
 }
 
-const focusAway = (page: Page) => strip(page).getByRole('link', { name: 'See the full build log' }).focus()
+// Without scrolling: on a phone that link sits above the list, and focus() scrolled the list off
+// screen, which holds the cycle too, but only once the page noticed (mobile Safari, nightly 2026-11-20).
+const focusAway = (page: Page) =>
+  strip(page)
+    .getByRole('link', { name: 'See the full build log' })
+    .evaluate((el: HTMLElement) => el.focus({ preventScroll: true }))
 
 /**
  * The updates, a page of three at a time (round 9 of 2026-11-09: the owner's
