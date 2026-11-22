@@ -672,7 +672,10 @@ test('no box for a click or a tap on the card, a ring for the keyboard, and the 
   await page.goto('/')
   await stats(page).scrollIntoViewIfNeeded()
   const card = strip(page).locator('[data-log-months]')
-  await expect(card).toHaveCSS('-webkit-tap-highlight-color', 'rgba(0, 0, 0, 0)')
+  // No tap highlight where a browser draws one (Firefox has no such property, and no highlight).
+  if (await page.evaluate(() => CSS.supports('-webkit-tap-highlight-color', 'transparent'))) {
+    await expect(card).toHaveCSS('-webkit-tap-highlight-color', 'rgba(0, 0, 0, 0)')
+  }
   const figure = stats(page).locator('button:has([data-stat])')
   await figure.hover()
   await expect(figure).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
@@ -683,7 +686,12 @@ test('no box for a click or a tap on the card, a ring for the keyboard, and the 
   }
   // The keyboard: Enter on a month arrow changes the month and leaves focus on the arrow, with its ring.
   const back = strip(page).getByRole('button', { name: /^Previous month/ })
+  // Reached by Tab, as a keyboard visitor does: Firefox draws no focus-visible ring for a
+  // focus() made after the mouse clicks above, nor once a key is pressed there.
   await back.focus()
+  await page.keyboard.press('Shift+Tab')
+  await page.keyboard.press('Tab')
+  await expect(back).toBeFocused()
   await page.keyboard.press('Enter')
   await expect(strip(page).locator('[data-month]')).not.toHaveText('October 2026')
   await expect(back).toBeFocused()

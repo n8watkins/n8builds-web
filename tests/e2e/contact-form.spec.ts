@@ -143,7 +143,7 @@ test('shows the server message on failure, and a retry succeeds with a fresh Tur
   expect(tokens.every(Boolean)).toBe(true)
 })
 
-test('Turnstile runs only once the visitor starts on the form, not on page view or scroll', { tag: '@smoke' }, async ({ page }) => {
+test('Turnstile runs only once the visitor starts on the form, not on page view or scroll', { tag: '@smoke' }, async ({ page, browserName, isMobile }) => {
   // Cloudflare warns when tokens are issued and never verified (2026-11-10): a
   // visitor who only reads the page must not run a challenge or load its script.
   const challenge: string[] = []
@@ -152,7 +152,9 @@ test('Turnstile runs only once the visitor starts on the form, not on page view 
   })
   await openContactForm(page)
   await expect(page.getByRole('button', { name: /Send Message/ })).toBeEnabled() // hydrated
-  await page.mouse.wheel(0, 400)
+  // A wheel turn; Playwright's mobile WebKit has no wheel (and no touch scrolling), so a phone scrolls the page itself.
+  if (browserName === 'webkit' && isMobile) await page.evaluate(() => window.scrollBy(0, 400))
+  else await page.mouse.wheel(0, 400)
   await page.waitForTimeout(1500)
   expect(challenge).toEqual([])
   await expect(page.locator('input[name="cf-turnstile-response"]')).toHaveCount(0)

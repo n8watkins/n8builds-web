@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { asWindows } from './platform'
 
 /**
  * A build's page (2026-10-27, the owner's round 13): the app icon first, the
@@ -12,6 +13,9 @@ test.describe('a build page', () => {
   test.use({ viewport: { width: 1440, height: 900 } })
 
   test('Scribe leads with its icon, its tech and a download', { tag: '@smoke' }, async ({ page }) => {
+    // On Windows: the download leads with the visitor's OS (WebKit's own is a Mac's), and the
+    // other OSes' leads are in lab.spec.ts.
+    await page.addInitScript(asWindows)
     await page.goto('/builds/scribe')
     const header = page.locator('main header').first()
     await expect(header.getByRole('heading', { level: 1, name: 'Scribe' })).toBeVisible()

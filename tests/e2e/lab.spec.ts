@@ -1,4 +1,5 @@
 import { test, expect, type Locator, type Page } from '@playwright/test'
+import { asLinux, asMac, asPhone, asWindows } from './platform'
 
 /**
  * The homepage Lab and its ends: the featured rows (OpenPing first), the hero
@@ -41,10 +42,6 @@ async function rowOf(page: Page, title: string) {
  * hint (the rows read it first). Playwright's desktop browsers already claim
  * Windows in their user agent; its phones don't.
  */
-const asWindows = () => Object.defineProperty(navigator, 'userAgentData', { get: () => ({ platform: 'Windows' }) })
-const asMac = () => Object.defineProperty(navigator, 'userAgentData', { get: () => ({ platform: 'macOS' }) })
-const asLinux = () => Object.defineProperty(navigator, 'userAgentData', { get: () => ({ platform: 'Linux' }) })
-const asPhone = () => Object.defineProperty(navigator, 'userAgentData', { get: () => ({ platform: 'Android', mobile: true }) })
 
 /** A row's three controls: the primary action, Full story and the Star | GitHub group. */
 const controls = (row: Locator, title: string) => [
@@ -274,11 +271,14 @@ test('Scribe downloads the newest installer through a stable link, and its page 
   // It holds still on hover: no scale.
   await download.hover()
   await expect(download).toHaveCSS('scale', 'none')
-  // The details sit close under the buttons, not beside them.
+  // The details sit close under the buttons, not beside them (on a phone the two buttons
+  // stack, Download over Full story, and the details go under the pair).
   const caption = row.getByText('Windows 10 and 11, 64-bit · v0.8.0 · 12 MB')
-  const [button, facts] = await Promise.all([download.boundingBox(), caption.boundingBox()])
-  expect(facts!.y).toBeGreaterThanOrEqual(button!.y + button!.height)
-  expect(facts!.y - (button!.y + button!.height)).toBeLessThan(8)
+  const story = row.getByRole('link', { name: 'Full story of Scribe' })
+  const [button, other, facts] = await Promise.all([download.boundingBox(), story.boundingBox(), caption.boundingBox()])
+  const buttonsEnd = Math.max(button!.y + button!.height, other!.y + other!.height)
+  expect(facts!.y).toBeGreaterThanOrEqual(buttonsEnd)
+  expect(facts!.y - buttonsEnd).toBeLessThan(8)
 
   // The link resolves to the latest release's installer (a fixed release in tests).
   const response = await request.get('/download/scribe', { maxRedirects: 0 })
@@ -524,7 +524,7 @@ test('the rows and the extensions share one Star | GitHub control, its star show
 test.describe('featured clips, with motion', () => {
   test.use({ contextOptions: { reducedMotion: 'no-preference' } })
 
-  test('each featured row plays a clip of its product in use, not screenshots', async ({ page }) => {
+  test('each featured row plays a clip of its product in use, not screenshots', async ({ page, isMobile }) => {
   await page.goto('/')
   for (const [title, src] of [
     ['Scribe', '/builds/scribe/tour'],
@@ -534,8 +534,12 @@ test.describe('featured clips, with motion', () => {
     const row = await rowOf(page, title)
     const video = row.locator('[data-tour] video')
     await video.scrollIntoViewIfNeeded()
-    // Featured's clips take turns (round 9): Solara's plays once it has the turn, here by hovering it.
-    if (title === 'Solara') await row.hover()
+    // Featured's clips take turns (round 9): Solara's plays once it has the turn, here by pointing
+    // at it, or on a phone (no pointer to hover with) by tapping its play button.
+    if (title === 'Solara') {
+      if (isMobile) await row.getByRole('button', { name: 'Play the Solara clip' }).tap()
+      else await row.hover()
+    }
     await expect(row.getByRole('group', { name: `${title} screenshots` })).toHaveCount(0)
     await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.currentSrc), { message: title }).toContain(src)
     await expect.poll(() => video.evaluate((v: HTMLVideoElement) => !v.paused && v.currentTime > 0), { message: title }).toBe(true)
