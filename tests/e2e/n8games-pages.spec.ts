@@ -22,6 +22,13 @@ async function expectPlaying(page: Page, selector: string) {
     .toBe(true)
 }
 
+/** Waits until the page's entrance has finished (every animation that ends has ended; the looping ones go on). */
+async function settled(page: Page) {
+  await expect
+    .poll(() => page.evaluate(() => document.getAnimations().every((a) => a.playState !== 'running' || a.effect?.getTiming().iterations === Infinity)))
+    .toBe(true)
+}
+
 test.describe('the n8games page', () => {
   test('one Go play, the moving room, the five games each to its own page, and the credits', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 })
@@ -64,7 +71,14 @@ test.describe('the n8games page', () => {
 
   test('the game cards lead to the game pages', async ({ page }) => {
     await page.goto(N8GAMES_PAGE)
-    await page.getByRole('link', { name: madeLink('Cork & Bell') }).click()
+    const link = page.getByRole('link', { name: madeLink('Cork & Bell') })
+    // Once the shelf has risen into place: it fades up 40px as it scrolls into view, and a click
+    // aimed while it still moved landed on the card beside the link (Firefox, 2026-11-22).
+    await link.scrollIntoViewIfNeeded()
+    const shelf = page.locator('section.reveal').filter({ has: link })
+    await expect(shelf).toHaveAttribute('data-revealed', '')
+    await shelf.evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)))
+    await link.click()
     await expect(page).toHaveURL(new RegExp(`${gamePage('cork-and-bell')}$`))
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Cork & Bell')
   })
@@ -153,8 +167,13 @@ test.describe('the game pages', () => {
       await expect(clip.locator('source[type="video/mp4"]:not([media])')).toHaveAttribute('src', g.clip.mp4)
       // A computer never gets the phone encode.
       if (g.clip.phone) await expect.poll(() => clip.evaluate((v: HTMLVideoElement) => v.currentSrc)).toMatch(/\/clip\.(webm|mp4)$/)
-      expect(await clip.evaluate((v: HTMLVideoElement) => v.muted && v.loop && v.playsInline)).toBe(true)
+      // Inline by its attribute: Firefox has no `playsInline` property (it never goes full screen by itself).
+      expect(await clip.evaluate((v: HTMLVideoElement) => v.muted && v.loop && v.hasAttribute('playsinline'))).toBe(true)
       await expectPlaying(page, `video[poster="${g.clip.poster}"]`)
+      // Once the page has come in: a click on a button still rising retries, and Playwright's
+      // later tries scroll it to the top of the window, which takes the clip off screen, so the
+      // clip pauses by itself and the button under the pointer has become Play (2026-11-21, WebKit).
+      await settled(page)
       await main.getByRole('button', { name: `Pause the clip of ${g.name}` }).click()
       await expect.poll(() => clip.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true)
 
