@@ -168,7 +168,7 @@ export default function N8gamesPage() {
           <div className={styles.cards}>
             <article className={styles.card} style={vars({ '--tilt': '-1.2deg' })}>
               <div className={styles.cardPic}>
-                <Image src={media(NEXT.coming.image.src)}alt={NEXT.coming.image.alt} width={NEXT.coming.image.width} height={NEXT.coming.image.height} sizes="(min-width: 900px) 340px, (min-width: 620px) 45vw, 90vw" />
+                <Image src={media(NEXT.coming.image.src)} alt={NEXT.coming.image.alt} width={NEXT.coming.image.width} height={NEXT.coming.image.height} sizes="(min-width: 900px) 340px, (min-width: 620px) 45vw, 90vw" />
               </div>
               <h3>{NEXT.coming.title}</h3>
               <p>{NEXT.coming.line}</p>

@@ -66,6 +66,23 @@ describe('fetchWithRanges (worker/range.js)', () => {
     const response = await range('bytes=5000-')
     expect(response.status).toBe(416)
     expect(response.headers.get('Content-Range')).toBe('bytes */1000')
+    // Not the clip: nothing that would describe it, or let a cache keep the refusal.
+    for (const name of ['Cache-Control', 'ETag', 'Content-Type', 'Content-Length']) expect(response.headers.has(name), name).toBe(false)
+    // Not even for a content-hashed clip, whose other answers are immutable.
+    const hashed = await range('bytes=5000-', '/_next/static/media/clip.0a1b2c3d.webm')
+    expect(hashed.status).toBe(416)
+    expect(hashed.headers.has('Cache-Control')).toBe(false)
+  })
+
+  it('answers any method but GET and HEAD with 405, as static assets do, without reading the file', async () => {
+    for (const method of ['POST', 'PUT', 'DELETE', 'OPTIONS']) {
+      asked.length = 0
+      const response = await get({ Range: 'bytes=0-99' }, undefined, method)
+      expect(response.status, method).toBe(405)
+      expect(response.headers.get('Allow')).toBe('GET, HEAD')
+      expect(response.headers.has('Cache-Control')).toBe(false)
+      expect(asked).toHaveLength(0)
+    }
   })
 
   it('sends the whole file, advertising ranges, without a Range header', async () => {
@@ -128,5 +145,13 @@ describe('noneMatch', () => {
     expect(noneMatch('*', null)).toBe(true)
     expect(noneMatch('"a"', ETAG)).toBe(false)
     expect(noneMatch(ETAG, null)).toBe(false)
+  })
+
+  it('keeps a comma inside a quoted tag as part of the tag', () => {
+    expect(noneMatch('"a,b"', '"a,b"')).toBe(true)
+    expect(noneMatch('"x", W/"a,b" , "y"', '"a,b"')).toBe(true)
+    expect(noneMatch('"a,b"', '"a"')).toBe(false)
+    expect(noneMatch('"a", "b"', '"a,b"')).toBe(false)
+    expect(noneMatch('"a,b"', 'W/"a,b"')).toBe(true)
   })
 })

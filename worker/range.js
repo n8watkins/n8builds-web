@@ -35,9 +35,15 @@ const NOT_MODIFIED_HEADERS = ['Cache-Control', 'ETag', 'Accept-Ranges', 'Vary', 
 export function noneMatch(header, etag) {
   if (header.trim() === '*') return true
   if (!etag) return false
-  const opaque = (/** @type {string} */ tag) => tag.trim().replace(/^W\//, '')
-  return header.split(',').some((tag) => opaque(tag) === opaque(etag))
+  // Each entity tag is [W/]"<anything but a quote>", so a comma inside the quotes
+  // belongs to the tag; only the quoted parts are compared.
+  const opaque = (/** @type {string} */ tag) => /"[^"]*"/.exec(tag)?.[0]
+  const wanted = opaque(etag)
+  return [...header.matchAll(/(?:W\/)?"[^"]*"/g)].some(([tag]) => opaque(tag) === wanted)
 }
+
+/** What a clip answers to: the methods Workers static assets serve. */
+export const ALLOW = 'GET, HEAD'
 
 /**
  * Whether an If-Range value still names this file (strong comparison, RFC 9110 13.1.5).
@@ -60,8 +66,12 @@ function rangeStillValid(header, headers) {
  * @returns {Promise<Response>}
  */
 export async function fetchWithRanges(request, assets) {
-  const method = request.method === 'HEAD' ? 'HEAD' : 'GET'
-  const asset = await assets.fetch(new Request(request.url, { method }))
+  // A static file takes GET and HEAD only; Workers static assets answer 405 to
+  // the rest (a POST to the live site's CSS, 2026-11-22), and so does this.
+  if (request.method !== 'GET' && request.method !== 'HEAD') {
+    return new Response('Method not allowed', { status: 405, headers: { Allow: ALLOW, 'Content-Type': 'text/plain; charset=utf-8' } })
+  }
+  const asset = await assets.fetch(new Request(request.url, { method: request.method }))
   if (asset.status !== 200) return asset
 
   const headers = new Headers(asset.headers)
@@ -102,9 +112,9 @@ export async function fetchWithRanges(request, assets) {
     end = range[2] === '' ? size - 1 : Math.min(Number(range[2]), size - 1)
   }
   if (start >= size || start > end || (range[1] === '' && range[2] === '0')) {
-    headers.set('Content-Range', `bytes */${size}`)
-    headers.delete('Content-Length')
-    return new Response(null, { status: 416, headers })
+    // Says how long the file is and nothing else: it is not the clip, so no type,
+    // no ETag and no Cache-Control (a 416 is not cacheable without one, RFC 9110 15.1).
+    return new Response(null, { status: 416, headers: { 'Content-Range': `bytes */${size}`, 'Accept-Ranges': 'bytes' } })
   }
 
   headers.set('Content-Range', `bytes ${start}-${end}/${size}`)

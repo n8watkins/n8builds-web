@@ -324,9 +324,6 @@ for (const width of [390, 1280]) {
 }
 
 test.describe('the pictures and clips are cached', () => {
-  const YEAR = 31_536_000
-  const maxAge = (cacheControl: string | undefined) => Number(/max-age=(\d+)/.exec(cacheControl ?? '')?.[1] ?? 0)
-
   test('every picture and clip on these pages comes from a content-hashed URL', async ({ page }) => {
     for (const path of [N8GAMES_PAGE, ...N8GAMES_GAMES.map((g) => gamePage(g.slug))]) {
       await page.goto(path)
@@ -342,37 +339,8 @@ test.describe('the pictures and clips are cached', () => {
     }
   })
 
-  test('a picture answer may be kept for a year', async ({ page, request }) => {
-    await page.goto(gamePage('tin-derby'))
-    const src = await page.getByRole('main').locator('figure img').first().getAttribute('src')
-    expect(src).toMatch(/^\/_next\/image\?url=%2F_next%2Fstatic%2Fmedia%2F/)
-    const response = await request.get(src!, { headers: { Accept: 'image/avif,image/webp,*/*' } })
-    expect(response.status()).toBe(200)
-    expect(response.headers()['cache-control']).toMatch(/\bpublic\b/)
-    expect(maxAge(response.headers()['cache-control'])).toBeGreaterThanOrEqual(YEAR)
-  })
-
-  test('a clip answers a range with 206 and the same Cache-Control, and a current copy with 304', async ({ page, request }) => {
-    await page.goto(gamePage('tin-derby'))
-    const src = await page.getByRole('main').locator('video source[type="video/mp4"]:not([media])').getAttribute('src')
-    expect(src).toMatch(hashedMedia(N8GAMES_GAMES.find((g) => g.slug === 'tin-derby')!.clip.mp4))
-
-    const whole = await request.get(src!)
-    expect(whole.status()).toBe(200)
-    const cacheControl = whole.headers()['cache-control']
-    expect(maxAge(cacheControl)).toBeGreaterThanOrEqual(YEAR)
-    const etag = whole.headers()['etag']
-    expect(etag).toBeTruthy()
-
-    const part = await request.get(src!, { headers: { Range: 'bytes=0-99' } })
-    expect(part.status()).toBe(206)
-    expect(part.headers()['content-range']).toMatch(/^bytes 0-99\//)
-    expect(part.headers()['cache-control']).toBe(cacheControl)
-
-    const current = await request.get(src!, { headers: { Range: 'bytes=0-99', 'If-None-Match': etag } })
-    expect(current.status()).toBe(304)
-    expect((await current.body()).byteLength).toBe(0)
-  })
+  // Their headers (a year, 206 and 304 for the clips) are tests/e2e/api/media-cache.spec.ts,
+  // which CI also runs against the built Worker.
 })
 
 for (const width of [390, 768]) {
