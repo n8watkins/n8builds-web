@@ -5,8 +5,9 @@ import type { N8Game } from '../types'
  * and its module, party/games/paper-masks in github.com/n8watkins/n8-party-games
  * (main on 2026-11-16). It plays at the Table on the live site (3 to 8 players,
  * started at /table/). The clip and the pictures are one phone of a real three-player
- * match at the Table, on a local run of that main (test games off), cropped to the game
- * so the Table's party code is never in them; the three players are made up.
+ * match at the Table on the live site (2026-11-22, the "If We" prompts), cropped to the
+ * game so the Table's party code is never in them; the three players are made up
+ * (Pip, Toast and Noodle).
  */
 const D = '/games/n8games/paper-masks'
 
@@ -30,7 +31,7 @@ export const paperMasks: N8Game = {
     poster: `${D}/clip-poster.webp`,
     width: 432,
     height: 828,
-    alt: 'Paper Masks on a phone at the Table, between red theatre curtains: a card turns over to deal the Sun mask, the prompt "If we wrote a cookbook together, your recipe in it" and the answer "Pasta with too much garlic" typed in secret, "Who wrote this? Pancakes shaped like states" with Priya tapped, the blank mask lifts off the moon mask, "Priya wrote it", and the final curtain, "Priya wins".',
+    alt: 'Paper Masks on a phone at the Table, between red theatre curtains: a card turns over to deal the Sun mask, the prompt "If we were stuck in a lift for a day, the one thing you would want in your pocket" and the answer "A tiny harmonica" typed in secret, "Who wrote this? A very small fan" with Noodle tapped, the blank mask lifts off the moon mask, "Noodle wrote it", and the final curtain, "Pip wins".',
     frame: 'phone',
     caption: 'One phone in a real three-player match at the Table.',
   },
@@ -39,21 +40,21 @@ export const paperMasks: N8Game = {
       src: `${D}/guess.webp`,
       width: 480,
       height: 920,
-      alt: '"Who wrote this? Pancakes shaped like states", with all three tapped and Priya picked from Maya, Priya and The game.',
+      alt: '"Who wrote this? A very small fan", with one of three tapped and Noodle picked from Noodle, Toast and The game.',
       caption: 'Who wrote it? Tap a name.',
     },
     {
       src: `${D}/reveal.webp`,
       width: 480,
       height: 920,
-      alt: '"Pancakes shaped like states": the moon mask, "Priya wrote it", "You said Priya. Right!", Jonah guessed right and Maya was fooled.',
+      alt: '"A very small fan": the moon mask, "Noodle wrote it", "You said Noodle. Right!", and Pip and Toast guessed right.',
       caption: 'Masks off.',
     },
     {
       src: `${D}/end.webp`,
       width: 480,
       height: 920,
-      alt: 'The final curtain after three rounds: "Priya wins", 9 points, Best mask and Mind reader, and the scores of all three.',
+      alt: 'The final curtain after three rounds: "Pip wins", 20 points, Best mask and Mind reader, and the scores of all three.',
       caption: 'The final curtain.',
     },
   ],
