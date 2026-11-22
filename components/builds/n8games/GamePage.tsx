@@ -46,6 +46,11 @@ function Actions({ game, end = false }: { game: N8Game; end?: boolean }) {
           Get the code
         </a>
       )}
+      {game.play.live && game.play.also && (
+        <a className={styles.back} href={game.play.also.href} target="_blank" rel="noopener noreferrer" aria-label={`${game.play.also.label} (opens in a new tab)`}>
+          {game.play.also.label}
+        </a>
+      )}
       {end && (
         <Link className={styles.back} href={`${N8GAMES_PAGE}#games`}>
           <BackArrow className={styles.backIcon} />

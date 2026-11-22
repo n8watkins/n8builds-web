@@ -70,7 +70,12 @@ export interface N8Game {
    * yet, so they say "Coming soon" and the main button is "See the games site"
    * (`href` is then the games site's front door).
    */
-  play: { href: string; live: boolean }
+  play: {
+    href: string
+    live: boolean
+    /** A second place to play it, said as a smaller link beside Go play (Who Am I?'s own site). */
+    also?: { label: string; href: string }
+  }
   /** The public repository (or folder of one), for "Get the code". Left out where there is none. */
   code?: string
   /** A real capture of the game being played: silent, looping. */
