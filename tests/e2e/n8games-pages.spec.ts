@@ -71,7 +71,14 @@ test.describe('the n8games page', () => {
 
   test('the game cards lead to the game pages', async ({ page }) => {
     await page.goto(N8GAMES_PAGE)
-    await page.getByRole('link', { name: madeLink('Cork & Bell') }).click()
+    const link = page.getByRole('link', { name: madeLink('Cork & Bell') })
+    // Once the shelf has risen into place: it fades up 40px as it scrolls into view, and a click
+    // aimed while it still moved landed on the card beside the link (Firefox, 2026-11-22).
+    await link.scrollIntoViewIfNeeded()
+    const shelf = page.locator('section.reveal').filter({ has: link })
+    await expect(shelf).toHaveAttribute('data-revealed', '')
+    await shelf.evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)))
+    await link.click()
     await expect(page).toHaveURL(new RegExp(`${gamePage('cork-and-bell')}$`))
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Cork & Bell')
   })
