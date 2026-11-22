@@ -17,14 +17,15 @@ export const tinDerby: N8Game = {
   name: 'Tin Derby',
   theme: 'derby',
   card: {
-    line: 'Wind-up tin cars race laps round a kitchen table.',
-    meta: '1 to 4 players',
+    line: 'Wind-up tin cars race laps round a breakfast table.',
+    meta: 'Up to 4 players, a phone each',
     tile: '/games/n8games/page/tile-derby.webp',
     tileAlt: "Tin Derby's poster: a red wind-up tin car with a big key races a teal one across a checked tablecloth.",
     tilt: -2,
   },
-  intro: ['Wind-up tin cars race laps round a kitchen table.', 'You ride behind your own car, past the salt, the cereal box and the teapot, with your friends right behind you.'],
+  intro: ['Wind-up tin cars race laps round a breakfast table.', 'You ride behind your own car, past the salt, the cereal box and the teapot, with your friends right behind you.'],
   play: { href: 'https://partygames.n8builds.dev', live: false },
+  code: 'https://github.com/n8watkins/n8-party-games/tree/main/floor/games/tin-derby',
   clip: {
     webm: `${D}/clip.webm`,
     mp4: `${D}/clip.mp4`,
@@ -60,11 +61,11 @@ export const tinDerby: N8Game = {
     },
   ],
   steps: [
-    'Pick a racer, a pawn, a ghost, a slime or a robot, and the colour of its tin car.',
-    'Race two laps of the kitchen table. House cars fill any empty seats.',
+    "Up to four of you stand in Tin Derby's light at the bar. Each of you drives a tin car, your own piece at the wheel.",
+    'Race two laps of the breakfast table. House cars fill any empty seats.',
     'Steer round the shakers and the spills. Slide through a turn to wind the spring, then let go for a boost.',
     'Drive through a sweet for a power, and fire it with Use.',
-    'Play on your phone held sideways, or put everyone on a TV, one corner each.',
+    'Drive on your phone held sideways. The big screen shows the whole table, or a view behind each car.',
   ],
   made: [
     { icon: 'palette', title: 'A poster come to life', body: 'Five inks on cream paper, tomato, mustard, teal, cream and navy, with grain over the whole picture.' },
@@ -72,9 +73,9 @@ export const tinDerby: N8Game = {
     { icon: 'cog', title: 'The spring', body: 'Twelve notches round a brass key. It winds while you drift and runs down while the boost runs.' },
     { icon: 'users', title: 'Nobody is ever out', body: 'Every flip and spin ends in a second or two, and house cars fill the empty seats.' },
     { icon: 'layers', title: 'Cheap to draw', body: 'three.js with no shadow maps, no reflections and no bloom: one last pass for the grain and the dots.' },
-    { icon: 'server', title: 'Built for the room', body: 'The race is a simulation the party room can run, so in the room its word is final and phones only draw.' },
+    { icon: 'server', title: 'Built for the room', body: 'The party room runs the race and its word is final. Phones send only what the thumbs hold, and draw.' },
   ],
-  madeFrom: { label: 'Its design notes and the playable preview' },
+  madeFrom: { label: "The game's README", href: 'https://github.com/n8watkins/n8-party-games/blob/main/floor/games/tin-derby/README.md' },
   credits: [
     {
       heading: 'Nick Saraev',
