@@ -62,13 +62,19 @@ export default function WaitlistForm({
     if (!slug) return
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setProjects((list) => (list.includes(slug) ? list : [...list, slug]))
-    if (UPCOMING.some((p) => p.slug === slug && !isListed(p))) {
-      setArrivedFor(slug)
-      // Its landing page links to its card (#<slug>), which an unlisted project doesn't have:
-      // bring the form into view instead, so the visitor isn't left at the top of the page.
-      if (window.location.hash === `#${slug}`) document.getElementById('waitlist')?.scrollIntoView()
-    }
+    if (UPCOMING.some((p) => p.slug === slug && !isListed(p))) setArrivedFor(slug)
   }, [])
+
+  // Its landing page links to its card (#<slug>), which an unlisted project doesn't have: bring
+  // the form into view instead, so the visitor isn't left at the top of the page, and then the
+  // project they came for, ticked. It is the last pick, so on a phone the form's top alone left it
+  // below the fold (nightly run of 2026-11-20). Once it is rendered, so it can be scrolled to; its
+  // scroll margin keeps it off the screen's bottom edge.
+  useEffect(() => {
+    if (!arrivedFor || window.location.hash !== `#${arrivedFor}`) return
+    document.getElementById('waitlist')?.scrollIntoView()
+    document.querySelector(`#waitlist-projects input[value="${arrivedFor}"]`)?.closest('label')?.scrollIntoView({ block: 'nearest' })
+  }, [arrivedFor])
 
   // A card's "Join the <name> waitlist" button.
   useEffect(() => {
@@ -204,7 +210,7 @@ export default function WaitlistForm({
               <label
                 key={p.slug}
                 style={{ '--accent': p.accent } as CSSProperties}
-                className={`group relative flex cursor-pointer items-center rounded-xl border ${modal ? 'gap-2.5 px-3 py-2 sm:odd:last:col-span-2' : 'gap-3 px-4 py-3 sm:odd:last:col-span-2'} ${side ? 'lg:gap-2.5 lg:px-3 lg:py-2 lg:odd:last:col-span-1 xl:odd:last:col-span-2' : ''} transition-colors duration-150 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-(--accent) ${
+                className={`group relative flex scroll-mb-6 cursor-pointer items-center rounded-xl border ${modal ? 'gap-2.5 px-3 py-2 sm:odd:last:col-span-2' : 'gap-3 px-4 py-3 sm:odd:last:col-span-2'} ${side ? 'lg:gap-2.5 lg:px-3 lg:py-2 lg:odd:last:col-span-1 xl:odd:last:col-span-2' : ''} transition-colors duration-150 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-(--accent) ${
                   checked ? 'border-(--accent)/60 bg-(--accent)/10' : 'border-slate-600 bg-slate-800/60 hover:border-slate-500'
                 }`}
               >
