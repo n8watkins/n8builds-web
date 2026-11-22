@@ -93,7 +93,7 @@ export const PIECES: Piece[] = [
 export const NEXT = {
   coming: {
     title: 'Coming next',
-    line: 'Tin Derby in the room: wind-up tin cars racing round the breakfast table, a phone each. And Who Am I? at the Table.',
+    line: 'Tin Derby in the room: wind-up tin cars racing round the breakfast table, a phone each.',
     image: { src: `${P}/wide-derby.webp`, width: 720, height: 405, alt: 'A painted race of wind-up tin cars across a red checked tablecloth, past a fruit bowl, the salt and pepper, and a butter dish.' },
   },
   rooms: {
