@@ -3,6 +3,9 @@
  * card on the n8games page. One file per game in data/n8games/games/.
  * Every fact on a page comes from the game's own repository or design notes,
  * named in its file's header.
+ *
+ * Pictures and clips are named by their path under media/ (lib/media.ts turns
+ * that into a content-hashed URL); only `share` is a file in public/.
  */
 
 /** The icons a "How it's made" item can carry (components/builds/n8games/icons.tsx). */
@@ -107,6 +110,9 @@ export interface N8Game {
     links: GameLink[]
     fine: string[]
   }[]
-  /** The share card's picture, 1200x630 JPEG (the card's words sit on its left). */
+  /**
+   * The share card's picture, 1200x630 JPEG (the card's words sit on its left): a file in
+   * public/, read by its og.png route at build time, never sent to a browser.
+   */
   share: string
 }

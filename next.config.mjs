@@ -1,4 +1,5 @@
 import { withSentryConfig } from '@sentry/nextjs/config'
+import { IMAGE_FORMATS } from './lib/image-formats.mjs'
 import { securityHeaders } from './lib/security/headers.mjs'
 
 /** @type {import('next').NextConfig} */
@@ -16,7 +17,7 @@ const nextConfig = {
         search: '',
       },
     ],
-    formats: ['image/avif', 'image/webp'],
+    formats: [...IMAGE_FORMATS],
     minimumCacheTTL: 86400,
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
@@ -25,6 +26,13 @@ const nextConfig = {
   },
   compress: true,
   poweredByHeader: false,
+  // lib/media.ts imports the files in media/ with `?url`: each one is emitted
+  // to /_next/static/media/ under a name with its content hash, and the import
+  // is that URL. A file re-recorded under the same name gets a new URL, so
+  // browsers and the edge may keep every one of them for a year.
+  turbopack: {
+    rules: Object.fromEntries(['*.webp', '*.mp4', '*.webm'].map((glob) => [glob, { condition: { query: '?url' }, type: 'asset' }])),
+  },
   experimental: {
     optimizePackageImports: ['motion/react', 'react-icons'],
   },

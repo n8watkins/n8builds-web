@@ -2,6 +2,7 @@ import { getImageProps } from 'next/image'
 import Link from 'next/link'
 import { FiArrowRight, FiArrowUpRight, FiPlay } from 'react-icons/fi'
 import { N8GAMES_AD } from '@/data/n8games'
+import { media } from '@/lib/media'
 
 /**
  * The ad for n8games (owner, 2026-11-16): the rendered party room, wide, with
@@ -22,11 +23,11 @@ export default function N8gamesAd({ id = 'n8games-ad', priority = false }: { id?
   const sizes = '(min-width: 1024px) 680px, (min-width: 640px) 92vw, 100vw'
   const {
     props: { srcSet: wide },
-  } = getImageProps({ src: ad.image.wide.src, width: ad.image.wide.width, height: ad.image.wide.height, alt: '', sizes })
+  } = getImageProps({ src: media(ad.image.wide.src), width: ad.image.wide.width, height: ad.image.wide.height, alt: '', sizes })
   const {
     props: { srcSet: close, ...img },
   } = getImageProps({
-    src: ad.image.close.src,
+    src: media(ad.image.close.src),
     width: ad.image.close.width,
     height: ad.image.close.height,
     alt: ad.image.alt,
