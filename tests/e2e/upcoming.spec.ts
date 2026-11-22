@@ -178,6 +178,21 @@ for (const [slug, name] of Object.entries(UNLISTED)) {
   })
 }
 
+/**
+ * On a phone the form is taller than the screen, and the unlisted project is its last pick:
+ * scrolled to the form's top, the visitor saw five other projects and not the one they came
+ * for (the phone projects of the nightly runs of 2026-11-20 and 21). At a phone's width here
+ * too, so every pull request's Chromium run checks it.
+ */
+test('on a phone, a direct link to an unlisted waitlist scrolls to its ticked project', { tag: '@cross-browser' }, async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/upcoming?interest=asset-arsenal#asset-arsenal', { waitUntil: 'domcontentloaded' })
+  await waitForForm(page)
+  const pick = page.locator('#waitlist-projects label:has(input[value="asset-arsenal"])')
+  await expect(pick.locator('input')).toBeChecked()
+  await expect(pick).toBeInViewport({ ratio: 1 })
+})
+
 test("a direct link to the homepage's waitlist offers an unlisted project there too, ticked", async ({ page }) => {
   await page.goto('/?interest=keysready#waitlist')
   const dialog = page.getByRole('dialog', { name: 'Join the waitlist' })
