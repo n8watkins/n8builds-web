@@ -24,7 +24,8 @@ export const tinDerby: N8Game = {
     tilt: -2,
   },
   intro: ['Wind-up tin cars race laps round a breakfast table.', 'You ride behind your own car, past the salt, the cereal box and the teapot, with your friends right behind you.'],
-  play: { href: 'https://partygames.n8builds.dev', live: false },
+  // Raced in the party room: Go play starts a party (the front door's "In the room").
+  play: { href: 'https://partygames.n8builds.dev/lobby/?start', live: true },
   code: 'https://github.com/n8watkins/n8-party-games/tree/main/floor/games/tin-derby',
   clip: {
     webm: `${D}/clip.webm`,

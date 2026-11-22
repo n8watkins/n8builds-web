@@ -50,7 +50,7 @@ export const GAMES: Game[] = [
     name: 'n8games',
     description:
       'One front door for party games. In the character room friends join from their phones with a code and pick the next game by standing in its light. There is a table for turn-based games, and games for one phone passed around.',
-    note: 'Playable now: Cork & Bell in the room, Paper Masks at the table, Hot Potato on one phone and Who Am I? at the table and on its own site. Coming: Tin Derby in the room.',
+    note: 'Playable now: Cork & Bell and Tin Derby in the room, Paper Masks and Who Am I? at the table (Who Am I? on its own site too), and Hot Potato on one phone.',
     kind: 'Party',
     tags: ['Phones + any screen', 'Up to 8 players', 'No account', 'Free'],
     href: N8GAMES_URL,
