@@ -8,8 +8,9 @@ import { whoAmI } from './who-am-i'
 /**
  * The five games, in shelf order. Each is one file here, and each has its own
  * page at /builds/n8games/<slug> (in the sitemap, with its own share card).
- * Adding a game: a file here, its pictures in public/games/n8games/<slug>/,
- * and its look in data/n8games/themes.ts.
+ * Adding a game: a file here, its pictures and clips in media/games/n8games/<slug>/
+ * (served at content-hashed URLs, lib/media.ts), its share picture in
+ * public/games/n8games/<slug>/share.jpg, and its look in data/n8games/themes.ts.
  */
 export const N8GAMES_GAMES: N8Game[] = [corkAndBell, hotPotato, whoAmI, tinDerby, paperMasks]
 

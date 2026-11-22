@@ -6,6 +6,7 @@ import { gamePage } from '@/data/n8games'
 import { N8GAMES_GAMES } from '@/data/n8games/games'
 import { FLOATERS, HERO, HOW, MAKE, NEXT, NICK, PIECES, SOUNDS, floaterSrc } from '@/data/n8games/page'
 import { BASE, paletteVars } from '@/data/n8games/themes'
+import { media, mediaClip } from '@/lib/media'
 import { baloo, nunito } from './fonts'
 import { YouTubeMark } from './icons'
 import LoopVideo from './LoopVideo'
@@ -36,7 +37,7 @@ export function Floaters() {
           })}
         >
           <div className={styles.flB}>
-            <Image src={floaterSrc(f.img)} alt="" width={f.w} height={f.w} unoptimized loading="lazy" />
+            <Image src={media(floaterSrc(f.img))} alt="" width={f.w} height={f.w} unoptimized loading="lazy" />
           </div>
         </div>
       ))}
@@ -102,7 +103,7 @@ export default function N8gamesPage() {
             ].map(({ clip, className }) => (
               <LoopVideo
                 key={clip.webm}
-                clip={clip}
+                clip={mediaClip(clip)}
                 alt={HERO.clip.alt}
                 label="clip of the party room"
                 className={className}
@@ -111,13 +112,13 @@ export default function N8gamesPage() {
                 badge={<span className={`${styles.chip} ${styles.chipLive} ${styles.heroTag}`}>The real room</span>}
               />
             ))}
-            <Image className={`${styles.prop} ${styles.propMask}`} src={`${P}/fl-mask-jester.webp`} width={150} height={150} alt="" aria-hidden="true" unoptimized />
-            <Image className={`${styles.prop} ${styles.propKey}`} src={`${P}/fl-key.webp`} width={130} height={97} alt="" aria-hidden="true" unoptimized />
+            <Image className={`${styles.prop} ${styles.propMask}`} src={media(`${P}/fl-mask-jester.webp`)} width={150} height={150} alt="" aria-hidden="true" unoptimized />
+            <Image className={`${styles.prop} ${styles.propKey}`} src={media(`${P}/fl-key.webp`)} width={130} height={97} alt="" aria-hidden="true" unoptimized />
           </div>
           <div className={`${styles.lineup} ${styles.enter}`} style={vars({ '--i': 4 })} aria-hidden="true">
-            <Image className={styles.propCar} src={`${P}/fl-car-red.webp`} width={200} height={98} alt="" unoptimized />
+            <Image className={styles.propCar} src={media(`${P}/fl-car-red.webp`)} width={200} height={98} alt="" unoptimized />
             {PIECES.map((p) => (
-              <Image key={p.id} className={`${styles.lu} ${styles[`lu_${p.id}`]}`} src={p.face} width={p.faceSize.width} height={p.faceSize.height} alt="" unoptimized />
+              <Image key={p.id} className={`${styles.lu} ${styles[`lu_${p.id}`]}`} src={media(p.face)} width={p.faceSize.width} height={p.faceSize.height} alt="" unoptimized />
             ))}
           </div>
         </section>
@@ -133,7 +134,7 @@ export default function N8gamesPage() {
             {N8GAMES_GAMES.map((g, i) => (
               <li key={g.slug} className={styles.game}>
                 <div className={styles.gameArt} style={vars({ '--tilt': `${g.card.tilt}deg`, '--sd': `${(-i * 1.3).toFixed(1)}s` })}>
-                  <Image src={g.card.tile} alt={g.card.tileAlt} width={420} height={560} sizes="(min-width: 980px) 160px, (min-width: 620px) 200px, 140px" />
+                  <Image src={media(g.card.tile)} alt={g.card.tileAlt} width={420} height={560} sizes="(min-width: 980px) 160px, (min-width: 620px) 200px, 140px" />
                 </div>
                 <div className={styles.gameText}>
                   <StatusChip live={g.play.live} />
@@ -157,7 +158,7 @@ export default function N8gamesPage() {
             </h2>
             <p className={styles.lede}>You walk a little piece round the room, and each one gets its own trick.</p>
           </div>
-          <PiecesStage pieces={PIECES} />
+          <PiecesStage pieces={PIECES.map((p) => ({ ...p, face: media(p.face), clip: mediaClip(p.clip) }))} />
         </Reveal>
 
         <Reveal as="section" className={`${styles.sec} ${styles.wrap}`}>
@@ -167,7 +168,7 @@ export default function N8gamesPage() {
           <div className={styles.cards}>
             <article className={styles.card} style={vars({ '--tilt': '-1.2deg' })}>
               <div className={styles.cardPic}>
-                <Image src={NEXT.coming.image.src} alt={NEXT.coming.image.alt} width={NEXT.coming.image.width} height={NEXT.coming.image.height} sizes="(min-width: 900px) 340px, (min-width: 620px) 45vw, 90vw" />
+                <Image src={media(NEXT.coming.image.src)} alt={NEXT.coming.image.alt} width={NEXT.coming.image.width} height={NEXT.coming.image.height} sizes="(min-width: 900px) 340px, (min-width: 620px) 45vw, 90vw" />
               </div>
               <h3>{NEXT.coming.title}</h3>
               <p>{NEXT.coming.line}</p>
@@ -177,7 +178,7 @@ export default function N8gamesPage() {
                 {NEXT.rooms.images.map((r) => (
                   <figure key={r.src}>
                     <div className={styles.cardPic}>
-                      <Image src={r.src} alt={r.alt} width={r.width} height={r.height} sizes="(min-width: 900px) 200px, 30vw" />
+                      <Image src={media(r.src)} alt={r.alt} width={r.width} height={r.height} sizes="(min-width: 900px) 200px, 30vw" />
                     </div>
                     <figcaption>{r.caption}</figcaption>
                   </figure>
@@ -204,7 +205,7 @@ export default function N8gamesPage() {
               </a>
               <span className={styles.makeNote}>{MAKE.note}</span>
             </div>
-            <Image className={styles.makeRobot} src={`${P}/make-robot.webp`} width={300} height={333} alt="" aria-hidden="true" sizes="190px" />
+            <Image className={styles.makeRobot} src={media(`${P}/make-robot.webp`)} width={300} height={333} alt="" aria-hidden="true" sizes="190px" />
           </div>
         </Reveal>
 

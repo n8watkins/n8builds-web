@@ -7,7 +7,7 @@ import openNext from '../.open-next/worker.js'
 import { dataCollection } from '../lib/sentry-data-collection'
 import { scrubContactBody } from '../lib/sentry-scrub'
 import { MEDIA, fetchWithRanges } from './range.js'
-import { forEdge, mayUseEdgeCache } from './edge-cache.js'
+import { forCache, forEdge, mayUseEdgeCache } from './edge-cache.js'
 import { refuseGameOrigin } from './game-gate.js'
 import { missingFileResponse } from './missing-file.js'
 import { TUNNEL_PATH, forwardEnvelope } from '../lib/sentry/tunnel'
@@ -254,7 +254,7 @@ const worker = {
     }
     const refused = refuseGameOrigin(request, env.APP_ENV)
     if (refused) return refused
-    if (mayUseEdgeCache(request, EDGE_CACHE_SITE)) return ctx.exports.CachedPages.fetch(request)
+    if (mayUseEdgeCache(request, EDGE_CACHE_SITE)) return ctx.exports.CachedPages.fetch(forCache(request))
     return uncached(request, env, ctx)
   },
 

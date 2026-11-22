@@ -18,6 +18,7 @@
     "components/ui/PartIconClock.tsx",
     "lib/performance.ts",
     "lib/security/headers.mjs",
+    "lib/image-formats.mjs",
     "lib/sentry/**",
     "lib/sentry-*.ts",
     "next.config.mjs",
@@ -156,8 +157,8 @@
       "sources": ["app/builds/[slug]/**", "app/download/**", "components/builds/**", "public/builds/**", "public/work/**"]
     },
     "n8games-pages": {
-      "specs": ["tests/e2e/n8games-pages.spec.ts"],
-      "sources": ["app/builds/[slug]/[game]/**", "components/builds/n8games/**", "data/n8games/**", "public/games/n8games/**"]
+      "specs": ["tests/e2e/n8games-pages.spec.ts", "tests/e2e/api/media-cache.spec.ts"],
+      "sources": ["app/builds/[slug]/[game]/**", "components/builds/n8games/**", "data/n8games/**", "public/games/n8games/**", "media/games/n8games/**"]
     },
     "lab": {
       "specs": [
@@ -256,7 +257,7 @@
     },
     "games": {
       "specs": ["tests/e2e/games.spec.ts"],
-      "sources": ["app/games/page.tsx", "data/games.ts", "public/games/**", "components/sections/N8gamesAd.tsx"]
+      "sources": ["app/games/page.tsx", "data/games.ts", "public/games/**", "media/games/**", "components/sections/N8gamesAd.tsx"]
     },
     "newsletter": {
       "specs": ["tests/e2e/newsletter.spec.ts", "tests/e2e/api/newsletter.spec.ts"],

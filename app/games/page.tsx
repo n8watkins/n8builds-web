@@ -7,6 +7,7 @@ import N8gamesAd from '@/components/sections/N8gamesAd'
 import FadeIn from '@/components/ui/FadeIn'
 import { DINO_COLS, DINO_FRAMES, DINO_ROWS, framePaths } from '@/components/features/dino/sprite'
 import { GAMES, type Game } from '@/data/games'
+import { media } from '@/lib/media'
 import { pageMetadata } from '@/lib/seo'
 
 // Static, like /upcoming: the games are a list in data/games.ts, so the page is
@@ -81,7 +82,7 @@ function GameCard({ game, index }: { game: Game; index: number }) {
         {/* The game itself, as a picture: the button below opens the real one. */}
         <div className="relative aspect-16/10 overflow-hidden border-b border-white/8 bg-[#07101d]">
           <Image
-            src={game.shot}
+            src={media(game.shot)}
             alt={game.shotAlt ?? ''}
             fill
             sizes="(min-width: 1024px) 560px, (min-width: 640px) 50vw, 100vw"

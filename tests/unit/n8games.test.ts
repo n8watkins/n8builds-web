@@ -1,10 +1,12 @@
-import { existsSync, statSync } from 'node:fs'
+import { existsSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { N8GAMES_URL } from '@/data/n8games'
+import { GAMES } from '@/data/games'
+import { N8GAMES_AD, N8GAMES_URL } from '@/data/n8games'
 import { N8GAMES_GAMES, notLiveYet } from '@/data/n8games/games'
 import { BASE, THEMES, textPairs } from '@/data/n8games/themes'
-import { PIECES } from '@/data/n8games/page'
+import { FLOATERS, HERO, NEXT, PIECES, floaterSrc } from '@/data/n8games/page'
+import { media, mediaPaths } from '@/lib/media'
 
 /** WCAG 2 contrast ratio of two #rrggbb colours. */
 function contrast(a: string, b: string) {
@@ -16,6 +18,11 @@ function contrast(a: string, b: string) {
   return (hi + 0.05) / (lo + 0.05)
 }
 
+/** A picture or clip: a file in media/ that lib/media.ts can serve. */
+const mediaFile = (path: string) => {
+  expect(() => media(path), path).not.toThrow()
+  return join(process.cwd(), 'media', path)
+}
 const publicFile = (path: string) => join(process.cwd(), 'public', path)
 
 describe('n8games: colours', () => {
@@ -46,15 +53,17 @@ describe('n8games: the games', () => {
       expect(g.pictures.length).toBeGreaterThanOrEqual(2)
       expect(g.pictures.length).toBeLessThanOrEqual(4)
       expect(g.credits.length).toBeGreaterThan(0)
-      for (const path of [g.clip.webm, g.clip.mp4, g.clip.poster, g.card.tile, g.share, ...g.pictures.map((p) => p.src)]) {
-        expect(existsSync(publicFile(path)), path).toBe(true)
+      for (const path of [g.clip.webm, g.clip.mp4, g.clip.poster, g.card.tile, ...g.pictures.map((p) => p.src)]) {
+        expect(existsSync(mediaFile(path)), path).toBe(true)
       }
+      // The share picture is read from public/ by the og.png route.
+      expect(existsSync(publicFile(g.share)), g.share).toBe(true)
       // A clip a phone can afford: each file under 2.5 MB.
-      for (const path of [g.clip.webm, g.clip.mp4]) expect(statSync(publicFile(path)).size, path).toBeLessThan(2.5 * 1024 * 1024)
+      for (const path of [g.clip.webm, g.clip.mp4]) expect(statSync(mediaFile(path)).size, path).toBeLessThan(2.5 * 1024 * 1024)
       // A phone encode, where there is one, is the smaller file.
       if (g.clip.phone) {
-        expect(statSync(publicFile(g.clip.phone.webm)).size).toBeLessThan(statSync(publicFile(g.clip.webm)).size)
-        expect(statSync(publicFile(g.clip.phone.mp4)).size).toBeLessThan(statSync(publicFile(g.clip.mp4)).size)
+        expect(statSync(mediaFile(g.clip.phone.webm)).size).toBeLessThan(statSync(mediaFile(g.clip.webm)).size)
+        expect(statSync(mediaFile(g.clip.phone.mp4)).size).toBeLessThan(statSync(mediaFile(g.clip.mp4)).size)
       }
       expect(g.play.href).toMatch(/^https:\/\/(partygames|whoami)\.n8builds\.dev/)
     })
@@ -77,6 +86,33 @@ describe('n8games: the games', () => {
 describe('n8games: the pieces', () => {
   it('has the four pieces, each with a real clip', () => {
     expect(PIECES.map((p) => p.id)).toEqual(['pawn', 'ghost', 'robot', 'slime'])
-    for (const p of PIECES) for (const path of [p.clip.webm, p.clip.mp4, p.clip.poster, p.face]) expect(existsSync(publicFile(path)), path).toBe(true)
+    for (const p of PIECES) for (const path of [p.clip.webm, p.clip.mp4, p.clip.poster, p.face]) expect(existsSync(mediaFile(path)), path).toBe(true)
+  })
+})
+
+describe('n8games: the pictures and clips are served content-hashed', () => {
+  it('finds every picture and clip the pages name in media/', () => {
+    const named = [
+      ...[HERO.clip.wide, HERO.clip.tall].flatMap((c) => [c.webm, c.mp4, c.poster]),
+      ...FLOATERS.map((f) => floaterSrc(f.img)),
+      NEXT.coming.image.src,
+      ...NEXT.rooms.images.map((r) => r.src),
+      N8GAMES_AD.image.wide.src,
+      N8GAMES_AD.image.close.src,
+      ...GAMES.map((g) => g.shot),
+    ]
+    for (const path of named) expect(existsSync(mediaFile(path)), path).toBe(true)
+  })
+
+  it('keeps no picture or clip of these pages in public/, where its URL could go stale', () => {
+    // public/ keeps only what is not sent to a browser from these pages: the share
+    // pictures (read by the og.png routes) and the icon (the build log's tiles).
+    const left = readdirSync(join(process.cwd(), 'public/games'), { recursive: true, encoding: 'utf8' }).filter((f) => /\.(webp|mp4|webm)$/.test(f))
+    expect(left).toEqual([])
+  })
+
+  it('knows every file in media/, and refuses one that is not there', () => {
+    expect(mediaPaths()).toContain('/games/n8games/tin-derby/clip.webm')
+    expect(() => media('/games/n8games/tin-derby/nope.webm')).toThrow(/no such file/)
   })
 })

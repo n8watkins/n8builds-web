@@ -2,7 +2,8 @@ import AxeBuilder from '@axe-core/playwright'
 import { test, expect, type Page } from '@playwright/test'
 import { N8GAMES_PAGE, N8GAMES_URL, gamePage } from '../../data/n8games'
 import { N8GAMES_GAMES } from '../../data/n8games/games'
-import { PIECES } from '../../data/n8games/page'
+import { HERO, PIECES } from '../../data/n8games/page'
+import { hashedMedia, hashedMediaSelector } from './hashed-media'
 
 /**
  * The n8games page (/builds/n8games) and a page per game under it
@@ -41,9 +42,9 @@ test.describe('the n8games page', () => {
     // The hero clip: the wide crop on a computer, with its poster, playing by itself.
     const hero = main.locator('section').first().locator('video:visible')
     await expect(hero).toHaveCount(1)
-    await expect(hero).toHaveAttribute('poster', /hero-wide-poster\.webp$/)
-    await expect(hero.locator('source[type="video/webm"]')).toHaveAttribute('src', /hero-wide\.webm$/)
-    await expect(hero.locator('source[type="video/mp4"]')).toHaveAttribute('src', /hero-wide\.mp4$/)
+    await expect(hero).toHaveAttribute('poster', hashedMedia(HERO.clip.wide.poster))
+    await expect(hero.locator('source[type="video/webm"]')).toHaveAttribute('src', hashedMedia(HERO.clip.wide.webm))
+    await expect(hero.locator('source[type="video/mp4"]')).toHaveAttribute('src', hashedMedia(HERO.clip.wide.mp4))
     await expect.poll(() => hero.evaluate((v: HTMLVideoElement) => !v.paused && v.muted)).toBe(true)
     await expect(main.getByRole('button', { name: 'Pause the clip of the party room' })).toBeVisible()
 
@@ -88,7 +89,7 @@ test.describe('the n8games page', () => {
     await page.goto(N8GAMES_PAGE)
     const hero = page.getByRole('main').locator('section').first().locator('video:visible')
     await expect(hero).toHaveCount(1)
-    await expect(hero).toHaveAttribute('poster', /hero-tall-poster\.webp$/)
+    await expect(hero).toHaveAttribute('poster', hashedMedia(HERO.clip.tall.poster))
   })
 
   test.describe('the pieces', () => {
@@ -136,7 +137,7 @@ test.describe('the n8games page', () => {
       await page.waitForTimeout(6_500)
       await expect(tabs.nth(0)).toHaveAttribute('aria-selected', 'true')
       const clip = page.locator('#piece-panel video[data-on="true"]')
-      await expect(clip).toHaveAttribute('poster', /piece-pawn-poster\.webp$/)
+      await expect(clip).toHaveAttribute('poster', hashedMedia(PIECES[0].clip.poster))
       expect(await clip.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true)
       // A tap on a piece shows its still; Play plays it.
       await tabs.nth(1).click()
@@ -160,16 +161,17 @@ test.describe('the game pages', () => {
       await expect(main.getByText(g.play.live ? 'Coming soon' : 'Playable', { exact: true })).toHaveCount(0)
 
       // The clip: muted, looping, inline, with its poster and both files, playing by itself.
-      const clip = main.locator(`video[poster="${g.clip.poster}"]`)
+      const clip = main.locator(`video${hashedMediaSelector('poster', g.clip.poster)}`)
       await expect(clip).toHaveCount(1)
       await expect(clip).toHaveAttribute('aria-label', g.clip.alt)
-      await expect(clip.locator('source[type="video/webm"]:not([media])')).toHaveAttribute('src', g.clip.webm)
-      await expect(clip.locator('source[type="video/mp4"]:not([media])')).toHaveAttribute('src', g.clip.mp4)
+      await expect(clip).toHaveAttribute('poster', hashedMedia(g.clip.poster))
+      await expect(clip.locator('source[type="video/webm"]:not([media])')).toHaveAttribute('src', hashedMedia(g.clip.webm))
+      await expect(clip.locator('source[type="video/mp4"]:not([media])')).toHaveAttribute('src', hashedMedia(g.clip.mp4))
       // A computer never gets the phone encode.
-      if (g.clip.phone) await expect.poll(() => clip.evaluate((v: HTMLVideoElement) => v.currentSrc)).toMatch(/\/clip\.(webm|mp4)$/)
+      if (g.clip.phone) await expect.poll(() => clip.evaluate((v: HTMLVideoElement) => v.currentSrc)).toMatch(/\/clip\.[\w-]+\.(webm|mp4)$/)
       // Inline by its attribute: Firefox has no `playsInline` property (it never goes full screen by itself).
       expect(await clip.evaluate((v: HTMLVideoElement) => v.muted && v.loop && v.hasAttribute('playsinline'))).toBe(true)
-      await expectPlaying(page, `video[poster="${g.clip.poster}"]`)
+      await expectPlaying(page, `video${hashedMediaSelector('poster', g.clip.poster)}`)
       // Once the page has come in: a click on a button still rising retries, and Playwright's
       // later tries scroll it to the top of the window, which takes the clip off screen, so the
       // clip pauses by itself and the button under the pointer has become Play (2026-11-21, WebKit).
@@ -221,11 +223,11 @@ test.describe('the game pages', () => {
     await page.emulateMedia({ reducedMotion: 'reduce' })
     const g = N8GAMES_GAMES[0]
     await page.goto(gamePage(g.slug))
-    const clip = page.locator(`video[poster="${g.clip.poster}"]`)
+    const clip = page.locator(`video${hashedMediaSelector('poster', g.clip.poster)}`)
     await page.waitForTimeout(1_500)
     expect(await clip.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true)
     await page.getByRole('button', { name: `Play the clip of ${g.name}` }).click()
-    await expectPlaying(page, `video[poster="${g.clip.poster}"]`)
+    await expectPlaying(page, `video${hashedMediaSelector('poster', g.clip.poster)}`)
   })
 
   test('an unknown game is a 404', async ({ request }) => {
@@ -287,8 +289,8 @@ test('on a phone the heaviest clips play their smaller phone encode', async ({ p
   await page.setViewportSize({ width: 390, height: 844 })
   for (const g of N8GAMES_GAMES.filter((x) => x.clip.phone)) {
     await page.goto(gamePage(g.slug))
-    const clip = page.locator(`video[poster="${g.clip.poster}"]`)
-    await expect.poll(() => clip.evaluate((v: HTMLVideoElement) => v.currentSrc), { timeout: 15_000 }).toMatch(/\/clip-phone\.(webm|mp4)$/)
+    const clip = page.locator(`video${hashedMediaSelector('poster', g.clip.poster)}`)
+    await expect.poll(() => clip.evaluate((v: HTMLVideoElement) => v.currentSrc), { timeout: 15_000 }).toMatch(/\/clip-phone\.[\w-]+\.(webm|mp4)$/)
   }
 })
 
@@ -320,6 +322,26 @@ for (const width of [390, 1280]) {
     }
   })
 }
+
+test.describe('the pictures and clips are cached', () => {
+  test('every picture and clip on these pages comes from a content-hashed URL', async ({ page }) => {
+    for (const path of [N8GAMES_PAGE, ...N8GAMES_GAMES.map((g) => gamePage(g.slug))]) {
+      await page.goto(path)
+      const urls = await page.getByRole('main').evaluate((main) => [
+        ...[...main.querySelectorAll('img')].map((img) => img.getAttribute('src') ?? ''),
+        ...[...main.querySelectorAll('video')].map((video) => video.getAttribute('poster') ?? ''),
+        ...[...main.querySelectorAll('video source')].map((source) => source.getAttribute('src') ?? ''),
+      ])
+      expect(urls.length, path).toBeGreaterThan(10)
+      // Straight from /_next/static/media/, or made by the optimizer from there.
+      const unhashed = urls.filter((url) => !decodeURIComponent(url).match(/^(\/_next\/image\?url=)?\/_next\/static\/media\//))
+      expect(unhashed, path).toEqual([])
+    }
+  })
+
+  // Their headers (a year, 206 and 304 for the clips) are tests/e2e/api/media-cache.spec.ts,
+  // which CI also runs against the built Worker.
+})
 
 for (const width of [390, 768]) {
   test(`no sideways scroll at ${width}px on the n8games page and every game page`, async ({ page }) => {

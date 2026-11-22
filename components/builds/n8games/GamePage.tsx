@@ -7,6 +7,7 @@ import { N8GAMES_PAGE, N8GAMES_URL, gamePage } from '@/data/n8games'
 import { N8GAMES_GAMES } from '@/data/n8games/games'
 import { THEMES, paletteVars } from '@/data/n8games/themes'
 import type { GameTheme, N8Game } from '@/data/n8games/types'
+import { media, mediaClip } from '@/lib/media'
 import { abril, anton, baloo, bowlby, cinzel, nunito } from './fonts'
 import { BackArrow, MADE_ICONS } from './icons'
 import LoopVideo from './LoopVideo'
@@ -110,7 +111,7 @@ export default function GamePage({ game }: { game: N8Game }) {
           <div className={`${styles.heroStage} ${styles.enter} ${game.clip.frame === 'phone' ? styles.phoneStage : ''}`} style={vars({ '--i': 3 })}>
             {/* Pause sits under the frame, so it never covers the game's own buttons. */}
             <LoopVideo
-              clip={game.clip}
+              clip={mediaClip(game.clip)}
               alt={game.clip.alt}
               label={`clip of ${game.name}`}
               priority
@@ -132,7 +133,7 @@ export default function GamePage({ game }: { game: N8Game }) {
               <figure key={p.src} className={styles.pic} style={vars({ '--tilt': `${[-1.2, 1, -0.6, 0.8][i]}deg` })}>
                 <div className={styles.picFrame}>
                   <Image
-                    src={p.src}
+                    src={media(p.src)}
                     alt={p.alt}
                     width={p.width}
                     height={p.height}
@@ -229,7 +230,7 @@ export default function GamePage({ game }: { game: N8Game }) {
             {others.map((g) => (
               <li key={g.slug}>
                 <Link href={gamePage(g.slug)} className={styles.other}>
-                  <Image src={g.card.tile} alt="" width={420} height={560} sizes="96px" />
+                  <Image src={media(g.card.tile)} alt="" width={420} height={560} sizes="96px" />
                   <span>{g.name}</span>
                 </Link>
               </li>

@@ -7,6 +7,8 @@
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
 
-# Hashed build files never change, so browsers keep them for a year.
+# Hashed build files never change, so browsers keep them for a year. That
+# includes the pictures and clips from media/ (lib/media.ts); the clips reach
+# the worker first (run_worker_first), so worker/range.js sets the same header.
 /_next/static/*
   Cache-Control: public, max-age=31536000, immutable

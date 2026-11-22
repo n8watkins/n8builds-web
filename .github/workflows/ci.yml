@@ -224,6 +224,19 @@ jobs:
       - run: npm ci
       - run: npm run build:worker
       - run: npm run check:deploy
+      # The built Worker under wrangler, locally (no account, nothing uploaded):
+      # the media answers visitors get, which `next start` in the e2e job never
+      # runs (worker/range.js, OpenNext's image handler). No browser needed.
+      - name: Worker media answers
+        env:
+          E2E_WORKER: '1'
+          E2E_REMOTE_URL: http://127.0.0.1:8799
+          WRANGLER_SEND_METRICS: 'false'
+        run: |
+          npx opennextjs-cloudflare preview --port 8799 --ip 127.0.0.1 > preview.log 2>&1 &
+          for i in $(seq 1 90); do curl -sf http://127.0.0.1:8799/healthz > /dev/null && break; sleep 2; done
+          curl -sf http://127.0.0.1:8799/healthz > /dev/null || { cat preview.log; exit 1; }
+          npx playwright test tests/e2e/api/media-cache.spec.ts --project=api --reporter=github,list
 
   # The one check branch protection requires. It passes when every job above
   # passed or was skipped on purpose (a docs-only change), and fails if any

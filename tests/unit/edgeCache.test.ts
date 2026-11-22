@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { EDGE_STALE_SECONDS, MAX_EDGE_TTL_SECONDS, edgeTtl, forEdge, mayUseEdgeCache } from '@/worker/edge-cache.js'
+import { EDGE_STALE_SECONDS, MAX_EDGE_TTL_SECONDS, edgeTtl, forCache, forEdge, mayUseEdgeCache } from '@/worker/edge-cache.js'
 import { MEDIA } from '@/worker/range.js'
 
 const site = { host: 'n8builds.dev', uncachedPaths: MEDIA }
@@ -67,5 +67,31 @@ describe('forEdge', () => {
 
   it('marks everything else no-store, so the cache’s default rules never keep it', () => {
     expect(forEdge(response(null)).headers.get('Cloudflare-CDN-Cache-Control')).toBe('no-store')
+  })
+
+  it('keeps a picture made from a content-hashed source (OpenNext marks it immutable)', () => {
+    // node_modules/@opennextjs/cloudflare/dist/cli/templates/images.js: createImageResponse()
+    // for a /_next/static/media/ source; a public/ source gets no Cache-Control at all.
+    const picture = forEdge(response('public, max-age=315360000, immutable', { headers: { Vary: 'Accept' } }))
+    expect(picture.headers.get('Cloudflare-CDN-Cache-Control')).toBe(`public, max-age=${MAX_EDGE_TTL_SECONDS}, stale-while-revalidate=${EDGE_STALE_SECONDS}`)
+    expect(picture.headers.get('Cache-Control')).toBe('public, max-age=315360000, immutable')
+  })
+})
+
+describe('forCache', () => {
+  const image = (accept?: string) =>
+    forCache(request('/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flap.0a1b2c3d.webp&w=2048&q=75', accept === undefined ? {} : { headers: { accept } }))
+
+  it('keys a picture on the format it will be made in, not on how the browser words Accept', () => {
+    expect(image('image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8').headers.get('accept')).toBe('image/avif')
+    expect(image('image/avif,image/webp,*/*').headers.get('accept')).toBe('image/avif')
+    expect(image('image/webp,*/*').headers.get('accept')).toBe('image/webp')
+    expect(image('image/png,image/svg+xml,image/*;q=0.8,*/*;q=0.5').headers.get('accept')).toBe('*/*')
+    expect(image().headers.get('accept')).toBe('*/*')
+  })
+
+  it('leaves every other request as it came', () => {
+    const page = request('/games', { headers: { accept: 'text/html,*/*' } })
+    expect(forCache(page)).toBe(page)
   })
 })

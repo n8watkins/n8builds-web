@@ -39,6 +39,15 @@ test('every card picture loads', async ({ page }) => {
   }
 })
 
+test('every game\'s picture is made from a content-hashed copy, so it may be cached for a year', async ({ page }) => {
+  await page.goto('/games')
+  for (const [i, game] of GAMES.entries()) {
+    const shot = page.locator('main article').nth(i).locator('img').first()
+    const file = game.shot.slice(game.shot.lastIndexOf('/') + 1).replace(/\.webp$/, '')
+    expect(decodeURIComponent((await shot.getAttribute('src')) ?? ''), game.slug).toMatch(new RegExp(`^/_next/image\\?url=/_next/static/media/${file}\\.[\\w-]+\\.webp&`))
+  }
+})
+
 test('n8games card leads to its build page and shows the real room, not the ad\'s render again', async ({ page }) => {
   await page.goto('/games')
   const card = page.locator('main article#n8games')
@@ -77,7 +86,8 @@ test('the n8games ad keeps its frame while the picture loads: the whole room fro
     expect(box, `${width}px`).not.toBeNull()
     // At 1280 the words sit beside the picture and may make the row a little taller than 2:1.
     if (width < 1024) expect(Math.abs(box!.width / box!.height - ratio), `${width}px`).toBeLessThan(0.02)
-    await expect.poll(() => img.evaluate((el: HTMLImageElement) => el.currentSrc)).toContain(file)
+    // Made from the content-hashed copy (lib/media.ts), so it may be cached for a year.
+    await expect.poll(() => img.evaluate((el: HTMLImageElement) => decodeURIComponent(el.currentSrc))).toMatch(new RegExp(`/_next/static/media/${file}\\.[\\w-]+\\.webp`))
   }
 })
 

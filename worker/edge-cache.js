@@ -22,6 +22,8 @@
 // app/api/sanity/revalidate), and every deploy starts with an empty one (the
 // Worker version is part of the cache key).
 
+import { IMAGE_FORMATS } from '../lib/image-formats.mjs'
+
 /** The longest an edge copy stays fresh before Cloudflare asks the Worker again. */
 export const MAX_EDGE_TTL_SECONDS = 86_400
 
@@ -48,6 +50,24 @@ export function mayUseEdgeCache(request, site) {
   // A draft preview is for the one browser that asked.
   if (DRAFT_MODE_COOKIE.test(request.headers.get('cookie') ?? '')) return false
   return true
+}
+
+/**
+ * The request as the cached entrypoint should see it. The image optimizer
+ * (/_next/image) answers in the first of IMAGE_FORMATS the browser's Accept
+ * lists, with `Vary: Accept`, and the edge cache keeps one copy per Accept
+ * value, compared verbatim (https://developers.cloudflare.com/workers/cache/configuration/).
+ * Every browser words Accept its own way, so an image request keeps only the
+ * part that decides the format: at most three copies of each picture, shared
+ * by every browser that gets the same one.
+ * @param {Request} request
+ */
+export function forCache(request) {
+  if (new URL(request.url).pathname !== '/_next/image') return request
+  const accept = request.headers.get('accept') ?? ''
+  const keyed = new Request(request)
+  keyed.headers.set('accept', IMAGE_FORMATS.find((format) => accept.includes(format)) ?? '*/*')
+  return keyed
 }
 
 /**

@@ -4,7 +4,7 @@
  * PortfolioRank's "guess the percentile" waits behind its GAMES_V2 flag, so
  * its card describes the face-off and says more is coming.
  *
- * Each card's picture is a screenshot of the game itself (public/games/,
+ * Each card's picture is a screenshot of the game itself (media/games/, lib/media.ts,
  * 960x600 WebP, taken with GET requests only), apart from n8games, whose
  * picture is a still from its real room. Copy comes from each game's own
  * site and README; keep it in step and modest.

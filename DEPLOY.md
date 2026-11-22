@@ -8,12 +8,15 @@ The site runs on Cloudflare Workers as the `n8builds-web` Worker in the owner's 
 - `npm run build:worker` runs `next build` (Turbopack) and turns its output into `.open-next/`: the server bundle (`.open-next/worker.js`) and the static assets (`.open-next/assets`).
 - `worker/index.js` is the Worker's entry point (`main` in `wrangler.jsonc`).
   It wraps the OpenNext handler with Sentry (`withSentry`), answers byte-range requests for the videos (`worker/range.js`, which Safari needs to play them), and sends browsers `max-age=0, must-revalidate` for pages instead of Next's CDN `s-maxage`.
+  Static assets drop Cache-Control from any answer to a Range request, so `worker/range.js` fetches the clip whole, answers a current copy (`If-None-Match`) with 304 before slicing, and gives the 206 the 200's Cache-Control and ETag.
 - `keep_names` is off in `wrangler.jsonc`: esbuild's `__name()` wrapper would leak into next-themes' inline theme script and throw `__name is not defined` on every page the Worker renders.
   `npm run check:deploy` (CI) fails if the bundle calls `__name(` again, and the deploy workflow then loads the live home page and fails on any console error.
 - Files in `public/` and `/_next/static` are served straight from Workers static assets, without the worker.
   `public/_headers` gives them HSTS and the basic security headers, and makes `/_next/static` immutable.
   Pages and API routes get the full set (CSP included) from `lib/security/headers.mjs`.
 - `next/image` resizes through the Cloudflare Images binding (`IMAGES`).
+  OpenNext marks a resized picture cacheable (`public, max-age=315360000, immutable`) only when its source is under `/_next/static/media/`; a `public/` source gets no Cache-Control, so the edge and the browser make and fetch it again on every visit.
+  So pictures and clips that change under the same file name (the game pages') live in `media/` and go through `lib/media.ts`, which serves each at a content-hashed `/_next/static/media/` URL.
 - ISR (`export const revalidate`, revalidated fetches) is kept in the R2 bucket `n8builds-web-opennext-cache`, with a regional Cache API layer and a Durable Object queue (`DOQueueHandler`) for background revalidation (`open-next.config.ts`).
   A Durable Object tag cache (`DOShardedTagCache`) tracks the site's own cache tags, so publishing in Sanity refreshes the blog at once ([docs/SANITY.md](docs/SANITY.md)).
 - In front of that, Workers Cache keeps every page Next marks the same for everyone (ISR, static, the image optimizer's answers) at the edge, so a repeat view costs no CPU time (`worker/edge-cache.js`).
