@@ -8,13 +8,13 @@
  * The slugs are a public contract: the projects' landing pages link to
  * `https://n8builds.dev/upcoming?interest=<slug>#<slug>`, so never rename one;
  * a renamed project keeps its old interest value working (INTEREST_ALIASES).
- * Copy comes from each project's own docs (Strollz's in ~/projects/strollz, VibeLog's README and docs/VISION.md in
- * ~/projects/polish/vibelog, KeysReady's from the owner and its landing page,
- * Asset Arsenal's docs/SKINS_CONCEPT.md in ~/projects/asset-arsenal, Feelium's
- * README and docs/PRD.md in ~/projects/feelium, Cutely Ask Me's README and
- * docs/REVIEW_2026-11.md in ~/projects/polish/cutelyaskme, Who Am I?'s README in
- * ~/projects/who-am-i, Pivot's README and /welcome page in ~/projects/pivot,
- * FitFlow 7's README in ~/projects/public/fitflow7); keep it in step and modest.
+ * Copy comes from each project's own docs (Strollz's in ~/projects/backlog/strollz, VibeLog's README and docs/VISION.md in
+ * ~/projects/backlog/vibelog, KeysReady's from the owner and its landing page,
+ * Asset Arsenal's docs/SKINS_CONCEPT.md in ~/projects/backlog/asset-arsenal, Feelium's
+ * README and docs/PRD.md in ~/projects/apps/feelium, Cutely Ask Me's README and
+ * docs/REVIEW_2026-11.md in ~/projects/apps/cutelyaskme, Who Am I?'s README in
+ * ~/projects/games/who-am-i, Pivot's README and /welcome page in ~/projects/apps/pivot,
+ * FitFlow 7's README in ~/projects/apps/fitflow7); keep it in step and modest.
  *
  * Four are unlisted since 2026-11-11 (owner: "it's just not advertised"):
  * KeysReady, Strollz, VibeLog and Asset Arsenal. See `unlisted` on UpcomingProject.
