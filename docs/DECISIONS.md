@@ -252,7 +252,7 @@ When the owner decides something new, add it here (with the date) in the same ch
   Every full mention says "N8's Notions" (capital N, the digit 8, apostrophe s; not "Nate's Notions"); short nav and footer labels stay "Notions".
   URLs and slugs keep their old names (`/blog/welcome-to-n8-notions` stays).
 - Stack preference: **Firebase over Supabase** (reflected in `data/buildStacks.tsx`).
-- **No Resend**: Nodemailer + Gmail SMTP (rationale in `~/docs/faq/email-and-domains.md`).
+- **No Resend**: Nodemailer + Gmail SMTP (rationale was in the retired `~/docs/faq/email-and-domains.md`; its history is in `~/archive/docs-2026-11-23.bundle`).
 - contact@n8builds.dev is the public address (Cloudflare Email Routing forwards it to Gmail).
 - Email template structure and copy are owner-approved; change only on request.
 - **The contact emails' redesign** (owner's ask, 2026-10-28): both emails in the site's dark navy and cyan (`lib/email/templates.ts`). The notification leads with the topic, the sender and a "Reply to {name}" button; the auto-reply greets by first name, says what happens next (a reply within 24 hours, the promise the old copy made) and links the Lab, the portfolio and Appturnity. The auto-reply never repeats the visitor's message: it goes to whatever address was typed, so echoing it would let anyone send their own text from contact@n8builds.dev. Images are inline attachments, never remote.
