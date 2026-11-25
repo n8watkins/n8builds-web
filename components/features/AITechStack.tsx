@@ -5,7 +5,7 @@ import DinoEasterEgg from '@/components/features/dino/DinoEasterEgg'
 import { ai_agents, ai_tools, dev_stack, rowDuration, stackLinkHref, type AIStackItem } from '@/data/stack'
 
 // A tile, its project link resolved for this site: builds open their page here,
-// the portfolio's projects (Wren, NetTrailers) theirs on portfolio.n8builds.dev.
+// the portfolio's projects (NetTrailers) theirs on portfolio.n8builds.dev.
 const tile = (tech: AIStackItem) => (
   <StackTile
     key={tech.name}

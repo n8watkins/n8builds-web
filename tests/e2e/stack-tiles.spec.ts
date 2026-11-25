@@ -88,15 +88,14 @@ test.describe('AI kit tiles (motion allowed)', () => {
     for (const pr of await links.filter({ hasText: 'Portfolio Rank' }).all())
       await expect(pr).toHaveAttribute('href', '/builds/portfolio-rank')
     await expect(links.filter({ hasText: "N8's Notions" })).toHaveAttribute('href', '/blog')
-    // Wren and NetTrailers have their pages on the portfolio, in a new tab that says so.
-    const wren = links.filter({ hasText: 'Wren' })
-    await expect(wren).toHaveAttribute('href', 'https://portfolio.n8builds.dev/projects/wren')
-    await expect(wren).toHaveAttribute('target', '_blank')
-    await expect(wren).toHaveAccessibleName('Wren (opens in a new tab)')
-    await expect(links.filter({ hasText: 'NetTrailers' })).toHaveAttribute(
-      'href',
-      'https://portfolio.n8builds.dev/projects/net-trailers'
-    )
+    // NetTrailers has its page on the portfolio, opened in a new tab that says so.
+    const netTrailers = links.filter({ hasText: 'NetTrailers' })
+    await expect(netTrailers).toHaveAttribute('href', 'https://portfolio.n8builds.dev/projects/net-trailers')
+    await expect(netTrailers).toHaveAttribute('target', '_blank')
+    await expect(netTrailers).toHaveAccessibleName('NetTrailers (opens in a new tab)')
+    // Wren left this site (owner, 2026-11-11): no tile names it or links to it.
+    await expect(page.locator('[data-dino-panel]')).not.toContainText(/\bWren\b/)
+    await expect(page.locator('[data-dino-panel] a[href*="wren"]')).toHaveCount(0)
   })
 
   test('Tab from a tile reaches its project link, and its description stays open', async ({ page }) => {

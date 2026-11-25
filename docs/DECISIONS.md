@@ -284,7 +284,8 @@ When the owner decides something new, add it here (with the date) in the same ch
   - The AI kit tiles show what each tool is for on hover (owner, 2026-10-28; calm tiles from round 10 dropped), and on focus or a tap on touch screens.
     A mouse click on a tile does nothing: only hovering pauses its row (each tile is still one tab stop, so a row can be paused from the keyboard).
     **Since 2026-11-25 (owner):** each tile says how I use the tool, in first person, not what the tool is ("anyone could just look that up"), and names the project that uses it as a link ("Local text to speech. My VoiceDock extension reads pages aloud with it.").
-    Builds link to their page here; Wren and NetTrailers to theirs on portfolio.n8builds.dev, in a new tab (`stackLinkHref` in `data/stack.tsx`).
+    Builds link to their page here; NetTrailers to its page on portfolio.n8builds.dev, in a new tab (`stackLinkHref` in `data/stack.tsx`).
+    The tiles are shared with the portfolio, so no line names Wren (it left this site on 2026-11-11, below): Gemini names Portfolio Rank, NetTrailers and TL;DW.
     The link is the tile's second tab stop and opens nothing until the tile does: the first tap shows the description, a second on the link follows it.
     Every line is backed by the owner's repos; the tools with no use found (PostgreSQL, AWS, Figma, Upstash since the move to D1, Pi and Cursor on this PC) are listed for the owner to keep or drop.
   - The AI kit has three rows (owner, 2026-10-29): agents and models (Claude Code, Claude Opus 5.5, ChatGPT, Codex, Pi, Cursor, OpenAI, Gemini), AI tools (whisper.cpp, Piper, Hugging Face), and the dev stack.
