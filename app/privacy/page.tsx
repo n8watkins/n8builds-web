@@ -12,7 +12,7 @@ export const metadata = pageMetadata({
   path: '/privacy',
 })
 
-const UPDATED = 'November 11, 2026'
+const UPDATED = 'November 25, 2026'
 
 export default function PrivacyPolicy() {
   return (
@@ -111,6 +111,13 @@ export default function PrivacyPolicy() {
                     and browser are never stored, no cookie is set, and nothing is saved on your
                     device for this. The high scores keep only the score, the site, the country and
                     the date.
+                  </li>
+                  <li>
+                    <span className="text-slate-100">The map on my developer portfolio.</span> To draw
+                    a line from Los Angeles to roughly where you are, the map uses the approximate
+                    city Cloudflare works out from your connection, rounded to about 35 miles. It is
+                    not stored or logged, no cookie is set, and your browser never asks for your
+                    location.
                   </li>
                   <li>
                     <span className="text-slate-100">Bot protection.</span> The contact form, the
