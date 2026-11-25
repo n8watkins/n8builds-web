@@ -21,12 +21,17 @@ test.describe('AI kit content', () => {
       }
       // The rest of the AI kit (2026-10-29), and a third row: the stack I ship with.
       const agents = page.getByRole('region', { name: 'AI agents' })
-      for (const tool of ['Claude Opus 5.5', 'ChatGPT', 'Codex', 'Pi']) {
+      // Claude Fable 5.2, the orchestrator, joined on 2026-11-25 (owner).
+      for (const tool of ['Claude Opus 5.5', 'Claude Fable 5.2', 'ChatGPT', 'Codex', 'Pi']) {
         await expect(agents.getByText(tool, { exact: true })).toBeVisible()
       }
       const dev = page.getByRole('region', { name: 'Dev stack' })
-      for (const tool of ['Next.js', 'Playwright', 'GitHub Actions', 'Upstash', 'Firebase', 'AWS', 'Figma']) {
+      for (const tool of ['Next.js', 'Playwright', 'GitHub Actions', 'PostgreSQL', 'Firebase', 'AWS', 'Figma']) {
         await expect(dev.getByText(tool, { exact: true })).toBeVisible()
+      }
+      // Dropped by the owner on 2026-11-25: Cursor, OpenAI and Upstash.
+      for (const dropped of ['Cursor', 'OpenAI', 'Upstash']) {
+        await expect(page.locator('[data-dino-panel]').getByText(dropped, { exact: true })).toHaveCount(0)
       }
       // The list is shared with the portfolio (data/stack.tsx); its dated and
       // filler entries were dropped (the owner's call, 2026-10-29).
@@ -1035,8 +1040,10 @@ test.describe('dino easter egg (motion allowed)', () => {
     await expect(tile).toBeFocused()
   })
 
-  // The middle of the tile nearest the middle of a row (paused by hovering it
+  // The name of the tile nearest the middle of a row (paused by hovering it
   // first), measured in the panel: the row runs far past its edges, clipped.
+  // Its name, not its middle: an open description can put a project link
+  // there, and clicking that one goes to the project.
   const middleTile = async (page: Page, index: number) => {
     await hoverRow(page, index)
     await page.waitForTimeout(300)
@@ -1044,7 +1051,7 @@ test.describe('dino easter egg (motion allowed)', () => {
       const panel = document.querySelector('[data-dino-panel]')!.getBoundingClientRect()
       const row = document.querySelectorAll('[data-dino-panel] [data-marquee-row]')[index]
       const mid = panel.left + panel.width / 2
-      const box = [...row.querySelectorAll('figure')]
+      const box = [...row.querySelectorAll('figure [data-tile-name]')]
         .map((el) => el.getBoundingClientRect())
         .sort((a, b) => Math.abs(a.x + a.width / 2 - mid) - Math.abs(b.x + b.width / 2 - mid))[0]
       return { x: box.x + box.width / 2, y: box.y + box.height / 2 }
