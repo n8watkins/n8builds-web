@@ -2,10 +2,17 @@ import { test, expect } from '@playwright/test'
 
 /**
  * The homepage AI kit's tiles (components/ui/StackTile.tsx): icon and name,
- * with what each is for shown on hover, focus or a tap (tests/e2e/ai-kit.spec.ts
- * covers those and the click). Each is a single tab stop (focus pauses its
- * row) and its description is there for screen readers.
+ * with how I use each shown on hover, focus or a tap (tests/e2e/ai-kit.spec.ts
+ * covers those and the click). Each is one tab stop (focus pauses its row),
+ * plus a second for the project link its description may carry, and its
+ * description is there for screen readers.
  */
+
+// data/stack.tsx: the tiles whose description names a project (owner, 2026-11-25).
+const LINKED_TILES = 17
+
+// The first copy of every row's tiles (the loop's copies only make it seamless).
+const firstCopies = '[data-dino-panel] [data-marquee-row] > :first-child > figure'
 
 test.describe('AI kit tiles (motion allowed)', () => {
   test.use({ contextOptions: { reducedMotion: 'no-preference' } })
@@ -69,4 +76,75 @@ test.describe('AI kit tiles (motion allowed)', () => {
     const first = page.locator('[data-dino-panel] figure').first()
     await expect(first.locator('.description')).toHaveText(/.+/)
   })
+
+  test('a description that names a project links to it: builds here, the portfolio’s projects there', async ({ page }) => {
+    await page.goto('/')
+    const links = page.locator(firstCopies).locator('a')
+    // One per linked tile: a link whose words are missing from its description would show none.
+    await expect(links).toHaveCount(LINKED_TILES)
+    const voicedock = links.filter({ hasText: 'VoiceDock' })
+    await expect(voicedock).toHaveAttribute('href', '/builds/voicedock')
+    await expect(voicedock).not.toHaveAttribute('target', '_blank')
+    for (const pr of await links.filter({ hasText: 'Portfolio Rank' }).all())
+      await expect(pr).toHaveAttribute('href', '/builds/portfolio-rank')
+    await expect(links.filter({ hasText: "N8's Notions" })).toHaveAttribute('href', '/blog')
+    // NetTrailers has its page on the portfolio, opened in a new tab that says so.
+    const netTrailers = links.filter({ hasText: 'NetTrailers' })
+    await expect(netTrailers).toHaveAttribute('href', 'https://portfolio.n8builds.dev/projects/net-trailers')
+    await expect(netTrailers).toHaveAttribute('target', '_blank')
+    await expect(netTrailers).toHaveAccessibleName('NetTrailers (opens in a new tab)')
+    // Wren left this site (owner, 2026-11-11): no tile names it or links to it.
+    await expect(page.locator('[data-dino-panel]')).not.toContainText(/\bWren\b/)
+    await expect(page.locator('[data-dino-panel] a[href*="wren"]')).toHaveCount(0)
+  })
+
+  test('Tab from a tile reaches its project link, and its description stays open', async ({ page }) => {
+    await page.goto('/')
+    const tile = page
+      .locator(firstCopies)
+      .filter({ has: page.locator('[data-tile-name]', { hasText: /^Piper$/ }) })
+    await tile.evaluate((el: HTMLElement) => el.focus({ preventScroll: true }))
+    await page.keyboard.press('Tab')
+    await expect(tile.getByRole('link', { name: 'VoiceDock' })).toBeFocused()
+    await expect(tile.locator('.description')).toHaveCSS('opacity', '1')
+    // The loop's copies keep their links out of the tab order.
+    const copies = page.locator('[data-dino-panel] [data-marquee-row] > :not(:first-child) a')
+    await expect.poll(() => copies.count()).toBeGreaterThan(0)
+    for (const copy of await copies.all()) await expect(copy).toHaveAttribute('tabindex', '-1')
+  })
+
+  // Every tile, its description shown (focused, with transitions off so it
+  // opens at once): at most three lines, and all of it inside the tile.
+  for (const width of [1440, 390]) {
+    test(`every description fits its tile at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 })
+      await page.addInitScript(() => {
+        document.addEventListener('DOMContentLoaded', () => {
+          const style = document.createElement('style')
+          style.textContent = '*, *::before, *::after { transition: none !important }'
+          document.head.append(style)
+        })
+      })
+      await page.goto('/')
+      const tiles = page.locator(firstCopies)
+      // data/stack.tsx: 7 agents and models, 3 local AI tools, 26 in the dev stack.
+      await expect(tiles).toHaveCount(36)
+      const misfits = await tiles.evaluateAll((figures) =>
+        figures.flatMap((figure) => {
+          ;(figure as HTMLElement).focus({ preventScroll: true })
+          const tile = figure.getBoundingClientRect()
+          const caption = figure.querySelector('figcaption')!.getBoundingClientRect()
+          const p = figure.querySelector<HTMLElement>('.description')!
+          const style = getComputedStyle(p)
+          const lines = Math.round(
+            (p.getBoundingClientRect().height - parseFloat(style.paddingTop)) / parseFloat(style.lineHeight)
+          )
+          const name = figure.querySelector('[data-tile-name]')!.textContent
+          const inside = caption.top >= tile.top && caption.bottom <= tile.bottom
+          return lines <= 3 && inside ? [] : [`${name}: ${lines} lines, ${inside ? 'inside' : 'spills out of'} its tile`]
+        })
+      )
+      expect(misfits).toEqual([])
+    })
+  }
 })
