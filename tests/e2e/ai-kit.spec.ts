@@ -21,12 +21,17 @@ test.describe('AI kit content', () => {
       }
       // The rest of the AI kit (2026-10-29), and a third row: the stack I ship with.
       const agents = page.getByRole('region', { name: 'AI agents' })
-      for (const tool of ['Claude Opus 5.5', 'ChatGPT', 'Codex', 'Pi']) {
+      // Claude Fable 5.2, the orchestrator, joined on 2026-11-25 (owner).
+      for (const tool of ['Claude Opus 5.5', 'Claude Fable 5.2', 'ChatGPT', 'Codex', 'Pi']) {
         await expect(agents.getByText(tool, { exact: true })).toBeVisible()
       }
       const dev = page.getByRole('region', { name: 'Dev stack' })
-      for (const tool of ['Next.js', 'Playwright', 'GitHub Actions', 'Upstash', 'Firebase', 'AWS', 'Figma']) {
+      for (const tool of ['Next.js', 'Playwright', 'GitHub Actions', 'PostgreSQL', 'Firebase', 'AWS', 'Figma']) {
         await expect(dev.getByText(tool, { exact: true })).toBeVisible()
+      }
+      // Dropped by the owner on 2026-11-25: Cursor, OpenAI and Upstash.
+      for (const dropped of ['Cursor', 'OpenAI', 'Upstash']) {
+        await expect(page.locator('[data-dino-panel]').getByText(dropped, { exact: true })).toHaveCount(0)
       }
       // The list is shared with the portfolio (data/stack.tsx); its dated and
       // filler entries were dropped (the owner's call, 2026-10-29).

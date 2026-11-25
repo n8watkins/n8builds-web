@@ -287,7 +287,11 @@ When the owner decides something new, add it here (with the date) in the same ch
     Builds link to their page here; NetTrailers to its page on portfolio.n8builds.dev, in a new tab (`stackLinkHref` in `data/stack.tsx`).
     The tiles are shared with the portfolio, so no line names Wren (it left this site on 2026-11-11, below): Gemini names Portfolio Rank, NetTrailers and TL;DW.
     The link is the tile's second tab stop and opens nothing until the tile does: the first tap shows the description, a second on the link follows it.
-    Every line is backed by the owner's repos; the tools with no use found (PostgreSQL, AWS, Figma, Upstash since the move to D1, Pi and Cursor on this PC) are listed for the owner to keep or drop.
+    Every line is backed by the owner's repos.
+    **The owner's picks (2026-11-25):** Cursor, OpenAI and Upstash are dropped; PostgreSQL stays with no project named ("Object-relational, for when an app outgrows SQLite."); AWS, Figma and Pi stay as they are.
+    **Claude Fable 5.2 joins the agents and models row** beside Claude Opus 5.5, with the same Anthropic mark: "My orchestrator. It plans the work and directs the other agents."
+    The rows are now 7 agents and models, 3 local AI tools and 26 in the dev stack (36 tiles); `rowDuration` keeps every row at the same pace.
+    The Loadout's "How I work with AI" and harnesses are separate copy, not tied to this list, and do not name Fable yet: a change there is the owner's call.
   - The AI kit has three rows (owner, 2026-10-29): agents and models (Claude Code, Claude Opus 5.5, ChatGPT, Codex, Pi, Cursor, OpenAI, Gemini), AI tools (whisper.cpp, Piper, Hugging Face), and the dev stack.
     **One list for both sites** (owner, 2026-10-29): `data/stack.tsx` is shared with the portfolio byte for byte (its `npm run check:sync`), which shows the same tiles in two rows (the AI kit, then the dev stack).
     The dev stack is Next.js, React, TypeScript, Tailwind CSS, Zod, ShadCN, Vite, PostgreSQL, Turso, Drizzle, Firebase, AWS, Google Cloud, Vercel, Cloudflare, Sanity, Upstash, Clerk, NextAuth, Sentry, Google Analytics, Playwright, GitHub Actions, ESLint, Prettier, Git and Figma.

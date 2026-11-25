@@ -127,7 +127,8 @@ test.describe('AI kit tiles (motion allowed)', () => {
       })
       await page.goto('/')
       const tiles = page.locator(firstCopies)
-      await expect(tiles).toHaveCount(38)
+      // data/stack.tsx: 7 agents and models, 3 local AI tools, 26 in the dev stack.
+      await expect(tiles).toHaveCount(36)
       const misfits = await tiles.evaluateAll((figures) =>
         figures.flatMap((figure) => {
           ;(figure as HTMLElement).focus({ preventScroll: true })
