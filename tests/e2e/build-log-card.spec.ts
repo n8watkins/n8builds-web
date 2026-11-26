@@ -529,12 +529,36 @@ test.describe('on the homepage, the list follows a picked day', () => {
         attributes: true,
       })
     })
-    const chart = (await card.locator('[data-chart]').boundingBox())!
-    const y = chart.y + chart.height - 4
-    await page.mouse.move(chart.x + 2, y)
-    // Across the whole month in one quick sweep, ending on the 25th.
+    // Across the whole month in one quick sweep, a step every 12 ms, ending on the 25th: a hand's
+    // pace. Sent in the page, because a test's own mouse steps can each take longer than the wait
+    // (WebKit's took about 200 ms each, which is a slow walk, not a sweep).
     const end = (await dayButton(card, 'Sunday, October 25').boundingBox())!
-    await page.mouse.move(end.x + end.width / 2, y, { steps: 25 })
+    await card.locator('[data-chart]').evaluate(
+      async (chart, endX) => {
+        const box = chart.getBoundingClientRect()
+        const y = box.bottom - 4
+        for (let x = box.left + 2; x <= endX; x += (endX - box.left) / 25) {
+          chart.dispatchEvent(
+            new PointerEvent('pointermove', {
+              clientX: x,
+              clientY: y,
+              bubbles: true,
+              pointerType: 'mouse',
+            })
+          )
+          await new Promise((r) => setTimeout(r, 12))
+        }
+        chart.dispatchEvent(
+          new PointerEvent('pointermove', {
+            clientX: endX,
+            clientY: y,
+            bubbles: true,
+            pointerType: 'mouse',
+          })
+        )
+      },
+      end.x + end.width / 2
+    )
     // The readout is instant...
     await expect(card.locator('[data-readout] [data-number]')).toHaveText('21')
     // ...and the list lands on the day it rested on, having shown at most that one.
