@@ -34,7 +34,7 @@ test('the build log leads with the builds, most recently active first', { tag: '
   // The builds, then the projects without a build page the log follows since round 5 of
   // 2026-11-02 (data/logBuilds.ts); in the fixture those have nothing yet, so they come last.
   // NetTrailers and n8games joined on 2026-11-26 (owner: "we should add n8games and nettrailers").
-  await expect(cards).toHaveCount(20)
+  await expect(cards).toHaveCount(18)
   expect(await cards.evaluateAll((els) => els.map((el) => el.getAttribute('data-build')))).toEqual([
     'n8builds',
     'solara',

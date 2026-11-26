@@ -24,16 +24,17 @@ test('the build log describes its builds as an ItemList, most recently active fi
   // 2026-11-02, data/logBuilds.ts; Who Am I?, Pivot and FitFlow 7 joined in round 7), each
   // linking where the site shows it.
   // NetTrailers and n8games since 2026-11-26: NetTrailers' item is its page on the portfolio.
-  expect(items.map((i) => i.position)).toEqual(Array.from({ length: 20 }, (_, i) => i + 1))
+  // FitFlow 7 and Who Am I? went unlisted on 2026-11-26, so they are no items.
+  expect(items.map((i) => i.position)).toEqual(Array.from({ length: 18 }, (_, i) => i + 1))
   expect(items.map((i) => i.url)).toContain('https://portfolio.n8builds.dev/projects/net-trailers')
   expect(items.map((i) => i.url)).toContain('https://n8builds.dev/builds/n8games')
-  for (const slug of ['whoami', 'pivot', 'fitflow7']) expect(items.map((i) => i.url)).toContain(`https://n8builds.dev/upcoming#${slug}`)
+  for (const slug of ['pivot']) expect(items.map((i) => i.url)).toContain(`https://n8builds.dev/upcoming#${slug}`)
   expect(items.map((i) => i.url)).toContain('https://n8builds.dev/upcoming#feelium')
   expect(items[0]).toMatchObject({ name: 'n8builds.dev', url: 'https://n8builds.dev/builds/n8builds' })
   expect(items[1]).toMatchObject({ name: 'Solara', url: 'https://n8builds.dev/builds/solara' })
   // Wren left the site (2026-11-11), and the unlisted upcoming projects are followed without being
   // named: none is an item, and the page's source names none of them.
-  for (const gone of ['/builds/wren', '/builds/vibelog', '/upcoming#strollz', '/upcoming#keysready', '/upcoming#vibelog']) {
+  for (const gone of ['/builds/wren', '/builds/vibelog', '/upcoming#strollz', '/upcoming#keysready', '/upcoming#vibelog', '/upcoming#fitflow7', '/upcoming#whoami']) {
     expect(items.map((i) => i.url)).not.toContain(`https://n8builds.dev${gone}`)
   }
   expect(html.match(/\bWren\b|KeysReady|Strollz|VibeLog|Asset Arsenal|keysready|strollz|vibelog/)?.[0]).toBeUndefined()
