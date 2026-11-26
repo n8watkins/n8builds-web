@@ -296,7 +296,10 @@ test.describe('on /builds', () => {
         await card.locator('[data-readout]').boundingBox(),
         await card.locator('[data-chart]').boundingBox(),
       ]
-      if (width >= 1024) expect(chart!.x, `${width}`).toBeGreaterThan(readout!.x + readout!.width)
+      // By the page's own width: a browser with classic scrollbars (WebKit on Linux) has a
+      // 1024px window but a page under 1024px, which is the stacked layout.
+      const wide = await page.evaluate(() => matchMedia('(width >= 64rem)').matches)
+      if (wide) expect(chart!.x, `${width}`).toBeGreaterThan(readout!.x + readout!.width)
       else expect(chart!.y, `${width}`).toBeGreaterThan(readout!.y + readout!.height)
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
