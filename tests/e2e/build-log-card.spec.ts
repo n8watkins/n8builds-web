@@ -40,7 +40,14 @@ async function showCard(page: Page, region: string, month = 'October 2026') {
   await card.evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
   await expect(card).toHaveAttribute('data-build-log', 'ready')
   await expect(card).toHaveAttribute('data-in-view', '', { timeout: 20_000 })
-  await card.locator('[data-month]').hover()
+  await stillOnPage(card)
+  // From off the card: on a reloaded page a pointer already resting where the name now is
+  // gets no mouseenter in Firefox, and the card would not know it is hovered. Moved there
+  // by its place on screen, not `hover()`, whose own scrolling into view moved the page by
+  // 500px on a phone and left the days below the fold.
+  await page.mouse.move(0, 0)
+  const name = (await card.locator('[data-month]').boundingBox())!
+  await page.mouse.move(name.x + name.width / 2, name.y + name.height / 2)
   await expect(card).not.toHaveAttribute('data-cycling', '')
   for (let i = 0; i < 12 && (await card.locator('[data-month]').textContent()) !== month; i++) {
     await expect(card).toHaveAttribute('data-settled', '', { timeout: 10_000 })
@@ -48,6 +55,20 @@ async function showCard(page: Page, region: string, month = 'October 2026') {
   }
   await expect(card.locator('[data-month]')).toHaveText(month)
   await expect(card).toHaveAttribute('data-settled', '', { timeout: 10_000 })
+  await stillOnPage(card)
+  // And the page has stopped scrolling.
+  await expect
+    .poll(async () => {
+      const a = await page.evaluate(() => window.scrollY)
+      await page.waitForTimeout(250)
+      return (await page.evaluate(() => window.scrollY)) === a
+    })
+    .toBe(true)
+  return card
+}
+
+/** Every box around the card at rest: no entrance moving or fading it. */
+async function stillOnPage(card: Locator) {
   await expect
     .poll(() =>
       card.evaluate((el) => {
@@ -62,7 +83,6 @@ async function showCard(page: Page, region: string, month = 'October 2026') {
       })
     )
     .toEqual([])
-  return card
 }
 
 for (const place of PLACES) {
@@ -282,7 +302,12 @@ for (const place of PLACES) {
       await expect(card.locator('[data-changes]')).toHaveText('39', { timeout: 200 })
       await expect(card).toHaveAttribute('data-settled', '', { timeout: 200 })
       const moving = await card.evaluate(
-        (el) => [...el.querySelectorAll('.logcard-fill')].flatMap((f) => f.getAnimations()).length
+        // Any that takes time: the site's reduced-motion rule leaves near-zero transitions,
+        // which WebKit still lists.
+        (el) =>
+          [...el.querySelectorAll('.logcard-fill')]
+            .flatMap((f) => f.getAnimations())
+            .filter((a) => Number(a.effect?.getTiming().duration) > 1).length
       )
       expect(moving).toBe(0)
       expect(await barMismatches(card)).toEqual([])
