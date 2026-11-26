@@ -111,7 +111,8 @@ export default function LogFeed({ entries, builds, months }: FeedProps) {
   }
   // A day picked on the build log card above (LogDayFocus): load as far as its entries, light
   // them, and bring the first into view. When the filter hides every one of them, it is cleared.
-  const { listen } = useLogDayFocus()
+  // A day only looked at (`preview`) lights softly where it already is; nothing scrolls.
+  const { listen, preview } = useLogDayFocus()
   const [pickedDay, setPickedDay] = useState<{ day: string; at: number } | null>(null)
   const latest = useRef({ visible, active, kind })
   useEffect(() => {
@@ -260,6 +261,7 @@ export default function LogFeed({ entries, builds, months }: FeedProps) {
                       buildHref={bySlug[entry.build]?.href}
                       icon={bySlug[entry.build]?.icon}
                       picked={pickedDay?.day === entry.day}
+                      previewed={preview === entry.day}
                     />
                   ))}
                 </Timeline>

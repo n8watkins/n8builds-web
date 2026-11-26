@@ -52,7 +52,7 @@ export default async function BuildLogPage() {
   // counting changes, and the releases figure counted days with a release, not releases.
   const figures = [
     { value: log.activity.length, label: 'builds tracked' },
-    { value: recent.reduce((n, e) => n + weight(e), 0), label: 'changes shipped in 12 months' },
+    { value: recent.reduce((n, e) => n + weight(e), 0), label: 'changes in 12 months' },
     { value: recent.reduce((n, e) => n + releasesIn(e), 0), label: 'releases in 12 months' },
   ]
 

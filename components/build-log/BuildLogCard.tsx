@@ -75,7 +75,7 @@ function loadMonths(src: string): Promise<LogMonth[]> {
 const date = (day: string, options: Intl.DateTimeFormatOptions) =>
   new Date(`${day}T12:00:00Z`).toLocaleDateString('en-US', { ...options, timeZone: 'UTC' })
 const shortDay = (day: string) => date(day, { month: 'short', day: 'numeric' })
-const weekdayDay = (day: string) => date(day, { weekday: 'short', month: 'short', day: 'numeric' })
+const weekday = (day: string) => date(day, { weekday: 'short' })
 const longDay = (day: string) => date(day, { weekday: 'long', month: 'long', day: 'numeric' })
 const plural = (n: number, one: string, many: string) => (n === 1 ? one : many)
 const motionAllowed = () => !window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -698,7 +698,10 @@ export default function BuildLogCard({
                       ref={dateRef}
                       className="ml-1.5 inline-block font-semibold text-slate-100"
                     >
-                      {weekdayDay(day.day)}
+                      {/* The weekday steps aside where the card is too narrow for it (the homepage's
+                          17rem column with a two-digit day), so the date never runs off the card. */}
+                      <span className="logcard-weekday">{weekday(day.day)}, </span>
+                      {shortDay(day.day)}
                     </span>
                   </>
                 ) : (

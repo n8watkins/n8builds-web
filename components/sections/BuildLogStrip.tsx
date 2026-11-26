@@ -195,6 +195,8 @@ export async function getLogMonths(): Promise<LogMonth[] | null> {
   const view = (rows: LogEntry[]) => ({
     rows: rows.map((entry) => <LogRow key={entry.id} entry={entry} twoLines />),
     labels: rows.map((entry) => `${names[entry.build] ?? entry.build}, ${entry.title}`),
+    // Each row's day, so a day picked on the card can show its own (owner, 2026-11-25).
+    rowDays: rows.map((entry) => entry.day),
   })
 
   // The first view: this month, or in a quiet one the last 30 days (the latest from every build).

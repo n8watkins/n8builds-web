@@ -419,18 +419,216 @@ test.describe('on a touch screen', () => {
   }) => {
     await page.goto('/builds')
     const card = await showCard(page, '[data-log-overview]')
-    await expect(card.getByRole('link', { name: 'Every update' })).toHaveAttribute(
+    await expect(card.getByRole('link', { name: 'The whole log' })).toHaveAttribute(
       'href',
       '#activity'
     )
     await dayButton(card, 'Thursday, October 22').tap()
-    const see = card.getByRole('button', { name: /^See Oct 22 in the log\s*: \d+ updates?$/ })
+    const see = card.getByRole('button', {
+      name: /^\d+ (entry|entries) on Oct 22\s*: show them in the log below$/,
+    })
     await see.tap()
     const first = page.locator('#activity li[data-day="2026-10-22"]').first()
     await expect(first).toBeInViewport()
     await expect(first).toHaveAttribute('data-picked', '')
   })
+
+  test("on the homepage, a tapped day's entries take the list's place; a tap elsewhere brings it back", async ({
+    page,
+  }) => {
+    await page.goto('/')
+    const card = await showCard(page, '#build-log')
+    const strip = page.locator('#build-log')
+    await dayButton(card, 'Thursday, October 22').tap()
+    await expect(strip.locator('[data-day-rows="2026-10-22"]')).toBeVisible()
+    const box = (await card.boundingBox())!
+    await page.touchscreen.tap(2, box.y + box.height / 2)
+    await expect(strip.locator('[data-day-rows]')).toHaveCount(0)
+    await expect(strip.locator('[data-latest]')).toBeVisible()
+  })
 })
+
+/**
+ * A day picked on the homepage card shows its own entries in the list beside
+ * it (owner, 2026-11-25: "if I hover over the changes in the month, the stuff
+ * that's being displayed ... adjusts"): headed by the day, the list's pages
+ * held, back to the latest changes when no day is picked; it follows only
+ * where the pointer rests, and the list never changes size.
+ */
+test.describe('on the homepage, the list follows a picked day', () => {
+  const listBox = (page: Page) =>
+    page.locator('#build-log [data-latest]').evaluate((el) => {
+      const r = el.parentElement!.getBoundingClientRect()
+      return `${r.x},${r.y + window.scrollY},${r.width},${r.height}`
+    })
+
+  test("hovering a day shows that day's entries, holds the list, and lets go", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, 'Hover is a desktop pointer; phones tap (see above).')
+    await page.goto('/')
+    const card = await showCard(page, '#build-log')
+    const strip = page.locator('#build-log')
+    const before = await listBox(page)
+    await dayButton(card, 'Thursday, October 22').hover()
+    const list = strip.locator('[data-day-rows="2026-10-22"]')
+    await expect(list).toBeVisible()
+    await expect(list.locator('p').first()).toHaveText(/^Thu, Oct 22\s*·\s*33 changes$/)
+    const rows = list.locator('[data-day-row]')
+    expect(await rows.count()).toBeGreaterThan(0)
+    for (const row of await rows.all()) await expect(row).toContainText(/Oct 22/i)
+    await expect(strip.locator('[data-latest]')).toBeHidden()
+    // The pages beside it hold still while the day shows.
+    await expect(strip.getByRole('group', { name: /^Latest/ })).not.toHaveAttribute(
+      'data-cycling',
+      ''
+    )
+    await expect(
+      strip.locator('[aria-live="polite"]').filter({ hasText: /^Showing Thu, Oct 22: \d+ entr/ })
+    ).toHaveCount(1)
+    expect(await listBox(page)).toBe(before)
+    // Off the chart, the latest changes come back.
+    await page.mouse.move(2, 2)
+    await expect(strip.locator('[data-day-rows]')).toHaveCount(0)
+    await expect(strip.locator('[data-latest]')).toBeVisible()
+    expect(await listBox(page)).toBe(before)
+  })
+
+  test('a quiet day says nothing shipped rather than showing an empty list', async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, 'Hover is a desktop pointer.')
+    await page.goto('/')
+    const card = await showCard(page, '#build-log')
+    await dayButton(card, 'Monday, October 5').hover()
+    const list = page.locator('#build-log [data-day-rows="2026-10-05"]')
+    await expect(list.locator('[data-day-empty]')).toHaveText('Nothing shipped that day.')
+    await expect(list.locator('[data-day-row]')).toHaveCount(0)
+  })
+
+  test('a sweep across the chart does not churn the list: it follows where the pointer rests', async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, 'Hover is a desktop pointer.')
+    await page.goto('/')
+    const card = await showCard(page, '#build-log')
+    // Counts every day the list shows on the way.
+    await page.evaluate(() => {
+      const seen: string[] = []
+      ;(window as unknown as { seenDays: string[] }).seenDays = seen
+      new MutationObserver(() => {
+        const day = document
+          .querySelector('#build-log [data-day-rows]')
+          ?.getAttribute('data-day-rows')
+        if (day && seen.at(-1) !== day) seen.push(day)
+      }).observe(document.querySelector('#build-log')!, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+      })
+    })
+    const chart = (await card.locator('[data-chart]').boundingBox())!
+    const y = chart.y + chart.height - 4
+    await page.mouse.move(chart.x + 2, y)
+    // Across the whole month in one quick sweep, ending on the 25th.
+    const end = (await dayButton(card, 'Sunday, October 25').boundingBox())!
+    await page.mouse.move(end.x + end.width / 2, y, { steps: 25 })
+    // The readout is instant...
+    await expect(card.locator('[data-readout] [data-number]')).toHaveText('21')
+    // ...and the list lands on the day it rested on, having shown at most that one.
+    await expect(page.locator('#build-log [data-day-rows="2026-10-25"]')).toBeVisible()
+    const seen = await page.evaluate(() => (window as unknown as { seenDays: string[] }).seenDays)
+    expect(seen.length, seen.join(', ')).toBeLessThanOrEqual(2)
+    expect(seen.at(-1)).toBe('2026-10-25')
+  })
+
+  test('the keyboard walks the list too, and Escape brings the latest changes back', async ({
+    page,
+  }) => {
+    await page.goto('/')
+    const card = await showCard(page, '#build-log')
+    const strip = page.locator('#build-log')
+    await card.locator('[data-chart] button[tabindex="0"]').focus()
+    await page.keyboard.press('ArrowLeft')
+    await expect(strip.locator('[data-day-rows="2026-10-25"]')).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(strip.locator('[data-day-rows]')).toHaveCount(0)
+  })
+})
+
+/**
+ * On /builds a day only looked at is previewed without moving the page
+ * (owner, 2026-11-25): the card's foot says how many entries it has, and they
+ * light softly in the feed where they are.
+ */
+test('on /builds, a hovered day is previewed: its count on the card, its entries lit softly, the page still', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, 'Hover is a desktop pointer; phones tap (see above).')
+  await page.goto('/builds')
+  const card = await showCard(page, '[data-log-overview]')
+  const entries = page.locator('#activity li[data-day="2026-10-23"]')
+  const count = await entries.count()
+  expect(count).toBeGreaterThan(0)
+  const top = await page.evaluate(() => window.scrollY)
+  await dayButton(card, 'Friday, October 23').hover()
+  await expect(
+    card.getByRole('button', { name: new RegExp(`^${count} (entry|entries) on Oct 23`) })
+  ).toBeVisible()
+  for (const entry of await entries.all()) await expect(entry).toHaveAttribute('data-previewed', '')
+  await expect(
+    page.locator('#activity li[data-previewed]:not([data-day="2026-10-23"])')
+  ).toHaveCount(0)
+  expect(await page.evaluate(() => window.scrollY)).toBe(top)
+  await page.mouse.move(2, 2)
+  await expect(page.locator('#activity li[data-previewed]')).toHaveCount(0)
+  await expect(card.getByRole('link', { name: 'The whole log' })).toBeVisible()
+})
+
+/**
+ * The tags carry icons (owner, 2026-11-25: "maybe we can make that a little
+ * bit more exciting. With some icons that are relevant?"), decorative, and
+ * still fit: a tag that does not fit drops out whole, and nothing is wider
+ * than the card, at 390 too.
+ */
+for (const width of [1440, 390]) {
+  test(`every tag has its icon and fits the card (${width}px)`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 })
+    for (const place of PLACES) {
+      await page.goto(place.path)
+      const card = await showCard(page, place.region)
+      for (const state of ['month', 'day'] as const) {
+        if (state === 'day') await dayButton(card, 'Friday, October 23').focus()
+        const tags = card.locator('[data-readout] .logcard-chip')
+        expect(await tags.count(), `${place.name} ${state}`).toBeGreaterThan(1)
+        for (const tag of await tags.all()) {
+          await expect(tag.locator('svg[aria-hidden="true"]')).toHaveCount(1)
+        }
+        const fit = await card.evaluate((el) => {
+          const row = el.querySelector('[data-readout] .logcard-chips')!.getBoundingClientRect()
+          const out: string[] = []
+          for (const tag of el.querySelectorAll('[data-readout] .logcard-chip')) {
+            const r = tag.getBoundingClientRect()
+            // Shown whole on the row, or wrapped out of sight below it; never cut.
+            const shown = r.top < row.bottom
+            if (shown && (r.right > row.right + 0.5 || r.bottom > row.bottom + 0.5))
+              out.push(`cut: ${tag.textContent}`)
+          }
+          if (el.scrollWidth > el.clientWidth) out.push('card wider than itself')
+          return out
+        })
+        expect(fit, `${place.name} ${state}`).toEqual([])
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+        true
+      )
+    }
+  })
+}
 
 test.describe('on the homepage', () => {
   test('its one link is the full build log, and its months never move on by themselves', async ({

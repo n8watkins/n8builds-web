@@ -12,6 +12,15 @@
   --logcard-pitch: 5px;
   --logcard-gap: 3px;
 }
+/* The card measures itself, so its readout can fit a narrow column (`.logcard-weekday`). */
+.logcard {
+  container: logcard / inline-size;
+}
+@container logcard (width < 20rem) {
+  .logcard-weekday {
+    display: none;
+  }
+}
 .logcard[data-size='wide'] {
   --logcard-block: 6px;
   --logcard-pitch: 7px;

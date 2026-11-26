@@ -82,11 +82,14 @@ export default function LogEntryItem({
   showBuild = true,
   icon,
   picked = false,
+  previewed = false,
 }: {
   entry: LogEntry
   buildName: string
   /** Its day was picked on the build log card at the top of /builds (LogDayFocus): it lights up. */
   picked?: boolean
+  /** Its day is only being looked at on the card: a softer light, where it is. */
+  previewed?: boolean
   /** Where the build's name links: its build page unless given. */
   buildHref?: string
   /** Off on a build's own page, where the name would repeat on every line. */
@@ -156,6 +159,7 @@ export default function LogEntryItem({
       data-build={entry.build}
       data-day={entry.day}
       data-picked={picked ? '' : undefined}
+      data-previewed={previewed ? '' : undefined}
       tabIndex={picked ? -1 : undefined}
     >
       {icon ? (
@@ -187,7 +191,9 @@ export default function LogEntryItem({
           className={`rounded-2xl border p-4 transition-colors duration-150 hover:border-cyan-400/30 sm:p-5 ${
             picked
               ? 'border-cyan-300/45 bg-cyan-400/[0.07]'
-              : highlight
+              : previewed
+                ? 'border-cyan-300/25 bg-cyan-400/[0.04]'
+                : highlight
                 ? 'border-cyan-400/20 bg-linear-to-br from-cyan-500/[0.07] to-blue-600/[0.07]'
                 : 'border-white/8 bg-linear-to-br from-white/[0.035] to-cyan-500/[0.03]'
           }`}
@@ -198,7 +204,11 @@ export default function LogEntryItem({
         // A plain entry lights up under the pointer, like the cards (round 4 of 2026-11-08).
         <div
           className={`-mx-2 -my-1 rounded-xl px-2 py-1 transition-colors duration-150 ${
-            picked ? 'bg-cyan-400/[0.07] ring-1 ring-cyan-300/35' : 'hover:bg-white/[0.035]'
+            picked
+              ? 'bg-cyan-400/[0.07] ring-1 ring-cyan-300/35'
+              : previewed
+                ? 'bg-cyan-400/[0.035] ring-1 ring-cyan-300/20'
+                : 'hover:bg-white/[0.035]'
           }`}
         >
           {body}
