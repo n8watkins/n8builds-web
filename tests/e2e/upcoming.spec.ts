@@ -204,27 +204,27 @@ test("a direct link to the homepage's waitlist offers an unlisted project there 
 })
 
 /**
- * FitFlow 7 and Who Am I? (owner, 2026-11-26): off the What's cookin' list, but their slugs are a
- * public contract, so their direct waitlist links and email pictures keep working.
+ * Projects taken off the waitlist (owner, 2026-11-26): they are live, so there is nothing to wait for.
+ * An old landing-page link still lands on the plain page, with nothing ticked and no error.
  */
-const OFF_THE_LIST: Record<string, string> = { fitflow7: 'FitFlow 7', whoami: 'Who Am I?' }
+const RETIRED: Record<string, string> = { fitflow7: 'FitFlow 7', whoami: 'Who Am I?' }
 
-test("FitFlow 7 and Who Am I? are off the What's cookin' list, but their direct links still answer", async ({ page }) => {
-  for (const path of ['/', '/upcoming']) {
-    await page.goto(path)
-    for (const [slug, name] of Object.entries(OFF_THE_LIST)) {
-      await expect(page.locator(`[id="${slug}"], input[value="${slug}"], a[href*="${slug}.n8builds.dev"]`), `${slug} on ${path}`).toHaveCount(0)
-      await expect(page.locator('main'), `${name} on ${path}`).not.toContainText(name)
+for (const [slug, name] of Object.entries(RETIRED)) {
+  test(`an old link for ${name} lands on the plain upcoming page, nothing preselected`, async ({ page }) => {
+    const errors: string[] = []
+    page.on('pageerror', (e) => errors.push(e.message))
+    for (const url of [`/upcoming?interest=${slug}#waitlist`, `/upcoming?interest=${slug}#${slug}`, `/?interest=${slug}#waitlist`]) {
+      const response = await page.goto(url)
+      expect(response!.status(), url).toBe(200)
+      await expect(page.locator('body')).not.toContainText(name)
+      await expect(page.locator(`[id="${slug}"], input[value="${slug}"]`)).toHaveCount(0)
+      await expect(page.locator('#waitlist-projects input:checked')).toHaveCount(0)
     }
-  }
-  for (const [slug, name] of Object.entries(OFF_THE_LIST)) {
-    const response = await page.goto(`/upcoming?interest=${slug}#${slug}`)
-    expect(response!.status(), slug).toBe(200)
+    await page.goto(`/upcoming?interest=${slug}#waitlist`)
     await expect(page.locator('main article')).toHaveCount(Object.keys(NAMES).length)
-    await expect(page.locator(`#waitlist-projects input[value="${slug}"]`), name).toBeChecked()
-    expect((await page.request.get(`/email/upcoming/${slug}.png`)).status(), `${slug} email picture`).toBe(200)
-  }
-})
+    expect(errors).toEqual([])
+  })
+}
 
 test('an unknown interest value is ignored and the page shows normally', async ({ page }) => {
   await page.goto('/upcoming?interest=relink#relink')

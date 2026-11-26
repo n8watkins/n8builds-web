@@ -233,12 +233,12 @@ describe('POST /api/waitlist', () => {
     await call(confirm, { token: links().confirm })
     expect(saved()).toMatchObject({ projects: ['feelium'], note: 'For my docs site' })
 
-    const again = await call(join, { ...valid, projects: ['fitflow7'], note: 'Walks too' })
+    const again = await call(join, { ...valid, projects: ['pivot'], note: 'Walks too' })
     expect(again).toEqual({ status: 200, json: { message: JOINED_MESSAGE } })
-    expect(saved()).toMatchObject({ projects: ['feelium'], requested: ['fitflow7'], note: 'For my docs site' })
+    expect(saved()).toMatchObject({ projects: ['feelium'], requested: ['pivot'], note: 'For my docs site' })
 
     await call(confirm, { token: links().confirm })
-    expect(saved()).toMatchObject({ projects: ['feelium', 'fitflow7'], requested: [], note: 'Walks too' })
+    expect(saved()).toMatchObject({ projects: ['feelium', 'pivot'], requested: [], note: 'Walks too' })
   })
 })
 
@@ -253,9 +253,9 @@ describe('the confirm email after a repeat join', () => {
 
 describe('POST /api/waitlist/confirm', () => {
   it('confirms the projects behind a link', async () => {
-    await call(join, { ...valid, projects: ['feelium', 'fitflow7'] })
+    await call(join, { ...valid, projects: ['feelium', 'pivot'] })
     const response = await call(confirm, { token: links().confirm })
-    expect(response).toEqual({ status: 200, json: { message: 'Confirmed', projects: 'Feelium and FitFlow 7' } })
+    expect(response).toEqual({ status: 200, json: { message: 'Confirmed', projects: 'Feelium and Pivot' } })
     expect(saved()!.confirmedAt).toMatch(/^\d{4}-/)
   })
 

@@ -31,7 +31,7 @@ test('accepts a valid sign-up', async ({ request }) => {
 })
 
 test('accepts every project, and an old interest value', async ({ request }) => {
-  const all = ['feelium', 'fitflow7', 'pivot', 'cutelyaskme', 'whoami', 'keysready', 'strollz', 'vibelog', 'asset-arsenal']
+  const all = ['feelium', 'pivot', 'cutelyaskme', 'keysready', 'strollz', 'vibelog', 'asset-arsenal']
   expect((await join(request, { projects: all, source: { interest: 'feelium' } })).status()).toBe(200)
   expect((await join(request, { projects: ['pivot'], source: { interest: 'rewire' } })).status()).toBe(200)
 })

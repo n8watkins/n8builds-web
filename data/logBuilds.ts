@@ -93,6 +93,8 @@ const followed: LogBuild[] = [
     github: 'https://github.com/n8watkins/fitflow7',
     repo: 'n8watkins/fitflow7',
     href: '/upcoming#fitflow7',
+    // Off the waitlist since 2026-11-26 (both are live): followed for the totals, never shown.
+    unlisted: true,
   },
   {
     slug: 'pivot',
@@ -113,6 +115,8 @@ const followed: LogBuild[] = [
     github: 'https://github.com/n8watkins/who-am-i',
     repo: 'n8watkins/who-am-i',
     href: '/upcoming#whoami',
+    // Off the waitlist since 2026-11-26 (both are live): followed for the totals, never shown.
+    unlisted: true,
   },
   {
     slug: 'pass-env',

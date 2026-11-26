@@ -12,9 +12,9 @@ import { pageMetadata } from '@/lib/seo'
 export const metadata = pageMetadata({
   title: 'Upcoming | n8builds',
   description:
-    "What I'm building in public: Feelium, FitFlow 7 and Pivot for your habits and health; Cutely Ask Me and Who Am I? for two. Each has a landing page you can try it from; join a waitlist to hear what's next.",
+    "What I'm building in public: Feelium and Pivot for your habits and health; Cutely Ask Me for two. Each has a landing page you can try it from; join a waitlist to hear what's next.",
   shareDescription:
-    "What I'm building in public, from a 7-minute workout timer and a habit tracker to a date planner and a two-player guessing game. Join a waitlist to hear what's next.",
+    "What I'm building in public, from a habit tracker and a pause button for urges to a date planner. Join a waitlist to hear what's next.",
   path: '/upcoming',
 })
 

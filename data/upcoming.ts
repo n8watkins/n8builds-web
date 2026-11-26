@@ -12,16 +12,16 @@
  * ~/projects/backlog/vibelog, KeysReady's from the owner and its landing page,
  * Asset Arsenal's docs/SKINS_CONCEPT.md in ~/projects/backlog/asset-arsenal, Feelium's
  * README and docs/PRD.md in ~/projects/apps/feelium, Cutely Ask Me's README and
- * docs/REVIEW_2026-11.md in ~/projects/apps/cutelyaskme, Who Am I?'s README in
- * ~/projects/games/who-am-i, Pivot's README and /welcome page in ~/projects/apps/pivot,
- * FitFlow 7's README in ~/projects/apps/fitflow7); keep it in step and modest.
+ * docs/REVIEW_2026-11.md in ~/projects/apps/cutelyaskme, Pivot's README and /welcome page in
+ * ~/projects/apps/pivot); keep it in step and modest.
  *
- * Six are unlisted: KeysReady, Strollz, VibeLog and Asset Arsenal since 2026-11-11
- * (owner: "it's just not advertised"), and FitFlow 7 and Who Am I? since 2026-11-26
- * (owner: off the What's cookin' list; their landing pages and waitlist links keep working). See `unlisted` on UpcomingProject.
+ * Four are unlisted since 2026-11-11 (owner: "it's just not advertised"):
+ * KeysReady, Strollz, VibeLog and Asset Arsenal. FitFlow 7 and Who Am I? were removed
+ * from the waitlist on 2026-11-26 (owner: both are live, so there is nothing to wait for);
+ * their stored sign-ups stay in the database, ignored (see isUpcomingSlug). See `unlisted` on UpcomingProject.
  */
 
-export const UPCOMING_SLUGS = ['feelium', 'fitflow7', 'pivot', 'cutelyaskme', 'whoami', 'keysready', 'strollz', 'vibelog', 'asset-arsenal'] as const
+export const UPCOMING_SLUGS = ['feelium', 'pivot', 'cutelyaskme', 'keysready', 'strollz', 'vibelog', 'asset-arsenal'] as const
 export type UpcomingSlug = (typeof UPCOMING_SLUGS)[number]
 
 /**
@@ -121,30 +121,6 @@ export const UPCOMING: UpcomingProject[] = [
     ],
   },
   {
-    slug: 'fitflow7',
-    name: 'FitFlow 7',
-    tagline: 'The no-excuses 7-minute workout timer',
-    short: 'A 7-minute workout timer, no account',
-    group: 'habits',
-    unlisted: true,
-    summary: 'Pick a routine, hit start and follow along, with audio cues on every move. No account, no ads, no subscription.',
-    icon: '/upcoming/fitflow7.svg',
-    landing: 'https://fitflow7.n8builds.dev',
-    status: 'try-it',
-    shot: '/upcoming/shots/fitflow7.webp',
-    repo: 'n8watkins/fitflow7',
-    // Its electric cyan.
-    accent: '#22d3ee',
-    what: 'Pick a routine, hit start and follow along: a countdown you can read across the room, color-coded phases and audio cues call out every move, and it keeps your streaks and history on your device.',
-    forWho: 'Anyone who wants a quick workout at home without an account, ads or a subscription.',
-    points: [
-      'Start from the Classic 7 routine, or build your own with your own work and rest times',
-      'Audio cues on every phase, a focus mode with just the timer, and keyboard shortcuts',
-      'Streaks and history saved on your device, with no account or login',
-      'Works offline after the first load, with no ads and no upsell',
-    ],
-  },
-  {
     slug: 'pivot',
     name: 'Pivot',
     tagline: 'A pause button for everyday urges',
@@ -190,30 +166,6 @@ export const UPCOMING: UpcomingProject[] = [
       'They pick the kind of date; you pick the real venues, from Google Places or OpenStreetMap',
       'A timeline with travel between stops, and Google Calendar or .ics export',
       'After the date: ratings, and a keepsake card with your photos and a short poem',
-    ],
-  },
-  {
-    slug: 'whoami',
-    name: 'Who Am I?',
-    tagline: 'A two-player guessing game: only your opponent sees who you are',
-    short: 'A two-player guessing game for your phones',
-    group: 'two',
-    unlisted: true,
-    summary: 'Each of you gets a secret identity; you see theirs, never your own. Ask yes or no questions until you work it out.',
-    icon: '/upcoming/whoami.svg',
-    landing: 'https://whoami.n8builds.dev',
-    status: 'try-it',
-    shot: '/upcoming/shots/whoami.webp',
-    repo: 'n8watkins/who-am-i',
-    // Its violet, lightened for this dark site.
-    accent: '#9d8cff',
-    what: 'Each player gets a secret identity, a famous person, a fictional character or a brand mascot. You see the one your opponent is guessing but never your own, and you take turns asking yes or no questions or giving clues until you work out who you are.',
-    forWho: 'Two friends, a couple or roommates who want a quick game on their phones.',
-    points: [
-      'No account or install: one player creates a room, the other joins by QR code, link or PIN',
-      'Ask out loud or in the app, with up to three free hints a turn',
-      'Packs from actors and movie characters to historical figures, video games and mascots',
-      'First to 5 points or best after 10 rounds, then a one-tap rematch',
     ],
   },
   // Unlisted (see `unlisted` above): kept working, not shown.
