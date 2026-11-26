@@ -1,5 +1,4 @@
 import React from 'react'
-import Image from 'next/image'
 import { FiBriefcase, FiGithub } from 'react-icons/fi'
 import { CiLinkedin } from 'react-icons/ci'
 import { FaXTwitter } from 'react-icons/fa6'
@@ -9,7 +8,7 @@ import { LINKEDIN_URL } from '@/lib/links'
 import { refHref } from '@/lib/referrals'
 import HeroGrid from '@/components/sections/HeroGrid'
 import HeroChainMeter from '@/components/sections/HeroChainMeter'
-import HeroPortraitSwap from '@/components/sections/HeroPortraitSwap'
+import HeroPortraitPhoto from '@/components/sections/HeroPortraitPhoto'
 
 /** The portrait's rendered width at each breakpoint (its w-* classes below). */
 const PORTRAIT_SIZES = '(max-width: 359px) 10rem, (max-width: 639px) 11rem, (max-width: 767px) 14rem, (max-width: 1023px) 21rem, 24rem'
@@ -57,7 +56,7 @@ const Hero = () => {
             <div>
               <FadeIn
                 as="h1"
-                delay={0.02}
+                delay={0.08}
                 // "n8builds.dev" since 2026-11-08 (owner). On phones it scales with the
                 // screen so it stays on one line, at most 3.2rem; on tablets (md), where
                 // it shares the row with the portrait, it steps down to 3rem.
@@ -67,7 +66,7 @@ const Hero = () => {
               </FadeIn>
               <FadeIn
                 as="p"
-                delay={0.06}
+                delay={0.16}
                 // One line on every phone: the font scales with the screen
                 // (the line is ~9.7em wide; 100vw less the 2.5rem gutter),
                 // up to the usual 1.5rem. On tablets (md) the text column
@@ -86,7 +85,7 @@ const Hero = () => {
                 whole chain back into prompt, and the loop starts again. */}
             <FadeIn
               effect="in"
-              delay={0.12}
+              delay={0.45}
               className="relative w-fit font-mono text-[0.6rem] min-[360px]:text-[0.72rem] sm:text-[0.85rem] select-none [--n8wire:280px] sm:[--n8wire:335px]"
             >
               {/* The chain's styles live in app/globals.css (.n8-cnode and friends). */}
@@ -151,7 +150,7 @@ const Hero = () => {
             {/* The direct route for someone hiring: "Hiring? Check out my portfolio",
                 the briefcase leading the link so it marks what to click (owner,
                 round 7, 2026-11-09). */}
-            <FadeIn as="p" effect="in" delay={0.16} className="flex flex-wrap items-center gap-x-2 text-sm text-slate-400">
+            <FadeIn as="p" effect="in" delay={0.55} className="flex flex-wrap items-center gap-x-2 text-sm text-slate-400">
               <span>Hiring?</span>
               {/* Counted and in a new tab, like every Portfolio link (2026-11-08). */}
               <a
@@ -169,7 +168,7 @@ const Hero = () => {
             </FadeIn>
 
             {/* Socials */}
-            <FadeIn effect="in" delay={0.2} as="nav" aria-label="Social links" className="flex items-center gap-0.5 -ml-2">
+            <FadeIn effect="in" delay={0.65} as="nav" aria-label="Social links" className="flex items-center gap-0.5 -ml-2">
               {[
                 { href: 'https://github.com/n8watkins', label: 'GitHub', icon: <FiGithub className="w-[1.6rem] h-[1.6rem]" /> },
                 { href: LINKEDIN_URL, label: 'LinkedIn', icon: <CiLinkedin className="w-8 h-8" /> },
@@ -191,27 +190,7 @@ const Hero = () => {
               motion skips it, and the portrait shows at once. */}
           <div className="hero-portrait-in order-first self-start md:order-none md:self-auto w-40 h-40 min-[360px]:w-44 min-[360px]:h-44 sm:w-56 sm:h-56 md:w-84 md:h-84 lg:w-96 lg:h-96 relative shrink-0">
             <div className="absolute inset-0 rounded-full bg-linear-to-br from-cyan-500/20 to-blue-600/20 blur-xl scale-110" />
-            <div className="relative w-full h-full">
-              <div className="absolute inset-0 dark:bg-black/10 rounded-full z-10" />
-              <Image
-                src="/hero/portrait.jpg"
-                className="rounded-full object-cover ring-1 ring-white/10"
-                fill
-                // The LCP element: preloaded and fetched at high priority. Next
-                // 16's `priority` preloaded it at the browser's default (low)
-                // priority for images, behind the scripts, on a slow phone.
-                preload
-                loading="eager"
-                fetchPriority="high"
-                placeholder="blur"
-                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-                sizes={PORTRAIT_SIZES}
-                alt="Nathan Watkins - builder based in Los Angeles"
-              />
-              {/* The watercolor version fades in and out over the photo, once
-                  the page has loaded (never under reduced motion). */}
-              <HeroPortraitSwap sizes={PORTRAIT_SIZES} />
-            </div>
+            <HeroPortraitPhoto sizes={PORTRAIT_SIZES} />
           </div>
         </div>
       </div>

@@ -371,14 +371,13 @@
 @layer components {
   /* The hero portrait's entrance (components/sections/Hero.tsx). CSS rather
      than motion, so it runs from the server HTML on first paint: the portrait
-     is the page's LCP element and must not wait for hydration. No delay and a
-     short fade (0.2s): the face is the first thing to read, so it must not
-     feel late (it was 0.18s + 0.6s, 2026-11-26). Only with no-preference: the reduced-motion
+     is the page's LCP element and must not wait for hydration. Timing matches
+     the hero's motion entrances. Only with no-preference: the reduced-motion
      rule above shortens durations but keeps delays, which would hide the
      portrait for the delay. */
   @media (prefers-reduced-motion: no-preference) {
     .hero-portrait-in {
-      animation: hero-portrait-in 0.2s ease-out both;
+      animation: hero-portrait-in 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) 0.18s both;
     }
   }
 }
@@ -401,6 +400,21 @@
   to {
     opacity: 1;
     transform: none;
+  }
+}
+
+/* The hero photo while it loads (components/sections/HeroPortraitPhoto.tsx): held
+   transparent over the blurred placeholder, then fades in when it arrives. Only
+   set once hydrated and only for a photo that is not there yet. */
+.hero-portrait-photo {
+  transition: opacity 0.35s ease-out;
+}
+[data-portrait-frame][data-waiting] .hero-portrait-photo {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-portrait-photo {
+    transition: none;
   }
 }
 

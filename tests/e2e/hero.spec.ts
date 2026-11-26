@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import sharp from 'sharp'
 
 /**
  * The hero at the narrowest phone width still in use (iPhone SE, 1st gen).
@@ -76,6 +77,48 @@ test.describe('the hero portrait', () => {
       expect(animation).toBe('hero-portrait-in')
       await expect.poll(() => paintedOpacity(page), { timeout: 5_000 }).toBe(1)
       await expect(portrait(page)).toBeVisible()
+    })
+  })
+
+  test.describe('on a slow first visit', () => {
+    test.use({ contextOptions: { reducedMotion: 'no-preference' } })
+
+    // The bug (2026-11-26): the circle showed a solid black disc (a generic 1x1 placeholder)
+    // until the photo arrived, then the photo popped in.
+    test('shows a soft version of the portrait, never a black disc, then fades the photo in', { tag: '@cross-browser' }, async ({ page }) => {
+      let release!: () => void
+      const held = new Promise<void>((resolve) => (release = resolve))
+      await page.route('**/_next/image**', async (route) => {
+        await held
+        await route.continue()
+      })
+      await page.goto('/', { waitUntil: 'domcontentloaded' })
+      const frame = page.locator('#home [data-portrait-frame]')
+      await expect(frame).toBeVisible()
+      // Past the entrance (0.18s + 0.6s) with the photo still held back.
+      // (The frame's own painted opacity: the held photo inside it is transparent on purpose.)
+      await expect
+        .poll(
+          () =>
+            frame.evaluate((el) => {
+              let opacity = 1
+              for (let node: Element | null = el; node; node = node.parentElement) opacity *= Number(getComputedStyle(node).opacity)
+              return opacity
+            }),
+          { timeout: 5_000 }
+        )
+        .toBe(1)
+      const placeholder = await frame.evaluate((el) => getComputedStyle(el).backgroundImage)
+      expect(placeholder, 'the placeholder is an image made from the portrait').toMatch(/^url\("data:image\/jpeg;base64,/)
+      expect(await portrait(page).evaluate((img: HTMLImageElement) => img.complete), 'the photo is still held back').toBe(false)
+      const { channels } = await sharp(await frame.screenshot()).stats()
+      const mean = channels.slice(0, 3).reduce((sum, c) => sum + c.mean, 0) / 3
+      expect(mean, `the circle's mean brightness while the photo loads (${mean.toFixed(1)} of 255): a black disc is about 0`).toBeGreaterThan(30)
+      // The photo arrives: it fades in over the placeholder and ends fully opaque.
+      release()
+      await expect.poll(() => portrait(page).evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true)
+      await expect.poll(() => portrait(page).evaluate((img) => getComputedStyle(img).opacity), { timeout: 5_000 }).toBe('1')
+      await expect(frame).not.toHaveAttribute('data-waiting', '')
     })
   })
 
