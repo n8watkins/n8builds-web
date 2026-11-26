@@ -1,4 +1,5 @@
 import { getLogMonths } from '@/components/sections/BuildLogStrip'
+import { toCardMonths } from '@/lib/log-card-months'
 
 /**
  * The build log's months as public JSON: the same figures and day bars as the
@@ -34,13 +35,8 @@ export async function GET() {
     version: 1,
     url: `${SITE}/builds`,
     generatedAt: new Date().toISOString(),
-    months: months.map((m) => ({
-      id: m.id,
-      // "November 2026", or "Last 30 days" in a quiet month.
-      title: m.period,
-      changes: Number(m.stats.find((s) => s.id === 'changes')?.value ?? 0),
-      days: m.days,
-    })),
+    // "November 2026" (or "Last 30 days" in a quiet month), its total and a count per day.
+    months: toCardMonths(months),
   }
   return Response.json(body, {
     headers: {

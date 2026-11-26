@@ -81,9 +81,12 @@ export default function LogEntryItem({
   buildHref,
   showBuild = true,
   icon,
+  picked = false,
 }: {
   entry: LogEntry
   buildName: string
+  /** Its day was picked on the build log card at the top of /builds (LogDayFocus): it lights up. */
+  picked?: boolean
   /** Where the build's name links: its build page unless given. */
   buildHref?: string
   /** Off on a build's own page, where the name would repeat on every line. */
@@ -145,7 +148,16 @@ export default function LogEntryItem({
   const top = card ? 'top-[1.35rem] sm:top-[1.6rem]' : 'top-[0.3rem]'
   return (
     // `log-in` (globals.css) eases the entry in as it scrolls into view.
-    <li className={`log-in relative pb-6 last:pb-0 ${icon ? 'pl-8' : 'pl-6'}`} data-kind={entry.kind} data-build={entry.build}>
+    // A day picked on the card above is brought in under the sticky navbar and month header,
+    // and takes focus (tabIndex -1) so the keyboard carries on from it.
+    <li
+      className={`log-in relative scroll-mt-36 pb-6 last:pb-0 focus:outline-none ${icon ? 'pl-8' : 'pl-6'}`}
+      data-kind={entry.kind}
+      data-build={entry.build}
+      data-day={entry.day}
+      data-picked={picked ? '' : undefined}
+      tabIndex={picked ? -1 : undefined}
+    >
       {icon ? (
         // The build's icon on the line, the same frame for every entry (round 4 of 2026-11-08: a
         // release had a cyan ring and a day's changes didn't; the badge says which it is now).
@@ -173,16 +185,24 @@ export default function LogEntryItem({
       {card ? (
         <div
           className={`rounded-2xl border p-4 transition-colors duration-150 hover:border-cyan-400/30 sm:p-5 ${
-            highlight
-              ? 'border-cyan-400/20 bg-linear-to-br from-cyan-500/[0.07] to-blue-600/[0.07]'
-              : 'border-white/8 bg-linear-to-br from-white/[0.035] to-cyan-500/[0.03]'
+            picked
+              ? 'border-cyan-300/45 bg-cyan-400/[0.07]'
+              : highlight
+                ? 'border-cyan-400/20 bg-linear-to-br from-cyan-500/[0.07] to-blue-600/[0.07]'
+                : 'border-white/8 bg-linear-to-br from-white/[0.035] to-cyan-500/[0.03]'
           }`}
         >
           {body}
         </div>
       ) : (
         // A plain entry lights up under the pointer, like the cards (round 4 of 2026-11-08).
-        <div className="-mx-2 -my-1 rounded-xl px-2 py-1 transition-colors duration-150 hover:bg-white/[0.035]">{body}</div>
+        <div
+          className={`-mx-2 -my-1 rounded-xl px-2 py-1 transition-colors duration-150 ${
+            picked ? 'bg-cyan-400/[0.07] ring-1 ring-cyan-300/35' : 'hover:bg-white/[0.035]'
+          }`}
+        >
+          {body}
+        </div>
       )}
     </li>
   )

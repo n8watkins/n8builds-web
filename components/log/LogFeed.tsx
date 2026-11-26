@@ -5,6 +5,7 @@ import Image from 'next/image'
 import LogEntryItem, { Timeline } from '@/components/log/LogEntryItem'
 import type { LogEntry } from '@/lib/build-log'
 import { LOG_KINDS, type LogKind } from '@/lib/build-meta'
+import { useLogDayFocus } from '@/components/log/LogDayFocus'
 
 // The activity feed on /builds: month by month, newest first, with two
 // filters: the kind of build (Tools, Web apps, Chrome extensions, This site)
@@ -105,6 +106,42 @@ export default function LogFeed({ entries, builds, months }: FeedProps) {
     setLastKey(filterKey)
     setLimit(PAGE)
   }
+  // A day picked on the build log card above (LogDayFocus): load as far as its entries, light
+  // them, and bring the first into view. When the filter hides every one of them, it is cleared.
+  const { listen } = useLogDayFocus()
+  const [pickedDay, setPickedDay] = useState<{ day: string; at: number } | null>(null)
+  const latest = useRef({ visible, active, kind })
+  useEffect(() => {
+    latest.current = { visible, active, kind }
+  })
+  useEffect(
+    () =>
+      listen((day) => {
+        let list = latest.current.visible
+        if (!list.some((e) => e.day === day) && (latest.current.active || latest.current.kind)) {
+          setFilter({})
+          setActive(null)
+          setKind(null)
+          setLastKey('|')
+          list = entries
+        }
+        const last = list.findLastIndex((e) => e.day === day)
+        if (last < 0) return
+        setLimit((n) => Math.max(n, last + 1))
+        setPickedDay((p) => ({ day, at: (p?.at ?? 0) + 1 }))
+      }),
+    [listen, entries],
+  )
+  const list = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!pickedDay) return
+    const first = list.current?.querySelector<HTMLElement>(`li[data-day="${pickedDay.day}"]`)
+    if (!first) return
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    first.scrollIntoView({ block: 'start', behavior: still ? 'auto' : 'smooth' })
+    // The keyboard carries on from there; a screen reader reads the entry.
+    first.focus({ preventScroll: true })
+  }, [pickedDay])
   // Load more as the list's foot nears the screen.
   useEffect(() => {
     const el = sentinel.current
@@ -194,7 +231,7 @@ export default function LogFeed({ entries, builds, months }: FeedProps) {
       )}
 
       {groups.length > 0 ? (
-        <div data-log-list className="mt-8">
+        <div ref={list} data-log-list className="mt-8">
           <div className="space-y-8">
             {groups.map((group) => (
               <section key={group.month} aria-labelledby={`month-${group.month}`}>
@@ -218,6 +255,7 @@ export default function LogFeed({ entries, builds, months }: FeedProps) {
                       buildName={bySlug[entry.build]?.name ?? entry.build}
                       buildHref={bySlug[entry.build]?.href}
                       icon={bySlug[entry.build]?.icon}
+                      picked={pickedDay?.day === entry.day}
                     />
                   ))}
                 </Timeline>

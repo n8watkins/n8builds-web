@@ -141,7 +141,9 @@
         "components/sections/BuildLogStrip.tsx",
         "components/sections/BuildLogMonths.tsx",
         "components/sections/BuildLogPages.tsx",
-        "components/sections/ShippedStats.tsx",
+        "components/build-log/**",
+        "lib/monthFacts.ts",
+        "lib/log-card-months.ts",
         "data/logBuilds.ts",
         "tests/fixtures/build-log-github.json",
         "public/log/**"
