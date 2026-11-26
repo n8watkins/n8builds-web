@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import HeroPortraitSwap from '@/components/sections/HeroPortraitSwap'
-import { PORTRAIT_BLUR } from '@/components/sections/heroPortraitBlur'
+import { PORTRAIT_BLUR } from '@/components/sections/HeroPortraitBlur'
 
 /**
  * The hero portrait's photo, over a real placeholder.

@@ -111,7 +111,7 @@
     },
     "hero": {
       "specs": ["tests/e2e/hero.spec.ts"],
-      "sources": ["components/sections/Hero*.tsx", "components/features/WhoamiTerminal.tsx", "public/hero/**"]
+      "sources": ["components/sections/Hero*.tsx", "components/sections/Hero*.ts", "components/features/WhoamiTerminal.tsx", "public/hero/**"]
     },
     "now": {
       "specs": ["tests/e2e/now.spec.ts", "tests/e2e/tech-for-pros.spec.ts"],
