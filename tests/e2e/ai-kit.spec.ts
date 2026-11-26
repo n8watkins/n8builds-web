@@ -26,11 +26,11 @@ test.describe('AI kit content', () => {
         await expect(agents.getByText(tool, { exact: true })).toBeVisible()
       }
       const dev = page.getByRole('region', { name: 'Dev stack' })
-      for (const tool of ['Next.js', 'Playwright', 'GitHub Actions', 'PostgreSQL', 'Firebase', 'AWS', 'Figma']) {
+      for (const tool of ['Next.js', 'Playwright', 'GitHub Actions', 'PostgreSQL', 'Firebase', 'AWS']) {
         await expect(dev.getByText(tool, { exact: true })).toBeVisible()
       }
-      // Dropped by the owner on 2026-11-25: Cursor, OpenAI and Upstash.
-      for (const dropped of ['Cursor', 'OpenAI', 'Upstash']) {
+      // Dropped on 2026-11-25: Cursor, OpenAI and Upstash (the owner), Figma (nothing backs it).
+      for (const dropped of ['Cursor', 'OpenAI', 'Upstash', 'Figma']) {
         await expect(page.locator('[data-dino-panel]').getByText(dropped, { exact: true })).toHaveCount(0)
       }
       // The list is shared with the portfolio (data/stack.tsx); its dated and

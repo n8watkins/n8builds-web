@@ -9,7 +9,7 @@ import { test, expect } from '@playwright/test'
  */
 
 // data/stack.tsx: the tiles whose description names a project (owner, 2026-11-25).
-const LINKED_TILES = 17
+const LINKED_TILES = 18
 
 // The first copy of every row's tiles (the loop's copies only make it seamless).
 const firstCopies = '[data-dino-panel] [data-marquee-row] > :first-child > figure'
@@ -127,8 +127,8 @@ test.describe('AI kit tiles (motion allowed)', () => {
       })
       await page.goto('/')
       const tiles = page.locator(firstCopies)
-      // data/stack.tsx: 7 agents and models, 3 local AI tools, 26 in the dev stack.
-      await expect(tiles).toHaveCount(36)
+      // data/stack.tsx: 7 agents and models, 3 local AI tools, 25 in the dev stack (Figma went on 2026-11-25).
+      await expect(tiles).toHaveCount(35)
       const misfits = await tiles.evaluateAll((figures) =>
         figures.flatMap((figure) => {
           ;(figure as HTMLElement).focus({ preventScroll: true })
