@@ -586,7 +586,8 @@ test('no box for a click or a tap on the card, a ring for the keyboard, and the 
   await expect(day).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
   await day.dblclick()
   expect(await page.evaluate(() => String(getSelection()))).toBe('')
-  for (const control of [card(page).locator('[data-chart]'), strip(page).getByRole('button', { name: 'Next updates' })]) {
+  // (The updates are hidden while the hovered day's own show in their place, so found by name with hidden ones.)
+  for (const control of [card(page).locator('[data-chart]'), strip(page).getByRole('button', { name: 'Next updates', includeHidden: true })]) {
     await expect(control).toHaveCSS('user-select', 'none')
   }
   await page.mouse.move(1, 1)

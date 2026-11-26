@@ -480,10 +480,9 @@ test.describe('on the homepage, the list follows a picked day', () => {
     for (const row of await rows.all()) await expect(row).toContainText(/Oct 22/i)
     await expect(strip.locator('[data-latest]')).toBeHidden()
     // The pages beside it hold still while the day shows.
-    await expect(strip.getByRole('group', { name: /^Latest/ })).not.toHaveAttribute(
-      'data-cycling',
-      ''
-    )
+    await expect(
+      strip.getByRole('group', { name: /^Latest/, includeHidden: true })
+    ).not.toHaveAttribute('data-cycling', '')
     await expect(
       strip.locator('[aria-live="polite"]').filter({ hasText: /^Showing Thu, Oct 22: \d+ entr/ })
     ).toHaveCount(1)
@@ -609,6 +608,8 @@ for (const width of [1440, 390]) {
           await expect(tag.locator('svg[aria-hidden="true"]')).toHaveCount(1)
         }
         const fit = await card.evaluate((el) => {
+          // Measured at rest: each tag settles in with a small rise.
+          for (const a of el.getAnimations({ subtree: true })) a.finish()
           const row = el.querySelector('[data-readout] .logcard-chips')!.getBoundingClientRect()
           const out: string[] = []
           for (const tag of el.querySelectorAll('[data-readout] .logcard-chip')) {
