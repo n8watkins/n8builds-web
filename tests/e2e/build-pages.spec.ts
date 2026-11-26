@@ -205,12 +205,22 @@ test('the section headings are centred', async ({ page }) => {
   }
 })
 
-test('the build log opens with its figures, and each month counts its updates', async ({ page }) => {
+// The figures in the card's unit (owner, 2026-11-25: changes, as the card counts them, not
+// "updates"); the feed's month headers count its entries.
+test('the build log opens with its figures, and each month counts its entries', async ({ page }) => {
   await page.goto('/builds')
-  for (const label of ['builds tracked', 'updates in 12 months', 'releases in 12 months']) {
+  for (const label of ['builds tracked', 'changes in 12 months', 'releases in 12 months']) {
     await expect(page.getByRole('definition').filter({ hasText: /^\d+$/ }).first()).toBeVisible()
     await expect(page.getByRole('term').filter({ hasText: label })).toHaveCount(1)
   }
-  const month = page.locator('#activity h3').first()
-  await expect(month).toContainText(/\d+ updates?/)
+  await expect(page.getByRole('term').filter({ hasText: 'updates' })).toHaveCount(0)
+  // One unit: the year's changes hold the card's month (October, the fixture's newest) and the
+  // months before it, so they are at least as many.
+  const year = Number(
+    await page.locator('dl > div', { has: page.getByRole('term').filter({ hasText: 'changes in 12 months' }) }).locator('dd').first().textContent()
+  )
+  const month = Number(await page.locator('[data-log-overview] [data-changes]').textContent())
+  expect(year).toBeGreaterThanOrEqual(month + 39 + 217 + 8)
+  const header = page.locator('#activity h3').first()
+  await expect(header).toContainText(/\d+ (entry|entries)/)
 })
