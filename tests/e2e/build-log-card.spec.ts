@@ -24,15 +24,30 @@ const dayButton = (card: Locator, name: string) =>
 
 /**
  * Brings the card to the middle of the screen and waits until it is hydrated
- * (its on-screen watcher has seen it) and has finished arriving: the homepage
- * fades it up 40px as it scrolls in, /builds as the page loads. A pointer
- * aimed at a day before then lands beside it (the portfolio's #105).
+ * (its on-screen watcher has seen it), settled (no month or entrance on its
+ * way in) and has finished arriving: the homepage fades it up 40px as it
+ * scrolls in, /builds as the page loads. A pointer aimed at a day before then
+ * lands beside it (the portfolio's #105).
+ *
+ * Then it holds the card on `month`: the pointer rests on the month's name
+ * (a hovered card never moves on), and the arrows bring that month back if
+ * the card had already moved on by itself. On a busy machine the 5 s before
+ * it does can pass before a test aims at a day, and the day it aimed at was
+ * gone (the portfolio's flaky hover test, 2026-11-25).
  */
-async function showCard(page: Page, region: string) {
+async function showCard(page: Page, region: string, month = 'October 2026') {
   const card = cardIn(page, region)
   await card.evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
   await expect(card).toHaveAttribute('data-build-log', 'ready')
   await expect(card).toHaveAttribute('data-in-view', '', { timeout: 20_000 })
+  await card.locator('[data-month]').hover()
+  await expect(card).not.toHaveAttribute('data-cycling', '')
+  for (let i = 0; i < 12 && (await card.locator('[data-month]').textContent()) !== month; i++) {
+    await expect(card).toHaveAttribute('data-settled', '', { timeout: 10_000 })
+    await card.getByRole('button', { name: 'Newer month' }).click()
+  }
+  await expect(card.locator('[data-month]')).toHaveText(month)
+  await expect(card).toHaveAttribute('data-settled', '', { timeout: 10_000 })
   await expect
     .poll(() =>
       card.evaluate((el) => {
@@ -163,9 +178,7 @@ for (const place of PLACES) {
         window.cancelAnimationFrame = (id) => window.clearTimeout(id)
       })
       await page.goto(place.path)
-      const card = cardIn(page, place.region)
-      await card.evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
-      await expect(card).toHaveAttribute('data-in-view', '', { timeout: 20_000 })
+      const card = await showCard(page, place.region)
       const number = card.locator('[data-readout] [data-number]')
       await expect(number).toHaveText('100')
       await card.locator('[data-chart] button[tabindex="0"]').focus()
@@ -195,10 +208,10 @@ for (const place of PLACES) {
       const styles = await card.evaluate((el) => {
         const pick = (s: string) => getComputedStyle(el.querySelector(s)!)
         return {
-          lift: pick('[aria-pressed="true"] .logcard-stack').transform,
-          neighbour: pick('[data-d="1"] .logcard-stack').transform,
-          fill: pick('[aria-pressed="true"] .logcard-lit').transitionDuration,
-          lit: pick('[aria-pressed="true"] .logcard-lit').transform,
+          lift: pick('.logcard-day:has([aria-pressed="true"]) .logcard-stack').transform,
+          neighbour: pick('.logcard-day[data-d="1"] .logcard-stack').transform,
+          fill: pick('.logcard-day:has([aria-pressed="true"]) .logcard-lit').transitionDuration,
+          lit: pick('.logcard-day:has([aria-pressed="true"]) .logcard-lit').transform,
         }
       })
       expect(styles.lift).toBe('none')
@@ -208,8 +221,150 @@ for (const place of PLACES) {
       // And the months hold still.
       await expect(card).not.toHaveAttribute('data-cycling', '')
     })
+
+    /**
+     * A new month flows in (owner, 2026-11-25: "a little more flowy"): every
+     * bar eases to its new height in a wave while the name and readout cross
+     * over, on one timeline, and the card itself never moves or resizes.
+     */
+    test('a month change flows in, holds the card still, and ends on the right month, bars and number', async ({
+      page,
+    }) => {
+      await page.goto(place.path)
+      const card = await showCard(page, place.region)
+      // The card's box on the page (not the window, which a click may scroll).
+      const box = () =>
+        card.evaluate((el) => {
+          const r = el.getBoundingClientRect()
+          return `${r.x},${r.y + window.scrollY},${r.width},${r.height}`
+        })
+      const before = await box()
+      await card.getByRole('button', { name: 'Older month' }).click()
+      // On its way in, then settled; the card's box the same all the way.
+      const boxes = new Set<string>()
+      for (let i = 0; i < 16; i++) {
+        boxes.add(await box())
+        await page.waitForTimeout(40)
+      }
+      expect([...boxes]).toEqual([before])
+      await expect(card).toHaveAttribute('data-settled', '', { timeout: 5000 })
+      await expect(card.locator('[data-month]')).toHaveText('July 2026')
+      await expect(card.locator('[data-changes]')).toHaveText('39')
+      expect(await barMismatches(card)).toEqual([])
+    })
+
+    test('a month change interrupted by another, and by a day, lands where it was sent', async ({
+      page,
+      isMobile,
+    }) => {
+      test.skip(isMobile, 'Hover is a desktop pointer.')
+      await page.goto(place.path)
+      const card = await showCard(page, place.region)
+      const older = card.getByRole('button', { name: 'Older month' })
+      // Twice, the second mid-way through the first, then a day of the second picked mid-way too.
+      await older.click()
+      await older.click()
+      await dayButton(card, 'Saturday, June 20').hover()
+      await expect(card.locator('[data-month]')).toHaveText('June 2026')
+      await expect(card.locator('[data-readout] [data-number]')).toHaveText('43')
+      await expect(card.locator('[data-readout]')).toContainText(/changes on\s*Sat, Jun 20/)
+      await page.mouse.move(2, 2)
+      await expect(card).toHaveAttribute('data-settled', '', { timeout: 5000 })
+      await expect(card.locator('[data-changes]')).toHaveText('214')
+      expect(await barMismatches(card)).toEqual([])
+    })
+
+    test('under reduced motion a new month is simply there', async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: 'reduce' })
+      await page.goto(place.path)
+      const card = await showCard(page, place.region)
+      await card.getByRole('button', { name: 'Older month' }).click()
+      await expect(card.locator('[data-changes]')).toHaveText('39', { timeout: 200 })
+      await expect(card).toHaveAttribute('data-settled', '', { timeout: 200 })
+      const moving = await card.evaluate(
+        (el) => [...el.querySelectorAll('.logcard-fill')].flatMap((f) => f.getAnimations()).length
+      )
+      expect(moving).toBe(0)
+      expect(await barMismatches(card)).toEqual([])
+    })
+
+    test('a month change ends in the right state even when the page draws no frames', async ({
+      page,
+    }) => {
+      await page.addInitScript(() => {
+        window.requestAnimationFrame = (cb) =>
+          window.setTimeout(() => cb(performance.now() - 40), 6000) as unknown as number
+        window.cancelAnimationFrame = (id) => window.clearTimeout(id)
+      })
+      await page.goto(place.path)
+      const card = await showCard(page, place.region)
+      await card.getByRole('button', { name: 'Older month' }).click()
+      await expect(card).toHaveAttribute('data-settled', '', { timeout: 5000 })
+      await expect(card.locator('[data-month]')).toHaveText('July 2026')
+      await expect(card.locator('[data-changes]')).toHaveText('39')
+      await expect.poll(() => barMismatches(card)).toEqual([])
+    })
   })
 }
+
+/**
+ * Each day's bar against the month it shows: its blocks (`--logcard-n`, the
+ * day's share of the busiest day's, one dark block on a quiet day, none on a
+ * day to come) and the height its colour and clip have come to rest at.
+ * Returns what does not match, so a failure says which day.
+ */
+function barMismatches(card: Locator) {
+  return card.evaluate((el) => {
+    const css = getComputedStyle(el)
+    const levels = Number(css.getPropertyValue('--logcard-levels'))
+    const pitch = parseFloat(css.getPropertyValue('--logcard-pitch'))
+    const block = parseFloat(css.getPropertyValue('--logcard-block'))
+    const days = [...el.querySelectorAll<HTMLElement>('[data-chart] .logcard-day')]
+    const counts = days.map((d) => {
+      const label = d.querySelector('button')?.getAttribute('aria-label')
+      return label ? Number(label.match(/: (\d+) change/)![1]) : null
+    })
+    const peak = Math.max(1, ...counts.map((c) => c ?? 0))
+    const out: string[] = []
+    days.forEach((d, i) => {
+      const c = counts[i]
+      const want = c === null ? 0 : c > 0 ? Math.max(1, Math.round((c / peak) * levels)) : 1
+      const n = Number(d.style.getPropertyValue('--logcard-n'))
+      if (n !== want) out.push(`day ${i + 1}: ${n} blocks, want ${want}`)
+      const fill = d.querySelector<HTMLElement>('.logcard-fill')!
+      const height = parseFloat(getComputedStyle(fill).backgroundSize.split(' ')[1] ?? '0')
+      const wantHeight = Math.max(0, want * pitch - (pitch - block))
+      if (Math.abs(height - wantHeight) > 0.5)
+        out.push(`day ${i + 1}: ${height}px high, want ${wantHeight}`)
+    })
+    return out
+  })
+}
+
+/**
+ * The bars' entrance (owner, 2026-11-25): a card that is off screen when the
+ * page loads waits with its bars flat and, once seen, raises them in the same
+ * wave as a month change; it ends in the right state even with no frames.
+ */
+test('the homepage card raises its bars the first time it is seen, even when the page draws no frames', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    window.requestAnimationFrame = (cb) =>
+      window.setTimeout(() => cb(performance.now() - 40), 6000) as unknown as number
+    window.cancelAnimationFrame = (id) => window.clearTimeout(id)
+  })
+  await page.goto('/')
+  const card = cardIn(page, '#build-log')
+  // Below the fold when it hydrates: flat, waiting.
+  await expect(card).toHaveAttribute('data-entrance', 'armed', { timeout: 20_000 })
+  await expect(card).not.toHaveAttribute('data-settled', '')
+  await card.evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
+  await expect(card).toHaveAttribute('data-settled', '', { timeout: 5000 })
+  await expect(card).toHaveAttribute('data-entrance', 'idle')
+  await expect(card.locator('[data-changes]')).toHaveText('100')
+  await expect.poll(() => barMismatches(card)).toEqual([])
+})
 
 test.describe('on a touch screen', () => {
   test.use({ hasTouch: true })
@@ -348,14 +503,12 @@ test.describe('on /builds', () => {
     await page.emulateMedia({ reducedMotion: 'reduce' })
     await page.goto('/builds')
     // A build with entries, but none on October 22.
-    const builds = await page
-      .locator('#activity li[data-kind]')
-      .evaluateAll((els) =>
-        els.map((el) => ({
-          build: el.getAttribute('data-build')!,
-          day: el.getAttribute('data-day')!,
-        }))
-      )
+    const builds = await page.locator('#activity li[data-kind]').evaluateAll((els) =>
+      els.map((el) => ({
+        build: el.getAttribute('data-build')!,
+        day: el.getAttribute('data-day')!,
+      }))
+    )
     const on22 = new Set(builds.filter((b) => b.day === '2026-10-22').map((b) => b.build))
     const other = builds.find((b) => !on22.has(b.build))!.build
     await page.goto(`/builds?build=${other}`)
