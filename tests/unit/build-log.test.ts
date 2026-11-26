@@ -356,10 +356,12 @@ describe('merging, sorting and the builds index', () => {
 
   it('tracks the visible builds with a repo, and none of the hidden ones', () => {
     const tracked = builds.filter((b) => b.repo)
-    expect(tracked.map((b) => b.slug)).toEqual(['voicedock', 'tldw', 'tubevault', 'scribe', 'openping', 'solara', 'portfolio-rank', 'release-kit', 'portfolio', 'n8builds'])
+    // n8games since 2026-11-26 (owner: "we should add n8games and nettrailers").
+    expect(tracked.map((b) => b.slug)).toEqual(['voicedock', 'tldw', 'tubevault', 'scribe', 'openping', 'solara', 'n8games', 'portfolio-rank', 'release-kit', 'portfolio', 'n8builds'])
     expect(tracked.every((b) => /^n8watkins\/[\w-]+$/.test(b.repo!))).toBe(true)
     expect(hiddenBuilds.every((b) => !b.repo)).toBe(true)
-    expect(new Set(log.entries.map((e) => e.build))).toEqual(new Set(inFixture.filter((b) => b.repo).map((b) => b.slug)))
+    // Every tracked build has entries, but n8games: its repo had none yet at the fixture's capture.
+    expect(new Set(log.entries.map((e) => e.build))).toEqual(new Set(inFixture.filter((b) => b.repo && b.slug !== 'n8games').map((b) => b.slug)))
   })
 
   it("keeps this site's own busy repo to its releases and user-facing changes", () => {
@@ -480,14 +482,16 @@ describe('merging, sorting and the builds index', () => {
   })
 
   it('sorts builds by their latest activity and labels it as a month, never "ago"', () => {
-    expect(log.activity.map((a) => a.slug)).toEqual(['n8builds', 'solara', 'tldw', 'openping', 'scribe', 'portfolio-rank', 'tubevault', 'voicedock'])
-    expect(log.activity.map((a) => a.lastShippedLabel)).toEqual(['Oct 2026', 'Oct 2026', 'Jul 2026', 'Jul 2026', 'Jul 2026', 'Jun 2026', 'Jun 2026', 'Jun 2026'])
-    expect(log.activity.every((a) => a.latest.length === 2)).toBe(true)
+    // n8games' repo had nothing yet at the fixture's capture (2026-10-26), so it comes last, quiet.
+    expect(log.activity.map((a) => a.slug)).toEqual(['n8builds', 'solara', 'tldw', 'openping', 'scribe', 'portfolio-rank', 'tubevault', 'voicedock', 'n8games'])
+    expect(log.activity.map((a) => a.lastShippedLabel)).toEqual(['Oct 2026', 'Oct 2026', 'Jul 2026', 'Jul 2026', 'Jul 2026', 'Jun 2026', 'Jun 2026', 'Jun 2026', null])
+    expect(log.activity.filter((a) => a.lastShipped).every((a) => a.latest.length === 2)).toBe(true)
   })
 
   it('sorts a build with no entries by its last push, after the active ones', () => {
     const quiet = { ...build('voicedock'), slug: 'quiet', repo: 'n8watkins/quiet' }
-    const rows = buildActivity([quiet, ...inFixture.filter((b) => b.repo)], log.entries, { 'n8watkins/quiet': '2026-01-01T00:00:00Z' })
+    // (n8games, with no push at all in the fixture, sorts after it.)
+    const rows = buildActivity([quiet, ...inFixture.filter((b) => b.repo && b.slug !== 'n8games')], log.entries, { 'n8watkins/quiet': '2026-01-01T00:00:00Z' })
     expect(rows.at(-1)).toMatchObject({ slug: 'quiet', lastShipped: null, lastShippedLabel: null, latest: [] })
   })
 

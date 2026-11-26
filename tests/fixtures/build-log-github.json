@@ -9142,6 +9142,1907 @@
    "pushedAt": null,
    "releases": [],
    "commits": []
+  },
+  {
+   "repo": "n8watkins/n8-party-games",
+   "pushedAt": null,
+   "releases": [],
+   "commits": []
+  },
+  {
+   "repo": "n8watkins/net_trailers",
+   "pushedAt": "2026-06-21T12:46:32Z",
+   "releases": [],
+   "commits": [
+    {
+     "sha": "fb89e2bfcadc2948b6278d661e845335bb445ff8",
+     "message": "docs: drop last firestore.rules mention from backend-architect agent",
+     "date": "2026-06-21T12:46:32Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/fb89e2bfcadc2948b6278d661e845335bb445ff8"
+    },
+    {
+     "sha": "0d74ef97d1f46aa6bd83deba386aed810112c783",
+     "message": "docs: address borderline current-state Firebase docs",
+     "date": "2026-06-21T12:45:42Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/0d74ef97d1f46aa6bd83deba386aed810112c783"
+    },
+    {
+     "sha": "c47e89cb77951611b5a04fc2515502f3f87cafab",
+     "message": "docs(CLAUDE.md): refresh email/env + notifications to current stack",
+     "date": "2026-06-21T12:33:35Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/c47e89cb77951611b5a04fc2515502f3f87cafab"
+    },
+    {
+     "sha": "f86b43e2d59d588d63c88efe22ebe67d63297083",
+     "message": "chore: remove Firebase from debug/health UI (current-state)",
+     "date": "2026-06-21T12:26:20Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/f86b43e2d59d588d63c88efe22ebe67d63297083"
+    },
+    {
+     "sha": "5b0ee2892d9edd4f576ae97e6bcdd0cf645f901c",
+     "message": "docs: remove Firebase from current/future-state docs (Turso/Auth.js)",
+     "date": "2026-06-21T12:14:09Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/5b0ee2892d9edd4f576ae97e6bcdd0cf645f901c"
+    },
+    {
+     "sha": "203701ff9e6bd17719f7cc854eb2d6171dd0760d",
+     "message": "docs/ui: remove Firebase from current-state README, AboutModal, CLAUDE.md",
+     "date": "2026-06-21T12:04:07Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/203701ff9e6bd17719f7cc854eb2d6171dd0760d"
+    },
+    {
+     "sha": "cb3ed71de6a6165de5e25b18e85bc4da49f8a2a4",
+     "message": "docs: correct stale sanitizer references (DOMPurify → sanitize-html)",
+     "date": "2026-06-21T11:45:50Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/cb3ed71de6a6165de5e25b18e85bc4da49f8a2a4"
+    },
+    {
+     "sha": "44882372c43e17bd4ea52d31d424e38cf1fe6587",
+     "message": "fix(polls): return 400 (not 500) when a vote selects no valid option",
+     "date": "2026-06-21T11:29:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/44882372c43e17bd4ea52d31d424e38cf1fe6587"
+    },
+    {
+     "sha": "bd7241310ea8864161ef6902941acd2046a84e51",
+     "message": "chore(cleanup): batch D — narrow email allowlist, remove dead code",
+     "date": "2026-06-21T11:14:41Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/bd7241310ea8864161ef6902941acd2046a84e51"
+    },
+    {
+     "sha": "972d4b8c6b43273db71fb2a86565164f3e3d06c2",
+     "message": "fix(perf): batch C — race-safe like counters + publicProfile N+1",
+     "date": "2026-06-21T11:09:53Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/972d4b8c6b43273db71fb2a86565164f3e3d06c2"
+    },
+    {
+     "sha": "0d21f5bdb48b32ed383b867c364a00e7b027426c",
+     "message": "fix(integrity): batch B — polls, cron admin model, magic-link, account delete, signup cap",
+     "date": "2026-06-21T11:03:11Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/0d21f5bdb48b32ed383b867c364a00e7b027426c"
+    },
+    {
+     "sha": "f31c28fc77df7909990f4fc84d3667963711a3ae",
+     "message": "fix(security): batch A — profile visibility gate + blob ownership",
+     "date": "2026-06-21T10:55:23Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/f31c28fc77df7909990f4fc84d3667963711a3ae"
+    },
+    {
+     "sha": "8987a81dfe9918f650dcbed1366b20cb4b4f95f0",
+     "message": "fix(security): comment delete verifies ranking owner server-side; add review fix-list",
+     "date": "2026-06-21T10:50:30Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/8987a81dfe9918f650dcbed1366b20cb4b4f95f0"
+    },
+    {
+     "sha": "d14f0b4cbe2975fc2724f71c4248519ffb33133b",
+     "message": "feat(auth): correct post-login redirect + in-app-browser caveat handling",
+     "date": "2026-06-21T10:25:47Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/d14f0b4cbe2975fc2724f71c4248519ffb33133b"
+    },
+    {
+     "sha": "d474507f75ee5e69bb80d42962cb52c4ef5f59ff",
+     "message": "chore: ignore .env*.local (keep .env.example tracked)",
+     "date": "2026-06-21T10:03:49Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/d474507f75ee5e69bb80d42962cb52c4ef5f59ff"
+    },
+    {
+     "sha": "21ff0bee980f9b7c3b187af2c9871c034900073e",
+     "message": "polish: Turso/Auth.js in tutorial copy + document BLOB_READ_WRITE_TOKEN",
+     "date": "2026-06-21T09:53:42Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/21ff0bee980f9b7c3b187af2c9871c034900073e"
+    },
+    {
+     "sha": "b7d8cc2b74bb0bf9e10b1b06673e158b88840d57",
+     "message": "fix(email): serverless-safe HTML sanitizer (sanitize-html) — drop isomorphic-dompurify",
+     "date": "2026-06-21T09:39:02Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/b7d8cc2b74bb0bf9e10b1b06673e158b88840d57"
+    },
+    {
+     "sha": "6fab4bea872909959b352d86bfec9775d057e6a9",
+     "message": "fix(prod): drop isomorphic-dompurify from userListsService (jsdom ESM crash)",
+     "date": "2026-06-21T09:22:26Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/6fab4bea872909959b352d86bfec9775d057e6a9"
+    },
+    {
+     "sha": "9cd38878ed9bf7b86fa4cd3720234d5d64d79f2c",
+     "message": "Merge pull request #2 from n8watkins/migrate/firebase-to-turso",
+     "date": "2026-06-21T09:09:25Z",
+     "author": "n8watkins",
+     "parents": 2,
+     "url": "https://github.com/n8watkins/net_trailers/commit/9cd38878ed9bf7b86fa4cd3720234d5d64d79f2c"
+    },
+    {
+     "sha": "6b3f7276be17e8cc7314e2af6030ca19c30f8b7a",
+     "message": "feat(auth): use Brevo for magic-link email (SendGrid dropped its free tier)",
+     "date": "2026-06-21T08:25:52Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/6b3f7276be17e8cc7314e2af6030ca19c30f8b7a"
+    },
+    {
+     "sha": "1e81aa5d51a0496da158659cdf1b8fd7bb711c43",
+     "message": "feat(auth): selectable email provider — SendGrid (active) or Resend via EMAIL_PROVIDER",
+     "date": "2026-06-21T07:59:42Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/1e81aa5d51a0496da158659cdf1b8fd7bb711c43"
+    },
+    {
+     "sha": "f194496b66cefad7a5608a511a5bbf5196342263",
+     "message": "revert(degoogle): keep Google Analytics (per request)",
+     "date": "2026-06-21T07:36:56Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/f194496b66cefad7a5608a511a5bbf5196342263"
+    },
+    {
+     "sha": "1c5cd3356b0958dcba3cfe0e8c5893fc1845574b",
+     "message": "test(db): Drizzle query tests on in-memory libSQL + mock @/auth",
+     "date": "2026-06-21T07:34:44Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/1c5cd3356b0958dcba3cfe0e8c5893fc1845574b"
+    },
+    {
+     "sha": "fcd9fea3b7d2af143d847976c05e1709d275be8b",
+     "message": "feat(seed): Drizzle demo-seed script (db:seed) replacing the Firebase seeder",
+     "date": "2026-06-21T07:31:17Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/fcd9fea3b7d2af143d847976c05e1709d275be8b"
+    },
+    {
+     "sha": "395cc431ed824c6ef13c73cf586c0e6b5158af70",
+     "message": "feat(account): dedicated delete-account endpoint (removes the user row)",
+     "date": "2026-06-21T07:29:23Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/395cc431ed824c6ef13c73cf586c0e6b5158af70"
+    },
+    {
+     "sha": "27e21e88c024f9c0a69925a61faf60fd472d7605",
+     "message": "chore(degoogle): remove Google Analytics (keep Vercel Analytics)",
+     "date": "2026-06-21T07:27:50Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/27e21e88c024f9c0a69925a61faf60fd472d7605"
+    },
+    {
+     "sha": "863f343ba5441be49aa0db57bb49e5138094e79e",
+     "message": "feat(images): upload to Vercel Blob instead of base64 data URLs",
+     "date": "2026-06-21T07:25:17Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/863f343ba5441be49aa0db57bb49e5138094e79e"
+    },
+    {
+     "sha": "0a9bee931017e19da5e2e9f356f0463d11ca75f7",
+     "message": "feat(auth): add passwordless email magic-link login (Resend) alongside GitHub",
+     "date": "2026-06-21T07:23:28Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/0a9bee931017e19da5e2e9f356f0463d11ca75f7"
+    },
+    {
+     "sha": "31b1e33eeb97fba04d83b73754cac4796cb755a4",
+     "message": "fix(deploy): harden for Vercel — Auth.js trustHost + @libsql/client external",
+     "date": "2026-06-21T06:17:38Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/31b1e33eeb97fba04d83b73754cac4796cb755a4"
+    },
+    {
+     "sha": "e27c0face286290f623fc8d6055778d0ad1f69b9",
+     "message": "docs: update CLAUDE.md for Turso + Auth.js (off Firebase)",
+     "date": "2026-06-21T06:09:55Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/e27c0face286290f623fc8d6055778d0ad1f69b9"
+    },
+    {
+     "sha": "19520970ce656f4b0dea44e99d6c2d3277931dbd",
+     "message": "test: update jest.setup for Turso/Auth.js (drop Firebase mocks)",
+     "date": "2026-06-21T06:03:15Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/19520970ce656f4b0dea44e99d6c2d3277931dbd"
+    },
+    {
+     "sha": "e1cc5e53a0a8d7be6d7787021bbe7147cd69e503",
+     "message": "chore(firebase): remove firebase.ts, firebase-admin, packages, config — fully off Firebase",
+     "date": "2026-06-21T06:01:29Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/e1cc5e53a0a8d7be6d7787021bbe7147cd69e503"
+    },
+    {
+     "sha": "f0341cadd6c377153d00664b925ed810369286bf",
+     "message": "refactor(firebase): complete Firebase teardown — fix live files, delete dead files",
+     "date": "2026-06-21T05:54:06Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/f0341cadd6c377153d00664b925ed810369286bf"
+    },
+    {
+     "sha": "7071f965eab563bfd4dad6321c30424a3f68738e",
+     "message": "refactor(routes): port recommendations, collections, cron, public pages to Turso",
+     "date": "2026-06-21T05:36:09Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/7071f965eab563bfd4dad6321c30424a3f68738e"
+    },
+    {
+     "sha": "6b44d5c49d7b61fc63e474055e962a0459fbc284",
+     "message": "refactor(admin): migrate admin portal + email system from Firebase Admin to Turso/Drizzle",
+     "date": "2026-06-21T05:31:33Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/6b44d5c49d7b61fc63e474055e962a0459fbc284"
+    },
+    {
+     "sha": "9607547e9ea3fc67258621a36579142b339e264f",
+     "message": "refactor: Firebase→Turso migration cleanup (Parts 1–4)",
+     "date": "2026-06-21T05:17:11Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/9607547e9ea3fc67258621a36579142b339e264f"
+    },
+    {
+     "sha": "e3c3eaa9e335c14efd71b45d23396c8616e9d0c5",
+     "message": "feat(data): migrate rankings, forum, polls, social, shares, notifications, interactions to Turso",
+     "date": "2026-06-21T05:02:01Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/e3c3eaa9e335c14efd71b45d23396c8616e9d0c5"
+    },
+    {
+     "sha": "9150b4140ed83d064c0018e2f01a203c6c72630a",
+     "message": "feat(data): migrate user preferences to Turso (reference lane)",
+     "date": "2026-06-21T04:46:09Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/9150b4140ed83d064c0018e2f01a203c6c72630a"
+    },
+    {
+     "sha": "80a29cc83eca59050da3d608e8dfef02840eeaff",
+     "message": "feat(auth): replace Firebase Auth with Auth.js GitHub (session-based)",
+     "date": "2026-06-21T04:11:41Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/80a29cc83eca59050da3d608e8dfef02840eeaff"
+    },
+    {
+     "sha": "b168a1b586eb2c0c02812d10e620041439d3b7db",
+     "message": "feat(db): add Turso + Drizzle foundation, scaffold Auth.js deps",
+     "date": "2026-06-21T03:59:17Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/b168a1b586eb2c0c02812d10e620041439d3b7db"
+    },
+    {
+     "sha": "6e854d3a94128791ad3bf2df9069e26189b7b678",
+     "message": "docs: scrub remaining user-facing Gemini 2.5 references",
+     "date": "2026-06-14T19:20:10Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/6e854d3a94128791ad3bf2df9069e26189b7b678"
+    },
+    {
+     "sha": "86780793cc8c8ac2b466138907c6621fd9cb9e9d",
+     "message": "refactor(gemini): standardize on gemini-3.1-flash-lite, drop 2.x fallbacks",
+     "date": "2026-06-14T19:01:29Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/86780793cc8c8ac2b466138907c6621fd9cb9e9d"
+    },
+    {
+     "sha": "1a38e82dd71f19fc2c2bf0ac0e445a60c0690e20",
+     "message": "feat: move Cache Health and Startup Health panels behind debug toggles",
+     "date": "2026-06-04T22:20:26Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/1a38e82dd71f19fc2c2bf0ac0e445a60c0690e20"
+    },
+    {
+     "sha": "fea19f9ca5758d9a51496ade2ef084191ab8d9b6",
+     "message": "fix: change debug console hotkey from Alt+Shift+D to Alt+Shift+Q",
+     "date": "2026-06-04T22:16:29Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/fea19f9ca5758d9a51496ade2ef084191ab8d9b6"
+    },
+    {
+     "sha": "f5c69c8ab97fca3582e6445d90acbcfac07fe27c",
+     "message": "feat: migrate from Tailwind v3 to Tailwind v4",
+     "date": "2026-06-04T17:23:20Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/f5c69c8ab97fca3582e6445d90acbcfac07fe27c"
+    },
+    {
+     "sha": "d177ab0fb73da1c7e60aacb703feaadc67ebe026",
+     "message": "fix: respect PORT env var for internal API base URL",
+     "date": "2026-06-04T16:45:43Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/d177ab0fb73da1c7e60aacb703feaadc67ebe026"
+    },
+    {
+     "sha": "97f52f7c70095fbd380e46c675731e300f36f2ce",
+     "message": "Merge pull request #1 from n8watkins/security/dependency-audit-fixes",
+     "date": "2026-06-04T05:39:46Z",
+     "author": "n8watkins",
+     "parents": 2,
+     "url": "https://github.com/n8watkins/net_trailers/commit/97f52f7c70095fbd380e46c675731e300f36f2ce"
+    },
+    {
+     "sha": "6511cede712c19f916db104c7af761a6a86b6f73",
+     "message": "chore: add local-ops project metadata",
+     "date": "2026-06-04T05:35:43Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/6511cede712c19f916db104c7af761a6a86b6f73"
+    },
+    {
+     "sha": "7fcfb19dc8486d6643467b690a3c8ae3642cb1e6",
+     "message": "fix: make production build pass end-to-end",
+     "date": "2026-06-04T05:32:18Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/7fcfb19dc8486d6643467b690a3c8ae3642cb1e6"
+    },
+    {
+     "sha": "6cb1cfbe508464c35950527edfaa37a638db9fb6",
+     "message": "fix(security): override transitive uuid and postcss -> 0 vulnerabilities",
+     "date": "2026-06-04T05:14:26Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/6cb1cfbe508464c35950527edfaa37a638db9fb6"
+    },
+    {
+     "sha": "db3436c845170cd67d82ebc9d09ffa8d61943d01",
+     "message": "fix(security): bump @sentry/nextjs and resend (uuid ReDoS chain)",
+     "date": "2026-06-04T05:11:27Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/db3436c845170cd67d82ebc9d09ffa8d61943d01"
+    },
+    {
+     "sha": "cdb63e4d1c5542dbeaa9a7071a25c0a5a1b49fab",
+     "message": "fix(security): bump isomorphic-dompurify v2 -> v3 (XSS bypass fixes)",
+     "date": "2026-06-04T05:10:41Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/cdb63e4d1c5542dbeaa9a7071a25c0a5a1b49fab"
+    },
+    {
+     "sha": "566f04be5b10e995e36ed8846745aa690d56f4fb",
+     "message": "fix(security): npm audit fix for non-breaking transitive vulns",
+     "date": "2026-06-04T05:07:21Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/566f04be5b10e995e36ed8846745aa690d56f4fb"
+    },
+    {
+     "sha": "7254c97bc7d0da6c58ca6e03e1c32df93385082a",
+     "message": "fix: prevent duplicate Firestore initialization error",
+     "date": "2025-12-16T09:04:33Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/7254c97bc7d0da6c58ca6e03e1c32df93385082a"
+    },
+    {
+     "sha": "317b2d4203098c105cc96d30a7ac3775e36930b4",
+     "message": "feat: add storage quota & health monitoring system (Week 4)",
+     "date": "2025-12-15T23:05:00Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/317b2d4203098c105cc96d30a7ac3775e36930b4"
+    },
+    {
+     "sha": "365128bc9eb160fc2329131dd2abfb75a930e2d7",
+     "message": "feat: add WSL2-compatible dev server management (Week 3)",
+     "date": "2025-12-15T23:03:05Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/365128bc9eb160fc2329131dd2abfb75a930e2d7"
+    },
+    {
+     "sha": "569068e02c047a92dc92dd8751389136320e7209",
+     "message": "feat: add Firestore cache health monitoring system (Week 1)",
+     "date": "2025-12-15T22:50:55Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/569068e02c047a92dc92dd8751389136320e7209"
+    },
+    {
+     "sha": "1cbc5ac60e9f6bf30aa360bfcd0a914703287dc7",
+     "message": "chore: remove debug logging and hide unimplemented email templates",
+     "date": "2025-12-15T20:16:53Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/1cbc5ac60e9f6bf30aa360bfcd0a914703287dc7"
+    },
+    {
+     "sha": "d67bab0fc329a101b679605bd4615d1f0681d0ab",
+     "message": "feat(admin): add social notification seeding functionality",
+     "date": "2025-12-04T00:26:24Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/d67bab0fc329a101b679605bd4615d1f0681d0ab"
+    },
+    {
+     "sha": "f43c1da1dae1842aec57450572e82f89d9e42ac2",
+     "message": "fix(seed): improve demo profile seeding infrastructure",
+     "date": "2025-12-04T00:22:48Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/f43c1da1dae1842aec57450572e82f89d9e42ac2"
+    },
+    {
+     "sha": "dce1951e2c08273aca3239d953f3520d60473059",
+     "message": "docs: update documentation for admin email system and production readiness",
+     "date": "2025-12-04T00:22:34Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/dce1951e2c08273aca3239d953f3520d60473059"
+    },
+    {
+     "sha": "b8b65ed9b310b93d232c0cee104fb4f6ab980591",
+     "message": "Update seed notifications to use real TMDB trending data",
+     "date": "2025-12-04T00:16:16Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/b8b65ed9b310b93d232c0cee104fb4f6ab980591"
+    },
+    {
+     "sha": "cea4d5dc2b9a8162fd16b8aed893a9a5438a26d1",
+     "message": "fix(profile): correct watch history path and permissions for public history page",
+     "date": "2025-12-04T00:15:11Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/cea4d5dc2b9a8162fd16b8aed893a9a5438a26d1"
+    },
+    {
+     "sha": "6f61edb31a8ee2a61ab12003f383a9877708d64e",
+     "message": "fix(seed): add required username field to demo profile creation",
+     "date": "2025-12-03T23:31:12Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/6f61edb31a8ee2a61ab12003f383a9877708d64e"
+    },
+    {
+     "sha": "d41013e71bbeed0b7737b23d818d8f00fc203269",
+     "message": "feat(seed): generate real ranking comments from user and demo profiles",
+     "date": "2025-12-03T23:29:59Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/d41013e71bbeed0b7737b23d818d8f00fc203269"
+    },
+    {
+     "sha": "e54e59e7ef62e210e0ddb00380e0e4afcfdefef3",
+     "message": "style(rankings): remove excessive glow effects for cleaner appearance",
+     "date": "2025-12-03T23:29:42Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/e54e59e7ef62e210e0ddb00380e0e4afcfdefef3"
+    },
+    {
+     "sha": "ef19b384862d058518a3821f0f7ee10c872188ec",
+     "message": "Change weekly trending to individual notifications per item",
+     "date": "2025-12-03T23:25:42Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/ef19b384862d058518a3821f0f7ee10c872188ec"
+    },
+    {
+     "sha": "67c8c68a23dc531831a0d18fcda917779cc87e91",
+     "message": "fix(firestore): allow public read access to watch history with visibility check",
+     "date": "2025-12-03T23:24:31Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/67c8c68a23dc531831a0d18fcda917779cc87e91"
+    },
+    {
+     "sha": "2fd4dbfef709769ba52910ad338a2b7fda0c7539",
+     "message": "docs: add production deployment guide and complete env documentation",
+     "date": "2025-12-03T22:58:12Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/2fd4dbfef709769ba52910ad338a2b7fda0c7539"
+    },
+    {
+     "sha": "1c98955bec584c81df6a61d1bcb13ed5e785ab78",
+     "message": "fix: resolve all npm security vulnerabilities",
+     "date": "2025-12-03T22:54:23Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/1c98955bec584c81df6a61d1bcb13ed5e785ab78"
+    },
+    {
+     "sha": "65f6bfdd141dc00459816e5902f11c682b59e820",
+     "message": "fix: resolve TypeScript build errors blocking production deployment",
+     "date": "2025-12-03T22:53:59Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/65f6bfdd141dc00459816e5902f11c682b59e820"
+    },
+    {
+     "sha": "ed0cdd3bf88271b008942447aa00550cf22bb81b",
+     "message": "fix(images): add sizes prop to ImageUpload preview images",
+     "date": "2025-12-03T22:52:06Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/ed0cdd3bf88271b008942447aa00550cf22bb81b"
+    },
+    {
+     "sha": "8dd532b2b3179256be55337dc6d99b5cf7bd3aa2",
+     "message": "fix(profile): correct watch history Firestore path for public profiles",
+     "date": "2025-12-03T22:50:28Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/8dd532b2b3179256be55337dc6d99b5cf7bd3aa2"
+    },
+    {
+     "sha": "d0306390cc65e26e9d45b4e83183938734f5e0c6",
+     "message": "fix(seed): use userId for profile links instead of invalid userUsername",
+     "date": "2025-12-03T22:49:08Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/d0306390cc65e26e9d45b4e83183938734f5e0c6"
+    },
+    {
+     "sha": "fa4d8b1b5d56856129e1a32ca909859e404e044a",
+     "message": "Add 'Seed Trending' button to debug console",
+     "date": "2025-12-03T22:48:34Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/fa4d8b1b5d56856129e1a32ca909859e404e044a"
+    },
+    {
+     "sha": "d01331033c2270c01ae9a032fc4a499d250da093",
+     "message": "fix(seed): allow watch history to exceed content pool size by cycling",
+     "date": "2025-12-03T22:08:39Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/d01331033c2270c01ae9a032fc4a499d250da093"
+    },
+    {
+     "sha": "ac92b36b81753db37c19127da13981cad222cc0a",
+     "message": "fix: allow demo profile creation in Firestore security rules",
+     "date": "2025-12-03T22:08:12Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/ac92b36b81753db37c19127da13981cad222cc0a"
+    },
+    {
+     "sha": "b03903f81648454f6ef8ce1ca2598f9c3f99ddb5",
+     "message": "security: fix code review findings - XSS, PII, auth consistency",
+     "date": "2025-12-03T22:06:28Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/b03903f81648454f6ef8ce1ca2598f9c3f99ddb5"
+    },
+    {
+     "sha": "90444e49a5db0514b8d79983d381f0c533c8f1f9",
+     "message": "feat(seed): expand watch history to cover 60-day period",
+     "date": "2025-12-03T22:02:26Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/90444e49a5db0514b8d79983d381f0c533c8f1f9"
+    },
+    {
+     "sha": "1f8b33244bb0c632682c765a3c6e58b7c8c2930a",
+     "message": "fix(seed): use actual user display name when seeding rankings",
+     "date": "2025-12-03T22:01:23Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/1f8b33244bb0c632682c765a3c6e58b7c8c2930a"
+    },
+    {
+     "sha": "ca0c6b461575518f8ecda8132bf6eb1b949c8efc",
+     "message": "Add in-app notifications to weekly trending cron job",
+     "date": "2025-12-03T22:00:31Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/ca0c6b461575518f8ecda8132bf6eb1b949c8efc"
+    },
+    {
+     "sha": "32e80d4705a43346a137410ec8a0b4f775277f17",
+     "message": "feat: match rankings to profile interests with genre filtering",
+     "date": "2025-12-03T21:20:56Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/32e80d4705a43346a137410ec8a0b4f775277f17"
+    },
+    {
+     "sha": "d799cbeb280467328a55ca35abb70c3ae2d28ffe",
+     "message": "security: tighten email admin system - eliminate N+1, add validation, remove bloat",
+     "date": "2025-12-03T21:17:49Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/d799cbeb280467328a55ca35abb70c3ae2d28ffe"
+    },
+    {
+     "sha": "00622455bd3737464a56ebebda191aa880a59a56",
+     "message": "fix(seed): sync server-side watch history seeding with client-side logic",
+     "date": "2025-12-03T21:16:49Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/00622455bd3737464a56ebebda191aa880a59a56"
+    },
+    {
+     "sha": "a8e08bad937b404af93eaabe00d40ae7ac9b67a6",
+     "message": "feat(seed): add comprehensive delete script for demo profiles",
+     "date": "2025-12-03T20:31:57Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/a8e08bad937b404af93eaabe00d40ae7ac9b67a6"
+    },
+    {
+     "sha": "b3abc36f2a604b269f9f8b154e1256b98abdaf0a",
+     "message": "security: fix CRITICAL vulnerabilities in email system",
+     "date": "2025-12-03T01:18:00Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/b3abc36f2a604b269f9f8b154e1256b98abdaf0a"
+    },
+    {
+     "sha": "4dc278d72897052902984f4860cde59f5c6e78ee",
+     "message": "feat(seed): enhance demo profile seeding with comprehensive user data",
+     "date": "2025-12-03T01:16:06Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/4dc278d72897052902984f4860cde59f5c6e78ee"
+    },
+    {
+     "sha": "62993f9f4144d7ea6189133438ea5617f81167cd",
+     "message": "fix(seed): add comprehensive logging and fix watch history count mismatch",
+     "date": "2025-12-02T19:36:44Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/62993f9f4144d7ea6189133438ea5617f81167cd"
+    },
+    {
+     "sha": "e7b07e9038516f607cbb6556ac111dc6f186d2ac",
+     "message": "fix: correct EMAIL_TEMPLATES reference in EmailComposer",
+     "date": "2025-12-02T19:34:56Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/e7b07e9038516f607cbb6556ac111dc6f186d2ac"
+    },
+    {
+     "sha": "d7af7717890d050a60d9cedb9f2c38855245a374",
+     "message": "fix: resolve build error with count increment in seedWatchHistory",
+     "date": "2025-12-02T19:34:49Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/d7af7717890d050a60d9cedb9f2c38855245a374"
+    },
+    {
+     "sha": "fd1d022a2f2d27bdc84756d7bba33fc88996d820",
+     "message": "Add actionUrl to seedHistoricalTrending notifications",
+     "date": "2025-12-02T19:34:12Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/fd1d022a2f2d27bdc84756d7bba33fc88996d820"
+    },
+    {
+     "sha": "4ee98f37e28241520f0e2e8ac6fca42001308f08",
+     "message": "feat: add idempotency checks to seed data function",
+     "date": "2025-12-02T19:31:37Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/4ee98f37e28241520f0e2e8ac6fca42001308f08"
+    },
+    {
+     "sha": "8b891440e99f7dfa41f51d7e2428eba601984b58",
+     "message": "feat: add interconnected demo profile seeding system",
+     "date": "2025-12-02T19:30:38Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/8b891440e99f7dfa41f51d7e2428eba601984b58"
+    },
+    {
+     "sha": "3b3fcc307762fc68419f386cad75df76619957a3",
+     "message": "refactor: simplify and secure email management system",
+     "date": "2025-12-02T19:28:23Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/3b3fcc307762fc68419f386cad75df76619957a3"
+    },
+    {
+     "sha": "c82f9e1e84ae143d7d946da7aa4c2cc49ee123f7",
+     "message": "fix: critical bug - update correct entry in watch history seed",
+     "date": "2025-12-02T19:27:01Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/c82f9e1e84ae143d7d946da7aa4c2cc49ee123f7"
+    },
+    {
+     "sha": "2c752da0cafb001e17fc9fb3fe85229086d90bed",
+     "message": "Add seedHistoricalTrending to notification seeding flow",
+     "date": "2025-12-02T19:24:57Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/2c752da0cafb001e17fc9fb3fe85229086d90bed"
+    },
+    {
+     "sha": "06fc77209972e45753971b4ef860eaa042327141",
+     "message": "Add actionUrl to seed notifications for clickable content links",
+     "date": "2025-12-02T19:23:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/06fc77209972e45753971b4ef860eaa042327141"
+    },
+    {
+     "sha": "801466b7d8eab963effc28e78ff20c39724152c9",
+     "message": "feat: redistribute comments across different rankings",
+     "date": "2025-12-02T19:19:58Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/801466b7d8eab963effc28e78ff20c39724152c9"
+    },
+    {
+     "sha": "c621f7cad624401c284fde59e5993848c2755c9e",
+     "message": "fix: show actual calendar dates and counts in watch history",
+     "date": "2025-12-02T19:19:07Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/c621f7cad624401c284fde59e5993848c2755c9e"
+    },
+    {
+     "sha": "5636df59433b2688b9eb92c64c3d02fd2ac4acea",
+     "message": "feat: improve comment text with relatable, realistic content",
+     "date": "2025-12-02T19:17:51Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/5636df59433b2688b9eb92c64c3d02fd2ac4acea"
+    },
+    {
+     "sha": "a382618d0b6191b3a3f5c48090b8bdf57974a2ca",
+     "message": "fix: correct watch history seed timestamp indexing bug",
+     "date": "2025-12-02T19:15:37Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/a382618d0b6191b3a3f5c48090b8bdf57974a2ca"
+    },
+    {
+     "sha": "1df9a61180dee7df7780f50ffd2aa331ce41414b",
+     "message": "fix: sync comment display names with current user profiles",
+     "date": "2025-12-02T19:15:03Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/1df9a61180dee7df7780f50ffd2aa331ce41414b"
+    },
+    {
+     "sha": "0d20dc80ec12d16d5a5fd651fa2edf16b58860fd",
+     "message": "Code review fixes for seed data management",
+     "date": "2025-12-02T19:13:32Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/0d20dc80ec12d16d5a5fd651fa2edf16b58860fd"
+    },
+    {
+     "sha": "55292e3bf81c8465a45dbccbe31f96bc044c9e0e",
+     "message": "feat: add multiple entries per day to watch history seed data",
+     "date": "2025-12-02T19:10:13Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/55292e3bf81c8465a45dbccbe31f96bc044c9e0e"
+    },
+    {
+     "sha": "73730f9348e410fd364dbd763e930cbc8ae5d9e0",
+     "message": "feat: complete Phase 3B - Email Sending & History Tracking",
+     "date": "2025-12-02T19:09:09Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/73730f9348e410fd364dbd763e930cbc8ae5d9e0"
+    },
+    {
+     "sha": "a6e634adeaef0c86086337f3e7c5641d0d77da14",
+     "message": "fix: resolve comment-ranking data mismatch issue",
+     "date": "2025-12-02T19:08:38Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/a6e634adeaef0c86086337f3e7c5641d0d77da14"
+    },
+    {
+     "sha": "b7be92c481edc4a0e5064bfb748f4eaa6e60f17d",
+     "message": "refactor: remove unused progress/duration fields from watch history",
+     "date": "2025-12-02T19:07:09Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/b7be92c481edc4a0e5064bfb748f4eaa6e60f17d"
+    },
+    {
+     "sha": "4b7a5c10f44ae839e8378c692a0b4975ba647972",
+     "message": "feat: add orphaned comments cleanup tool",
+     "date": "2025-12-02T19:02:37Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/4b7a5c10f44ae839e8378c692a0b4975ba647972"
+    },
+    {
+     "sha": "8b0f15e85cb4af41178afe4817423eec49ac0627",
+     "message": "feat: add comprehensive watch history seed data with realistic distribution",
+     "date": "2025-12-02T19:01:43Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/8b0f15e85cb4af41178afe4817423eec49ac0627"
+    },
+    {
+     "sha": "95c2ec248c761ec208eb28907ca75a0fdbbf2e08",
+     "message": "feat: implement Phase 3A - React Templates & Rich Text Editor",
+     "date": "2025-12-02T18:59:01Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/95c2ec248c761ec208eb28907ca75a0fdbbf2e08"
+    },
+    {
+     "sha": "be46901c07c124f193299b553dea7d2b785e388b",
+     "message": "fix: add actionUrl to all notification types for proper navigation",
+     "date": "2025-12-02T18:57:59Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/be46901c07c124f193299b553dea7d2b785e388b"
+    },
+    {
+     "sha": "f4a4282d5fd33d979f6852cd67863b6783aa6198",
+     "message": "fix: use validateServerActionOrigin for CSRF protection in clear-data API",
+     "date": "2025-12-02T18:52:51Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/f4a4282d5fd33d979f6852cd67863b6783aa6198"
+    },
+    {
+     "sha": "99c3dc8e7c161be56f520919d9597e6335d58fc7",
+     "message": "fix: improve error handling in clear-data API and client-side JSON parsing",
+     "date": "2025-12-02T18:51:26Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/99c3dc8e7c161be56f520919d9597e6335d58fc7"
+    },
+    {
+     "sha": "ed291c23f0354f13050fdb62dc36a6709350ea2c",
+     "message": "feat: implement Phase 2 - Email Preview System",
+     "date": "2025-12-02T18:47:03Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/ed291c23f0354f13050fdb62dc36a6709350ea2c"
+    },
+    {
+     "sha": "9c0020d2f90f99ac806745747fda93f1fa012530",
+     "message": "Fix critical seed data management issues",
+     "date": "2025-12-02T18:43:13Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/9c0020d2f90f99ac806745747fda93f1fa012530"
+    },
+    {
+     "sha": "c0f9a0132cb82c18b2576c14cb59d1a1e8685e61",
+     "message": "feat: implement Phase 1 of admin email management system",
+     "date": "2025-12-02T18:41:17Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/c0f9a0132cb82c18b2576c14cb59d1a1e8685e61"
+    },
+    {
+     "sha": "b0bb7f79ff1551bd7cc76944f04569dee73c76d1",
+     "message": "fix: store seeded collections in correct location to match client behavior",
+     "date": "2025-12-02T18:38:27Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/b0bb7f79ff1551bd7cc76944f04569dee73c76d1"
+    },
+    {
+     "sha": "aead2d1f67a008ddc0434235230d0c41fcaa1c88",
+     "message": "refactor: switch collection builder theme from yellow to blue",
+     "date": "2025-12-02T18:33:47Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/aead2d1f67a008ddc0434235230d0c41fcaa1c88"
+    },
+    {
+     "sha": "152c1adbc3799f800832636531427a6d149998ce",
+     "message": "test: add ranking deletion test endpoint and verify functionality",
+     "date": "2025-12-02T18:30:01Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/152c1adbc3799f800832636531427a6d149998ce"
+    },
+    {
+     "sha": "1e6012d17b7dc5bd11d702cd0b56e9f23ceb4e18",
+     "message": "debug: add comprehensive logging to ranking delete API for troubleshooting",
+     "date": "2025-12-02T18:26:08Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/1e6012d17b7dc5bd11d702cd0b56e9f23ceb4e18"
+    },
+    {
+     "sha": "43bf07cc2e5ef76819ce872f5bd650bcb5f37be2",
+     "message": "feat: add comprehensive cron jobs management panel to admin dashboard",
+     "date": "2025-12-02T18:25:14Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/43bf07cc2e5ef76819ce872f5bd650bcb5f37be2"
+    },
+    {
+     "sha": "213846aec661c02e16025610e0c97f05a05b2e27",
+     "message": "feat: implement full collections seeding and match original seed counts",
+     "date": "2025-12-02T18:23:10Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/213846aec661c02e16025610e0c97f05a05b2e27"
+    },
+    {
+     "sha": "7687d1acf6d562d4dca4c4d95995a803b244e4a1",
+     "message": "feat: add complete server-side seeding for all data types",
+     "date": "2025-12-02T18:16:42Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/7687d1acf6d562d4dca4c4d95995a803b244e4a1"
+    },
+    {
+     "sha": "5b40975d306c394a1094bc31b232ecbd84234abe",
+     "message": "fix: restrict email testing endpoints to admin user only",
+     "date": "2025-12-02T18:14:02Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/5b40975d306c394a1094bc31b232ecbd84234abe"
+    },
+    {
+     "sha": "62406f406c9285144a9b7038fd24224a57808b76",
+     "message": "feat: add rankings seeding to server-side seed API",
+     "date": "2025-12-02T18:12:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/62406f406c9285144a9b7038fd24224a57808b76"
+    },
+    {
+     "sha": "e440788d4653de43ecdc99e2008e467a9cbd5397",
+     "message": "feat: add admin-only mode to trending and collection cache cron jobs",
+     "date": "2025-12-02T18:11:28Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/e440788d4653de43ecdc99e2008e467a9cbd5397"
+    },
+    {
+     "sha": "03178d3b5bb7ee7cf871ea79eb928b11e45a83b0",
+     "message": "refactor: update SimplifiedSmartBuilder to match settings/rankings cinematic styling",
+     "date": "2025-12-02T18:10:03Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/03178d3b5bb7ee7cf871ea79eb928b11e45a83b0"
+    },
+    {
+     "sha": "914ac26231027d85238818c8c933f68edc19b975",
+     "message": "feat: replace watch later with watch history in profiles",
+     "date": "2025-12-02T18:05:53Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/914ac26231027d85238818c8c933f68edc19b975"
+    },
+    {
+     "sha": "739c813dd640298938af9bc854ad7757ca728663",
+     "message": "fix: use server-side API for ranking deletion to bypass security rules",
+     "date": "2025-12-02T18:04:31Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/739c813dd640298938af9bc854ad7757ca728663"
+    },
+    {
+     "sha": "fd2c4ad6a0ac6970a73d363083fb2836d8cd7f77",
+     "message": "fix: delete ranking data in correct order to satisfy Firestore rules",
+     "date": "2025-12-02T18:01:01Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/fd2c4ad6a0ac6970a73d363083fb2836d8cd7f77"
+    },
+    {
+     "sha": "33c66855c861b5074fec9bcfd1be97f9d644dbe7",
+     "message": "feat: add server-side seed function that continues after navigation",
+     "date": "2025-12-02T17:55:52Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/33c66855c861b5074fec9bcfd1be97f9d644dbe7"
+    },
+    {
+     "sha": "6c33287a499ac4f5e1e28ff42a3381ccb8cd9395",
+     "message": "fix: sanitize poster_path values to prevent double /w500/ prefix",
+     "date": "2025-12-02T17:51:02Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/6c33287a499ac4f5e1e28ff42a3381ccb8cd9395"
+    },
+    {
+     "sha": "275502e4d37e3ebd5915febdb598c4a5b2fc9957",
+     "message": "feat: update Firestore rules to allow cascade deletion of ranking data",
+     "date": "2025-12-02T17:50:19Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/275502e4d37e3ebd5915febdb598c4a5b2fc9957"
+    },
+    {
+     "sha": "bbf4e7bca100c3c341f64432e60476f69c9b6965",
+     "message": "fix: restrict social digest cron job to admin user only",
+     "date": "2025-12-02T17:49:40Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/bbf4e7bca100c3c341f64432e60476f69c9b6965"
+    },
+    {
+     "sha": "5f8d863bdae612cb5d10366b9c6a524ced9ad54f",
+     "message": "fix: delete all comments and likes when deleting a ranking",
+     "date": "2025-12-02T17:47:17Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/5f8d863bdae612cb5d10366b9c6a524ced9ad54f"
+    },
+    {
+     "sha": "764a415aa0b4948e6d9d7e7e41f9cda04d0deaa1",
+     "message": "feat: enhance social notification display with rich details",
+     "date": "2025-12-02T17:42:21Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/764a415aa0b4948e6d9d7e7e41f9cda04d0deaa1"
+    },
+    {
+     "sha": "1db82e3a815fc21769e423aa180224916be2f88b",
+     "message": "fix: aggregate like notifications and add defensive ID handling",
+     "date": "2025-12-02T17:40:33Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/1db82e3a815fc21769e423aa180224916be2f88b"
+    },
+    {
+     "sha": "a0f80f910a3f39258b31024310c8ebe7a24cc688",
+     "message": "fix: add required fields to social notifications and update type system",
+     "date": "2025-12-01T20:08:26Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/a0f80f910a3f39258b31024310c8ebe7a24cc688"
+    },
+    {
+     "sha": "3ba5c9feccfcdd8d076909bef3a781101fa877fc",
+     "message": "fix: update Firestore rules to support social notification types",
+     "date": "2025-12-01T19:42:11Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/3ba5c9feccfcdd8d076909bef3a781101fa877fc"
+    },
+    {
+     "sha": "dc698fbe68a5ba9319eb55e8d54a3f9d84fd474c",
+     "message": "fix: handle undefined notification title in NotificationItem",
+     "date": "2025-12-01T01:46:53Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/dc698fbe68a5ba9319eb55e8d54a3f9d84fd474c"
+    },
+    {
+     "sha": "cb3a90d140d8fdc0782b3122197a08576c5f0c0b",
+     "message": "fix: use unique IDs for test social notifications",
+     "date": "2025-12-01T01:43:01Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/cb3a90d140d8fdc0782b3122197a08576c5f0c0b"
+    },
+    {
+     "sha": "5c3d66ae65638ce1f4c4bb623f54f01d56d46b38",
+     "message": "fix: handle new debug categories in getCategorySettings",
+     "date": "2025-12-01T01:40:46Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/5c3d66ae65638ce1f4c4bb623f54f01d56d46b38"
+    },
+    {
+     "sha": "6e8571be4f22a100bff80ed4bcd1e7b4cc270496",
+     "message": "feat: make debug console sections collapsible and restore NEXT_PUBLIC_ADMIN_UID",
+     "date": "2025-12-01T01:39:27Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/6e8571be4f22a100bff80ed4bcd1e7b4cc270496"
+    },
+    {
+     "sha": "40da163c936b43253005625661f77926d3d63ead",
+     "message": "fix: resolve admin page authentication and TypeScript errors",
+     "date": "2025-12-01T01:34:21Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/40da163c936b43253005625661f77926d3d63ead"
+    },
+    {
+     "sha": "17cf7e074a9935dbac3c45e8767db2dc34e51ff2",
+     "message": "fix: remove references to deprecated auto-update collection properties",
+     "date": "2025-11-30T23:27:50Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/17cf7e074a9935dbac3c45e8767db2dc34e51ff2"
+    },
+    {
+     "sha": "44afb196450ad1e3194ad8f635573f346cb1d646",
+     "message": "feat: add interactive year picker with century/decade/year selection",
+     "date": "2025-11-30T22:10:01Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/44afb196450ad1e3194ad8f635573f346cb1d646"
+    },
+    {
+     "sha": "e0e5822a8a72cf0f58aaaae6975d4459f632e48b",
+     "message": "feat: auto-save advanced filters and rename clear button",
+     "date": "2025-11-30T22:05:43Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/e0e5822a8a72cf0f58aaaae6975d4459f632e48b"
+    },
+    {
+     "sha": "3ab13cb36f3dc5873d4009cc9a65898548056561",
+     "message": "docs: add comprehensive Firebase vs TMDB cost analysis",
+     "date": "2025-11-30T22:02:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/3ab13cb36f3dc5873d4009cc9a65898548056561"
+    },
+    {
+     "sha": "79020af6e532596ea10c4df5a8098f23d6499fd6",
+     "message": "feat: implement actor/director cascading with Firebase caching",
+     "date": "2025-11-30T21:43:47Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/79020af6e532596ea10c4df5a8098f23d6499fd6"
+    },
+    {
+     "sha": "e129c251914624beefc656acf64ccf0042388b7d",
+     "message": "fix: email links now open modals + remove redundant badges",
+     "date": "2025-11-30T21:01:47Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/e129c251914624beefc656acf64ccf0042388b7d"
+    },
+    {
+     "sha": "cc67f2c04737c7a0493e7aad4fd974a8922f4935",
+     "message": "fix: improve weekly digest email design and fix issues",
+     "date": "2025-11-30T20:54:49Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/cc67f2c04737c7a0493e7aad4fd974a8922f4935"
+    },
+    {
+     "sha": "11acfae774567da7e8320959d5fd1364cf16559d",
+     "message": "feat: redesign weekly digest email with premium Netflix-style layout",
+     "date": "2025-11-30T20:50:31Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/11acfae774567da7e8320959d5fd1364cf16559d"
+    },
+    {
+     "sha": "06692b6a9f5531a3df3211ba041051ae193a4bac",
+     "message": "refactor: reorganize toggles, enhance titles, and hide empty content header",
+     "date": "2025-11-30T20:47:20Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/06692b6a9f5531a3df3211ba041051ae193a4bac"
+    },
+    {
+     "sha": "ad91c0ad9a7512f3fb07f7bdfd7e1694cec14dc2",
+     "message": "ui: increase section title sizes for better visibility",
+     "date": "2025-11-30T20:44:24Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/ad91c0ad9a7512f3fb07f7bdfd7e1694cec14dc2"
+    },
+    {
+     "sha": "94d6010574ade6ca68d2917e97b7793474d951ab",
+     "message": "fix: add notification deduplication in store to prevent React key warnings",
+     "date": "2025-11-30T20:43:53Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/94d6010574ade6ca68d2917e97b7793474d951ab"
+    },
+    {
+     "sha": "acc3785456181df76a7caccdc99da95a4feb03a6",
+     "message": "fix: implement two-column grid layout for all sections",
+     "date": "2025-11-30T20:43:46Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/acc3785456181df76a7caccdc99da95a4feb03a6"
+    },
+    {
+     "sha": "22a812cb841306b98269ab3c7526bf2aec3060b5",
+     "message": "refactor: restructure layout to single column and enhance edit buttons",
+     "date": "2025-11-30T20:39:07Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/22a812cb841306b98269ab3c7526bf2aec3060b5"
+    },
+    {
+     "sha": "465cae15e4a617d2bcdc65f46cf6d8c2d6cb6a6e",
+     "message": "feat: add weekly trending digest email notifications",
+     "date": "2025-11-30T20:29:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/465cae15e4a617d2bcdc65f46cf6d8c2d6cb6a6e"
+    },
+    {
+     "sha": "f8b6e65868d0360d989f067726824bf19314bcd5",
+     "message": "refactor: restore blue gradient background and separate cast/director filters",
+     "date": "2025-11-30T20:25:46Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/f8b6e65868d0360d989f067726824bf19314bcd5"
+    },
+    {
+     "sha": "063c056d3cefec9c149168c31ce93c9121bd3fe9",
+     "message": "refactor: create separate Advanced Filters Modal with improved UX",
+     "date": "2025-11-30T20:23:15Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/063c056d3cefec9c149168c31ce93c9121bd3fe9"
+    },
+    {
+     "sha": "af4ba4686b96e7b400280353f6476592ae46218f",
+     "message": "ui: increase settings text size and update delete button label",
+     "date": "2025-11-30T20:21:49Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/af4ba4686b96e7b400280353f6476592ae46218f"
+    },
+    {
+     "sha": "09e54edfea6b1c8c740c242a06ac282561c8066b",
+     "message": "fix: vertically center content in identity container",
+     "date": "2025-11-30T20:19:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/09e54edfea6b1c8c740c242a06ac282561c8066b"
+    },
+    {
+     "sha": "e72501ed2e785fc9df2598b571ee5e7b51188826",
+     "message": "fix: improve actor/director search UX and remove restrictive filters",
+     "date": "2025-11-30T20:16:25Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/e72501ed2e785fc9df2598b571ee5e7b51188826"
+    },
+    {
+     "sha": "eb4899a09f5f540ae7fab56f4b24e326d150bd55",
+     "message": "fix: add minimum height to prevent layout shift",
+     "date": "2025-11-30T20:15:48Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/eb4899a09f5f540ae7fab56f4b24e326d150bd55"
+    },
+    {
+     "sha": "ca6befa1d9a23b36eb3e6d68a20ac8d4b3b6445d",
+     "message": "fix: update all broken TMDB image paths in seed data",
+     "date": "2025-11-30T20:14:21Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/ca6befa1d9a23b36eb3e6d68a20ac8d4b3b6445d"
+    },
+    {
+     "sha": "7defac8502947776b521000c326da9f37a1dafbe",
+     "message": "feat: add click-outside to close identity edit mode",
+     "date": "2025-11-30T20:12:28Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/7defac8502947776b521000c326da9f37a1dafbe"
+    },
+    {
+     "sha": "0e72aa0846626cd901e9aabbf7622cd7d7d639d5",
+     "message": "feat: add trending v2 with ranking change detection",
+     "date": "2025-11-30T20:11:28Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/0e72aa0846626cd901e9aabbf7622cd7d7d639d5"
+    },
+    {
+     "sha": "b3398ec53f437c9f3d6b7fa21753936b784af291",
+     "message": "fix: show edit controls inside color-tinted container",
+     "date": "2025-11-30T20:10:05Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/b3398ec53f437c9f3d6b7fa21753936b784af291"
+    },
+    {
+     "sha": "ca6590578b60afce3fc5d13c58b9473743856ed1",
+     "message": "feat: add actor and director filters to Collection Editor Modal",
+     "date": "2025-11-30T20:04:41Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/ca6590578b60afce3fc5d13c58b9473743856ed1"
+    },
+    {
+     "sha": "6a248465bc7ef1a4442d515fdefca02ca10fd7bf",
+     "message": "feat: add comprehensive trending notifications testing",
+     "date": "2025-11-30T20:02:44Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/6a248465bc7ef1a4442d515fdefca02ca10fd7bf"
+    },
+    {
+     "sha": "458a3d4c8c51383cada41c936549a58322ca5a84",
+     "message": "refactor: move collection identity to modal header with pencil edit button",
+     "date": "2025-11-30T20:02:31Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/458a3d4c8c51383cada41c936549a58322ca5a84"
+    },
+    {
+     "sha": "e43151c3fccafd0cc31da87f3a87ad613766b5d9",
+     "message": "feat: add collapsible identity editor to Collection Editor Modal",
+     "date": "2025-11-30T19:59:50Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/e43151c3fccafd0cc31da87f3a87ad613766b5d9"
+    },
+    {
+     "sha": "2046879f3b815eb04cd22c44ba78a11c505110b7",
+     "message": "feat: add fadeInUp animation to ranking grid items",
+     "date": "2025-11-30T19:59:12Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/2046879f3b815eb04cd22c44ba78a11c505110b7"
+    },
+    {
+     "sha": "f10479185278bb367609d854c8e6bff6f1cc994b",
+     "message": "ui: apply atmospheric styling to Collection Editor Modal",
+     "date": "2025-11-30T19:52:31Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/f10479185278bb367609d854c8e6bff6f1cc994b"
+    },
+    {
+     "sha": "c5401cb58a4004ced01b8e8c593f6fa69494bcbf",
+     "message": "docs: add cron testing guide and update future features",
+     "date": "2025-11-30T19:51:35Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/c5401cb58a4004ced01b8e8c593f6fa69494bcbf"
+    },
+    {
+     "sha": "ef95e3a8067ca2eea30330f981a25d1ee00b7b88",
+     "message": "ui: improve Home Row Editor Modal layout and sizing",
+     "date": "2025-11-30T19:51:05Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/ef95e3a8067ca2eea30330f981a25d1ee00b7b88"
+    },
+    {
+     "sha": "b12b37f021584c7e36227da78878d0917e6ced7d",
+     "message": "chore: finalize auto-update removal from HomeRowEditorModal",
+     "date": "2025-11-30T19:50:33Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/b12b37f021584c7e36227da78878d0917e6ced7d"
+    },
+    {
+     "sha": "3f7965a0cba4e8cc406fc23576a0675224718df9",
+     "message": "fix: use Firebase Admin SDK instead of client SDK in feedback API",
+     "date": "2025-11-30T19:49:50Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/3f7965a0cba4e8cc406fc23576a0675224718df9"
+    },
+    {
+     "sha": "763b440e9501c6d871e086151bafda2d85750a2d",
+     "message": "ui: improve Collection Editor Modal layout and sizing",
+     "date": "2025-11-30T19:49:02Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/763b440e9501c6d871e086151bafda2d85750a2d"
+    },
+    {
+     "sha": "64ede6d1808b85d95c0c6e7e35bf1e75257b4b04",
+     "message": "fix: update Firestore rules to allow optional id field in recommendation_feedback",
+     "date": "2025-11-30T19:45:26Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/64ede6d1808b85d95c0c6e7e35bf1e75257b4b04"
+    },
+    {
+     "sha": "42dd5448279b19c1f3f96bbacdc61f68b671d742",
+     "message": "feat: reorganize rankings page layout to match community page design",
+     "date": "2025-11-30T19:43:57Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/42dd5448279b19c1f3f96bbacdc61f68b671d742"
+    },
+    {
+     "sha": "c19c26dc3c7dc18812c3aa13e1756f42d69ad0be",
+     "message": "ui: simplify Collection Editor Modal visual effects",
+     "date": "2025-11-30T19:40:38Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/c19c26dc3c7dc18812c3aa13e1756f42d69ad0be"
+    },
+    {
+     "sha": "304e0e0606566363ddf8e551dcc9e514875a5277",
+     "message": "feat: improve rankings page layout and clean up UI",
+     "date": "2025-11-30T19:40:26Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/304e0e0606566363ddf8e551dcc9e514875a5277"
+    },
+    {
+     "sha": "ae0c84485896eedeb63fa90084b75eeae3722591",
+     "message": "fix: reduce gap between search and content on Watch History",
+     "date": "2025-11-30T19:37:18Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/ae0c84485896eedeb63fa90084b75eeae3722591"
+    },
+    {
+     "sha": "e7e6c1adeb68443fed74a050ab2c7accf6c9f953",
+     "message": "feat: add pill-styled badges for content type and year in hero section",
+     "date": "2025-11-30T19:34:45Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/e7e6c1adeb68443fed74a050ab2c7accf6c9f953"
+    },
+    {
+     "sha": "7c3712f2b5615890de6950dbcfc52622ea395217",
+     "message": "fix: remove duplicate currentSearch variable declaration in rankings page",
+     "date": "2025-11-30T19:21:34Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/7c3712f2b5615890de6950dbcfc52622ea395217"
+    },
+    {
+     "sha": "601dd57b399ccdc7302e54603d1cffdfde4eca08",
+     "message": "feat: apply cinematic Netflix-inspired redesign to main page hero section",
+     "date": "2025-11-30T19:21:02Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/601dd57b399ccdc7302e54603d1cffdfde4eca08"
+    },
+    {
+     "sha": "1160da70509e5fb63fa3d47ccfb15545828b0757",
+     "message": "feat: complete voice search and spacing for all subpages",
+     "date": "2025-11-30T19:17:09Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/1160da70509e5fb63fa3d47ccfb15545828b0757"
+    },
+    {
+     "sha": "77b580319e84f1257a6bb4879dd5dcdbd777702e",
+     "message": "feat: add voice search to Rankings page + spacing fixes",
+     "date": "2025-11-30T19:11:12Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/77b580319e84f1257a6bb4879dd5dcdbd777702e"
+    },
+    {
+     "sha": "807e88849ebf05b37cbffc2a6b715bf2a8f27f89",
+     "message": "feat: add voice search and improve spacing on subpages",
+     "date": "2025-11-30T19:07:45Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/807e88849ebf05b37cbffc2a6b715bf2a8f27f89"
+    },
+    {
+     "sha": "ebdf64b242eeb9c378b01553c7bb3e595535ed3e",
+     "message": "fix: update broken TMDB image paths in seed data",
+     "date": "2025-11-30T19:04:33Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/ebdf64b242eeb9c378b01553c7bb3e595535ed3e"
+    },
+    {
+     "sha": "7028aa869b3a4d84ab498069d5f1df68bfe318b7",
+     "message": "feat: implement stricter username/display name validation and improve profile UI",
+     "date": "2025-11-30T19:03:04Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/7028aa869b3a4d84ab498069d5f1df68bfe318b7"
+    },
+    {
+     "sha": "b5188fcbf416d5a7452bdebd1e84e4ee855598d2",
+     "message": "feat: align icons/avatars with titles and add voice search (partial)",
+     "date": "2025-11-30T19:02:35Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/b5188fcbf416d5a7452bdebd1e84e4ee855598d2"
+    },
+    {
+     "sha": "12007f2c153e49a5de8d84288284f24d95ea628c",
+     "message": "feat: add emojis to recommendation feedback logging",
+     "date": "2025-11-30T02:16:52Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/12007f2c153e49a5de8d84288284f24d95ea628c"
+    },
+    {
+     "sha": "21dbc821025d847e4873239ba128406ff242dedf",
+     "message": "fix: resolve Firestore permission error in recommendation feedback",
+     "date": "2025-11-30T02:16:26Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/21dbc821025d847e4873239ba128406ff242dedf"
+    },
+    {
+     "sha": "6fed3cb347d146b51cab4bd9f62467c364e5bce6",
+     "message": "feat: add contextual emojis to terminal logging",
+     "date": "2025-11-30T02:14:21Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/6fed3cb347d146b51cab4bd9f62467c364e5bce6"
+    },
+    {
+     "sha": "75624394119a3fdbbf847beffd68f3ba552c54ee",
+     "message": "ui: replace blur effect with gradient background on tour cards",
+     "date": "2025-11-30T01:46:24Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/75624394119a3fdbbf847beffd68f3ba552c54ee"
+    },
+    {
+     "sha": "f81f19e7e443941eb4b063f63823d31f8efb3f4c",
+     "message": "fix: properly wait for navigation to home before starting tour",
+     "date": "2025-11-30T01:12:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/f81f19e7e443941eb4b063f63823d31f8efb3f4c"
+    },
+    {
+     "sha": "ad77807c10c8aa7a58ade524824b02bd70020f38",
+     "message": "fix: improve navigation timing when starting tour",
+     "date": "2025-11-30T01:07:28Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/ad77807c10c8aa7a58ade524824b02bd70020f38"
+    },
+    {
+     "sha": "e0037e2aaeb5b11c61411e6f77f43528c4787ce7",
+     "message": "feat(profile): add real-time display name validation with Zod",
+     "date": "2025-11-30T00:08:13Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/e0037e2aaeb5b11c61411e6f77f43528c4787ce7"
+    },
+    {
+     "sha": "fe43d9be215320a18dac8732de3dafa9d14843cf",
+     "message": "feat(settings): add tab navigation to Account Management section",
+     "date": "2025-11-30T00:00:12Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/fe43d9be215320a18dac8732de3dafa9d14843cf"
+    },
+    {
+     "sha": "a255ea80f2e9a7bbfa026c91f635a8228a8b1dc3",
+     "message": "fix(rankings): update createRanking callers for new signature",
+     "date": "2025-11-29T23:53:44Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/a255ea80f2e9a7bbfa026c91f635a8228a8b1dc3"
+    },
+    {
+     "sha": "48b6e74a29aa192a69670edb4af837bb4b567d8d",
+     "message": "refactor(rankings): update denormalized data to use displayName",
+     "date": "2025-11-29T23:52:24Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/48b6e74a29aa192a69670edb4af837bb4b567d8d"
+    },
+    {
+     "sha": "5067d988bfedb411831dd52074f4ece94a99d471",
+     "message": "feat: lock page scrolling during interactive tour",
+     "date": "2025-11-29T23:49:25Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/5067d988bfedb411831dd52074f4ece94a99d471"
+    },
+    {
+     "sha": "e487195f4759c7eb0476a98acea2fe413035354a",
+     "message": "feat: add automatic scrolling for tour highlighted elements",
+     "date": "2025-11-29T23:48:48Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/e487195f4759c7eb0476a98acea2fe413035354a"
+    },
+    {
+     "sha": "da162c731332a34c9c11ebabceee6cbff808a4e6",
+     "message": "feat(profile): implement hybrid display name and username system",
+     "date": "2025-11-29T23:43:05Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/da162c731332a34c9c11ebabceee6cbff808a4e6"
+    },
+    {
+     "sha": "e02dc12e41f210b3d3fc416ecdbeb1373e3df165",
+     "message": "fix: stable tooltip box during pane transitions and remove emoji duplication",
+     "date": "2025-11-29T23:38:46Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/e02dc12e41f210b3d3fc416ecdbeb1373e3df165"
+    },
+    {
+     "sha": "6193772f858f0947f642702027d30f73d29401c3",
+     "message": "feat: add fixed positioning and smooth animations to tour transitions",
+     "date": "2025-11-29T23:34:39Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/6193772f858f0947f642702027d30f73d29401c3"
+    },
+    {
+     "sha": "7d5b4b41c3965f5f6a6f78d5318c1d8bfd21ea4a",
+     "message": "docs(security): update CSRF review with additional findings",
+     "date": "2025-11-29T23:31:48Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/7d5b4b41c3965f5f6a6f78d5318c1d8bfd21ea4a"
+    },
+    {
+     "sha": "0f91e97ac0024f799fab3fadd2ca6b7d5e411a0f",
+     "message": "test(security): add CI check for route handlers outside /api",
+     "date": "2025-11-29T23:30:31Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/0f91e97ac0024f799fab3fadd2ca6b7d5e411a0f"
+    },
+    {
+     "sha": "c9a7fe66e5ba98379b7018157e1f9150f7bb7c3e",
+     "message": "test(security): expand server action lint guard to search whole repo",
+     "date": "2025-11-29T23:29:51Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/c9a7fe66e5ba98379b7018157e1f9150f7bb7c3e"
+    },
+    {
+     "sha": "1d01cf81a81b594c0d43b02a873b0a4ffee96950",
+     "message": "fix(security): move share view tracking from GET to POST",
+     "date": "2025-11-29T23:28:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/1d01cf81a81b594c0d43b02a873b0a4ffee96950"
+    },
+    {
+     "sha": "c22de10bcdec2c80f6b172f152d96fafd1165048",
+     "message": "fix: navigate to home page when starting interactive tour",
+     "date": "2025-11-29T20:32:34Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/c22de10bcdec2c80f6b172f152d96fafd1165048"
+    },
+    {
+     "sha": "597e87c7209a3c78db787da871f513cb87cc74a1",
+     "message": "docs(security): update CSRF documentation with audit fixes",
+     "date": "2025-11-29T20:28:08Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/597e87c7209a3c78db787da871f513cb87cc74a1"
+    },
+    {
+     "sha": "641e8b85244891aa8fc42bdca3248f5d6f2536fd",
+     "message": "docs: add CONTRIBUTING.md with security guidelines",
+     "date": "2025-11-29T20:26:52Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/641e8b85244891aa8fc42bdca3248f5d6f2536fd"
+    },
+    {
+     "sha": "0787cb958edd814869649959a0a772b68a67542e",
+     "message": "test(security): add server action CSRF lint guard",
+     "date": "2025-11-29T20:26:17Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/0787cb958edd814869649959a0a772b68a67542e"
+    },
+    {
+     "sha": "aa1563204fe74c68ce0d7f7179d9f7f32de95f4a",
+     "message": "test(security): add proxy integration tests",
+     "date": "2025-11-29T20:25:34Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/aa1563204fe74c68ce0d7f7179d9f7f32de95f4a"
+    },
+    {
+     "sha": "f053d3c0abad4ce983ae074bf41b8a7f1f800211",
+     "message": "test(security): add CSRF protection unit tests",
+     "date": "2025-11-29T20:24:37Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/f053d3c0abad4ce983ae074bf41b8a7f1f800211"
+    },
+    {
+     "sha": "1d3e161c0a049f8e5fe6dd06020311e512535e4f",
+     "message": "fix(security): convert unsubscribe to POST with confirmation page",
+     "date": "2025-11-29T20:23:37Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/1d3e161c0a049f8e5fe6dd06020311e512535e4f"
+    },
+    {
+     "sha": "fddfee23d7a164afe4a4711056fca26309303ed2",
+     "message": "feat: update TutorialModal features with Advanced Filters and Explore Rankings",
+     "date": "2025-11-29T20:19:44Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/fddfee23d7a164afe4a4711056fca26309303ed2"
+    },
+    {
+     "sha": "8998b067256a0a26beda8776944ec4f2a2d1912c",
+     "message": "style: change mini cards layout from 3 columns to 2 columns",
+     "date": "2025-11-29T20:07:39Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/8998b067256a0a26beda8776944ec4f2a2d1912c"
+    },
+    {
+     "sha": "dccdc17293d3230164acaa73bccfd3eb8cbfbaeb",
+     "message": "style: increase tab navigation button size, revert mini cards",
+     "date": "2025-11-29T20:07:13Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/dccdc17293d3230164acaa73bccfd3eb8cbfbaeb"
+    },
+    {
+     "sha": "95d35ca231b5095605265c1c9d821c55e5f2ca12",
+     "message": "style: increase mini card text size for better readability",
+     "date": "2025-11-29T20:04:35Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/95d35ca231b5095605265c1c9d821c55e5f2ca12"
+    },
+    {
+     "sha": "32afd8cd1173b1b90505a9a34ba9bab1b3f62f75",
+     "message": "fix(security): enforce CRON_SECRET for GET requests to cron routes",
+     "date": "2025-11-29T20:03:55Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/32afd8cd1173b1b90505a9a34ba9bab1b3f62f75"
+    },
+    {
+     "sha": "2e89b810aa478f19b803ef0f87204978b8925266",
+     "message": "feat: add Token Verification and Security Monitoring to security tab",
+     "date": "2025-11-29T19:54:35Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/2e89b810aa478f19b803ef0f87204978b8925266"
+    },
+    {
+     "sha": "d11e9cbefe54a996164d8809a900ad6a0c1280a4",
+     "message": "refactor: comprehensive security tab update with all protections",
+     "date": "2025-11-29T19:43:48Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/d11e9cbefe54a996164d8809a900ad6a0c1280a4"
+    },
+    {
+     "sha": "e6fbbdc4ed7db59e8f852a7471c1c358dca27336",
+     "message": "fix(security): remove CRON_SECRET bypass from applyCsrfProtection",
+     "date": "2025-11-29T19:43:33Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/e6fbbdc4ed7db59e8f852a7471c1c358dca27336"
+    },
+    {
+     "sha": "e1f3cd2121f1facb076e6377aaaaa6918a73d13a",
+     "message": "fix: normalize title structure across all tabs for consistent height",
+     "date": "2025-11-29T19:37:28Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/e1f3cd2121f1facb076e6377aaaaa6918a73d13a"
+    },
+    {
+     "sha": "d08bd850f5c39052c122234cb85ec1c6e3ab0dcd",
+     "message": "fix: center social media icons with full modal width",
+     "date": "2025-11-29T19:35:36Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/d08bd850f5c39052c122234cb85ec1c6e3ab0dcd"
+    },
+    {
+     "sha": "3277a9ee2d6e3b54187876f956edecd3681f47b2",
+     "message": "refactor: tighten About intro to focus on vision, not product",
+     "date": "2025-11-29T19:34:18Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/3277a9ee2d6e3b54187876f956edecd3681f47b2"
+    },
+    {
+     "sha": "5fcb8b8c7fa15a0397852738caf7065accdfedce",
+     "message": "refactor: rewrite About intro with personal vision for content curation",
+     "date": "2025-11-29T19:30:55Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/5fcb8b8c7fa15a0397852738caf7065accdfedce"
+    },
+    {
+     "sha": "ee4950ab9ec55da1892588e49993e820b0aa3889",
+     "message": "fix: move horizontal line above \"New to NetTrailers\" section",
+     "date": "2025-11-29T19:28:45Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/ee4950ab9ec55da1892588e49993e820b0aa3889"
+    },
+    {
+     "sha": "6d5fb9e7ff89309f9cae6f8c55083c16fa58cdce",
+     "message": "docs: enhance CSRF_REVIEW.md with attack vectors and fix explanations",
+     "date": "2025-11-29T19:28:08Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/6d5fb9e7ff89309f9cae6f8c55083c16fa58cdce"
+    },
+    {
+     "sha": "6accd86a4c9c1b2cfbc376ea5544c3fd63347f56",
+     "message": "fix: improve About section layout and social button sizing",
+     "date": "2025-11-29T19:27:02Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/6accd86a4c9c1b2cfbc376ea5544c3fd63347f56"
+    },
+    {
+     "sha": "520c6671d07a5478b346976928cf4ab879226b95",
+     "message": "fix: center portfolio text and add line break above",
+     "date": "2025-11-29T19:25:14Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/520c6671d07a5478b346976928cf4ab879226b95"
+    },
+    {
+     "sha": "35bfe98ed317eaf93816f0e5b58115bbb80914f4",
+     "message": "refactor: convert portfolio link to inline pill button",
+     "date": "2025-11-29T19:23:28Z",
+     "author": "n8watkins",
+     "parents": 1,
+     "url": "https://github.com/n8watkins/net_trailers/commit/35bfe98ed317eaf93816f0e5b58115bbb80914f4"
+    }
+   ]
   }
  ],
  "highlights": [

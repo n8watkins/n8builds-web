@@ -33,16 +33,20 @@ test('the build log leads with the builds, most recently active first', { tag: '
   const cards = page.getByRole('list', { name: 'Builds by latest activity' }).locator(':scope > li')
   // The builds, then the projects without a build page the log follows since round 5 of
   // 2026-11-02 (data/logBuilds.ts); in the fixture those have nothing yet, so they come last.
-  await expect(cards).toHaveCount(18)
+  // NetTrailers and n8games joined on 2026-11-26 (owner: "we should add n8games and nettrailers").
+  await expect(cards).toHaveCount(20)
   expect(await cards.evaluateAll((els) => els.map((el) => el.getAttribute('data-build')))).toEqual([
     'n8builds',
     'solara',
     'tldw',
     'openping',
     'scribe',
+    'net-trailers',
     'portfolio-rank',
     'tubevault',
     'voicedock',
+    // n8games' repo had nothing yet at the fixture's capture (2026-10-26).
+    'n8games',
     // release-kit's page (round 9 of 2026-11-09): the fixture has nothing logged for it yet.
     'release-kit',
     // The developer portfolio's page (round 12 of 2026-11-09): nothing logged in the fixture either.
@@ -67,6 +71,9 @@ test('the build log leads with the builds, most recently active first', { tag: '
     await expect(page.locator('body')).not.toContainText(name)
   }
   await expect(cards.and(page.locator('[data-build="pr-post"]')).getByRole('link', { name: 'Full story of PR Post' })).toHaveAttribute('href', '/#pr-post-edition')
+  // NetTrailers' story is on the portfolio, where the site already sends it; n8games' is its page here.
+  await expect(cards.and(page.locator('[data-build="net-trailers"]')).getByRole('link', { name: 'Full story of NetTrailers' })).toHaveAttribute('href', 'https://portfolio.n8builds.dev/projects/net-trailers')
+  await expect(cards.and(page.locator('[data-build="n8games"]')).getByRole('link', { name: 'Full story of n8games' })).toHaveAttribute('href', '/builds/n8games')
   await expect(cards.first()).toContainText('Last shipped Oct 2026')
   // Quiet builds read as finished, not abandoned.
   await expect(page.getByRole('list', { name: 'Builds by latest activity' })).not.toContainText(/\bago\b/)

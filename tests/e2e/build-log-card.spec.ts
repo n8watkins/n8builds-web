@@ -289,11 +289,12 @@ for (const place of PLACES) {
       await older.click()
       await dayButton(card, 'Saturday, June 20').hover()
       await expect(card.locator('[data-month]')).toHaveText('June 2026')
-      await expect(card.locator('[data-readout] [data-number]')).toHaveText('43')
+      // (48 with NetTrailers' 5 that day, followed since 2026-11-26.)
+      await expect(card.locator('[data-readout] [data-number]')).toHaveText('48')
       await expect(card.locator('[data-readout]')).toContainText(/changes on\s*Sat, Jun 20/)
       await page.mouse.move(2, 2)
       await expect(card).toHaveAttribute('data-settled', '', { timeout: 5000 })
-      await expect(card.locator('[data-changes]')).toHaveText('217')
+      await expect(card.locator('[data-changes]')).toHaveText('240')
       expect(await barMismatches(card)).toEqual([])
     })
 
@@ -800,6 +801,9 @@ test.describe('on /builds', () => {
     await movesOnTo('July 2026')
     await movesOnTo('June 2026')
     await movesOnTo('May 2026')
+    // NetTrailers' last winter (followed since 2026-11-26), then round to the newest.
+    await movesOnTo('December 2025')
+    await movesOnTo('November 2025')
     await movesOnTo('October 2026')
     // Hovered, it holds.
     await card.hover()

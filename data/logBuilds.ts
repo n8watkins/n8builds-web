@@ -145,6 +145,19 @@ const followed: LogBuild[] = [
     // Its paper's card under People I follow on the homepage, its one placement since round 5.
     href: '/#pr-post-edition',
   },
+  {
+    // Followed for the log (owner, 2026-11-26: "we should add n8games and nettrailers"). It has
+    // no page here: its page is on the portfolio, where the site already links for it
+    // (`stackLinkHref` in data/stack.tsx).
+    slug: 'net-trailers',
+    name: 'NetTrailers',
+    tagline: 'A Netflix-style streaming app with an AI brain',
+    category: 'Web app',
+    color: 'from-red-500/20 to-rose-700/20',
+    github: 'https://github.com/n8watkins/net_trailers',
+    repo: 'n8watkins/net_trailers',
+    href: 'https://portfolio.n8builds.dev/projects/net-trailers',
+  },
 ]
 
 /** The projects above, the unlisted upcoming ones marked as such (the one place that decides it is data/upcoming.ts). */

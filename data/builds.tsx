@@ -438,6 +438,8 @@ images: [
     images: [],
     tryIt: { label: 'Play n8games', href: N8GAMES_URL },
     github: N8GAMES_REPO,
+    // The build log follows it (owner, 2026-11-26: "we should add n8games and nettrailers").
+    repo: 'n8watkins/n8-party-games',
     liveSite: N8GAMES_URL,
   },
   {

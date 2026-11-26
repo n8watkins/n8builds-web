@@ -192,8 +192,9 @@ test('the month arrows go back through the year and round, and the updates follo
 
   // The arrows go round (owner, round 4 of 2026-11-08): on from the newest is the oldest, and back.
   await forward.click()
-  await expect(month).toHaveText('May 2026')
-  await expect(strip(page).getByRole('group', { name: 'Latest in May 2026' })).toBeVisible()
+  // (November 2025: NetTrailers' oldest month in the window, followed since 2026-11-26.)
+  await expect(month).toHaveText('November 2025')
+  await expect(strip(page).getByRole('group', { name: 'Latest in November 2025' })).toBeVisible()
   await back.click()
   await expect(month).toHaveText('October 2026')
 })

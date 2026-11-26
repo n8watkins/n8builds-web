@@ -3,6 +3,7 @@
 // and releases without ever calling GitHub themselves.
 //
 //   GITHUB_TOKEN=... node scripts/build-log-fixture.mjs
+//   node scripts/build-log-fixture.mjs --add   (only repos the fixture lacks, as of its capture)
 //
 // It fetches what lib/build-log.ts fetches (the repo, its releases and the
 // owner's commits on the default branch, paged back to the log's 12-month
@@ -107,7 +108,35 @@ const highlights = [
   },
 ]
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+/**
+ * `--add`: a repo the log has started to follow gets its snapshot as it stood
+ * at the fixture's capture time, through the same fetch, and nothing else in
+ * the fixture changes (owner, 2026-11-26: NetTrailers and n8games joined the
+ * log). Every test pinned to the capture's month stays true. A repo already
+ * in the fixture is left as it is; work after the capture is left out.
+ *
+ *   node scripts/build-log-fixture.mjs --add
+ */
+async function addMissing() {
+  const fixture = JSON.parse(readFileSync(OUT, 'utf8'))
+  const have = new Set(fixture.snapshots.map((s) => s.repo))
+  const at = fixture.capturedAt
+  const added = []
+  for (const repo of trackedRepos().filter((r) => !have.has(r))) {
+    const s = await snapshot(repo)
+    s.commits = s.commits.filter((c) => c.date <= at)
+    s.releases = s.releases.filter((r) => r.publishedAt && r.publishedAt <= at)
+    s.pushedAt = s.commits[0]?.date ?? null
+    fixture.snapshots.push(s)
+    added.push(`${repo} (${s.commits.length} commits, ${s.releases.length} releases by ${at})`)
+  }
+  writeFileSync(OUT, `${JSON.stringify(fixture, null, 1)}\n`)
+  console.log(added.length ? `Added to ${OUT}: ${added.join(', ')}` : `${OUT} already has every tracked repo`)
+}
+
+if (import.meta.url === `file://${process.argv[1]}` && process.argv.includes('--add')) {
+  await addMissing()
+} else if (import.meta.url === `file://${process.argv[1]}`) {
   const repos = trackedRepos()
   const snapshots = []
   for (const repo of repos) snapshots.push(await snapshot(repo))
