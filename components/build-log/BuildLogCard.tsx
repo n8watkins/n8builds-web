@@ -182,6 +182,7 @@ function FooterLink({ link }: { link: CardLink }) {
     )
   return link.external ? (
     <a href={link.href} target="_blank" rel="noopener noreferrer" className={className}>
+      {/* new-tab-hint: from children (`inner` says it for an external link) */}
       {inner}
     </a>
   ) : (
@@ -449,7 +450,8 @@ export default function BuildLogCard({
             <FooterLink link={links.left} />
           </div>
         ) : (
-          <span />
+          // Holds the right link to the right; beside the chart it starts the row instead.
+          <span className={grid ? 'lg:hidden' : ''} />
         )}
         {links.right && <FooterLink link={links.right} />}
       </div>
@@ -467,6 +469,8 @@ export default function BuildLogCard({
       data-build-log={months === null ? 'loading' : count ? 'ready' : 'fallback'}
       data-size={size}
       data-cycling={cycling ? '' : undefined}
+      // Hydrated and on screen: tests wait for it before they aim at a day.
+      data-in-view={inView ? '' : undefined}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onFocus={(e) => setFocused(e.target.matches(':focus-visible'))}
