@@ -80,7 +80,7 @@ function setup(start = T0) {
      * leave link), written in one batch. Going through the store for each person
      * took two round trips to D1 apiece, seconds for a run's worth of people.
      */
-    async people(n: number, project: 'feelium' | 'fitflow7' = 'feelium', prefix = 'p') {
+    async people(n: number, project: 'feelium' | 'pivot' = 'feelium', prefix = 'p') {
       const t = now.getTime()
       const iso = now.toISOString()
       const token = 'INSERT INTO waitlist_tokens (token_hash, subscriber_id, purpose, created_at, expires_at, used_at) VALUES (?, ?, ?, ?, ?, ?)'
@@ -171,7 +171,7 @@ describe('Announcements: start', () => {
     const { service, people, waitlist, fake } = setup()
     await people(3)
     await waitlist.join({ email: 'pending@example.com', projects: ['feelium'], note: '', interest: '', referrer: '' })
-    await people(2, 'fitflow7', 's')
+    await people(2, 'pivot', 's')
     const result = await service.start(launch, 'owner')
     if (!('id' in result)) throw new Error('expected a start')
     expect(await service.status(result.id)).toMatchObject({ project: 'feelium', total: 3, sent: 0, state: 'sending', createdBy: 'owner' })
@@ -185,7 +185,7 @@ describe('Announcements: start', () => {
   it('allows one announcement per project every 30 days', async () => {
     const { service, people, later } = setup()
     await people(1)
-    await people(1, 'fitflow7', 's')
+    await people(1, 'pivot', 's')
     expect(await service.start(launch, 'owner')).toHaveProperty('id')
     later(29 * DAY)
     expect(await service.start({ ...launch, template: 'open' }, 'owner')).toEqual({
@@ -193,7 +193,7 @@ describe('Announcements: start', () => {
       nextAllowedAt: new Date(T0.getTime() + 30 * DAY).toISOString(),
     })
     // Another project is unaffected.
-    expect(await service.start({ ...launch, project: 'fitflow7' }, 'owner')).toHaveProperty('id')
+    expect(await service.start({ ...launch, project: 'pivot' }, 'owner')).toHaveProperty('id')
     later(DAY + 1)
     expect(await service.start({ ...launch, template: 'open' }, 'owner')).toHaveProperty('id')
   })
@@ -233,11 +233,9 @@ describe('Announcements: start', () => {
     expect(await count("SELECT COUNT(*) AS n FROM waitlist_projects WHERE project = 'retired-one' AND status = 'confirmed'")).toBe(1)
   })
 
-  // Unlisted since 2026-11-11 (`unlisted` in data/upcoming.ts): not advertised, but the owner can still write to its waitlist.
-  it.each(['keysready', 'strollz', 'vibelog', 'asset-arsenal'] as const)('announces for %s, an unlisted project, like any other: listed for the owner, previewed, tested and sent', async (slug) => {
+  it.each(['keysready'] as const)('announces for %s like any other: listed for the owner, previewed, tested and sent', async (slug) => {
     const { service, waitlist, fake } = setup()
     const project = UPCOMING.find((p) => p.slug === slug)!
-    expect(project.unlisted).toBe(true)
     const entry = await waitlist.join({ email: 'early@example.com', projects: [slug], note: '', interest: slug, referrer: '' })
     await waitlist.confirm((await waitlist.issueLinks(entry)).confirm)
     const request = { ...launch, project: slug }
@@ -263,7 +261,7 @@ describe('Announcements: start', () => {
     const projects = await service.projects()
     expect(projects).toHaveLength(UPCOMING.length)
     expect(projects.find((p) => p.slug === 'feelium')).toEqual({ slug: 'feelium', name: 'Feelium', confirmed: 2, lastAnnouncedAt: T0.toISOString() })
-    expect(projects.find((p) => p.slug === 'fitflow7')).toMatchObject({ confirmed: 0, lastAnnouncedAt: null })
+    expect(projects.find((p) => p.slug === 'pivot')).toMatchObject({ confirmed: 0, lastAnnouncedAt: null })
   })
 })
 
@@ -380,8 +378,8 @@ describe('Announcements: sending', () => {
     // The project leaves data/upcoming.ts while its announcement is still waiting to send.
     await dbs.waitlist.prepare("UPDATE waitlist_announcements SET project = 'retired-one' WHERE id = ?").bind(old.id).run()
     for (const id of gone) await dbs.waitlist.prepare("UPDATE waitlist_projects SET project = 'retired-one' WHERE subscriber_id = ?").bind(id).run()
-    await people(1, 'fitflow7', 'here')
-    const next = await service.start({ ...launch, project: 'fitflow7' }, 'owner')
+    await people(1, 'pivot', 'here')
+    const next = await service.start({ ...launch, project: 'pivot' }, 'owner')
     if (!('id' in next)) throw new Error()
 
     await service.run()
@@ -410,7 +408,7 @@ describe('Announcements: sending', () => {
     if (!('id' in start)) throw new Error()
     await waitlist.remove(ids[0])
     // Moves the second person to another project only.
-    await dbs.waitlist.prepare("UPDATE waitlist_projects SET project = 'fitflow7' WHERE subscriber_id = ?").bind(ids[1]).run()
+    await dbs.waitlist.prepare("UPDATE waitlist_projects SET project = 'pivot' WHERE subscriber_id = ?").bind(ids[1]).run()
     await service.run()
     expect(fake.delivered).toHaveLength(1)
     expect(await service.status(start.id)).toMatchObject({ total: 3, sent: 1, skipped: 2, state: 'done' })
@@ -449,10 +447,10 @@ describe('Announcements: sending', () => {
   it('lists the newest first, with the same fields as status', async () => {
     const { service, people, later } = setup()
     await people(1)
-    await people(1, 'fitflow7', 's')
+    await people(1, 'pivot', 's')
     const a = await service.start(launch, 'owner')
     later(1000)
-    const b = await service.start({ ...launch, project: 'fitflow7' }, 'owner')
+    const b = await service.start({ ...launch, project: 'pivot' }, 'owner')
     const list = await service.list({ limit: 10 })
     expect(list.map((x) => x.id)).toEqual([(b as { id: string }).id, (a as { id: string }).id])
     expect(list[0]).toEqual(await service.status((b as { id: string }).id))

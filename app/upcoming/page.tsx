@@ -12,9 +12,9 @@ import { pageMetadata } from '@/lib/seo'
 export const metadata = pageMetadata({
   title: 'Upcoming | n8builds',
   description:
-    "What I'm building in public: Feelium, FitFlow 7 and Pivot for your habits and health; Cutely Ask Me and Who Am I? for two. Each has a landing page you can try it from; join a waitlist to hear what's next.",
+    "What I'm building in public: Feelium and Pivot for your habits and health; Cutely Ask Me for two; KeysReady for auto repair shops. Each has a landing page you can try it from; join a waitlist to hear what's next.",
   shareDescription:
-    "What I'm building in public, from a 7-minute workout timer and a habit tracker to a date planner and a two-player guessing game. Join a waitlist to hear what's next.",
+    "What I'm building in public, from a habit tracker and a date planner to a status page for auto shops. Join a waitlist to hear what's next.",
   path: '/upcoming',
 })
 
@@ -77,6 +77,9 @@ function ProjectCard({ project, index, wide = false }: { project: UpcomingProjec
             </span>
           </header>
           <p className="mt-3 text-[0.95rem] leading-snug text-pretty text-slate-300">{project.tagline}</p>
+          <p className="mt-2 text-[0.88rem] leading-snug text-pretty text-slate-400" data-summary>
+            {project.summary}
+          </p>
           <div className="mt-auto flex gap-2 pt-5">
             <LandingButton project={project} />
             <JoinButton slug={project.slug} name={project.name} accent={project.accent} compact />
@@ -105,7 +108,7 @@ export default function UpcomingPage() {
               <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">cookin&rsquo;</span>
             </h1>
             <p className="mt-4 max-w-[640px] text-base leading-relaxed text-[#9cadc5] sm:text-lg/7">
-              Things I&rsquo;m building in public, each with its own landing page, and every one you can already try.
+              Things I&rsquo;m building in public, each with its own landing page and most of them ones you can already try.
               Join a waitlist and I&rsquo;ll email you when there&rsquo;s news.
             </p>
           </FadeIn>

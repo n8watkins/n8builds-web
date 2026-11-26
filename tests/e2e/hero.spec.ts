@@ -79,6 +79,62 @@ test.describe('the hero portrait', () => {
     })
   })
 
+  test.describe('on a slow first visit', () => {
+    test.use({ contextOptions: { reducedMotion: 'no-preference' } })
+
+    // The bug (2026-11-26): the circle showed a solid black disc (a generic 1x1 placeholder)
+    // until the photo arrived, then the photo popped in.
+    test('shows a soft version of the portrait, never a black disc, then fades the photo in', { tag: '@cross-browser' }, async ({ page }) => {
+      let release!: () => void
+      const held = new Promise<void>((resolve) => (release = resolve))
+      await page.route('**/_next/image**', async (route) => {
+        await held
+        await route.continue()
+      })
+      await page.goto('/', { waitUntil: 'domcontentloaded' })
+      const frame = page.locator('#home [data-portrait-frame]')
+      await expect(frame).toBeVisible()
+      // Past the entrance (0.18s + 0.6s) with the photo still held back.
+      // (The frame's own painted opacity: the held photo inside it is transparent on purpose.)
+      await expect
+        .poll(
+          () =>
+            frame.evaluate((el) => {
+              let opacity = 1
+              for (let node: Element | null = el; node; node = node.parentElement) opacity *= Number(getComputedStyle(node).opacity)
+              return opacity
+            }),
+          { timeout: 5_000 }
+        )
+        .toBe(1)
+      const placeholder = await frame.evaluate((el) => getComputedStyle(el).backgroundImage)
+      expect(placeholder, 'the placeholder is an image made from the portrait').toMatch(/^url\("data:image\/jpeg;base64,/)
+      expect(await portrait(page).evaluate((img: HTMLImageElement) => img.complete), 'the photo is still held back').toBe(false)
+      // The placeholder's own pixels (what the circle paints while the photo is held back): a page
+      // screenshot would wait on the held request in WebKit, so read the image in the page instead.
+      const mean = await frame.evaluate(async (el) => {
+        const src = /url\("(.+)"\)/.exec(getComputedStyle(el).backgroundImage)![1]
+        const image = new Image()
+        image.src = src
+        await image.decode()
+        const canvas = document.createElement('canvas')
+        canvas.width = canvas.height = 12
+        const context = canvas.getContext('2d')!
+        context.drawImage(image, 0, 0, 12, 12)
+        const { data } = context.getImageData(0, 0, 12, 12)
+        let sum = 0
+        for (let i = 0; i < data.length; i += 4) sum += data[i] + data[i + 1] + data[i + 2]
+        return sum / (data.length / 4) / 3
+      })
+      expect(mean, `the circle's mean brightness while the photo loads (${mean.toFixed(1)} of 255): a black disc is about 0`).toBeGreaterThan(30)
+      // The photo arrives: it fades in over the placeholder and ends fully opaque.
+      release()
+      await expect.poll(() => portrait(page).evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true)
+      await expect.poll(() => portrait(page).evaluate((img) => getComputedStyle(img).opacity), { timeout: 5_000 }).toBe('1')
+      await expect(frame).not.toHaveAttribute('data-waiting', '')
+    })
+  })
+
   test.describe('with reduced motion', () => {
     test.use({ contextOptions: { reducedMotion: 'reduce' } })
 

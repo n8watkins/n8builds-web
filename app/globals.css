@@ -403,6 +403,21 @@
   }
 }
 
+/* The hero photo while it loads (components/sections/HeroPortraitPhoto.tsx): held
+   transparent over the blurred placeholder, then fades in when it arrives. Only
+   set once hydrated and only for a photo that is not there yet. */
+.hero-portrait-photo {
+  transition: opacity 0.35s ease-out;
+}
+[data-portrait-frame][data-waiting] .hero-portrait-photo {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-portrait-photo {
+    transition: none;
+  }
+}
+
 /* The hero's prompt -> repeat chain (components/sections/Hero.tsx): an
    electrified circuit. A comet traces each chip's outline left -> right, then
    runs the loop-back line from repeat under the whole chain back into prompt,

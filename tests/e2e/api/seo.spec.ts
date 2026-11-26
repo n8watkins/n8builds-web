@@ -168,7 +168,7 @@ test("Wren's old page lands on its page on the portfolio (it left this site on 2
   expect(sitemap).not.toContain('/builds/wren')
   expect(sitemap).toContain('/builds/openping')
   // Nor does the sitemap name an unlisted upcoming project: /upcoming is one address.
-  expect(sitemap.match(/keysready|strollz|vibelog|asset-arsenal/)?.[0]).toBeUndefined()
+  expect(sitemap.match(/strollz|vibelog|asset-arsenal/)?.[0]).toBeUndefined()
 })
 
 test('temporary redirects: builds on hold (so they can come back at the same URL) and Tools', async ({ request }) => {

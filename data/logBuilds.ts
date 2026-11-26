@@ -43,11 +43,13 @@ const followed: LogBuild[] = [
     github: 'https://github.com/n8watkins/strollz',
     repo: 'n8watkins/strollz',
     href: '/upcoming#strollz',
+    // Off the waitlist since 2026-11-26: followed for the totals, never shown.
+    unlisted: true,
   },
   {
     slug: 'keysready',
     name: 'KeysReady',
-    tagline: 'Stop answering “Is my car ready?”',
+    tagline: 'Stop wondering when your car is ready.',
     category: 'Upcoming',
     color: 'from-sky-500/20 to-blue-600/20',
     github: 'https://github.com/n8watkins/keysready',
@@ -57,7 +59,7 @@ const followed: LogBuild[] = [
   {
     slug: 'feelium',
     name: 'Feelium',
-    tagline: 'What did I do, how did I feel, and are they connected?',
+    tagline: 'Find out what actually makes your days better.',
     category: 'Upcoming',
     color: 'from-neutral-400/20 to-neutral-600/20',
     github: 'https://github.com/n8watkins/feelium',
@@ -73,11 +75,13 @@ const followed: LogBuild[] = [
     github: 'https://github.com/n8watkins/vibelog',
     repo: 'n8watkins/vibelog',
     href: '/upcoming#vibelog',
+    // Off the waitlist since 2026-11-26: followed for the totals, never shown.
+    unlisted: true,
   },
   {
     slug: 'cutelyaskme',
     name: 'Cutely Ask Me',
-    tagline: 'Send a cute ask, they pick the vibe, you plan the date',
+    tagline: "Finding a date is hard enough. Asking shouldn't be.",
     category: 'Upcoming',
     color: 'from-pink-400/20 to-rose-600/20',
     github: 'https://github.com/n8watkins/cutelyaskme',
@@ -93,11 +97,13 @@ const followed: LogBuild[] = [
     github: 'https://github.com/n8watkins/fitflow7',
     repo: 'n8watkins/fitflow7',
     href: '/upcoming#fitflow7',
+    // Off the waitlist since 2026-11-26 (both are live): followed for the totals, never shown.
+    unlisted: true,
   },
   {
     slug: 'pivot',
     name: 'Pivot',
-    tagline: 'A pause button for everyday urges',
+    tagline: "Who you were isn't who you are now.",
     category: 'Upcoming',
     color: 'from-emerald-500/20 to-green-700/20',
     github: 'https://github.com/n8watkins/pivot',
@@ -113,6 +119,8 @@ const followed: LogBuild[] = [
     github: 'https://github.com/n8watkins/who-am-i',
     repo: 'n8watkins/who-am-i',
     href: '/upcoming#whoami',
+    // Off the waitlist since 2026-11-26 (both are live): followed for the totals, never shown.
+    unlisted: true,
   },
   {
     slug: 'pass-env',

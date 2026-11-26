@@ -63,7 +63,7 @@ describe('WaitlistStore (n8builds-waitlist)', () => {
 
   it('keeps every project slug', async () => {
     const { store } = storeAt()
-    const projects = ['fitflow7', 'cutelyaskme', 'feelium', 'whoami', 'pivot'] as const
+    const projects = ['keysready', 'cutelyaskme', 'feelium', 'pivot'] as const
     const entry = await store.join(request({ projects: [...projects] }))
     expect([...entry.requested].sort()).toEqual([...projects].sort())
   })
@@ -99,8 +99,8 @@ describe('WaitlistStore (n8builds-waitlist)', () => {
     const { store, later } = storeAt()
     await store.confirm((await store.issueLinks(await store.join(request()))).confirm)
     later(DAY)
-    const again = await store.join(request({ projects: ['feelium', 'fitflow7'], note: 'walks' }))
-    expect(again).toMatchObject({ projects: ['feelium'], requested: ['fitflow7'], note: '42', requestedNote: 'walks' })
+    const again = await store.join(request({ projects: ['feelium', 'pivot'], note: 'walks' }))
+    expect(again).toMatchObject({ projects: ['feelium'], requested: ['pivot'], note: '42', requestedNote: 'walks' })
     expect(await all('SELECT expires_at FROM waitlist_subscribers')).toEqual([{ expires_at: null }])
   })
 
@@ -119,15 +119,15 @@ describe('WaitlistStore (n8builds-waitlist)', () => {
 
   it('manages with a leave link only: keeps the projects ticked, and keeping none leaves', async () => {
     const { store, later } = storeAt()
-    const entry = await store.join(request({ projects: ['feelium', 'fitflow7', 'cutelyaskme'] }))
+    const entry = await store.join(request({ projects: ['feelium', 'pivot', 'cutelyaskme'] }))
     const links = await store.issueLinks(entry)
     await store.confirm(links.confirm)
 
     expect(await store.forLeaveToken(links.confirm)).toBeNull()
-    expect((await store.forLeaveToken(links.leave))?.projects.sort()).toEqual(['cutelyaskme', 'feelium', 'fitflow7'])
+    expect((await store.forLeaveToken(links.leave))?.projects.sort()).toEqual(['cutelyaskme', 'feelium', 'pivot'])
 
-    const kept = await store.keepOnly(links.leave, ['fitflow7'])
-    expect(kept).toMatchObject({ projects: ['fitflow7'], requested: [] })
+    const kept = await store.keepOnly(links.leave, ['pivot'])
+    expect(kept).toMatchObject({ projects: ['pivot'], requested: [] })
     // The link keeps working, for the same address only.
     expect((await store.forLeaveToken(links.leave))?.id).toBe(entry.id)
     // Keeping only a project it isn't on leaves nothing: the entry goes.
@@ -156,8 +156,9 @@ describe('WaitlistStore (n8builds-waitlist)', () => {
   })
 
   it('leaves the rows of a project that is no longer in the data where they are, and never reads them', async () => {
-    // Should a project ever be taken out of data/upcoming.ts ("strollz" stands in for one here by
-    // renaming rows; the real Strollz is unlisted, not removed): people already on it keep their rows.
+    // A project taken out of data/upcoming.ts ("retired-one" stands in for one here by renaming rows; the
+    // real ones are FitFlow 7, Who Am I?, Strollz, VibeLog and Asset Arsenal, 2026-11-26): people already on
+    // it keep their rows.
     const { store, later } = storeAt()
     const entry = await store.join(request({ projects: ['feelium', 'pivot'] }))
     const links = await store.issueLinks(entry)
@@ -174,8 +175,8 @@ describe('WaitlistStore (n8builds-waitlist)', () => {
     expect(projectList((await store.get(only.id))!.projects)).toBe('')
     // ... and joining again, confirming and the daily cleanup leave the rows in place.
     later(DAY)
-    await store.join(request({ projects: ['fitflow7'] }))
-    expect(await store.confirm(links.confirm)).toMatchObject({ projects: ['feelium', 'fitflow7'], requested: [] })
+    await store.join(request({ projects: ['pivot'] }))
+    expect(await store.confirm(links.confirm)).toMatchObject({ projects: ['feelium', 'pivot'], requested: [] })
     await purgeExpired({ waitlist: dbs.waitlist }, new Date(T0.getTime() + 30 * DAY))
     expect(await retired()).toEqual([{ project: 'retired-one', status: 'confirmed' }, { project: 'retired-one', status: 'confirmed' }])
     expect(await all('SELECT COUNT(*) AS n FROM waitlist_subscribers')).toEqual([{ n: 2 }])
@@ -184,15 +185,15 @@ describe('WaitlistStore (n8builds-waitlist)', () => {
     expect(await retired()).toEqual([{ project: 'retired-one', status: 'confirmed' }])
   })
 
-  it('keeps an unlisted project like any other: joined, confirmed, read back, and named in its emails', async () => {
+  it('keeps KeysReady like any other project: joined, confirmed, read back, and named in its emails', async () => {
     const { store } = storeAt()
-    const unlisted = ['keysready', 'strollz', 'vibelog', 'asset-arsenal'] as const
+    const unlisted = ['keysready'] as const
     const joined = await store.join(request({ projects: [...unlisted] }))
     expect([...joined.requested].sort()).toEqual([...unlisted].sort())
     const links = await store.issueLinks(joined)
     const html = createConfirmHtml(joined, links)
     for (const slug of unlisted) expect(html).toContain(`https://n8builds.dev/email/upcoming/${slug}.png`)
-    expect(projectList(joined.requested)).toBe('KeysReady, Strollz, VibeLog and Asset Arsenal')
+    expect(projectList(joined.requested)).toBe('KeysReady')
     const confirmed = await store.confirm(links.confirm)
     expect([...confirmed!.projects].sort()).toEqual([...unlisted].sort())
     expect((await store.keepOnly(links.leave, ['keysready']))?.projects).toEqual(['keysready'])
@@ -264,7 +265,7 @@ const entry: WaitlistEntry = {
   id: 'abc',
   email: 'visitor@example.com',
   projects: [],
-  requested: ['feelium', 'fitflow7'],
+  requested: ['feelium', 'pivot'],
   note: '',
   requestedNote: '42',
   createdAt: T0.toISOString(),
@@ -286,11 +287,11 @@ describe('waitlist emails', () => {
   })
 
   it('show each project as a card with its PNG icon, name and one line, linked by absolute https URL', () => {
-    const html = createConfirmHtml({ ...entry, requested: ['pivot', 'fitflow7', 'pivot'] }, links)
-    for (const slug of ['pivot', 'fitflow7', 'pivot']) {
+    const html = createConfirmHtml({ ...entry, requested: ['pivot', 'cutelyaskme', 'feelium'] }, links)
+    for (const slug of ['pivot', 'cutelyaskme', 'feelium']) {
       expect(html).toContain(`<img src="https://n8builds.dev/email/upcoming/${slug}.png" width="40" height="40"`)
     }
-    expect(html).toContain('The no-excuses 7-minute workout timer')
+    expect(html).toContain('Find out what actually makes your days better.')
     // The header's N8 mark: an absolute PNG, never a CID, SVG or data: image.
     expect(html).toContain('<img src="https://n8builds.dev/email/logo.png" width="32" height="32" alt="n8builds"')
     expect(html).not.toMatch(/src="(cid:|data:)|\.svg"/)
@@ -311,11 +312,11 @@ describe('waitlist emails', () => {
 
   it('name the projects asked for', () => {
     expect(projectList(['feelium'])).toBe('Feelium')
-    expect(projectList(['feelium', 'fitflow7'])).toBe('Feelium and FitFlow 7')
-    expect(projectList(['cutelyaskme', 'feelium', 'fitflow7'])).toBe('Feelium, FitFlow 7 and Cutely Ask Me')
-    expect(projectList(['pivot', 'cutelyaskme', 'feelium', 'fitflow7'])).toBe('Feelium, FitFlow 7, Pivot and Cutely Ask Me')
+    expect(projectList(['feelium', 'pivot'])).toBe('Feelium and Pivot')
+    expect(projectList(['cutelyaskme', 'feelium', 'pivot'])).toBe('Feelium, Pivot and Cutely Ask Me')
+    expect(projectList(['keysready', 'cutelyaskme', 'feelium', 'pivot'])).toBe('Feelium, Pivot, Cutely Ask Me and KeysReady')
     expect(createConfirmText({ ...entry, requested: ['feelium'] }, links)).toContain('waitlist for Feelium on n8builds.dev')
     expect(createConfirmHtml({ ...entry, requested: ['pivot'] }, links)).toContain('Pivot')
-    expect(createConfirmHtml(entry, links)).toContain('Feelium and FitFlow 7')
+    expect(createConfirmHtml(entry, links)).toContain('Feelium and Pivot')
   })
 })

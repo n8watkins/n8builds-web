@@ -8,19 +8,19 @@
  * The slugs are a public contract: the projects' landing pages link to
  * `https://n8builds.dev/upcoming?interest=<slug>#<slug>`, so never rename one;
  * a renamed project keeps its old interest value working (INTEREST_ALIASES).
- * Copy comes from each project's own docs (Strollz's in ~/projects/backlog/strollz, VibeLog's README and docs/VISION.md in
- * ~/projects/backlog/vibelog, KeysReady's from the owner and its landing page,
- * Asset Arsenal's docs/SKINS_CONCEPT.md in ~/projects/backlog/asset-arsenal, Feelium's
+ * Copy comes from each project's own docs (KeysReady's from the owner and its landing page, Feelium's
  * README and docs/PRD.md in ~/projects/apps/feelium, Cutely Ask Me's README and
- * docs/REVIEW_2026-11.md in ~/projects/apps/cutelyaskme, Who Am I?'s README in
- * ~/projects/games/who-am-i, Pivot's README and /welcome page in ~/projects/apps/pivot,
- * FitFlow 7's README in ~/projects/apps/fitflow7); keep it in step and modest.
+ * docs/REVIEW_2026-11.md in ~/projects/apps/cutelyaskme, Pivot's README and /welcome page in
+ * ~/projects/apps/pivot); keep it in step and modest.
  *
- * Four are unlisted since 2026-11-11 (owner: "it's just not advertised"):
- * KeysReady, Strollz, VibeLog and Asset Arsenal. See `unlisted` on UpcomingProject.
+ * Removed from the waitlist on 2026-11-26 (owner): FitFlow 7 and Who Am I? (both live, so there
+ * is nothing to wait for), then Strollz, VibeLog and Asset Arsenal (dropped from What's cookin').
+ * Their stored sign-ups stay in the database, ignored (see isUpcomingSlug), and an old
+ * `?interest=<slug>` link lands on the plain page with nothing ticked. KeysReady was unlisted
+ * from 2026-11-11 and is listed again with the new copy (2026-11-26). See `unlisted` on UpcomingProject.
  */
 
-export const UPCOMING_SLUGS = ['feelium', 'fitflow7', 'pivot', 'cutelyaskme', 'whoami', 'keysready', 'strollz', 'vibelog', 'asset-arsenal'] as const
+export const UPCOMING_SLUGS = ['feelium', 'pivot', 'cutelyaskme', 'keysready'] as const
 export type UpcomingSlug = (typeof UPCOMING_SLUGS)[number]
 
 /**
@@ -98,11 +98,11 @@ export const UPCOMING: UpcomingProject[] = [
   {
     slug: 'feelium',
     name: 'Feelium',
-    tagline: 'What did I do, how did I feel, and are they connected?',
+    tagline: 'Find out what actually makes your days better.',
     short: 'See which habits go with how you feel',
     group: 'habits',
     summary:
-      'A small daily tracker: log a few habits, check in on how you feel, and see which days went with which.',
+      'Tap what you did, rate how you felt, and see what goes with your good days.',
     icon: '/upcoming/feelium.svg',
     landing: 'https://feelium.n8builds.dev',
     status: 'try-it',
@@ -120,35 +120,13 @@ export const UPCOMING: UpcomingProject[] = [
     ],
   },
   {
-    slug: 'fitflow7',
-    name: 'FitFlow 7',
-    tagline: 'The no-excuses 7-minute workout timer',
-    short: 'A 7-minute workout timer, no account',
-    group: 'habits',
-    summary: 'Pick a routine, hit start and follow along, with audio cues on every move. No account, no ads, no subscription.',
-    icon: '/upcoming/fitflow7.svg',
-    landing: 'https://fitflow7.n8builds.dev',
-    status: 'try-it',
-    shot: '/upcoming/shots/fitflow7.webp',
-    repo: 'n8watkins/fitflow7',
-    // Its electric cyan.
-    accent: '#22d3ee',
-    what: 'Pick a routine, hit start and follow along: a countdown you can read across the room, color-coded phases and audio cues call out every move, and it keeps your streaks and history on your device.',
-    forWho: 'Anyone who wants a quick workout at home without an account, ads or a subscription.',
-    points: [
-      'Start from the Classic 7 routine, or build your own with your own work and rest times',
-      'Audio cues on every phase, a focus mode with just the timer, and keyboard shortcuts',
-      'Streaks and history saved on your device, with no account or login',
-      'Works offline after the first load, with no ads and no upsell',
-    ],
-  },
-  {
     slug: 'pivot',
     name: 'Pivot',
-    tagline: 'A pause button for everyday urges',
+    tagline: "Who you were isn't who you are now.",
     short: 'One small next step when an urge hits',
     group: 'habits',
-    summary: 'When the pull to scroll, snack or check your email hits, it gives you one small next step you already picked.',
+    summary:
+      "When an old habit pulls, Pivot gives you one small step that belongs to the person you're becoming.",
     icon: '/upcoming/pivot.svg',
     // Its landing page; the app itself is at the site's root.
     landing: 'https://pivot.n8builds.dev/welcome',
@@ -169,11 +147,11 @@ export const UPCOMING: UpcomingProject[] = [
   {
     slug: 'cutelyaskme',
     name: 'Cutely Ask Me',
-    tagline: 'Send a cute ask, they pick the vibe, you plan the date',
+    tagline: "Finding a date is hard enough. Asking shouldn't be.",
     short: 'Ask someone out with a cute invite',
     group: 'two',
     summary:
-      'Ask someone on a date with a cute invite: they say yes and pick the vibe, then you plan the stops and share the plan.',
+      'Send a cute invite; they pick the vibe, you plan the night.',
     icon: '/upcoming/cutelyaskme.svg',
     landing: 'https://cutelyaskme.n8builds.dev',
     status: 'try-it',
@@ -191,38 +169,13 @@ export const UPCOMING: UpcomingProject[] = [
     ],
   },
   {
-    slug: 'whoami',
-    name: 'Who Am I?',
-    tagline: 'A two-player guessing game: only your opponent sees who you are',
-    short: 'A two-player guessing game for your phones',
-    group: 'two',
-    summary: 'Each of you gets a secret identity; you see theirs, never your own. Ask yes or no questions until you work it out.',
-    icon: '/upcoming/whoami.svg',
-    landing: 'https://whoami.n8builds.dev',
-    status: 'try-it',
-    shot: '/upcoming/shots/whoami.webp',
-    repo: 'n8watkins/who-am-i',
-    // Its violet, lightened for this dark site.
-    accent: '#9d8cff',
-    what: 'Each player gets a secret identity, a famous person, a fictional character or a brand mascot. You see the one your opponent is guessing but never your own, and you take turns asking yes or no questions or giving clues until you work out who you are.',
-    forWho: 'Two friends, a couple or roommates who want a quick game on their phones.',
-    points: [
-      'No account or install: one player creates a room, the other joins by QR code, link or PIN',
-      'Ask out loud or in the app, with up to three free hints a turn',
-      'Packs from actors and movie characters to historical figures, video games and mascots',
-      'First to 5 points or best after 10 rounds, then a one-tap rematch',
-    ],
-  },
-  // Unlisted (see `unlisted` above): kept working, not shown.
-  {
     slug: 'keysready',
     name: 'KeysReady',
-    tagline: 'Stop answering “Is my car ready?”',
+    tagline: 'Stop wondering when your car is ready.',
     short: 'Booking and live repair status for auto shops',
     group: 'business',
-    unlisted: true,
     summary:
-      'For small auto repair shops: customers book online, follow their repair live, and approve and pay from their phone.',
+      "You get told the moment it's done, and you agree to the work and the price before anyone picks up a wrench. No more haggling at the counter. They always know where their car is, so you can stay under the hood instead of on the phone.",
     icon: '/upcoming/keysready.svg',
     landing: 'https://keysready.n8builds.dev',
     status: 'in-development',
@@ -238,79 +191,6 @@ export const UPCOMING: UpcomingProject[] = [
       'Live repair status by email and browser notifications, with a status page that answers the call before it happens',
       "Estimates customers approve and pay from their phone, with money going to the shop's own Stripe account",
       'Free for a small shop and open source, so you can self-host it; Pro at $29/mo adds texts, reminders and reviews (planned)',
-    ],
-  },
-  {
-    slug: 'strollz',
-    name: 'Strollz',
-    tagline: 'Walk the streets you have never walked',
-    short: 'Walking loops through new streets near you',
-    group: 'habits',
-    unlisted: true,
-    summary:
-      'Tell it how long you have, and it plans a walking loop from your door through streets you have not walked yet.',
-    icon: '/upcoming/strollz.svg',
-    landing: 'https://strollz.n8builds.dev',
-    status: 'in-development',
-    shot: '/upcoming/shots/strollz.webp',
-    repo: 'n8watkins/strollz',
-    accent: '#5cc49b',
-    what: 'Tell it how long you have, and it plans a walking loop from your door through streets you have never walked, with a few short notes about what you pass, each linked to its source.',
-    forWho:
-      'People who just moved and want to learn the area on foot, dog walkers bored of the same loop, and parents pushing a stroller.',
-    points: [
-      'Pick a time (20 to 60 minutes) and choose one of three loops from your door',
-      "Remembers the streets you've walked and steers each loop toward new ones",
-      'Two to four short notes per walk, each with its source: no source, no note',
-      'Safety and step-free filters free for everyone, and your walks stay private',
-    ],
-  },
-  {
-    slug: 'vibelog',
-    name: 'VibeLog',
-    tagline: 'Live coding telemetry for vibe-coding streams',
-    short: 'Live coding stats for your streams',
-    group: 'creators',
-    unlisted: true,
-    summary:
-      'For people who stream themselves coding with AI: it shows your commits, code changes and AI usage on screen, live.',
-    icon: '/upcoming/vibelog.svg',
-    landing: 'https://vibelogs.dev',
-    status: 'early-access',
-    shot: '/upcoming/shots/vibelog.webp',
-    repo: 'n8watkins/vibelog',
-    accent: '#f472b6',
-    what: 'One local process tracks your git activity, Claude token spend, stream time and channel growth, and turns them into a live OBS overlay, a private dashboard, a public live page and shareable stat cards.',
-    forWho: 'People who stream themselves building software with AI and want viewers to see what is actually happening.',
-    points: [
-      'A HUD for OBS: what you are building, commits, lines changed and tokens, live',
-      'A private dashboard and an activity calendar of your coding and streaming',
-      'A public live page and share cards built only from names and numbers you choose',
-      'Local-first with no account; open source first, a hosted page later',
-    ],
-  },
-  {
-    slug: 'asset-arsenal',
-    name: 'Asset Arsenal',
-    tagline: 'Give your page a skin',
-    short: 'Reskins your page, then cuts the assets',
-    group: 'creators',
-    unlisted: true,
-    summary:
-      'For builders: it redraws your page in your brand or any style you name, then cuts it into assets you can ship.',
-    icon: '/upcoming/asset-arsenal.svg',
-    landing: 'https://assetarsenal.n8builds.dev',
-    status: 'concept',
-    shot: '/upcoming/shots/asset-arsenal.webp',
-    accent: '#f3b73f',
-    what: 'It reimagines your page in your brand or in any style you name, then breaks that picture into real assets you can ship: backgrounds, frames, buttons, icons and illustrations, each cut out and ready to drop in.',
-    forWho:
-      'Builders who want a site that looks like their brand rather than a template, and apps that want to offer their users a few skins to pick from.',
-    points: [
-      'Starts from a screenshot of your page plus your logo, colors and images',
-      'A few full-page concepts in the style you describe; keep the one you love',
-      'Every asset rebuilt full size on a transparent background, matching the concept',
-      'Keep, reject or retry any single piece, and see the cost before each run',
     ],
   },
 ]

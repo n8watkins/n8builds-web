@@ -1,5 +1,4 @@
 import React from 'react'
-import Image from 'next/image'
 import { FiBriefcase, FiGithub } from 'react-icons/fi'
 import { CiLinkedin } from 'react-icons/ci'
 import { FaXTwitter } from 'react-icons/fa6'
@@ -9,7 +8,7 @@ import { LINKEDIN_URL } from '@/lib/links'
 import { refHref } from '@/lib/referrals'
 import HeroGrid from '@/components/sections/HeroGrid'
 import HeroChainMeter from '@/components/sections/HeroChainMeter'
-import HeroPortraitSwap from '@/components/sections/HeroPortraitSwap'
+import HeroPortraitPhoto from '@/components/sections/HeroPortraitPhoto'
 
 /** The portrait's rendered width at each breakpoint (its w-* classes below). */
 const PORTRAIT_SIZES = '(max-width: 359px) 10rem, (max-width: 639px) 11rem, (max-width: 767px) 14rem, (max-width: 1023px) 21rem, 24rem'
@@ -191,27 +190,7 @@ const Hero = () => {
               motion skips it, and the portrait shows at once. */}
           <div className="hero-portrait-in order-first self-start md:order-none md:self-auto w-40 h-40 min-[360px]:w-44 min-[360px]:h-44 sm:w-56 sm:h-56 md:w-84 md:h-84 lg:w-96 lg:h-96 relative shrink-0">
             <div className="absolute inset-0 rounded-full bg-linear-to-br from-cyan-500/20 to-blue-600/20 blur-xl scale-110" />
-            <div className="relative w-full h-full">
-              <div className="absolute inset-0 dark:bg-black/10 rounded-full z-10" />
-              <Image
-                src="/hero/portrait.jpg"
-                className="rounded-full object-cover ring-1 ring-white/10"
-                fill
-                // The LCP element: preloaded and fetched at high priority. Next
-                // 16's `priority` preloaded it at the browser's default (low)
-                // priority for images, behind the scripts, on a slow phone.
-                preload
-                loading="eager"
-                fetchPriority="high"
-                placeholder="blur"
-                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-                sizes={PORTRAIT_SIZES}
-                alt="Nathan Watkins - builder based in Los Angeles"
-              />
-              {/* The watercolor version fades in and out over the photo, once
-                  the page has loaded (never under reduced motion). */}
-              <HeroPortraitSwap sizes={PORTRAIT_SIZES} />
-            </div>
+            <HeroPortraitPhoto sizes={PORTRAIT_SIZES} />
           </div>
         </div>
       </div>
