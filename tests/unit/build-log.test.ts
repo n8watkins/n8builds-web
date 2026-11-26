@@ -407,9 +407,9 @@ describe('merging, sorting and the builds index', () => {
   })
 
   it("counts an unlisted project's work in the totals without ever naming it", () => {
-    // Unlisted since 2026-11-11 (data/upcoming.ts): KeysReady, Strollz and VibeLog are followed, never shown.
+    // Unlisted since 2026-11-11 (data/upcoming.ts): KeysReady, Strollz and VibeLog; FitFlow 7 and Who Am I? since 2026-11-26) are followed, never shown.
     const unlisted = allBuilds.filter((b) => b.unlisted)
-    expect(unlisted.map((b) => b.slug).sort()).toEqual(['keysready', 'strollz', 'vibelog'])
+    expect(unlisted.map((b) => b.slug).sort()).toEqual(['fitflow7', 'keysready', 'strollz', 'vibelog', 'whoami'])
     expect(allBuilds.find((b) => b.slug === 'feelium')?.unlisted).toBeUndefined()
     const work = (repo: string) => ({
       repo,

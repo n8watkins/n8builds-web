@@ -16,8 +16,9 @@
  * ~/projects/games/who-am-i, Pivot's README and /welcome page in ~/projects/apps/pivot,
  * FitFlow 7's README in ~/projects/apps/fitflow7); keep it in step and modest.
  *
- * Four are unlisted since 2026-11-11 (owner: "it's just not advertised"):
- * KeysReady, Strollz, VibeLog and Asset Arsenal. See `unlisted` on UpcomingProject.
+ * Six are unlisted: KeysReady, Strollz, VibeLog and Asset Arsenal since 2026-11-11
+ * (owner: "it's just not advertised"), and FitFlow 7 and Who Am I? since 2026-11-26
+ * (owner: off the What's cookin' list; their landing pages and waitlist links keep working). See `unlisted` on UpcomingProject.
  */
 
 export const UPCOMING_SLUGS = ['feelium', 'fitflow7', 'pivot', 'cutelyaskme', 'whoami', 'keysready', 'strollz', 'vibelog', 'asset-arsenal'] as const
@@ -125,6 +126,7 @@ export const UPCOMING: UpcomingProject[] = [
     tagline: 'The no-excuses 7-minute workout timer',
     short: 'A 7-minute workout timer, no account',
     group: 'habits',
+    unlisted: true,
     summary: 'Pick a routine, hit start and follow along, with audio cues on every move. No account, no ads, no subscription.',
     icon: '/upcoming/fitflow7.svg',
     landing: 'https://fitflow7.n8builds.dev',
@@ -196,6 +198,7 @@ export const UPCOMING: UpcomingProject[] = [
     tagline: 'A two-player guessing game: only your opponent sees who you are',
     short: 'A two-player guessing game for your phones',
     group: 'two',
+    unlisted: true,
     summary: 'Each of you gets a secret identity; you see theirs, never your own. Ask yes or no questions until you work it out.',
     icon: '/upcoming/whoami.svg',
     landing: 'https://whoami.n8builds.dev',

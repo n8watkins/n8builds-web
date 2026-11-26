@@ -73,10 +73,10 @@ test('lays the teaser cards out two by two (beside the waitlist on wide screens)
     const lefts = await page.locator('main article').evaluateAll((cards) => cards.map((c) => Math.round(c.getBoundingClientRect().left)))
     expect(new Set(lefts).size, `columns at ${width}px`).toBe(columns)
     expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0)
-    // The odd last card (five listed projects since 2026-11-11) never sits alone in half a row: from 640px
+    // The odd last card (three listed projects since 2026-11-26) never sits alone in half a row: from 640px
     // it spans both columns, its picture beside its words; on a phone it is a card like the others.
-    const [first, second, last] = await Promise.all(['#feelium', '#fitflow7', '#whoami'].map(async (id) => (await page.locator(id).boundingBox())!))
-    const [picture, name] = await Promise.all([page.locator('#whoami img[src*="shots"]').boundingBox(), page.locator('#whoami h2').boundingBox()])
+    const [first, second, last] = await Promise.all(['#feelium', '#pivot', '#cutelyaskme'].map(async (id) => (await page.locator(id).boundingBox())!))
+    const [picture, name] = await Promise.all([page.locator('#cutelyaskme img[src*="shots"]').boundingBox(), page.locator('#cutelyaskme h2').boundingBox()])
     if (columns === 2) {
       expect(Math.abs(last.x - first.x), `the last card starts the row at ${width}px`).toBeLessThan(1)
       expect(Math.abs(last.x + last.width - (second.x + second.width)), `the last card ends the row at ${width}px`).toBeLessThan(1)
@@ -87,7 +87,7 @@ test('lays the teaser cards out two by two (beside the waitlist on wide screens)
     }
     // Tablets and phones: the waitlist comes after the cards.
     if (width < 1000) {
-      const last = (await page.locator('#whoami').boundingBox())!
+      const last = (await page.locator('#cutelyaskme').boundingBox())!
       const form = (await page.locator('#waitlist').boundingBox())!
       expect(form.y, `the waitlist after the cards at ${width}px`).toBeGreaterThan(last.y + last.height)
     }
@@ -124,7 +124,7 @@ test('an unlisted project is nowhere for a normal visitor: not on the homepage o
       await expect(page.locator(`[id="${slug}"], input[value="${slug}"], a[href*="${slug}"], img[src*="${slug}"]`), `${slug} on ${path}`).toHaveCount(0)
     }
   }
-  // /upcoming lists the five, in its cards and in its form; the homepage's modal offers the same five.
+  // /upcoming lists the listed ones, in its cards and in its form; the homepage's modal offers the same.
   await expect(page.locator('main article')).toHaveCount(Object.keys(NAMES).length)
   await expect(page.locator('#waitlist-projects').getByRole('checkbox')).toHaveCount(Object.keys(NAMES).length)
   await page.goto('/')
@@ -201,6 +201,29 @@ test("a direct link to the homepage's waitlist offers an unlisted project there 
   await expect(dialog.getByRole('checkbox')).toHaveCount(Object.keys(NAMES).length + 1)
   // The page behind it still doesn't show it.
   await expect(page.locator('#lab section#upcoming section[data-group]').filter({ hasText: 'KeysReady' })).toHaveCount(0)
+})
+
+/**
+ * FitFlow 7 and Who Am I? (owner, 2026-11-26): off the What's cookin' list, but their slugs are a
+ * public contract, so their direct waitlist links and email pictures keep working.
+ */
+const OFF_THE_LIST: Record<string, string> = { fitflow7: 'FitFlow 7', whoami: 'Who Am I?' }
+
+test("FitFlow 7 and Who Am I? are off the What's cookin' list, but their direct links still answer", async ({ page }) => {
+  for (const path of ['/', '/upcoming']) {
+    await page.goto(path)
+    for (const [slug, name] of Object.entries(OFF_THE_LIST)) {
+      await expect(page.locator(`[id="${slug}"], input[value="${slug}"], a[href*="${slug}.n8builds.dev"]`), `${slug} on ${path}`).toHaveCount(0)
+      await expect(page.locator('main'), `${name} on ${path}`).not.toContainText(name)
+    }
+  }
+  for (const [slug, name] of Object.entries(OFF_THE_LIST)) {
+    const response = await page.goto(`/upcoming?interest=${slug}#${slug}`)
+    expect(response!.status(), slug).toBe(200)
+    await expect(page.locator('main article')).toHaveCount(Object.keys(NAMES).length)
+    await expect(page.locator(`#waitlist-projects input[value="${slug}"]`), name).toBeChecked()
+    expect((await page.request.get(`/email/upcoming/${slug}.png`)).status(), `${slug} email picture`).toBe(200)
+  }
 })
 
 test('an unknown interest value is ignored and the page shows normally', async ({ page }) => {
@@ -385,22 +408,18 @@ test('is linked from the footer, and the privacy page explains the waitlist', as
 /** Every project, in group order, and its landing page. */
 const LANDING: Record<string, string> = {
   feelium: 'https://feelium.n8builds.dev',
-  fitflow7: 'https://fitflow7.n8builds.dev',
   pivot: 'https://pivot.n8builds.dev/welcome',
   cutelyaskme: 'https://cutelyaskme.n8builds.dev',
-  whoami: 'https://whoami.n8builds.dev',
 }
 const NAMES: Record<string, string> = {
   feelium: 'Feelium',
-  fitflow7: 'FitFlow 7',
   pivot: 'Pivot',
   cutelyaskme: 'Cutely Ask Me',
-  whoami: 'Who Am I?',
 }
 /** The homepage's groups (data/upcoming.ts), in order, with their projects. */
 const GROUPS: [string, string[]][] = [
-  ['For your habits & health', ['feelium', 'fitflow7', 'pivot']],
-  ['For two', ['cutelyaskme', 'whoami']],
+  ['For your habits & health', ['feelium', 'pivot']],
+  ['For two', ['cutelyaskme']],
 ]
 
 /**
@@ -410,9 +429,7 @@ const GROUPS: [string, string[]][] = [
 const CODE: Record<string, string | undefined> = {
   feelium: 'https://github.com/n8watkins/feelium',
   cutelyaskme: 'https://github.com/n8watkins/cutelyaskme',
-  fitflow7: 'https://github.com/n8watkins/fitflow7',
   pivot: 'https://github.com/n8watkins/pivot',
-  whoami: 'https://github.com/n8watkins/who-am-i',
 }
 
 test('each card has two actions: Check it out (its landing page), then the waitlist (hrefs only: the sites may not be live yet)', async ({ page }) => {
@@ -584,11 +601,11 @@ test('on a wide screen the waitlist stays beside the cards as you read, and Join
   const form = (await waitlist.boundingBox())!
   expect(form.x, 'beside the cards').toBeGreaterThan(cards.x + cards.width)
   // Still in view far down the page.
-  await page.locator('#whoami').scrollIntoViewIfNeeded()
+  await page.locator('#cutelyaskme').scrollIntoViewIfNeeded()
   await expect(waitlist).toBeInViewport()
   const y = await page.evaluate(() => window.scrollY)
-  await page.locator('#whoami').getByRole('link', { name: /Join the waitlist/ }).click()
-  await expect(waitlist.getByRole('checkbox', { name: /Who Am I/ })).toBeChecked()
+  await page.locator('#cutelyaskme').getByRole('link', { name: /Join the waitlist/ }).click()
+  await expect(waitlist.getByRole('checkbox', { name: /Cutely Ask Me/ })).toBeChecked()
   // Ticked where it is, with a glow, not a jump.
   await expect(waitlist).toHaveAttribute('data-flash', '')
   expect(Math.abs((await page.evaluate(() => window.scrollY)) - y)).toBeLessThan(2)

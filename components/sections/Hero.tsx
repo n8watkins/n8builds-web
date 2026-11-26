@@ -57,7 +57,7 @@ const Hero = () => {
             <div>
               <FadeIn
                 as="h1"
-                delay={0.08}
+                delay={0.02}
                 // "n8builds.dev" since 2026-11-08 (owner). On phones it scales with the
                 // screen so it stays on one line, at most 3.2rem; on tablets (md), where
                 // it shares the row with the portrait, it steps down to 3rem.
@@ -67,7 +67,7 @@ const Hero = () => {
               </FadeIn>
               <FadeIn
                 as="p"
-                delay={0.16}
+                delay={0.06}
                 // One line on every phone: the font scales with the screen
                 // (the line is ~9.7em wide; 100vw less the 2.5rem gutter),
                 // up to the usual 1.5rem. On tablets (md) the text column
@@ -86,7 +86,7 @@ const Hero = () => {
                 whole chain back into prompt, and the loop starts again. */}
             <FadeIn
               effect="in"
-              delay={0.45}
+              delay={0.12}
               className="relative w-fit font-mono text-[0.6rem] min-[360px]:text-[0.72rem] sm:text-[0.85rem] select-none [--n8wire:280px] sm:[--n8wire:335px]"
             >
               {/* The chain's styles live in app/globals.css (.n8-cnode and friends). */}
@@ -151,7 +151,7 @@ const Hero = () => {
             {/* The direct route for someone hiring: "Hiring? Check out my portfolio",
                 the briefcase leading the link so it marks what to click (owner,
                 round 7, 2026-11-09). */}
-            <FadeIn as="p" effect="in" delay={0.55} className="flex flex-wrap items-center gap-x-2 text-sm text-slate-400">
+            <FadeIn as="p" effect="in" delay={0.16} className="flex flex-wrap items-center gap-x-2 text-sm text-slate-400">
               <span>Hiring?</span>
               {/* Counted and in a new tab, like every Portfolio link (2026-11-08). */}
               <a
@@ -169,7 +169,7 @@ const Hero = () => {
             </FadeIn>
 
             {/* Socials */}
-            <FadeIn effect="in" delay={0.65} as="nav" aria-label="Social links" className="flex items-center gap-0.5 -ml-2">
+            <FadeIn effect="in" delay={0.2} as="nav" aria-label="Social links" className="flex items-center gap-0.5 -ml-2">
               {[
                 { href: 'https://github.com/n8watkins', label: 'GitHub', icon: <FiGithub className="w-[1.6rem] h-[1.6rem]" /> },
                 { href: LINKEDIN_URL, label: 'LinkedIn', icon: <CiLinkedin className="w-8 h-8" /> },
