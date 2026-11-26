@@ -2,11 +2,23 @@ import type { CSSProperties } from 'react'
 import Marquee from '@/components/magicui/marquee'
 import StackTile from '@/components/ui/StackTile'
 import DinoEasterEgg from '@/components/features/dino/DinoEasterEgg'
-import { ai_agents, ai_tools, dev_stack, rowDuration } from '@/data/stack'
+import { ai_agents, ai_tools, dev_stack, rowDuration, stackLinkHref, type AIStackItem } from '@/data/stack'
+
+// A tile, its project link resolved for this site: builds open their page here,
+// the portfolio's projects (NetTrailers) theirs on portfolio.n8builds.dev.
+const tile = (tech: AIStackItem) => (
+  <StackTile
+    key={tech.name}
+    name={tech.name}
+    icon={tech.icon}
+    description={tech.description}
+    link={tech.link && { text: tech.link.text, ...stackLinkHref(tech.link, 'n8builds') }}
+  />
+)
 
 /**
  * The homepage's AI kit marquee: hovering a tile (or focusing or tapping it)
- * shows what it is for. `dino` adds the easter egg (a pixel dino walking the rows, see
+ * shows how I use it, linked to the project that uses it. `dino` adds the easter egg (a pixel dino walking the rows, see
  * components/features/dino/).
  *
  * While the rows move, the tiles sit well apart (2.5rem across and between
@@ -40,9 +52,7 @@ export function AITechStack({ dino = false }: { dino?: boolean }) {
         style={{ '--duration': rowDuration(ai_agents.length) } as CSSProperties}
         className="motion-safe:[--gap:2.5rem]"
       >
-        {ai_agents.map((tech) => (
-          <StackTile key={tech.name} name={tech.name} icon={tech.icon} description={tech.description} />
-        ))}
+        {ai_agents.map(tile)}
       </Marquee>
       <Marquee
         label="AI tools"
@@ -51,9 +61,7 @@ export function AITechStack({ dino = false }: { dino?: boolean }) {
         style={{ '--duration': rowDuration(ai_tools.length) } as CSSProperties}
         className="motion-safe:[--gap:2.5rem]"
       >
-        {ai_tools.map((tech) => (
-          <StackTile key={tech.name} name={tech.name} icon={tech.icon} description={tech.description} />
-        ))}
+        {ai_tools.map(tile)}
       </Marquee>
       <Marquee
         label="Dev stack"
@@ -63,9 +71,7 @@ export function AITechStack({ dino = false }: { dino?: boolean }) {
         style={{ '--duration': rowDuration(dev_stack.length) } as CSSProperties}
         className="motion-safe:[--gap:2.5rem]"
       >
-        {dev_stack.map((tech) => (
-          <StackTile key={tech.name} name={tech.name} icon={tech.icon} description={tech.description} />
-        ))}
+        {dev_stack.map(tile)}
       </Marquee>
       {dino && <DinoEasterEgg />}
       <div className="pointer-events-none absolute left-0 h-full w-1/4 bg-linear-to-r from-[#081427] to-transparent motion-reduce:hidden" />

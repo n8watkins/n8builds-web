@@ -21,12 +21,17 @@ test.describe('AI kit content', () => {
       }
       // The rest of the AI kit (2026-10-29), and a third row: the stack I ship with.
       const agents = page.getByRole('region', { name: 'AI agents' })
-      for (const tool of ['Claude Opus 5.5', 'ChatGPT', 'Codex', 'Pi']) {
+      // Claude Fable 5.2, the orchestrator, joined on 2026-11-25 (owner).
+      for (const tool of ['Claude Opus 5.5', 'Claude Fable 5.2', 'ChatGPT', 'Codex', 'Pi']) {
         await expect(agents.getByText(tool, { exact: true })).toBeVisible()
       }
       const dev = page.getByRole('region', { name: 'Dev stack' })
-      for (const tool of ['Next.js', 'Playwright', 'GitHub Actions', 'Upstash', 'Firebase', 'AWS', 'Figma']) {
+      for (const tool of ['Next.js', 'Playwright', 'GitHub Actions', 'PostgreSQL', 'Firebase', 'AWS']) {
         await expect(dev.getByText(tool, { exact: true })).toBeVisible()
+      }
+      // Dropped on 2026-11-25: Cursor, OpenAI and Upstash (the owner), Figma (nothing backs it).
+      for (const dropped of ['Cursor', 'OpenAI', 'Upstash', 'Figma']) {
+        await expect(page.locator('[data-dino-panel]').getByText(dropped, { exact: true })).toHaveCount(0)
       }
       // The list is shared with the portfolio (data/stack.tsx); its dated and
       // filler entries were dropped (the owner's call, 2026-10-29).
@@ -447,6 +452,13 @@ test.describe('dino easter egg (motion allowed)', () => {
   // them, and on a slow frame (WebKit on a busy CI runner can stall for
   // seconds while the window resizes) they carry it 50px and more in one
   // frame without it ever leaving its tile.
+  // From DinoGame.tsx: SPEED 140 px/s, MAX_PACE 2.2, DASH_SPEED 2.4,
+  // RAINBOW_PACE 1.8, SNAP 16, GRAVITY 1800, and the 0.05s cap on its clock a frame.
+  const FASTEST = 140 * 2.2 * 2.4 * 1.8
+  const MAX_FRAME = 0.05
+  const SNAP = 16
+  const GRAVITY = 1800
+  const MARGIN = 4
   type Move = {
     x: number
     y: number
@@ -459,13 +471,17 @@ test.describe('dino easter egg (motion allowed)', () => {
     /** The row's first track's left edge in the panel, and one loop copy's width. */
     track: number | null
     period: number | null
+    /** The animation frame's own timestamp (ms): the one the game's clock reads too. */
+    t: number
+    /** What it was doing, for a failure's message. */
+    why: string
   }
   const recordMoves = (page: Page) =>
     dino(page).evaluate((el) => {
       const panel = el.closest('[data-dino-panel]')!
       const moves: Move[] = []
       ;(window as unknown as { dinoMoves: typeof moves }).dinoMoves = moves
-      const step = () => {
+      const step = (t: number) => {
         const m = new DOMMatrix(getComputedStyle(el).transform)
         const box = panel.getBoundingClientRect()
         const rows = [...panel.querySelectorAll('[data-marquee-row]')]
@@ -474,7 +490,7 @@ test.describe('dino easter egg (motion allowed)', () => {
         const [first, second] = rowEl ? [...rowEl.children] : []
         const track = first ? first.getBoundingClientRect().left - box.left : null
         const period = first && second ? second.getBoundingClientRect().left - first.getBoundingClientRect().left : null
-        moves.push({ x: m.m41, y: m.m42, w: box.width, h: box.height, mode: el.dataset.mode!, level: el.dataset.level!, tops, track, period })
+        moves.push({ x: m.m41, y: m.m42, w: box.width, h: box.height, mode: el.dataset.mode!, level: el.dataset.level!, tops, track, period, t, why: `reaction=${el.dataset.reaction} rainbow=${el.dataset.rainbow}` })
         requestAnimationFrame(step)
       }
       requestAnimationFrame(step)
@@ -516,11 +532,22 @@ test.describe('dino easter egg (motion allowed)', () => {
         if (travel > a.period / 2) travel -= a.period
         else if (travel < -a.period / 2) travel += a.period
       }
-      // Its fastest step: 140 px/s walking x 2.2 (a round's top pace) x 2.4
-      // (a dash) x 1.8 (rainbow) over a capped 50ms frame is 66.5px. A
-      // teleport is a jump of hundreds.
-      if (Math.abs(b.x - a.x - travel) > 80 || Math.abs(dy) > 80)
-        jumps.push(`${a.mode}@${a.level} (${a.x.toFixed(0)}, ${a.y.toFixed(0)}) -> ${b.mode}@${b.level} (${b.x.toFixed(0)}, ${b.y.toFixed(0)})`)
+      // What one step can be depends on the time it covers, so it is judged as
+      // a speed, not a distance. Both this sampler and the game run on the
+      // same animation frames, and the game caps its own clock at 50ms a
+      // frame (DinoGame's `dt`), so a step is at most its fastest speed over
+      // min(the time between the two samples, 50ms), plus a snap back onto a
+      // tile (SNAP). Across, the fastest speed is walking x a round's top
+      // pace x a dash x rainbow; up and down, a fall from the top of the panel.
+      // (A fixed 80px limit was too low for a rainbow dash on a slow frame with
+      // a snap: 66.5 + 16 = 82.5px, seen once in mobile-safari CI.)
+      const seconds = Math.min((b.t - a.t) / 1000, MAX_FRAME)
+      const reachX = FASTEST * seconds + SNAP + MARGIN
+      const reachY = Math.sqrt(2 * GRAVITY * b.h) * seconds + MARGIN
+      if (Math.abs(b.x - a.x - travel) > reachX || Math.abs(dy) > reachY)
+        jumps.push(
+          `${a.mode}@${a.level} (${a.x.toFixed(0)}, ${a.y.toFixed(0)}) -> ${b.mode}@${b.level} (${b.x.toFixed(0)}, ${b.y.toFixed(0)}) in ${(seconds * 1000).toFixed(0)}ms, limit ${reachX.toFixed(0)} across ${reachY.toFixed(0)} up/down, ${b.why}`
+        )
     }
     return jumps
   }
@@ -1035,8 +1062,10 @@ test.describe('dino easter egg (motion allowed)', () => {
     await expect(tile).toBeFocused()
   })
 
-  // The middle of the tile nearest the middle of a row (paused by hovering it
+  // The name of the tile nearest the middle of a row (paused by hovering it
   // first), measured in the panel: the row runs far past its edges, clipped.
+  // Its name, not its middle: an open description can put a project link
+  // there, and clicking that one goes to the project.
   const middleTile = async (page: Page, index: number) => {
     await hoverRow(page, index)
     await page.waitForTimeout(300)
@@ -1044,7 +1073,7 @@ test.describe('dino easter egg (motion allowed)', () => {
       const panel = document.querySelector('[data-dino-panel]')!.getBoundingClientRect()
       const row = document.querySelectorAll('[data-dino-panel] [data-marquee-row]')[index]
       const mid = panel.left + panel.width / 2
-      const box = [...row.querySelectorAll('figure')]
+      const box = [...row.querySelectorAll('figure [data-tile-name]')]
         .map((el) => el.getBoundingClientRect())
         .sort((a, b) => Math.abs(a.x + a.width / 2 - mid) - Math.abs(b.x + b.width / 2 - mid))[0]
       return { x: box.x + box.width / 2, y: box.y + box.height / 2 }
