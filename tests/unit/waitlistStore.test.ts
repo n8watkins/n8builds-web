@@ -63,7 +63,7 @@ describe('WaitlistStore (n8builds-waitlist)', () => {
 
   it('keeps every project slug', async () => {
     const { store } = storeAt()
-    const projects = ['keysready', 'cutelyaskme', 'feelium', 'strollz', 'pivot'] as const
+    const projects = ['keysready', 'cutelyaskme', 'feelium', 'pivot'] as const
     const entry = await store.join(request({ projects: [...projects] }))
     expect([...entry.requested].sort()).toEqual([...projects].sort())
   })
@@ -156,8 +156,9 @@ describe('WaitlistStore (n8builds-waitlist)', () => {
   })
 
   it('leaves the rows of a project that is no longer in the data where they are, and never reads them', async () => {
-    // Should a project ever be taken out of data/upcoming.ts ("strollz" stands in for one here by
-    // renaming rows; the real Strollz is unlisted, not removed): people already on it keep their rows.
+    // A project taken out of data/upcoming.ts ("retired-one" stands in for one here by renaming rows; the
+    // real ones are FitFlow 7, Who Am I?, Strollz, VibeLog and Asset Arsenal, 2026-11-26): people already on
+    // it keep their rows.
     const { store, later } = storeAt()
     const entry = await store.join(request({ projects: ['feelium', 'pivot'] }))
     const links = await store.issueLinks(entry)
@@ -186,13 +187,13 @@ describe('WaitlistStore (n8builds-waitlist)', () => {
 
   it('keeps an unlisted project like any other: joined, confirmed, read back, and named in its emails', async () => {
     const { store } = storeAt()
-    const unlisted = ['keysready', 'strollz', 'vibelog', 'asset-arsenal'] as const
+    const unlisted = ['keysready'] as const
     const joined = await store.join(request({ projects: [...unlisted] }))
     expect([...joined.requested].sort()).toEqual([...unlisted].sort())
     const links = await store.issueLinks(joined)
     const html = createConfirmHtml(joined, links)
     for (const slug of unlisted) expect(html).toContain(`https://n8builds.dev/email/upcoming/${slug}.png`)
-    expect(projectList(joined.requested)).toBe('KeysReady, Strollz, VibeLog and Asset Arsenal')
+    expect(projectList(joined.requested)).toBe('KeysReady')
     const confirmed = await store.confirm(links.confirm)
     expect([...confirmed!.projects].sort()).toEqual([...unlisted].sort())
     expect((await store.keepOnly(links.leave, ['keysready']))?.projects).toEqual(['keysready'])

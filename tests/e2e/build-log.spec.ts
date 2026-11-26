@@ -64,7 +64,7 @@ test('the build log leads with the builds, most recently active first', { tag: '
   await expect(feelium.getByRole('link', { name: 'Full story of Feelium' })).toHaveAttribute('href', '/upcoming#feelium')
   // The unlisted upcoming projects (2026-11-11) are followed for the totals only: no card, no
   // filter chip, no row and no link names one.
-  for (const [slug, name] of [['strollz', 'Strollz'], ['keysready', 'KeysReady'], ['vibelog', 'VibeLog'], ['asset-arsenal', 'Asset Arsenal'], ['fitflow7', 'FitFlow 7'], ['whoami', 'Who Am I?']]) {
+  for (const [slug, name] of [['strollz', 'Strollz'], ['vibelog', 'VibeLog'], ['fitflow7', 'FitFlow 7'], ['whoami', 'Who Am I?']]) {
     await expect(page.locator(`a[href$="#${slug}"], [data-build="${slug}"]`)).toHaveCount(0)
     await expect(page.locator('body')).not.toContainText(name)
   }

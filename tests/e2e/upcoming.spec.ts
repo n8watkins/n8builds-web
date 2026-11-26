@@ -102,16 +102,13 @@ test('a landing page link preselects its project and lands on its card', { tag: 
 })
 
 /**
- * The four unlisted projects (owner, 2026-11-11: "it's just not advertised"; `unlisted` in
+ * The unlisted project (owner, 2026-11-11: "it's just not advertised"; `unlisted` in
  * data/upcoming.ts): working, with their waitlists, but shown nowhere unless a link asks for one.
  */
 const UNLISTED: Record<string, string> = {
   keysready: 'KeysReady',
-  strollz: 'Strollz',
-  vibelog: 'VibeLog',
-  'asset-arsenal': 'Asset Arsenal',
 }
-const UNLISTED_WORDS = /KeysReady|Strollz|VibeLog|Asset Arsenal|keysready|strollz|vibelog|asset-arsenal|assetarsenal/
+const UNLISTED_WORDS = /KeysReady|keysready/
 
 test('an unlisted project is nowhere for a normal visitor: not on the homepage or /upcoming, in what they show or in their source', async ({ page }) => {
   for (const path of ['/', '/upcoming']) {
@@ -186,9 +183,9 @@ for (const [slug, name] of Object.entries(UNLISTED)) {
  */
 test('on a phone, a direct link to an unlisted waitlist scrolls to its ticked project', { tag: '@cross-browser' }, async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto('/upcoming?interest=asset-arsenal#asset-arsenal', { waitUntil: 'domcontentloaded' })
+  await page.goto('/upcoming?interest=keysready#keysready', { waitUntil: 'domcontentloaded' })
   await waitForForm(page)
-  const pick = page.locator('#waitlist-projects label:has(input[value="asset-arsenal"])')
+  const pick = page.locator('#waitlist-projects label:has(input[value="keysready"])')
   await expect(pick.locator('input')).toBeChecked()
   await expect(pick).toBeInViewport({ ratio: 1 })
 })
@@ -207,7 +204,13 @@ test("a direct link to the homepage's waitlist offers an unlisted project there 
  * Projects taken off the waitlist (owner, 2026-11-26): they are live, so there is nothing to wait for.
  * An old landing-page link still lands on the plain page, with nothing ticked and no error.
  */
-const RETIRED: Record<string, string> = { fitflow7: 'FitFlow 7', whoami: 'Who Am I?' }
+const RETIRED: Record<string, string> = {
+  fitflow7: 'FitFlow 7',
+  whoami: 'Who Am I?',
+  strollz: 'Strollz',
+  vibelog: 'VibeLog',
+  'asset-arsenal': 'Asset Arsenal',
+}
 
 for (const [slug, name] of Object.entries(RETIRED)) {
   test(`an old link for ${name} lands on the plain upcoming page, nothing preselected`, async ({ page }) => {

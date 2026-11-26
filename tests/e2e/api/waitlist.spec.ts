@@ -31,13 +31,13 @@ test('accepts a valid sign-up', async ({ request }) => {
 })
 
 test('accepts every project, and an old interest value', async ({ request }) => {
-  const all = ['feelium', 'pivot', 'cutelyaskme', 'keysready', 'strollz', 'vibelog', 'asset-arsenal']
+  const all = ['feelium', 'pivot', 'cutelyaskme', 'keysready']
   expect((await join(request, { projects: all, source: { interest: 'feelium' } })).status()).toBe(200)
   expect((await join(request, { projects: ['pivot'], source: { interest: 'rewire' } })).status()).toBe(200)
 })
 
 test('accepts each unlisted project (2026-11-11: not advertised, still working), alone, as an interest and beside a listed one', async ({ request }) => {
-  for (const slug of ['keysready', 'strollz', 'vibelog', 'asset-arsenal']) {
+  for (const slug of ['keysready']) {
     const alone = await join(request, { projects: [slug], source: { interest: slug } })
     expect(alone.status(), slug).toBe(200)
     expect((await alone.json()).message, slug).toMatch(/check your inbox/i)

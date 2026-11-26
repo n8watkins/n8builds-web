@@ -234,7 +234,7 @@ describe('Announcements: start', () => {
   })
 
   // Unlisted since 2026-11-11 (`unlisted` in data/upcoming.ts): not advertised, but the owner can still write to its waitlist.
-  it.each(['keysready', 'strollz', 'vibelog', 'asset-arsenal'] as const)('announces for %s, an unlisted project, like any other: listed for the owner, previewed, tested and sent', async (slug) => {
+  it.each(['keysready'] as const)('announces for %s, an unlisted project, like any other: listed for the owner, previewed, tested and sent', async (slug) => {
     const { service, waitlist, fake } = setup()
     const project = UPCOMING.find((p) => p.slug === slug)!
     expect(project.unlisted).toBe(true)

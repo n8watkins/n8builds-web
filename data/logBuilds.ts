@@ -43,6 +43,8 @@ const followed: LogBuild[] = [
     github: 'https://github.com/n8watkins/strollz',
     repo: 'n8watkins/strollz',
     href: '/upcoming#strollz',
+    // Off the waitlist since 2026-11-26: followed for the totals, never shown.
+    unlisted: true,
   },
   {
     slug: 'keysready',
@@ -73,6 +75,8 @@ const followed: LogBuild[] = [
     github: 'https://github.com/n8watkins/vibelog',
     repo: 'n8watkins/vibelog',
     href: '/upcoming#vibelog',
+    // Off the waitlist since 2026-11-26: followed for the totals, never shown.
+    unlisted: true,
   },
   {
     slug: 'cutelyaskme',

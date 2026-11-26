@@ -8,20 +8,19 @@
  * The slugs are a public contract: the projects' landing pages link to
  * `https://n8builds.dev/upcoming?interest=<slug>#<slug>`, so never rename one;
  * a renamed project keeps its old interest value working (INTEREST_ALIASES).
- * Copy comes from each project's own docs (Strollz's in ~/projects/backlog/strollz, VibeLog's README and docs/VISION.md in
- * ~/projects/backlog/vibelog, KeysReady's from the owner and its landing page,
- * Asset Arsenal's docs/SKINS_CONCEPT.md in ~/projects/backlog/asset-arsenal, Feelium's
+ * Copy comes from each project's own docs (KeysReady's from the owner and its landing page, Feelium's
  * README and docs/PRD.md in ~/projects/apps/feelium, Cutely Ask Me's README and
  * docs/REVIEW_2026-11.md in ~/projects/apps/cutelyaskme, Pivot's README and /welcome page in
  * ~/projects/apps/pivot); keep it in step and modest.
  *
- * Four are unlisted since 2026-11-11 (owner: "it's just not advertised"):
- * KeysReady, Strollz, VibeLog and Asset Arsenal. FitFlow 7 and Who Am I? were removed
- * from the waitlist on 2026-11-26 (owner: both are live, so there is nothing to wait for);
- * their stored sign-ups stay in the database, ignored (see isUpcomingSlug). See `unlisted` on UpcomingProject.
+ * Removed from the waitlist on 2026-11-26 (owner): FitFlow 7 and Who Am I? (both live, so there
+ * is nothing to wait for), then Strollz, VibeLog and Asset Arsenal (dropped from What's cookin').
+ * Their stored sign-ups stay in the database, ignored (see isUpcomingSlug), and an old
+ * `?interest=<slug>` link lands on the plain page with nothing ticked. KeysReady is unlisted
+ * since 2026-11-11 (owner: "it's just not advertised"). See `unlisted` on UpcomingProject.
  */
 
-export const UPCOMING_SLUGS = ['feelium', 'pivot', 'cutelyaskme', 'keysready', 'strollz', 'vibelog', 'asset-arsenal'] as const
+export const UPCOMING_SLUGS = ['feelium', 'pivot', 'cutelyaskme', 'keysready'] as const
 export type UpcomingSlug = (typeof UPCOMING_SLUGS)[number]
 
 /**
@@ -168,7 +167,6 @@ export const UPCOMING: UpcomingProject[] = [
       'After the date: ratings, and a keepsake card with your photos and a short poem',
     ],
   },
-  // Unlisted (see `unlisted` above): kept working, not shown.
   {
     slug: 'keysready',
     name: 'KeysReady',
@@ -193,79 +191,6 @@ export const UPCOMING: UpcomingProject[] = [
       'Live repair status by email and browser notifications, with a status page that answers the call before it happens',
       "Estimates customers approve and pay from their phone, with money going to the shop's own Stripe account",
       'Free for a small shop and open source, so you can self-host it; Pro at $29/mo adds texts, reminders and reviews (planned)',
-    ],
-  },
-  {
-    slug: 'strollz',
-    name: 'Strollz',
-    tagline: 'Walk the streets you have never walked',
-    short: 'Walking loops through new streets near you',
-    group: 'habits',
-    unlisted: true,
-    summary:
-      'Tell it how long you have, and it plans a walking loop from your door through streets you have not walked yet.',
-    icon: '/upcoming/strollz.svg',
-    landing: 'https://strollz.n8builds.dev',
-    status: 'in-development',
-    shot: '/upcoming/shots/strollz.webp',
-    repo: 'n8watkins/strollz',
-    accent: '#5cc49b',
-    what: 'Tell it how long you have, and it plans a walking loop from your door through streets you have never walked, with a few short notes about what you pass, each linked to its source.',
-    forWho:
-      'People who just moved and want to learn the area on foot, dog walkers bored of the same loop, and parents pushing a stroller.',
-    points: [
-      'Pick a time (20 to 60 minutes) and choose one of three loops from your door',
-      "Remembers the streets you've walked and steers each loop toward new ones",
-      'Two to four short notes per walk, each with its source: no source, no note',
-      'Safety and step-free filters free for everyone, and your walks stay private',
-    ],
-  },
-  {
-    slug: 'vibelog',
-    name: 'VibeLog',
-    tagline: 'Live coding telemetry for vibe-coding streams',
-    short: 'Live coding stats for your streams',
-    group: 'creators',
-    unlisted: true,
-    summary:
-      'For people who stream themselves coding with AI: it shows your commits, code changes and AI usage on screen, live.',
-    icon: '/upcoming/vibelog.svg',
-    landing: 'https://vibelogs.dev',
-    status: 'early-access',
-    shot: '/upcoming/shots/vibelog.webp',
-    repo: 'n8watkins/vibelog',
-    accent: '#f472b6',
-    what: 'One local process tracks your git activity, Claude token spend, stream time and channel growth, and turns them into a live OBS overlay, a private dashboard, a public live page and shareable stat cards.',
-    forWho: 'People who stream themselves building software with AI and want viewers to see what is actually happening.',
-    points: [
-      'A HUD for OBS: what you are building, commits, lines changed and tokens, live',
-      'A private dashboard and an activity calendar of your coding and streaming',
-      'A public live page and share cards built only from names and numbers you choose',
-      'Local-first with no account; open source first, a hosted page later',
-    ],
-  },
-  {
-    slug: 'asset-arsenal',
-    name: 'Asset Arsenal',
-    tagline: 'Give your page a skin',
-    short: 'Reskins your page, then cuts the assets',
-    group: 'creators',
-    unlisted: true,
-    summary:
-      'For builders: it redraws your page in your brand or any style you name, then cuts it into assets you can ship.',
-    icon: '/upcoming/asset-arsenal.svg',
-    landing: 'https://assetarsenal.n8builds.dev',
-    status: 'concept',
-    shot: '/upcoming/shots/asset-arsenal.webp',
-    accent: '#f3b73f',
-    what: 'It reimagines your page in your brand or in any style you name, then breaks that picture into real assets you can ship: backgrounds, frames, buttons, icons and illustrations, each cut out and ready to drop in.',
-    forWho:
-      'Builders who want a site that looks like their brand rather than a template, and apps that want to offer their users a few skins to pick from.',
-    points: [
-      'Starts from a screenshot of your page plus your logo, colors and images',
-      'A few full-page concepts in the style you describe; keep the one you love',
-      'Every asset rebuilt full size on a transparent background, matching the concept',
-      'Keep, reject or retry any single piece, and see the cost before each run',
     ],
   },
 ]
