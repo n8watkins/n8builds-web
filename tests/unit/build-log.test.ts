@@ -174,6 +174,55 @@ describe('entries for a build', () => {
     expect(entries.map((e) => e.date)).toEqual([...entries.map((e) => e.date)].sort().reverse())
   })
 
+  /**
+   * What "changes shipped" counts (owner, 2026-11-25: "I don't even know if
+   * these numbers are accurate"): on a day, every commit of the owner's on the
+   * default branch that reads as news (feat, fix, perf, security or a plain
+   * verb like "Add"), never upkeep (docs, tests, chore, ci, refactor, deps),
+   * merges or bots, plus one on a day with a release (once, however many
+   * versions); days run in Los Angeles time. A release used to count only when
+   * it had notes.
+   */
+  it('counts a day as its user-facing commits plus one for a release, the same with or without notes', () => {
+    const day = '2026-08-01T'
+    const commits = [
+      commit('feat: add the trophy room', `${day}18:00:00Z`),
+      commit('fix: the trophy room loads on a phone', `${day}19:00:00Z`),
+      commit('docs: how the trophy room works', `${day}19:10:00Z`),
+      commit('test: cover the trophy room', `${day}19:20:00Z`),
+      commit('chore(deps): bump next', `${day}19:30:00Z`, { author: 'dependabot[bot]' }),
+      commit('Merge pull request #9 from n8watkins/x', `${day}19:40:00Z`, { parents: 2 }),
+      commit('chore(release): v1.2.0', `${day}20:00:00Z`),
+      commit('chore(release): v1.2.1', `${day}21:00:00Z`),
+    ]
+    const [plain] = entriesForBuild(testBuild(), repoOf(commits))
+    // Two news commits and the day's release (two versions, counted once); the docs, test,
+    // bot and merge commits count nothing.
+    expect(plain).toMatchObject({ kind: 'release', title: 'Shipped v1.2.1', count: 3, releases: 2 })
+    expect(weight(plain)).toBe(3)
+    // The same day with release notes on GitHub counts the same.
+    const release = (tag: string, at: string) => ({
+      tag,
+      name: tag,
+      publishedAt: `${day}${at}`,
+      url: '',
+      draft: false,
+      prerelease: false,
+      notes: [{ section: 'new' as const, text: 'A trophy room' }],
+    })
+    const [noted] = entriesForBuild(testBuild(), repoOf(commits, [release('v1.2.0', '20:01:00Z'), release('v1.2.1', '21:01:00Z')]))
+    expect(weight(noted)).toBe(3)
+    // A day with no release: its news commits.
+    const [quiet] = entriesForBuild(testBuild(), repoOf(commits.slice(0, 4)))
+    expect(quiet).toMatchObject({ kind: 'change', count: 2, releases: 0 })
+    expect(weight(quiet)).toBe(2)
+  })
+
+  it('puts a commit on its Los Angeles day, so a late evening counts on that evening', () => {
+    const [late] = entriesForBuild(testBuild(), repoOf([commit('feat: add a night mode', '2026-11-25T07:30:00Z')]))
+    expect(late.day).toBe('2026-11-24')
+  })
+
   it('breaks a tie between equally strong changes in favour of the newest', () => {
     const [entry] = entriesForBuild(testBuild(), repoOf([commit('feat: add the newer thing', '2026-08-01T20:00:00Z'), commit('feat: add the older thing', '2026-08-01T16:00:00Z')]))
     expect(entry).toMatchObject({ title: 'Add the newer thing', more: 1 })
@@ -385,7 +434,9 @@ describe('merging, sorting and the builds index', () => {
     expect(added.map((e) => e.kind).sort()).toEqual(['change', 'highlight', 'release'])
     // ... with everything that names the project taken off.
     for (const e of added) {
-      expect(Object.keys(e).sort()).toEqual(['build', 'date', 'day', 'dayLabel', 'id', 'kind', 'month', 'more', 'title', 'unnamed'])
+      // (`count` and `releases` are numbers only: what it counts for, never what it was.)
+      const keys = Object.keys(e).filter((k) => k !== 'count' && k !== 'releases').sort()
+      expect(keys).toEqual(['build', 'date', 'day', 'dayLabel', 'id', 'kind', 'month', 'more', 'title', 'unnamed'])
       expect(JSON.stringify(e)).not.toMatch(/keysready|KeysReady|secret|github/i)
     }
     // The month's figures: more changes and one more release, the same builds, and never the busiest.

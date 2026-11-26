@@ -131,7 +131,7 @@ test("the card shows the month's changes and a bar per day, all in the HTML", as
   await page.goto('/')
   await card(page).scrollIntoViewIfNeeded()
   await expect(card(page).locator('[data-month]')).toHaveText('October 2026')
-  await expect(card(page).locator('[data-changes]')).toHaveText('100')
+  await expect(card(page).locator('[data-changes]')).toHaveText('101')
   // A slot per day of October; the 26 days so far are buttons, the rest still to come.
   await expect(card(page).locator('[data-chart] > *')).toHaveCount(31)
   await expect(card(page).locator('[data-chart] button')).toHaveCount(26)

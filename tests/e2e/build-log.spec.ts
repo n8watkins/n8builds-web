@@ -11,7 +11,7 @@ test.use({ contextOptions: { reducedMotion: 'reduce' } })
 const feed = (page: Page) => page.locator('#activity')
 const feedEntries = (page: Page) => feed(page).locator('li[data-kind]')
 const chip = (page: Page, name: string) => feed(page).getByRole('group', { name: 'Filter by build' }).getByRole('button', { name })
-const kindChip = (page: Page, name: string | RegExp) => feed(page).getByRole('group', { name: 'Filter updates by kind' }).getByRole('button', { name })
+const kindChip = (page: Page, name: string | RegExp) => feed(page).getByRole('group', { name: 'Filter entries by kind' }).getByRole('button', { name })
 
 /**
  * Click a filter chip, retrying a click that lands before hydration. The inner
@@ -103,8 +103,8 @@ test('the feed groups entries by month, with highlights pinned and releases show
   await page.goto('/builds')
   const months = feed(page).getByRole('heading', { level: 3 })
   // Each month heading, then its counts.
-  await expect(months.first()).toHaveText(/^October 2026\d+ updates?/)
-  await expect(months.nth(1)).toHaveText(/^July 2026\d+ updates?/)
+  await expect(months.first()).toHaveText(/^October 2026\d+ (entry|entries)/)
+  await expect(months.nth(1)).toHaveText(/^July 2026\d+ (entry|entries)/)
 
   // The hand-written highlight sits atop its month, styled as featured.
   const july = feed(page).getByRole('region', { name: 'July 2026' })
@@ -139,7 +139,7 @@ test('the kind filter narrows the feed and its build chips, and lives in the URL
   await page.goto('/builds')
   // Each kind chip counts its entries (older ones too, as All does); the counts add up to All's.
   const counts = await feed(page)
-    .getByRole('group', { name: 'Filter updates by kind' })
+    .getByRole('group', { name: 'Filter entries by kind' })
     .getByRole('button')
     .evaluateAll((els) => els.map((el) => Number(el.querySelector('span')?.textContent)))
   expect(counts.slice(1).reduce((a, b) => a + b, 0)).toBe(counts[0])
@@ -151,9 +151,9 @@ test('the kind filter narrows the feed and its build chips, and lives in the URL
   expect(builds.every((b) => ['tldw', 'tubevault', 'voicedock'].includes(b!))).toBe(true)
   // Only that kind's builds are offered, each with its icon.
   const offered = feed(page).getByRole('group', { name: 'Filter by build' }).getByRole('button')
-  // Each with its count of updates (round 4 of 2026-11-08).
-  expect((await offered.allInnerTexts()).map((t) => t.replace(/\s*\d+\s*updates?$/, '').trim())).toEqual(['TL;DW', 'TubeVault', 'VoiceDock'])
-  expect((await offered.allInnerTexts()).every((t) => /\d+\s*updates?$/.test(t.trim()))).toBe(true)
+  // Each with its count of entries (round 4 of 2026-11-08; "updates" until 2026-11-25).
+  expect((await offered.allInnerTexts()).map((t) => t.replace(/\s*\d+\s*(entry|entries)$/, '').trim())).toEqual(['TL;DW', 'TubeVault', 'VoiceDock'])
+  expect((await offered.allInnerTexts()).every((t) => /\d+\s*(entry|entries)$/.test(t.trim()))).toBe(true)
   expect(await offered.evaluateAll((els) => els.every((el) => !!el.querySelector('img')))).toBe(true)
 
   // A build within the kind narrows further; unpicking it goes back to the kind.

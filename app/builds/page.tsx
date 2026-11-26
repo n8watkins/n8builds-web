@@ -12,6 +12,7 @@ import { builds } from '@/data/builds'
 import { getBuildLog } from '@/lib/build-log'
 import { BUILD_ICONS, logKind } from '@/lib/build-meta'
 import { toCardMonths } from '@/lib/log-card-months'
+import { releasesIn, weight } from '@/lib/log-stats'
 import { absoluteUrl, pageMetadata } from '@/lib/seo'
 
 // Rebuilt at most every six hours from GitHub (lib/build-log.ts). A revalidation that
@@ -46,10 +47,13 @@ export default async function BuildLogPage() {
   // The year at a glance, over the feed's own 12-month window.
   // Counted, so an unlisted project's work is in the figures without being named (lib/build-log.ts).
   const recent = log.counted.filter((e) => !log.recentFrom || e.month >= log.recentFrom)
+  // In the card's own unit (owner, 2026-11-25: "I can't tell if this is correct"): until then the
+  // middle figure counted the feed's entries (one per build per day) as "updates", beside a card
+  // counting changes, and the releases figure counted days with a release, not releases.
   const figures = [
     { value: log.activity.length, label: 'builds tracked' },
-    { value: recent.length, label: 'updates in 12 months' },
-    { value: recent.filter((e) => e.kind === 'release').length, label: 'releases in 12 months' },
+    { value: recent.reduce((n, e) => n + weight(e), 0), label: 'changes shipped in 12 months' },
+    { value: recent.reduce((n, e) => n + releasesIn(e), 0), label: 'releases in 12 months' },
   ]
 
   const itemList = {
@@ -88,122 +92,122 @@ export default async function BuildLogPage() {
               JavaScript, and reduced motion shows it all at once. Below the fold the
               sections fade up as they scroll in. */}
           <LogDayFocusProvider entriesOn={entriesOn}>
-            <header>
-              <div>
-                <FadeIn
-                  as="p"
-                  className="font-mono text-[0.7rem] font-bold uppercase tracking-[0.22em] text-cyan-400"
+          <header>
+            <div>
+              <FadeIn
+                as="p"
+                className="font-mono text-[0.7rem] font-bold uppercase tracking-[0.22em] text-cyan-400"
+              >
+                Shipping, from GitHub
+              </FadeIn>
+              <FadeIn
+                as="h1"
+                delay={0.06}
+                className="mt-3 text-[2.6rem] font-extrabold leading-[1.03] tracking-tight text-slate-50 sm:text-6xl/none"
+              >
+                <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                  The build log
+                </span>
+              </FadeIn>
+              <FadeIn
+                as="p"
+                delay={0.12}
+                className="mt-4 max-w-[640px] text-base leading-relaxed text-[#9cadc5] sm:text-lg/7"
+              >
+                What shipped across every build, pulled from GitHub releases and commits a few times a day,
+                plus the occasional note from me.
+              </FadeIn>
+              {/* release-kit makes the releases; this log shows them. Separate projects, linked. */}
+              <FadeIn as="p" delay={0.16} className="mt-3 max-w-[640px] text-sm text-slate-450">
+                Releases follow{' '}
+                <a
+                  href="https://github.com/n8watkins/release-kit"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-slate-300 underline decoration-white/20 underline-offset-4 hover:text-cyan-200"
                 >
-                  Shipping, from GitHub
-                </FadeIn>
-                <FadeIn
-                  as="h1"
-                  delay={0.06}
-                  className="mt-3 text-[2.6rem] font-extrabold leading-[1.03] tracking-tight text-slate-50 sm:text-6xl/none"
-                >
-                  <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                    The build log
-                  </span>
-                </FadeIn>
-                <FadeIn
-                  as="p"
-                  delay={0.12}
-                  className="mt-4 max-w-[640px] text-base leading-relaxed text-[#9cadc5] sm:text-lg/7"
-                >
-                  What shipped across every build, pulled from GitHub releases and commits a few
-                  times a day, plus the occasional note from me.
-                </FadeIn>
-                {/* release-kit makes the releases; this log shows them. Separate projects, linked. */}
-                <FadeIn as="p" delay={0.16} className="mt-3 max-w-[640px] text-sm text-slate-450">
-                  Releases follow{' '}
-                  <a
-                    href="https://github.com/n8watkins/release-kit"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-slate-300 underline decoration-white/20 underline-offset-4 hover:text-cyan-200"
+                  {/* GitHub's mark: that is where it goes (round 4 of 2026-11-08). */}
+                  <FiGithub className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                  release-kit
+                  <span className="sr-only"> on GitHub (opens in a new tab)</span>
+                </a>
+                , my release standard, as each project adopts it.
+              </FadeIn>
+              <FadeIn as="dl" delay={0.22} className="mt-8 grid max-w-2xl grid-cols-3 gap-3">
+                {figures.map((f) => (
+                  <div
+                    key={f.label}
+                    className="rounded-2xl border border-white/8 bg-linear-to-br from-cyan-500/[0.07] to-blue-600/[0.04] px-4 py-3.5"
                   >
-                    {/* GitHub's mark: that is where it goes (round 4 of 2026-11-08). */}
-                    <FiGithub className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                    release-kit
-                    <span className="sr-only"> on GitHub (opens in a new tab)</span>
-                  </a>
-                  , my release standard, as each project adopts it.
-                </FadeIn>
-                <FadeIn as="dl" delay={0.22} className="mt-8 grid max-w-2xl grid-cols-3 gap-3">
-                  {figures.map((f) => (
-                    <div
-                      key={f.label}
-                      className="rounded-2xl border border-white/8 bg-linear-to-br from-cyan-500/[0.07] to-blue-600/[0.04] px-4 py-3.5"
+                    <dt className="sr-only">{f.label}</dt>
+                    <dd className="text-2xl font-bold tabular-nums text-slate-50 sm:text-3xl">
+                      {f.value}
+                    </dd>
+                    <dd
+                      aria-hidden
+                      className="mt-0.5 text-xs leading-snug text-[#9cadc5] sm:text-sm"
                     >
-                      <dt className="sr-only">{f.label}</dt>
-                      <dd className="text-2xl font-bold tabular-nums text-slate-50 sm:text-3xl">
-                        {f.value}
-                      </dd>
-                      <dd
-                        aria-hidden
-                        className="mt-0.5 text-xs leading-snug text-[#9cadc5] sm:text-sm"
-                      >
-                        {f.label}
-                      </dd>
-                    </div>
-                  ))}
-                </FadeIn>
-              </div>
-            </header>
+                      {f.label}
+                    </dd>
+                  </div>
+                ))}
+              </FadeIn>
+            </div>
+          </header>
 
-            {/* The overview (owner, 2026-11-25): the build log card, the same as the homepage's and
+          {/* The overview (owner, 2026-11-25): the build log card, the same as the homepage's and
               the portfolio's, at its wide size, leading the page above the builds and the feed.
               A day picked on it is shown in the feed (BuildLogOverview, LogDayFocus). Left out
               if the log can't load. */}
-            {months && (
-              <FadeIn
-                as="section"
-                delay={0.3}
-                aria-label="Changes per day"
-                className="mt-10 overflow-hidden rounded-2xl border border-white/8 bg-[#0a1526]/70 [-webkit-tap-highlight-color:transparent] md:mt-12"
-                data-log-overview
-              >
-                <BuildLogOverview months={toCardMonths(months)} />
-              </FadeIn>
-            )}
-
-            <section className="mt-12 md:mt-14" aria-labelledby="builds-heading">
-              <Reveal>
-                <h2 id="builds-heading" className="text-2xl font-bold tracking-tight">
-                  Builds{' '}
-                  <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                    by latest activity
-                  </span>
-                </h2>
-                <BuildIndex activity={log.activity} />
-              </Reveal>
-            </section>
-
-            <section
-              id="activity"
-              className="mt-20 max-w-3xl scroll-mt-6"
-              aria-labelledby="activity-heading"
+          {months && (
+            <FadeIn
+              as="section"
+              delay={0.3}
+              aria-label="Changes per day"
+              className="mt-10 overflow-hidden rounded-2xl border border-white/8 bg-[#0a1526]/70 [-webkit-tap-highlight-color:transparent] md:mt-12"
+              data-log-overview
             >
-              <Reveal>
-                <h2 id="activity-heading" className="text-2xl font-bold tracking-tight">
-                  Activity{' '}
-                  <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                    by month
-                  </span>
-                </h2>
-                <LogFeed
-                  entries={log.entries}
-                  builds={log.activity.map((b) => ({
-                    slug: b.slug,
-                    name: b.name,
-                    href: b.href,
-                    kind: logKind(builds.find((x) => x.slug === b.slug) ?? b),
-                    icon: BUILD_ICONS[b.slug],
-                  }))}
-                  months={log.months}
-                />
-              </Reveal>
-            </section>
+              <BuildLogOverview months={toCardMonths(months)} />
+            </FadeIn>
+          )}
+
+          <section className="mt-12 md:mt-14" aria-labelledby="builds-heading">
+            <Reveal>
+              <h2 id="builds-heading" className="text-2xl font-bold tracking-tight">
+                Builds{' '}
+                <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                  by latest activity
+                </span>
+              </h2>
+              <BuildIndex activity={log.activity} />
+            </Reveal>
+          </section>
+
+          <section
+            id="activity"
+            className="mt-20 max-w-3xl scroll-mt-6"
+            aria-labelledby="activity-heading"
+          >
+            <Reveal>
+              <h2 id="activity-heading" className="text-2xl font-bold tracking-tight">
+                Activity{' '}
+                <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                  by month
+                </span>
+              </h2>
+              <LogFeed
+                entries={log.entries}
+                builds={log.activity.map((b) => ({
+                  slug: b.slug,
+                  name: b.name,
+                  href: b.href,
+                  kind: logKind(builds.find((x) => x.slug === b.slug) ?? b),
+                  icon: BUILD_ICONS[b.slug],
+                }))}
+                months={log.months}
+              />
+            </Reveal>
+          </section>
           </LogDayFocusProvider>
         </div>
       </main>

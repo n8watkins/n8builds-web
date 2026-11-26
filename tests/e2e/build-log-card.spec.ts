@@ -9,7 +9,7 @@ import { test, expect, type Locator, type Page } from '@playwright/test'
  * latest changes; on /builds it leads the page at its wide size.
  *
  * Against the recorded GitHub fixture (BUILD_LOG_FIXTURE=1): October 2026 has
- * 13, 33, 32, 1, 20 and 1 changes on the 21st to the 26th (100 in all, the
+ * 13, 33, 32, 1, 21 and 1 changes on the 21st to the 26th (101 in all, the
  * 26th the last day so far), and the months before it are July, June and May.
  */
 
@@ -95,7 +95,7 @@ for (const place of PLACES) {
       await page.goto(place.path)
       const card = await showCard(page, place.region)
       await expect(card.locator('[data-month]')).toHaveText('October 2026')
-      await expect(card.locator('[data-changes]')).toHaveText('100')
+      await expect(card.locator('[data-changes]')).toHaveText('101')
       await expect(card.locator('[data-chart] > *')).toHaveCount(31)
       await expect(card.locator('[data-chart] button')).toHaveCount(26)
       await expect(
@@ -107,7 +107,7 @@ for (const place of PLACES) {
       // The month, for screen readers, in words.
       await expect(
         card.getByText(
-          '100 changes shipped in October 2026, the busiest day Thursday, October 22 with 33.'
+          '101 changes shipped in October 2026, the busiest day Thursday, October 22 with 33.'
         )
       ).toBeAttached()
       // Never the portfolio's "I post everything here" or its n8builds.dev link: this is n8builds.dev.
@@ -139,14 +139,14 @@ for (const place of PLACES) {
       await expect(readout).toContainText('6-day streak')
       // Sweep on to another day.
       await day('Sunday, October 25').hover()
-      await expect(readout.locator('[data-number]')).toHaveText('20')
+      await expect(readout.locator('[data-number]')).toHaveText('21')
       await expect(readout).toContainText(/changes on\s*Sun, Oct 25/)
       await expect(readout).toContainText('#3 of 6 days')
       await expect(day('Thursday, October 22')).toHaveAttribute('aria-pressed', 'false')
       // Off the chart, the month again.
       await page.mouse.move(2, 2)
       await expect(card.locator('[data-chart]')).not.toHaveAttribute('data-exploring', '')
-      await expect(card.locator('[data-changes]')).toHaveText('100')
+      await expect(card.locator('[data-changes]')).toHaveText('101')
       await expect(readout).toContainText('changes shipped')
     })
 
@@ -177,11 +177,11 @@ for (const place of PLACES) {
       await page.keyboard.press('ArrowRight')
       await expect(focused).toHaveAccessibleName('Monday, October 26: 1 change')
       await page.keyboard.press('ArrowLeft')
-      await expect(focused).toHaveAccessibleName('Sunday, October 25: 20 changes')
-      await expect(readout.locator('[data-number]')).toHaveText('20')
+      await expect(focused).toHaveAccessibleName('Sunday, October 25: 21 changes')
+      await expect(readout.locator('[data-number]')).toHaveText('21')
       await page.keyboard.press('Escape')
       await expect(card.locator('[data-chart] [aria-pressed="true"]')).toHaveCount(0)
-      await expect(card.locator('[data-changes]')).toHaveText('100')
+      await expect(card.locator('[data-changes]')).toHaveText('101')
     })
 
     /**
@@ -201,7 +201,7 @@ for (const place of PLACES) {
       await page.goto(place.path)
       const card = await showCard(page, place.region)
       const number = card.locator('[data-readout] [data-number]')
-      await expect(number).toHaveText('100')
+      await expect(number).toHaveText('101')
       await card.locator('[data-chart] button[tabindex="0"]').focus()
       // From the 26th back to the 22nd.
       await page.keyboard.press('End')
@@ -210,7 +210,7 @@ for (const place of PLACES) {
       await page.keyboard.press('ArrowRight')
       await expect(number).toHaveText('32')
       await page.keyboard.press('Escape')
-      await expect(number).toHaveText('100')
+      await expect(number).toHaveText('101')
     })
 
     test('under reduced motion a day still lights up and shows its numbers, in place', async ({
@@ -293,7 +293,7 @@ for (const place of PLACES) {
       await expect(card.locator('[data-readout]')).toContainText(/changes on\s*Sat, Jun 20/)
       await page.mouse.move(2, 2)
       await expect(card).toHaveAttribute('data-settled', '', { timeout: 5000 })
-      await expect(card.locator('[data-changes]')).toHaveText('214')
+      await expect(card.locator('[data-changes]')).toHaveText('217')
       expect(await barMismatches(card)).toEqual([])
     })
 
@@ -390,7 +390,7 @@ test('the homepage card raises its bars the first time it is seen, even when the
   await card.evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
   await expect(card).toHaveAttribute('data-settled', '', { timeout: 5000 })
   await expect(card).toHaveAttribute('data-entrance', 'idle')
-  await expect(card.locator('[data-changes]')).toHaveText('100')
+  await expect(card.locator('[data-changes]')).toHaveText('101')
   await expect.poll(() => barMismatches(card)).toEqual([])
 })
 

@@ -132,6 +132,17 @@ export type LogEntry = {
   detail?: string
   /** Changes from the same day folded into this entry ("and N more changes"). */
   more: number
+  /**
+   * What this entry counts for in "changes shipped" (owner, 2026-11-25: "I
+   * don't even know if these numbers are accurate"): the day's user-facing
+   * commits that passed the filter, plus one on a day with a release (once,
+   * however many version bumps it took: TubeVault tags a version with nearly
+   * every commit). Before, a release day counted its release only when the
+   * release had notes. Left out (a highlight), it counts as 1 + `more`.
+   */
+  count?: number
+  /** Releases published that day (a release entry shows only the newest). */
+  releases?: number
   /** A release's patch notes (release-kit's sections), newest release only. */
   notes?: ReleaseNote[]
   url?: string
@@ -407,6 +418,9 @@ export function entriesForBuild(build: Pick<Build, 'slug' | 'log' | 'github' | '
         // The release's own notes when its commit has them, else the day's strongest change.
         detail: latest.notes ?? (latest.patchNotes?.length ? undefined : ranked[0]?.title),
         more: latest.notes || latest.patchNotes?.length ? ranked.length : Math.max(ranked.length - 1, 0),
+        // The day's news commits, and the release once however many versions it took.
+        count: ranked.length + 1,
+        releases: items.versions.length,
         ...(latest.patchNotes?.length ? { notes: latest.patchNotes } : {}),
         url: link(latest.url),
       })
@@ -417,6 +431,8 @@ export function entriesForBuild(build: Pick<Build, 'slug' | 'log' | 'github' | '
         kind: 'change',
         title: ranked[0].title,
         more: ranked.length - 1,
+        count: ranked.length,
+        releases: 0,
         url: link(ranked[0].url),
       })
     }
@@ -532,7 +548,7 @@ export function assembleLog(builds: LogBuild[], snapshots: RepoSnapshot[], highl
   const entries = everything.filter((e) => !unlisted.has(e.build))
   const counted = everything.map((e, i): LogEntry =>
     unlisted.has(e.build)
-      ? { id: `${OTHER_WORK}:${i}`, build: OTHER_WORK, kind: e.kind, date: e.date, day: e.day, month: e.month, dayLabel: e.dayLabel, title: 'Other work', more: e.more, unnamed: true }
+      ? { id: `${OTHER_WORK}:${i}`, build: OTHER_WORK, kind: e.kind, date: e.date, day: e.day, month: e.month, dayLabel: e.dayLabel, title: 'Other work', more: e.more, ...(e.count === undefined ? {} : { count: e.count, releases: e.releases }), unnamed: true }
       : e
   )
 
