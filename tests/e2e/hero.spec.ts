@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test'
-import sharp from 'sharp'
 
 /**
  * The hero at the narrowest phone width still in use (iPhone SE, 1st gen).
@@ -111,8 +110,22 @@ test.describe('the hero portrait', () => {
       const placeholder = await frame.evaluate((el) => getComputedStyle(el).backgroundImage)
       expect(placeholder, 'the placeholder is an image made from the portrait').toMatch(/^url\("data:image\/jpeg;base64,/)
       expect(await portrait(page).evaluate((img: HTMLImageElement) => img.complete), 'the photo is still held back').toBe(false)
-      const { channels } = await sharp(await frame.screenshot()).stats()
-      const mean = channels.slice(0, 3).reduce((sum, c) => sum + c.mean, 0) / 3
+      // The placeholder's own pixels (what the circle paints while the photo is held back): a page
+      // screenshot would wait on the held request in WebKit, so read the image in the page instead.
+      const mean = await frame.evaluate(async (el) => {
+        const src = /url\("(.+)"\)/.exec(getComputedStyle(el).backgroundImage)![1]
+        const image = new Image()
+        image.src = src
+        await image.decode()
+        const canvas = document.createElement('canvas')
+        canvas.width = canvas.height = 12
+        const context = canvas.getContext('2d')!
+        context.drawImage(image, 0, 0, 12, 12)
+        const { data } = context.getImageData(0, 0, 12, 12)
+        let sum = 0
+        for (let i = 0; i < data.length; i += 4) sum += data[i] + data[i + 1] + data[i + 2]
+        return sum / (data.length / 4) / 3
+      })
       expect(mean, `the circle's mean brightness while the photo loads (${mean.toFixed(1)} of 255): a black disc is about 0`).toBeGreaterThan(30)
       // The photo arrives: it fades in over the placeholder and ends fully opaque.
       release()
