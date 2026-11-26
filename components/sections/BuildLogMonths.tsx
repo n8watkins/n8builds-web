@@ -84,6 +84,8 @@ export default function BuildLogMonths({
           index={index}
           onIndexChange={setIndex}
           cycle={false}
+          // Under the section's own "Build log" (an h3).
+          heading="h4"
           links={{ right: { label: 'Full build log', href: '/builds' } }}
         />
       </div>
