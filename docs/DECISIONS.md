@@ -290,7 +290,10 @@ When the owner decides something new, add it here (with the date) in the same ch
     Every line is backed by the owner's repos.
     **The owner's picks (2026-11-25):** Cursor, OpenAI and Upstash are dropped; PostgreSQL stays with no project named ("Object-relational, for when an app outgrows SQLite."); AWS, Figma and Pi stay as they are.
     **Claude Fable 5.2 joins the agents and models row** beside Claude Opus 5.5, with the same Anthropic mark: "My orchestrator. It plans the work and directs the other agents."
-    The rows are now 7 agents and models, 3 local AI tools and 26 in the dev stack (36 tiles); `rowDuration` keeps every row at the same pace.
+    **The small things (owner, 2026-11-25, "address the small things", after hearing AWS and Figma had no backing):** Figma is dropped (nothing in his repos or resume backs it), and AWS says what does: "S3, Lambda and Amplify. Portfolio Rank's screenshots go through the S3 API." (his resume's "AWS (S3, Lambda, Amplify)"; Portfolio Rank's pipeline uploads its screenshots through the S3 SDK, to Cloudflare R2), linking Portfolio Rank.
+    The AWS wording and the Figma removal were the coordinating agent's call on his behalf; he can change either.
+    On the portfolio a project link now lands on the project's card on its home page (`/#project-<slug>`); from here it still opens the project's page there, and builds still open their page here.
+    The rows are now 7 agents and models, 3 local AI tools and 25 in the dev stack (35 tiles); `rowDuration` keeps every row at the same pace.
     The Loadout's "How I work with AI" and harnesses are separate copy, not tied to this list, and do not name Fable yet: a change there is the owner's call.
   - The AI kit has three rows (owner, 2026-10-29): agents and models (Claude Code, Claude Opus 5.5, ChatGPT, Codex, Pi, Cursor, OpenAI, Gemini), AI tools (whisper.cpp, Piper, Hugging Face), and the dev stack.
     **One list for both sites** (owner, 2026-10-29): `data/stack.tsx` is shared with the portfolio byte for byte (its `npm run check:sync`), which shows the same tiles in two rows (the AI kit, then the dev stack).
