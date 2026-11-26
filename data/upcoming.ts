@@ -16,8 +16,8 @@
  * Removed from the waitlist on 2026-11-26 (owner): FitFlow 7 and Who Am I? (both live, so there
  * is nothing to wait for), then Strollz, VibeLog and Asset Arsenal (dropped from What's cookin').
  * Their stored sign-ups stay in the database, ignored (see isUpcomingSlug), and an old
- * `?interest=<slug>` link lands on the plain page with nothing ticked. KeysReady is unlisted
- * since 2026-11-11 (owner: "it's just not advertised"). See `unlisted` on UpcomingProject.
+ * `?interest=<slug>` link lands on the plain page with nothing ticked. KeysReady was unlisted
+ * from 2026-11-11 and is listed again with the new copy (2026-11-26). See `unlisted` on UpcomingProject.
  */
 
 export const UPCOMING_SLUGS = ['feelium', 'pivot', 'cutelyaskme', 'keysready'] as const
@@ -98,11 +98,11 @@ export const UPCOMING: UpcomingProject[] = [
   {
     slug: 'feelium',
     name: 'Feelium',
-    tagline: 'What did I do, how did I feel, and are they connected?',
+    tagline: 'Find out what actually makes your days better.',
     short: 'See which habits go with how you feel',
     group: 'habits',
     summary:
-      'A small daily tracker: log a few habits, check in on how you feel, and see which days went with which.',
+      'Tap what you did, rate how you felt, and see what goes with your good days.',
     icon: '/upcoming/feelium.svg',
     landing: 'https://feelium.n8builds.dev',
     status: 'try-it',
@@ -122,10 +122,11 @@ export const UPCOMING: UpcomingProject[] = [
   {
     slug: 'pivot',
     name: 'Pivot',
-    tagline: 'A pause button for everyday urges',
+    tagline: "Who you were isn't who you are now.",
     short: 'One small next step when an urge hits',
     group: 'habits',
-    summary: 'When the pull to scroll, snack or check your email hits, it gives you one small next step you already picked.',
+    summary:
+      "When an old habit pulls, Pivot gives you one small step that belongs to the person you're becoming.",
     icon: '/upcoming/pivot.svg',
     // Its landing page; the app itself is at the site's root.
     landing: 'https://pivot.n8builds.dev/welcome',
@@ -146,11 +147,11 @@ export const UPCOMING: UpcomingProject[] = [
   {
     slug: 'cutelyaskme',
     name: 'Cutely Ask Me',
-    tagline: 'Send a cute ask, they pick the vibe, you plan the date',
+    tagline: "Finding a date is hard enough. Asking shouldn't be.",
     short: 'Ask someone out with a cute invite',
     group: 'two',
     summary:
-      'Ask someone on a date with a cute invite: they say yes and pick the vibe, then you plan the stops and share the plan.',
+      'Send a cute invite; they pick the vibe, you plan the night.',
     icon: '/upcoming/cutelyaskme.svg',
     landing: 'https://cutelyaskme.n8builds.dev',
     status: 'try-it',
@@ -170,12 +171,11 @@ export const UPCOMING: UpcomingProject[] = [
   {
     slug: 'keysready',
     name: 'KeysReady',
-    tagline: 'Stop answering “Is my car ready?”',
+    tagline: 'Stop wondering when your car is ready.',
     short: 'Booking and live repair status for auto shops',
     group: 'business',
-    unlisted: true,
     summary:
-      'For small auto repair shops: customers book online, follow their repair live, and approve and pay from their phone.',
+      "You get told the moment it's done, and you agree to the work and the price before anyone picks up a wrench. No more haggling at the counter. They always know where their car is, so you can stay under the hood instead of on the phone.",
     icon: '/upcoming/keysready.svg',
     landing: 'https://keysready.n8builds.dev',
     status: 'in-development',

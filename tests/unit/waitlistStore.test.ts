@@ -185,7 +185,7 @@ describe('WaitlistStore (n8builds-waitlist)', () => {
     expect(await retired()).toEqual([{ project: 'retired-one', status: 'confirmed' }])
   })
 
-  it('keeps an unlisted project like any other: joined, confirmed, read back, and named in its emails', async () => {
+  it('keeps KeysReady like any other project: joined, confirmed, read back, and named in its emails', async () => {
     const { store } = storeAt()
     const unlisted = ['keysready'] as const
     const joined = await store.join(request({ projects: [...unlisted] }))
@@ -291,7 +291,7 @@ describe('waitlist emails', () => {
     for (const slug of ['pivot', 'cutelyaskme', 'feelium']) {
       expect(html).toContain(`<img src="https://n8builds.dev/email/upcoming/${slug}.png" width="40" height="40"`)
     }
-    expect(html).toContain('A pause button for everyday urges')
+    expect(html).toContain('Find out what actually makes your days better.')
     // The header's N8 mark: an absolute PNG, never a CID, SVG or data: image.
     expect(html).toContain('<img src="https://n8builds.dev/email/logo.png" width="32" height="32" alt="n8builds"')
     expect(html).not.toMatch(/src="(cid:|data:)|\.svg"/)

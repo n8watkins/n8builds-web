@@ -34,7 +34,7 @@ test('the build log leads with the builds, most recently active first', { tag: '
   // The builds, then the projects without a build page the log follows since round 5 of
   // 2026-11-02 (data/logBuilds.ts); in the fixture those have nothing yet, so they come last.
   // NetTrailers and n8games joined on 2026-11-26 (owner: "we should add n8games and nettrailers").
-  await expect(cards).toHaveCount(18)
+  await expect(cards).toHaveCount(19)
   expect(await cards.evaluateAll((els) => els.map((el) => el.getAttribute('data-build')))).toEqual([
     'n8builds',
     'solara',
@@ -51,6 +51,7 @@ test('the build log leads with the builds, most recently active first', { tag: '
     'release-kit',
     // The developer portfolio's page (round 12 of 2026-11-09): nothing logged in the fixture either.
     'portfolio',
+    'keysready',
     'feelium',
     'cutelyaskme',
     'pivot',
@@ -62,7 +63,7 @@ test('the build log leads with the builds, most recently active first', { tag: '
   const feelium = cards.and(page.locator('[data-build="feelium"]'))
   await expect(feelium).toContainText('Nothing logged yet')
   await expect(feelium.getByRole('link', { name: 'Full story of Feelium' })).toHaveAttribute('href', '/upcoming#feelium')
-  // The unlisted upcoming projects (2026-11-11) are followed for the totals only: no card, no
+  // The projects taken off the waitlist (2026-11-26) are followed for the totals only: no card, no
   // filter chip, no row and no link names one.
   for (const [slug, name] of [['strollz', 'Strollz'], ['vibelog', 'VibeLog'], ['fitflow7', 'FitFlow 7'], ['whoami', 'Who Am I?']]) {
     await expect(page.locator(`a[href$="#${slug}"], [data-build="${slug}"]`)).toHaveCount(0)

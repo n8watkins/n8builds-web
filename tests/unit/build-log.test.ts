@@ -407,9 +407,9 @@ describe('merging, sorting and the builds index', () => {
   })
 
   it("counts an unlisted project's work in the totals without ever naming it", () => {
-    // Unlisted since 2026-11-11 (data/upcoming.ts): KeysReady, Strollz and VibeLog; FitFlow 7 and Who Am I? since 2026-11-26) are followed, never shown.
+    // Taken off the waitlist on 2026-11-26 (data/upcoming.ts): FitFlow 7, Who Am I?, Strollz and VibeLog are followed, never shown.
     const unlisted = allBuilds.filter((b) => b.unlisted)
-    expect(unlisted.map((b) => b.slug).sort()).toEqual(['fitflow7', 'keysready', 'strollz', 'vibelog', 'whoami'])
+    expect(unlisted.map((b) => b.slug).sort()).toEqual(['fitflow7', 'strollz', 'vibelog', 'whoami'])
     expect(allBuilds.find((b) => b.slug === 'feelium')?.unlisted).toBeUndefined()
     const work = (repo: string) => ({
       repo,
@@ -420,16 +420,16 @@ describe('merging, sorting and the builds index', () => {
         { sha: 'b'.repeat(40), message: 'fix: a secret fix', date: '2026-10-19T17:00:00Z', author: 'n8watkins', parents: 1, url: `https://github.com/${repo}/commit/b` },
       ],
     })
-    const keysready = unlisted.find((b) => b.slug === 'keysready')!
-    const quiet = assembleLog([...inFixture, keysready], snapshots.filter((s) => s.repo !== keysready.repo), highlights)
-    const busy = assembleLog([...inFixture, keysready], [...snapshots.filter((s) => s.repo !== keysready.repo), work(keysready.repo!)], [
+    const strollz = unlisted.find((b) => b.slug === 'strollz')!
+    const quiet = assembleLog([...inFixture, strollz], snapshots.filter((s) => s.repo !== strollz.repo), highlights)
+    const busy = assembleLog([...inFixture, strollz], [...snapshots.filter((s) => s.repo !== strollz.repo), work(strollz.repo!)], [
       ...highlights,
-      { ...highlights[0], id: 'unlisted-highlight', date: '2026-10-21', build: 'keysready', title: 'KeysReady takes its first booking' },
+      { ...highlights[0], id: 'unlisted-highlight', date: '2026-10-21', build: 'strollz', title: 'Strollz takes its first booking' },
     ])
     // Nothing a visitor sees changes: the feed, the builds index and the months are the same.
     expect(busy.entries).toEqual(quiet.entries)
     expect(busy.activity).toEqual(quiet.activity)
-    expect(busy.activity.map((a) => a.slug)).not.toContain('keysready')
+    expect(busy.activity.map((a) => a.slug)).not.toContain('strollz')
     // The work is counted: two days of changes, a release among them, and the highlight.
     const added = busy.counted.filter((e) => e.unnamed)
     expect(busy.counted.length).toBe(quiet.counted.length + 3)
@@ -440,7 +440,7 @@ describe('merging, sorting and the builds index', () => {
       // (`count` and `releases` are numbers only: what it counts for, never what it was.)
       const keys = Object.keys(e).filter((k) => k !== 'count' && k !== 'releases').sort()
       expect(keys).toEqual(['build', 'date', 'day', 'dayLabel', 'id', 'kind', 'month', 'more', 'title', 'unnamed'])
-      expect(JSON.stringify(e)).not.toMatch(/keysready|KeysReady|secret|github/i)
+      expect(JSON.stringify(e)).not.toMatch(/strollz|Strollz|secret|github/i)
     }
     // The month's figures: more changes and one more release, the same builds, and never the busiest.
     const names = Object.fromEntries(allBuilds.map((b) => [b.slug, b.name]))
@@ -449,7 +449,7 @@ describe('merging, sorting and the builds index', () => {
     expect(Number(stat(busy, 'releases') ?? 0)).toBe(Number(stat(quiet, 'releases') ?? 0) + 1)
     expect(stat(busy, 'builds')).toBe(stat(quiet, 'builds'))
     expect(stat(busy, 'busiest')).toBe(stat(quiet, 'busiest'))
-    const loud = assembleLog([keysready], [work(keysready.repo!)], [])
+    const loud = assembleLog([strollz], [work(strollz.repo!)], [])
     expect(loud.entries).toEqual([])
     expect(shippedStats(loud.counted, loud.counted, '2026-10-26T20:00:00Z', names).map((s) => s.id)).toEqual(['changes', 'builds', 'releases', 'days', 'streak'].filter((id) => id !== 'streak'))
   })

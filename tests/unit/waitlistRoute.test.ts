@@ -145,8 +145,7 @@ describe('POST /api/waitlist', () => {
     expect(saved()).toMatchObject({ interest: '', referrer: '' })
   })
 
-  // Unlisted since 2026-11-11 (owner: "it's just not advertised"): the waitlist behind each still works.
-  it.each(['keysready'])('accepts %s, an unlisted project, as a project and as an interest, and emails its confirm link', async (slug) => {
+  it.each(['keysready'])('accepts %s as a project and as an interest, and emails its confirm link', async (slug) => {
     const response = await call(join, { ...valid, projects: [slug], source: { interest: slug } })
     expect(response.status).toBe(200)
     expect(saved()).toMatchObject({ requested: [slug], interest: slug })

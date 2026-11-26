@@ -233,11 +233,9 @@ describe('Announcements: start', () => {
     expect(await count("SELECT COUNT(*) AS n FROM waitlist_projects WHERE project = 'retired-one' AND status = 'confirmed'")).toBe(1)
   })
 
-  // Unlisted since 2026-11-11 (`unlisted` in data/upcoming.ts): not advertised, but the owner can still write to its waitlist.
-  it.each(['keysready'] as const)('announces for %s, an unlisted project, like any other: listed for the owner, previewed, tested and sent', async (slug) => {
+  it.each(['keysready'] as const)('announces for %s like any other: listed for the owner, previewed, tested and sent', async (slug) => {
     const { service, waitlist, fake } = setup()
     const project = UPCOMING.find((p) => p.slug === slug)!
-    expect(project.unlisted).toBe(true)
     const entry = await waitlist.join({ email: 'early@example.com', projects: [slug], note: '', interest: slug, referrer: '' })
     await waitlist.confirm((await waitlist.issueLinks(entry)).confirm)
     const request = { ...launch, project: slug }
