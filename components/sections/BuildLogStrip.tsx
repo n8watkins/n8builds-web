@@ -7,7 +7,7 @@ import LabSubheader from '@/components/sections/LabSubheader'
 import { ScrollIcon } from '@/components/ui/PartIcons'
 import BuildLogMonths, { LogMonthProvider, type LogMonth } from '@/components/sections/BuildLogMonths'
 import LogRow from '@/components/log/LogRow'
-import { allBuilds, dayKey, getBuildLog, monthLabel, type LogEntry } from '@/lib/build-log'
+import { allBuilds, dayKey, getBuildLog, isWholeMonth, monthLabel, type LogEntry } from '@/lib/build-log'
 import { dailyCounts, shippedStats } from '@/lib/log-stats'
 
 // The homepage's compact build log: the newest month of /builds at a glance.
@@ -179,8 +179,9 @@ export async function getLogMonths(): Promise<LogMonth[] | null> {
   let entries: LogEntry[]
   let asOf: string
   let recentFrom: string | null
+  let incompleteBefore: string | null
   try {
-    ;({ counted: entries, asOf, recentFrom } = await getBuildLog())
+    ;({ counted: entries, asOf, recentFrom, incompleteBefore } = await getBuildLog())
   } catch {
     // GitHub unreachable with nothing cached: leave the strip out.
     return null
@@ -216,9 +217,10 @@ export async function getLogMonths(): Promise<LogMonth[] | null> {
     listLabel: isThisMonth ? 'Latest this month' : 'Latest updates',
   }
   // Then each month before it with something shipped, back to the /builds feed's 12-month window
-  // (round 5 of 2026-11-02): the same card and rows, for that whole month.
+  // (round 5 of 2026-11-02): the same card and rows, for that whole month. Never a month the
+  // log could not read whole (2026-11-26): the month a repo's reading stopped in, and older.
   const earlier = [...new Set(entries.map((e) => e.month))]
-    .filter((m) => m < current && (!recentFrom || m >= recentFrom))
+    .filter((m) => m < current && (!recentFrom || m >= recentFrom) && isWholeMonth(m, incompleteBefore))
     .sort((x, y) => y.localeCompare(x))
     .map((m): LogMonth => {
       const period = entries.filter((e) => e.month === m)

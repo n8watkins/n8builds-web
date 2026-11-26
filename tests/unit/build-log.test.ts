@@ -18,6 +18,7 @@ import {
   getRecentActivity,
   highlightEntry,
   historyCutoff,
+  isWholeMonth,
   MAX_COMMIT_PAGES,
   monthYearLabel,
   normalizeCommit,
@@ -563,7 +564,10 @@ describe('getBuildLog', () => {
     const fetch = offline()
     await expect(getBuildLog()).rejects.toThrow()
     const calls = fetch.mock.calls as unknown as [string, RequestInit][]
-    expect(calls.map(([url]) => url)).toContain('https://api.github.com/repos/n8watkins/portfolio-rank/commits?per_page=100&author=n8watkins')
+    // Only the window's commits (`since` its first day), so GitHub does the filtering (2026-11-26).
+    expect(calls.map(([url]) => url)).toContain(
+      `https://api.github.com/repos/n8watkins/portfolio-rank/commits?per_page=100&author=n8watkins&since=${historyCutoff()}`
+    )
     expect(new Headers(calls[0][1].headers).get('Authorization')).toBe('Bearer test-token')
   })
 
@@ -659,12 +663,48 @@ describe('reading each repo far enough back', () => {
     expect(requests).toEqual([1])
   })
 
+  /**
+   * NetTrailers made 1,111 commits in November 2025 (owner, 2026-11-26: "why does November
+   * not have anything in the entirety of the month"): the old cap of 10 pages read only its
+   * last two days. Every page inside the window is read now, and every day counts.
+   */
+  it('reads every page of a very busy repo, so every day of a busy month counts', async () => {
+    const busy: SnapshotCommit[] = []
+    for (let day = 30; day >= 1; day--)
+      for (let i = 0; i < 50; i++)
+        busy.push(commit(`feat: add part ${i} of day ${day}`, `2025-11-${String(day).padStart(2, '0')}T20:${String(i).padStart(2, '0')}:00Z`, { sha: `${day}-${i}` }))
+    const { fetchPage, requests } = pager(busy)
+    const result = await collectCommits(fetchPage, cutoff)
+    // 1,500 commits: 15 full pages (and an empty 16th that ends it), past the old cap of 10, none cut.
+    expect(result).toMatchObject({ pages: 16, truncated: false })
+    expect(requests).toHaveLength(16)
+    expect(result.commits).toHaveLength(1500)
+    expect(MAX_COMMIT_PAGES).toBeGreaterThanOrEqual(100)
+    const days = entriesForBuild(testBuild(), repoOf(result.commits)).filter((e) => e.month === '2025-11')
+    expect(days).toHaveLength(30)
+    expect(days.reduce((n, e) => n + weight(e), 0)).toBe(1500)
+  })
+
   it('stops at the page cap and says so', async () => {
     const endless = async (page: number) =>
       Array.from({ length: COMMIT_PAGE_SIZE }, (_, i) => ({ ...snapshot('tl-dw').commits[0], sha: `${page}-${i}`, date: '2026-10-01T00:00:00Z' }))
     const result = await collectCommits(endless, cutoff)
     expect(result).toMatchObject({ pages: MAX_COMMIT_PAGES, truncated: true })
     expect(result.commits).toHaveLength(MAX_COMMIT_PAGES * COMMIT_PAGE_SIZE)
+  })
+
+  it('marks a cut history, and no month it reaches is shown as whole', () => {
+    const inFixture = builds.filter((b) => b.slug !== 'release-kit' && b.slug !== 'portfolio')
+    const cut = { ...repoOf([commit('feat: add a thing', '2026-03-10T20:00:00Z')]), repo: 'n8watkins/tl-dw', truncatedBefore: '2026-03-10T20:00:00Z' }
+    const whole = assembleLog(inFixture, fixture.snapshots as RepoSnapshot[], [])
+    expect(whole.incompleteBefore).toBeNull()
+    const log = assembleLog(inFixture, [...(fixture.snapshots as RepoSnapshot[]).filter((s) => s.repo !== 'n8watkins/tl-dw'), cut], [])
+    expect(log.incompleteBefore).toBe('2026-03-10')
+    // The month the reading stopped in, and every month before it, are not whole; later ones are.
+    expect(isWholeMonth('2026-03', log.incompleteBefore)).toBe(false)
+    expect(isWholeMonth('2026-02', log.incompleteBefore)).toBe(false)
+    expect(isWholeMonth('2026-04', log.incompleteBefore)).toBe(true)
+    expect(isWholeMonth('2025-11', null)).toBe(true)
   })
 
   it('counts a commit once when a new one shifts the pages', async () => {

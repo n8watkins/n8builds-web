@@ -9,7 +9,7 @@ import { getLogMonths } from '@/components/sections/BuildLogStrip'
 import FadeIn from '@/components/ui/FadeIn'
 import Reveal from '@/components/ui/Reveal'
 import { builds } from '@/data/builds'
-import { getBuildLog } from '@/lib/build-log'
+import { getBuildLog, monthLabel } from '@/lib/build-log'
 import { BUILD_ICONS, logKind } from '@/lib/build-meta'
 import { toCardMonths } from '@/lib/log-card-months'
 import { releasesIn, weight } from '@/lib/log-stats'
@@ -195,6 +195,13 @@ export default async function BuildLogPage() {
                   by month
                 </span>
               </h2>
+              {/* Never a cut month passed off as whole (2026-11-26): said once, plainly. */}
+              {log.incompleteBefore && (
+                <p className="mt-2 text-sm text-amber-200/90" data-history-incomplete>
+                  History incomplete before {monthLabel(log.incompleteBefore.slice(0, 7))}: one of the builds had more
+                  commits than the log reads, so earlier months may be missing work.
+                </p>
+              )}
               <LogFeed
                 entries={log.entries}
                 builds={log.activity.map((b) => ({
