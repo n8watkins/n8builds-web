@@ -56,7 +56,18 @@ type Turn = {
   seq: number
 }
 
-export default function BuildLogPages({ rows, labels, label }: { rows: React.ReactNode[]; labels: string[]; label: string }) {
+export default function BuildLogPages({
+  rows,
+  labels,
+  label,
+  held = false,
+}: {
+  rows: React.ReactNode[]
+  labels: string[]
+  label: string
+  /** Holds the pages still: a day picked on the card is showing in their place (BuildLogMonths). */
+  held?: boolean
+}) {
   const count = rows.length
   const perPage = PER_PAGE
   // The entries, page after page, each page full (lib/full-pages.ts): a short
@@ -78,7 +89,7 @@ export default function BuildLogPages({ rows, labels, label }: { rows: React.Rea
   const [announce, setAnnounce] = useState('')
   const reduceMotion = usePrefersReducedMotion()
   const pageVisible = usePageVisible()
-  const cycling = !reduceMotion && pages > 1 && !stopped && !hovered && !focused && inView && pageVisible
+  const cycling = !reduceMotion && pages > 1 && !stopped && !held && !hovered && !focused && inView && pageVisible
 
   const root = useRef<HTMLDivElement>(null)
   const rowEls = useRef<(HTMLLIElement | null)[]>([])

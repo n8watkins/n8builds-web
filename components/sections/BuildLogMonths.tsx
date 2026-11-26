@@ -1,15 +1,16 @@
 'use client'
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
-import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
-import ShippedStats from '@/components/sections/ShippedStats'
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import BuildLogCard from '@/components/build-log/BuildLogCard'
 import BuildLogPages from '@/components/sections/BuildLogPages'
+import { dayListNote } from '@/lib/day-list'
+import { toCardMonths } from '@/lib/log-card-months'
 import type { DayCount, ShippedStat } from '@/lib/log-stats'
 
 /** One month of the homepage's build log, worked out and its rows rendered on the server (BuildLogStrip.tsx). */
 export type LogMonth = {
   /** `YYYY-MM`, or `recent` for a quiet month's last 30 days. */
   id: string
-  /** On the card: "November", or "December 2025" for another year, or "Last 30 days". */
+  /** On the card: "November 2026", or "Last 30 days". */
   period: string
   /** In full, for the arrows' names and the announcement: "October 2026". */
   name: string
@@ -19,6 +20,8 @@ export type LogMonth = {
   rows: React.ReactNode[]
   /** Each row's build and title, read out when the visitor pages to it. */
   labels: string[]
+  /** Each row's day (`YYYY-MM-DD`), so a day picked on the card shows its own rows. */
+  rowDays: string[]
   /** The rows' name: "Latest this month", "Latest in October 2026". */
   listLabel: string
 }
@@ -29,145 +32,192 @@ const MonthContext = createContext<{ index: number; setIndex: (i: number) => voi
   setIndex: () => {},
 })
 
-/**
- * Holds the month the build log shows for the card inside it. The month is
- * named once, on the card (round 4 of 2026-11-08: no "Shipped in October"
- * line under the heading as well).
- */
+/** Holds the month the build log shows, for the card and the updates beside it. */
 export function LogMonthProvider({ children }: { children: React.ReactNode }) {
   const [index, setIndex] = useState(0)
   return <MonthContext.Provider value={{ index, setIndex }}>{children}</MonthContext.Provider>
 }
 
-const arrowClass =
-  'flex h-7 w-7 shrink-0 select-none items-center justify-center rounded-lg border border-white/10 bg-white/4 text-slate-400 transition-colors enabled:hover:border-cyan-400/30 enabled:hover:bg-white/8 enabled:hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 disabled:cursor-default disabled:opacity-35'
+/**
+ * How long a day has to stay picked before the list follows it, and how long
+ * the list waits before it goes back to the latest changes. A sweep across the
+ * chart lights each day and rolls the readout at once, while the list moves
+ * only where the pointer rests.
+ */
+const FOLLOW_MS = 160
+const RETURN_MS = 320
+/** A day's rows shown at most, the same as a page of the latest changes. */
+const DAY_ROWS = 3
+
+const longDay = (day: string) =>
+  new Date(`${day}T12:00:00Z`).toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  })
+const changes = (n: number) => `${n} ${n === 1 ? 'change' : 'changes'}`
 
 /**
- * The homepage build log's month switcher (round 5 of 2026-11-02: "let
- * visitors switch months"): the card's month has arrows beside it, back to
- * the months before (as far as the /builds feed's 12-month window) and
- * forward again, going round at either end (round 4 of 2026-11-08), each
- * named with its year. Each month is the same card and rows as the current one:
- * its figures and day bars, and its updates a page of three at a time (round 9 of 2026-11-09). `rows={false}` is
- * the card alone (/builds, where the feed below has every update).
+ * The homepage build log: the build log card (the same card as the
+ * portfolio's, components/build-log/; owner, 2026-11-25), the month's updates
+ * a page of three at a time beside it (BuildLogPages), and the release-kit ad.
+ *
+ * The card's month arrows pick the month for both: back through the months
+ * with something shipped, as far as the /builds feed's 12-month window, and
+ * round at either end. The card's months don't move on by themselves here:
+ * the updates beside it already do (every 4 seconds), and two things moving
+ * side by side was too much (round 9 of 2026-11-09, "only one clip plays at a
+ * time"). The card announces a month picked with its arrows.
+ *
+ * A day picked on the card (hovered, tapped or reached with the arrow keys)
+ * shows that day's entries in the list's place (owner, 2026-11-25: "if I
+ * hover over the changes in the month, the stuff that's being displayed on
+ * the build log ... adjusts"): headed by the day and its changes, at most
+ * three with a count of the rest, or a line saying the day's changes have no
+ * entry of their own. The list's pages hold still meanwhile and come back when
+ * no day is picked. It waits for the pointer to rest (FOLLOW_MS), so a sweep
+ * does not churn it, keeps the list's height (the pages stay in place,
+ * hidden), and tells screen readers what it shows.
  *
  * Every month's rows are rendered on the server and arrive with the page's
  * component payload (small: the whole year is about a hundred rows, and no
  * request waits on a click), but only the month on screen is in the markup
- * and mounted, and its icons are the only ones loaded, so the homepage costs
- * about what it did with one month. A new month fades in (not under
- * reduced motion), and its name is announced.
+ * and mounted, and its icons are the only ones loaded. A new month's updates
+ * fade in (not under reduced motion).
  */
 export default function BuildLogMonths({
   months,
-  rows = true,
   aside,
 }: {
   months: LogMonth[]
-  rows?: boolean
   /** A third column on the right from 1024px (the release-kit note); under the rest below that. */
   aside?: React.ReactNode
 }) {
   const { index, setIndex } = useContext(MonthContext)
-  const [announce, setAnnounce] = useState('')
-  // Whether the visitor has switched months: from then on a month's bars fill in as it shows.
-  const [switched, setSwitched] = useState(false)
-  // The arrow to give focus back to: a month's card remounts with its arrows, so the
-  // one just used would otherwise drop focus to the page.
-  const refocus = useRef<'older' | 'newer' | null>(null)
-  const root = useRef<HTMLDivElement>(null)
   const month = months[index]
-  // The arrows go round (owner, round 4 of 2026-11-08): back from the oldest month is the
-  // newest, and on from the newest is the oldest. Each month shows its year, so a wrap is plain.
-  const n = months.length
-  const olderIndex = (index + 1) % n
-  const newerIndex = (index - 1 + n) % n
-  const older = months[olderIndex]
-  const newer = months[newerIndex]
+  const cardMonths = useMemo(() => toCardMonths(months), [months])
 
-  const go = (to: number, arrow: 'older' | 'newer') => {
-    refocus.current = document.activeElement?.closest('[data-month-arrow]') ? arrow : null
-    setIndex(to)
-    setSwitched(true)
-    setAnnounce(`Showing ${months[to].name}`)
+  // The day the list shows: the card's picked day, once it has rested there a moment.
+  const [shownDay, setShownDay] = useState<string | null>(null)
+  const follow = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  /** The card's picked day right now, and whether the pointer is on the day's list (to open a row). */
+  const picked = useRef<string | null>(null)
+  const onList = useRef(false)
+  const schedule = (day: string | null) => {
+    clearTimeout(follow.current)
+    follow.current = setTimeout(
+      () => {
+        // A pointer that has left the chart for the day's list keeps the day showing.
+        if (!day && onList.current) return
+        setShownDay(day)
+      },
+      day ? FOLLOW_MS : RETURN_MS
+    )
   }
-
-  useEffect(() => {
-    const arrow = refocus.current
-    refocus.current = null
-    if (arrow) root.current?.querySelector<HTMLButtonElement>(`[data-month-arrow="${arrow}"]`)?.focus({ preventScroll: true })
-  }, [index])
-
-  const header = (
-    <div className="flex items-center justify-between gap-3">
-      {/* The month, then its year a size down (round 4 of 2026-11-08: the arrows go round, so the year shows where). */}
-      <p className="min-w-0 truncate text-xl font-bold tracking-tight text-cyan-300" data-month={month.id}>
-        {/^\w+ \d{4}$/.test(month.period) ? (
-          <>
-            {month.period.split(' ')[0]} <span className="text-sm font-semibold text-cyan-300/60">{month.period.split(' ')[1]}</span>
-          </>
-        ) : (
-          month.period
-        )}
-      </p>
-      {months.length > 1 && (
-        <div className="flex items-center gap-1.5" role="group" aria-label="Months">
-          <button
-            type="button"
-            onClick={() => go(olderIndex, 'older')}
-            data-month-arrow="older"
-            aria-label={`Previous month: ${older.name}`}
-            title={older?.name}
-            className={arrowClass}
-          >
-            <FiChevronLeft className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => go(newerIndex, 'newer')}
-            data-month-arrow="newer"
-            aria-label={`Next month: ${newer.name}`}
-            title={newer?.name}
-            className={arrowClass}
-          >
-            <FiChevronRight className="h-4 w-4" />
-          </button>
-        </div>
-      )}
-    </div>
-  )
+  const onDay = (day: string | null) => {
+    picked.current = day
+    schedule(day)
+  }
+  useEffect(() => () => clearTimeout(follow.current), [])
+  const dayCount = shownDay ? month.days.find((d) => d.day === shownDay) : undefined
+  const showing = !!shownDay && !!dayCount
+  const dayRows = showing ? month.rows.filter((_, i) => month.rowDays[i] === shownDay) : []
 
   return (
     // No tap highlight on its controls (round 7 of 2026-11-09: a white box flashed on a tap);
     // each keeps a ring for the keyboard. The release-kit column is as wide as the month's,
     // so the card is symmetric (round 7).
     <div
-      ref={root}
-      className={`grid grid-cols-1 overflow-hidden rounded-2xl border border-white/8 bg-[#0a1526]/70 [-webkit-tap-highlight-color:transparent] ${
-        rows ? `md:grid-cols-[17rem_minmax(0,1fr)] ${aside ? 'lg:grid-cols-[17rem_minmax(0,1fr)_17rem]' : ''}` : ''
+      className={`grid grid-cols-1 overflow-hidden rounded-2xl border border-white/8 bg-[#0a1526]/70 [-webkit-tap-highlight-color:transparent] md:grid-cols-[17rem_minmax(0,1fr)] ${
+        aside ? 'lg:grid-cols-[17rem_minmax(0,1fr)_17rem]' : ''
       }`}
       data-log-months={months.length}
     >
-      {/* A month's card and rows remount together, so each starts on its first figure and page. */}
       <div
-        key={`stats-${month.id}`}
-        className={`flex flex-col px-5 py-4 md:px-6 md:py-5 ${rows ? 'border-b border-white/8 md:border-r md:border-b-0' : ''} ${index ? 'log-month-in' : ''}`}
+        className="flex flex-col border-b border-white/8 md:border-r md:border-b-0"
+        data-log-card
       >
-        {/* The month is named once, here; each row carries its own day. */}
-        <ShippedStats stats={month.stats} days={month.days} period={month.name} header={header} fill={switched} />
+        <BuildLogCard
+          months={cardMonths}
+          index={index}
+          onIndexChange={setIndex}
+          onDayChange={onDay}
+          cycle={false}
+          // Under the section's own "Build log" (an h3).
+          heading="h4"
+          links={{ right: { label: 'Full build log', href: '/builds' } }}
+        />
       </div>
-      {rows && (
-        // The month's updates, a page of three at a time, with the staggered fade (BuildLogPages).
-        <div key={`rows-${month.id}`} className={`p-3 sm:p-4 ${index ? 'log-month-in' : ''}`}>
-          <BuildLogPages rows={month.rows} labels={month.labels} label={month.listLabel} />
+      {/* The month's updates, a page of three at a time, with the staggered fade (BuildLogPages);
+          a picked day's own in their place, over them, so the list keeps its height. */}
+      <div
+        key={`rows-${month.id}`}
+        className={`relative p-3 sm:p-4 ${index ? 'log-month-in' : ''}`}
+      >
+        <div className={showing ? 'invisible' : ''} data-latest>
+          <BuildLogPages
+            rows={month.rows}
+            labels={month.labels}
+            label={month.listLabel}
+            held={showing}
+          />
+        </div>
+        {showing && (
+          <div
+            key={shownDay}
+            role="group"
+            aria-label={`Entries on ${longDay(shownDay)}`}
+            className="log-month-in absolute inset-3 flex flex-col sm:inset-4"
+            data-day-rows={shownDay}
+            onMouseEnter={() => {
+              onList.current = true
+              clearTimeout(follow.current)
+            }}
+            onMouseLeave={() => {
+              onList.current = false
+              if (!picked.current) schedule(null)
+            }}
+          >
+            <p className="mb-1.5 px-2 text-sm font-semibold text-emerald-300/90">
+              {longDay(shownDay)}
+              <span className="font-normal text-slate-400"> · {changes(dayCount.count)}</span>
+            </p>
+            {dayRows.length ? (
+              <ul className="grid flex-1 grid-cols-1 content-start gap-y-0.5">
+                {dayRows.slice(0, DAY_ROWS).map((row, i) => (
+                  <li key={i} data-day-row>
+                    {row}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="flex-1 px-2 pt-1 text-sm text-[#9cadc5]" data-day-empty>
+                {dayListNote(dayCount.count, 0)}
+              </p>
+            )}
+            <p className="mt-2 flex h-8 items-center px-2 font-mono text-xs text-slate-450">
+              {dayRows.length > DAY_ROWS ? `and ${dayRows.length - DAY_ROWS} more that day` : ''}
+            </p>
+          </div>
+        )}
+        <p className="sr-only" aria-live="polite">
+          {showing
+            ? `Showing ${longDay(shownDay)}: ${
+                dayRows.length
+                  ? `${dayRows.length} ${dayRows.length === 1 ? 'entry' : 'entries'}`
+                  : dayCount.count
+                    ? `${changes(dayCount.count)}, none with a write-up`
+                    : 'nothing shipped'
+              }`
+            : ''}
+        </p>
+      </div>
+      {aside && (
+        <div className="border-t border-white/8 md:col-span-2 lg:col-span-1 lg:border-t-0 lg:border-l">
+          {aside}
         </div>
       )}
-      {aside && (
-        <div className="border-t border-white/8 md:col-span-2 lg:col-span-1 lg:border-t-0 lg:border-l">{aside}</div>
-      )}
-      <p className="sr-only" aria-live="polite">
-        {announce}
-      </p>
     </div>
   )
 }

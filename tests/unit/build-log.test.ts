@@ -18,6 +18,7 @@ import {
   getRecentActivity,
   highlightEntry,
   historyCutoff,
+  isWholeMonth,
   MAX_COMMIT_PAGES,
   monthYearLabel,
   normalizeCommit,
@@ -174,6 +175,55 @@ describe('entries for a build', () => {
     expect(entries.map((e) => e.date)).toEqual([...entries.map((e) => e.date)].sort().reverse())
   })
 
+  /**
+   * What "changes shipped" counts (owner, 2026-11-25: "I don't even know if
+   * these numbers are accurate"): on a day, every commit of the owner's on the
+   * default branch that reads as news (feat, fix, perf, security or a plain
+   * verb like "Add"), never upkeep (docs, tests, chore, ci, refactor, deps),
+   * merges or bots, plus one on a day with a release (once, however many
+   * versions); days run in Los Angeles time. A release used to count only when
+   * it had notes.
+   */
+  it('counts a day as its user-facing commits plus one for a release, the same with or without notes', () => {
+    const day = '2026-08-01T'
+    const commits = [
+      commit('feat: add the trophy room', `${day}18:00:00Z`),
+      commit('fix: the trophy room loads on a phone', `${day}19:00:00Z`),
+      commit('docs: how the trophy room works', `${day}19:10:00Z`),
+      commit('test: cover the trophy room', `${day}19:20:00Z`),
+      commit('chore(deps): bump next', `${day}19:30:00Z`, { author: 'dependabot[bot]' }),
+      commit('Merge pull request #9 from n8watkins/x', `${day}19:40:00Z`, { parents: 2 }),
+      commit('chore(release): v1.2.0', `${day}20:00:00Z`),
+      commit('chore(release): v1.2.1', `${day}21:00:00Z`),
+    ]
+    const [plain] = entriesForBuild(testBuild(), repoOf(commits))
+    // Two news commits and the day's release (two versions, counted once); the docs, test,
+    // bot and merge commits count nothing.
+    expect(plain).toMatchObject({ kind: 'release', title: 'Shipped v1.2.1', count: 3, releases: 2 })
+    expect(weight(plain)).toBe(3)
+    // The same day with release notes on GitHub counts the same.
+    const release = (tag: string, at: string) => ({
+      tag,
+      name: tag,
+      publishedAt: `${day}${at}`,
+      url: '',
+      draft: false,
+      prerelease: false,
+      notes: [{ section: 'new' as const, text: 'A trophy room' }],
+    })
+    const [noted] = entriesForBuild(testBuild(), repoOf(commits, [release('v1.2.0', '20:01:00Z'), release('v1.2.1', '21:01:00Z')]))
+    expect(weight(noted)).toBe(3)
+    // A day with no release: its news commits.
+    const [quiet] = entriesForBuild(testBuild(), repoOf(commits.slice(0, 4)))
+    expect(quiet).toMatchObject({ kind: 'change', count: 2, releases: 0 })
+    expect(weight(quiet)).toBe(2)
+  })
+
+  it('puts a commit on its Los Angeles day, so a late evening counts on that evening', () => {
+    const [late] = entriesForBuild(testBuild(), repoOf([commit('feat: add a night mode', '2026-11-25T07:30:00Z')]))
+    expect(late.day).toBe('2026-11-24')
+  })
+
   it('breaks a tie between equally strong changes in favour of the newest', () => {
     const [entry] = entriesForBuild(testBuild(), repoOf([commit('feat: add the newer thing', '2026-08-01T20:00:00Z'), commit('feat: add the older thing', '2026-08-01T16:00:00Z')]))
     expect(entry).toMatchObject({ title: 'Add the newer thing', more: 1 })
@@ -307,10 +357,12 @@ describe('merging, sorting and the builds index', () => {
 
   it('tracks the visible builds with a repo, and none of the hidden ones', () => {
     const tracked = builds.filter((b) => b.repo)
-    expect(tracked.map((b) => b.slug)).toEqual(['voicedock', 'tldw', 'tubevault', 'scribe', 'openping', 'solara', 'portfolio-rank', 'release-kit', 'portfolio', 'n8builds'])
+    // n8games since 2026-11-26 (owner: "we should add n8games and nettrailers").
+    expect(tracked.map((b) => b.slug)).toEqual(['voicedock', 'tldw', 'tubevault', 'scribe', 'openping', 'solara', 'n8games', 'portfolio-rank', 'release-kit', 'portfolio', 'n8builds'])
     expect(tracked.every((b) => /^n8watkins\/[\w-]+$/.test(b.repo!))).toBe(true)
     expect(hiddenBuilds.every((b) => !b.repo)).toBe(true)
-    expect(new Set(log.entries.map((e) => e.build))).toEqual(new Set(inFixture.filter((b) => b.repo).map((b) => b.slug)))
+    // Every tracked build has entries, but n8games: its repo had none yet at the fixture's capture.
+    expect(new Set(log.entries.map((e) => e.build))).toEqual(new Set(inFixture.filter((b) => b.repo && b.slug !== 'n8games').map((b) => b.slug)))
   })
 
   it("keeps this site's own busy repo to its releases and user-facing changes", () => {
@@ -385,7 +437,9 @@ describe('merging, sorting and the builds index', () => {
     expect(added.map((e) => e.kind).sort()).toEqual(['change', 'highlight', 'release'])
     // ... with everything that names the project taken off.
     for (const e of added) {
-      expect(Object.keys(e).sort()).toEqual(['build', 'date', 'day', 'dayLabel', 'id', 'kind', 'month', 'more', 'title', 'unnamed'])
+      // (`count` and `releases` are numbers only: what it counts for, never what it was.)
+      const keys = Object.keys(e).filter((k) => k !== 'count' && k !== 'releases').sort()
+      expect(keys).toEqual(['build', 'date', 'day', 'dayLabel', 'id', 'kind', 'month', 'more', 'title', 'unnamed'])
       expect(JSON.stringify(e)).not.toMatch(/keysready|KeysReady|secret|github/i)
     }
     // The month's figures: more changes and one more release, the same builds, and never the busiest.
@@ -429,14 +483,16 @@ describe('merging, sorting and the builds index', () => {
   })
 
   it('sorts builds by their latest activity and labels it as a month, never "ago"', () => {
-    expect(log.activity.map((a) => a.slug)).toEqual(['n8builds', 'solara', 'tldw', 'openping', 'scribe', 'portfolio-rank', 'tubevault', 'voicedock'])
-    expect(log.activity.map((a) => a.lastShippedLabel)).toEqual(['Oct 2026', 'Oct 2026', 'Jul 2026', 'Jul 2026', 'Jul 2026', 'Jun 2026', 'Jun 2026', 'Jun 2026'])
-    expect(log.activity.every((a) => a.latest.length === 2)).toBe(true)
+    // n8games' repo had nothing yet at the fixture's capture (2026-10-26), so it comes last, quiet.
+    expect(log.activity.map((a) => a.slug)).toEqual(['n8builds', 'solara', 'tldw', 'openping', 'scribe', 'portfolio-rank', 'tubevault', 'voicedock', 'n8games'])
+    expect(log.activity.map((a) => a.lastShippedLabel)).toEqual(['Oct 2026', 'Oct 2026', 'Jul 2026', 'Jul 2026', 'Jul 2026', 'Jun 2026', 'Jun 2026', 'Jun 2026', null])
+    expect(log.activity.filter((a) => a.lastShipped).every((a) => a.latest.length === 2)).toBe(true)
   })
 
   it('sorts a build with no entries by its last push, after the active ones', () => {
     const quiet = { ...build('voicedock'), slug: 'quiet', repo: 'n8watkins/quiet' }
-    const rows = buildActivity([quiet, ...inFixture.filter((b) => b.repo)], log.entries, { 'n8watkins/quiet': '2026-01-01T00:00:00Z' })
+    // (n8games, with no push at all in the fixture, sorts after it.)
+    const rows = buildActivity([quiet, ...inFixture.filter((b) => b.repo && b.slug !== 'n8games')], log.entries, { 'n8watkins/quiet': '2026-01-01T00:00:00Z' })
     expect(rows.at(-1)).toMatchObject({ slug: 'quiet', lastShipped: null, lastShippedLabel: null, latest: [] })
   })
 
@@ -508,7 +564,10 @@ describe('getBuildLog', () => {
     const fetch = offline()
     await expect(getBuildLog()).rejects.toThrow()
     const calls = fetch.mock.calls as unknown as [string, RequestInit][]
-    expect(calls.map(([url]) => url)).toContain('https://api.github.com/repos/n8watkins/portfolio-rank/commits?per_page=100&author=n8watkins')
+    // Only the window's commits (`since` its first day), so GitHub does the filtering (2026-11-26).
+    expect(calls.map(([url]) => url)).toContain(
+      `https://api.github.com/repos/n8watkins/portfolio-rank/commits?per_page=100&author=n8watkins&since=${historyCutoff()}`
+    )
     expect(new Headers(calls[0][1].headers).get('Authorization')).toBe('Bearer test-token')
   })
 
@@ -604,12 +663,48 @@ describe('reading each repo far enough back', () => {
     expect(requests).toEqual([1])
   })
 
+  /**
+   * NetTrailers made 1,111 commits in November 2025 (owner, 2026-11-26: "why does November
+   * not have anything in the entirety of the month"): the old cap of 10 pages read only its
+   * last two days. Every page inside the window is read now, and every day counts.
+   */
+  it('reads every page of a very busy repo, so every day of a busy month counts', async () => {
+    const busy: SnapshotCommit[] = []
+    for (let day = 30; day >= 1; day--)
+      for (let i = 0; i < 50; i++)
+        busy.push(commit(`feat: add part ${i} of day ${day}`, `2025-11-${String(day).padStart(2, '0')}T20:${String(i).padStart(2, '0')}:00Z`, { sha: `${day}-${i}` }))
+    const { fetchPage, requests } = pager(busy)
+    const result = await collectCommits(fetchPage, cutoff)
+    // 1,500 commits: 15 full pages (and an empty 16th that ends it), past the old cap of 10, none cut.
+    expect(result).toMatchObject({ pages: 16, truncated: false })
+    expect(requests).toHaveLength(16)
+    expect(result.commits).toHaveLength(1500)
+    expect(MAX_COMMIT_PAGES).toBeGreaterThanOrEqual(100)
+    const days = entriesForBuild(testBuild(), repoOf(result.commits)).filter((e) => e.month === '2025-11')
+    expect(days).toHaveLength(30)
+    expect(days.reduce((n, e) => n + weight(e), 0)).toBe(1500)
+  })
+
   it('stops at the page cap and says so', async () => {
     const endless = async (page: number) =>
       Array.from({ length: COMMIT_PAGE_SIZE }, (_, i) => ({ ...snapshot('tl-dw').commits[0], sha: `${page}-${i}`, date: '2026-10-01T00:00:00Z' }))
     const result = await collectCommits(endless, cutoff)
     expect(result).toMatchObject({ pages: MAX_COMMIT_PAGES, truncated: true })
     expect(result.commits).toHaveLength(MAX_COMMIT_PAGES * COMMIT_PAGE_SIZE)
+  })
+
+  it('marks a cut history, and no month it reaches is shown as whole', () => {
+    const inFixture = builds.filter((b) => b.slug !== 'release-kit' && b.slug !== 'portfolio')
+    const cut = { ...repoOf([commit('feat: add a thing', '2026-03-10T20:00:00Z')]), repo: 'n8watkins/tl-dw', truncatedBefore: '2026-03-10T20:00:00Z' }
+    const whole = assembleLog(inFixture, fixture.snapshots as RepoSnapshot[], [])
+    expect(whole.incompleteBefore).toBeNull()
+    const log = assembleLog(inFixture, [...(fixture.snapshots as RepoSnapshot[]).filter((s) => s.repo !== 'n8watkins/tl-dw'), cut], [])
+    expect(log.incompleteBefore).toBe('2026-03-10')
+    // The month the reading stopped in, and every month before it, are not whole; later ones are.
+    expect(isWholeMonth('2026-03', log.incompleteBefore)).toBe(false)
+    expect(isWholeMonth('2026-02', log.incompleteBefore)).toBe(false)
+    expect(isWholeMonth('2026-04', log.incompleteBefore)).toBe(true)
+    expect(isWholeMonth('2025-11', null)).toBe(true)
   })
 
   it('counts a commit once when a new one shifts the pages', async () => {

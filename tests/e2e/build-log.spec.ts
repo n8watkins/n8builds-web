@@ -11,7 +11,7 @@ test.use({ contextOptions: { reducedMotion: 'reduce' } })
 const feed = (page: Page) => page.locator('#activity')
 const feedEntries = (page: Page) => feed(page).locator('li[data-kind]')
 const chip = (page: Page, name: string) => feed(page).getByRole('group', { name: 'Filter by build' }).getByRole('button', { name })
-const kindChip = (page: Page, name: string | RegExp) => feed(page).getByRole('group', { name: 'Filter updates by kind' }).getByRole('button', { name })
+const kindChip = (page: Page, name: string | RegExp) => feed(page).getByRole('group', { name: 'Filter entries by kind' }).getByRole('button', { name })
 
 /**
  * Click a filter chip, retrying a click that lands before hydration. The inner
@@ -33,16 +33,20 @@ test('the build log leads with the builds, most recently active first', { tag: '
   const cards = page.getByRole('list', { name: 'Builds by latest activity' }).locator(':scope > li')
   // The builds, then the projects without a build page the log follows since round 5 of
   // 2026-11-02 (data/logBuilds.ts); in the fixture those have nothing yet, so they come last.
-  await expect(cards).toHaveCount(18)
+  // NetTrailers and n8games joined on 2026-11-26 (owner: "we should add n8games and nettrailers").
+  await expect(cards).toHaveCount(20)
   expect(await cards.evaluateAll((els) => els.map((el) => el.getAttribute('data-build')))).toEqual([
     'n8builds',
     'solara',
     'tldw',
     'openping',
     'scribe',
+    'net-trailers',
     'portfolio-rank',
     'tubevault',
     'voicedock',
+    // n8games' repo had nothing yet at the fixture's capture (2026-10-26).
+    'n8games',
     // release-kit's page (round 9 of 2026-11-09): the fixture has nothing logged for it yet.
     'release-kit',
     // The developer portfolio's page (round 12 of 2026-11-09): nothing logged in the fixture either.
@@ -67,6 +71,9 @@ test('the build log leads with the builds, most recently active first', { tag: '
     await expect(page.locator('body')).not.toContainText(name)
   }
   await expect(cards.and(page.locator('[data-build="pr-post"]')).getByRole('link', { name: 'Full story of PR Post' })).toHaveAttribute('href', '/#pr-post-edition')
+  // NetTrailers' story is on the portfolio, where the site already sends it; n8games' is its page here.
+  await expect(cards.and(page.locator('[data-build="net-trailers"]')).getByRole('link', { name: 'Full story of NetTrailers' })).toHaveAttribute('href', 'https://portfolio.n8builds.dev/projects/net-trailers')
+  await expect(cards.and(page.locator('[data-build="n8games"]')).getByRole('link', { name: 'Full story of n8games' })).toHaveAttribute('href', '/builds/n8games')
   await expect(cards.first()).toContainText('Last shipped Oct 2026')
   // Quiet builds read as finished, not abandoned.
   await expect(page.getByRole('list', { name: 'Builds by latest activity' })).not.toContainText(/\bago\b/)
@@ -103,8 +110,8 @@ test('the feed groups entries by month, with highlights pinned and releases show
   await page.goto('/builds')
   const months = feed(page).getByRole('heading', { level: 3 })
   // Each month heading, then its counts.
-  await expect(months.first()).toHaveText(/^October 2026\d+ updates?/)
-  await expect(months.nth(1)).toHaveText(/^July 2026\d+ updates?/)
+  await expect(months.first()).toHaveText(/^October 2026\d+ (entry|entries)/)
+  await expect(months.nth(1)).toHaveText(/^July 2026\d+ (entry|entries)/)
 
   // The hand-written highlight sits atop its month, styled as featured.
   const july = feed(page).getByRole('region', { name: 'July 2026' })
@@ -139,7 +146,7 @@ test('the kind filter narrows the feed and its build chips, and lives in the URL
   await page.goto('/builds')
   // Each kind chip counts its entries (older ones too, as All does); the counts add up to All's.
   const counts = await feed(page)
-    .getByRole('group', { name: 'Filter updates by kind' })
+    .getByRole('group', { name: 'Filter entries by kind' })
     .getByRole('button')
     .evaluateAll((els) => els.map((el) => Number(el.querySelector('span')?.textContent)))
   expect(counts.slice(1).reduce((a, b) => a + b, 0)).toBe(counts[0])
@@ -151,9 +158,9 @@ test('the kind filter narrows the feed and its build chips, and lives in the URL
   expect(builds.every((b) => ['tldw', 'tubevault', 'voicedock'].includes(b!))).toBe(true)
   // Only that kind's builds are offered, each with its icon.
   const offered = feed(page).getByRole('group', { name: 'Filter by build' }).getByRole('button')
-  // Each with its count of updates (round 4 of 2026-11-08).
-  expect((await offered.allInnerTexts()).map((t) => t.replace(/\s*\d+\s*updates?$/, '').trim())).toEqual(['TL;DW', 'TubeVault', 'VoiceDock'])
-  expect((await offered.allInnerTexts()).every((t) => /\d+\s*updates?$/.test(t.trim()))).toBe(true)
+  // Each with its count of entries (round 4 of 2026-11-08; "updates" until 2026-11-25).
+  expect((await offered.allInnerTexts()).map((t) => t.replace(/\s*\d+\s*(entry|entries)$/, '').trim())).toEqual(['TL;DW', 'TubeVault', 'VoiceDock'])
+  expect((await offered.allInnerTexts()).every((t) => /\d+\s*(entry|entries)$/.test(t.trim()))).toBe(true)
   expect(await offered.evaluateAll((els) => els.every((el) => !!el.querySelector('img')))).toBe(true)
 
   // A build within the kind narrows further; unpicking it goes back to the kind.

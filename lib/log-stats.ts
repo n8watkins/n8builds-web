@@ -14,8 +14,14 @@ export type ShippedStat = {
   build?: string
 }
 
-/** How much an entry counts for: a day's changes, or one highlight. */
-export const weight = (e: LogEntry) => (e.kind === 'highlight' ? 1 : 1 + e.more)
+/**
+ * How much an entry counts for in "changes shipped": the day's user-facing
+ * commits plus one for a release that day (`count`), or one for a highlight.
+ */
+export const weight = (e: LogEntry) => (e.kind === 'highlight' ? 1 : (e.count ?? 1 + e.more))
+
+/** The releases an entry stands for: a release entry can stand for several the same day. */
+export const releasesIn = (e: LogEntry) => (e.kind === 'release' ? (e.releases ?? 1) : 0)
 
 const plural = (n: number, one: string, many: string) => (n === 1 ? one : many)
 
@@ -59,7 +65,7 @@ export function shippedStats(
   // days and streak, but is no build to count or to name as the busiest.
   const perBuild = new Map<string, number>()
   for (const e of period) if (!e.unnamed) perBuild.set(e.build, (perBuild.get(e.build) ?? 0) + weight(e))
-  const releases = period.filter((e) => e.kind === 'release').length
+  const releases = period.reduce((n, e) => n + releasesIn(e), 0)
   const days = new Set(period.map((e) => e.day)).size
   const busiest = [...perBuild].sort((a, b) => b[1] - a[1])[0]
   const run = withStreak ? streak(all, asOf) : 0

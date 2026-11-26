@@ -25,6 +25,12 @@ export type RepoSnapshot = {
   releases: SnapshotRelease[]
   /** Newest first. Only the header line of each message is kept. */
   commits: SnapshotCommit[]
+  /**
+   * Set when the commits stop short of the log's window (the safety cap on
+   * pages was hit): the date of the oldest commit read. Work before it may be
+   * missing, so nothing before it is shown as a whole month.
+   */
+  truncatedBefore?: string
 }
 
 export type SnapshotRelease = {
@@ -132,6 +138,17 @@ export type LogEntry = {
   detail?: string
   /** Changes from the same day folded into this entry ("and N more changes"). */
   more: number
+  /**
+   * What this entry counts for in "changes shipped" (owner, 2026-11-25: "I
+   * don't even know if these numbers are accurate"): the day's user-facing
+   * commits that passed the filter, plus one on a day with a release (once,
+   * however many version bumps it took: TubeVault tags a version with nearly
+   * every commit). Before, a release day counted its release only when the
+   * release had notes. Left out (a highlight), it counts as 1 + `more`.
+   */
+  count?: number
+  /** Releases published that day (a release entry shows only the newest). */
+  releases?: number
   /** A release's patch notes (release-kit's sections), newest release only. */
   notes?: ReleaseNote[]
   url?: string
@@ -179,6 +196,13 @@ export type BuildLog = {
   months: Record<string, string>
   /** The oldest month the feed shows before "show more" (12 months back from the newest entry). */
   recentFrom: string | null
+  /**
+   * The day before which some tracked repo's history could not all be read
+   * (its commits ran past the safety cap): months before it, and its own
+   * month, are not whole, so the month cards leave them out and /builds says
+   * so. Null when every repo was read back to the window's start.
+   */
+  incompleteBefore: string | null
 }
 
 // ---------------------------------------------------------------------------
@@ -407,6 +431,9 @@ export function entriesForBuild(build: Pick<Build, 'slug' | 'log' | 'github' | '
         // The release's own notes when its commit has them, else the day's strongest change.
         detail: latest.notes ?? (latest.patchNotes?.length ? undefined : ranked[0]?.title),
         more: latest.notes || latest.patchNotes?.length ? ranked.length : Math.max(ranked.length - 1, 0),
+        // The day's news commits, and the release once however many versions it took.
+        count: ranked.length + 1,
+        releases: items.versions.length,
         ...(latest.patchNotes?.length ? { notes: latest.patchNotes } : {}),
         url: link(latest.url),
       })
@@ -417,6 +444,8 @@ export function entriesForBuild(build: Pick<Build, 'slug' | 'log' | 'github' | '
         kind: 'change',
         title: ranked[0].title,
         more: ranked.length - 1,
+        count: ranked.length,
+        releases: 0,
         url: link(ranked[0].url),
       })
     }
@@ -532,7 +561,7 @@ export function assembleLog(builds: LogBuild[], snapshots: RepoSnapshot[], highl
   const entries = everything.filter((e) => !unlisted.has(e.build))
   const counted = everything.map((e, i): LogEntry =>
     unlisted.has(e.build)
-      ? { id: `${OTHER_WORK}:${i}`, build: OTHER_WORK, kind: e.kind, date: e.date, day: e.day, month: e.month, dayLabel: e.dayLabel, title: 'Other work', more: e.more, unnamed: true }
+      ? { id: `${OTHER_WORK}:${i}`, build: OTHER_WORK, kind: e.kind, date: e.date, day: e.day, month: e.month, dayLabel: e.dayLabel, title: 'Other work', more: e.more, ...(e.count === undefined ? {} : { count: e.count, releases: e.releases }), unnamed: true }
       : e
   )
 
@@ -542,6 +571,14 @@ export function assembleLog(builds: LogBuild[], snapshots: RepoSnapshot[], highl
     activity: buildActivity(tracked.filter((b) => !b.unlisted), entries, Object.fromEntries(snapshots.map((s) => [s.repo, s.pushedAt]))),
     months: Object.fromEntries([...new Set(entries.map((e) => e.month))].map((m) => [m, monthLabel(m)])),
     recentFrom: recentFrom(entries),
+    // The latest day any repo's reading stopped short at: everything before it may be missing work.
+    incompleteBefore:
+      snapshots
+        .map((s) => s.truncatedBefore)
+        .filter((d): d is string => !!d)
+        .map(dayKey)
+        .sort()
+        .at(-1) ?? null,
   }
 }
 
@@ -605,11 +642,19 @@ export function normalizeRelease(r: GitHubRelease): SnapshotRelease {
 }
 
 // How far back the log reads each repo's commits. The feed opens on 12 months
-// (`recentFrom`), so every repo is read back to the start of that window: the
-// newest page always, then older pages while they are full and still inside it.
+// (`recentFrom`), so every repo is read back to the start of that window
+// (`since=` the cutoff, so GitHub does the filtering), every page of it.
 export const COMMIT_PAGE_SIZE = 100
-/** Never more than this many pages (1,000 commits) a repo, however busy it is. */
-export const MAX_COMMIT_PAGES = 10
+/**
+ * A safety cap only, far above any real year (100 pages, 10,000 of the
+ * owner's commits in one repo): a runaway can't loop. It was 10 pages (1,000
+ * commits) until 2026-11-26, when NetTrailers' 1,111 commits in November 2025
+ * alone ran past it and the month showed only its last two days (owner: "why
+ * does November not have anything in the entirety of the month"). When it is
+ * hit, the snapshot says so (`truncatedBefore`) and the page does not show a
+ * cut month as whole.
+ */
+export const MAX_COMMIT_PAGES = 100
 export const HISTORY_MONTHS = 12
 
 /**
@@ -617,16 +662,23 @@ export const HISTORY_MONTHS = 12
  * month `months - 1` before `now`'s. Los Angeles is behind UTC, so this is
  * never later than the window's first day there.
  */
+/**
+ * Whether the log holds all of `month` (`YYYY-MM`): every month after the one
+ * a repo's reading stopped in (`incompleteBefore`), or any month when none did.
+ */
+export const isWholeMonth = (month: string, incompleteBefore: string | null) =>
+  !incompleteBefore || month > incompleteBefore.slice(0, 7)
+
 export function historyCutoff(now: Date = new Date(), months = HISTORY_MONTHS): string {
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - (months - 1), 1)).toISOString()
 }
 
 /**
- * A repo's commits, newest first, read page by page: page 1 always (so a quiet
- * repo keeps its older history, as before), then the next page only while the
- * last one was full and its oldest commit is still inside the window, up to
- * `maxPages`. Commits are deduplicated by sha, since a commit landing between
- * two page reads shifts the pages by one.
+ * A repo's commits, newest first, read page by page: page 1 always, then the
+ * next page while the last one was full and its oldest commit is still inside
+ * the window, up to `maxPages`, a safety cap no real repo reaches. Commits are
+ * deduplicated by sha, since a commit landing between two page reads shifts
+ * the pages by one. `truncated` says the cap stopped it with more to read.
  */
 export async function collectCommits(
   fetchPage: (page: number) => Promise<SnapshotCommit[]>,
@@ -659,26 +711,34 @@ export async function collectCommits(
  * newest 100 commits are all daily bot syncs.
  *
  * Requests per refresh (every six hours): two (the repo and its releases) plus one per
- * page of commits. Each URL is its own entry in Next's fetch cache.
+ * page of the window's commits (a quiet repo with none in the window reads its newest
+ * page without `since`, so it keeps its last news). Each URL is its own entry in Next's
+ * fetch cache. About a hundred requests for the whole log in November 2026, against
+ * GitHub's 5,000 an hour.
  */
 async function fetchRepoSnapshot(repo: string): Promise<RepoSnapshot> {
   const owner = repo.split('/')[0]
+  const cutoff = historyCutoff()
+  const commitsPage = async (page: number, since: string | null) => {
+    const query = `per_page=${COMMIT_PAGE_SIZE}&author=${owner}${since ? `&since=${since}` : ''}${page > 1 ? `&page=${page}` : ''}`
+    return (await github<GitHubCommit[]>(`/repos/${repo}/commits?${query}`)).map(normalizeCommit)
+  }
   const [info, releases, history] = await Promise.all([
     github<GitHubRepo>(`/repos/${repo}`),
     github<GitHubRelease[]>(`/repos/${repo}/releases?per_page=100`),
-    collectCommits(async (page) => {
-      // Page 1 keeps its old URL, so its cache entry carries over.
-      const query = `per_page=${COMMIT_PAGE_SIZE}&author=${owner}${page > 1 ? `&page=${page}` : ''}`
-      const batch = await github<GitHubCommit[]>(`/repos/${repo}/commits?${query}`)
-      return batch.map(normalizeCommit)
-    }, historyCutoff()),
+    collectCommits((page) => commitsPage(page, cutoff), cutoff),
   ])
-  if (history.truncated) logger.warn(`[build-log] ${repo}: stopped at ${MAX_COMMIT_PAGES} pages of commits, short of the log's window`)
+  // Nothing in the window: the newest page as it was, so the build keeps its last news.
+  const commits = history.commits.length ? history.commits : await commitsPage(1, null)
+  if (history.truncated) {
+    logger.error(`[build-log] ${repo}: stopped at ${MAX_COMMIT_PAGES} pages of commits, short of the log's window; the months before ${commits.at(-1)?.date} are incomplete`)
+  }
   return {
     repo,
     pushedAt: info.pushed_at,
     releases: releases.map(normalizeRelease).filter((r) => r.publishedAt),
-    commits: history.commits.filter((c) => c.date),
+    commits: commits.filter((c) => c.date),
+    ...(history.truncated && commits.at(-1) ? { truncatedBefore: commits.at(-1)!.date } : {}),
   }
 }
 

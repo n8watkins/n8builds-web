@@ -5,6 +5,10 @@ import Image from 'next/image'
 import LogEntryItem, { Timeline } from '@/components/log/LogEntryItem'
 import type { LogEntry } from '@/lib/build-log'
 import { LOG_KINDS, type LogKind } from '@/lib/build-meta'
+import { useLogDayFocus } from '@/components/log/LogDayFocus'
+
+/** The releases an entry stands for (as lib/log-stats.ts counts them; that module is the server's). */
+const releasesIn = (e: LogEntry) => (e.kind === 'release' ? (e.releases ?? 1) : 0)
 
 // The activity feed on /builds: month by month, newest first, with two
 // filters: the kind of build (Tools, Web apps, Chrome extensions, This site)
@@ -105,6 +109,43 @@ export default function LogFeed({ entries, builds, months }: FeedProps) {
     setLastKey(filterKey)
     setLimit(PAGE)
   }
+  // A day picked on the build log card above (LogDayFocus): load as far as its entries, light
+  // them, and bring the first into view. When the filter hides every one of them, it is cleared.
+  // A day only looked at (`preview`) lights softly where it already is; nothing scrolls.
+  const { listen, preview } = useLogDayFocus()
+  const [pickedDay, setPickedDay] = useState<{ day: string; at: number } | null>(null)
+  const latest = useRef({ visible, active, kind })
+  useEffect(() => {
+    latest.current = { visible, active, kind }
+  })
+  useEffect(
+    () =>
+      listen((day) => {
+        let list = latest.current.visible
+        if (!list.some((e) => e.day === day) && (latest.current.active || latest.current.kind)) {
+          setFilter({})
+          setActive(null)
+          setKind(null)
+          setLastKey('|')
+          list = entries
+        }
+        const last = list.findLastIndex((e) => e.day === day)
+        if (last < 0) return
+        setLimit((n) => Math.max(n, last + 1))
+        setPickedDay((p) => ({ day, at: (p?.at ?? 0) + 1 }))
+      }),
+    [listen, entries],
+  )
+  const list = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!pickedDay) return
+    const first = list.current?.querySelector<HTMLElement>(`li[data-day="${pickedDay.day}"]`)
+    if (!first) return
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    first.scrollIntoView({ block: 'start', behavior: still ? 'auto' : 'smooth' })
+    // The keyboard carries on from there; a screen reader reads the entry.
+    first.focus({ preventScroll: true })
+  }, [pickedDay])
   // Load more as the list's foot nears the screen.
   useEffect(() => {
     const el = sentinel.current
@@ -141,9 +182,10 @@ export default function LogFeed({ entries, builds, months }: FeedProps) {
 
       {withEntries.length > 1 && (
         <div className="mt-6 flex flex-col gap-3">
-          {/* The counts are updates (log entries), said in full for screen readers and on hover. */}
-          <p className="font-mono text-xs uppercase tracking-[0.16em] text-slate-400">Updates by kind</p>
-          <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter updates by kind">
+          {/* The counts are entries (a build's day, a release or a note), said in full for screen
+              readers and on hover: never "updates" or "changes", which the card above counts. */}
+          <p className="font-mono text-xs uppercase tracking-[0.16em] text-slate-400">Entries by kind</p>
+          <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter entries by kind">
             <button
               type="button"
               aria-pressed={!active && !kind}
@@ -194,7 +236,7 @@ export default function LogFeed({ entries, builds, months }: FeedProps) {
       )}
 
       {groups.length > 0 ? (
-        <div data-log-list className="mt-8">
+        <div ref={list} data-log-list className="mt-8">
           <div className="space-y-8">
             {groups.map((group) => (
               <section key={group.month} aria-labelledby={`month-${group.month}`}>
@@ -207,7 +249,7 @@ export default function LogFeed({ entries, builds, months }: FeedProps) {
                   <span className="font-sans text-[0.7rem] font-semibold normal-case tracking-normal text-slate-450">
                     {updates(group.entries.length)}
                     {group.entries.some((e) => e.kind === 'release') &&
-                      `, ${group.entries.filter((e) => e.kind === 'release').length} ${group.entries.filter((e) => e.kind === 'release').length === 1 ? 'release' : 'releases'}`}
+                      `, ${group.entries.reduce((n, e) => n + releasesIn(e), 0)} ${group.entries.reduce((n, e) => n + releasesIn(e), 0) === 1 ? 'release' : 'releases'}`}
                   </span>
                 </h3>
                 <Timeline className="ml-3">
@@ -218,6 +260,8 @@ export default function LogFeed({ entries, builds, months }: FeedProps) {
                       buildName={bySlug[entry.build]?.name ?? entry.build}
                       buildHref={bySlug[entry.build]?.href}
                       icon={bySlug[entry.build]?.icon}
+                      picked={pickedDay?.day === entry.day}
+                      previewed={preview === entry.day}
                     />
                   ))}
                 </Timeline>
@@ -248,14 +292,15 @@ export default function LogFeed({ entries, builds, months }: FeedProps) {
 /** Entries shown at first, and added each time more load. */
 const PAGE = 30
 
-const updates = (n: number) => `${n} ${n === 1 ? 'update' : 'updates'}`
+/** The feed counts entries: each is one build's day (its changes folded in), a release or a note. */
+const updates = (n: number) => `${n} ${n === 1 ? 'entry' : 'entries'}`
 
-/** A chip's count of updates, as a small badge. */
+/** A chip's count of entries, as a small badge. */
 function Count({ n }: { n: number }) {
   return (
     <span className="ml-2 rounded-full bg-white/10 px-1.5 py-px font-mono text-[0.7rem] font-semibold tabular-nums">
       {n}
-      <span className="sr-only"> {n === 1 ? 'update' : 'updates'}</span>
+      <span className="sr-only"> {n === 1 ? 'entry' : 'entries'}</span>
     </span>
   )
 }

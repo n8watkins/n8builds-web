@@ -32,6 +32,8 @@ export const BUILD_ICONS: Record<string, string> = {
   'pass-env': '/log/pass-env.svg',
   devguard: '/log/devguard.svg',
   'pr-post': '/log/pr-post.svg',
+  // Its app icon, the same file as its card on the portfolio.
+  'net-trailers': '/log/net-trailers.png',
 }
 
 export type LogKind = 'tools' | 'apps' | 'extensions' | 'site' | 'upcoming'

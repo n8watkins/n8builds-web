@@ -3,13 +3,16 @@ import Navbar from '@/components/layout/Navbar'
 import JsonLd from '@/components/JsonLd'
 import BuildIndex from '@/components/log/BuildIndex'
 import LogFeed from '@/components/log/LogFeed'
-import BuildLogMonths, { LogMonthProvider } from '@/components/sections/BuildLogMonths'
+import BuildLogOverview from '@/components/log/BuildLogOverview'
+import { LogDayFocusProvider } from '@/components/log/LogDayFocus'
 import { getLogMonths } from '@/components/sections/BuildLogStrip'
 import FadeIn from '@/components/ui/FadeIn'
 import Reveal from '@/components/ui/Reveal'
 import { builds } from '@/data/builds'
-import { getBuildLog } from '@/lib/build-log'
+import { getBuildLog, monthLabel } from '@/lib/build-log'
 import { BUILD_ICONS, logKind } from '@/lib/build-meta'
+import { toCardMonths } from '@/lib/log-card-months'
+import { releasesIn, weight } from '@/lib/log-stats'
 import { absoluteUrl, pageMetadata } from '@/lib/seo'
 
 // Rebuilt at most every six hours from GitHub (lib/build-log.ts). A revalidation that
@@ -35,16 +38,22 @@ export const metadata = pageMetadata({
 
 export default async function BuildLogPage() {
   const log = await getBuildLog()
-  // The homepage's month card (owner, round 3 of 2026-11-08): this month's count,
-  // day bars and figures, with arrows back through the year. Left out if it can't load.
+  // The build log card's months: this month (or a quiet month's last 30 days), then
+  // back through the year. Null (the card is left out) if the log can't load.
   const months = await getLogMonths()
+  // How many of the feed's entries fall on each day, so the card offers a day only when it has some.
+  const entriesOn: Record<string, number> = {}
+  for (const e of log.entries) entriesOn[e.day] = (entriesOn[e.day] ?? 0) + 1
   // The year at a glance, over the feed's own 12-month window.
   // Counted, so an unlisted project's work is in the figures without being named (lib/build-log.ts).
   const recent = log.counted.filter((e) => !log.recentFrom || e.month >= log.recentFrom)
+  // In the card's own unit (owner, 2026-11-25: "I can't tell if this is correct"): until then the
+  // middle figure counted the feed's entries (one per build per day) as "updates", beside a card
+  // counting changes, and the releases figure counted days with a release, not releases.
   const figures = [
     { value: log.activity.length, label: 'builds tracked' },
-    { value: recent.length, label: 'updates in 12 months' },
-    { value: recent.filter((e) => e.kind === 'release').length, label: 'releases in 12 months' },
+    { value: recent.reduce((n, e) => n + weight(e), 0), label: 'changes in 12 months' },
+    { value: recent.reduce((n, e) => n + releasesIn(e), 0), label: 'releases in 12 months' },
   ]
 
   const itemList = {
@@ -82,7 +91,8 @@ export default async function BuildLogPage() {
               build log should have animations on load"): CSS only, so nothing waits on
               JavaScript, and reduced motion shows it all at once. Below the fold the
               sections fade up as they scroll in. */}
-          <header className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-end lg:gap-12">
+          <LogDayFocusProvider entriesOn={entriesOn}>
+          <header>
             <div>
               <FadeIn
                 as="p"
@@ -143,14 +153,23 @@ export default async function BuildLogPage() {
                 ))}
               </FadeIn>
             </div>
-            {months && (
-              <FadeIn delay={0.3} className="lab-accent-buildlog">
-                <LogMonthProvider>
-                  <BuildLogMonths months={months.map((m) => ({ ...m, rows: [] }))} rows={false} />
-                </LogMonthProvider>
-              </FadeIn>
-            )}
           </header>
+
+          {/* The overview (owner, 2026-11-25): the build log card, the same as the homepage's and
+              the portfolio's, at its wide size, leading the page above the builds and the feed.
+              A day picked on it is shown in the feed (BuildLogOverview, LogDayFocus). Left out
+              if the log can't load. */}
+          {months && (
+            <FadeIn
+              as="section"
+              delay={0.3}
+              aria-label="Changes per day"
+              className="mt-10 overflow-hidden rounded-2xl border border-white/8 bg-[#0a1526]/70 [-webkit-tap-highlight-color:transparent] md:mt-12"
+              data-log-overview
+            >
+              <BuildLogOverview months={toCardMonths(months)} />
+            </FadeIn>
+          )}
 
           <section className="mt-12 md:mt-14" aria-labelledby="builds-heading">
             <Reveal>
@@ -176,6 +195,13 @@ export default async function BuildLogPage() {
                   by month
                 </span>
               </h2>
+              {/* Never a cut month passed off as whole (2026-11-26): said once, plainly. */}
+              {log.incompleteBefore && (
+                <p className="mt-2 text-sm text-amber-200/90" data-history-incomplete>
+                  History incomplete before {monthLabel(log.incompleteBefore.slice(0, 7))}: one of the builds had more
+                  commits than the log reads, so earlier months may be missing work.
+                </p>
+              )}
               <LogFeed
                 entries={log.entries}
                 builds={log.activity.map((b) => ({
@@ -189,6 +215,7 @@ export default async function BuildLogPage() {
               />
             </Reveal>
           </section>
+          </LogDayFocusProvider>
         </div>
       </main>
     </>

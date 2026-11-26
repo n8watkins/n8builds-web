@@ -113,8 +113,8 @@ export default function BuildIndex({ activity }: { activity: BuildActivity[] }) 
                     {build.name}
                     <span className="sr-only">
                       {selected
-                        ? ': showing only its updates below, press to show all'
-                        : ': show only its updates below'}
+                        ? ': showing only its entries below, press to show all'
+                        : ': show only its entries below'}
                     </span>
                   </button>
                 </h3>

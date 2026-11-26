@@ -7,14 +7,15 @@ import LabSubheader from '@/components/sections/LabSubheader'
 import { ScrollIcon } from '@/components/ui/PartIcons'
 import BuildLogMonths, { LogMonthProvider, type LogMonth } from '@/components/sections/BuildLogMonths'
 import LogRow from '@/components/log/LogRow'
-import { allBuilds, dayKey, getBuildLog, monthLabel, type LogEntry } from '@/lib/build-log'
+import { allBuilds, dayKey, getBuildLog, isWholeMonth, monthLabel, type LogEntry } from '@/lib/build-log'
 import { dailyCounts, shippedStats } from '@/lib/log-stats'
 
 // The homepage's compact build log: the newest month of /builds at a glance.
-// Its updates a page of three at a time, round the month
-// (BuildLogPages, restored in round 9 of 2026-11-09), a card that cycles through the month's figures (ShippedStats),
-// with arrows back to the months before (BuildLogMonths, round 5 of 2026-11-02;
-// /builds shows the same card). Rendered on the server from the same hourly-cached GitHub log
+// The build log card (components/build-log/, shared with the portfolio; owner,
+// 2026-11-25) with its arrows back to the months before, the month's updates a
+// page of three at a time beside it, round the month (BuildLogPages, restored in
+// round 9 of 2026-11-09), and the release-kit ad (BuildLogMonths; /builds leads
+// with the same card). Rendered on the server from the same hourly-cached GitHub log
 // as /builds (lib/build-log.ts), so the page stays static; only the pages' and
 // the figures' timers run in the browser. If the log can't be read at all, the
 // strip is left out; it never breaks the page.
@@ -178,8 +179,9 @@ export async function getLogMonths(): Promise<LogMonth[] | null> {
   let entries: LogEntry[]
   let asOf: string
   let recentFrom: string | null
+  let incompleteBefore: string | null
   try {
-    ;({ counted: entries, asOf, recentFrom } = await getBuildLog())
+    ;({ counted: entries, asOf, recentFrom, incompleteBefore } = await getBuildLog())
   } catch {
     // GitHub unreachable with nothing cached: leave the strip out.
     return null
@@ -194,6 +196,8 @@ export async function getLogMonths(): Promise<LogMonth[] | null> {
   const view = (rows: LogEntry[]) => ({
     rows: rows.map((entry) => <LogRow key={entry.id} entry={entry} twoLines />),
     labels: rows.map((entry) => `${names[entry.build] ?? entry.build}, ${entry.title}`),
+    // Each row's day, so a day picked on the card can show its own (owner, 2026-11-25).
+    rowDays: rows.map((entry) => entry.day),
   })
 
   // The first view: this month, or in a quiet one the last 30 days (the latest from every build).
@@ -213,9 +217,10 @@ export async function getLogMonths(): Promise<LogMonth[] | null> {
     listLabel: isThisMonth ? 'Latest this month' : 'Latest updates',
   }
   // Then each month before it with something shipped, back to the /builds feed's 12-month window
-  // (round 5 of 2026-11-02): the same card and rows, for that whole month.
+  // (round 5 of 2026-11-02): the same card and rows, for that whole month. Never a month the
+  // log could not read whole (2026-11-26): the month a repo's reading stopped in, and older.
   const earlier = [...new Set(entries.map((e) => e.month))]
-    .filter((m) => m < current && (!recentFrom || m >= recentFrom))
+    .filter((m) => m < current && (!recentFrom || m >= recentFrom) && isWholeMonth(m, incompleteBefore))
     .sort((x, y) => y.localeCompare(x))
     .map((m): LogMonth => {
       const period = entries.filter((e) => e.month === m)

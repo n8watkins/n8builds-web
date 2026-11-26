@@ -131,6 +131,7 @@
       "specs": [
         "tests/e2e/build-log.spec.ts",
         "tests/e2e/build-log-strip.spec.ts",
+        "tests/e2e/build-log-card.spec.ts",
         "tests/e2e/api/build-log.spec.ts"
       ],
       "sources": [
@@ -141,7 +142,9 @@
         "components/sections/BuildLogStrip.tsx",
         "components/sections/BuildLogMonths.tsx",
         "components/sections/BuildLogPages.tsx",
-        "components/sections/ShippedStats.tsx",
+        "components/build-log/**",
+        "lib/monthFacts.ts",
+        "lib/log-card-months.ts",
         "data/logBuilds.ts",
         "tests/fixtures/build-log-github.json",
         "public/log/**"
