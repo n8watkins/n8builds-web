@@ -119,18 +119,25 @@ const RETIRED: Record<string, string> = {
 }
 
 for (const [slug, name] of Object.entries(RETIRED)) {
-  test(`an old link for ${name} lands on the plain upcoming page, nothing preselected`, async ({ page }) => {
+  test(`an old link for ${name} lands on the plain upcoming page, nothing preselected`, async ({ context }) => {
     const errors: string[] = []
-    page.on('pageerror', (e) => errors.push(e.message))
     for (const url of [`/upcoming?interest=${slug}#waitlist`, `/upcoming?interest=${slug}#${slug}`, `/?interest=${slug}#waitlist`]) {
-      expect((await page.request.get(url)).status(), url).toBe(200)
-      await page.goto(url)
+      // One fresh page per link, with its errors read before it is closed. Leaving a page (a
+      // second goto, or the test ending) aborts its prefetches and the live poll, which WebKit
+      // reports as uncaught "access control checks" errors: noise from a page being left, not
+      // from the old link (pages.spec.ts avoids the same noise).
+      const page = await context.newPage()
+      const pageErrors: string[] = []
+      page.on('pageerror', (e) => pageErrors.push(e.message))
+      expect((await page.goto(url))?.status(), url).toBe(200)
       await expect(page.locator('body')).not.toContainText(name)
       await expect(page.locator(`[id="${slug}"], input[value="${slug}"]`)).toHaveCount(0)
       await expect(page.locator('#waitlist-projects input:checked')).toHaveCount(0)
+      if (url.startsWith('/upcoming')) await expect(page.locator('main article')).toHaveCount(Object.keys(NAMES).length)
+      errors.push(...pageErrors)
+      page.removeAllListeners('pageerror')
+      await page.close()
     }
-    await page.goto(`/upcoming?interest=${slug}#waitlist`)
-    await expect(page.locator('main article')).toHaveCount(Object.keys(NAMES).length)
     expect(errors).toEqual([])
   })
 }
